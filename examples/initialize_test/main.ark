@@ -1,0 +1,9 @@
+# this method gets invoked first
+fun main<int>(args: string[]) {
+    this.print_greet(" ehehe ");
+    return 0;
+}
+
+fun print_greet<>(test_argument: string) = println("%s , %s" % (this.greeting(), test_argument));
+
+fun greeting<string>() = "Hello World";
