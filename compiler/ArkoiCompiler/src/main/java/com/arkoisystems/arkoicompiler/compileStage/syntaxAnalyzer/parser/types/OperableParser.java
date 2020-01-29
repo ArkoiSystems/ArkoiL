@@ -4,6 +4,7 @@ import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.Abstrac
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.AbstractAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.operables.AbstractOperableAST;
+import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.AbstractStatementAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.parser.Parser;
 
 public class OperableParser extends Parser<AbstractOperableAST<?>>
@@ -25,8 +26,9 @@ public class OperableParser extends Parser<AbstractOperableAST<?>>
         switch (currentToken.getTokenType()) {
             case STRING:
             case NUMBER:
-            case IDENTIFIER:
                 return true;
+            case IDENTIFIER:
+                return AbstractStatementAST.STATEMENT_PARSER.canParse(parentAST, syntaxAnalyzer);
             default:
                 return false;
         }

@@ -6,6 +6,7 @@ import com.arkoisystems.arkoicompiler.compileStage.ICompileStage;
 import com.arkoisystems.arkoicompiler.compileStage.errorHandler.ErrorHandler;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.AbstractToken;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.TokenType;
+import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.EndOfFileToken;
 import com.google.gson.annotations.Expose;
 import lombok.Getter;
 import lombok.SneakyThrows;
@@ -64,6 +65,7 @@ public class LexicalAnalyzer implements ICompileStage
                 return false;
             } else this.tokens.add(abstractToken);
         }
+        this.tokens.add(new EndOfFileToken(this.arkoiClass.getContent(), 0, this.arkoiClass.getContent().length()));
         return true;
     }
     

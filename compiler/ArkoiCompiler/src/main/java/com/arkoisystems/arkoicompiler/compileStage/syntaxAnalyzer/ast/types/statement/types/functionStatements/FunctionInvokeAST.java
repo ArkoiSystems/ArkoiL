@@ -54,11 +54,11 @@ public class FunctionInvokeAST extends FunctionStatementAST
     }
     
     @Override
-    public AbstractStatementAST parseAST(final AbstractAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
-        if (!(parentAST instanceof BlockAST)) {
-            syntaxAnalyzer.errorHandler().addError(new ASTError(parentAST, "Couldn't parse the function invoke because it isn't inside a block."));
-            return null;
-        }
+    public FunctionStatementAST parseAST(final AbstractAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
+        //        if (!(parentAST instanceof BlockAST) && !(parentAST instanceof AbstractExpressionAST)) {
+        //            syntaxAnalyzer.errorHandler().addError(new ASTError(parentAST, "Couldn't parse the function invoke because it isn't inside a block."));
+        //            return null;
+        //        }
         
         if (syntaxAnalyzer.currentToken().getTokenType() != TokenType.IDENTIFIER) {
             syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the function invoke because the parsing doesn't start with the function IdentifierToken."));
@@ -69,25 +69,26 @@ public class FunctionInvokeAST extends FunctionStatementAST
             syntaxAnalyzer.errorHandler().addError(new ASTError(this, "Couldn't parse the function invoke because the target function is null."));
             return null;
         }
-    
-        // TODO: 1/15/2020 This wont work with function invokes with no arguments.
+        
         if (syntaxAnalyzer.matchesNextToken(SeparatorToken.SeparatorType.OPENING_PARENTHESIS) == null) {
             syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the function invoke because the function name doesn't get followed by an opening parenthesis."));
             return null;
         } else syntaxAnalyzer.nextToken();
         
         this.argumentsPosition = syntaxAnalyzer.getPosition();
-        
-        if (!syntaxAnalyzer.findMatchingSeparator(this, SeparatorToken.SeparatorType.OPENING_PARENTHESIS)) {
-            syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the function invoke because there is no closing parenthesis."));
-            return null;
+        if (syntaxAnalyzer.matchesCurrentToken(SeparatorToken.SeparatorType.CLOSING_PARENTHESIS) == null) {
+            if (!syntaxAnalyzer.findMatchingSeparator(this, SeparatorToken.SeparatorType.OPENING_PARENTHESIS)) {
+                syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the function invoke because there is no closing parenthesis."));
+                return null;
+            }
         }
+        syntaxAnalyzer.nextToken();
         
-        if (syntaxAnalyzer.matchesNextToken(SeparatorToken.SeparatorType.SEMICOLON) == null) {
+        //TODO: Make this better ty
+        if (syntaxAnalyzer.matchesCurrentToken(SeparatorToken.SeparatorType.SEMICOLON) == null && syntaxAnalyzer.matchesCurrentToken(SeparatorToken.SeparatorType.COMMA) == null && syntaxAnalyzer.matchesCurrentToken(SeparatorToken.SeparatorType.CLOSING_PARENTHESIS) == null) {
             syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the function invoke because the statement doesn't end with a semicolon."));
             return null;
         } else this.setEnd(syntaxAnalyzer.currentToken().getEnd());
-    
         return parentAST.addAST(this, syntaxAnalyzer);
     }
     
@@ -101,8 +102,6 @@ public class FunctionInvokeAST extends FunctionStatementAST
                 syntaxAnalyzer.errorHandler().addError(new ParserError(AbstractExpressionAST.EXPRESSION_PARSER, this.getStart(), syntaxAnalyzer.currentToken().getEnd(), "Couldn't parse the function invoke because an error occured during the parsing of the expression of the %s argument", index));
                 return false;
             }
-    
-            // TODO: 1/17/2020 Fix double insertions into arguments list
             
             final AbstractExpressionAST abstractExpressionAST = AbstractExpressionAST.EXPRESSION_PARSER.parse(this, syntaxAnalyzer);
             if (abstractExpressionAST == null) {
@@ -111,7 +110,7 @@ public class FunctionInvokeAST extends FunctionStatementAST
             } else this.invokeArguments.add(abstractExpressionAST);
             
             if (index != this.invokedFunction.getFunctionArguments().size() - 1)
-                if(syntaxAnalyzer.matchesNextToken(SeparatorToken.SeparatorType.COMMA) == null) {
+                if (syntaxAnalyzer.matchesNextToken(SeparatorToken.SeparatorType.COMMA) == null) {
                     syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the function invoke because thethere is no comma between the current and next argument."));
                     return false;
                 }

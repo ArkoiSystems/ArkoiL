@@ -2,9 +2,11 @@ package com.arkoisystems.arkoicompiler;
 
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.LexicalAnalyzer;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.SyntaxAnalyzer;
+import com.arkoisystems.arkoicompiler.utils.Variables;
 import com.google.gson.annotations.Expose;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.Value;
 
 import java.nio.charset.StandardCharsets;
 
@@ -29,6 +31,8 @@ import java.nio.charset.StandardCharsets;
 public class ArkoiClass
 {
     
+    private final ArkoiCompiler arkoiCompiler;
+    
     @Expose
     private final String content;
     
@@ -40,25 +44,17 @@ public class ArkoiClass
     @Expose
     private SyntaxAnalyzer syntaxAnalyzer;
     
-    public ArkoiClass(final byte[] content, final boolean nativeClass) {
+    public ArkoiClass(final ArkoiCompiler arkoiCompiler, final byte[] content, final boolean nativeClass) {
+        this.arkoiCompiler = arkoiCompiler;
         this.nativeClass = nativeClass;
         
         this.content = new String(content, StandardCharsets.UTF_8);
     }
     
-    public ArkoiClass(final byte[] content) {
-        this.content = new String(content, StandardCharsets.UTF_8);
-        this.nativeClass = false;
-    }
-    
-    public ArkoiClass(final String content, final boolean nativeClass) {
-        this.nativeClass = nativeClass;
-        this.content = content;
-    }
-    
-    public ArkoiClass(final String content) {
-        this.content = content;
+    public ArkoiClass(final ArkoiCompiler arkoiCompiler, final byte[] content) {
+        this.arkoiCompiler = arkoiCompiler;
         
+        this.content = new String(content, StandardCharsets.UTF_8);
         this.nativeClass = false;
     }
     
@@ -73,6 +69,11 @@ public class ArkoiClass
             return null;
         }
         return this.syntaxAnalyzer = new SyntaxAnalyzer(this);
+    }
+    
+    @Override
+    public String toString() {
+        return Variables.GSON.toJson(this);
     }
     
 }

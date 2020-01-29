@@ -4,6 +4,7 @@ import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintStream;
 
 /**
  * Copyright © 2019 ArkoiSystems (https://www.arkoisystems.com/) All Rights Reserved.
@@ -23,23 +24,23 @@ import java.io.IOException;
  */
 public class ArkoiCompilerTest
 {
-
-    public static String OS_NAME = System.getProperty("os.name").toLowerCase();
     
     @Test
     public void runCompiler() throws IOException {
-        if(OS_NAME.contains("win")) {
-            final ArkoiCompiler arkoiCompiler = new ArkoiCompiler();
-            arkoiCompiler.addFile(new File("C:/dev/projects/ArkoiL/examples/main.ark"));
-
-            if (!arkoiCompiler.compile())
-                System.err.println("Couldn't compile the file. Please see the stacktrace for errors.");
-        } else if(OS_NAME.contains("nix") || OS_NAME.contains("nux") || OS_NAME.contains("aix")) {
-            final ArkoiCompiler arkoiCompiler = new ArkoiCompiler();
-            arkoiCompiler.addFile(new File("/media/timo/Boot/dev/projects/ArkoiL/examples/main.ark"));
-
-            if (!arkoiCompiler.compile())
-                System.err.println("Couldn't compile the file. Please see the stacktrace for errors.");
+        final ArkoiCompiler arkoiCompiler = new ArkoiCompiler();
+        arkoiCompiler.addFile(new File("../../examples/basic/main.ark"));
+        
+        if (!arkoiCompiler.compile()) {
+            System.err.println("Couldn't compile the file. Please see the stacktrace for errors:");
+            arkoiCompiler.printStackTrace(System.err);
+        }
+        else {
+            try (final PrintStream printStream = new PrintStream(new File("../../examples/basic/output.result"))) {
+                for(final ArkoiClass arkoiClass : arkoiCompiler.getArkoiClasses())
+                    printStream.print(arkoiClass);
+            } catch (final Exception ex) {
+                ex.printStackTrace();
+            }
         }
     }
     

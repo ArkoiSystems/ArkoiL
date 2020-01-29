@@ -3,6 +3,10 @@ package com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer;
 import com.arkoisystems.arkoicompiler.compileStage.errorHandler.AbstractError;
 import com.arkoisystems.arkoicompiler.compileStage.errorHandler.ErrorHandler;
 
+import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Copyright © 2019 ArkoiSystems (https://www.arkoisystems.com/) All Rights Reserved.
  * Created ArkoiCompiler on the Sat Nov 09 2019 Author єхcsє#5543 aka Timo
@@ -22,12 +26,17 @@ import com.arkoisystems.arkoicompiler.compileStage.errorHandler.ErrorHandler;
 public class LexicalErrorHandler extends ErrorHandler
 {
     
+    private final List<AbstractError> abstractErrors = new ArrayList<>();
+    
     @Override
     public void addError(final AbstractError abstractError) {
-        System.out.println(abstractError);
+        this.abstractErrors.add(abstractError);
     }
     
     @Override
-    public void printStackTrace() { }
+    public void printStackTrace(final PrintStream printStream) {
+        for(final AbstractError abstractError : this.abstractErrors)
+            printStream.println(abstractError.toString());
+    }
     
 }

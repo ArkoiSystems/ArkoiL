@@ -7,9 +7,9 @@ import lombok.Getter;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.nio.file.Files;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 
@@ -34,7 +34,7 @@ public class ArkoiCompiler
 {
     
     @Expose
-    private final List< ArkoiClass> arkoiClasses;
+    private final List<ArkoiClass> arkoiClasses;
     
     public ArkoiCompiler() throws IOException {
         this.arkoiClasses = new ArrayList<>();
@@ -43,34 +43,41 @@ public class ArkoiCompiler
     }
     
     public void addFile(final File file) throws IOException {
-        this.arkoiClasses.add(new ArkoiClass(Files.readAllBytes(file.toPath())));
+        this.arkoiClasses.add(new ArkoiClass(this, Files.readAllBytes(file.toPath())));
+    }
+    
+    public void printStackTrace(final PrintStream errorStream) {
+        for (final ArkoiClass arkoiClass : this.arkoiClasses) {
+            arkoiClass.getLexicalAnalyzer().getErrorHandler().printStackTrace(errorStream);
+            arkoiClass.getSyntaxAnalyzer().getErrorHandler().printStackTrace(errorStream);
+        }
     }
     
     public boolean compile() {
         final long compileStart = System.nanoTime();
         for (final ArkoiClass arkoiClass : this.arkoiClasses) {
             final LexicalAnalyzer lexicalAnalyzer = arkoiClass.analyseLexical();
-            if (!lexicalAnalyzer.processStage()) {
-                lexicalAnalyzer.errorHandler().printStackTrace();
+            if (!lexicalAnalyzer.processStage())
                 return false;
-            }
         }
         System.out.printf("The lexical analysis took %sms for all classes (%s in total)\n", ((System.nanoTime() - compileStart) / 1000000), this.arkoiClasses.size());
         
         for (final ArkoiClass arkoiClass : this.arkoiClasses) {
             final SyntaxAnalyzer syntaxAnalyzer = arkoiClass.analyseSyntax();
-            if (!syntaxAnalyzer.processStage()) {
-                syntaxAnalyzer.errorHandler().printStackTrace();
+            if (!syntaxAnalyzer.processStage())
                 return false;
-            }
         }
-        System.out.printf("The compilation took %sms for all classes (%s in total)\n", ((System.nanoTime() - compileStart) / 1000000), this.arkoiClasses.size());
         
+        for(final ArkoiClass arkoiClass : this.arkoiClasses)
+            if(!arkoiClass.getSyntaxAnalyzer().getRootAST().initialize(arkoiClass.getSyntaxAnalyzer()))
+                return false;
+        
+        System.out.printf("The compilation took %sms for all classes (%s in total)\n", ((System.nanoTime() - compileStart) / 1000000), this.arkoiClasses.size());
         return true;
     }
     
     private void addNativeFiles() throws IOException {
-        final File nativeDirectory = new File("natives");
+        final File nativeDirectory = new File("../natives");
         if (!nativeDirectory.exists()) {
             System.err.println("Couldn't add the native files to the project. Please try to fix the problem with reinstalling the compiler.");
             System.exit(-1);
@@ -78,14 +85,14 @@ public class ArkoiCompiler
         }
         
         final List<File> files = this.getAllFiles(nativeDirectory);
-        for(final File file : files)
-            this.arkoiClasses.add(new ArkoiClass(Files.readAllBytes(file.toPath()), true));
+        for (final File file : files)
+            this.arkoiClasses.add(new ArkoiClass(this, Files.readAllBytes(file.toPath()), true));
     }
     
     private List<File> getAllFiles(final File directory) {
         final List<File> files = new ArrayList<>();
-        for(final File file : Objects.requireNonNull(directory.listFiles())) {
-            if(file.isDirectory())
+        for (final File file : Objects.requireNonNull(directory.listFiles())) {
+            if (file.isDirectory())
                 files.addAll(this.getAllFiles(file));
             else
                 files.add(file);

@@ -30,7 +30,7 @@ public class FunctionStatementAST extends AbstractStatementAST implements IIniti
     }
     
     @Override
-    public AbstractStatementAST parseAST(final AbstractAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
+    public FunctionStatementAST parseAST(final AbstractAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
         return parentAST.addAST(this, syntaxAnalyzer);
     }
     

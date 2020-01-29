@@ -6,10 +6,12 @@ import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.S
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.numbers.AbstractNumberToken;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.AbstractAST;
+import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.operables.types.FunctionResultOperableAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.operables.types.NumberOperableAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.operables.types.StringOperableAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.AbstractStatementAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.functionStatements.FunctionDefinitionAST;
+import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.functionStatements.FunctionInvokeAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.parser.types.OperableParser;
 import com.arkoisystems.arkoicompiler.utils.Variables;
 import com.google.gson.annotations.Expose;
@@ -32,7 +34,7 @@ import lombok.Getter;
  * permissions and limitations under the License.
  */
 @Getter
-public class AbstractOperableAST<OT1 extends AbstractToken> extends AbstractAST
+public class AbstractOperableAST<OT1> extends AbstractAST
 {
     
     public static OperableParser OPERABLE_PARSER = new OperableParser();
@@ -61,8 +63,10 @@ public class AbstractOperableAST<OT1 extends AbstractToken> extends AbstractAST
                 }
                 
                 final AbstractStatementAST abstractStatementAST = AbstractStatementAST.STATEMENT_PARSER.parse(parentAST, syntaxAnalyzer);
-                System.out.println(abstractStatementAST);
-                // TODO: 1/5/2020 Test
+                if(abstractStatementAST instanceof FunctionInvokeAST) {
+                    syntaxAnalyzer.setPosition(syntaxAnalyzer.getPosition() - 1);
+                    return new FunctionResultOperableAST((FunctionInvokeAST) abstractStatementAST);
+                }
                 break;
         }
         return null;

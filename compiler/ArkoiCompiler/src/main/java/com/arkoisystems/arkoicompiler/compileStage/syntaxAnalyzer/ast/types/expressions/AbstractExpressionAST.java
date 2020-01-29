@@ -100,6 +100,8 @@ public class AbstractExpressionAST extends AbstractAST
         return leftSideAST;
     }
     
+    // TODO: Add parenthesized collection to expressions
+    
     private AbstractAST parseFactor(final SyntaxAnalyzer syntaxAnalyzer) {
         AbstractAST leftSideAST = this.parsePrimary(syntaxAnalyzer);
         if (leftSideAST == null)
@@ -136,6 +138,8 @@ public class AbstractExpressionAST extends AbstractAST
     private AbstractAST parsePrimary(final SyntaxAnalyzer syntaxAnalyzer) {
         final AbstractToken openingParenthesis = syntaxAnalyzer.matchesCurrentToken(SeparatorToken.SeparatorType.OPENING_PARENTHESIS);
         if (openingParenthesis != null) {
+            syntaxAnalyzer.nextToken();
+            
             final AbstractAST abstractAST = this.parseTerm(syntaxAnalyzer);
             if (!(abstractAST instanceof AbstractExpressionAST))
                 return null;
@@ -152,6 +156,7 @@ public class AbstractExpressionAST extends AbstractAST
             syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the operable token because the current token isn't operable."));
             return null;
         }
+        
         return AbstractOperableAST.OPERABLE_PARSER.parse(this, syntaxAnalyzer);
     }
     

@@ -1,5 +1,6 @@
 package com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement;
 
+import com.arkoisystems.arkoicompiler.ArkoiClass;
 import com.arkoisystems.arkoicompiler.compileStage.errorHandler.types.ASTError;
 import com.arkoisystems.arkoicompiler.compileStage.errorHandler.types.TokenError;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.AbstractToken;
@@ -9,6 +10,7 @@ import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.SyntaxAnalyzer
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.AbstractAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.BlockAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.expressions.AbstractExpressionAST;
+import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.FunctionStatementAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.ReturnStatementAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.ThisStatementAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.functionStatements.FunctionDefinitionAST;
@@ -63,12 +65,7 @@ public class AbstractStatementAST extends AbstractAST
                     syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the statement because you can't use it with the \"this\" keyword. The \"this\" keyword can just be followed by a function or variable."));
                     break;
                 default:
-                    final BlockAST blockAST = ((ThisStatementAST) parentAST).getBlockAST();
-                    
-                    VariableDefinitionAST variableDefinitionAST = blockAST.getVariableByName(currentToken);
-                    if (variableDefinitionAST == null)
-                        variableDefinitionAST = syntaxAnalyzer.getRootAST().getVariableByName(currentToken);
-                    
+                    final VariableDefinitionAST variableDefinitionAST = syntaxAnalyzer.getRootAST().getVariableByName(currentToken);
                     if (variableDefinitionAST != null) {
                         if (syntaxAnalyzer.matchesPeekToken(1, AssignmentOperatorToken.AssignmentOperatorType.ADDITION_ASSIGNMENT) != null)
                             return new VariableIncrementByAST(variableDefinitionAST).parseAST(parentAST, syntaxAnalyzer);
@@ -82,15 +79,15 @@ public class AbstractStatementAST extends AbstractAST
                     
                     final FunctionDefinitionAST functionDefinitionAST = syntaxAnalyzer.getRootAST().getFunctionByName(currentToken);
                     if (functionDefinitionAST != null)
-                        return new FunctionInvokeAST(functionDefinitionAST).parseAST(blockAST, syntaxAnalyzer);
+                        return new FunctionInvokeAST(functionDefinitionAST).parseAST(parentAST, syntaxAnalyzer);
                     break;
             }
         } else if (parentAST instanceof AbstractExpressionAST) {
             // TODO: 1/15/2020 Search for every method in every RootFile included (natives too)
-    
+            
             if (currentToken.getTokenContent().equals("this"))
                 return new ThisStatementAST().parseAST(parentAST, syntaxAnalyzer);
-             else {
+            else {
                 VariableDefinitionAST variableDefinitionAST = syntaxAnalyzer.getRootAST().getVariableByName(currentToken);
                 if (variableDefinitionAST != null) {
                     if (syntaxAnalyzer.matchesPeekToken(1, AssignmentOperatorToken.AssignmentOperatorType.ADDITION_ASSIGNMENT) != null)
@@ -102,10 +99,20 @@ public class AbstractStatementAST extends AbstractAST
                     else if (syntaxAnalyzer.matchesPeekToken(1, AssignmentOperatorToken.AssignmentOperatorType.DIVISION_ASSIGNMENT) != null)
                         return new VariableDivideByAST(variableDefinitionAST).parseAST(parentAST, syntaxAnalyzer);
                 }
-        
-                final FunctionDefinitionAST functionDefinitionAST = syntaxAnalyzer.getRootAST().getFunctionByName(currentToken);
-                if (functionDefinitionAST != null)
-                    return new FunctionInvokeAST(functionDefinitionAST).parseAST(parentAST, syntaxAnalyzer);
+                
+                FunctionDefinitionAST functionDefinitionAST = null;
+                for (final ArkoiClass arkoiClass : syntaxAnalyzer.getArkoiClass().getArkoiCompiler().getArkoiClasses()) {
+                    if ((functionDefinitionAST = arkoiClass.getSyntaxAnalyzer().getRootAST().getFunctionByName(currentToken)) != null)
+                        break;
+                }
+                
+                if (functionDefinitionAST != null) {
+                    final FunctionStatementAST functionStatementAST = new FunctionInvokeAST(functionDefinitionAST).parseAST(parentAST, syntaxAnalyzer);
+                    if (functionStatementAST != null) {
+                        functionStatementAST.initialize(syntaxAnalyzer);
+                        return functionStatementAST;
+                    }
+                }
             }
         } else {
             // TODO: 1/15/2020 Search for every method in every RootFile included (natives too)
@@ -137,9 +144,19 @@ public class AbstractStatementAST extends AbstractAST
                         }
                     }
                     
-                    final FunctionDefinitionAST functionDefinitionAST = syntaxAnalyzer.getRootAST().getFunctionByName(currentToken);
-                    if (functionDefinitionAST != null)
-                        return new FunctionInvokeAST(functionDefinitionAST).parseAST(parentAST, syntaxAnalyzer);
+                    FunctionDefinitionAST functionDefinitionAST = null;
+                    for (final ArkoiClass arkoiClass : syntaxAnalyzer.getArkoiClass().getArkoiCompiler().getArkoiClasses()) {
+                        if ((functionDefinitionAST = arkoiClass.getSyntaxAnalyzer().getRootAST().getFunctionByName(currentToken)) != null)
+                            break;
+                    }
+                    
+                    if (functionDefinitionAST != null) {
+                        final FunctionStatementAST functionStatementAST = new FunctionInvokeAST(functionDefinitionAST).parseAST(parentAST, syntaxAnalyzer);
+                        if (functionStatementAST != null) {
+                            functionStatementAST.initialize(syntaxAnalyzer);
+                            return functionStatementAST;
+                        }
+                    }
                     break;
             }
         }

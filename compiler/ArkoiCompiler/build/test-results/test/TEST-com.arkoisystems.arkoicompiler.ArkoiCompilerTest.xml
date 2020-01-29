@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.arkoisystems.arkoicompiler.ArkoiCompilerTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2020-01-29T21:43:36" hostname="msi-ubuntu" time="0.075">
+  <properties/>
+  <testcase name="runCompiler" classname="com.arkoisystems.arkoicompiler.ArkoiCompilerTest" time="0.075"/>
+  <system-out><![CDATA[The lexical analysis took 11ms for all classes (2 in total)
+The compilation took 27ms for all classes (2 in total)
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

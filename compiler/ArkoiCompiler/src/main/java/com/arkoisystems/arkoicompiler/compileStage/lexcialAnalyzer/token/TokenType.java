@@ -31,6 +31,7 @@ public enum TokenType
 {
     
     WHITESPACE(WhiteSpaceToken.class, " \t\n"),
+    COMMENT(CommentToken.class, "#(.*)"),
     
     STRING(StringToken.class, "\"(?:.|(?:\"))*\""),
     NUMBER(AbstractNumberToken.class, AbstractNumberToken.NumberType.NUMBER_PATTERN),
@@ -40,8 +41,9 @@ public enum TokenType
     UNARY_OPERATOR(UnaryOperatorToken.class, "(\\+\\+|--|!)"),
     BINARY_OPERATOR(BinaryOperatorToken.class, "(\\+|\\*|/|-|%)"),
     
-    SEPARATOR(SeparatorToken.class, "(@|:|;|\\{|\\}|\\(|\\)|\\[|\\]|,|\\.|<|>)");
+    SEPARATOR(SeparatorToken.class, "(@|:|;|\\{|\\}|\\(|\\)|\\[|\\]|,|\\.|<|>)"),
     
+    END_OF_FILE(EndOfFileToken.class, null);
     
     public static final Pattern PATTERN_ENGINE;
     
@@ -63,7 +65,7 @@ public enum TokenType
     public static AbstractToken createToken(final Matcher matcher) throws Exception {
         String tokenContent;
         for (final TokenType tokenType : TokenType.values()) {
-            if(tokenType.getTokenCreator() == null)
+            if(tokenType.getTokenCreator() == null || tokenType.getPattern() == null)
                 continue;
             
             if ((tokenContent = matcher.group(tokenType.getGroupName())) != null)

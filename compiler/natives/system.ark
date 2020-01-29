@@ -1,3 +1,2 @@
 @native[default]
-@hello_world[this, is, a, test]
 fun println<>(message: string);

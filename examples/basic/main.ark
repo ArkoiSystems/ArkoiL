@@ -4,6 +4,6 @@ fun main<int>(args: string[]) {
     return 0;
 }
 
-fun print_greet<>(test_argument: string) = println("%s , %s" % (this.greeting(), test_argument));
+fun print_greet<>(test_argument: string) = println("Fest");
 
 fun greeting<string>() = "Hello World";

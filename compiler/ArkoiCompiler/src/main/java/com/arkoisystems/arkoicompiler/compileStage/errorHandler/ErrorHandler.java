@@ -1,5 +1,7 @@
 package com.arkoisystems.arkoicompiler.compileStage.errorHandler;
 
+import java.io.PrintStream;
+
 /**
  * Copyright © 2019 ArkoiSystems (https://www.arkoisystems.com/) All Rights Reserved.
  * Created ArkoiCompiler on the Sat Nov 09 2019 Author єхcsє#5543 aka Timo
@@ -21,6 +23,6 @@ public abstract class ErrorHandler
 
     public abstract void addError(final AbstractError abstractError);
     
-    public abstract void printStackTrace();
+    public abstract void printStackTrace(final PrintStream printStream);
     
 }

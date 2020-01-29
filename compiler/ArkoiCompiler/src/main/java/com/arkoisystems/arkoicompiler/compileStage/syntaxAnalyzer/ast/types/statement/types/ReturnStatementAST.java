@@ -7,6 +7,7 @@ import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.Abstrac
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.TokenType;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.SeparatorToken;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.SyntaxAnalyzer;
+import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.ASTType;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.AbstractAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.IInitializeable;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.BlockAST;
@@ -39,6 +40,10 @@ public class ReturnStatementAST extends AbstractStatementAST implements IInitial
     private AbstractExpressionAST abstractExpressionAST;
     
     private int expressionPosition;
+    
+    public ReturnStatementAST() {
+        this.setAstType(ASTType.RETURN_STATEMENT_AST);
+    }
     
     @Override
     public AbstractStatementAST parseAST(final AbstractAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {

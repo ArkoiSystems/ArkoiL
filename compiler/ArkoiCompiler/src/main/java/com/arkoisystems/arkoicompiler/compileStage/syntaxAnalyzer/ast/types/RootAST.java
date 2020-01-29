@@ -4,10 +4,12 @@ import com.arkoisystems.arkoicompiler.compileStage.errorHandler.types.ParserErro
 import com.arkoisystems.arkoicompiler.compileStage.errorHandler.types.TokenError;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.AbstractToken;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.TokenType;
+import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.EndOfFileToken;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.SeparatorToken;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.ASTType;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.AbstractAST;
+import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.IInitializeable;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.AbstractStatementAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.functionStatements.FunctionDefinitionAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.variableStatements.VariableDefinitionAST;
@@ -35,7 +37,7 @@ import java.util.List;
  * permissions and limitations under the License.
  */
 @Getter
-public class RootAST extends AbstractAST
+public class RootAST extends AbstractAST implements IInitializeable
 {
     
     private static Parser<?>[] ROOT_PARSERS = new Parser<?>[] {
@@ -65,8 +67,10 @@ public class RootAST extends AbstractAST
     public RootAST parseAST(final AbstractAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
         while (syntaxAnalyzer.getPosition() < syntaxAnalyzer.getTokens().length) {
             final AbstractToken startToken = syntaxAnalyzer.currentToken();
-            Parser<?> usedParser = null;
+            if(startToken instanceof EndOfFileToken)
+                break;
             
+            Parser<?> usedParser = null;
             for (final Parser<?> parser : ROOT_PARSERS) {
                 if (!parser.canParse(parentAST, syntaxAnalyzer))
                     continue;
@@ -96,12 +100,6 @@ public class RootAST extends AbstractAST
             } else syntaxAnalyzer.nextToken();
         }
         
-        for (final VariableDefinitionAST variableDefinitionAST : this.variableStorage)
-            if (!variableDefinitionAST.initialize(syntaxAnalyzer))
-                return null;
-        for (final FunctionDefinitionAST functionDefinitionAST : this.functionStorage)
-            if (!functionDefinitionAST.initialize(syntaxAnalyzer))
-                return null;
         return this;
     }
     
@@ -117,6 +115,17 @@ public class RootAST extends AbstractAST
             this.functionStorage.add(functionDefinitionAST);
         }
         return toAddAST;
+    }
+    
+    @Override
+    public boolean initialize(final SyntaxAnalyzer syntaxAnalyzer) {
+        for (final VariableDefinitionAST variableDefinitionAST : this.variableStorage)
+            if (!variableDefinitionAST.initialize(syntaxAnalyzer))
+                return false;
+        for (final FunctionDefinitionAST functionDefinitionAST : this.functionStorage)
+            if (!functionDefinitionAST.initialize(syntaxAnalyzer))
+                return false;
+        return true;
     }
     
     public VariableDefinitionAST getVariableByName(final AbstractToken identifierToken) {

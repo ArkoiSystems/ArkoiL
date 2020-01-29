@@ -309,18 +309,20 @@ public class SyntaxAnalyzer implements ICompileStage
     
     public AbstractToken peekToken(final int peek) {
         if (this.position + peek > this.tokens.length)
-            return null;
+            return this.tokens[this.tokens.length - 1];
         return this.tokens[this.position + peek];
     }
     
     public AbstractToken currentToken() {
         if (this.position >= this.tokens.length)
-            return null;
+            return this.tokens[this.tokens.length - 1];
         return this.tokens[position];
     }
     
     public AbstractToken nextToken() {
         this.position++;
+        if(this.position >= this.tokens.length)
+            return this.tokens[this.tokens.length - 1];
         return this.currentToken();
     }
     

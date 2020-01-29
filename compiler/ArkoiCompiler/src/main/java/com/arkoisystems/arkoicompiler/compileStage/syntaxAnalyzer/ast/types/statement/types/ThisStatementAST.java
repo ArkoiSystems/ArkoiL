@@ -6,8 +6,10 @@ import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.Abstrac
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.TokenType;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.SeparatorToken;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.SyntaxAnalyzer;
+import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.ASTType;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.AbstractAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.BlockAST;
+import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.expressions.AbstractExpressionAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.AbstractStatementAST;
 import com.google.gson.annotations.Expose;
 import lombok.Getter;
@@ -32,14 +34,17 @@ import lombok.Getter;
 public class ThisStatementAST extends AbstractStatementAST
 {
     
-    private BlockAST blockAST;
+    public ThisStatementAST() {
+        this.setAstType(ASTType.THIS_STATEMENT_AST);
+    }
     
     @Override
     public AbstractStatementAST parseAST(final AbstractAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
-        if (!(parentAST instanceof BlockAST)) {
+        if (!(parentAST instanceof BlockAST) && !(parentAST instanceof AbstractExpressionAST)) {
             syntaxAnalyzer.errorHandler().addError(new ASTError(parentAST, "Couldn't parse the this statement because it wasn't declared inside a BlockAST."));
             return null;
-        } else this.blockAST = (BlockAST) parentAST;
+        }
+//        System.out.println(parentAST.getClass().getSimpleName() + ", " + syntaxAnalyzer.currentToken());
         
         final AbstractToken thisIdentifierToken = syntaxAnalyzer.matchesCurrentToken(TokenType.IDENTIFIER);
         if (thisIdentifierToken == null || !thisIdentifierToken.getTokenContent().equals("this")) {
