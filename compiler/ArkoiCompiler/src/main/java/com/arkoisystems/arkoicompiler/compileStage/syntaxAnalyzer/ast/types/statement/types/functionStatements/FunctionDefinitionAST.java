@@ -45,31 +45,31 @@ public class FunctionDefinitionAST extends FunctionStatementAST
     private ArkoiClass arkoiClass;
     
     @Expose
-    private List<AnnotationAST> functionAnnotations;
+    private List<AnnotationAST> functionAnnotationASTs;
     
     @Expose
-    private IdentifierToken functionName;
+    private IdentifierToken functionNameToken;
     
     @Expose
-    private TypeAST functionReturnType;
+    private TypeAST functionReturnTypeAST;
     
     @Expose
-    private List<ArgumentDefinitionAST> functionArguments;
+    private List<ArgumentDefinitionAST> functionArgumentASTs;
     
     @Expose
     private BlockAST blockAST;
     
     
-    public FunctionDefinitionAST(final List<AnnotationAST> functionAnnotations) {
+    public FunctionDefinitionAST(final List<AnnotationAST> functionAnnotationASTs) {
         super(ASTType.FUNCTION_DEFINITION);
         
-        this.functionAnnotations = functionAnnotations;
+        this.functionAnnotationASTs = functionAnnotationASTs;
     }
     
     public FunctionDefinitionAST() {
         super(ASTType.FUNCTION_DEFINITION);
         
-        this.functionAnnotations = new ArrayList<>();
+        this.functionAnnotationASTs = new ArrayList<>();
     }
     
     @Override
@@ -90,7 +90,7 @@ public class FunctionDefinitionAST extends FunctionStatementAST
             syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the function because there is no IdentifierToken for the name of the function."));
             return null;
         } else
-            this.functionName = (IdentifierToken) functionNameIdentifierToken;
+            this.functionNameToken = (IdentifierToken) functionNameIdentifierToken;
         
         if (syntaxAnalyzer.matchesNextToken(SeparatorToken.SeparatorType.LESS_THAN_SIGN) == null) {
             syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the function because it doesn't has a opening sign aka. \"<\" which declares the return type section."));
@@ -102,9 +102,9 @@ public class FunctionDefinitionAST extends FunctionStatementAST
             if (typeAST == null) {
                 syntaxAnalyzer.errorHandler().addError(new ASTError(this, "Couldn't parse the function because the return type couldn't be parsed. Please check the stacktrace."));
                 return null;
-            } else this.functionReturnType = typeAST;
+            } else this.functionReturnTypeAST = typeAST;
             syntaxAnalyzer.nextToken();
-        } else this.functionReturnType = new TypeAST(TypeAST.TypeKind.VOID, false);
+        } else this.functionReturnTypeAST = new TypeAST(TypeAST.TypeKind.VOID, false);
         
         if (syntaxAnalyzer.matchesCurrentToken(SeparatorToken.SeparatorType.GREATER_THAN_SIGN) == null) {
             syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the function because it doesn't has a closing sign aka. \">\" for the return type section."));
@@ -120,7 +120,7 @@ public class FunctionDefinitionAST extends FunctionStatementAST
         if (arguments == null) {
             syntaxAnalyzer.errorHandler().addError(new ASTError(this, "Couldn't parse the function because there was an error while parsing the arguments."));
             return null;
-        } else this.functionArguments = arguments;
+        } else this.functionArgumentASTs = arguments;
         
         if (syntaxAnalyzer.matchesCurrentToken(SeparatorToken.SeparatorType.CLOSING_PARENTHESIS) == null) {
             syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the function because it doesn't has a closing parenthesis for the arguments section."));
@@ -170,7 +170,7 @@ public class FunctionDefinitionAST extends FunctionStatementAST
     }
     
     private boolean hasNativeAnnotation() {
-        for (final AnnotationAST annotationAST : this.functionAnnotations)
+        for (final AnnotationAST annotationAST : this.functionAnnotationASTs)
             if (annotationAST.getAnnotationName().getTokenContent().equals("native"))
                 return true;
         return false;

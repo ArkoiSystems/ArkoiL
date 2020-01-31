@@ -1,6 +1,7 @@
 package com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types;
 
 import com.arkoisystems.arkoicompiler.compileStage.errorHandler.types.ASTError;
+import com.arkoisystems.arkoicompiler.compileStage.errorHandler.types.ParserError;
 import com.arkoisystems.arkoicompiler.compileStage.errorHandler.types.TokenError;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.AbstractToken;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.TokenType;
@@ -34,32 +35,92 @@ import lombok.Getter;
 public class ThisStatementAST extends AbstractStatementAST
 {
     
+    /**
+     * The constructor will initialize the statement with the AST-Type
+     * "THIS_STATEMENT_AST" for this class. This will help to debug problems or check the
+     * AST for correct syntax.
+     */
     public ThisStatementAST() {
         this.setAstType(ASTType.THIS_STATEMENT_AST);
     }
     
+    /**
+     * The method will parse the "this" statement and checks it for the correct syntax.
+     * This statement can just be used inside a BlockAST or inside an
+     * AbstractExpressionAST. You also can't use the "this" keyword a second time. You
+     * need to specify a period after the keyword which is followed by another statement
+     * which will call a function or variable.
+     * <p>
+     * An example for this statement:
+     * <p>
+     * var test_string = this.test();
+     * <p>
+     * fun main<int>(args: string[]) { println(this.test()); return 0; }
+     * <p>
+     * fun test<string>() = "Hello World";
+     *
+     * @param parentAST
+     *         The parent of this AST. It can be a BlockAST or an AbstractExpressionAST.
+     * @param syntaxAnalyzer
+     *         The given SyntaxAnalyzer is needed for checking the Syntax of the current
+     *         Token list.
+     *
+     * @return It will return null if an error occurred or an AbstractStatementAST if it
+     *         parsed until to the end.
+     */
     @Override
     public AbstractStatementAST parseAST(final AbstractAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
         if (!(parentAST instanceof BlockAST) && !(parentAST instanceof AbstractExpressionAST)) {
-            syntaxAnalyzer.errorHandler().addError(new ASTError(parentAST, "Couldn't parse the this statement because it wasn't declared inside a BlockAST."));
+            syntaxAnalyzer.errorHandler().addError(new ASTError(parentAST, "Couldn't parse the \"this\" statement because it isn't declared inside a block or an expression."));
             return null;
         }
-//        System.out.println(parentAST.getClass().getSimpleName() + ", " + syntaxAnalyzer.currentToken());
         
-        final AbstractToken thisIdentifierToken = syntaxAnalyzer.matchesCurrentToken(TokenType.IDENTIFIER);
-        if (thisIdentifierToken == null || !thisIdentifierToken.getTokenContent().equals("this")) {
-            syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the this statement because the parsing doesn't start with an IdentifierToken with the name \"this\"."));
+        if (syntaxAnalyzer.matchesNextToken(TokenType.IDENTIFIER) == null || !syntaxAnalyzer.currentToken().getTokenContent().equals("this")) {
+            syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the \"this\" statement because the parsing doesn't start with the \"this\" keyword."));
             return null;
-        } else this.setStart(thisIdentifierToken.getStart());
+        } else this.setStart(syntaxAnalyzer.currentToken().getStart());
         
-        final AbstractToken periodToken = syntaxAnalyzer.matchesNextToken(SeparatorToken.SeparatorType.PERIOD);
-        if (periodToken == null) {
-            syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't üarse the this statement because the keyword isn't followed by an period."));
+        if (syntaxAnalyzer.matchesNextToken(SeparatorToken.SeparatorType.PERIOD) == null) {
+            syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the \"this\" statement because the \"this\" keyword isn't followed by an period."));
             return null;
-        } else this.setEnd(periodToken.getEnd());
+        } else {
+            this.setEnd(syntaxAnalyzer.currentToken().getEnd());
+            syntaxAnalyzer.nextToken(); // This will skip to the followed token after the period. So we can check if the next token is a statement.
+        }
         
-        syntaxAnalyzer.nextToken();
-        return new AbstractStatementAST().parseAST(this, syntaxAnalyzer);
+        // For the "parentAST" we don't use "this" because we don't want that other AST tries to add theirselves to this class.
+        if (!AbstractStatementAST.STATEMENT_PARSER.canParse(parentAST, syntaxAnalyzer)) {
+            syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the \"this\" statement because the period isn't followed by a valid statement."));
+            return null;
+        }
+        
+        final AbstractStatementAST abstractStatementAST = new AbstractStatementAST().parseAST(parentAST, syntaxAnalyzer);
+        if (abstractStatementAST == null) {
+            syntaxAnalyzer.errorHandler().addError(new ParserError(AbstractStatementAST.STATEMENT_PARSER, this, "Couldn't parse the \"this\" statement because an error occurred during the parsing of the statement."));
+            return null;
+        }
+        
+        // It will not add the AbstractStatementAST to the parent because it already did it during the parsing of the statement.
+        return abstractStatementAST;
+    }
+    
+    /**
+     * This method is just overwritten to prevent default code execution. So it will just
+     * return the input and doesn't check anything.
+     *
+     * @param toAddAST
+     *         The AST which should get added to the "ThisStatementAST".
+     * @param syntaxAnalyzer
+     *         The SyntaxAnalyzer which should get used if you want to compare Tokens.
+     * @param <T>
+     *         The Type of the AST which should be added to the "ThisStatementAST".
+     *
+     * @return It will just return the input (aka. toAddAST) because you can't add ASTs to
+     *         an "this statement".
+     */
+    @Override
+    public <T extends AbstractAST> T addAST(final T toAddAST, final SyntaxAnalyzer syntaxAnalyzer) {
+        return toAddAST;
     }
     
 }

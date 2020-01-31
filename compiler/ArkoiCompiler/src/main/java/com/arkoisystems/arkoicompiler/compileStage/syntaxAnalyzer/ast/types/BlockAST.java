@@ -16,11 +16,9 @@ import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.stat
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.VariableStatementAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.functionStatements.FunctionDefinitionAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.variableStatements.VariableDefinitionAST;
-import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.variableStatements.VariableIncrementByAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.parser.Parser;
 import com.arkoisystems.arkoicompiler.utils.ICallback;
 import com.google.gson.annotations.Expose;
-import jdk.nashorn.internal.ir.Block;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -132,7 +130,7 @@ public class BlockAST extends AbstractAST implements IInitializeable
                 continue;
             
             final VariableDefinitionAST variableDefinitionAST = (VariableDefinitionAST) abstractAST;
-            if (variableDefinitionAST.getNameIdentifierToken().getTokenContent().equals(identifierToken.getTokenContent()))
+            if (variableDefinitionAST.getVariableNameToken().getTokenContent().equals(identifierToken.getTokenContent()))
                 return variableDefinitionAST;
         }
         return null;

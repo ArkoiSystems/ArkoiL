@@ -130,14 +130,14 @@ public class RootAST extends AbstractAST implements IInitializeable
     
     public VariableDefinitionAST getVariableByName(final AbstractToken identifierToken) {
         for (final VariableDefinitionAST variableDefinitionAST : this.variableStorage)
-            if (variableDefinitionAST.getNameIdentifierToken().getTokenContent().equals(identifierToken.getTokenContent()))
+            if (variableDefinitionAST.getVariableNameToken().getTokenContent().equals(identifierToken.getTokenContent()))
                 return variableDefinitionAST;
         return null;
     }
     
     public FunctionDefinitionAST getFunctionByName(final AbstractToken identifierToken) {
         for (final FunctionDefinitionAST functionDefinitionAST : this.functionStorage)
-            if (functionDefinitionAST.getFunctionName().getTokenContent().equals(identifierToken.getTokenContent()))
+            if (functionDefinitionAST.getFunctionNameToken().getTokenContent().equals(identifierToken.getTokenContent()))
                 return functionDefinitionAST;
         return null;
     }

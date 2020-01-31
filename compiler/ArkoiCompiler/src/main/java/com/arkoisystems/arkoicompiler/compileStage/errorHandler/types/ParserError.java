@@ -1,6 +1,8 @@
 package com.arkoisystems.arkoicompiler.compileStage.errorHandler.types;
 
 import com.arkoisystems.arkoicompiler.compileStage.errorHandler.AbstractError;
+import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.AbstractToken;
+import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.AbstractAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.parser.Parser;
 import com.google.gson.annotations.Expose;
 import lombok.Getter;
@@ -32,6 +34,18 @@ public class ParserError extends AbstractError
     
     public ParserError(final Parser<?> parser, final int start, final int end, final String message, final Object... arguments) {
         super(start, end, "Couldn't parse the \"" + parser.childName() + "\" because an error occurred. " + message, arguments);
+        
+        this.parser = parser;
+    }
+    
+    public ParserError(final Parser<?> parser, final AbstractToken abstractToken, final String message, final Object... arguments) {
+        super(abstractToken.getStart(), abstractToken.getEnd(), "Couldn't parse the \"" + parser.childName() + "\" because an error occurred. " + message, arguments);
+        
+        this.parser = parser;
+    }
+    
+    public ParserError(final Parser<?> parser, final AbstractAST abstractAST, final String message, final Object... arguments) {
+        super(abstractAST.getStart(), abstractAST.getEnd(), "Couldn't parse the \"" + parser.childName() + "\" because an error occurred. " + message, arguments);
         
         this.parser = parser;
     }

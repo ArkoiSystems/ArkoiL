@@ -15,6 +15,7 @@ import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.expr
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.AbstractStatementAST;
 import com.google.gson.annotations.Expose;
 import lombok.Getter;
+import lombok.Setter;
 
 /**
  * Copyright © 2019 ArkoiSystems (https://www.arkoisystems.com/) All Rights Reserved.
@@ -33,59 +34,71 @@ import lombok.Getter;
  * permissions and limitations under the License.
  */
 @Getter
-public class ReturnStatementAST extends AbstractStatementAST implements IInitializeable
+public class ReturnStatementAST extends AbstractStatementAST
 {
     
     @Expose
     private AbstractExpressionAST abstractExpressionAST;
     
-    private int expressionPosition;
-    
+    /**
+     * This constructor is used to initialize the AST-Type "RETURN_STATEMENT_AST" for this
+     * class. This will help to debug problems or check the AST for correct Syntax.
+     */
     public ReturnStatementAST() {
         this.setAstType(ASTType.RETURN_STATEMENT_AST);
     }
     
+    /**
+     * The method will parse the "return" statement and checks it for the correct syntax.
+     * This statement can just be used inside a BlockAST because it will define the return
+     * type of it. You can't use a "this" statement in-front of it and it needs to end
+     * with a semicolon.
+     * <p>
+     * An example for correct usage:
+     * <p>
+     * fun main<int>(args: string[]) { return 0; }
+     *
+     * @param parentAST
+     *         The parent of this AST which just can be a BlockAST.
+     * @param syntaxAnalyzer
+     *         The given SyntaxAnalyzer is needed for checking the Syntax of the current
+     *         Token list.
+     *
+     * @return It will return null if an error occurred or an ReturnStatementAST if it
+     *         parsed until to the end.
+     */
     @Override
-    public AbstractStatementAST parseAST(final AbstractAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
+    public ReturnStatementAST parseAST(final AbstractAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
         if (!(parentAST instanceof BlockAST)) {
-            syntaxAnalyzer.errorHandler().addError(new ASTError(parentAST, "Couldn't parse the return statement because it wasn't declared inside a BlockAST."));
+            syntaxAnalyzer.errorHandler().addError(new ASTError(parentAST, "Couldn't parse the \"return\" statement because it isn't declared inside a block."));
             return null;
         }
         
-        final AbstractToken returnIdentifierToken = syntaxAnalyzer.matchesCurrentToken(TokenType.IDENTIFIER);
-        if (returnIdentifierToken == null || !returnIdentifierToken.getTokenContent().equals("return")) {
-            syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the return statement because the parsing doesn't start with an IdentifierToken with the name \"return\"."));
+        if (syntaxAnalyzer.matchesNextToken(TokenType.IDENTIFIER) == null || !syntaxAnalyzer.currentToken().getTokenContent().equals("return")) {
+            syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the \"return\" statement because the parsing doesn't start with the \"return\" keyword."));
             return null;
-        } else this.setStart(returnIdentifierToken.getStart());
-        
-        syntaxAnalyzer.nextToken();
-        this.expressionPosition = syntaxAnalyzer.getPosition();
-        
-        if (!syntaxAnalyzer.findSeparator(SeparatorToken.SeparatorType.SEMICOLON)) {
-            syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the return statement because the statement doesn't end with a semicolon."));
-            return null;
-        } else this.setEnd(syntaxAnalyzer.currentToken().getEnd());
-        return parentAST.addAST(this, syntaxAnalyzer);
-    }
-    
-    @Override
-    public boolean initialize(final SyntaxAnalyzer syntaxAnalyzer) {
-        final int lastPosition = syntaxAnalyzer.getPosition();
-        syntaxAnalyzer.setPosition(this.expressionPosition);
+        } else {
+            this.setStart(syntaxAnalyzer.currentToken().getStart());
+            syntaxAnalyzer.nextToken(); // This will skip to the followed token after the "return" keyword, so we can check if the next token is an expression.
+        }
         
         if (!AbstractExpressionAST.EXPRESSION_PARSER.canParse(this, syntaxAnalyzer)) {
-            syntaxAnalyzer.errorHandler().addError(new ParserError(AbstractExpressionAST.EXPRESSION_PARSER, this.getStart(), syntaxAnalyzer.currentToken().getEnd(), "Couldn't parse the return statement because the expression isn't parsable."));
-            return false;
+            syntaxAnalyzer.errorHandler().addError(new ParserError(AbstractExpressionAST.EXPRESSION_PARSER, syntaxAnalyzer.currentToken(), "Couldn't parse the \"return\" statement because the keyword isn't followed by an valid expression."));
+            return null;
         }
         
         final AbstractExpressionAST abstractExpressionAST = AbstractExpressionAST.EXPRESSION_PARSER.parse(this, syntaxAnalyzer);
         if (abstractExpressionAST == null) {
-            syntaxAnalyzer.errorHandler().addError(new ParserError(AbstractExpressionAST.EXPRESSION_PARSER, this.getStart(), syntaxAnalyzer.currentToken().getEnd(), "Couldn't parse the return statement because there occurred an error during the parsing of the expression."));
-            return false;
+            syntaxAnalyzer.errorHandler().addError(new ParserError(AbstractExpressionAST.EXPRESSION_PARSER, syntaxAnalyzer.currentToken(), "Couldn't parse the \"return\" statement because an error occurred during the parsing of the expression."));
+            return null;
         } else this.abstractExpressionAST = abstractExpressionAST;
-    
-        syntaxAnalyzer.setPosition(lastPosition);
-        return true;
+        
+        if (syntaxAnalyzer.matchesNextToken(SeparatorToken.SeparatorType.SEMICOLON) == null) {
+            syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the \"return\" statement because it doesn't end with a semicolon."));
+            return null;
+        }
+        
+        return parentAST.addAST(this, syntaxAnalyzer);
     }
     
 }

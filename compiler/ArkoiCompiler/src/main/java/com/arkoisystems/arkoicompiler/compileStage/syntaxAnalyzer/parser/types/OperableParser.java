@@ -1,6 +1,7 @@
 package com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.parser.types;
 
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.AbstractToken;
+import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.SeparatorToken;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.AbstractAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.operables.AbstractOperableAST;
@@ -27,6 +28,8 @@ public class OperableParser extends Parser<AbstractOperableAST<?>>
             case STRING:
             case NUMBER:
                 return true;
+            case SEPARATOR:
+                return syntaxAnalyzer.matchesCurrentToken(SeparatorToken.SeparatorType.OPENING_BRACKET) != null;
             case IDENTIFIER:
                 return AbstractStatementAST.STATEMENT_PARSER.canParse(parentAST, syntaxAnalyzer);
             default:

@@ -41,7 +41,7 @@
 </td>
 <td>
 <div class="infoBox" id="duration">
-<div class="counter">0.075s</div>
+<div class="counter">0.092s</div>
 <p>duration</p>
 </div>
 </td>
@@ -66,6 +66,9 @@
 <li>
 <a href="#tab1">Standard output</a>
 </li>
+<li>
+<a href="#tab2">Standard error</a>
+</li>
 </ul>
 <div id="tab0" class="tab">
 <h2>Tests</h2>
@@ -79,7 +82,7 @@
 </thead>
 <tr>
 <td class="success">runCompiler</td>
-<td class="success">0.075s</td>
+<td class="success">0.092s</td>
 <td class="success">passed</td>
 </tr>
 </table>
@@ -87,8 +90,543 @@
 <div id="tab1" class="tab">
 <h2>Standard output</h2>
 <span class="code">
-<pre>The lexical analysis took 11ms for all classes (2 in total)
-The compilation took 27ms for all classes (2 in total)
+<pre>The lexical analysis took 12ms for all classes (2 in total)
+{
+  &quot;separatorType&quot;: &quot;CLOSING_PARENTHESIS&quot;,
+  &quot;tokenType&quot;: &quot;SEPARATOR&quot;,
+  &quot;tokenContent&quot;: &quot;)&quot;,
+  &quot;start&quot;: 95,
+  &quot;end&quot;: 96
+}
+{
+  &quot;separatorType&quot;: &quot;CLOSING_PARENTHESIS&quot;,
+  &quot;tokenType&quot;: &quot;SEPARATOR&quot;,
+  &quot;tokenContent&quot;: &quot;)&quot;,
+  &quot;start&quot;: 95,
+  &quot;end&quot;: 96
+}
+{
+  &quot;separatorType&quot;: &quot;SEMICOLON&quot;,
+  &quot;tokenType&quot;: &quot;SEPARATOR&quot;,
+  &quot;tokenContent&quot;: &quot;;&quot;,
+  &quot;start&quot;: 110,
+  &quot;end&quot;: 111
+}
+{
+  &quot;binaryOperatorType&quot;: &quot;MODULO&quot;,
+  &quot;tokenType&quot;: &quot;BINARY_OPERATOR&quot;,
+  &quot;tokenContent&quot;: &quot;%&quot;,
+  &quot;start&quot;: 176,
+  &quot;end&quot;: 177
+}
+{
+  &quot;separatorType&quot;: &quot;COMMA&quot;,
+  &quot;tokenType&quot;: &quot;SEPARATOR&quot;,
+  &quot;tokenContent&quot;: &quot;,&quot;,
+  &quot;start&quot;: 194,
+  &quot;end&quot;: 195
+}
+{
+  &quot;separatorType&quot;: &quot;CLOSING_PARENTHESIS&quot;,
+  &quot;tokenType&quot;: &quot;SEPARATOR&quot;,
+  &quot;tokenContent&quot;: &quot;)&quot;,
+  &quot;start&quot;: 193,
+  &quot;end&quot;: 194
+}
+</pre>
+</span>
+</div>
+<div id="tab2" class="tab">
+<h2>Standard error</h2>
+<span class="code">
+<pre>Couldn't compile the file. Please see the stacktrace for errors:
+{
+  &quot;variableStorage&quot;: [],
+  &quot;functionStorage&quot;: [
+    {
+      &quot;functionAnnotations&quot;: [],
+      &quot;functionName&quot;: {
+        &quot;tokenType&quot;: &quot;IDENTIFIER&quot;,
+        &quot;tokenContent&quot;: &quot;main&quot;,
+        &quot;start&quot;: 37,
+        &quot;end&quot;: 41
+      },
+      &quot;functionReturnType&quot;: {
+        &quot;typeKind&quot;: &quot;INTEGER&quot;,
+        &quot;isArray&quot;: false,
+        &quot;astType&quot;: &quot;TYPE&quot;,
+        &quot;start&quot;: 0,
+        &quot;end&quot;: 0
+      },
+      &quot;functionArguments&quot;: [
+        {
+          &quot;argumentNameIdentifier&quot;: {
+            &quot;tokenType&quot;: &quot;IDENTIFIER&quot;,
+            &quot;tokenContent&quot;: &quot;args&quot;,
+            &quot;start&quot;: 47,
+            &quot;end&quot;: 51
+          },
+          &quot;argumentType&quot;: {
+            &quot;typeKind&quot;: &quot;STRING&quot;,
+            &quot;isArray&quot;: true,
+            &quot;astType&quot;: &quot;TYPE&quot;,
+            &quot;start&quot;: 0,
+            &quot;end&quot;: 0
+          },
+          &quot;astType&quot;: &quot;ARGUMENT_DEFINITION&quot;,
+          &quot;start&quot;: 0,
+          &quot;end&quot;: 0
+        }
+      ],
+      &quot;blockAST&quot;: {
+        &quot;blockType&quot;: &quot;BLOCK&quot;,
+        &quot;blockStorage&quot;: [
+          {
+            &quot;invokedFunction&quot;: {
+              &quot;functionAnnotations&quot;: [],
+              &quot;functionName&quot;: {
+                &quot;tokenType&quot;: &quot;IDENTIFIER&quot;,
+                &quot;tokenContent&quot;: &quot;print_greet&quot;,
+                &quot;start&quot;: 119,
+                &quot;end&quot;: 130
+              },
+              &quot;functionReturnType&quot;: {
+                &quot;typeKind&quot;: &quot;VOID&quot;,
+                &quot;isArray&quot;: false,
+                &quot;astType&quot;: &quot;TYPE&quot;,
+                &quot;start&quot;: 0,
+                &quot;end&quot;: 0
+              },
+              &quot;functionArguments&quot;: [
+                {
+                  &quot;argumentNameIdentifier&quot;: {
+                    &quot;tokenType&quot;: &quot;IDENTIFIER&quot;,
+                    &quot;tokenContent&quot;: &quot;test_argument&quot;,
+                    &quot;start&quot;: 133,
+                    &quot;end&quot;: 146
+                  },
+                  &quot;argumentType&quot;: {
+                    &quot;typeKind&quot;: &quot;STRING&quot;,
+                    &quot;isArray&quot;: false,
+                    &quot;astType&quot;: &quot;TYPE&quot;,
+                    &quot;start&quot;: 0,
+                    &quot;end&quot;: 0
+                  },
+                  &quot;astType&quot;: &quot;ARGUMENT_DEFINITION&quot;,
+                  &quot;start&quot;: 0,
+                  &quot;end&quot;: 0
+                }
+              ],
+              &quot;blockAST&quot;: {
+                &quot;blockType&quot;: &quot;INLINE&quot;,
+                &quot;blockStorage&quot;: [
+                  {
+                    &quot;abstractOperableAST&quot;: {
+                      &quot;abstractToken&quot;: {
+                        &quot;invokedFunction&quot;: {
+                          &quot;functionAnnotations&quot;: [
+                            {
+                              &quot;annotationName&quot;: {
+                                &quot;tokenType&quot;: &quot;IDENTIFIER&quot;,
+                                &quot;tokenContent&quot;: &quot;native&quot;,
+                                &quot;start&quot;: 1,
+                                &quot;end&quot;: 7
+                              },
+                              &quot;annotationArguments&quot;: [
+                                {
+                                  &quot;tokenType&quot;: &quot;IDENTIFIER&quot;,
+                                  &quot;tokenContent&quot;: &quot;default&quot;,
+                                  &quot;start&quot;: 8,
+                                  &quot;end&quot;: 15
+                                }
+                              ],
+                              &quot;astType&quot;: &quot;ANNOTATION&quot;,
+                              &quot;start&quot;: 0,
+                              &quot;end&quot;: 21
+                            }
+                          ],
+                          &quot;functionName&quot;: {
+                            &quot;tokenType&quot;: &quot;IDENTIFIER&quot;,
+                            &quot;tokenContent&quot;: &quot;println&quot;,
+                            &quot;start&quot;: 22,
+                            &quot;end&quot;: 29
+                          },
+                          &quot;functionReturnType&quot;: {
+                            &quot;typeKind&quot;: &quot;VOID&quot;,
+                            &quot;isArray&quot;: false,
+                            &quot;astType&quot;: &quot;TYPE&quot;,
+                            &quot;start&quot;: 0,
+                            &quot;end&quot;: 0
+                          },
+                          &quot;functionArguments&quot;: [
+                            {
+                              &quot;argumentNameIdentifier&quot;: {
+                                &quot;tokenType&quot;: &quot;IDENTIFIER&quot;,
+                                &quot;tokenContent&quot;: &quot;message&quot;,
+                                &quot;start&quot;: 32,
+                                &quot;end&quot;: 39
+                              },
+                              &quot;argumentType&quot;: {
+                                &quot;typeKind&quot;: &quot;STRING&quot;,
+                                &quot;isArray&quot;: false,
+                                &quot;astType&quot;: &quot;TYPE&quot;,
+                                &quot;start&quot;: 0,
+                                &quot;end&quot;: 0
+                              },
+                              &quot;astType&quot;: &quot;ARGUMENT_DEFINITION&quot;,
+                              &quot;start&quot;: 0,
+                              &quot;end&quot;: 0
+                            }
+                          ],
+                          &quot;astType&quot;: &quot;FUNCTION_DEFINITION&quot;,
+                          &quot;start&quot;: 18,
+                          &quot;end&quot;: 0
+                        },
+                        &quot;invokeArguments&quot;: [],
+                        &quot;astType&quot;: &quot;FUNCTION_INVOKE&quot;,
+                        &quot;start&quot;: 158,
+                        &quot;end&quot;: 212
+                      },
+                      &quot;astType&quot;: &quot;FUNCTION_RESULT_OPERABLE&quot;,
+                      &quot;start&quot;: 158,
+                      &quot;end&quot;: 212
+                    },
+                    &quot;astType&quot;: &quot;SIMPLE_EXPRESSION&quot;,
+                    &quot;start&quot;: 158,
+                    &quot;end&quot;: 212
+                  }
+                ],
+                &quot;astType&quot;: &quot;BLOCK&quot;,
+                &quot;start&quot;: 156,
+                &quot;end&quot;: 194
+              },
+              &quot;astType&quot;: &quot;FUNCTION_DEFINITION&quot;,
+              &quot;start&quot;: 115,
+              &quot;end&quot;: 0
+            },
+            &quot;invokeArguments&quot;: [
+              {
+                &quot;abstractOperableAST&quot;: {
+                  &quot;abstractToken&quot;: {
+                    &quot;tokenType&quot;: &quot;STRING&quot;,
+                    &quot;tokenContent&quot;: &quot; ehehe &quot;,
+                    &quot;start&quot;: 86,
+                    &quot;end&quot;: 95
+                  },
+                  &quot;astType&quot;: &quot;STRING_OPERABLE&quot;,
+                  &quot;start&quot;: 86,
+                  &quot;end&quot;: 95
+                },
+                &quot;astType&quot;: &quot;SIMPLE_EXPRESSION&quot;,
+                &quot;start&quot;: 86,
+                &quot;end&quot;: 95
+              },
+              {
+                &quot;abstractOperableAST&quot;: {
+                  &quot;abstractToken&quot;: {
+                    &quot;tokenType&quot;: &quot;STRING&quot;,
+                    &quot;tokenContent&quot;: &quot; ehehe &quot;,
+                    &quot;start&quot;: 86,
+                    &quot;end&quot;: 95
+                  },
+                  &quot;astType&quot;: &quot;STRING_OPERABLE&quot;,
+                  &quot;start&quot;: 86,
+                  &quot;end&quot;: 95
+                },
+                &quot;astType&quot;: &quot;SIMPLE_EXPRESSION&quot;,
+                &quot;start&quot;: 86,
+                &quot;end&quot;: 95
+              }
+            ],
+            &quot;astType&quot;: &quot;FUNCTION_INVOKE&quot;,
+            &quot;start&quot;: 74,
+            &quot;end&quot;: 97
+          },
+          {
+            &quot;abstractExpressionAST&quot;: {
+              &quot;abstractOperableAST&quot;: {
+                &quot;abstractToken&quot;: {
+                  &quot;numberType&quot;: &quot;INTEGER&quot;,
+                  &quot;tokenType&quot;: &quot;NUMBER&quot;,
+                  &quot;tokenContent&quot;: &quot;0&quot;,
+                  &quot;start&quot;: 109,
+                  &quot;end&quot;: 110
+                },
+                &quot;astType&quot;: &quot;NUMBER_OPERABLE&quot;,
+                &quot;start&quot;: 109,
+                &quot;end&quot;: 110
+              },
+              &quot;astType&quot;: &quot;SIMPLE_EXPRESSION&quot;,
+              &quot;start&quot;: 109,
+              &quot;end&quot;: 110
+            },
+            &quot;astType&quot;: &quot;RETURN_STATEMENT_AST&quot;,
+            &quot;start&quot;: 102,
+            &quot;end&quot;: 111
+          }
+        ],
+        &quot;astType&quot;: &quot;BLOCK&quot;,
+        &quot;start&quot;: 63,
+        &quot;end&quot;: 0
+      },
+      &quot;astType&quot;: &quot;FUNCTION_DEFINITION&quot;,
+      &quot;start&quot;: 33,
+      &quot;end&quot;: 0
+    },
+    {
+      &quot;functionAnnotations&quot;: [],
+      &quot;functionName&quot;: {
+        &quot;tokenType&quot;: &quot;IDENTIFIER&quot;,
+        &quot;tokenContent&quot;: &quot;print_greet&quot;,
+        &quot;start&quot;: 119,
+        &quot;end&quot;: 130
+      },
+      &quot;functionReturnType&quot;: {
+        &quot;typeKind&quot;: &quot;VOID&quot;,
+        &quot;isArray&quot;: false,
+        &quot;astType&quot;: &quot;TYPE&quot;,
+        &quot;start&quot;: 0,
+        &quot;end&quot;: 0
+      },
+      &quot;functionArguments&quot;: [
+        {
+          &quot;argumentNameIdentifier&quot;: {
+            &quot;tokenType&quot;: &quot;IDENTIFIER&quot;,
+            &quot;tokenContent&quot;: &quot;test_argument&quot;,
+            &quot;start&quot;: 133,
+            &quot;end&quot;: 146
+          },
+          &quot;argumentType&quot;: {
+            &quot;typeKind&quot;: &quot;STRING&quot;,
+            &quot;isArray&quot;: false,
+            &quot;astType&quot;: &quot;TYPE&quot;,
+            &quot;start&quot;: 0,
+            &quot;end&quot;: 0
+          },
+          &quot;astType&quot;: &quot;ARGUMENT_DEFINITION&quot;,
+          &quot;start&quot;: 0,
+          &quot;end&quot;: 0
+        }
+      ],
+      &quot;blockAST&quot;: {
+        &quot;blockType&quot;: &quot;INLINE&quot;,
+        &quot;blockStorage&quot;: [
+          {
+            &quot;abstractOperableAST&quot;: {
+              &quot;abstractToken&quot;: {
+                &quot;invokedFunction&quot;: {
+                  &quot;functionAnnotations&quot;: [
+                    {
+                      &quot;annotationName&quot;: {
+                        &quot;tokenType&quot;: &quot;IDENTIFIER&quot;,
+                        &quot;tokenContent&quot;: &quot;native&quot;,
+                        &quot;start&quot;: 1,
+                        &quot;end&quot;: 7
+                      },
+                      &quot;annotationArguments&quot;: [
+                        {
+                          &quot;tokenType&quot;: &quot;IDENTIFIER&quot;,
+                          &quot;tokenContent&quot;: &quot;default&quot;,
+                          &quot;start&quot;: 8,
+                          &quot;end&quot;: 15
+                        }
+                      ],
+                      &quot;astType&quot;: &quot;ANNOTATION&quot;,
+                      &quot;start&quot;: 0,
+                      &quot;end&quot;: 21
+                    }
+                  ],
+                  &quot;functionName&quot;: {
+                    &quot;tokenType&quot;: &quot;IDENTIFIER&quot;,
+                    &quot;tokenContent&quot;: &quot;println&quot;,
+                    &quot;start&quot;: 22,
+                    &quot;end&quot;: 29
+                  },
+                  &quot;functionReturnType&quot;: {
+                    &quot;typeKind&quot;: &quot;VOID&quot;,
+                    &quot;isArray&quot;: false,
+                    &quot;astType&quot;: &quot;TYPE&quot;,
+                    &quot;start&quot;: 0,
+                    &quot;end&quot;: 0
+                  },
+                  &quot;functionArguments&quot;: [
+                    {
+                      &quot;argumentNameIdentifier&quot;: {
+                        &quot;tokenType&quot;: &quot;IDENTIFIER&quot;,
+                        &quot;tokenContent&quot;: &quot;message&quot;,
+                        &quot;start&quot;: 32,
+                        &quot;end&quot;: 39
+                      },
+                      &quot;argumentType&quot;: {
+                        &quot;typeKind&quot;: &quot;STRING&quot;,
+                        &quot;isArray&quot;: false,
+                        &quot;astType&quot;: &quot;TYPE&quot;,
+                        &quot;start&quot;: 0,
+                        &quot;end&quot;: 0
+                      },
+                      &quot;astType&quot;: &quot;ARGUMENT_DEFINITION&quot;,
+                      &quot;start&quot;: 0,
+                      &quot;end&quot;: 0
+                    }
+                  ],
+                  &quot;astType&quot;: &quot;FUNCTION_DEFINITION&quot;,
+                  &quot;start&quot;: 18,
+                  &quot;end&quot;: 0
+                },
+                &quot;invokeArguments&quot;: [],
+                &quot;astType&quot;: &quot;FUNCTION_INVOKE&quot;,
+                &quot;start&quot;: 158,
+                &quot;end&quot;: 212
+              },
+              &quot;astType&quot;: &quot;FUNCTION_RESULT_OPERABLE&quot;,
+              &quot;start&quot;: 158,
+              &quot;end&quot;: 212
+            },
+            &quot;astType&quot;: &quot;SIMPLE_EXPRESSION&quot;,
+            &quot;start&quot;: 158,
+            &quot;end&quot;: 212
+          }
+        ],
+        &quot;astType&quot;: &quot;BLOCK&quot;,
+        &quot;start&quot;: 156,
+        &quot;end&quot;: 194
+      },
+      &quot;astType&quot;: &quot;FUNCTION_DEFINITION&quot;,
+      &quot;start&quot;: 115,
+      &quot;end&quot;: 0
+    },
+    {
+      &quot;functionAnnotations&quot;: [],
+      &quot;functionName&quot;: {
+        &quot;tokenType&quot;: &quot;IDENTIFIER&quot;,
+        &quot;tokenContent&quot;: &quot;greeting&quot;,
+        &quot;start&quot;: 218,
+        &quot;end&quot;: 226
+      },
+      &quot;functionReturnType&quot;: {
+        &quot;typeKind&quot;: &quot;STRING&quot;,
+        &quot;isArray&quot;: false,
+        &quot;astType&quot;: &quot;TYPE&quot;,
+        &quot;start&quot;: 0,
+        &quot;end&quot;: 0
+      },
+      &quot;functionArguments&quot;: [],
+      &quot;blockAST&quot;: {
+        &quot;blockType&quot;: &quot;INLINE&quot;,
+        &quot;blockStorage&quot;: [],
+        &quot;astType&quot;: &quot;BLOCK&quot;,
+        &quot;start&quot;: 237,
+        &quot;end&quot;: 0
+      },
+      &quot;astType&quot;: &quot;FUNCTION_DEFINITION&quot;,
+      &quot;start&quot;: 214,
+      &quot;end&quot;: 0
+    }
+  ],
+  &quot;astType&quot;: &quot;ROOT&quot;,
+  &quot;start&quot;: 0,
+  &quot;end&quot;: 254
+}
+{
+  &quot;parser&quot;: {},
+  &quot;message&quot;: &quot;Couldn't parse the \&quot;FunctionDefinitionAST\&quot; because an error occurred. Couldn't parse the Collection because there is an invalid expression inside.&quot;,
+  &quot;start&quot;: 193,
+  &quot;end&quot;: 194
+}
+{
+  &quot;parser&quot;: {},
+  &quot;message&quot;: &quot;Couldn't parse the \&quot;FunctionDefinitionAST\&quot; because an error occurred. Couldn't parse the function invoke because an error occured during the parsing of the expression of the 0 argument&quot;,
+  &quot;start&quot;: 158,
+  &quot;end&quot;: 194
+}
+{
+  &quot;abstractAST&quot;: {
+    &quot;blockType&quot;: &quot;INLINE&quot;,
+    &quot;blockStorage&quot;: [
+      {
+        &quot;abstractOperableAST&quot;: {
+          &quot;abstractToken&quot;: {
+            &quot;invokedFunction&quot;: {
+              &quot;functionAnnotations&quot;: [
+                {
+                  &quot;annotationName&quot;: {
+                    &quot;tokenType&quot;: &quot;IDENTIFIER&quot;,
+                    &quot;tokenContent&quot;: &quot;native&quot;,
+                    &quot;start&quot;: 1,
+                    &quot;end&quot;: 7
+                  },
+                  &quot;annotationArguments&quot;: [
+                    {
+                      &quot;tokenType&quot;: &quot;IDENTIFIER&quot;,
+                      &quot;tokenContent&quot;: &quot;default&quot;,
+                      &quot;start&quot;: 8,
+                      &quot;end&quot;: 15
+                    }
+                  ],
+                  &quot;astType&quot;: &quot;ANNOTATION&quot;,
+                  &quot;start&quot;: 0,
+                  &quot;end&quot;: 21
+                }
+              ],
+              &quot;functionName&quot;: {
+                &quot;tokenType&quot;: &quot;IDENTIFIER&quot;,
+                &quot;tokenContent&quot;: &quot;println&quot;,
+                &quot;start&quot;: 22,
+                &quot;end&quot;: 29
+              },
+              &quot;functionReturnType&quot;: {
+                &quot;typeKind&quot;: &quot;VOID&quot;,
+                &quot;isArray&quot;: false,
+                &quot;astType&quot;: &quot;TYPE&quot;,
+                &quot;start&quot;: 0,
+                &quot;end&quot;: 0
+              },
+              &quot;functionArguments&quot;: [
+                {
+                  &quot;argumentNameIdentifier&quot;: {
+                    &quot;tokenType&quot;: &quot;IDENTIFIER&quot;,
+                    &quot;tokenContent&quot;: &quot;message&quot;,
+                    &quot;start&quot;: 32,
+                    &quot;end&quot;: 39
+                  },
+                  &quot;argumentType&quot;: {
+                    &quot;typeKind&quot;: &quot;STRING&quot;,
+                    &quot;isArray&quot;: false,
+                    &quot;astType&quot;: &quot;TYPE&quot;,
+                    &quot;start&quot;: 0,
+                    &quot;end&quot;: 0
+                  },
+                  &quot;astType&quot;: &quot;ARGUMENT_DEFINITION&quot;,
+                  &quot;start&quot;: 0,
+                  &quot;end&quot;: 0
+                }
+              ],
+              &quot;astType&quot;: &quot;FUNCTION_DEFINITION&quot;,
+              &quot;start&quot;: 18,
+              &quot;end&quot;: 0
+            },
+            &quot;invokeArguments&quot;: [],
+            &quot;astType&quot;: &quot;FUNCTION_INVOKE&quot;,
+            &quot;start&quot;: 158,
+            &quot;end&quot;: 212
+          },
+          &quot;astType&quot;: &quot;FUNCTION_RESULT_OPERABLE&quot;,
+          &quot;start&quot;: 158,
+          &quot;end&quot;: 212
+        },
+        &quot;astType&quot;: &quot;SIMPLE_EXPRESSION&quot;,
+        &quot;start&quot;: 158,
+        &quot;end&quot;: 212
+      }
+    ],
+    &quot;astType&quot;: &quot;BLOCK&quot;,
+    &quot;start&quot;: 156,
+    &quot;end&quot;: 194
+  },
+  &quot;message&quot;: &quot;Couldn't parse the inlined BlockAST because it doesn't end with a semicolon.&quot;,
+  &quot;start&quot;: 156,
+  &quot;end&quot;: 194
+}
 </pre>
 </span>
 </div>
@@ -100,7 +638,7 @@ The compilation took 27ms for all classes (2 in total)
 <input id="line-wrapping-toggle" type="checkbox" autocomplete="off"/>
 </label>
 </div>Generated by 
-<a href="http://www.gradle.org">Gradle 5.2.1</a> at Jan 29, 2020 10:43:36 PM</p>
+<a href="http://www.gradle.org">Gradle 5.2.1</a> at Jan 31, 2020 8:06:59 PM</p>
 </div>
 </div>
 </body>

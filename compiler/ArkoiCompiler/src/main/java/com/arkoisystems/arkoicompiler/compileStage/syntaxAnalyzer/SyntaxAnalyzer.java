@@ -56,7 +56,7 @@ public class SyntaxAnalyzer implements ICompileStage
     public SyntaxAnalyzer(final ArkoiClass arkoiClass) {
         this.arkoiClass = arkoiClass;
         
-        this.errorHandler = new SyntaxErrorHandler();
+        this.errorHandler = new SyntaxErrorHandler(this);
         this.rootAST = new RootAST(this);
     }
     

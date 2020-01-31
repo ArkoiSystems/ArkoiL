@@ -7,7 +7,6 @@ import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.S
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.operators.AbstractOperatorToken;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.operators.types.BinaryOperatorToken;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.SyntaxAnalyzer;
-import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.ASTType;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.AbstractAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.expressions.types.BinaryExpressionAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.expressions.types.ParenthesizedExpressionAST;
@@ -100,8 +99,6 @@ public class AbstractExpressionAST extends AbstractAST
         return leftSideAST;
     }
     
-    // TODO: Add parenthesized collection to expressions
-    
     private AbstractAST parseFactor(final SyntaxAnalyzer syntaxAnalyzer) {
         AbstractAST leftSideAST = this.parsePrimary(syntaxAnalyzer);
         if (leftSideAST == null)
@@ -151,6 +148,45 @@ public class AbstractExpressionAST extends AbstractAST
             }
             return new ParenthesizedExpressionAST((SeparatorToken) openingParenthesis, (AbstractExpressionAST) abstractAST, (SeparatorToken) closingParenthesis);
         }
+    
+//        final AbstractToken openingBracket = syntaxAnalyzer.matchesCurrentToken(SeparatorToken.SeparatorType.OPENING_BRACKET);
+//        if (openingBracket != null) {
+//            syntaxAnalyzer.nextToken();
+//
+//            final List<AbstractExpressionAST> expressionASTs = new ArrayList<>();
+//            while(syntaxAnalyzer.getPosition() < syntaxAnalyzer.getTokens().length) {
+//                if(syntaxAnalyzer.matchesCurrentToken(SeparatorToken.SeparatorType.CLOSING_BRACKET) != null)
+//                    break;
+//                if(!AbstractExpressionAST.EXPRESSION_PARSER.canParse(this, syntaxAnalyzer)) {
+//                    syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the expression because the expression inside the CollectionExpression couldn't be parsed."));
+//                    return null;
+//                }
+//
+//                final AbstractExpressionAST abstractExpressionAST = AbstractExpressionAST.EXPRESSION_PARSER.parse(this, syntaxAnalyzer);
+//                if(abstractExpressionAST == null) {
+//                    syntaxAnalyzer.errorHandler().addError(new ASTError(this, "Couldn't parse the expression because the ExpressionParser couldn't parse the Statement correctly. Please see the stacktrace for errors."));
+//                    return null;
+//                } else syntaxAnalyzer.nextToken();
+//
+//                expressionASTs.add(abstractExpressionAST);
+//
+//                if(syntaxAnalyzer.matchesCurrentToken(SeparatorToken.SeparatorType.CLOSING_BRACKET) != null)
+//                    break;
+//                else if(syntaxAnalyzer.matchesCurrentToken(SeparatorToken.SeparatorType.COMMA) == null) {
+//                    syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the CollectionExpression because the expression isn't followed by an comma or is ended with a closing bracket."));
+//                    return null;
+//                } else syntaxAnalyzer.nextToken();
+//            }
+//
+//            System.out.println(expressionASTs);
+//
+//            final AbstractToken closingBracket = syntaxAnalyzer.matchesCurrentToken(SeparatorToken.SeparatorType.CLOSING_BRACKET);
+//            if (closingBracket == null) {
+//                syntaxAnalyzer.errorHandler().addError(new ASTError(this, "Couldn't parse the expression there is no closing parenthesis in the expression."));
+//                return null;
+//            }
+//            return new CollectionExpressionAST((SeparatorToken) openingBracket, null, (SeparatorToken) closingBracket);
+//        }
         
         if (!AbstractOperableAST.OPERABLE_PARSER.canParse(this, syntaxAnalyzer)) {
             syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the operable token because the current token isn't operable."));

@@ -41,69 +41,80 @@ public class VariableDefinitionAST extends VariableStatementAST
 {
     
     @Expose
-    private IdentifierToken nameIdentifierToken;
-    
-    private int expressionPosition;
+    private IdentifierToken variableNameToken;
     
     @Expose
     private AbstractExpressionAST abstractExpressionAST;
     
-    
+    /**
+     * The constructor will initialize the statement with the AST-Type
+     * "VARIABLE_DEFINITION" for this class. This will help to debug problems or check the
+     * AST for correct syntax.
+     */
     public VariableDefinitionAST() {
         super(ASTType.VARIABLE_DEFINITION);
     }
     
+    /**
+     * The method will parse the "variable definition" statement and checks it for the
+     * correct syntax. This statement can just be used inside the RootAST or inside a
+     * BlockAST.
+     * <p>
+     * An example for this statement:
+     * <p>
+     * var test_string = "Hello World"
+     * <p>
+     * fun main<int>(args: string[]) { println(this.test_string); return 0; }
+     *
+     * @param parentAST
+     *         The parent of the AST. With it you can check for correct usage of the
+     *         statement.
+     * @param syntaxAnalyzer
+     *         The given SyntaxAnalyzer is needed for checking the syntax of the current
+     *         Token list.
+     *
+     * @return It will return null if an error occurred or an VariableDefinitionAST if it
+     *         parsed until to the end.
+     */
     @Override
     public VariableDefinitionAST parseAST(final AbstractAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
         if (!(parentAST instanceof RootAST) && !(parentAST instanceof BlockAST)) {
-            // TODO: 1/2/2020 Throw error
+            syntaxAnalyzer.errorHandler().addError(new ASTError(parentAST, "Couldn't parse the \"variable definition\" statement because it isn't declared inside the root file or in a block."));
             return null;
         }
         
-        final AbstractToken variableIdentifierToken = syntaxAnalyzer.matchesCurrentToken(TokenType.IDENTIFIER);
-        if (variableIdentifierToken == null || !variableIdentifierToken.getTokenContent().equals("val")) {
-            // TODO: 1/2/2020 Throw error
+        if (syntaxAnalyzer.matchesCurrentToken(TokenType.IDENTIFIER) == null || !syntaxAnalyzer.currentToken().getTokenContent().equals("var")) {
+            syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the \"variable definition\" statement because the parsing doesn't start with the \"var\" keyword."));
             return null;
-        } else this.setStart(variableIdentifierToken.getStart());
+        } else this.setStart(syntaxAnalyzer.currentToken().getStart());
         
-        final AbstractToken variableNameIdentifierToken = syntaxAnalyzer.matchesNextToken(TokenType.IDENTIFIER);
-        if (variableNameIdentifierToken == null) {
-            // TODO: 1/2/2020 Throw error
+        if (syntaxAnalyzer.matchesNextToken(TokenType.IDENTIFIER) == null) {
+            syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the \"variable definition\" statement because the \"var\" keyword isn't followed by an variable name."));
             return null;
-        } else this.nameIdentifierToken = (IdentifierToken) variableNameIdentifierToken;
+        } else this.variableNameToken = (IdentifierToken) syntaxAnalyzer.currentToken();
         
         if (syntaxAnalyzer.matchesNextToken(AssignmentOperatorToken.AssignmentOperatorType.ASSIGNMENT) == null) {
-            syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the variable definition because the name IdentifierToken isn't followed by an equal sign aka. \"=\"."));
+            syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the \"variable definition\" statement because the variable name isn't followed by an equal sign for deceleration of the following expression."));
             return null;
         } else syntaxAnalyzer.nextToken();
         
-        this.expressionPosition = syntaxAnalyzer.getPosition();
-        
-        if (!syntaxAnalyzer.findSeparator(SeparatorToken.SeparatorType.SEMICOLON)) {
-            syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the variable definition because the statement doesn't end with a semicolon."));
+        if (!AbstractExpressionAST.EXPRESSION_PARSER.canParse(this, syntaxAnalyzer)) {
+            syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the \"variable definition\" statement because the equal sign is followed by an invalid expression."));
             return null;
-        } else this.setEnd(syntaxAnalyzer.currentToken().getEnd());
-        return parentAST.addAST(this, syntaxAnalyzer);
-    }
-    
-    @Override
-    public boolean initialize(final SyntaxAnalyzer syntaxAnalyzer) {
-        final int lastPosition = syntaxAnalyzer.getPosition();
-        syntaxAnalyzer.setPosition(this.expressionPosition);
-        
-        if(!AbstractExpressionAST.EXPRESSION_PARSER.canParse(this, syntaxAnalyzer)) {
-            syntaxAnalyzer.errorHandler().addError(new ParserError(AbstractExpressionAST.EXPRESSION_PARSER, this.getStart(), syntaxAnalyzer.currentToken().getEnd(), "Couldn't parse the variable definition statement because the expression isn't parsable."));
-            return false;
         }
         
         final AbstractExpressionAST abstractExpressionAST = AbstractExpressionAST.EXPRESSION_PARSER.parse(this, syntaxAnalyzer);
         if (abstractExpressionAST == null) {
-            syntaxAnalyzer.errorHandler().addError(new ParserError(AbstractExpressionAST.EXPRESSION_PARSER, this.getStart(), syntaxAnalyzer.currentToken().getEnd(), "Couldn't parse the variable definition statement because there occurred an error during the parsing of the expression."));
-            return false;
+            syntaxAnalyzer.errorHandler().addError(new ParserError(AbstractExpressionAST.EXPRESSION_PARSER, this.getStart(), syntaxAnalyzer.currentToken().getEnd(), "Couldn't parse the \"variable definition\" statement because an error occured during the parsing of the expression."));
+            return null;
         } else this.abstractExpressionAST = abstractExpressionAST;
-    
-        syntaxAnalyzer.setPosition(lastPosition);
-        return true;
+        
+        if(syntaxAnalyzer.matchesNextToken(SeparatorToken.SeparatorType.SEMICOLON) == null) {
+            syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the \"variable definition\" statement because it doesn't end with an semicolon."));
+            return null;
+        }
+        
+        return parentAST.addAST(this, syntaxAnalyzer);
     }
     
 }

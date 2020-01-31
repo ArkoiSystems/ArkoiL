@@ -28,6 +28,12 @@ public class SyntaxErrorHandler extends ErrorHandler
     
     private final List<AbstractError> abstractErrors = new ArrayList<>();
     
+    private final SyntaxAnalyzer syntaxAnalyzer;
+    
+    public SyntaxErrorHandler(final SyntaxAnalyzer syntaxAnalyzer) {
+        this.syntaxAnalyzer = syntaxAnalyzer;
+    }
+    
     @Override
     public void addError(final AbstractError abstractError) {
         this.abstractErrors.add(abstractError);
@@ -35,6 +41,9 @@ public class SyntaxErrorHandler extends ErrorHandler
     
     @Override
     public void printStackTrace(final PrintStream printStream) {
+        if(this.abstractErrors.size() > 0)
+            printStream.println(this.syntaxAnalyzer.getRootAST());
+        
         for(final AbstractError abstractError : this.abstractErrors)
             printStream.println(abstractError.toString());
     }

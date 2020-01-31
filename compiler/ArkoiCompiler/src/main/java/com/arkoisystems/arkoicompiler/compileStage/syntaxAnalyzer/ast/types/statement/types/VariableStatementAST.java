@@ -22,26 +22,55 @@ import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.stat
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  */
-public class VariableStatementAST extends AbstractStatementAST implements IInitializeable
+public class VariableStatementAST extends AbstractStatementAST
 {
     
+    /**
+     * This constructor is used to get the AST-Type of classes which extends this class.
+     * This will help to debug problems or check the AST for correct syntax.
+     *
+     * @param astType
+     *         The AST-Type which should get used by the class.
+     */
     public VariableStatementAST(final ASTType astType) {
         this.setAstType(astType);
     }
     
+    /**
+     * This method is just a boilerplate code which should get used if it didn't got
+     * overwritten. It will just return null because you should overwrite it.
+     *
+     * @param parentAST
+     *         The parent of the AST. With it you can check for correct usage of the
+     *         statement.
+     * @param syntaxAnalyzer
+     *         The given SyntaxAnalyzer is needed for checking the syntax of the current
+     *         Token list.
+     *
+     * @return It just returns null because you need to overwrite it.
+     */
     @Override
     public AbstractStatementAST parseAST(final AbstractAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
-        return parentAST.addAST(this, syntaxAnalyzer);
+        return null;
     }
     
+    /**
+     * This method is just a boilerplate code which should get used if a other class wants
+     * to add an AST to this class. It will just return null because you should overwrite
+     * it.
+     *
+     * @param toAddAST
+     *         The AST which should get add to this class.
+     * @param syntaxAnalyzer
+     *         The given SyntaxAnalyzer is needed for checking and modification of the
+     *         current Token list/order.
+     * @param <T> The declared AST-Type which should get added to this class.
+     *
+     * @return It just returns null because you need to overwrite it.
+     */
     @Override
     public <T extends AbstractAST> T addAST(final T toAddAST, final SyntaxAnalyzer syntaxAnalyzer) {
-        return toAddAST;
-    }
-    
-    @Override
-    public boolean initialize(final SyntaxAnalyzer syntaxAnalyzer) {
-        return false;
+        return null;
     }
     
 }
