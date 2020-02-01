@@ -5,6 +5,7 @@ import org.junit.Test;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.util.Objects;
 
 /**
  * Copyright © 2019 ArkoiSystems (https://www.arkoisystems.com/) All Rights Reserved.
@@ -25,16 +26,24 @@ import java.io.PrintStream;
 public class ArkoiCompilerTest
 {
     
+    public static String COMPILER_TEST = "../../examples/basic/";
+    
     @Test
     public void runCompiler() throws IOException {
         final ArkoiCompiler arkoiCompiler = new ArkoiCompiler();
-        arkoiCompiler.addFile(new File("../../examples/basic/main.ark"));
+        final File testDirectory = new File(COMPILER_TEST);
+        
+        if (testDirectory.listFiles() != null) {
+            for (final File file : Objects.requireNonNull(testDirectory.listFiles()))
+                if (file.getName().endsWith(".ark"))
+                    arkoiCompiler.addFile(file);
+        }
         
         if (!arkoiCompiler.compile()) {
             System.err.println("Couldn't compile the file. Please see the stacktrace for errors:");
             arkoiCompiler.printStackTrace(System.err);
         } else {
-            try (final PrintStream printStream = new PrintStream(new File("../../examples/basic/output.result"))) {
+            try (final PrintStream printStream = new PrintStream(new File(COMPILER_TEST + "/output.result"))) {
                 for (final ArkoiClass arkoiClass : arkoiCompiler.getArkoiClasses())
                     printStream.print(arkoiClass);
             } catch (final Exception ex) {

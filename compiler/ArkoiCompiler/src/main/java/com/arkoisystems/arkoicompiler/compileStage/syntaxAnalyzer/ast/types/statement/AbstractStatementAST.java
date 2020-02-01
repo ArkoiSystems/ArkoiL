@@ -12,6 +12,7 @@ import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.AbstractAS
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.BlockAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.expressions.AbstractExpressionAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.FunctionStatementAST;
+import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.ImportDefinitionAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.ReturnStatementAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.ThisStatementAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.functionStatements.FunctionDefinitionAST;
@@ -60,6 +61,7 @@ public class AbstractStatementAST extends AbstractAST
             
             switch (currentToken.getTokenContent()) {
                 case "val":
+                case "import":
                 case "fun":
                 case "this":
                 case "return":
@@ -90,6 +92,8 @@ public class AbstractStatementAST extends AbstractAST
             // TODO: 1/15/2020 Search for every method in every RootFile included (natives too)
             
             switch (currentToken.getTokenContent()) {
+                case "import":
+                    return new ImportDefinitionAST().parseAST(parentAST, syntaxAnalyzer);
                 case "val":
                     return new VariableDefinitionAST().parseAST(parentAST, syntaxAnalyzer);
                 case "fun":

@@ -73,6 +73,7 @@ public class FunctionDefinitionAST extends FunctionStatementAST
         super(ASTType.FUNCTION_DEFINITION);
         
         this.functionAnnotationASTs = functionAnnotationASTs;
+        this.functionArgumentASTs = new ArrayList<>();
     }
     
     /**
@@ -84,6 +85,7 @@ public class FunctionDefinitionAST extends FunctionStatementAST
         super(ASTType.FUNCTION_DEFINITION);
         
         this.functionAnnotationASTs = new ArrayList<>();
+        this.functionArgumentASTs = new ArrayList<>();
     }
     
     /**
@@ -121,11 +123,11 @@ public class FunctionDefinitionAST extends FunctionStatementAST
             return null;
         } else this.setStart(syntaxAnalyzer.currentToken().getStart());
         
-        if (syntaxAnalyzer.matchesCurrentToken(TokenType.IDENTIFIER) == null) {
+        if (syntaxAnalyzer.matchesNextToken(TokenType.IDENTIFIER) == null) {
             syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the \"function definition\" statement because the \"fun\" keyword isn't followed by a function name."));
             return null;
         } else this.functionNameToken = (IdentifierToken) syntaxAnalyzer.currentToken();
-        
+    
         if (syntaxAnalyzer.matchesNextToken(SeparatorToken.SeparatorType.LESS_THAN_SIGN) == null) {
             syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the \"function definition\" statement because the function name isn't followed by an opening sign aka. \"<\"."));
             return null;
@@ -141,7 +143,7 @@ public class FunctionDefinitionAST extends FunctionStatementAST
             }
         } else this.functionReturnTypeAST = new TypeAST(TypeAST.TypeKind.VOID, false);
         
-        if (syntaxAnalyzer.matchesNextToken(SeparatorToken.SeparatorType.GREATER_THAN_SIGN) == null) {
+        if (syntaxAnalyzer.matchesCurrentToken(SeparatorToken.SeparatorType.GREATER_THAN_SIGN) == null) {
             syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the \"function definition\" statement because the return type section doesn't end with a closing sign aka. \">\"."));
             return null;
         }
@@ -157,7 +159,7 @@ public class FunctionDefinitionAST extends FunctionStatementAST
             return null;
         }
         
-        if (syntaxAnalyzer.matchesNextToken(SeparatorToken.SeparatorType.CLOSING_PARENTHESIS) == null) {
+        if (syntaxAnalyzer.matchesCurrentToken(SeparatorToken.SeparatorType.CLOSING_PARENTHESIS) == null) {
             syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the \"function definition\" statement because the argument section doesn't end with a closing parenthesis."));
             return null;
         } else syntaxAnalyzer.nextToken();

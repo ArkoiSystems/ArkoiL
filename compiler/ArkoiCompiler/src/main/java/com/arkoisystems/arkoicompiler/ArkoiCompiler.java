@@ -70,9 +70,9 @@ public class ArkoiCompiler
                 return false;
         }
         
-        for (final ArkoiClass arkoiClass : this.arkoiClasses)
-            if (!arkoiClass.getSyntaxAnalyzer().getRootAST().initialize(arkoiClass.getSyntaxAnalyzer()))
-                return false;
+//        for (final ArkoiClass arkoiClass : this.arkoiClasses)
+//            if (!arkoiClass.getSyntaxAnalyzer().getRootAST().initialize(arkoiClass.getSyntaxAnalyzer()))
+//                return false;
         
         System.out.printf("The compilation took %sms for all classes (%s in total)\n", ((System.nanoTime() - compileStart) / 1000000), this.arkoiClasses.size());
         return true;

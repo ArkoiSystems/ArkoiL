@@ -39,7 +39,7 @@ import java.util.List;
  */
 @Getter
 @Setter
-public class BlockAST extends AbstractAST implements IInitializeable
+public class BlockAST extends AbstractAST
 {
     
     @Expose
@@ -94,30 +94,30 @@ public class BlockAST extends AbstractAST implements IInitializeable
         return toAddAST;
     }
     
-    @Override
-    public boolean initialize(final SyntaxAnalyzer syntaxAnalyzer) {
-        if (this.blockCallback == null || !this.blockCallback.execute())
-            return false;
-        
-        for (final AbstractAST abstractAST : this.blockStorage) {
-//            if (abstractAST instanceof VariableStatementAST) {
-//                if (!((VariableStatementAST) abstractAST).initialize(syntaxAnalyzer))
-//                    return false;
-//            } else if (abstractAST instanceof FunctionStatementAST) {
-//                if (!((FunctionStatementAST) abstractAST).initialize(syntaxAnalyzer))
-//                    return false;
-//            } else if (abstractAST instanceof ReturnStatementAST) {
-//                if (!((ReturnStatementAST) abstractAST).initialize(syntaxAnalyzer))
-//                    return false;
-//            }
-        }
-        
-        for (final BlockAST innerBlockAST : this.getInnerBlocks())
-            if (!innerBlockAST.initialize(syntaxAnalyzer))
-                return false;
-        
-        return !(this.blockStorage.isEmpty() && this.blockType == BlockType.INLINE);
-    }
+//    @Override
+//    public boolean initialize(final SyntaxAnalyzer syntaxAnalyzer) {
+//        if (this.blockCallback == null || !this.blockCallback.execute())
+//            return false;
+//
+//        for (final AbstractAST abstractAST : this.blockStorage) {
+////            if (abstractAST instanceof VariableStatementAST) {
+////                if (!((VariableStatementAST) abstractAST).initialize(syntaxAnalyzer))
+////                    return false;
+////            } else if (abstractAST instanceof FunctionStatementAST) {
+////                if (!((FunctionStatementAST) abstractAST).initialize(syntaxAnalyzer))
+////                    return false;
+////            } else if (abstractAST instanceof ReturnStatementAST) {
+////                if (!((ReturnStatementAST) abstractAST).initialize(syntaxAnalyzer))
+////                    return false;
+////            }
+//        }
+//
+//        for (final BlockAST innerBlockAST : this.getInnerBlocks())
+//            if (!innerBlockAST.initialize(syntaxAnalyzer))
+//                return false;
+//
+//        return !(this.blockStorage.isEmpty() && this.blockType == BlockType.INLINE);
+//    }
     
     public VariableDefinitionAST getVariableByName(final AbstractToken identifierToken) {
         for (final AbstractAST abstractAST : this.blockStorage) {

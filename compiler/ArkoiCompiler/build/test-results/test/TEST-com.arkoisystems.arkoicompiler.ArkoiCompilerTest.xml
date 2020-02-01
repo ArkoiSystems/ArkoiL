@@ -1,40 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.arkoisystems.arkoicompiler.ArkoiCompilerTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2020-02-01T20:04:22" hostname="msi-ubuntu" time="0.066">
+<testsuite name="com.arkoisystems.arkoicompiler.ArkoiCompilerTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2020-02-01T22:03:40" hostname="msi-ubuntu" time="0.08">
   <properties/>
-  <testcase name="runCompiler" classname="com.arkoisystems.arkoicompiler.ArkoiCompilerTest" time="0.066"/>
-  <system-out><![CDATA[The lexical analysis took 15ms for all classes (2 in total)
-Test
+  <testcase name="runCompiler" classname="com.arkoisystems.arkoicompiler.ArkoiCompilerTest" time="0.08"/>
+  <system-out><![CDATA[The lexical analysis took 13ms for all classes (2 in total)
+The compilation took 27ms for all classes (2 in total)
 ]]></system-out>
-  <system-err><![CDATA[Couldn't compile the file. Please see the stacktrace for errors:
-{
-  "variableStorage": [],
-  "functionStorage": [],
-  "astType": "ROOT",
-  "start": 0,
-  "end": 51
-}
-{
-  "abstractToken": {
-    "tokenType": "IDENTIFIER",
-    "tokenContent": "println",
-    "start": 22,
-    "end": 29
-  },
-  "message": "Couldn't parse the \"function definition\" statement because the function name isn't followed by an opening sign aka. \"<\".",
-  "start": 22,
-  "end": 29
-}
-{
-  "parser": {},
-  "message": "Couldn't parse the \"ArgumentDefinitionAST\" because an error occurred. Couldn't parse the Annotation because an error occurred during the parsing of the function definition.",
-  "start": 0,
-  "end": 16
-}
-{
-  "parser": {},
-  "message": "Couldn't parse the \"AnnotationAST\" because an error occurred.",
-  "start": 0,
-  "end": 29
-}
-]]></system-err>
+  <system-err><![CDATA[]]></system-err>
 </testsuite>

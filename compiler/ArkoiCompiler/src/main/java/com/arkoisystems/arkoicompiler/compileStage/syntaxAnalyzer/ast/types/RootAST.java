@@ -10,6 +10,7 @@ import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.SyntaxAnalyzer
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.ASTType;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.AbstractAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.AbstractStatementAST;
+import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.ImportDefinitionAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.functionStatements.FunctionDefinitionAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.variableStatements.VariableDefinitionAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.parser.Parser;
@@ -46,6 +47,9 @@ public class RootAST extends AbstractAST
     
     
     @Expose
+    private final List<ImportDefinitionAST> importStorage;
+    
+    @Expose
     private final List<VariableDefinitionAST> variableStorage;
     
     @Expose
@@ -67,6 +71,7 @@ public class RootAST extends AbstractAST
         
         this.variableStorage = new ArrayList<>();
         this.functionStorage = new ArrayList<>();
+        this.importStorage = new ArrayList<>();
     }
     
     /**
@@ -102,7 +107,11 @@ public class RootAST extends AbstractAST
                     return null;
                 } else {
                     if (abstractAST instanceof FunctionDefinitionAST) {
-                        if (syntaxAnalyzer.matchesCurrentToken(SeparatorToken.SeparatorType.CLOSING_BRACE) == null) {
+                        final FunctionDefinitionAST functionDefinitionAST = (FunctionDefinitionAST) abstractAST;
+                        if (functionDefinitionAST.getBlockAST().getBlockType() == BlockAST.BlockType.INLINE && syntaxAnalyzer.matchesCurrentToken(SeparatorToken.SeparatorType.SEMICOLON) == null) {
+                            syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the \"function definition\" statement because the inlined function doesn't end with a semicolon."));
+                            return null;
+                        } else if (functionDefinitionAST.getBlockAST().getBlockType() == BlockAST.BlockType.BLOCK && syntaxAnalyzer.matchesCurrentToken(SeparatorToken.SeparatorType.CLOSING_BRACE) == null) {
                             syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the \"function definition\" statement because it doesn't end with a closing brace."));
                             return null;
                         }
@@ -112,6 +121,8 @@ public class RootAST extends AbstractAST
                             return null;
                         }
                     }
+                    
+                    syntaxAnalyzer.nextToken();
                     continue main_loop;
                 }
             }
@@ -144,6 +155,8 @@ public class RootAST extends AbstractAST
             this.variableStorage.add((VariableDefinitionAST) toAddAST);
         else if (toAddAST instanceof FunctionDefinitionAST)
             this.functionStorage.add((FunctionDefinitionAST) toAddAST);
+        else if (toAddAST instanceof ImportDefinitionAST)
+            this.importStorage.add((ImportDefinitionAST) toAddAST);
         return toAddAST;
     }
     

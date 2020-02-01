@@ -114,10 +114,11 @@
     "errorHandler": {},
     "position": 15,
     "rootAST": {
+      "importStorage": [],
       "variableStorage": [],
       "functionStorage": [
         {
-          "functionAnnotations": [
+          "functionAnnotationASTs": [
             {
               "annotationName": {
                 "tokenType": "IDENTIFIER",
@@ -135,23 +136,23 @@
               ],
               "astType": "ANNOTATION",
               "start": 0,
-              "end": 21
+              "end": 16
             }
           ],
-          "functionName": {
+          "functionNameToken": {
             "tokenType": "IDENTIFIER",
             "tokenContent": "println",
             "start": 22,
             "end": 29
           },
-          "functionReturnType": {
+          "functionReturnTypeAST": {
             "typeKind": "VOID",
             "isArray": false,
             "astType": "TYPE",
             "start": 0,
             "end": 0
           },
-          "functionArguments": [
+          "functionArgumentASTs": [
             {
               "argumentNameIdentifier": {
                 "tokenType": "IDENTIFIER",
@@ -182,7 +183,7 @@
     }
   }
 }{
-  "content": "# this method gets invoked first\nfun main<int>(args: string[]) {\n    this.print_greet(\" ehehe \");\n    return 0;\n}\n\nfun print_greet<>(test_argument: string) = println(\"Fest\");\n\nfun greeting<string>() = \"Hello World\";\n",
+  "content": "# this method gets invoked first\nfun main<int>(args: string[]) {\n    this.print_greet(\" ehehe \");\n    return 0;\n}\n\nfun print_greet<>(test_argument: string) = println(\"%s , %s\" % [this.greeting(), test_argument]);\n\nfun greeting<string>() = \"Hello World\";\n",
   "lexicalAnalyzer": {
     "errorHandler": {},
     "tokens": [
@@ -432,120 +433,188 @@
       },
       {
         "tokenType": "STRING",
-        "tokenContent": "Fest",
+        "tokenContent": "%s , %s",
         "start": 166,
-        "end": 172
+        "end": 175
       },
       {
-        "separatorType": "CLOSING_PARENTHESIS",
-        "tokenType": "SEPARATOR",
-        "tokenContent": ")",
-        "start": 172,
-        "end": 173
-      },
-      {
-        "separatorType": "SEMICOLON",
-        "tokenType": "SEPARATOR",
-        "tokenContent": ";",
-        "start": 173,
-        "end": 174
-      },
-      {
-        "tokenType": "IDENTIFIER",
-        "tokenContent": "fun",
+        "binaryOperatorType": "MODULO",
+        "tokenType": "BINARY_OPERATOR",
+        "tokenContent": "%",
         "start": 176,
+        "end": 177
+      },
+      {
+        "separatorType": "OPENING_BRACKET",
+        "tokenType": "SEPARATOR",
+        "tokenContent": "[",
+        "start": 178,
         "end": 179
       },
       {
         "tokenType": "IDENTIFIER",
-        "tokenContent": "greeting",
-        "start": 180,
-        "end": 188
+        "tokenContent": "this",
+        "start": 179,
+        "end": 183
       },
       {
-        "separatorType": "LESS_THAN_SIGN",
+        "separatorType": "PERIOD",
         "tokenType": "SEPARATOR",
-        "tokenContent": "<",
-        "start": 188,
-        "end": 189
+        "tokenContent": ".",
+        "start": 183,
+        "end": 184
       },
       {
         "tokenType": "IDENTIFIER",
-        "tokenContent": "string",
-        "start": 189,
-        "end": 195
-      },
-      {
-        "separatorType": "GREATER_THAN_SIGN",
-        "tokenType": "SEPARATOR",
-        "tokenContent": ">",
-        "start": 195,
-        "end": 196
+        "tokenContent": "greeting",
+        "start": 184,
+        "end": 192
       },
       {
         "separatorType": "OPENING_PARENTHESIS",
         "tokenType": "SEPARATOR",
         "tokenContent": "(",
-        "start": 196,
-        "end": 197
+        "start": 192,
+        "end": 193
       },
       {
         "separatorType": "CLOSING_PARENTHESIS",
         "tokenType": "SEPARATOR",
         "tokenContent": ")",
-        "start": 197,
-        "end": 198
+        "start": 193,
+        "end": 194
       },
       {
-        "assignmentOperatorType": "ASSIGNMENT",
-        "tokenType": "ASSIGNMENT_OPERATOR",
-        "tokenContent": "=",
-        "start": 199,
-        "end": 200
+        "separatorType": "COMMA",
+        "tokenType": "SEPARATOR",
+        "tokenContent": ",",
+        "start": 194,
+        "end": 195
       },
       {
-        "tokenType": "STRING",
-        "tokenContent": "Hello World",
-        "start": 201,
-        "end": 214
+        "tokenType": "IDENTIFIER",
+        "tokenContent": "test_argument",
+        "start": 196,
+        "end": 209
+      },
+      {
+        "separatorType": "CLOSING_BRACKET",
+        "tokenType": "SEPARATOR",
+        "tokenContent": "]",
+        "start": 209,
+        "end": 210
+      },
+      {
+        "separatorType": "CLOSING_PARENTHESIS",
+        "tokenType": "SEPARATOR",
+        "tokenContent": ")",
+        "start": 210,
+        "end": 211
       },
       {
         "separatorType": "SEMICOLON",
         "tokenType": "SEPARATOR",
         "tokenContent": ";",
+        "start": 211,
+        "end": 212
+      },
+      {
+        "tokenType": "IDENTIFIER",
+        "tokenContent": "fun",
         "start": 214,
-        "end": 215
+        "end": 217
+      },
+      {
+        "tokenType": "IDENTIFIER",
+        "tokenContent": "greeting",
+        "start": 218,
+        "end": 226
+      },
+      {
+        "separatorType": "LESS_THAN_SIGN",
+        "tokenType": "SEPARATOR",
+        "tokenContent": "<",
+        "start": 226,
+        "end": 227
+      },
+      {
+        "tokenType": "IDENTIFIER",
+        "tokenContent": "string",
+        "start": 227,
+        "end": 233
+      },
+      {
+        "separatorType": "GREATER_THAN_SIGN",
+        "tokenType": "SEPARATOR",
+        "tokenContent": ">",
+        "start": 233,
+        "end": 234
+      },
+      {
+        "separatorType": "OPENING_PARENTHESIS",
+        "tokenType": "SEPARATOR",
+        "tokenContent": "(",
+        "start": 234,
+        "end": 235
+      },
+      {
+        "separatorType": "CLOSING_PARENTHESIS",
+        "tokenType": "SEPARATOR",
+        "tokenContent": ")",
+        "start": 235,
+        "end": 236
+      },
+      {
+        "assignmentOperatorType": "ASSIGNMENT",
+        "tokenType": "ASSIGNMENT_OPERATOR",
+        "tokenContent": "=",
+        "start": 237,
+        "end": 238
+      },
+      {
+        "tokenType": "STRING",
+        "tokenContent": "Hello World",
+        "start": 239,
+        "end": 252
+      },
+      {
+        "separatorType": "SEMICOLON",
+        "tokenType": "SEPARATOR",
+        "tokenContent": ";",
+        "start": 252,
+        "end": 253
       },
       {
         "tokenType": "END_OF_FILE",
-        "tokenContent": "# this method gets invoked first\nfun main<int>(args: string[]) {\n    this.print_greet(\" ehehe \");\n    return 0;\n}\n\nfun print_greet<>(test_argument: string) = println(\"Fest\");\n\nfun greeting<string>() = \"Hello World\";\n",
+        "tokenContent": "# this method gets invoked first\nfun main<int>(args: string[]) {\n    this.print_greet(\" ehehe \");\n    return 0;\n}\n\nfun print_greet<>(test_argument: string) = println(\"%s , %s\" % [this.greeting(), test_argument]);\n\nfun greeting<string>() = \"Hello World\";\n",
         "start": 0,
-        "end": 216
+        "end": 254
       }
     ]
   },
   "syntaxAnalyzer": {
     "errorHandler": {},
-    "position": 49,
+    "position": 59,
     "rootAST": {
+      "importStorage": [],
       "variableStorage": [],
       "functionStorage": [
         {
-          "functionAnnotations": [],
-          "functionName": {
+          "functionAnnotationASTs": [],
+          "functionNameToken": {
             "tokenType": "IDENTIFIER",
             "tokenContent": "main",
             "start": 37,
             "end": 41
           },
-          "functionReturnType": {
+          "functionReturnTypeAST": {
             "typeKind": "INTEGER",
             "isArray": false,
             "astType": "TYPE",
             "start": 0,
             "end": 0
           },
-          "functionArguments": [
+          "functionArgumentASTs": [
             {
               "argumentNameIdentifier": {
                 "tokenType": "IDENTIFIER",
@@ -567,30 +636,7 @@
           ],
           "blockAST": {
             "blockType": "BLOCK",
-            "blockStorage": [
-              {
-                "abstractExpressionAST": {
-                  "abstractOperableAST": {
-                    "abstractToken": {
-                      "numberType": "INTEGER",
-                      "tokenType": "NUMBER",
-                      "tokenContent": "0",
-                      "start": 109,
-                      "end": 110
-                    },
-                    "astType": "NUMBER_OPERABLE",
-                    "start": 109,
-                    "end": 110
-                  },
-                  "astType": "SIMPLE_EXPRESSION",
-                  "start": 109,
-                  "end": 110
-                },
-                "astType": "RETURN_STATEMENT_AST",
-                "start": 102,
-                "end": 111
-              }
-            ],
+            "blockStorage": [],
             "astType": "BLOCK",
             "start": 63,
             "end": 0
@@ -600,21 +646,21 @@
           "end": 0
         },
         {
-          "functionAnnotations": [],
-          "functionName": {
+          "functionAnnotationASTs": [],
+          "functionNameToken": {
             "tokenType": "IDENTIFIER",
             "tokenContent": "print_greet",
             "start": 119,
             "end": 130
           },
-          "functionReturnType": {
+          "functionReturnTypeAST": {
             "typeKind": "VOID",
             "isArray": false,
             "astType": "TYPE",
             "start": 0,
             "end": 0
           },
-          "functionArguments": [
+          "functionArgumentASTs": [
             {
               "argumentNameIdentifier": {
                 "tokenType": "IDENTIFIER",
@@ -636,100 +682,7 @@
           ],
           "blockAST": {
             "blockType": "INLINE",
-            "blockStorage": [
-              {
-                "abstractOperableAST": {
-                  "abstractToken": {
-                    "invokedFunction": {
-                      "functionAnnotations": [
-                        {
-                          "annotationName": {
-                            "tokenType": "IDENTIFIER",
-                            "tokenContent": "native",
-                            "start": 1,
-                            "end": 7
-                          },
-                          "annotationArguments": [
-                            {
-                              "tokenType": "IDENTIFIER",
-                              "tokenContent": "default",
-                              "start": 8,
-                              "end": 15
-                            }
-                          ],
-                          "astType": "ANNOTATION",
-                          "start": 0,
-                          "end": 21
-                        }
-                      ],
-                      "functionName": {
-                        "tokenType": "IDENTIFIER",
-                        "tokenContent": "println",
-                        "start": 22,
-                        "end": 29
-                      },
-                      "functionReturnType": {
-                        "typeKind": "VOID",
-                        "isArray": false,
-                        "astType": "TYPE",
-                        "start": 0,
-                        "end": 0
-                      },
-                      "functionArguments": [
-                        {
-                          "argumentNameIdentifier": {
-                            "tokenType": "IDENTIFIER",
-                            "tokenContent": "message",
-                            "start": 32,
-                            "end": 39
-                          },
-                          "argumentType": {
-                            "typeKind": "STRING",
-                            "isArray": false,
-                            "astType": "TYPE",
-                            "start": 0,
-                            "end": 0
-                          },
-                          "astType": "ARGUMENT_DEFINITION",
-                          "start": 0,
-                          "end": 0
-                        }
-                      ],
-                      "astType": "FUNCTION_DEFINITION",
-                      "start": 18,
-                      "end": 0
-                    },
-                    "invokeArguments": [
-                      {
-                        "abstractOperableAST": {
-                          "abstractToken": {
-                            "tokenType": "STRING",
-                            "tokenContent": "Fest",
-                            "start": 166,
-                            "end": 172
-                          },
-                          "astType": "STRING_OPERABLE",
-                          "start": 166,
-                          "end": 172
-                        },
-                        "astType": "SIMPLE_EXPRESSION",
-                        "start": 166,
-                        "end": 172
-                      }
-                    ],
-                    "astType": "FUNCTION_INVOKE",
-                    "start": 158,
-                    "end": 174
-                  },
-                  "astType": "FUNCTION_RESULT_OPERABLE",
-                  "start": 158,
-                  "end": 174
-                },
-                "astType": "SIMPLE_EXPRESSION",
-                "start": 158,
-                "end": 174
-              }
-            ],
+            "blockStorage": [],
             "astType": "BLOCK",
             "start": 156,
             "end": 0
@@ -739,53 +692,36 @@
           "end": 0
         },
         {
-          "functionAnnotations": [],
-          "functionName": {
+          "functionAnnotationASTs": [],
+          "functionNameToken": {
             "tokenType": "IDENTIFIER",
             "tokenContent": "greeting",
-            "start": 180,
-            "end": 188
+            "start": 218,
+            "end": 226
           },
-          "functionReturnType": {
+          "functionReturnTypeAST": {
             "typeKind": "STRING",
             "isArray": false,
             "astType": "TYPE",
             "start": 0,
             "end": 0
           },
-          "functionArguments": [],
+          "functionArgumentASTs": [],
           "blockAST": {
             "blockType": "INLINE",
-            "blockStorage": [
-              {
-                "abstractOperableAST": {
-                  "abstractToken": {
-                    "tokenType": "STRING",
-                    "tokenContent": "Hello World",
-                    "start": 201,
-                    "end": 214
-                  },
-                  "astType": "STRING_OPERABLE",
-                  "start": 201,
-                  "end": 214
-                },
-                "astType": "SIMPLE_EXPRESSION",
-                "start": 201,
-                "end": 214
-              }
-            ],
+            "blockStorage": [],
             "astType": "BLOCK",
-            "start": 199,
+            "start": 237,
             "end": 0
           },
           "astType": "FUNCTION_DEFINITION",
-          "start": 176,
+          "start": 214,
           "end": 0
         }
       ],
       "astType": "ROOT",
       "start": 0,
-      "end": 216
+      "end": 254
     }
   }
 }

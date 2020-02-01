@@ -10,3 +10,5 @@ AST:
     - VariableDefinitionAST
     - TypeAST
     - AnnotationAST
+    - FunctionDefinitionAST
+    - RootAST

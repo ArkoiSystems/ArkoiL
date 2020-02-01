@@ -175,6 +175,20 @@ public class SyntaxAnalyzer implements ICompileStage
         return numberToken;
     }
     
+    public AbstractToken matchesPeekToken(final int peek, final TokenType tokenType) {
+        if (peek == 0) {
+            // TODO: 1/2/2020 Throw error
+            return this.matchesCurrentToken(tokenType);
+        }
+        
+        final AbstractToken peekToken = this.peekToken(peek);
+        if (peekToken.getTokenType() != tokenType) {
+            // TODO: 1/2/2020 Throw error
+            return null;
+        }
+        return peekToken;
+    }
+    
     public AbstractToken matchesCurrentToken(final AssignmentOperatorToken.AssignmentOperatorType assignmentOperatorType) {
         final AbstractToken currentToken = this.currentToken();
         if (!(currentToken instanceof AssignmentOperatorToken)) {

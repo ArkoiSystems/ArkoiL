@@ -41,6 +41,7 @@ public class StatementParser extends Parser<AbstractStatementAST>
             switch (currentToken.getTokenContent()) {
                 case "val":
                 case "fun":
+                case "import":
                 case "this":
                 case "return":
                     syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the statement because you can't use it with the \"this\" keyword. The \"this\" keyword can just be followed by a function or variable."));
@@ -95,6 +96,7 @@ public class StatementParser extends Parser<AbstractStatementAST>
             switch (currentToken.getTokenContent()) {
                 case "val":
                 case "this":
+                case "import":
                 case "fun":
                 case "return":
                     return true;

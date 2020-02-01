@@ -1,5 +1,4 @@
- 
-import "first_class" named FirstClass;
+import "first_class";
 import "second_class" named SecondClass;
 
 fun main<int>(args: string[]) {
