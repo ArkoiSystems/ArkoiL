@@ -9,12 +9,7 @@ import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.o
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.ASTType;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.AbstractAST;
-import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.IInitializeable;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.expressions.AbstractExpressionAST;
-import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.FunctionStatementAST;
-import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.ReturnStatementAST;
-import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.VariableStatementAST;
-import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.functionStatements.FunctionDefinitionAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.variableStatements.VariableDefinitionAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.parser.Parser;
 import com.arkoisystems.arkoicompiler.utils.ICallback;
@@ -67,13 +62,13 @@ public class BlockAST extends AbstractAST implements IInitializeable
     
     @Override
     public BlockAST parseAST(final AbstractAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
-        if (!(parentAST instanceof FunctionDefinitionAST) &&
-                !(parentAST instanceof BlockAST) &&
-                !(parentAST instanceof VariableDefinitionAST) &&
-                !(parentAST instanceof VariableIncrementByAST)) {
-            syntaxAnalyzer.errorHandler().addError(new ASTError(parentAST, "Couldn't parse the BlockAST because the ParentAST isn't valid."));
-            return null;
-        }
+//        if (!(parentAST instanceof FunctionDefinitionAST) &&
+//                !(parentAST instanceof BlockAST) &&
+//                !(parentAST instanceof VariableDefinitionAST) &&
+//                !(parentAST instanceof VariableIncrementByAST)) {
+//            syntaxAnalyzer.errorHandler().addError(new ASTError(parentAST, "Couldn't parse the BlockAST because the ParentAST isn't valid."));
+//            return null;
+//        }
         
         if (syntaxAnalyzer.matchesCurrentToken(SeparatorToken.SeparatorType.OPENING_BRACE) != null) {
             this.setStart(syntaxAnalyzer.currentToken().getStart());
@@ -105,16 +100,16 @@ public class BlockAST extends AbstractAST implements IInitializeable
             return false;
         
         for (final AbstractAST abstractAST : this.blockStorage) {
-            if (abstractAST instanceof VariableStatementAST) {
-                if (!((VariableStatementAST) abstractAST).initialize(syntaxAnalyzer))
-                    return false;
-            } else if (abstractAST instanceof FunctionStatementAST) {
-                if (!((FunctionStatementAST) abstractAST).initialize(syntaxAnalyzer))
-                    return false;
-            } else if (abstractAST instanceof ReturnStatementAST) {
-                if (!((ReturnStatementAST) abstractAST).initialize(syntaxAnalyzer))
-                    return false;
-            }
+//            if (abstractAST instanceof VariableStatementAST) {
+//                if (!((VariableStatementAST) abstractAST).initialize(syntaxAnalyzer))
+//                    return false;
+//            } else if (abstractAST instanceof FunctionStatementAST) {
+//                if (!((FunctionStatementAST) abstractAST).initialize(syntaxAnalyzer))
+//                    return false;
+//            } else if (abstractAST instanceof ReturnStatementAST) {
+//                if (!((ReturnStatementAST) abstractAST).initialize(syntaxAnalyzer))
+//                    return false;
+//            }
         }
         
         for (final BlockAST innerBlockAST : this.getInnerBlocks())

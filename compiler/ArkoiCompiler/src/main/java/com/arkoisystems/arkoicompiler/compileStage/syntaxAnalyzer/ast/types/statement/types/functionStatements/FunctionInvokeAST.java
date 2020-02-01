@@ -48,8 +48,8 @@ public class FunctionInvokeAST extends FunctionStatementAST
     private final FunctionInvocationAccess functionInvocationAccess;
     
     /**
-     * The constructor will initialize the statement with the AST-Type "FUNCTION_INVOKE"
-     * for this class. This will help to debug problems or check the AST for correct
+     * This constructor will initialize the statement with the AST-Type "FUNCTION_INVOKE"
+     *. This will help to debug problems or check the AST for correct
      * syntax. Also it will pass the IdentifierToken to this class which is used for the
      * invoked function name and the FunctionInvocationAccess which is used to check if
      * the statement ends with a semicolon or not.
@@ -67,8 +67,8 @@ public class FunctionInvokeAST extends FunctionStatementAST
     }
     
     /**
-     * The constructor will initialize the statement with the AST-Type "FUNCTION_INVOKE"
-     * for this class. This will help to debug problems or check the AST for correct
+     * This constructor will initialize the statement with the AST-Type "FUNCTION_INVOKE"
+     *. This will help to debug problems or check the AST for correct
      * syntax. Also it will pass the IdentifierToken to this class which is used for the
      * invoked function name.
      *
@@ -85,7 +85,7 @@ public class FunctionInvokeAST extends FunctionStatementAST
     }
     
     /**
-     * The method will parse the "function invoke" statement and checks it for the correct
+     * This method will parse the "function invoke" statement and checks it for the correct
      * syntax. This statement can just be used inside a BlockAST or inside an
      * AbstractExpressionAST.
      * <p>

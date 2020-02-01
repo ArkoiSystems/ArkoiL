@@ -3,19 +3,16 @@ package com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.sta
 import com.arkoisystems.arkoicompiler.compileStage.errorHandler.types.ASTError;
 import com.arkoisystems.arkoicompiler.compileStage.errorHandler.types.ParserError;
 import com.arkoisystems.arkoicompiler.compileStage.errorHandler.types.TokenError;
-import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.AbstractToken;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.TokenType;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.SeparatorToken;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.ASTType;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.AbstractAST;
-import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.IInitializeable;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.BlockAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.expressions.AbstractExpressionAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.AbstractStatementAST;
 import com.google.gson.annotations.Expose;
 import lombok.Getter;
-import lombok.Setter;
 
 /**
  * Copyright © 2019 ArkoiSystems (https://www.arkoisystems.com/) All Rights Reserved.
@@ -49,7 +46,7 @@ public class ReturnStatementAST extends AbstractStatementAST
     }
     
     /**
-     * The method will parse the "return" statement and checks it for the correct syntax.
+     * This method will parse the "return" statement and checks it for the correct syntax.
      * This statement can just be used inside a BlockAST because it will define the return
      * type of it. You can't use a "this" statement in-front of it and it needs to end
      * with a semicolon.

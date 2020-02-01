@@ -11,6 +11,7 @@ import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.o
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.ASTType;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.AbstractAST;
+import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.AnnotationAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.BlockAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.RootAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.expressions.AbstractExpressionAST;
@@ -18,6 +19,9 @@ import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.stat
 import com.google.gson.annotations.Expose;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Copyright © 2019 ArkoiSystems (https://www.arkoisystems.com/) All Rights Reserved.
@@ -40,6 +44,8 @@ import lombok.Setter;
 public class VariableDefinitionAST extends VariableStatementAST
 {
     
+    private final List<AnnotationAST> variableAnnotations;
+    
     @Expose
     private IdentifierToken variableNameToken;
     
@@ -47,16 +53,33 @@ public class VariableDefinitionAST extends VariableStatementAST
     private AbstractExpressionAST abstractExpressionAST;
     
     /**
-     * The constructor will initialize the statement with the AST-Type
-     * "VARIABLE_DEFINITION" for this class. This will help to debug problems or check the
-     * AST for correct syntax.
+     * This constructor will initialize the statement with the AST-Type
+     * "VARIABLE_DEFINITION". This will help to debug problems or check the AST for
+     * correct usage. Also it will pass previous parsed annotations through the
+     * constructor.
+     *
+     * @param variableAnnotations
+     *         The annotations list which already got parsed.
      */
-    public VariableDefinitionAST() {
+    public VariableDefinitionAST(final List<AnnotationAST> variableAnnotations) {
         super(ASTType.VARIABLE_DEFINITION);
+        
+        this.variableAnnotations = variableAnnotations;
     }
     
     /**
-     * The method will parse the "variable definition" statement and checks it for the
+     * This constructor will initialize the statement with the AST-Type
+     * "VARIABLE_DEFINITION". This will help to debug problems or check the AST for
+     * correct syntax.
+     */
+    public VariableDefinitionAST() {
+        super(ASTType.VARIABLE_DEFINITION);
+        
+        this.variableAnnotations = new ArrayList<>();
+    }
+    
+    /**
+     * This method will parse the "variable definition" statement and checks it for the
      * correct syntax. This statement can just be used inside the RootAST or inside a
      * BlockAST.
      * <p>
@@ -105,11 +128,11 @@ public class VariableDefinitionAST extends VariableStatementAST
         
         final AbstractExpressionAST abstractExpressionAST = AbstractExpressionAST.EXPRESSION_PARSER.parse(this, syntaxAnalyzer);
         if (abstractExpressionAST == null) {
-            syntaxAnalyzer.errorHandler().addError(new ParserError(AbstractExpressionAST.EXPRESSION_PARSER, this.getStart(), syntaxAnalyzer.currentToken().getEnd(), "Couldn't parse the \"variable definition\" statement because an error occured during the parsing of the expression."));
+            syntaxAnalyzer.errorHandler().addError(new ParserError(AbstractExpressionAST.EXPRESSION_PARSER, this.getStart(), syntaxAnalyzer.currentToken().getEnd(), "Couldn't parse the \"variable definition\" statement because an error occurred during the parsing of the expression."));
             return null;
         } else this.abstractExpressionAST = abstractExpressionAST;
         
-        if(syntaxAnalyzer.matchesNextToken(SeparatorToken.SeparatorType.SEMICOLON) == null) {
+        if (syntaxAnalyzer.matchesNextToken(SeparatorToken.SeparatorType.SEMICOLON) == null) {
             syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the \"variable definition\" statement because it doesn't end with an semicolon."));
             return null;
         }

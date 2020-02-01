@@ -48,8 +48,10 @@ public class ArkoiCompiler
     
     public void printStackTrace(final PrintStream errorStream) {
         for (final ArkoiClass arkoiClass : this.arkoiClasses) {
-            arkoiClass.getLexicalAnalyzer().getErrorHandler().printStackTrace(errorStream);
-            arkoiClass.getSyntaxAnalyzer().getErrorHandler().printStackTrace(errorStream);
+            if (arkoiClass.getLexicalAnalyzer() != null)
+                arkoiClass.getLexicalAnalyzer().getErrorHandler().printStackTrace(errorStream);
+            if (arkoiClass.getSyntaxAnalyzer() != null)
+                arkoiClass.getSyntaxAnalyzer().getErrorHandler().printStackTrace(errorStream);
         }
     }
     
@@ -68,8 +70,8 @@ public class ArkoiCompiler
                 return false;
         }
         
-        for(final ArkoiClass arkoiClass : this.arkoiClasses)
-            if(!arkoiClass.getSyntaxAnalyzer().getRootAST().initialize(arkoiClass.getSyntaxAnalyzer()))
+        for (final ArkoiClass arkoiClass : this.arkoiClasses)
+            if (!arkoiClass.getSyntaxAnalyzer().getRootAST().initialize(arkoiClass.getSyntaxAnalyzer()))
                 return false;
         
         System.out.printf("The compilation took %sms for all classes (%s in total)\n", ((System.nanoTime() - compileStart) / 1000000), this.arkoiClasses.size());

@@ -1,6 +1,7 @@
 package com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types;
 
 import com.arkoisystems.arkoicompiler.compileStage.errorHandler.types.ASTError;
+import com.arkoisystems.arkoicompiler.compileStage.errorHandler.types.TokenError;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.AbstractToken;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.TokenType;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.IdentifierToken;
@@ -43,6 +44,18 @@ public class TypeAST extends AbstractAST
     @Expose
     private boolean isArray;
     
+    /**
+     * This constructor will initialize the AST with the AST-Type "TYPE". This will help
+     * to debug problems or check the AST for correct syntax. Also it will pass the
+     * TypeKind to this class which is used for comparing two types. Besides that it will
+     * pass through if the type is an array.
+     *
+     * @param typeKind
+     *         The kind of the Type which is used for comparing two types if they are the
+     *         same.
+     * @param isArray
+     *         This boolean will say if the Type is an Array or not.
+     */
     public TypeAST(final TypeKind typeKind, final boolean isArray) {
         super(ASTType.TYPE);
         
@@ -50,28 +63,62 @@ public class TypeAST extends AbstractAST
         this.isArray = isArray;
     }
     
+    /**
+     * This constructor will initialize the AST with the AST-Type "TYPE". This will help
+     * to debug problems or check the AST for correct syntax. Besides that it will passes
+     * no other values.
+     */
     public TypeAST() {
         super(ASTType.TYPE);
     }
     
+    /**
+     * This method will parse the TypeAST and checks it for the correct syntax. This AST
+     * can be used by everything so it doesn't matter what the parent AST is. A TypeAST is
+     * used to specify an IdentifierToken as a Type. So "int" can be an Integer or
+     * "string" a String.
+     *
+     * @param parentAST
+     *         The parent of the AST. With it you can check for correct usage of the
+     *         statement.
+     * @param syntaxAnalyzer
+     *         The given SyntaxAnalyzer is needed for checking the syntax of the current
+     *         Token list.
+     *
+     * @return It will return null if an error occurred or an TypeAST if it parsed until
+     *         to the end.
+     */
     @Override
     public TypeAST parseAST(final AbstractAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
-        final AbstractToken currentIdentifierToken = syntaxAnalyzer.matchesCurrentToken(TokenType.IDENTIFIER);
-        if (currentIdentifierToken == null) {
-            syntaxAnalyzer.errorHandler().addError(new ASTError(this, "Couldn't parse the TypeAST because the parsing doesn't begin with an IdentifierToken."));
+        if (syntaxAnalyzer.matchesCurrentToken(TokenType.IDENTIFIER) == null) {
+            syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the Type becauste the parsing doesn't start with an IdentifierToken."));
             return null;
-        } else this.setTypeKind(TypeKind.getTypeKind((IdentifierToken) currentIdentifierToken));
+        } else this.typeKind = TypeKind.getTypeKind(syntaxAnalyzer.currentToken());
         
-        if (syntaxAnalyzer.matchesPeekToken(1, SeparatorToken.SeparatorType.OPENING_BRACKET) == null || syntaxAnalyzer.matchesPeekToken(2, SeparatorToken.SeparatorType.CLOSING_BRACKET) == null)
-            return parentAST.addAST(this, syntaxAnalyzer);
-        
-        syntaxAnalyzer.nextToken();
-        syntaxAnalyzer.nextToken();
-        this.setArray(true);
+        // This will check if the next two Tokens are an opening and closing bracket aka. "[]". If it is, then skip these two Tokens and set the "isArray" boolean to true.
+        if (syntaxAnalyzer.matchesPeekToken(1, SeparatorToken.SeparatorType.OPENING_BRACKET) != null && syntaxAnalyzer.matchesPeekToken(2, SeparatorToken.SeparatorType.CLOSING_BRACKET) != null) {
+            syntaxAnalyzer.nextToken(2);
+            this.isArray = true;
+        }
         
         return parentAST.addAST(this, syntaxAnalyzer);
     }
     
+    /**
+     * This method is just overwritten because this method extends the AbstractAST class.
+     * It will just return the input and doesn't check anything.
+     *
+     * @param toAddAST
+     *         The AST which should get add to this class.
+     * @param syntaxAnalyzer
+     *         The given SyntaxAnalyzer is needed for checking and modification of the
+     *         current Token list/order.
+     * @param <T>
+     *         The Type of the AST which should be added to the TypeAST.
+     *
+     * @return It will just return the input "toAddAST" because you can't add ASTs to a
+     *         TypeAST.
+     */
     @Override
     public <T extends AbstractAST> T addAST(final T toAddAST, final SyntaxAnalyzer syntaxAnalyzer) {
         return toAddAST;
@@ -90,16 +137,33 @@ public class TypeAST extends AbstractAST
         
         private final String name;
         
+        /**
+         * This constructor will initialize the name of the TypeKind for later
+         * development.
+         *
+         * @param name
+         *         The name of the TypeKind e.g. "string" or "int"
+         */
         TypeKind(final String name) {
             this.name = name;
         }
         
-        public static TypeKind getTypeKind(final IdentifierToken identifierToken) {
+        /**
+         * This method will return the TypeKind of the input Token. If it doesn't find
+         * something equal to a TypeKind it will just return the TypeKind "OTHER".
+         *
+         * @param abstractToken
+         *         The input Token which get used to search the TypeKind.
+         *
+         * @return It will return by default "OTHER" or the found TypeKind with help of
+         *         the AbstractToken.
+         */
+        public static TypeKind getTypeKind(final AbstractToken abstractToken) {
             for (final TypeKind typeKind : TypeKind.values()) {
                 if (typeKind.getName() == null)
                     continue;
                 
-                if (typeKind.getName().equals(identifierToken.getTokenContent()))
+                if (typeKind.getName().equals(abstractToken.getTokenContent()))
                     return typeKind;
             }
             return TypeKind.OTHER;

@@ -50,6 +50,12 @@ public class ParserError extends AbstractError
         this.parser = parser;
     }
     
+    public ParserError(final Parser<?> parser, final AbstractToken abstractToken) {
+        super(abstractToken.getStart(), abstractToken.getEnd(), "Couldn't parse the \"" + parser.childName() + "\" because an error occurred.");
+        
+        this.parser = parser;
+    }
+    
     public ParserError(final Parser<?> parser, final int start, final int end) {
         super(start, end, "Couldn't parse the \"" + parser.childName() + "\" because an error occurred.");
         

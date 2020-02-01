@@ -84,12 +84,16 @@ public class ArgumentDefinitionAST extends AbstractAST
     }
     
     public static List<ArgumentDefinitionAST> parseArguments(final AbstractAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
+        return parseArguments(parentAST, syntaxAnalyzer, new ArrayList<>());
+    }
+    
+    // TODO: Make this better k thx bye
+    public static List<ArgumentDefinitionAST> parseArguments(final AbstractAST parentAST, final SyntaxAnalyzer syntaxAnalyzer, final List<ArgumentDefinitionAST> argumentASTs) {
         if (syntaxAnalyzer.matchesCurrentToken(SeparatorToken.SeparatorType.OPENING_PARENTHESIS) == null) {
             syntaxAnalyzer.errorHandler().addError(new ASTError(parentAST, "Couldn't parse the arguments because there is no opening parenthesis at the beginning."));
             return null;
         }
         
-        final List<ArgumentDefinitionAST> argumentATSs = new ArrayList<>();
         while (syntaxAnalyzer.getPosition() < syntaxAnalyzer.getTokens().length) {
             syntaxAnalyzer.nextToken();
             
@@ -100,7 +104,7 @@ public class ArgumentDefinitionAST extends AbstractAST
             if (argumentDefinitionAST == null) {
                 syntaxAnalyzer.errorHandler().addError(new ASTError(parentAST, "Couldn't parse the arguments because there is an invalid argument."));
                 return null;
-            } else argumentATSs.add(argumentDefinitionAST);
+            } else argumentASTs.add(argumentDefinitionAST);
             
             if (syntaxAnalyzer.matchesNextToken(SeparatorToken.SeparatorType.COMMA) == null)
                 break;
@@ -110,7 +114,8 @@ public class ArgumentDefinitionAST extends AbstractAST
             syntaxAnalyzer.errorHandler().addError(new ASTError(parentAST, "Couldn't parse the arguments because there is no closing parenthesis at the ending."));
             return null;
         }
-        return argumentATSs;
+        
+        return argumentASTs;
     }
     
 }

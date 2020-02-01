@@ -36,8 +36,8 @@ public class ThisStatementAST extends AbstractStatementAST
 {
     
     /**
-     * The constructor will initialize the statement with the AST-Type
-     * "THIS_STATEMENT_AST" for this class. This will help to debug problems or check the
+     * This constructor will initialize the statement with the AST-Type
+     * "THIS_STATEMENT_AST". This will help to debug problems or check the
      * AST for correct syntax.
      */
     public ThisStatementAST() {
@@ -45,7 +45,7 @@ public class ThisStatementAST extends AbstractStatementAST
     }
     
     /**
-     * The method will parse the "this" statement and checks it for the correct syntax.
+     * This method will parse the "this" statement and checks it for the correct syntax.
      * This statement can just be used inside a BlockAST or inside an
      * AbstractExpressionAST. You also can't use the "this" keyword a second time. You
      * need to specify a period after the keyword which is followed by another statement
@@ -115,7 +115,7 @@ public class ThisStatementAST extends AbstractStatementAST
      * @param <T>
      *         The Type of the AST which should be added to the "ThisStatementAST".
      *
-     * @return It will just return the input (aka. toAddAST) because you can't add ASTs to
+     * @return It will just return the input "toAddAST" because you can't add ASTs to
      *         an "this statement".
      */
     @Override

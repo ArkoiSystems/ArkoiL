@@ -319,9 +319,16 @@ public class SyntaxAnalyzer implements ICompileStage
         return this.tokens[position];
     }
     
+    public AbstractToken nextToken(final int positions) {
+        this.position += positions;
+        if (this.position >= this.tokens.length)
+            return this.tokens[this.tokens.length - 1];
+        return this.currentToken();
+    }
+    
     public AbstractToken nextToken() {
         this.position++;
-        if(this.position >= this.tokens.length)
+        if (this.position >= this.tokens.length)
             return this.tokens[this.tokens.length - 1];
         return this.currentToken();
     }

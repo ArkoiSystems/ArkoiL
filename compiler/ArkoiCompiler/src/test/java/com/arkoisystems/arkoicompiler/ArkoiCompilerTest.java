@@ -33,10 +33,9 @@ public class ArkoiCompilerTest
         if (!arkoiCompiler.compile()) {
             System.err.println("Couldn't compile the file. Please see the stacktrace for errors:");
             arkoiCompiler.printStackTrace(System.err);
-        }
-        else {
+        } else {
             try (final PrintStream printStream = new PrintStream(new File("../../examples/basic/output.result"))) {
-                for(final ArkoiClass arkoiClass : arkoiCompiler.getArkoiClasses())
+                for (final ArkoiClass arkoiClass : arkoiCompiler.getArkoiClasses())
                     printStream.print(arkoiClass);
             } catch (final Exception ex) {
                 ex.printStackTrace();

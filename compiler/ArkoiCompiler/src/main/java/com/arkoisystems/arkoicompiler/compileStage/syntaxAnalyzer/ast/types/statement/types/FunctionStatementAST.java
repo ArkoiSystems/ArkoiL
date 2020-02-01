@@ -3,7 +3,6 @@ package com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.sta
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.ASTType;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.AbstractAST;
-import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.IInitializeable;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.AbstractStatementAST;
 
 /**

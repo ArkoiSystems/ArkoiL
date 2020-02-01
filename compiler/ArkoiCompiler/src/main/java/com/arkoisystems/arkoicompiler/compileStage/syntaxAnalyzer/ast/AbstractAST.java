@@ -37,8 +37,35 @@ public abstract class AbstractAST
         this.astType = astType;
     }
     
+    /**
+     * This method is just a boilerplate code which should get used if it didn't got
+     * overwritten. It will just return null because you should overwrite it.
+     *
+     * @param parentAST
+     *         The parent of the AST. With it you can check for correct usage of the
+     *         statement.
+     * @param syntaxAnalyzer
+     *         The given SyntaxAnalyzer is needed for checking the syntax of the current
+     *         Token list.
+     *
+     * @return It just returns null because you need to overwrite it.
+     */
     public abstract AbstractAST parseAST(final AbstractAST parentAST, final SyntaxAnalyzer syntaxAnalyzer);
     
+    /**
+     * This method is an abstract method which superclasses need to overwrite. It will
+     * handle incoming AST for future development.
+     *
+     * @param toAddAST
+     *         The AST which should get add to this class.
+     * @param syntaxAnalyzer
+     *         The given SyntaxAnalyzer is needed for checking and modification of the
+     *         current Token list/order.
+     * @param <T>
+     *         The declared AST-Type which should get added to this class.
+     *
+     * @return It just returns null because you need to overwrite it.
+     */
     public abstract <T extends AbstractAST> T addAST(final T toAddAST, final SyntaxAnalyzer syntaxAnalyzer);
     
     @Override
