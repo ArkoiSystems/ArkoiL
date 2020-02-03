@@ -3,15 +3,12 @@ package com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types;
 import com.arkoisystems.arkoicompiler.compileStage.errorHandler.types.ASTError;
 import com.arkoisystems.arkoicompiler.compileStage.errorHandler.types.ParserError;
 import com.arkoisystems.arkoicompiler.compileStage.errorHandler.types.TokenError;
-import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.AbstractToken;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.TokenType;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.IdentifierToken;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.SeparatorToken;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.ASTType;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.AbstractAST;
-import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.expressions.AbstractExpressionAST;
-import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.AbstractStatementAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.functionStatements.FunctionDefinitionAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.variableStatements.VariableDefinitionAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.parser.types.AnnotationParser;
@@ -104,7 +101,7 @@ public class AnnotationAST extends AbstractAST
      *         The parent of the AST. With it you can check for correct usage of the
      *         statement.
      * @param syntaxAnalyzer
-     *         The given SyntaxAnalyzer is needed for checking the syntax of the current
+     *         The given SyntaxAnalyzer is used for checking the syntax of the current
      *         Token list.
      *
      * @return It will return null if an error occurred or an AnnotationAST if it parsed

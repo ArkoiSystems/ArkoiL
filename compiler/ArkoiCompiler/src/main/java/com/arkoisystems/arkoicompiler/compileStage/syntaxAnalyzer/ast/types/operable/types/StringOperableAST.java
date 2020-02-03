@@ -1,9 +1,8 @@
-package com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.operables.types;
+package com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.operable.types;
 
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.StringToken;
-import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.numbers.AbstractNumberToken;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.ASTType;
-import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.operables.AbstractOperableAST;
+import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.operable.AbstractOperableAST;
 
 /**
  * Copyright © 2019 ArkoiSystems (https://www.arkoisystems.com/) All Rights Reserved.
@@ -21,14 +20,14 @@ import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.oper
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  */
-public class NumberOperableAST extends AbstractOperableAST<AbstractNumberToken>
+public class StringOperableAST extends AbstractOperableAST<StringToken>
 {
     
-    public NumberOperableAST(final AbstractNumberToken abstractToken) {
+    public StringOperableAST(final StringToken abstractToken) {
         super(abstractToken);
-    
-        this.setAstType(ASTType.NUMBER_OPERABLE);
-    
+        
+        this.setAstType(ASTType.STRING_OPERABLE);
+        
         this.setStart(abstractToken.getStart());
         this.setEnd(abstractToken.getEnd());
     }

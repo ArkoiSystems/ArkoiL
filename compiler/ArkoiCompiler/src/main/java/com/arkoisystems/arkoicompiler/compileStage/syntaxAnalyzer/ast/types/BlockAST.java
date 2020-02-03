@@ -3,22 +3,23 @@ package com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types;
 import com.arkoisystems.arkoicompiler.compileStage.errorHandler.types.ASTError;
 import com.arkoisystems.arkoicompiler.compileStage.errorHandler.types.ParserError;
 import com.arkoisystems.arkoicompiler.compileStage.errorHandler.types.TokenError;
-import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.AbstractToken;
+import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.EndOfFileToken;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.SeparatorToken;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.operators.types.AssignmentOperatorToken;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.ASTType;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.AbstractAST;
-import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.expressions.AbstractExpressionAST;
+import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.expression.AbstractExpressionAST;
+import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.AbstractStatementAST;
+import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.functionStatements.FunctionDefinitionAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.variableStatements.VariableDefinitionAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.parser.Parser;
-import com.arkoisystems.arkoicompiler.utils.ICallback;
+import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.parser.types.BlockParser;
 import com.google.gson.annotations.Expose;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -42,214 +43,141 @@ import java.util.List;
 public class BlockAST extends AbstractAST
 {
     
+    public static BlockParser BLOCK_PARSER = new BlockParser();
+    
+    private static Parser<?>[] BLOCK_PARSERS = new Parser<?>[] {
+            AbstractStatementAST.STATEMENT_PARSER,
+            BlockAST.BLOCK_PARSER,
+    };
+    
+    
     @Expose
     private BlockType blockType;
     
     @Expose
     private final List<AbstractAST> blockStorage;
     
-    private final Parser<?>[] parsers;
-    
-    private ICallback blockCallback;
-    
-    
-    public BlockAST(final Parser<?>... parsers) {
+    /**
+     * This constructor will initialize the statement with the AST-Type "BLOCK". This will
+     * help to debug problems or check the AST for correct syntax. Also it will create the
+     * list for the block storage.
+     */
+    public BlockAST() {
         super(ASTType.BLOCK);
         
         this.blockStorage = new ArrayList<>();
-        this.parsers = parsers;
     }
     
+    /**
+     * This method will parse the BlockAST and checks it for the correct syntax. This AST
+     * can just be used by a FunctionDefinitionAST or ASTs which use an expression as body
+     * e.g. VariableDefinitionAST. A BlockAST needs to end with a closing brace if it's a
+     * block or with a semicolon if it's an inlined block.
+     * <p>
+     * An example for this AST:
+     * <p>
+     * fun greeting<string>() = "Hello World";
+     * <p>
+     * or
+     * <p>
+     * fun main<int>(args: string[]) { return 0; }
+     *
+     * @param parentAST
+     *         The parent of the AST. With it you can check for correct usage of the
+     *         statement.
+     * @param syntaxAnalyzer
+     *         The given SyntaxAnalyzer is used for checking the syntax of the current
+     *         Token list.
+     *
+     * @return It will just return null if an error occurred or a BlockAST if it parsed
+     *         until to the end.
+     */
     @Override
     public BlockAST parseAST(final AbstractAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
-//        if (!(parentAST instanceof FunctionDefinitionAST) &&
-//                !(parentAST instanceof BlockAST) &&
-//                !(parentAST instanceof VariableDefinitionAST) &&
-//                !(parentAST instanceof VariableIncrementByAST)) {
-//            syntaxAnalyzer.errorHandler().addError(new ASTError(parentAST, "Couldn't parse the BlockAST because the ParentAST isn't valid."));
-//            return null;
-//        }
+        if (!(parentAST instanceof FunctionDefinitionAST) && !(parentAST instanceof VariableDefinitionAST)) {
+            syntaxAnalyzer.errorHandler().addError(new ASTError(parentAST, "Couldn't parse the BlockAST because it isn't declared inside a function/variable definition."));
+            return null;
+        } else this.setStart(syntaxAnalyzer.currentToken().getStart());
         
         if (syntaxAnalyzer.matchesCurrentToken(SeparatorToken.SeparatorType.OPENING_BRACE) != null) {
-            this.setStart(syntaxAnalyzer.currentToken().getStart());
-            syntaxAnalyzer.nextToken();
-            
-            this.blockCallback = new BlockParsingCallback(this, syntaxAnalyzer);
             this.blockType = BlockType.BLOCK;
-        } else if (syntaxAnalyzer.matchesCurrentToken(AssignmentOperatorToken.AssignmentOperatorType.ASSIGNMENT) != null) {
-            this.setStart(syntaxAnalyzer.currentToken().getStart());
-            syntaxAnalyzer.nextToken();
+            syntaxAnalyzer.nextToken(); // Because it would parse a second block if we wouldn't do this.
             
-            this.blockCallback = new InlineParsingCallback(this, syntaxAnalyzer);
+            main_loop:
+            while (syntaxAnalyzer.getPosition() < syntaxAnalyzer.getTokens().length) {
+                if (syntaxAnalyzer.currentToken() instanceof EndOfFileToken)
+                    break;
+                
+                for (final Parser<?> parser : BLOCK_PARSERS) {
+                    if (!parser.canParse(this, syntaxAnalyzer))
+                        continue;
+                    
+                    final AbstractAST abstractAST = parser.parse(this, syntaxAnalyzer);
+                    if (abstractAST == null) {
+                        syntaxAnalyzer.errorHandler().addError(new ParserError(parser, syntaxAnalyzer.currentToken()));
+                        return null;
+                    } else {
+                        if (syntaxAnalyzer.matchesCurrentToken(SeparatorToken.SeparatorType.SEMICOLON) == null) {
+                            syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the \"%s\" because it doesn't end with a semicolon.", abstractAST.getClass().getSimpleName()));
+                            return null;
+                        }
+                        
+                        syntaxAnalyzer.nextToken();
+                        continue main_loop;
+                    }
+                }
+                
+                if (syntaxAnalyzer.matchesCurrentToken(SeparatorToken.SeparatorType.CLOSING_BRACE) != null)
+                    break;
+                syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the AST because no parser could parse this token. Check for misspelling or something else."));
+                return null;
+            }
+        } else if (syntaxAnalyzer.matchesCurrentToken(AssignmentOperatorToken.AssignmentOperatorType.ASSIGNMENT) != null) {
             this.blockType = BlockType.INLINE;
+            syntaxAnalyzer.nextToken(); // Because it would try to parse the equal sign as expression.
+            
+            if (!AbstractExpressionAST.EXPRESSION_PARSER.canParse(this, syntaxAnalyzer)) {
+                syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the BlockAST because the equal sign isn't followed by an valid expression."));
+                return null;
+            }
+            
+            final AbstractExpressionAST abstractExpressionAST = AbstractExpressionAST.EXPRESSION_PARSER.parse(this, syntaxAnalyzer);
+            if (abstractExpressionAST == null) {
+                syntaxAnalyzer.errorHandler().addError(new ParserError(AbstractExpressionAST.EXPRESSION_PARSER, this.getStart(), syntaxAnalyzer.currentToken().getEnd(), "Couldn't parse the BlockAST because an error occurred during the parsing of the expression."));
+                return null;
+            } else this.blockStorage.add(abstractExpressionAST);
+            
+            if (syntaxAnalyzer.matchesNextToken(SeparatorToken.SeparatorType.SEMICOLON) == null) {
+                syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the BlockAST because the inlined block doesn't end with a semicolon."));
+                return null;
+            }
+        } else {
+            syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the BlockAST because the parsing doesn't start with an opening brace or equal sign to identify the block type."));
+            return null;
         }
         
+        this.setEnd(syntaxAnalyzer.currentToken().getEnd());
         return parentAST.addAST(this, syntaxAnalyzer);
     }
     
+    /**
+     * This method is just overwritten because this method extends the AbstractAST class.
+     * It will just return the input and doesn't check anything.
+     *
+     * @param toAddAST
+     *         The AST which should get add to this class.
+     * @param syntaxAnalyzer
+     *         The given SyntaxAnalyzer is needed for checking and modification of the
+     *         current Token list/order.
+     * @param <T>
+     *         The Type of the AST which should be added to the "BlockAST".
+     *
+     * @return It will just return the input "toAddAST" because you can't add ASTs to a
+     *         BlockAST.
+     */
     @Override
     public <T extends AbstractAST> T addAST(final T toAddAST, final SyntaxAnalyzer syntaxAnalyzer) {
-//        System.out.println(toAddAST.getClass().getSimpleName());
-        this.blockStorage.add(toAddAST);
         return toAddAST;
-    }
-    
-//    @Override
-//    public boolean initialize(final SyntaxAnalyzer syntaxAnalyzer) {
-//        if (this.blockCallback == null || !this.blockCallback.execute())
-//            return false;
-//
-//        for (final AbstractAST abstractAST : this.blockStorage) {
-////            if (abstractAST instanceof VariableStatementAST) {
-////                if (!((VariableStatementAST) abstractAST).initialize(syntaxAnalyzer))
-////                    return false;
-////            } else if (abstractAST instanceof FunctionStatementAST) {
-////                if (!((FunctionStatementAST) abstractAST).initialize(syntaxAnalyzer))
-////                    return false;
-////            } else if (abstractAST instanceof ReturnStatementAST) {
-////                if (!((ReturnStatementAST) abstractAST).initialize(syntaxAnalyzer))
-////                    return false;
-////            }
-//        }
-//
-//        for (final BlockAST innerBlockAST : this.getInnerBlocks())
-//            if (!innerBlockAST.initialize(syntaxAnalyzer))
-//                return false;
-//
-//        return !(this.blockStorage.isEmpty() && this.blockType == BlockType.INLINE);
-//    }
-    
-    public VariableDefinitionAST getVariableByName(final AbstractToken identifierToken) {
-        for (final AbstractAST abstractAST : this.blockStorage) {
-            if (!(abstractAST instanceof VariableDefinitionAST))
-                continue;
-            
-            final VariableDefinitionAST variableDefinitionAST = (VariableDefinitionAST) abstractAST;
-            if (variableDefinitionAST.getVariableNameToken().getTokenContent().equals(identifierToken.getTokenContent()))
-                return variableDefinitionAST;
-        }
-        return null;
-    }
-    
-    public BlockAST[] getInnerBlocks() {
-        final ArrayList<BlockAST> blockASTs = new ArrayList<>();
-        for (final AbstractAST abstractAST : this.blockStorage) {
-            if (!(abstractAST instanceof BlockAST))
-                continue;
-            final BlockAST blockAST = (BlockAST) abstractAST;
-            
-            blockASTs.add(blockAST);
-            blockASTs.addAll(Arrays.asList(blockAST.getInnerBlocks()));
-        }
-        return blockASTs.toArray(new BlockAST[] { });
-    }
-    
-    @Setter
-    @Getter
-    private static class BlockParsingCallback implements ICallback
-    {
-        
-        private final int startPosition, endPosition;
-        
-        private final SyntaxAnalyzer syntaxAnalyzer;
-        
-        private final Parser<?>[] parsers;
-        
-        private final BlockAST blockAST;
-        
-        public BlockParsingCallback(final BlockAST blockAST, final SyntaxAnalyzer syntaxAnalyzer) {
-            this.syntaxAnalyzer = syntaxAnalyzer;
-            this.blockAST = blockAST;
-            
-            this.startPosition = syntaxAnalyzer.getPosition();
-            
-            this.parsers = blockAST.getParsers();
-            syntaxAnalyzer.findMatchingSeparator(blockAST, SeparatorToken.SeparatorType.OPENING_BRACE);
-            this.endPosition = syntaxAnalyzer.getPosition();
-        }
-        
-        @Override
-        public boolean execute() {
-            final int lastPosition = this.syntaxAnalyzer.getPosition();
-            this.syntaxAnalyzer.setPosition(this.startPosition);
-            
-            while (this.syntaxAnalyzer.getPosition() < this.endPosition) {
-                final AbstractToken parserStartToken = this.syntaxAnalyzer.currentToken();
-                for (final Parser<?> parser : this.parsers) {
-                    if (!parser.canParse(this.blockAST, this.syntaxAnalyzer))
-                        continue;
-                    
-                    final AbstractAST abstractAST = parser.parse(this.blockAST, this.syntaxAnalyzer);
-                    if (abstractAST == null) {
-                        this.syntaxAnalyzer.errorHandler().addError(new ParserError(parser, parserStartToken.getStart(), this.syntaxAnalyzer.currentToken().getEnd()));
-                        return false;
-                    } else break;
-                }
-                
-                if (syntaxAnalyzer.matchesCurrentToken(SeparatorToken.SeparatorType.SEMICOLON) == null) {
-                    this.syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the statement because there is no ending separator for the parser (for statements \";\")."));
-                    return false;
-                } else this.syntaxAnalyzer.nextToken();
-            }
-            
-            if (this.syntaxAnalyzer.getPosition() != this.endPosition) {
-                this.blockAST.setEnd(this.syntaxAnalyzer.currentToken().getEnd());
-                this.syntaxAnalyzer.errorHandler().addError(new ASTError(this.blockAST, "Couldn't parse the BlockAST because the end position doesn't match the calculated one."));
-                return false;
-            } else this.syntaxAnalyzer.setPosition(lastPosition);
-            return true;
-        }
-        
-    }
-    
-    @Setter
-    @Getter
-    private static class InlineParsingCallback implements ICallback
-    {
-        
-        private final int startPosition, endPosition;
-        
-        private final SyntaxAnalyzer syntaxAnalyzer;
-        
-        private final BlockAST blockAST;
-        
-        public InlineParsingCallback(final BlockAST blockAST, final SyntaxAnalyzer syntaxAnalyzer) {
-            this.syntaxAnalyzer = syntaxAnalyzer;
-            this.blockAST = blockAST;
-            
-            this.startPosition = syntaxAnalyzer.getPosition();
-            syntaxAnalyzer.findSeparator(SeparatorToken.SeparatorType.SEMICOLON);
-            this.endPosition = syntaxAnalyzer.getPosition();
-        }
-        
-        @Override
-        public boolean execute() {
-            final int lastPosition = this.syntaxAnalyzer.getPosition();
-            this.syntaxAnalyzer.setPosition(this.startPosition);
-            
-            final AbstractExpressionAST abstractExpressionAST = AbstractExpressionAST.EXPRESSION_PARSER.parse(this.blockAST, this.syntaxAnalyzer);
-            if (abstractExpressionAST == null) {
-                this.blockAST.setEnd(this.syntaxAnalyzer.currentToken().getEnd());
-                this.syntaxAnalyzer.errorHandler().addError(new ASTError(this.blockAST, "Couldn't parse the BlockAST because the parser couldn't parse the expression for it."));
-                return false;
-            }
-            
-            if (this.syntaxAnalyzer.matchesNextToken(SeparatorToken.SeparatorType.SEMICOLON) == null) {
-                this.blockAST.setEnd(this.syntaxAnalyzer.currentToken().getEnd());
-                this.syntaxAnalyzer.errorHandler().addError(new ASTError(this.blockAST, "Couldn't parse the inlined BlockAST because it doesn't end with a semicolon."));
-                return false;
-            }
-            
-            if (this.syntaxAnalyzer.getPosition() != this.endPosition) {
-                this.blockAST.setEnd(this.syntaxAnalyzer.currentToken().getEnd());
-                this.syntaxAnalyzer.errorHandler().addError(new ASTError(this.blockAST, "Couldn't parse the BlockAST because the end position doesn't match the calculated one."));
-                return false;
-            }
-            
-            this.syntaxAnalyzer.setPosition(lastPosition);
-            return true;
-        }
-        
     }
     
     public enum BlockType

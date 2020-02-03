@@ -11,22 +11,12 @@ public class TypeParser extends Parser<TypeAST>
     
     @Override
     public TypeAST parse(final AbstractAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
-        final TypeAST typeAST = new TypeAST().parseAST(parentAST, syntaxAnalyzer);
-        if (typeAST != null)
-            return typeAST;
-        
-        // TODO: 1/5/2020 Throw error
-        return null;
+        return new TypeAST().parseAST(parentAST, syntaxAnalyzer);
     }
     
     @Override
     public boolean canParse(final AbstractAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
         return syntaxAnalyzer.currentToken().getTokenType() == TokenType.IDENTIFIER;
-    }
-    
-    @Override
-    public String childName() {
-        return TypeAST.class.getSimpleName();
     }
     
 }

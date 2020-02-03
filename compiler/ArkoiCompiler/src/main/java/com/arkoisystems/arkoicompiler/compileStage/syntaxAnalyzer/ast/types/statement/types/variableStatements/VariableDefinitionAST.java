@@ -3,7 +3,6 @@ package com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.sta
 import com.arkoisystems.arkoicompiler.compileStage.errorHandler.types.ASTError;
 import com.arkoisystems.arkoicompiler.compileStage.errorHandler.types.ParserError;
 import com.arkoisystems.arkoicompiler.compileStage.errorHandler.types.TokenError;
-import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.AbstractToken;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.TokenType;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.IdentifierToken;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.SeparatorToken;
@@ -14,7 +13,7 @@ import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.AbstractAS
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.AnnotationAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.BlockAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.RootAST;
-import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.expressions.AbstractExpressionAST;
+import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.expression.AbstractExpressionAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.VariableStatementAST;
 import com.google.gson.annotations.Expose;
 import lombok.Getter;
@@ -93,7 +92,7 @@ public class VariableDefinitionAST extends VariableStatementAST
      *         The parent of the AST. With it you can check for correct usage of the
      *         statement.
      * @param syntaxAnalyzer
-     *         The given SyntaxAnalyzer is needed for checking the syntax of the current
+     *         The given SyntaxAnalyzer is used for checking the syntax of the current
      *         Token list.
      *
      * @return It will return null if an error occurred or an VariableDefinitionAST if it

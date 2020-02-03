@@ -10,7 +10,7 @@ import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.SyntaxAnalyzer
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.ASTType;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.AbstractAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.BlockAST;
-import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.expressions.AbstractExpressionAST;
+import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.expression.AbstractExpressionAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.FunctionStatementAST;
 import com.google.gson.annotations.Expose;
 import lombok.Getter;
@@ -101,7 +101,7 @@ public class FunctionInvokeAST extends FunctionStatementAST
      *         The parent of the AST. With it you can check for correct usage of the
      *         statement.
      * @param syntaxAnalyzer
-     *         The given SyntaxAnalyzer is needed for checking the syntax of the current
+     *         The given SyntaxAnalyzer is used for checking the syntax of the current
      *         Token list.
      *
      * @return It will return null if an error occurred or an FunctionStatementAST if it
@@ -118,26 +118,27 @@ public class FunctionInvokeAST extends FunctionStatementAST
             syntaxAnalyzer.errorHandler().addError(new ASTError(parentAST, "Couldn't parse the \"function invoke\" statement because the parent tried to parse an function invocation with no function name declared."));
             return null;
         }
-        
+    
         if (syntaxAnalyzer.matchesCurrentToken(TokenType.IDENTIFIER) == null || !syntaxAnalyzer.currentToken().getTokenContent().equals(this.invokedFunctionNameToken.getTokenContent())) {
             syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the \"function invoke\" statement because the parsing doesn't start with the valid function name."));
             return null;
         } else this.setStart(syntaxAnalyzer.currentToken().getStart());
-        
+    
         if (syntaxAnalyzer.matchesNextToken(SeparatorToken.SeparatorType.OPENING_PARENTHESIS) == null) {
             syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the \"function invoke\" statement because the function name isn't followed by an opening parenthesis. To invoke function you need to add parenthesis because it is necessary to differentiate between functions and variables."));
             return null;
-        }
-        
+        } else syntaxAnalyzer.nextToken();
+    
+    
         while (syntaxAnalyzer.getPosition() < syntaxAnalyzer.getTokens().length) {
             if (syntaxAnalyzer.matchesCurrentToken(SeparatorToken.SeparatorType.CLOSING_PARENTHESIS) != null)
                 break;
-            
+        
             if (!AbstractExpressionAST.EXPRESSION_PARSER.canParse(this, syntaxAnalyzer)) {
                 syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the \"function invoke\" statement because there is incorrect syntax of an expression inside the parenthesis."));
                 return null;
             }
-            
+        
             final AbstractExpressionAST abstractExpressionAST = AbstractExpressionAST.EXPRESSION_PARSER.parse(this, syntaxAnalyzer);
             if (abstractExpressionAST == null) {
                 syntaxAnalyzer.errorHandler().addError(new ParserError(AbstractExpressionAST.EXPRESSION_PARSER, this.getStart(), syntaxAnalyzer.currentToken().getEnd(), "Couldn't parse the \"function invoke\" statement because an error occurred during the parsing of the expression."));
@@ -155,13 +156,32 @@ public class FunctionInvokeAST extends FunctionStatementAST
             syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the \"function invoke\" statement because the expression section isn't ended with an closing parenthesis."));
             return null;
         }
-        
+    
         if (this.functionInvocationAccess.equals(FunctionInvocationAccess.BLOCK_INVOCATION) && syntaxAnalyzer.matchesNextToken(SeparatorToken.SeparatorType.SEMICOLON) == null) {
             syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the \"function invoke\" statement because it doesn't end with a semicolon but is used as a block invocation."));
             return null;
         }
-        
+    
         return parentAST.addAST(this, syntaxAnalyzer);
+    }
+    
+    /**
+     * This method is just overwritten to prevent default code execution. So it will just
+     * return the input and doesn't check anything.
+     *
+     * @param toAddAST
+     *         The AST which should get added to the "FunctionInvokeAST".
+     * @param syntaxAnalyzer
+     *         The SyntaxAnalyzer which should get used if you want to compare Tokens.
+     * @param <T>
+     *         The Type of the AST which should be added to the "FunctionInvokeAST".
+     *
+     * @return It will just return the input "toAddAST" because you can't add ASTs to a
+     *         FunctionInvokeAST.
+     */
+    @Override
+    public <T extends AbstractAST> T addAST(T toAddAST, SyntaxAnalyzer syntaxAnalyzer) {
+        return toAddAST;
     }
     
     public enum FunctionInvocationAccess

@@ -1,10 +1,8 @@
 package com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.functionStatements;
 
-import com.arkoisystems.arkoicompiler.ArkoiClass;
 import com.arkoisystems.arkoicompiler.compileStage.errorHandler.types.ASTError;
 import com.arkoisystems.arkoicompiler.compileStage.errorHandler.types.ParserError;
 import com.arkoisystems.arkoicompiler.compileStage.errorHandler.types.TokenError;
-import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.AbstractToken;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.TokenType;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.IdentifierToken;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.SeparatorToken;
@@ -13,17 +11,13 @@ import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.SyntaxAnalyzer
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.ASTType;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.AbstractAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.*;
-import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.expressions.AbstractExpressionAST;
-import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.AbstractStatementAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.FunctionStatementAST;
 import com.google.gson.annotations.Expose;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.xml.bind.DatatypeConverter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Copyright © 2019 ArkoiSystems (https://www.arkoisystems.com/) All Rights Reserved.
@@ -105,7 +99,7 @@ public class FunctionDefinitionAST extends FunctionStatementAST
      *         The parent of the AST. With it you can check for correct usage of the
      *         statement.
      * @param syntaxAnalyzer
-     *         The given SyntaxAnalyzer is needed for checking the syntax of the current
+     *         The given SyntaxAnalyzer is used for checking the syntax of the current
      *         Token list.
      *
      * @return It will return null if an error occurred or an FunctionDefinitionAST if it
@@ -174,12 +168,17 @@ public class FunctionDefinitionAST extends FunctionStatementAST
                 syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the \"function definition\" statement because after the argument section no opening brace or equal sign was declared. You need one of them to declare if this function uses a block or is inlined."));
                 return null;
             }
-            
-            if ((this.blockAST = new BlockAST(AbstractStatementAST.STATEMENT_PARSER).parseAST(this, syntaxAnalyzer)) == null) {
-                syntaxAnalyzer.errorHandler().addError(new ASTError(this, "Couldn't parse the \"function definition\" statement because an error occurred during parsing of the block/inlined block."));
+    
+            if (!BlockAST.BLOCK_PARSER.canParse(this, syntaxAnalyzer)) {
+                syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the \"function definition\" statement because the block separator isn't followed by a valid block."));
                 return null;
             }
-            
+    
+            if ((this.blockAST = BlockAST.BLOCK_PARSER.parse(this, syntaxAnalyzer)) == null) {
+                syntaxAnalyzer.errorHandler().addError(new ParserError(BlockAST.BLOCK_PARSER, this.getStart(), syntaxAnalyzer.currentToken().getEnd(), "Couldn't parse the \"function definition\" statement because an error occurred during parsing of the block/inlined block."));
+                return null;
+            }
+    
             if (this.blockAST.getBlockType() == BlockAST.BlockType.INLINE && syntaxAnalyzer.matchesCurrentToken(SeparatorToken.SeparatorType.SEMICOLON) == null) {
                 syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the \"function definition\" statement because an inlined function needs to end with a semicolon."));
                 return null;
@@ -188,7 +187,8 @@ public class FunctionDefinitionAST extends FunctionStatementAST
                 return null;
             }
         }
-        
+    
+        this.setEnd(syntaxAnalyzer.currentToken().getEnd());
         return parentAST.addAST(this, syntaxAnalyzer);
     }
     
@@ -203,8 +203,8 @@ public class FunctionDefinitionAST extends FunctionStatementAST
      * @param <T>
      *         The Type of the AST which should be added to the "FunctionDefinitionAST".
      *
-     * @return It will just return the input "toAddAST" because you can't add ASTs to
-     *         a FunctionDefinitionAST.
+     * @return It will just return the input "toAddAST" because you can't add ASTs to a
+     *         FunctionDefinitionAST.
      */
     @Override
     public <T extends AbstractAST> T addAST(final T toAddAST, final SyntaxAnalyzer syntaxAnalyzer) {

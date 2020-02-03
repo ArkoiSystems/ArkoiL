@@ -11,22 +11,12 @@ public class ArgumentDefinitionParser extends Parser<ArgumentDefinitionAST>
     
     @Override
     public ArgumentDefinitionAST parse(final AbstractAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
-        final ArgumentDefinitionAST VariableStatementAST = new ArgumentDefinitionAST().parseAST(parentAST, syntaxAnalyzer);
-        if(VariableStatementAST != null)
-            return VariableStatementAST;
-    
-        // TODO: 1/5/2020 Throw error
-        return null;
+        return new ArgumentDefinitionAST().parseAST(parentAST, syntaxAnalyzer);
     }
     
     @Override
     public boolean canParse(final AbstractAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
         return syntaxAnalyzer.currentToken().getTokenType() == TokenType.IDENTIFIER && syntaxAnalyzer.peekToken(1).getTokenType() == TokenType.SEPARATOR;
-    }
-    
-    @Override
-    public String childName() {
-        return ArgumentDefinitionAST.class.getSimpleName();
     }
     
 }

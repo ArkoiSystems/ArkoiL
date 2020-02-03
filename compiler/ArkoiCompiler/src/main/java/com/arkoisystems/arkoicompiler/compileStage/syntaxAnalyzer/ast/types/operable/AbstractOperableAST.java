@@ -1,4 +1,4 @@
-package com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.operables;
+package com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.operable;
 
 import com.arkoisystems.arkoicompiler.compileStage.errorHandler.types.ASTError;
 import com.arkoisystems.arkoicompiler.compileStage.errorHandler.types.ParserError;
@@ -9,16 +9,14 @@ import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.S
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.numbers.AbstractNumberToken;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.AbstractAST;
-import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.expressions.AbstractExpressionAST;
-import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.operables.types.CollectionOperableAST;
-import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.operables.types.FunctionResultOperableAST;
-import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.operables.types.NumberOperableAST;
-import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.operables.types.StringOperableAST;
+import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.expression.AbstractExpressionAST;
+import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.operable.types.CollectionOperableAST;
+import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.operable.types.FunctionResultOperableAST;
+import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.operable.types.NumberOperableAST;
+import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.operable.types.StringOperableAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.AbstractStatementAST;
-import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.functionStatements.FunctionDefinitionAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.functionStatements.FunctionInvokeAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.parser.types.OperableParser;
-import com.arkoisystems.arkoicompiler.utils.Variables;
 import com.google.gson.annotations.Expose;
 import lombok.Getter;
 
@@ -103,10 +101,9 @@ public class AbstractOperableAST<OT1> extends AbstractAST
                 }
                 
                 final AbstractStatementAST abstractStatementAST = AbstractStatementAST.STATEMENT_PARSER.parse(parentAST, syntaxAnalyzer);
-                if (abstractStatementAST instanceof FunctionInvokeAST) {
-                    syntaxAnalyzer.setPosition(syntaxAnalyzer.getPosition() - 1);
+                if (abstractStatementAST instanceof FunctionInvokeAST)
                     return new FunctionResultOperableAST((FunctionInvokeAST) abstractStatementAST);
-                } else {
+                else {
                     syntaxAnalyzer.errorHandler().addError(new ASTError(abstractStatementAST, "Couldn't parse the operable because it isn't a supported statement."));
                     return null;
                 }
@@ -115,8 +112,7 @@ public class AbstractOperableAST<OT1> extends AbstractAST
     }
     
     @Override
-    public <T extends AbstractAST> T addAST(final T toAddAST,
-            final SyntaxAnalyzer syntaxAnalyzer) {
+    public <T extends AbstractAST> T addAST(final T toAddAST, final SyntaxAnalyzer syntaxAnalyzer) {
         return toAddAST;
     }
     

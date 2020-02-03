@@ -1,8 +1,7 @@
 package com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types;
 
-import com.arkoisystems.arkoicompiler.compileStage.errorHandler.types.ASTError;
+import com.arkoisystems.arkoicompiler.compileStage.errorHandler.types.ParserError;
 import com.arkoisystems.arkoicompiler.compileStage.errorHandler.types.TokenError;
-import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.AbstractToken;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.TokenType;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.IdentifierToken;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.SeparatorToken;
@@ -47,62 +46,136 @@ public class ArgumentDefinitionAST extends AbstractAST
     @Expose
     private TypeAST argumentType;
     
-    
+    /**
+     * This constructor will initialize the statement with the AST-Type
+     * "ARGUMENT_DEFINITION". This will help to debug problems or check the AST for
+     * correct syntax.
+     */
     public ArgumentDefinitionAST() {
         super(ASTType.ARGUMENT_DEFINITION);
     }
     
+    /**
+     * This method will parse the ArgumentDefinitionAST and checks it for the correct
+     * syntax. This AST can be used in every case but there is no available Parser for
+     * this AST. You just can create an argument definition directly in code like in
+     * FunctionDefinitionAST. An argument needs to have a name and type deceleration.
+     * <p>
+     * An example for this AST:
+     * <p>
+     * fun main<int>(args: string[]) = 0;
+     *
+     * @param parentAST
+     *         The parent of the AST. With it you can check for correct usage of the
+     *         statement.
+     * @param syntaxAnalyzer
+     *         The given SyntaxAnalyzer is used for checking the syntax of the current
+     *         Token list.
+     *
+     * @return It will return null if an error occurred or an ArgumentDefinitionAST if it
+     *         parsed until to the end.
+     */
     @Override
     public ArgumentDefinitionAST parseAST(final AbstractAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
-        final AbstractToken currentNameIdentifierToken = syntaxAnalyzer.matchesCurrentToken(TokenType.IDENTIFIER);
-        if (currentNameIdentifierToken == null) {
-            syntaxAnalyzer.errorHandler().addError(new ASTError(this, "Couldn't parse the argument definition because it doesn't start with an IdentifierToken for the name."));
+        if (syntaxAnalyzer.matchesCurrentToken(TokenType.IDENTIFIER) == null) {
+            syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the argument definition because the parsing doesn't start with an identifier as name."));
             return null;
-        } else this.argumentNameIdentifier = (IdentifierToken) currentNameIdentifierToken;
+        } else {
+            this.argumentNameIdentifier = (IdentifierToken) syntaxAnalyzer.currentToken();
+            this.setStart(syntaxAnalyzer.currentToken().getStart());
+        }
         
         if (syntaxAnalyzer.matchesNextToken(SeparatorToken.SeparatorType.COLON) == null) {
-            syntaxAnalyzer.errorHandler().addError(new ASTError(this, "Couldn't parse the argument definition the name token isn't followed by an colon."));
+            syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the argument definition because the argument name isn't followed by a colon."));
             return null;
         } else syntaxAnalyzer.nextToken();
         
         if (!TypeAST.TYPE_PARSER.canParse(parentAST, syntaxAnalyzer)) {
-            syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the argument because the TypeParser couldn't parse the current token."));
+            syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the argument definition because the colon isn't followed by a valid type."));
             return null;
         }
         
-        final TypeAST typeAST = TypeAST.TYPE_PARSER.parse(this, syntaxAnalyzer);
-        if (typeAST == null) {
-            syntaxAnalyzer.errorHandler().addError(new ASTError(this, "Couldn't parse the argument because the TypeParser couldn't parse the TypeAST."));
+        if ((this.argumentType = TypeAST.TYPE_PARSER.parse(this, syntaxAnalyzer)) == null) {
+            syntaxAnalyzer.errorHandler().addError(new ParserError(TypeAST.TYPE_PARSER, this.getStart(), syntaxAnalyzer.currentToken().getEnd(), "Couldn't parse the argument definition because an eror occurred during the parsing of the type."));
             return null;
-        } else this.argumentType = typeAST;
+        }
         return parentAST.addAST(this, syntaxAnalyzer);
     }
     
+    /**
+     * This method is just overwritten because this method extends the AbstractAST class.
+     * It will just return the input and doesn't check anything.
+     *
+     * @param toAddAST
+     *         The AST which should get add to this class.
+     * @param syntaxAnalyzer
+     *         The given SyntaxAnalyzer is needed for checking and modification of the
+     *         current Token list/order.
+     * @param <T>
+     *         The Type of the AST which should be added to the ArgumentDefinitionAST.
+     *
+     * @return It will just return the input "toAddAST" because you can't add ASTs to a
+     *         ArgumentDefinitionAST.
+     */
     @Override
     public <T extends AbstractAST> T addAST(final T toAddAST, final SyntaxAnalyzer syntaxAnalyzer) {
         return toAddAST;
     }
     
+    /**
+     * This method provides the ability to parse a list of arguments which is used by the
+     * FunctionDefinitionAST for the function arguments. It will throw an error if the
+     * arguments didn't get separated by a semicolon or if it doesn't start/end with a
+     * parenthesis. Also this method creates an own ArrayList so you don't need to define
+     * one before using this method.
+     *
+     * @param parentAST
+     *         The ParentAST defines the AST in which the arguments should be getting
+     *         parsed. This is useful to check if the AST is supported or to report
+     *         errors.
+     * @param syntaxAnalyzer
+     *         The given SyntaxAnalyzer is used for checking the syntax of the current
+     *         Token list.
+     *
+     * @return It will return null if an error occurred or the given "argumentsASTs" list
+     *         if it parsed until to the end.
+     */
     public static List<ArgumentDefinitionAST> parseArguments(final AbstractAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
         return parseArguments(parentAST, syntaxAnalyzer, new ArrayList<>());
     }
     
-    // TODO: Make this better k thx bye
+    /**
+     * This method provides the ability to parse a list of arguments which is used by the
+     * FunctionDefinitionAST for the function arguments. It will throw an error if the
+     * arguments didn't get separated by a semicolon or if it doesn't start/end with a
+     * parenthesis.
+     *
+     * @param parentAST
+     *         The ParentAST defines the AST in which the arguments should be getting
+     *         parsed. This is useful to check if the AST is supported or to report
+     *         errors.
+     * @param syntaxAnalyzer
+     *         The given SyntaxAnalyzer is used for checking the syntax of the current
+     *         Token list.
+     * @param argumentASTs
+     *         The List in which the new arguments should be stored.
+     *
+     * @return It will return null if an error occurred or the given "argumentsASTs" list
+     *         if it parsed until to the end.
+     */
     public static List<ArgumentDefinitionAST> parseArguments(final AbstractAST parentAST, final SyntaxAnalyzer syntaxAnalyzer, final List<ArgumentDefinitionAST> argumentASTs) {
         if (syntaxAnalyzer.matchesCurrentToken(SeparatorToken.SeparatorType.OPENING_PARENTHESIS) == null) {
-            syntaxAnalyzer.errorHandler().addError(new ASTError(parentAST, "Couldn't parse the arguments because there is no opening parenthesis at the beginning."));
+            syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the arguments because parsing doesn't start with an opening parenthesis."));
             return null;
-        }
+        } else syntaxAnalyzer.nextToken();
         
         while (syntaxAnalyzer.getPosition() < syntaxAnalyzer.getTokens().length) {
-            syntaxAnalyzer.nextToken();
-            
-            if (!ARGUMENT_DEFINITION_PARSER.canParse(parentAST, syntaxAnalyzer))
+            if (!ArgumentDefinitionAST.ARGUMENT_DEFINITION_PARSER.canParse(parentAST, syntaxAnalyzer))
                 break;
             
-            final ArgumentDefinitionAST argumentDefinitionAST = ARGUMENT_DEFINITION_PARSER.parse(parentAST, syntaxAnalyzer);
+            final ArgumentDefinitionAST argumentDefinitionAST = ArgumentDefinitionAST.ARGUMENT_DEFINITION_PARSER.parse(parentAST, syntaxAnalyzer);
             if (argumentDefinitionAST == null) {
-                syntaxAnalyzer.errorHandler().addError(new ASTError(parentAST, "Couldn't parse the arguments because there is an invalid argument."));
+                syntaxAnalyzer.errorHandler().addError(new ParserError(ArgumentDefinitionAST.ARGUMENT_DEFINITION_PARSER, syntaxAnalyzer.currentToken(), "Couldn't parse the arguments because an error occurred during the parsing of an argument."));
                 return null;
             } else argumentASTs.add(argumentDefinitionAST);
             
@@ -111,10 +184,9 @@ public class ArgumentDefinitionAST extends AbstractAST
         }
         
         if (syntaxAnalyzer.matchesCurrentToken(SeparatorToken.SeparatorType.CLOSING_PARENTHESIS) == null) {
-            syntaxAnalyzer.errorHandler().addError(new ASTError(parentAST, "Couldn't parse the arguments because there is no closing parenthesis at the ending."));
+            syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the arguments because the parsing doesn't end with a closing parenthesis."));
             return null;
         }
-        
         return argumentASTs;
     }
     

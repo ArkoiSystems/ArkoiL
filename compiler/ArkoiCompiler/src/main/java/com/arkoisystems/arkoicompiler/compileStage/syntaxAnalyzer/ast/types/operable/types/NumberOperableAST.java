@@ -1,10 +1,8 @@
-package com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.expressions.types;
+package com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.operable.types;
 
+import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.numbers.AbstractNumberToken;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.ASTType;
-import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.expressions.AbstractExpressionAST;
-import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.operables.AbstractOperableAST;
-import com.google.gson.annotations.Expose;
-import lombok.Getter;
+import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.operable.AbstractOperableAST;
 
 /**
  * Copyright © 2019 ArkoiSystems (https://www.arkoisystems.com/) All Rights Reserved.
@@ -22,20 +20,16 @@ import lombok.Getter;
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  */
-@Getter
-public class SimpleExpressionAST extends AbstractExpressionAST
+public class NumberOperableAST extends AbstractOperableAST<AbstractNumberToken>
 {
     
-    @Expose
-    private final AbstractOperableAST<?> abstractOperableAST;
+    public NumberOperableAST(final AbstractNumberToken abstractToken) {
+        super(abstractToken);
     
-    public SimpleExpressionAST(final AbstractOperableAST<?> abstractOperableAST) {
-        this.abstractOperableAST = abstractOperableAST;
-        
-        this.setAstType(ASTType.SIMPLE_EXPRESSION);
-        
-        this.setStart(abstractOperableAST.getStart());
-        this.setEnd(abstractOperableAST.getEnd());
+        this.setAstType(ASTType.NUMBER_OPERABLE);
+    
+        this.setStart(abstractToken.getStart());
+        this.setEnd(abstractToken.getEnd());
     }
     
 }

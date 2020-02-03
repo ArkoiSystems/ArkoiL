@@ -57,7 +57,7 @@ public class ImportDefinitionAST extends AbstractStatementAST
      * @param parentAST
      *         The parent of the ImportAST which only can be a RootAST.
      * @param syntaxAnalyzer
-     *         The given SyntaxAnalyzer is needed for checking the Syntax of the current
+     *         The given SyntaxAnalyzer is used for checking the syntax of the current
      *         Token list.
      *
      * @return It will return null if an error occurred or an AbstractStatementAST if it

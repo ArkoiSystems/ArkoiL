@@ -43,7 +43,7 @@ public class FunctionStatementAST extends AbstractStatementAST
      *         The parent of the AST. With it you can check for correct usage of the
      *         statement.
      * @param syntaxAnalyzer
-     *         The given SyntaxAnalyzer is needed for checking the syntax of the current
+     *         The given SyntaxAnalyzer is used for checking the syntax of the current
      *         Token list.
      *
      * @return It just returns null because you need to overwrite it.

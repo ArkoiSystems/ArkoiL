@@ -9,7 +9,7 @@ import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.SyntaxAnalyzer
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.ASTType;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.AbstractAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.BlockAST;
-import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.expressions.AbstractExpressionAST;
+import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.expression.AbstractExpressionAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.AbstractStatementAST;
 import com.google.gson.annotations.Expose;
 import lombok.Getter;
@@ -53,12 +53,12 @@ public class ReturnStatementAST extends AbstractStatementAST
      * <p>
      * An example for correct usage:
      * <p>
-     * fun main<int>(args: string[]) { return 0; }
+     * fun main<int>(args: string[]) = 0;
      *
      * @param parentAST
      *         The parent of this AST which just can be a BlockAST.
      * @param syntaxAnalyzer
-     *         The given SyntaxAnalyzer is needed for checking the Syntax of the current
+     *         The given SyntaxAnalyzer is used for checking the syntax of the current
      *         Token list.
      *
      * @return It will return null if an error occurred or an ReturnStatementAST if it
@@ -70,8 +70,8 @@ public class ReturnStatementAST extends AbstractStatementAST
             syntaxAnalyzer.errorHandler().addError(new ASTError(parentAST, "Couldn't parse the \"return\" statement because it isn't declared inside a block."));
             return null;
         }
-        
-        if (syntaxAnalyzer.matchesNextToken(TokenType.IDENTIFIER) == null || !syntaxAnalyzer.currentToken().getTokenContent().equals("return")) {
+    
+        if (syntaxAnalyzer.matchesCurrentToken(TokenType.IDENTIFIER) == null || !syntaxAnalyzer.currentToken().getTokenContent().equals("return")) {
             syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the \"return\" statement because the parsing doesn't start with the \"return\" keyword."));
             return null;
         } else {

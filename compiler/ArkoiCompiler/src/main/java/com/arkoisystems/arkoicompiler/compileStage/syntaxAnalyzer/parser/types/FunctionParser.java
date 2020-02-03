@@ -11,22 +11,12 @@ public class FunctionParser extends Parser<FunctionDefinitionAST>
     
     @Override
     public FunctionDefinitionAST parse(final AbstractAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
-        final FunctionDefinitionAST functionDefinitionAST = new FunctionDefinitionAST().parseAST(parentAST, syntaxAnalyzer);
-        if (functionDefinitionAST != null)
-            return functionDefinitionAST;
-        
-        // TODO: 1/5/2020 Throw error
-        return null;
+        return new FunctionDefinitionAST().parseAST(parentAST, syntaxAnalyzer);
     }
     
     @Override
     public boolean canParse(final AbstractAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
         return syntaxAnalyzer.currentToken().getTokenType() == TokenType.IDENTIFIER && syntaxAnalyzer.currentToken().getTokenContent().equals("fun");
-    }
-    
-    @Override
-    public String childName() {
-        return FunctionDefinitionAST.class.getSimpleName();
     }
     
 }

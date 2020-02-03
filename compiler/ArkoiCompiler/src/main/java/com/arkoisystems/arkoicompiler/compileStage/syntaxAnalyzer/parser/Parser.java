@@ -2,6 +2,8 @@ package com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.parser;
 
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.AbstractAST;
+import com.google.gson.annotations.Expose;
+import lombok.Getter;
 
 /**
  * Copyright © 2019 ArkoiSystems (https://www.arkoisystems.com/) All Rights Reserved.
@@ -19,15 +21,22 @@ import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.AbstractAS
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  */
+@Getter
 public abstract class Parser<T extends AbstractAST>
 {
+    
+    @Expose
+    private final String childName;
+    
+    public Parser() {
+        final String genericName = this.getClass().getGenericSuperclass().getTypeName();
+        final String typeName = genericName.substring(genericName.indexOf("<") + 1, genericName.length() - 1);
+        final String[] splittedPath = typeName.split("\\.");
+        this.childName = splittedPath[splittedPath.length - 1];
+    }
     
     public abstract T parse(final AbstractAST parentAST, final SyntaxAnalyzer syntaxAnalyzer);
     
     public abstract boolean canParse(final AbstractAST parentAST, final SyntaxAnalyzer syntaxAnalyzer);
-    
-    public String childName() {
-        return this.getClass().getTypeParameters()[0].getName();
-    }
     
 }

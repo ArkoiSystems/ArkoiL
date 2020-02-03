@@ -1,23 +1,20 @@
 package com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement;
 
-import com.arkoisystems.arkoicompiler.ArkoiClass;
 import com.arkoisystems.arkoicompiler.compileStage.errorHandler.types.ASTError;
 import com.arkoisystems.arkoicompiler.compileStage.errorHandler.types.TokenError;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.AbstractToken;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.TokenType;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.IdentifierToken;
-import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.operators.types.AssignmentOperatorToken;
+import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.SeparatorToken;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.AbstractAST;
-import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.BlockAST;
-import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.expressions.AbstractExpressionAST;
-import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.FunctionStatementAST;
+import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.expression.AbstractExpressionAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.ImportDefinitionAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.ReturnStatementAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.ThisStatementAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.functionStatements.FunctionDefinitionAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.functionStatements.FunctionInvokeAST;
-import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.variableStatements.*;
+import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.variableStatements.VariableDefinitionAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.parser.types.StatementParser;
 import lombok.Getter;
 
@@ -51,14 +48,13 @@ public class AbstractStatementAST extends AbstractAST
     @Override
     public AbstractStatementAST parseAST(final AbstractAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
         final AbstractToken currentToken = syntaxAnalyzer.currentToken();
-        if (currentToken == null || currentToken.getTokenType() != TokenType.IDENTIFIER) {
-            syntaxAnalyzer.errorHandler().addError(new ASTError(parentAST, "Couldn't parse the statement because it doesn't start with an IdentifierToken."));
+        if (syntaxAnalyzer.matchesCurrentToken(TokenType.IDENTIFIER) == null) {
+            syntaxAnalyzer.errorHandler().addError(new TokenError(currentToken, "Couldn't parse the statement because it doesn't start with an IdentifierToken."));
             return null;
         }
         
         if (parentAST instanceof ThisStatementAST) {
-            // TODO: 1/15/2020 Just search methods in THIS RootFile
-            
+            final ThisStatementAST thisStatementAST = (ThisStatementAST) parentAST;
             switch (currentToken.getTokenContent()) {
                 case "val":
                 case "import":
@@ -68,29 +64,16 @@ public class AbstractStatementAST extends AbstractAST
                     syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the statement because you can't use it with the \"this\" keyword. The \"this\" keyword can just be followed by a function or variable."));
                     break;
                 default:
-                    final FunctionDefinitionAST functionDefinitionAST = syntaxAnalyzer.getRootAST().getFunctionByName(currentToken);
-                    if (functionDefinitionAST != null)
-                        return new FunctionInvokeAST((IdentifierToken) currentToken).parseAST(parentAST, syntaxAnalyzer);
+                    if (syntaxAnalyzer.matchesPeekToken(1, SeparatorToken.SeparatorType.OPENING_PARENTHESIS) != null)
+                        return new FunctionInvokeAST((IdentifierToken) currentToken).parseAST(thisStatementAST.getParentAST(), syntaxAnalyzer);
                     break;
             }
         } else if (parentAST instanceof AbstractExpressionAST) {
-            // TODO: 1/15/2020 Search for every method in every RootFile included (natives too)
-            
             if (currentToken.getTokenContent().equals("this"))
                 return new ThisStatementAST().parseAST(parentAST, syntaxAnalyzer);
-            else {
-                FunctionDefinitionAST functionDefinitionAST = null;
-                for (final ArkoiClass arkoiClass : syntaxAnalyzer.getArkoiClass().getArkoiCompiler().getArkoiClasses()) {
-                    if ((functionDefinitionAST = arkoiClass.getSyntaxAnalyzer().getRootAST().getFunctionByName(currentToken)) != null)
-                        break;
-                }
-                
-                if (functionDefinitionAST != null)
-                    return new FunctionInvokeAST((IdentifierToken) currentToken).parseAST(parentAST, syntaxAnalyzer);
-            }
+            else if (syntaxAnalyzer.matchesPeekToken(1, SeparatorToken.SeparatorType.OPENING_PARENTHESIS) != null)
+                return new FunctionInvokeAST((IdentifierToken) currentToken).parseAST(parentAST, syntaxAnalyzer);
         } else {
-            // TODO: 1/15/2020 Search for every method in every RootFile included (natives too)
-            
             switch (currentToken.getTokenContent()) {
                 case "import":
                     return new ImportDefinitionAST().parseAST(parentAST, syntaxAnalyzer);
@@ -103,13 +86,7 @@ public class AbstractStatementAST extends AbstractAST
                 case "return":
                     return new ReturnStatementAST().parseAST(parentAST, syntaxAnalyzer);
                 default:
-                    FunctionDefinitionAST functionDefinitionAST = null;
-                    for (final ArkoiClass arkoiClass : syntaxAnalyzer.getArkoiClass().getArkoiCompiler().getArkoiClasses()) {
-                        if ((functionDefinitionAST = arkoiClass.getSyntaxAnalyzer().getRootAST().getFunctionByName(currentToken)) != null)
-                            break;
-                    }
-                    
-                    if (functionDefinitionAST != null)
+                    if (syntaxAnalyzer.matchesPeekToken(1, SeparatorToken.SeparatorType.OPENING_PARENTHESIS) != null)
                         return new FunctionInvokeAST((IdentifierToken) currentToken).parseAST(parentAST, syntaxAnalyzer);
                     break;
             }

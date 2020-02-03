@@ -1,8 +1,10 @@
-package com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.operables.types;
+package com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.expression.types;
 
-import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.StringToken;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.ASTType;
-import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.operables.AbstractOperableAST;
+import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.expression.AbstractExpressionAST;
+import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.operable.AbstractOperableAST;
+import com.google.gson.annotations.Expose;
+import lombok.Getter;
 
 /**
  * Copyright © 2019 ArkoiSystems (https://www.arkoisystems.com/) All Rights Reserved.
@@ -20,16 +22,20 @@ import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.oper
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  */
-public class StringOperableAST extends AbstractOperableAST<StringToken>
+@Getter
+public class SimpleExpressionAST extends AbstractExpressionAST
 {
     
-    public StringOperableAST(final StringToken abstractToken) {
-        super(abstractToken);
+    @Expose
+    private final AbstractOperableAST<?> abstractOperableAST;
+    
+    public SimpleExpressionAST(final AbstractOperableAST<?> abstractOperableAST) {
+        this.abstractOperableAST = abstractOperableAST;
         
-        this.setAstType(ASTType.STRING_OPERABLE);
+        this.setAstType(ASTType.SIMPLE_EXPRESSION);
         
-        this.setStart(abstractToken.getStart());
-        this.setEnd(abstractToken.getEnd());
+        this.setStart(abstractOperableAST.getStart());
+        this.setEnd(abstractOperableAST.getEnd());
     }
     
 }

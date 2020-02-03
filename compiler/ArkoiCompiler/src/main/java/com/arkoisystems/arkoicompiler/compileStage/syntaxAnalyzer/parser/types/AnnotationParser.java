@@ -13,22 +13,12 @@ public class AnnotationParser extends Parser<AnnotationAST>
     
     @Override
     public AnnotationAST parse(final AbstractAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
-        final AnnotationAST annotationAST = new AnnotationAST().parseAST(parentAST, syntaxAnalyzer);
-        if (annotationAST != null)
-            return annotationAST;
-        
-        // TODO: 1/5/2020 Throw error
-        return null;
+        return new AnnotationAST().parseAST(parentAST, syntaxAnalyzer);
     }
     
     @Override
     public boolean canParse(final AbstractAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
         return syntaxAnalyzer.matchesCurrentToken(SeparatorToken.SeparatorType.AT_SIGN) != null;
-    }
-    
-    @Override
-    public String childName() {
-        return AnnotationAST.class.getSimpleName();
     }
     
 }

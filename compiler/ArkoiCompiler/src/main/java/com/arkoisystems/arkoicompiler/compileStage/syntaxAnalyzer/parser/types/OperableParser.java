@@ -4,7 +4,7 @@ import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.Abstrac
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.SeparatorToken;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.AbstractAST;
-import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.operables.AbstractOperableAST;
+import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.operable.AbstractOperableAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.AbstractStatementAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.parser.Parser;
 
@@ -13,12 +13,7 @@ public class OperableParser extends Parser<AbstractOperableAST<?>>
     
     @Override
     public AbstractOperableAST<?> parse(final AbstractAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
-        final AbstractOperableAST<?> abstractOperableAST = new AbstractOperableAST<>(null).parseAST(parentAST, syntaxAnalyzer);
-        if (abstractOperableAST != null)
-            return abstractOperableAST;
-        
-        // TODO: 1/5/2020 Throw error
-        return null;
+        return new AbstractOperableAST<>(null).parseAST(parentAST, syntaxAnalyzer);
     }
     
     @Override
@@ -35,11 +30,6 @@ public class OperableParser extends Parser<AbstractOperableAST<?>>
             default:
                 return false;
         }
-    }
-    
-    @Override
-    public String childName() {
-        return AbstractOperableAST.class.getSimpleName();
     }
     
 }

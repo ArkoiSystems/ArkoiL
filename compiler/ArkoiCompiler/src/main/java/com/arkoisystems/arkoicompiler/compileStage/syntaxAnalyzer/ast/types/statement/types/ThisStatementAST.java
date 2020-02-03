@@ -3,16 +3,14 @@ package com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.sta
 import com.arkoisystems.arkoicompiler.compileStage.errorHandler.types.ASTError;
 import com.arkoisystems.arkoicompiler.compileStage.errorHandler.types.ParserError;
 import com.arkoisystems.arkoicompiler.compileStage.errorHandler.types.TokenError;
-import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.AbstractToken;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.TokenType;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.SeparatorToken;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.ASTType;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.AbstractAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.BlockAST;
-import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.expressions.AbstractExpressionAST;
+import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.expression.AbstractExpressionAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.AbstractStatementAST;
-import com.google.gson.annotations.Expose;
 import lombok.Getter;
 
 /**
@@ -35,10 +33,12 @@ import lombok.Getter;
 public class ThisStatementAST extends AbstractStatementAST
 {
     
+    private AbstractAST parentAST;
+    
     /**
      * This constructor will initialize the statement with the AST-Type
-     * "THIS_STATEMENT_AST". This will help to debug problems or check the
-     * AST for correct syntax.
+     * "THIS_STATEMENT_AST". This will help to debug problems or check the AST for correct
+     * syntax.
      */
     public ThisStatementAST() {
         this.setAstType(ASTType.THIS_STATEMENT_AST);
@@ -62,7 +62,7 @@ public class ThisStatementAST extends AbstractStatementAST
      * @param parentAST
      *         The parent of this AST. It can be a BlockAST or an AbstractExpressionAST.
      * @param syntaxAnalyzer
-     *         The given SyntaxAnalyzer is needed for checking the Syntax of the current
+     *         The given SyntaxAnalyzer is used for checking the syntax of the current
      *         Token list.
      *
      * @return It will return null if an error occurred or an AbstractStatementAST if it
@@ -73,9 +73,9 @@ public class ThisStatementAST extends AbstractStatementAST
         if (!(parentAST instanceof BlockAST) && !(parentAST instanceof AbstractExpressionAST)) {
             syntaxAnalyzer.errorHandler().addError(new ASTError(parentAST, "Couldn't parse the \"this\" statement because it isn't declared inside a block or an expression."));
             return null;
-        }
-        
-        if (syntaxAnalyzer.matchesNextToken(TokenType.IDENTIFIER) == null || !syntaxAnalyzer.currentToken().getTokenContent().equals("this")) {
+        } else this.parentAST = parentAST;
+    
+        if (syntaxAnalyzer.matchesCurrentToken(TokenType.IDENTIFIER) == null || !syntaxAnalyzer.currentToken().getTokenContent().equals("this")) {
             syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the \"this\" statement because the parsing doesn't start with the \"this\" keyword."));
             return null;
         } else this.setStart(syntaxAnalyzer.currentToken().getStart());
@@ -89,12 +89,12 @@ public class ThisStatementAST extends AbstractStatementAST
         }
         
         // For the "parentAST" we don't use "this" because we don't want that other AST tries to add theirselves to this class.
-        if (!AbstractStatementAST.STATEMENT_PARSER.canParse(parentAST, syntaxAnalyzer)) {
+        if (!AbstractStatementAST.STATEMENT_PARSER.canParse(this, syntaxAnalyzer)) {
             syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the \"this\" statement because the period isn't followed by a valid statement."));
             return null;
         }
-        
-        final AbstractStatementAST abstractStatementAST = new AbstractStatementAST().parseAST(parentAST, syntaxAnalyzer);
+    
+        final AbstractStatementAST abstractStatementAST = new AbstractStatementAST().parseAST(this, syntaxAnalyzer);
         if (abstractStatementAST == null) {
             syntaxAnalyzer.errorHandler().addError(new ParserError(AbstractStatementAST.STATEMENT_PARSER, this, "Couldn't parse the \"this\" statement because an error occurred during the parsing of the statement."));
             return null;

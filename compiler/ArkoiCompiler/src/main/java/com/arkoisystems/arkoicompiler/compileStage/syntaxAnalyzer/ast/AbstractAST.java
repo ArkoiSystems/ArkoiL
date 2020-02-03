@@ -33,6 +33,13 @@ public abstract class AbstractAST
     @Expose
     private int start, end;
     
+    /**
+     * This constructor will provide the capability to set the AST-Type. This will help to
+     * debug problems or check the AST for correct syntax.
+     *
+     * @param astType
+     *         The AST-Type which should get set to this class.
+     */
     public AbstractAST(final ASTType astType) {
         this.astType = astType;
     }
@@ -45,7 +52,7 @@ public abstract class AbstractAST
      *         The parent of the AST. With it you can check for correct usage of the
      *         statement.
      * @param syntaxAnalyzer
-     *         The given SyntaxAnalyzer is needed for checking the syntax of the current
+     *         The given SyntaxAnalyzer is used for checking the syntax of the current
      *         Token list.
      *
      * @return It just returns null because you need to overwrite it.

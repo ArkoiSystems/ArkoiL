@@ -1,17 +1,13 @@
 package com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer;
 
 import com.arkoisystems.arkoicompiler.ArkoiClass;
-import com.arkoisystems.arkoicompiler.ArkoiCompiler;
 import com.arkoisystems.arkoicompiler.compileStage.ICompileStage;
 import com.arkoisystems.arkoicompiler.compileStage.errorHandler.ErrorHandler;
-import com.arkoisystems.arkoicompiler.compileStage.errorHandler.types.ASTError;
-import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.LexicalAnalyzer;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.AbstractToken;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.TokenType;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.SeparatorToken;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.numbers.AbstractNumberToken;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.operators.types.AssignmentOperatorToken;
-import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.AbstractAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.RootAST;
 import com.google.gson.annotations.Expose;
 import lombok.Getter;
@@ -73,251 +69,145 @@ public class SyntaxAnalyzer implements ICompileStage
         return this.errorHandler;
     }
     
-    public boolean findSeparator(final SeparatorToken.SeparatorType separatorType) {
-        while (this.position < this.tokens.length) {
-            final AbstractToken nextToken = this.nextToken();
-            if (nextToken.getTokenType() != TokenType.SEPARATOR)
-                continue;
-            
-            final SeparatorToken separatorToken = (SeparatorToken) nextToken;
-            if (separatorToken.getSeparatorType() == separatorType)
-                return true;
-        }
-        return false;
-    }
-    
-    public boolean findMatchingSeparator(final AbstractAST parentAST, final SeparatorToken.SeparatorType separatorType) {
-        final SeparatorToken.SeparatorType siblingType;
-        switch (separatorType) {
-            case OPENING_PARENTHESIS:
-                siblingType = SeparatorToken.SeparatorType.CLOSING_PARENTHESIS;
-                break;
-            case OPENING_BRACE:
-                siblingType = SeparatorToken.SeparatorType.CLOSING_BRACE;
-                break;
-            case OPENING_BRACKET:
-                siblingType = SeparatorToken.SeparatorType.CLOSING_BRACKET;
-                break;
-            case LESS_THAN_SIGN:
-                siblingType = SeparatorToken.SeparatorType.GREATER_THAN_SIGN;
-                break;
-            default:
-                this.errorHandler.addError(new ASTError(parentAST, "Couldn't match the next separator because the SeparatorType isn't supported."));
-                return false;
-        }
-        
-        int openedSeparators = 1;
-        while (this.position < this.tokens.length) {
-            final AbstractToken nextToken = this.nextToken();
-            if (nextToken.getTokenType() != TokenType.SEPARATOR)
-                continue;
-            
-            final SeparatorToken separatorToken = (SeparatorToken) nextToken;
-            if (separatorToken.getSeparatorType() == separatorType)
-                openedSeparators++;
-            else if (separatorToken.getSeparatorType() == siblingType) {
-                openedSeparators--;
-                
-                if (openedSeparators == 0)
-                    return true;
-            }
-        }
-        return false;
-    }
-    
     public AbstractToken matchesCurrentToken(final AbstractNumberToken.NumberType numberType) {
         final AbstractToken currentToken = this.currentToken();
-        if (!(currentToken instanceof AbstractNumberToken)) {
-            // TODO: 1/2/2020 Throw error
+        if (!(currentToken instanceof AbstractNumberToken))
             return null;
-        }
         
         final AbstractNumberToken numberToken = (AbstractNumberToken) currentToken;
-        if (numberToken.getNumberType() != numberType) {
-            // TODO: 1/2/2020 Throw error
+        if (numberToken.getNumberType() != numberType)
             return null;
-        }
         return numberToken;
     }
     
     public AbstractToken matchesNextToken(final AbstractNumberToken.NumberType numberType) {
         final AbstractToken nextToken = this.nextToken();
-        if (!(nextToken instanceof AbstractNumberToken)) {
-            // TODO: 1/2/2020 Throw error
+        if (!(nextToken instanceof AbstractNumberToken))
             return null;
-        }
         
         final AbstractNumberToken numberToken = (AbstractNumberToken) nextToken;
-        if (numberToken.getNumberType() != numberType) {
-            // TODO: 1/2/2020 Throw error
+        if (numberToken.getNumberType() != numberType)
             return null;
-        }
         return numberToken;
     }
     
     public AbstractToken matchesPeekToken(final int peek, final AbstractNumberToken.NumberType numberType) {
-        if (peek == 0) {
-            // TODO: 1/2/2020 Throw error
+        if (peek == 0)
             return this.matchesCurrentToken(numberType);
-        }
         
         final AbstractToken peekToken = this.peekToken(peek);
-        if (!(peekToken instanceof AbstractNumberToken)) {
-            // TODO: 1/2/2020 Throw error
+        if (!(peekToken instanceof AbstractNumberToken))
             return null;
-        }
         
         final AbstractNumberToken numberToken = (AbstractNumberToken) peekToken;
-        if (numberToken.getNumberType() != numberType) {
-            // TODO: 1/2/2020 Throw error
+        if (numberToken.getNumberType() != numberType)
             return null;
-        }
         return numberToken;
     }
     
     public AbstractToken matchesPeekToken(final int peek, final TokenType tokenType) {
-        if (peek == 0) {
-            // TODO: 1/2/2020 Throw error
+        if (peek == 0)
             return this.matchesCurrentToken(tokenType);
-        }
         
         final AbstractToken peekToken = this.peekToken(peek);
-        if (peekToken.getTokenType() != tokenType) {
-            // TODO: 1/2/2020 Throw error
+        if (peekToken.getTokenType() != tokenType)
             return null;
-        }
         return peekToken;
     }
     
     public AbstractToken matchesCurrentToken(final AssignmentOperatorToken.AssignmentOperatorType assignmentOperatorType) {
         final AbstractToken currentToken = this.currentToken();
-        if (!(currentToken instanceof AssignmentOperatorToken)) {
-            // TODO: 1/2/2020 Throw error
+        if (!(currentToken instanceof AssignmentOperatorToken))
             return null;
-        }
         
         final AssignmentOperatorToken assignmentOperatorToken = (AssignmentOperatorToken) currentToken;
-        if (assignmentOperatorToken.getAssignmentOperatorType() != assignmentOperatorType) {
-            // TODO: 1/2/2020 Throw error
+        if (assignmentOperatorToken.getAssignmentOperatorType() != assignmentOperatorType)
             return null;
-        }
         return assignmentOperatorToken;
     }
     
     public AbstractToken matchesNextToken(final AssignmentOperatorToken.AssignmentOperatorType assignmentOperatorType) {
         final AbstractToken nextToken = this.nextToken();
-        if (!(nextToken instanceof AssignmentOperatorToken)) {
-            // TODO: 1/2/2020 Throw error
+        if (!(nextToken instanceof AssignmentOperatorToken))
             return null;
-        }
         
         final AssignmentOperatorToken assignmentOperatorToken = (AssignmentOperatorToken) nextToken;
-        if (assignmentOperatorToken.getAssignmentOperatorType() != assignmentOperatorType) {
-            // TODO: 1/2/2020 Throw error
+        if (assignmentOperatorToken.getAssignmentOperatorType() != assignmentOperatorType)
             return null;
-        }
         return assignmentOperatorToken;
     }
     
     public AbstractToken matchesPeekToken(final int peek, final AssignmentOperatorToken.AssignmentOperatorType assignmentOperatorType) {
-        if (peek == 0) {
-            // TODO: 1/2/2020 Throw error
+        if (peek == 0)
             return this.matchesCurrentToken(assignmentOperatorType);
-        }
         
         final AbstractToken peekToken = this.peekToken(peek);
-        if (!(peekToken instanceof AssignmentOperatorToken)) {
-            // TODO: 1/2/2020 Throw error
+        if (!(peekToken instanceof AssignmentOperatorToken))
             return null;
-        }
         
         final AssignmentOperatorToken assignmentOperatorToken = (AssignmentOperatorToken) peekToken;
-        if (assignmentOperatorToken.getAssignmentOperatorType() != assignmentOperatorType) {
-            // TODO: 1/2/2020 Throw error
+        if (assignmentOperatorToken.getAssignmentOperatorType() != assignmentOperatorType)
             return null;
-        }
         return assignmentOperatorToken;
     }
     
     public AbstractToken matchesCurrentToken(final SeparatorToken.SeparatorType separatorType) {
         final AbstractToken currentToken = this.currentToken();
-        if (!(currentToken instanceof SeparatorToken)) {
-            // TODO: 1/2/2020 Throw error
+        if (!(currentToken instanceof SeparatorToken))
             return null;
-        }
         
         final SeparatorToken separatorToken = (SeparatorToken) currentToken;
-        if (separatorToken.getSeparatorType() != separatorType) {
-            // TODO: 1/2/2020 Throw error
+        if (separatorToken.getSeparatorType() != separatorType)
             return null;
-        }
         return separatorToken;
     }
     
     public AbstractToken matchesNextToken(final SeparatorToken.SeparatorType separatorType) {
         final AbstractToken nextToken = this.nextToken();
-        if (!(nextToken instanceof SeparatorToken)) {
-            // TODO: 1/2/2020 Throw error
+        if (!(nextToken instanceof SeparatorToken))
             return null;
-        }
         
         final SeparatorToken separatorToken = (SeparatorToken) nextToken;
-        if (separatorToken.getSeparatorType() != separatorType) {
-            // TODO: 1/2/2020 Throw error
+        if (separatorToken.getSeparatorType() != separatorType)
             return null;
-        }
         return separatorToken;
     }
     
     public AbstractToken matchesPeekToken(final int peek, final SeparatorToken.SeparatorType separatorType) {
-        if (peek == 0) {
-            // TODO: 1/2/2020 Throw error
+        if (peek == 0)
             return this.matchesCurrentToken(separatorType);
-        }
         
         final AbstractToken peekToken = this.peekToken(peek);
-        if (!(peekToken instanceof SeparatorToken)) {
-            // TODO: 1/2/2020 Throw error
+        if (!(peekToken instanceof SeparatorToken))
             return null;
-        }
         
         final SeparatorToken separatorToken = (SeparatorToken) peekToken;
-        if (separatorToken.getSeparatorType() != separatorType) {
-            // TODO: 1/2/2020 Throw error
+        if (separatorToken.getSeparatorType() != separatorType)
             return null;
-        }
         return separatorToken;
     }
     
     public AbstractToken matchesCurrentToken(final TokenType tokenType) {
         final AbstractToken currentToken = this.currentToken();
-        if (currentToken.getTokenType() != tokenType) {
-            // TODO: 1/2/2020 Throw error
+        if (currentToken.getTokenType() != tokenType)
             return null;
-        }
         return currentToken;
     }
     
     public AbstractToken matchesNextToken(final TokenType tokenType) {
         final AbstractToken nextToken = this.nextToken();
-        if (nextToken.getTokenType() != tokenType) {
-            // TODO: 1/2/2020 Throw error
+        if (nextToken.getTokenType() != tokenType)
             return null;
-        }
         return nextToken;
     }
     
     public AbstractToken matchesNextToken(final int peek, final TokenType tokenType) {
-        if (peek == 0) {
-            // TODO: 1/2/2020 Throw error
+        if (peek == 0)
             return this.matchesCurrentToken(tokenType);
-        }
         
         final AbstractToken peekToken = this.peekToken(peek);
-        if (peekToken.getTokenType() != tokenType) {
-            // TODO: 1/2/2020 Throw error
+        if (peekToken.getTokenType() != tokenType)
             return null;
-        }
         return peekToken;
     }
     

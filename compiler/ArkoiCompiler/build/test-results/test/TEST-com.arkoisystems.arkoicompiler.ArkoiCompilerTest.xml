@@ -1,9 +1,92 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.arkoisystems.arkoicompiler.ArkoiCompilerTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2020-02-01T22:03:40" hostname="msi-ubuntu" time="0.08">
+<testsuite name="com.arkoisystems.arkoicompiler.ArkoiCompilerTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2020-02-03T22:54:01" hostname="msi-ubuntu" time="0.074">
   <properties/>
-  <testcase name="runCompiler" classname="com.arkoisystems.arkoicompiler.ArkoiCompilerTest" time="0.08"/>
-  <system-out><![CDATA[The lexical analysis took 13ms for all classes (2 in total)
-The compilation took 27ms for all classes (2 in total)
+  <testcase name="runCompiler" classname="com.arkoisystems.arkoicompiler.ArkoiCompilerTest" time="0.074"/>
+  <system-out><![CDATA[The lexical analysis took 12.220606ms for all classes (2 in total)
 ]]></system-out>
-  <system-err><![CDATA[]]></system-err>
+  <system-err><![CDATA[Couldn't compile the file. Please see the stacktrace for errors:
+{
+  "importStorage": [],
+  "variableStorage": [],
+  "functionStorage": [
+    {
+      "functionAnnotationASTs": [],
+      "functionNameToken": {
+        "tokenType": "IDENTIFIER",
+        "tokenContent": "main",
+        "start": 37,
+        "end": 41
+      },
+      "functionReturnTypeAST": {
+        "typeKind": "INTEGER",
+        "isArray": false,
+        "astType": "TYPE",
+        "start": 0,
+        "end": 0
+      },
+      "functionArgumentASTs": [
+        {
+          "argumentNameIdentifier": {
+            "tokenType": "IDENTIFIER",
+            "tokenContent": "args",
+            "start": 47,
+            "end": 51
+          },
+          "argumentType": {
+            "typeKind": "STRING",
+            "isArray": true,
+            "astType": "TYPE",
+            "start": 0,
+            "end": 0
+          },
+          "astType": "ARGUMENT_DEFINITION",
+          "start": 47,
+          "end": 0
+        }
+      ],
+      "blockAST": {
+        "blockType": "BLOCK",
+        "blockStorage": [],
+        "astType": "BLOCK",
+        "start": 63,
+        "end": 113
+      },
+      "astType": "FUNCTION_DEFINITION",
+      "start": 33,
+      "end": 113
+    }
+  ],
+  "astType": "ROOT",
+  "start": 0,
+  "end": 254
+}
+{
+  "abstractToken": {
+    "separatorType": "OPENING_PARENTHESIS",
+    "tokenType": "SEPARATOR",
+    "tokenContent": "(",
+    "start": 165,
+    "end": 166
+  },
+  "message": "Couldn't parse the BlockAST because the inlined block doesn't end with a semicolon.",
+  "start": 165,
+  "end": 166
+}
+{
+  "parser": {
+    "childName": "BlockAST"
+  },
+  "message": "Couldn't parse the \"function definition\" statement because an error occurred during parsing of the block/inlined block.",
+  "start": 115,
+  "end": 166
+}
+{
+  "parser": {
+    "childName": "AbstractStatementAST"
+  },
+  "message": "Couldn't parse the \"AbstractStatementAST\" because an error occurred.",
+  "start": 165,
+  "end": 166
+}
+]]></system-err>
 </testsuite>

@@ -7,8 +7,6 @@ import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.parser.Parser;
 import com.google.gson.annotations.Expose;
 import lombok.Getter;
 
-import java.util.ArrayList;
-
 /**
  * Copyright © 2019 ArkoiSystems (https://www.arkoisystems.com/) All Rights Reserved.
  * Created ArkoiCompiler on the Sat Nov 09 2019 Author єхcsє#5543 aka Timo
@@ -33,31 +31,31 @@ public class ParserError extends AbstractError
     private final Parser<?> parser;
     
     public ParserError(final Parser<?> parser, final int start, final int end, final String message, final Object... arguments) {
-        super(start, end, "Couldn't parse the \"" + parser.childName() + "\" because an error occurred. " + message, arguments);
+        super(start, end, message, arguments);
         
         this.parser = parser;
     }
     
     public ParserError(final Parser<?> parser, final AbstractToken abstractToken, final String message, final Object... arguments) {
-        super(abstractToken.getStart(), abstractToken.getEnd(), "Couldn't parse the \"" + parser.childName() + "\" because an error occurred. " + message, arguments);
+        super(abstractToken.getStart(), abstractToken.getEnd(), message, arguments);
         
         this.parser = parser;
     }
     
     public ParserError(final Parser<?> parser, final AbstractAST abstractAST, final String message, final Object... arguments) {
-        super(abstractAST.getStart(), abstractAST.getEnd(), "Couldn't parse the \"" + parser.childName() + "\" because an error occurred. " + message, arguments);
+        super(abstractAST.getStart(), abstractAST.getEnd(), message, arguments);
         
         this.parser = parser;
     }
     
     public ParserError(final Parser<?> parser, final AbstractToken abstractToken) {
-        super(abstractToken.getStart(), abstractToken.getEnd(), "Couldn't parse the \"" + parser.childName() + "\" because an error occurred.");
+        super(abstractToken.getStart(), abstractToken.getEnd(), "Couldn't parse the \"" + parser.getChildName() + "\" because an error occurred.");
         
         this.parser = parser;
     }
     
     public ParserError(final Parser<?> parser, final int start, final int end) {
-        super(start, end, "Couldn't parse the \"" + parser.childName() + "\" because an error occurred.");
+        super(start, end, "Couldn't parse the \"" + parser.getChildName() + "\" because an error occurred.");
         
         this.parser = parser;
     }

@@ -1,9 +1,9 @@
-package com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.expressions.types;
+package com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.expression.types;
 
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.operators.types.BinaryOperatorToken;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.ASTType;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.AbstractAST;
-import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.expressions.AbstractExpressionAST;
+import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.expression.AbstractExpressionAST;
 import com.google.gson.annotations.Expose;
 import lombok.Getter;
 
