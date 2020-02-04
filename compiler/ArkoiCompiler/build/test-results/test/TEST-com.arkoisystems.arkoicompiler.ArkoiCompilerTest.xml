@@ -1,8 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.arkoisystems.arkoicompiler.ArkoiCompilerTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2020-02-03T22:54:01" hostname="msi-ubuntu" time="0.074">
+<testsuite name="com.arkoisystems.arkoicompiler.ArkoiCompilerTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2020-02-04T22:55:46" hostname="msi-ubuntu" time="0.088">
   <properties/>
-  <testcase name="runCompiler" classname="com.arkoisystems.arkoicompiler.ArkoiCompilerTest" time="0.074"/>
-  <system-out><![CDATA[The lexical analysis took 12.220606ms for all classes (2 in total)
+  <testcase name="runCompiler" classname="com.arkoisystems.arkoicompiler.ArkoiCompilerTest" time="0.088"/>
+  <system-out><![CDATA[The lexical analysis took 12.026024ms for all classes (2 in total)
+{
+  "tokenType": "STRING_LITERAL",
+  "tokenContent": "%s , %s",
+  "start": 166,
+  "end": 175
+}
 ]]></system-out>
   <system-err><![CDATA[Couldn't compile the file. Please see the stacktrace for errors:
 {
@@ -62,15 +68,31 @@
 }
 {
   "abstractToken": {
-    "separatorType": "OPENING_PARENTHESIS",
-    "tokenType": "SEPARATOR",
-    "tokenContent": "(",
-    "start": 165,
-    "end": 166
+    "symbolType": "PERCENT",
+    "tokenType": "SYMBOL",
+    "tokenContent": "%",
+    "start": 176,
+    "end": 177
   },
-  "message": "Couldn't parse the BlockAST because the inlined block doesn't end with a semicolon.",
-  "start": 165,
-  "end": 166
+  "message": "Couldn't parse the \"function invoke\" statement because an expression isn't followed by an comma or an closing parenthesis.",
+  "start": 176,
+  "end": 177
+}
+{
+  "parser": {
+    "childName": "AbstractOperableAST<?>"
+  },
+  "message": "Couldn't parse the expression because an error occurred during the parsing of the operable.",
+  "start": 176,
+  "end": 177
+}
+{
+  "parser": {
+    "childName": "AbstractExpressionAST"
+  },
+  "message": "Couldn't parse the BlockAST because an error occurred during the parsing of the expression.",
+  "start": 156,
+  "end": 177
 }
 {
   "parser": {
@@ -78,15 +100,15 @@
   },
   "message": "Couldn't parse the \"function definition\" statement because an error occurred during parsing of the block/inlined block.",
   "start": 115,
-  "end": 166
+  "end": 177
 }
 {
   "parser": {
     "childName": "AbstractStatementAST"
   },
   "message": "Couldn't parse the \"AbstractStatementAST\" because an error occurred.",
-  "start": 165,
-  "end": 166
+  "start": 176,
+  "end": 177
 }
 ]]></system-err>
 </testsuite>

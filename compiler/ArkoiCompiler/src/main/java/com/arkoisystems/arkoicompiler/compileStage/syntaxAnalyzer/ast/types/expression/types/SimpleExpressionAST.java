@@ -30,9 +30,9 @@ public class SimpleExpressionAST extends AbstractExpressionAST
     private final AbstractOperableAST<?> abstractOperableAST;
     
     public SimpleExpressionAST(final AbstractOperableAST<?> abstractOperableAST) {
-        this.abstractOperableAST = abstractOperableAST;
+        super(ASTType.SIMPLE_EXPRESSION);
         
-        this.setAstType(ASTType.SIMPLE_EXPRESSION);
+        this.abstractOperableAST = abstractOperableAST;
         
         this.setStart(abstractOperableAST.getStart());
         this.setEnd(abstractOperableAST.getEnd());

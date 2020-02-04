@@ -4,7 +4,7 @@ import com.arkoisystems.arkoicompiler.compileStage.errorHandler.types.ParserErro
 import com.arkoisystems.arkoicompiler.compileStage.errorHandler.types.TokenError;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.TokenType;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.IdentifierToken;
-import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.SeparatorToken;
+import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.SymbolToken;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.ASTType;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.AbstractAST;
@@ -85,7 +85,7 @@ public class ArgumentDefinitionAST extends AbstractAST
             this.setStart(syntaxAnalyzer.currentToken().getStart());
         }
         
-        if (syntaxAnalyzer.matchesNextToken(SeparatorToken.SeparatorType.COLON) == null) {
+        if (syntaxAnalyzer.matchesNextToken(SymbolToken.SymbolType.COLON) == null) {
             syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the argument definition because the argument name isn't followed by a colon."));
             return null;
         } else syntaxAnalyzer.nextToken();
@@ -164,7 +164,7 @@ public class ArgumentDefinitionAST extends AbstractAST
      *         if it parsed until to the end.
      */
     public static List<ArgumentDefinitionAST> parseArguments(final AbstractAST parentAST, final SyntaxAnalyzer syntaxAnalyzer, final List<ArgumentDefinitionAST> argumentASTs) {
-        if (syntaxAnalyzer.matchesCurrentToken(SeparatorToken.SeparatorType.OPENING_PARENTHESIS) == null) {
+        if (syntaxAnalyzer.matchesCurrentToken(SymbolToken.SymbolType.OPENING_PARENTHESIS) == null) {
             syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the arguments because parsing doesn't start with an opening parenthesis."));
             return null;
         } else syntaxAnalyzer.nextToken();
@@ -179,11 +179,11 @@ public class ArgumentDefinitionAST extends AbstractAST
                 return null;
             } else argumentASTs.add(argumentDefinitionAST);
             
-            if (syntaxAnalyzer.matchesNextToken(SeparatorToken.SeparatorType.COMMA) == null)
+            if (syntaxAnalyzer.matchesNextToken(SymbolToken.SymbolType.COMMA) == null)
                 break;
         }
         
-        if (syntaxAnalyzer.matchesCurrentToken(SeparatorToken.SeparatorType.CLOSING_PARENTHESIS) == null) {
+        if (syntaxAnalyzer.matchesCurrentToken(SymbolToken.SymbolType.CLOSING_PARENTHESIS) == null) {
             syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the arguments because the parsing doesn't end with a closing parenthesis."));
             return null;
         }

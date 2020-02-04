@@ -3,7 +3,7 @@ package com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types;
 import com.arkoisystems.arkoicompiler.compileStage.errorHandler.types.TokenError;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.AbstractToken;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.TokenType;
-import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.SeparatorToken;
+import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.SymbolToken;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.ASTType;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.AbstractAST;
@@ -94,7 +94,7 @@ public class TypeAST extends AbstractAST
         } else this.typeKind = TypeKind.getTypeKind(syntaxAnalyzer.currentToken());
         
         // This will check if the next two Tokens are an opening and closing bracket aka. "[]". If it is, then skip these two Tokens and set the "isArray" boolean to true.
-        if (syntaxAnalyzer.matchesPeekToken(1, SeparatorToken.SeparatorType.OPENING_BRACKET) != null && syntaxAnalyzer.matchesPeekToken(2, SeparatorToken.SeparatorType.CLOSING_BRACKET) != null) {
+        if (syntaxAnalyzer.matchesPeekToken(1, SymbolToken.SymbolType.OPENING_BRACKET) != null && syntaxAnalyzer.matchesPeekToken(2, SymbolToken.SymbolType.CLOSING_BRACKET) != null) {
             syntaxAnalyzer.nextToken(2);
             this.isArray = true;
         }

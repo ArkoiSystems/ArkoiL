@@ -1,11 +1,10 @@
 package com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement;
 
-import com.arkoisystems.arkoicompiler.compileStage.errorHandler.types.ASTError;
 import com.arkoisystems.arkoicompiler.compileStage.errorHandler.types.TokenError;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.AbstractToken;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.TokenType;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.IdentifierToken;
-import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.SeparatorToken;
+import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.SymbolToken;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.AbstractAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.expression.AbstractExpressionAST;
@@ -64,14 +63,14 @@ public class AbstractStatementAST extends AbstractAST
                     syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the statement because you can't use it with the \"this\" keyword. The \"this\" keyword can just be followed by a function or variable."));
                     break;
                 default:
-                    if (syntaxAnalyzer.matchesPeekToken(1, SeparatorToken.SeparatorType.OPENING_PARENTHESIS) != null)
+                    if (syntaxAnalyzer.matchesPeekToken(1, SymbolToken.SymbolType.OPENING_PARENTHESIS) != null)
                         return new FunctionInvokeAST((IdentifierToken) currentToken).parseAST(thisStatementAST.getParentAST(), syntaxAnalyzer);
                     break;
             }
         } else if (parentAST instanceof AbstractExpressionAST) {
             if (currentToken.getTokenContent().equals("this"))
                 return new ThisStatementAST().parseAST(parentAST, syntaxAnalyzer);
-            else if (syntaxAnalyzer.matchesPeekToken(1, SeparatorToken.SeparatorType.OPENING_PARENTHESIS) != null)
+            else if (syntaxAnalyzer.matchesPeekToken(1, SymbolToken.SymbolType.OPENING_PARENTHESIS) != null)
                 return new FunctionInvokeAST((IdentifierToken) currentToken).parseAST(parentAST, syntaxAnalyzer);
         } else {
             switch (currentToken.getTokenContent()) {
@@ -86,7 +85,7 @@ public class AbstractStatementAST extends AbstractAST
                 case "return":
                     return new ReturnStatementAST().parseAST(parentAST, syntaxAnalyzer);
                 default:
-                    if (syntaxAnalyzer.matchesPeekToken(1, SeparatorToken.SeparatorType.OPENING_PARENTHESIS) != null)
+                    if (syntaxAnalyzer.matchesPeekToken(1, SymbolToken.SymbolType.OPENING_PARENTHESIS) != null)
                         return new FunctionInvokeAST((IdentifierToken) currentToken).parseAST(parentAST, syntaxAnalyzer);
                     break;
             }

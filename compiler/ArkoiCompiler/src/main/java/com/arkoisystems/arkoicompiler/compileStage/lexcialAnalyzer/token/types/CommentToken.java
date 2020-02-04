@@ -26,12 +26,12 @@ public class CommentToken extends AbstractToken
 {
     
     public CommentToken(final String tokenContent, final int start, final int end) {
-        super(TokenType.WHITESPACE, tokenContent, start, end);
+        super(TokenType.COMMENT, tokenContent, start, end);
     }
     
     @Override
     public AbstractToken parse(final Matcher matcher) {
-        this.setTokenContent(matcher.group(3));
+        this.setTokenContent(matcher.group(0));
         return this;
     }
     

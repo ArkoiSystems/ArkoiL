@@ -1,6 +1,5 @@
 package com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.expression.types;
 
-import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.operators.types.BinaryOperatorToken;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.ASTType;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.AbstractAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.expression.AbstractExpressionAST;
@@ -31,21 +30,31 @@ public class BinaryExpressionAST extends AbstractExpressionAST
     private final AbstractAST leftSideAST;
     
     @Expose
-    private final BinaryOperatorToken binaryOperatorToken;
+    private final BinaryOperator binaryOperator;
     
     @Expose
     private final AbstractAST rightSideAST;
     
     
-    public BinaryExpressionAST(final AbstractAST leftSideAST, final BinaryOperatorToken binaryOperatorToken, final AbstractAST rightSideAST) {
-        this.binaryOperatorToken = binaryOperatorToken;
+    public BinaryExpressionAST(final AbstractAST leftSideAST, final BinaryOperator binaryOperator, final AbstractAST rightSideAST) {
+        super(ASTType.BINARY_EXPRESSION);
+        
+        this.binaryOperator = binaryOperator;
         this.rightSideAST = rightSideAST;
         this.leftSideAST = leftSideAST;
-    
-        this.setAstType(ASTType.BINARY_EXPRESSION);
         
         this.setStart(leftSideAST.getStart());
         this.setEnd(rightSideAST.getEnd());
+    }
+    
+    public enum BinaryOperator {
+    
+        ADDITION,
+        SUBTRACTION,
+        MULTIPLICATION,
+        DIVISION,
+        MODULO
+    
     }
     
 }

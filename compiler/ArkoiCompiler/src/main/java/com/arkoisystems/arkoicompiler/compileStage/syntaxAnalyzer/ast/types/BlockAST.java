@@ -4,8 +4,7 @@ import com.arkoisystems.arkoicompiler.compileStage.errorHandler.types.ASTError;
 import com.arkoisystems.arkoicompiler.compileStage.errorHandler.types.ParserError;
 import com.arkoisystems.arkoicompiler.compileStage.errorHandler.types.TokenError;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.EndOfFileToken;
-import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.SeparatorToken;
-import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.operators.types.AssignmentOperatorToken;
+import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.SymbolToken;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.ASTType;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.AbstractAST;
@@ -98,16 +97,16 @@ public class BlockAST extends AbstractAST
             syntaxAnalyzer.errorHandler().addError(new ASTError(parentAST, "Couldn't parse the BlockAST because it isn't declared inside a function/variable definition."));
             return null;
         } else this.setStart(syntaxAnalyzer.currentToken().getStart());
-        
-        if (syntaxAnalyzer.matchesCurrentToken(SeparatorToken.SeparatorType.OPENING_BRACE) != null) {
+    
+        if (syntaxAnalyzer.matchesCurrentToken(SymbolToken.SymbolType.OPENING_BRACE) != null) {
             this.blockType = BlockType.BLOCK;
             syntaxAnalyzer.nextToken(); // Because it would parse a second block if we wouldn't do this.
-            
+        
             main_loop:
             while (syntaxAnalyzer.getPosition() < syntaxAnalyzer.getTokens().length) {
                 if (syntaxAnalyzer.currentToken() instanceof EndOfFileToken)
                     break;
-                
+            
                 for (final Parser<?> parser : BLOCK_PARSERS) {
                     if (!parser.canParse(this, syntaxAnalyzer))
                         continue;
@@ -117,37 +116,37 @@ public class BlockAST extends AbstractAST
                         syntaxAnalyzer.errorHandler().addError(new ParserError(parser, syntaxAnalyzer.currentToken()));
                         return null;
                     } else {
-                        if (syntaxAnalyzer.matchesCurrentToken(SeparatorToken.SeparatorType.SEMICOLON) == null) {
+                        if (syntaxAnalyzer.matchesCurrentToken(SymbolToken.SymbolType.SEMICOLON) == null) {
                             syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the \"%s\" because it doesn't end with a semicolon.", abstractAST.getClass().getSimpleName()));
                             return null;
                         }
-                        
+    
                         syntaxAnalyzer.nextToken();
                         continue main_loop;
                     }
                 }
-                
-                if (syntaxAnalyzer.matchesCurrentToken(SeparatorToken.SeparatorType.CLOSING_BRACE) != null)
+            
+                if (syntaxAnalyzer.matchesCurrentToken(SymbolToken.SymbolType.CLOSING_BRACE) != null)
                     break;
                 syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the AST because no parser could parse this token. Check for misspelling or something else."));
                 return null;
             }
-        } else if (syntaxAnalyzer.matchesCurrentToken(AssignmentOperatorToken.AssignmentOperatorType.ASSIGNMENT) != null) {
+        } else if (syntaxAnalyzer.matchesCurrentToken(SymbolToken.SymbolType.EQUAL) != null) {
             this.blockType = BlockType.INLINE;
             syntaxAnalyzer.nextToken(); // Because it would try to parse the equal sign as expression.
-            
+        
             if (!AbstractExpressionAST.EXPRESSION_PARSER.canParse(this, syntaxAnalyzer)) {
                 syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the BlockAST because the equal sign isn't followed by an valid expression."));
                 return null;
             }
-            
+        
             final AbstractExpressionAST abstractExpressionAST = AbstractExpressionAST.EXPRESSION_PARSER.parse(this, syntaxAnalyzer);
             if (abstractExpressionAST == null) {
                 syntaxAnalyzer.errorHandler().addError(new ParserError(AbstractExpressionAST.EXPRESSION_PARSER, this.getStart(), syntaxAnalyzer.currentToken().getEnd(), "Couldn't parse the BlockAST because an error occurred during the parsing of the expression."));
                 return null;
             } else this.blockStorage.add(abstractExpressionAST);
-            
-            if (syntaxAnalyzer.matchesNextToken(SeparatorToken.SeparatorType.SEMICOLON) == null) {
+        
+            if (syntaxAnalyzer.matchesNextToken(SymbolToken.SymbolType.SEMICOLON) == null) {
                 syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the BlockAST because the inlined block doesn't end with a semicolon."));
                 return null;
             }

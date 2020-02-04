@@ -3,7 +3,7 @@ package com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.parser.types;
 import com.arkoisystems.arkoicompiler.compileStage.errorHandler.types.TokenError;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.AbstractToken;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.TokenType;
-import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.SeparatorToken;
+import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.SymbolToken;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.AbstractAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.expression.AbstractExpressionAST;
@@ -37,7 +37,7 @@ public class StatementParser extends Parser<AbstractStatementAST>
                     syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the statement because you can't use it with the \"this\" keyword. The \"this\" keyword can just be followed by a function or variable."));
                     break;
                 default:
-                    if (syntaxAnalyzer.matchesPeekToken(1, SeparatorToken.SeparatorType.OPENING_PARENTHESIS) != null)
+                    if (syntaxAnalyzer.matchesPeekToken(1, SymbolToken.SymbolType.OPENING_PARENTHESIS) != null)
                         return true;
                     break;
             }
@@ -45,7 +45,7 @@ public class StatementParser extends Parser<AbstractStatementAST>
             if (currentToken.getTokenContent().equals("this"))
                 return true;
             else
-                return syntaxAnalyzer.matchesPeekToken(1, SeparatorToken.SeparatorType.OPENING_PARENTHESIS) != null;
+                return syntaxAnalyzer.matchesPeekToken(1, SymbolToken.SymbolType.OPENING_PARENTHESIS) != null;
         } else {
             switch (currentToken.getTokenContent()) {
                 case "val":
@@ -56,7 +56,7 @@ public class StatementParser extends Parser<AbstractStatementAST>
                     return true;
             }
     
-            return syntaxAnalyzer.matchesPeekToken(1, SeparatorToken.SeparatorType.OPENING_PARENTHESIS) != null;
+            return syntaxAnalyzer.matchesPeekToken(1, SymbolToken.SymbolType.OPENING_PARENTHESIS) != null;
         }
         return false;
     }

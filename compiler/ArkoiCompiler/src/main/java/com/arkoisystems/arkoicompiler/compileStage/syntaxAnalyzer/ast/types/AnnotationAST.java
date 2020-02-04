@@ -5,7 +5,7 @@ import com.arkoisystems.arkoicompiler.compileStage.errorHandler.types.ParserErro
 import com.arkoisystems.arkoicompiler.compileStage.errorHandler.types.TokenError;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.TokenType;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.IdentifierToken;
-import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.SeparatorToken;
+import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.SymbolToken;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.ASTType;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.AbstractAST;
@@ -114,7 +114,7 @@ public class AnnotationAST extends AbstractAST
             return null;
         }
         
-        if (syntaxAnalyzer.matchesCurrentToken(SeparatorToken.SeparatorType.AT_SIGN) == null) {
+        if (syntaxAnalyzer.matchesCurrentToken(SymbolToken.SymbolType.AT_SIGN) == null) {
             syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the Annotation because the parsing doesn't start with an at sign aka. \"@\"."));
             return null;
         } else this.setStart(syntaxAnalyzer.currentToken().getStart());
@@ -124,11 +124,11 @@ public class AnnotationAST extends AbstractAST
             return null;
         } else this.annotationName = (IdentifierToken) syntaxAnalyzer.currentToken();
         
-        if (syntaxAnalyzer.matchesPeekToken(1, SeparatorToken.SeparatorType.OPENING_BRACKET) != null) {
+        if (syntaxAnalyzer.matchesPeekToken(1, SymbolToken.SymbolType.OPENING_BRACKET) != null) {
             syntaxAnalyzer.nextToken(2);
             
             while (syntaxAnalyzer.getPosition() < syntaxAnalyzer.getTokens().length) {
-                if (syntaxAnalyzer.matchesCurrentToken(SeparatorToken.SeparatorType.CLOSING_BRACKET) != null)
+                if (syntaxAnalyzer.matchesCurrentToken(SymbolToken.SymbolType.CLOSING_BRACKET) != null)
                     break;
                 
                 if (syntaxAnalyzer.matchesCurrentToken(TokenType.IDENTIFIER) == null) {
@@ -139,9 +139,9 @@ public class AnnotationAST extends AbstractAST
                     syntaxAnalyzer.nextToken();
                 }
                 
-                if (syntaxAnalyzer.matchesCurrentToken(SeparatorToken.SeparatorType.COMMA) != null)
+                if (syntaxAnalyzer.matchesCurrentToken(SymbolToken.SymbolType.COMMA) != null)
                     syntaxAnalyzer.nextToken();
-                else if (syntaxAnalyzer.matchesCurrentToken(SeparatorToken.SeparatorType.CLOSING_BRACKET) != null)
+                else if (syntaxAnalyzer.matchesCurrentToken(SymbolToken.SymbolType.CLOSING_BRACKET) != null)
                     break;
                 else {
                     syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the Annotation because you can't declare something else then a closing bracket and a comma after an argument."));
@@ -149,7 +149,7 @@ public class AnnotationAST extends AbstractAST
                 }
             }
             
-            if (syntaxAnalyzer.matchesCurrentToken(SeparatorToken.SeparatorType.CLOSING_BRACKET) == null) {
+            if (syntaxAnalyzer.matchesCurrentToken(SymbolToken.SymbolType.CLOSING_BRACKET) == null) {
                 syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the Annotation because the arguments section doesn't end with a closing bracket."));
                 return null;
             }

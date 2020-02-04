@@ -7,7 +7,6 @@ import com.google.gson.annotations.Expose;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.regex.Matcher;
 
 /**
@@ -35,7 +34,7 @@ public class AbstractNumberToken extends AbstractToken
     private NumberType numberType;
     
     public AbstractNumberToken(final String tokenContent, final int start, final int end) {
-        super(TokenType.NUMBER, tokenContent, start, end);
+        super(TokenType.NUMBER_LITERAL, tokenContent, start, end);
     }
     
     @Override

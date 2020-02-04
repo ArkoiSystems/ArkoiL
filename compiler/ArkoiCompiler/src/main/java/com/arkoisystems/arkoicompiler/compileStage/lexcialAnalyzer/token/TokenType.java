@@ -2,9 +2,6 @@ package com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token;
 
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.*;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.numbers.AbstractNumberToken;
-import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.operators.types.AssignmentOperatorToken;
-import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.operators.types.BinaryOperatorToken;
-import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.operators.types.UnaryOperatorToken;
 import lombok.Getter;
 
 import java.util.regex.Matcher;
@@ -31,19 +28,18 @@ public enum TokenType
 {
     
     WHITESPACE(WhiteSpaceToken.class, " \t\n"),
-    COMMENT(CommentToken.class, "#(.*)"),
+    COMMENT(CommentToken.class, "#.*"),
     
-    STRING(StringToken.class, "\"(?:.|(?:\"))*\""),
-    NUMBER(AbstractNumberToken.class, AbstractNumberToken.NumberType.NUMBER_PATTERN),
-    IDENTIFIER(IdentifierToken.class, "\\b[a-zA-Z]+[a-zA-Z_0-9]*\\b"),
+    STRING_LITERAL(StringToken.class, "\"(?:.|(?:\"))*\""),
+    NUMBER_LITERAL(AbstractNumberToken.class, AbstractNumberToken.NumberType.NUMBER_PATTERN),
     
-    ASSIGNMENT_OPERATOR(AssignmentOperatorToken.class, "(=|\\+=|-=|\\*=|/=|%=)"),
-    UNARY_OPERATOR(UnaryOperatorToken.class, "(\\+\\+|--|!)"),
-    BINARY_OPERATOR(BinaryOperatorToken.class, "(\\+|\\*|/|-|%)"),
+    // TODO: Add BOOLEAN_LITERAL and CHAR_LITERAL
+    IDENTIFIER(IdentifierToken.class, "[a-zA-Z]+[a-zA-Z_0-9]*"),
     
-    SEPARATOR(SeparatorToken.class, "(@|:|;|\\{|\\}|\\(|\\)|\\[|\\]|,|\\.|<|>)"),
+    SYMBOL(SymbolToken.class, "(@|:|;|\\{|\\}|\\(|\\)|\\[|\\]|,|\\.|<|>|\\+|-|\\*|/|%|!|=|&)"),
     
     END_OF_FILE(EndOfFileToken.class, null);
+    
     
     public static final Pattern PATTERN_ENGINE;
     

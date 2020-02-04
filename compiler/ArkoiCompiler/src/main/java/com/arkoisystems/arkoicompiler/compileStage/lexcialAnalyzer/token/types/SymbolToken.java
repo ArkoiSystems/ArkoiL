@@ -26,63 +26,87 @@ import java.util.regex.Matcher;
  */
 @Getter
 @Setter
-public class SeparatorToken extends AbstractToken
+public class SymbolToken extends AbstractToken
 {
     
     @Expose
-    private SeparatorType separatorType;
+    private SymbolType symbolType;
     
-    public SeparatorToken(final String tokenContent, final int start, final int end) {
-        super(TokenType.SEPARATOR, tokenContent, start, end);
+    public SymbolToken(final String tokenContent, final int start, final int end) {
+        super(TokenType.SYMBOL, tokenContent, start, end);
     }
     
     @Override
     public AbstractToken parse(final Matcher matcher) {
         switch (this.getTokenContent().charAt(0)) {
             case '@':
-                this.setSeparatorType(SeparatorType.AT_SIGN);
+                this.setSymbolType(SymbolType.AT_SIGN);
                 break;
             case ':':
-                this.setSeparatorType(SeparatorType.COLON);
+                this.setSymbolType(SymbolType.COLON);
                 break;
             case ';':
-                this.setSeparatorType(SeparatorType.SEMICOLON);
+                this.setSymbolType(SymbolType.SEMICOLON);
                 break;
             case '{':
-                this.setSeparatorType(SeparatorType.OPENING_BRACE);
+                this.setSymbolType(SymbolType.OPENING_BRACE);
                 break;
             case '}':
-                this.setSeparatorType(SeparatorType.CLOSING_BRACE);
+                this.setSymbolType(SymbolType.CLOSING_BRACE);
                 break;
             case '(':
-                this.setSeparatorType(SeparatorType.OPENING_PARENTHESIS);
+                this.setSymbolType(SymbolType.OPENING_PARENTHESIS);
                 break;
             case ')':
-                this.setSeparatorType(SeparatorType.CLOSING_PARENTHESIS);
+                this.setSymbolType(SymbolType.CLOSING_PARENTHESIS);
                 break;
             case '[':
-                this.setSeparatorType(SeparatorType.OPENING_BRACKET);
+                this.setSymbolType(SymbolType.OPENING_BRACKET);
                 break;
             case ']':
-                this.setSeparatorType(SeparatorType.CLOSING_BRACKET);
+                this.setSymbolType(SymbolType.CLOSING_BRACKET);
                 break;
             case ',':
-                this.setSeparatorType(SeparatorType.COMMA);
+                this.setSymbolType(SymbolType.COMMA);
                 break;
             case '.':
-                this.setSeparatorType(SeparatorType.PERIOD);
+                this.setSymbolType(SymbolType.PERIOD);
                 break;
             case '>':
-                this.setSeparatorType(SeparatorType.GREATER_THAN_SIGN);
+                this.setSymbolType(SymbolType.GREATER_THAN_SIGN);
                 break;
             case '<':
-                this.setSeparatorType(SeparatorType.LESS_THAN_SIGN);
+                this.setSymbolType(SymbolType.LESS_THAN_SIGN);
+                break;
+            case '+':
+                this.setSymbolType(SymbolType.PLUS);
+                break;
+            case '*':
+                this.setSymbolType(SymbolType.ASTERISK);
+                break;
+            case '/':
+                this.setSymbolType(SymbolType.SLASH);
+                break;
+            case '-':
+                this.setSymbolType(SymbolType.MINUS);
+                break;
+            case '%':
+                this.setSymbolType(SymbolType.PERCENT);
+                break;
+            case '=':
+                this.setSymbolType(SymbolType.EQUAL);
+                break;
+            case '!':
+                this.setSymbolType(SymbolType.EXCLAMATION_MARK);
+                break;
+            case '&':
+                this.setSymbolType(SymbolType.AMPERSAND);
                 break;
         }
         return this;
     }
     
-    public enum SeparatorType
+    public enum SymbolType
     {
         
         AT_SIGN,
@@ -103,9 +127,18 @@ public class SeparatorToken extends AbstractToken
         PERIOD,
         
         LESS_THAN_SIGN,
-        GREATER_THAN_SIGN
-        
+        GREATER_THAN_SIGN,
     
+        VERTICAL_BAR,
+        AMPERSAND,
+        EXCLAMATION_MARK,
+        ASTERISK,
+        EQUAL,
+        PERCENT,
+        MINUS,
+        SLASH,
+        PLUS
+        
     }
     
 }

@@ -1,6 +1,6 @@
 package com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.expression.types;
 
-import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.SeparatorToken;
+import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.SymbolToken;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.ASTType;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.expression.AbstractExpressionAST;
 import com.google.gson.annotations.Expose;
@@ -27,20 +27,20 @@ public class ParenthesizedExpressionAST extends AbstractExpressionAST
 {
     
     @Expose
-    private final SeparatorToken openParenthesisToken;
+    private final SymbolToken openParenthesisToken;
     
     @Expose
     private final AbstractExpressionAST abstractExpressionAST;
     
     @Expose
-    private final SeparatorToken closeParenthesisToken;
+    private final SymbolToken closeParenthesisToken;
     
-    public ParenthesizedExpressionAST(final SeparatorToken openParenthesisToken, final AbstractExpressionAST abstractExpressionAST, final SeparatorToken closeParenthesisToken) {
+    public ParenthesizedExpressionAST(final SymbolToken openParenthesisToken, final AbstractExpressionAST abstractExpressionAST, final SymbolToken closeParenthesisToken) {
+        super(ASTType.PARENTHESIZED_EXPRESSION);
+        
         this.abstractExpressionAST = abstractExpressionAST;
         this.closeParenthesisToken = closeParenthesisToken;
         this.openParenthesisToken = openParenthesisToken;
-    
-        this.setAstType(ASTType.PARENTHESIZED_EXPRESSION);
         
         this.setStart(openParenthesisToken.getStart());
         this.setEnd(closeParenthesisToken.getEnd());

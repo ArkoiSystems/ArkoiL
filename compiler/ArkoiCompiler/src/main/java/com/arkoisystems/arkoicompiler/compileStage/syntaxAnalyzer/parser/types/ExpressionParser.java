@@ -11,7 +11,7 @@ public class ExpressionParser extends Parser<AbstractExpressionAST>
     
     @Override
     public AbstractExpressionAST parse(final AbstractAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
-        return new AbstractExpressionAST().parseAST(parentAST, syntaxAnalyzer);
+        return new AbstractExpressionAST(null).parseAST(parentAST, syntaxAnalyzer);
     }
     
     @Override

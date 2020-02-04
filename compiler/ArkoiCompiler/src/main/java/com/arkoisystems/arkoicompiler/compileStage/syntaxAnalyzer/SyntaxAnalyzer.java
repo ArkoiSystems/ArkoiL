@@ -5,9 +5,8 @@ import com.arkoisystems.arkoicompiler.compileStage.ICompileStage;
 import com.arkoisystems.arkoicompiler.compileStage.errorHandler.ErrorHandler;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.AbstractToken;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.TokenType;
-import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.SeparatorToken;
+import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.SymbolToken;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.numbers.AbstractNumberToken;
-import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.operators.types.AssignmentOperatorToken;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.RootAST;
 import com.google.gson.annotations.Expose;
 import lombok.Getter;
@@ -58,9 +57,13 @@ public class SyntaxAnalyzer implements ICompileStage
     
     @Override
     public boolean processStage() {
-        this.tokens = this.arkoiClass.getLexicalAnalyzer().getTokens().stream().filter(abstractToken -> abstractToken.getTokenType() != TokenType.WHITESPACE).toArray(AbstractToken[]::new);
+        this.tokens = this.arkoiClass.getLexicalAnalyzer()
+                .getTokens()
+                .stream()
+                .filter(abstractToken -> abstractToken.getTokenType() != TokenType.WHITESPACE && abstractToken.getTokenType() != TokenType.COMMENT)
+                .toArray(AbstractToken[]::new);
         this.position = 0;
-        
+    
         return this.rootAST.parseAST(null, this) != null;
     }
     
@@ -115,76 +118,40 @@ public class SyntaxAnalyzer implements ICompileStage
         return peekToken;
     }
     
-    public AbstractToken matchesCurrentToken(final AssignmentOperatorToken.AssignmentOperatorType assignmentOperatorType) {
+    public AbstractToken matchesCurrentToken(final SymbolToken.SymbolType symbolType) {
         final AbstractToken currentToken = this.currentToken();
-        if (!(currentToken instanceof AssignmentOperatorToken))
+        if (!(currentToken instanceof SymbolToken))
             return null;
         
-        final AssignmentOperatorToken assignmentOperatorToken = (AssignmentOperatorToken) currentToken;
-        if (assignmentOperatorToken.getAssignmentOperatorType() != assignmentOperatorType)
+        final SymbolToken symbolToken = (SymbolToken) currentToken;
+        if (symbolToken.getSymbolType() != symbolType)
             return null;
-        return assignmentOperatorToken;
+        return symbolToken;
     }
     
-    public AbstractToken matchesNextToken(final AssignmentOperatorToken.AssignmentOperatorType assignmentOperatorType) {
+    public AbstractToken matchesNextToken(final SymbolToken.SymbolType symbolType) {
         final AbstractToken nextToken = this.nextToken();
-        if (!(nextToken instanceof AssignmentOperatorToken))
+        if (!(nextToken instanceof SymbolToken))
             return null;
         
-        final AssignmentOperatorToken assignmentOperatorToken = (AssignmentOperatorToken) nextToken;
-        if (assignmentOperatorToken.getAssignmentOperatorType() != assignmentOperatorType)
+        final SymbolToken symbolToken = (SymbolToken) nextToken;
+        if (symbolToken.getSymbolType() != symbolType)
             return null;
-        return assignmentOperatorToken;
+        return symbolToken;
     }
     
-    public AbstractToken matchesPeekToken(final int peek, final AssignmentOperatorToken.AssignmentOperatorType assignmentOperatorType) {
+    public AbstractToken matchesPeekToken(final int peek, final SymbolToken.SymbolType symbolType) {
         if (peek == 0)
-            return this.matchesCurrentToken(assignmentOperatorType);
+            return this.matchesCurrentToken(symbolType);
         
         final AbstractToken peekToken = this.peekToken(peek);
-        if (!(peekToken instanceof AssignmentOperatorToken))
+        if (!(peekToken instanceof SymbolToken))
             return null;
         
-        final AssignmentOperatorToken assignmentOperatorToken = (AssignmentOperatorToken) peekToken;
-        if (assignmentOperatorToken.getAssignmentOperatorType() != assignmentOperatorType)
+        final SymbolToken symbolToken = (SymbolToken) peekToken;
+        if (symbolToken.getSymbolType() != symbolType)
             return null;
-        return assignmentOperatorToken;
-    }
-    
-    public AbstractToken matchesCurrentToken(final SeparatorToken.SeparatorType separatorType) {
-        final AbstractToken currentToken = this.currentToken();
-        if (!(currentToken instanceof SeparatorToken))
-            return null;
-        
-        final SeparatorToken separatorToken = (SeparatorToken) currentToken;
-        if (separatorToken.getSeparatorType() != separatorType)
-            return null;
-        return separatorToken;
-    }
-    
-    public AbstractToken matchesNextToken(final SeparatorToken.SeparatorType separatorType) {
-        final AbstractToken nextToken = this.nextToken();
-        if (!(nextToken instanceof SeparatorToken))
-            return null;
-        
-        final SeparatorToken separatorToken = (SeparatorToken) nextToken;
-        if (separatorToken.getSeparatorType() != separatorType)
-            return null;
-        return separatorToken;
-    }
-    
-    public AbstractToken matchesPeekToken(final int peek, final SeparatorToken.SeparatorType separatorType) {
-        if (peek == 0)
-            return this.matchesCurrentToken(separatorType);
-        
-        final AbstractToken peekToken = this.peekToken(peek);
-        if (!(peekToken instanceof SeparatorToken))
-            return null;
-        
-        final SeparatorToken separatorToken = (SeparatorToken) peekToken;
-        if (separatorToken.getSeparatorType() != separatorType)
-            return null;
-        return separatorToken;
+        return symbolToken;
     }
     
     public AbstractToken matchesCurrentToken(final TokenType tokenType) {

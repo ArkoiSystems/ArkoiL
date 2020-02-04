@@ -25,7 +25,7 @@ public class StringToken extends AbstractToken
 {
     
     public StringToken(final String tokenContent, final int start, final int end) {
-        super(TokenType.STRING, tokenContent, start, end);
+        super(TokenType.STRING_LITERAL, tokenContent, start, end);
     }
     
     @Override

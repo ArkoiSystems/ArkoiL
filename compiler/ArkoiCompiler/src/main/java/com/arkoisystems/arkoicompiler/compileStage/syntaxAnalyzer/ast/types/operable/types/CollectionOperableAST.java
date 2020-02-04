@@ -1,6 +1,6 @@
 package com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.operable.types;
 
-import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.SeparatorToken;
+import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.SymbolToken;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.ASTType;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.expression.AbstractExpressionAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.operable.AbstractOperableAST;
@@ -24,7 +24,7 @@ import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.oper
 public class CollectionOperableAST extends AbstractOperableAST<AbstractExpressionAST[]>
 {
     
-    public CollectionOperableAST(final SeparatorToken openingBracketToken, final AbstractExpressionAST[] expressions, final SeparatorToken closingBracketToken) {
+    public CollectionOperableAST(final SymbolToken openingBracketToken, final AbstractExpressionAST[] expressions, final SymbolToken closingBracketToken) {
         super(expressions);
         
         this.setAstType(ASTType.COLLECTION_OPERABLE);

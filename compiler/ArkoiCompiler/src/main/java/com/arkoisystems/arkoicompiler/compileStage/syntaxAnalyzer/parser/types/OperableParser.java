@@ -1,7 +1,7 @@
 package com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.parser.types;
 
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.AbstractToken;
-import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.SeparatorToken;
+import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.SymbolToken;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.AbstractAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.operable.AbstractOperableAST;
@@ -18,13 +18,12 @@ public class OperableParser extends Parser<AbstractOperableAST<?>>
     
     @Override
     public boolean canParse(final AbstractAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
-        final AbstractToken currentToken = syntaxAnalyzer.currentToken();
-        switch (currentToken.getTokenType()) {
-            case STRING:
-            case NUMBER:
+        switch (syntaxAnalyzer.currentToken().getTokenType()) {
+            case STRING_LITERAL:
+            case NUMBER_LITERAL:
                 return true;
-            case SEPARATOR:
-                return syntaxAnalyzer.matchesCurrentToken(SeparatorToken.SeparatorType.OPENING_BRACKET) != null;
+            case SYMBOL:
+                return syntaxAnalyzer.matchesCurrentToken(SymbolToken.SymbolType.OPENING_BRACKET) != null;
             case IDENTIFIER:
                 return AbstractStatementAST.STATEMENT_PARSER.canParse(parentAST, syntaxAnalyzer);
             default:

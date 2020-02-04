@@ -4,7 +4,7 @@ import com.arkoisystems.arkoicompiler.compileStage.errorHandler.types.ASTError;
 import com.arkoisystems.arkoicompiler.compileStage.errorHandler.types.TokenError;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.TokenType;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.IdentifierToken;
-import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.SeparatorToken;
+import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.SymbolToken;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.StringToken;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.ASTType;
@@ -75,7 +75,7 @@ public class ImportDefinitionAST extends AbstractStatementAST
             return null;
         } else this.setStart(syntaxAnalyzer.currentToken().getStart());
         
-        if (syntaxAnalyzer.matchesNextToken(TokenType.STRING) == null) {
+        if (syntaxAnalyzer.matchesNextToken(TokenType.STRING_LITERAL) == null) {
             syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the \"import\" statement because the \"import\" keyword isn't followed by an file path."));
             return null;
         } else this.importFilePathToken = (StringToken) syntaxAnalyzer.currentToken();
@@ -92,7 +92,7 @@ public class ImportDefinitionAST extends AbstractStatementAST
             this.importNameToken = new IdentifierToken(splittedPath[splittedPath.length - 1].replace(".ark", ""), -1, -1);
         }
         
-        if (syntaxAnalyzer.matchesNextToken(SeparatorToken.SeparatorType.SEMICOLON) == null) {
+        if (syntaxAnalyzer.matchesNextToken(SymbolToken.SymbolType.SEMICOLON) == null) {
             syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the \"import\" statement because it doesn't end with a semicolon."));
             return null;
         }
