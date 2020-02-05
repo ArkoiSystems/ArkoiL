@@ -37,7 +37,7 @@ public class AssignmentExpressionAST extends AbstractExpressionAST
     
     
     public AssignmentExpressionAST(final AbstractAST leftSideAST, final AssignmentOperator assignmentOperator, final AbstractAST rightSideAST) {
-        super(ASTType.BINARY_EXPRESSION);
+        super(ASTType.ASSIGNMENT_EXPRESSION);
         
         this.assignmentOperator = assignmentOperator;
         this.rightSideAST = rightSideAST;

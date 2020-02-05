@@ -10,6 +10,7 @@ import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.AbstractAS
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.expression.AbstractExpressionAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.ImportDefinitionAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.ReturnStatementAST;
+import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.IdentifierCallStatementAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.ThisStatementAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.functionStatements.FunctionDefinitionAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.functionStatements.FunctionInvokeAST;
@@ -51,46 +52,53 @@ public class AbstractStatementAST extends AbstractAST
             syntaxAnalyzer.errorHandler().addError(new TokenError(currentToken, "Couldn't parse the statement because it doesn't start with an IdentifierToken."));
             return null;
         }
-        
+    
         if (parentAST instanceof ThisStatementAST) {
-            final ThisStatementAST thisStatementAST = (ThisStatementAST) parentAST;
             switch (currentToken.getTokenContent()) {
-                case "val":
-                case "import":
+                case "var":
                 case "fun":
+                case "import":
                 case "this":
                 case "return":
                     syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the statement because you can't use it with the \"this\" keyword. The \"this\" keyword can just be followed by a function or variable."));
-                    break;
+                    return null;
                 default:
                     if (syntaxAnalyzer.matchesPeekToken(1, SymbolToken.SymbolType.OPENING_PARENTHESIS) != null)
-                        return new FunctionInvokeAST((IdentifierToken) currentToken).parseAST(thisStatementAST.getParentAST(), syntaxAnalyzer);
-                    break;
+                        return new FunctionInvokeAST((IdentifierToken) currentToken).parseAST(parentAST, syntaxAnalyzer);
+                    return new IdentifierCallStatementAST().parseAST(parentAST, syntaxAnalyzer);
             }
         } else if (parentAST instanceof AbstractExpressionAST) {
-            if (currentToken.getTokenContent().equals("this"))
-                return new ThisStatementAST().parseAST(parentAST, syntaxAnalyzer);
-            else if (syntaxAnalyzer.matchesPeekToken(1, SymbolToken.SymbolType.OPENING_PARENTHESIS) != null)
-                return new FunctionInvokeAST((IdentifierToken) currentToken).parseAST(parentAST, syntaxAnalyzer);
-        } else {
             switch (currentToken.getTokenContent()) {
-                case "import":
-                    return new ImportDefinitionAST().parseAST(parentAST, syntaxAnalyzer);
-                case "val":
-                    return new VariableDefinitionAST().parseAST(parentAST, syntaxAnalyzer);
+                case "var":
                 case "fun":
-                    return new FunctionDefinitionAST().parseAST(parentAST, syntaxAnalyzer);
+                case "import":
+                case "return":
+                    return null;
                 case "this":
                     return new ThisStatementAST().parseAST(parentAST, syntaxAnalyzer);
+                default:
+                    if (syntaxAnalyzer.matchesPeekToken(1, SymbolToken.SymbolType.OPENING_PARENTHESIS) != null)
+                        return new FunctionInvokeAST((IdentifierToken) currentToken, FunctionInvokeAST.FunctionInvocationAccess.EXPRESSION_INVOCATION).parseAST(parentAST, syntaxAnalyzer);
+                    return new IdentifierCallStatementAST().parseAST(parentAST, syntaxAnalyzer);
+            }
+        } else {
+            switch (currentToken.getTokenContent()) {
+                case "var":
+                    return new VariableDefinitionAST().parseAST(parentAST, syntaxAnalyzer);
+                case "this":
+                    return new ThisStatementAST().parseAST(parentAST, syntaxAnalyzer);
+                case "import":
+                    return new ImportDefinitionAST().parseAST(parentAST, syntaxAnalyzer);
+                case "fun":
+                    return new FunctionDefinitionAST().parseAST(parentAST, syntaxAnalyzer);
                 case "return":
                     return new ReturnStatementAST().parseAST(parentAST, syntaxAnalyzer);
                 default:
                     if (syntaxAnalyzer.matchesPeekToken(1, SymbolToken.SymbolType.OPENING_PARENTHESIS) != null)
                         return new FunctionInvokeAST((IdentifierToken) currentToken).parseAST(parentAST, syntaxAnalyzer);
-                    break;
+                    return new IdentifierCallStatementAST().parseAST(parentAST, syntaxAnalyzer);
             }
         }
-        return null;
     }
     
     @Override

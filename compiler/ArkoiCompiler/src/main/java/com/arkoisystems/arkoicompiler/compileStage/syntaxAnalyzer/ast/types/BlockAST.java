@@ -144,7 +144,7 @@ public class BlockAST extends AbstractAST
             if (abstractExpressionAST == null) {
                 syntaxAnalyzer.errorHandler().addError(new ParserError(AbstractExpressionAST.EXPRESSION_PARSER, this.getStart(), syntaxAnalyzer.currentToken().getEnd(), "Couldn't parse the BlockAST because an error occurred during the parsing of the expression."));
                 return null;
-            } else this.blockStorage.add(abstractExpressionAST);
+            }
         
             if (syntaxAnalyzer.matchesNextToken(SymbolToken.SymbolType.SEMICOLON) == null) {
                 syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the BlockAST because the inlined block doesn't end with a semicolon."));
@@ -176,6 +176,7 @@ public class BlockAST extends AbstractAST
      */
     @Override
     public <T extends AbstractAST> T addAST(final T toAddAST, final SyntaxAnalyzer syntaxAnalyzer) {
+        this.blockStorage.add(toAddAST);
         return toAddAST;
     }
     

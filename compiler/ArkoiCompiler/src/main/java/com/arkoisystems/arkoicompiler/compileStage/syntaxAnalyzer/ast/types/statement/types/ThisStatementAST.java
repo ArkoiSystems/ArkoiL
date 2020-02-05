@@ -89,12 +89,12 @@ public class ThisStatementAST extends AbstractStatementAST
         }
         
         // For the "parentAST" we don't use "this" because we don't want that other AST tries to add theirselves to this class.
-        if (!AbstractStatementAST.STATEMENT_PARSER.canParse(this, syntaxAnalyzer)) {
+        if (!AbstractStatementAST.STATEMENT_PARSER.canParse(parentAST, syntaxAnalyzer)) {
             syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the \"this\" statement because the period isn't followed by a valid statement."));
             return null;
         }
         
-        final AbstractStatementAST abstractStatementAST = new AbstractStatementAST().parseAST(this, syntaxAnalyzer);
+        final AbstractStatementAST abstractStatementAST = new AbstractStatementAST().parseAST(parentAST, syntaxAnalyzer);
         if (abstractStatementAST == null) {
             syntaxAnalyzer.errorHandler().addError(new ParserError(AbstractStatementAST.STATEMENT_PARSER, this, "Couldn't parse the \"this\" statement because an error occurred during the parsing of the statement."));
             return null;

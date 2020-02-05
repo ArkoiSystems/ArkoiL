@@ -37,7 +37,7 @@ public class LogicalExpressionAST extends AbstractExpressionAST
     
     
     public LogicalExpressionAST(final AbstractAST leftSideAST, final LogicalOperator logicalOperator, final AbstractAST rightSideAST) {
-        super(ASTType.BINARY_EXPRESSION);
+        super(ASTType.LOGICAL_EXPRESSION);
         
         this.logicalOperator = logicalOperator;
         this.rightSideAST = rightSideAST;

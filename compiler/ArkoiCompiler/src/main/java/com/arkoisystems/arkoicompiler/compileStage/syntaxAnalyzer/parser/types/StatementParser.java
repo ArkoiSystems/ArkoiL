@@ -1,6 +1,5 @@
 package com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.parser.types;
 
-import com.arkoisystems.arkoicompiler.compileStage.errorHandler.types.TokenError;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.AbstractToken;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.TokenType;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.SymbolToken;
@@ -24,7 +23,7 @@ public class StatementParser extends Parser<AbstractStatementAST>
     @Override
     public boolean canParse(final AbstractAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
         final AbstractToken currentToken = syntaxAnalyzer.currentToken();
-        if (currentToken == null || currentToken.getTokenType() != TokenType.IDENTIFIER)
+        if (syntaxAnalyzer.matchesCurrentToken(TokenType.IDENTIFIER) == null)
             return false;
         
         if (parentAST instanceof ThisStatementAST) {
@@ -34,18 +33,21 @@ public class StatementParser extends Parser<AbstractStatementAST>
                 case "import":
                 case "this":
                 case "return":
-                    syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the statement because you can't use it with the \"this\" keyword. The \"this\" keyword can just be followed by a function or variable."));
-                    break;
+                    return false;
                 default:
-                    if (syntaxAnalyzer.matchesPeekToken(1, SymbolToken.SymbolType.OPENING_PARENTHESIS) != null)
-                        return true;
-                    break;
+                    return true;
             }
         } else if (parentAST instanceof AbstractExpressionAST) {
-            if (currentToken.getTokenContent().equals("this"))
-                return true;
-            else
-                return syntaxAnalyzer.matchesPeekToken(1, SymbolToken.SymbolType.OPENING_PARENTHESIS) != null;
+            switch (currentToken.getTokenContent()) {
+                case "val":
+                case "fun":
+                case "import":
+                case "return":
+                    return false;
+                case "this":
+                default:
+                    return true;
+            }
         } else {
             switch (currentToken.getTokenContent()) {
                 case "val":
@@ -53,12 +55,10 @@ public class StatementParser extends Parser<AbstractStatementAST>
                 case "import":
                 case "fun":
                 case "return":
+                default:
                     return true;
             }
-    
-            return syntaxAnalyzer.matchesPeekToken(1, SymbolToken.SymbolType.OPENING_PARENTHESIS) != null;
         }
-        return false;
     }
     
 }

@@ -4,24 +4,17 @@ import com.arkoisystems.arkoicompiler.compileStage.errorHandler.types.ASTError;
 import com.arkoisystems.arkoicompiler.compileStage.errorHandler.types.ParserError;
 import com.arkoisystems.arkoicompiler.compileStage.errorHandler.types.TokenError;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.AbstractToken;
-import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.StringToken;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.SymbolToken;
-import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.numbers.AbstractNumberToken;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.AbstractAST;
-import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.expression.AbstractExpressionAST;
-import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.operable.types.CollectionOperableAST;
-import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.operable.types.FunctionResultOperableAST;
-import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.operable.types.NumberOperableAST;
-import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.operable.types.StringOperableAST;
+import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.operable.types.*;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.AbstractStatementAST;
+import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.IdentifierCallStatementAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.functionStatements.FunctionInvokeAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.parser.types.OperableParser;
 import com.google.gson.annotations.Expose;
 import lombok.Getter;
-
-import java.util.ArrayList;
-import java.util.List;
+import lombok.Setter;
 
 /**
  * Copyright © 2019 ArkoiSystems (https://www.arkoisystems.com/) All Rights Reserved.
@@ -40,18 +33,17 @@ import java.util.List;
  * permissions and limitations under the License.
  */
 @Getter
+@Setter
 public class AbstractOperableAST<OT1> extends AbstractAST
 {
     
     public static OperableParser OPERABLE_PARSER = new OperableParser();
     
     @Expose
-    private final OT1 abstractToken;
+    private OT1 abstractToken;
     
-    public AbstractOperableAST(final OT1 abstractToken) {
+    public AbstractOperableAST() {
         super(null);
-        
-        this.abstractToken = abstractToken;
     }
     
     @Override
@@ -59,39 +51,14 @@ public class AbstractOperableAST<OT1> extends AbstractAST
         final AbstractToken currentToken = syntaxAnalyzer.currentToken();
         switch (currentToken.getTokenType()) {
             case STRING_LITERAL:
-                return parentAST.addAST(new StringOperableAST((StringToken) currentToken), syntaxAnalyzer);
+                return new StringOperableAST().parseAST(parentAST, syntaxAnalyzer);
             case NUMBER_LITERAL:
-                return parentAST.addAST(new NumberOperableAST((AbstractNumberToken) currentToken), syntaxAnalyzer);
+                return new NumberOperableAST().parseAST(parentAST, syntaxAnalyzer);
             case SYMBOL:
-                if (syntaxAnalyzer.matchesCurrentToken(SymbolToken.SymbolType.OPENING_BRACKET) != null) {
-                    syntaxAnalyzer.nextToken();
-                
-                    final List<AbstractExpressionAST> expressions = new ArrayList<>();
-                    while (syntaxAnalyzer.getPosition() < syntaxAnalyzer.getTokens().length) {
-                        if (syntaxAnalyzer.matchesCurrentToken(SymbolToken.SymbolType.CLOSING_BRACKET) != null)
-                            break;
-                    
-                        if (!AbstractExpressionAST.EXPRESSION_PARSER.canParse(this, syntaxAnalyzer)) {
-                            syntaxAnalyzer.errorHandler().addError(new ParserError(AbstractExpressionAST.EXPRESSION_PARSER, syntaxAnalyzer.currentToken(), "Couldn't parse the Collection because there is an invalid expression inside."));
-                            return null;
-                        }
-                    
-                        final AbstractExpressionAST abstractExpressionAST = AbstractExpressionAST.EXPRESSION_PARSER.parse(this, syntaxAnalyzer);
-                        if (abstractExpressionAST == null) {
-                            syntaxAnalyzer.errorHandler().addError(new ASTError(this, "Couldn't parse the Collection because there occurred an error while parsing the expression inside it."));
-                            return null;
-                        }
-                    
-                        expressions.add(abstractExpressionAST);
-                    }
-                
-                    if (syntaxAnalyzer.matchesCurrentToken(SymbolToken.SymbolType.CLOSING_BRACKET) == null) {
-                        syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the Collection because it doesn't end with an closing bracket."));
-                        return null;
-                    }
-                    return new CollectionOperableAST((SymbolToken) currentToken, expressions.toArray(new AbstractExpressionAST[] { }), (SymbolToken) syntaxAnalyzer.currentToken());
-                } else {
-                    syntaxAnalyzer.errorHandler().addError(new TokenError(currentToken, "Couldn't parse the operable because the SeparatorType isn't supported."));
+                if(syntaxAnalyzer.matchesCurrentToken(SymbolToken.SymbolType.OPENING_BRACKET) != null)
+                    return new CollectionOperableAST().parseAST(parentAST, syntaxAnalyzer);
+                else {
+                    syntaxAnalyzer.errorHandler().addError(new TokenError(currentToken, "Couldn't parse the operable because the SymbolType isn't supported."));
                     return null;
                 }
             case IDENTIFIER:
@@ -102,7 +69,9 @@ public class AbstractOperableAST<OT1> extends AbstractAST
             
                 final AbstractStatementAST abstractStatementAST = AbstractStatementAST.STATEMENT_PARSER.parse(parentAST, syntaxAnalyzer);
                 if (abstractStatementAST instanceof FunctionInvokeAST)
-                    return new FunctionResultOperableAST((FunctionInvokeAST) abstractStatementAST);
+                    return new FunctionResultOperableAST((FunctionInvokeAST) abstractStatementAST).parseAST(parentAST, syntaxAnalyzer);
+                else if(abstractStatementAST instanceof IdentifierCallStatementAST)
+                    return new IdentifierCallOperableAST((IdentifierCallStatementAST) abstractStatementAST).parseAST(parentAST, syntaxAnalyzer);
                 else if (abstractStatementAST != null) {
                     syntaxAnalyzer.errorHandler().addError(new ASTError(abstractStatementAST, "Couldn't parse the operable because it isn't a supported statement."));
                     return null;

@@ -32,7 +32,7 @@ public class PostfixUnaryExpressionAST extends AbstractExpressionAST
     private final PostfixUnaryOperator postfixUnaryOperator;
     
     public PostfixUnaryExpressionAST(final AbstractAST leftSideAST, final PostfixUnaryOperator postfixUnaryOperator, final int end) {
-        super(ASTType.BINARY_EXPRESSION);
+        super(ASTType.POSTFIX_EXPRESSION);
         
         this.postfixUnaryOperator = postfixUnaryOperator;
         this.leftSideAST = leftSideAST;

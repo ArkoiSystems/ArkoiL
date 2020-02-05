@@ -1,7 +1,12 @@
 package com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.operable.types;
 
+import com.arkoisystems.arkoicompiler.compileStage.errorHandler.types.TokenError;
+import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.TokenType;
+import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.StringToken;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.numbers.AbstractNumberToken;
+import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.ASTType;
+import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.AbstractAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.operable.AbstractOperableAST;
 
 /**
@@ -23,13 +28,21 @@ import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.oper
 public class NumberOperableAST extends AbstractOperableAST<AbstractNumberToken>
 {
     
-    public NumberOperableAST(final AbstractNumberToken abstractToken) {
-        super(abstractToken);
-    
+    public NumberOperableAST() {
         this.setAstType(ASTType.NUMBER_OPERABLE);
+    }
     
-        this.setStart(abstractToken.getStart());
-        this.setEnd(abstractToken.getEnd());
+    @Override
+    public AbstractOperableAST<?> parseAST(final AbstractAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
+        if(syntaxAnalyzer.matchesCurrentToken(TokenType.NUMBER_LITERAL) == null) {
+            syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the number operable because the parsing doesn't start with a number."));
+            return null;
+        } else {
+            this.setAbstractToken((AbstractNumberToken) syntaxAnalyzer.currentToken());
+            this.setStart(this.getAbstractToken().getStart());
+            this.setEnd(this.getAbstractToken().getEnd());
+        }
+        return parentAST.addAST(this, syntaxAnalyzer);
     }
     
 }

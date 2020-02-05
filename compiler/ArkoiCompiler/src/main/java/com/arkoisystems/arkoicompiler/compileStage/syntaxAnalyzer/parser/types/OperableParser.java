@@ -13,7 +13,7 @@ public class OperableParser extends Parser<AbstractOperableAST<?>>
     
     @Override
     public AbstractOperableAST<?> parse(final AbstractAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
-        return new AbstractOperableAST<>(null).parseAST(parentAST, syntaxAnalyzer);
+        return new AbstractOperableAST<>().parseAST(parentAST, syntaxAnalyzer);
     }
     
     @Override

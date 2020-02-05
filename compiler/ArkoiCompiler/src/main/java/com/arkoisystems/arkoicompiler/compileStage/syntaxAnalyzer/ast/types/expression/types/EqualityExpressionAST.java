@@ -37,7 +37,7 @@ public class EqualityExpressionAST extends AbstractExpressionAST
     
     
     public EqualityExpressionAST(final AbstractAST leftSideAST, final EqualityOperator equalityOperator, final AbstractAST rightSideAST) {
-        super(ASTType.BINARY_EXPRESSION);
+        super(ASTType.EQUALITY_EXPRESSION);
         
         this.equalityOperator = equalityOperator;
         this.rightSideAST = rightSideAST;

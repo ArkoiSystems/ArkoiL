@@ -1,7 +1,11 @@
 package com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.operable.types;
 
+import com.arkoisystems.arkoicompiler.compileStage.errorHandler.types.TokenError;
+import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.TokenType;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.StringToken;
+import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.ASTType;
+import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.AbstractAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.operable.AbstractOperableAST;
 
 /**
@@ -23,13 +27,21 @@ import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.oper
 public class StringOperableAST extends AbstractOperableAST<StringToken>
 {
     
-    public StringOperableAST(final StringToken abstractToken) {
-        super(abstractToken);
-        
+    public StringOperableAST() {
         this.setAstType(ASTType.STRING_OPERABLE);
-        
-        this.setStart(abstractToken.getStart());
-        this.setEnd(abstractToken.getEnd());
+    }
+    
+    @Override
+    public AbstractOperableAST<?> parseAST(final AbstractAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
+        if(syntaxAnalyzer.matchesCurrentToken(TokenType.STRING_LITERAL) == null) {
+            syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the string operable because the parsing doesn't start with a string."));
+            return null;
+        } else {
+            this.setAbstractToken((StringToken) syntaxAnalyzer.currentToken());
+            this.setStart(this.getAbstractToken().getStart());
+            this.setEnd(this.getAbstractToken().getEnd());
+        }
+        return parentAST.addAST(this, syntaxAnalyzer);
     }
     
 }

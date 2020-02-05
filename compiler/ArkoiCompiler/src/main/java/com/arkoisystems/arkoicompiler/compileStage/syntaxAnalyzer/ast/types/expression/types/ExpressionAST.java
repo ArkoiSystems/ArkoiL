@@ -1,6 +1,7 @@
 package com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.expression.types;
 
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.ASTType;
+import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.AbstractAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.expression.AbstractExpressionAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.operable.AbstractOperableAST;
 import com.google.gson.annotations.Expose;
@@ -23,19 +24,19 @@ import lombok.Getter;
  * permissions and limitations under the License.
  */
 @Getter
-public class SimpleExpressionAST extends AbstractExpressionAST
+public class ExpressionAST extends AbstractExpressionAST
 {
     
     @Expose
-    private final AbstractOperableAST<?> abstractOperableAST;
+    private final AbstractAST abstractAST;
     
-    public SimpleExpressionAST(final AbstractOperableAST<?> abstractOperableAST) {
-        super(ASTType.SIMPLE_EXPRESSION);
+    public ExpressionAST(final AbstractAST abstractAST) {
+        super(ASTType.EXPRESSION);
         
-        this.abstractOperableAST = abstractOperableAST;
+        this.abstractAST = abstractAST;
         
-        this.setStart(abstractOperableAST.getStart());
-        this.setEnd(abstractOperableAST.getEnd());
+        this.setStart(abstractAST.getStart());
+        this.setEnd(abstractAST.getEnd());
     }
     
 }

@@ -32,7 +32,7 @@ public class PrefixUnaryExpressionAST extends AbstractExpressionAST
     private final PrefixUnaryOperator prefixUnaryOperator;
     
     public PrefixUnaryExpressionAST(final AbstractAST rightSideAST, final PrefixUnaryOperator prefixUnaryOperator, final int start) {
-        super(ASTType.BINARY_EXPRESSION);
+        super(ASTType.PREFIX_EXPRESSION);
         
         this.prefixUnaryOperator = prefixUnaryOperator;
         this.rightSideAST = rightSideAST;

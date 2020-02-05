@@ -37,7 +37,7 @@ public class RelationalExpressionAST extends AbstractExpressionAST
     
     
     public RelationalExpressionAST(final AbstractAST leftSideAST, final RelationalOperator relationalOperator, final AbstractAST rightSideAST) {
-        super(ASTType.BINARY_EXPRESSION);
+        super(ASTType.RELATIONAL_EXPRESSION);
         
         this.relationalOperator = relationalOperator;
         this.rightSideAST = rightSideAST;

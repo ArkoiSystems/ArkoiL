@@ -4,7 +4,6 @@ import com.arkoisystems.arkoicompiler.compileStage.errorHandler.types.ParserErro
 import com.arkoisystems.arkoicompiler.compileStage.errorHandler.types.TokenError;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.AbstractToken;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.TokenType;
-import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.IdentifierToken;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.SymbolToken;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.ASTType;
@@ -83,45 +82,14 @@ public class AbstractExpressionAST extends AbstractAST
      */
     @Override
     public AbstractExpressionAST parseAST(final AbstractAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
-        if (!AbstractOperableAST.OPERABLE_PARSER.canParse(this, syntaxAnalyzer)) {
-            syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the expression because the parsing doesn't start with a valid operable."));
+        final ExpressionAST expressionAST = this.parseExpression(syntaxAnalyzer);
+        if(expressionAST == null) {
+            syntaxAnalyzer.errorHandler().addError(new ParserError(AbstractExpressionAST.EXPRESSION_PARSER, this, "Couldn't parse the expression because an error occurred during the parsing of the expression."));
             return null;
         }
+//        System.out.println(expressionAST + ", " + parentAST.getClass().getSimpleName());
     
-        final AbstractOperableAST<?> abstractOperableAST = AbstractOperableAST.OPERABLE_PARSER.parse(this, syntaxAnalyzer);
-        if (abstractOperableAST == null) {
-            syntaxAnalyzer.errorHandler().addError(new ParserError(AbstractOperableAST.OPERABLE_PARSER, syntaxAnalyzer.currentToken(), "Couldn't parse the expression because an error occurred during the parsing of the operable."));
-            return null;
-        }
-    
-        // If the operable isn't followed by an OperableToken return the current operable
-        if (syntaxAnalyzer.peekToken(1) instanceof SymbolToken) {
-            final SymbolToken symbolToken = (SymbolToken) syntaxAnalyzer.peekToken(1);
-            switch (symbolToken.getSymbolType()) {
-                case EQUAL:
-                case PLUS:
-                case MINUS:
-                case ASTERISK:
-                case SLASH:
-                case PERCENT:
-                case EXCLAMATION_MARK:
-                case AMPERSAND:
-                case VERTICAL_BAR:
-                    break;
-                default:
-                    return new SimpleExpressionAST(abstractOperableAST);
-            }
-        }
-    
-        if (syntaxAnalyzer.peekToken(1) instanceof IdentifierToken) {
-            final IdentifierToken identifierToken = (IdentifierToken) syntaxAnalyzer.peekToken(1);
-            if (!identifierToken.getTokenContent().equals("is"))
-                return new SimpleExpressionAST(abstractOperableAST);
-        }
-    
-        System.out.println(syntaxAnalyzer.currentToken());
-    
-        return parentAST.addAST(this, syntaxAnalyzer);
+        return parentAST.addAST(expressionAST, syntaxAnalyzer);
     }
     
     /**
@@ -141,6 +109,13 @@ public class AbstractExpressionAST extends AbstractAST
     @Override
     public <T extends AbstractAST> T addAST(final T toAddAST, final SyntaxAnalyzer syntaxAnalyzer) {
         return toAddAST;
+    }
+    
+    private ExpressionAST parseExpression(final SyntaxAnalyzer syntaxAnalyzer) {
+        final AbstractAST abstractAST = this.parseAssignment(syntaxAnalyzer);
+        if(abstractAST == null)
+            return null;
+        return new ExpressionAST(abstractAST);
     }
     
     // 10. assignment (= += -= *= /= %=)
@@ -446,7 +421,7 @@ public class AbstractExpressionAST extends AbstractAST
                 return null;
             }
             
-            if (syntaxAnalyzer.matchesNextToken(SymbolToken.SymbolType.CLOSING_PARENTHESIS) != null) {
+            if (syntaxAnalyzer.matchesNextToken(SymbolToken.SymbolType.CLOSING_PARENTHESIS) == null) {
                 syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the parenthesized expression because it doesn't end with a closing parenthesis."));
                 return null;
             }
