@@ -16,12 +16,12 @@ public class StatementParser extends Parser<AbstractStatementAST>
 {
     
     @Override
-    public AbstractStatementAST parse(final AbstractAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
+    public AbstractStatementAST parse(final AbstractAST<?> parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
         return new AbstractStatementAST(null).parseAST(parentAST, syntaxAnalyzer);
     }
     
     @Override
-    public boolean canParse(final AbstractAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
+    public boolean canParse(final AbstractAST<?> parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
         final AbstractToken currentToken = syntaxAnalyzer.currentToken();
         if (syntaxAnalyzer.matchesCurrentToken(TokenType.IDENTIFIER) == null)
             return false;

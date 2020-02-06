@@ -6,6 +6,7 @@ import com.arkoisystems.arkoicompiler.compileStage.errorHandler.types.TokenError
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.TokenType;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.IdentifierToken;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.SymbolToken;
+import com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.semantic.types.VariableDefinitionSemantic;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.ASTType;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.AbstractAST;
@@ -39,7 +40,7 @@ import java.util.List;
  */
 @Getter
 @Setter
-public class VariableDefinitionAST extends VariableStatementAST
+public class VariableDefinitionAST extends VariableStatementAST<VariableDefinitionSemantic>
 {
     
     private final List<AnnotationAST> variableAnnotations;
@@ -48,7 +49,7 @@ public class VariableDefinitionAST extends VariableStatementAST
     private IdentifierToken variableNameToken;
     
     @Expose
-    private AbstractExpressionAST abstractExpressionAST;
+    private AbstractExpressionAST<?> abstractExpressionAST;
     
     /**
      * This constructor will initialize the statement with the AST-Type
@@ -98,17 +99,17 @@ public class VariableDefinitionAST extends VariableStatementAST
      *         parsed until to the end.
      */
     @Override
-    public VariableDefinitionAST parseAST(final AbstractAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
+    public VariableDefinitionAST parseAST(final AbstractAST<?> parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
         if (!(parentAST instanceof RootAST) && !(parentAST instanceof BlockAST)) {
             syntaxAnalyzer.errorHandler().addError(new ASTError(parentAST, "Couldn't parse the \"variable definition\" statement because it isn't declared inside the root file or in a block."));
             return null;
         }
-        
+    
         if (syntaxAnalyzer.matchesCurrentToken(TokenType.IDENTIFIER) == null || !syntaxAnalyzer.currentToken().getTokenContent().equals("var")) {
             syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the \"variable definition\" statement because the parsing doesn't start with the \"var\" keyword."));
             return null;
         } else this.setStart(syntaxAnalyzer.currentToken().getStart());
-        
+    
         if (syntaxAnalyzer.matchesNextToken(TokenType.IDENTIFIER) == null) {
             syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the \"variable definition\" statement because the \"var\" keyword isn't followed by an variable name."));
             return null;
@@ -124,7 +125,7 @@ public class VariableDefinitionAST extends VariableStatementAST
             return null;
         }
     
-        final AbstractExpressionAST abstractExpressionAST = AbstractExpressionAST.EXPRESSION_PARSER.parse(this, syntaxAnalyzer);
+        final AbstractExpressionAST<?> abstractExpressionAST = AbstractExpressionAST.EXPRESSION_PARSER.parse(this, syntaxAnalyzer);
         if (abstractExpressionAST == null) {
             syntaxAnalyzer.errorHandler().addError(new ParserError(AbstractExpressionAST.EXPRESSION_PARSER, this.getStart(), syntaxAnalyzer.currentToken().getEnd(), "Couldn't parse the \"variable definition\" statement because an error occurred during the parsing of the expression."));
             return null;
@@ -134,7 +135,6 @@ public class VariableDefinitionAST extends VariableStatementAST
             syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the \"variable definition\" statement because it doesn't end with an semicolon."));
             return null;
         }
-    
         return parentAST.addAST(this, syntaxAnalyzer);
     }
     
@@ -153,8 +153,13 @@ public class VariableDefinitionAST extends VariableStatementAST
      *         VariableDefinitionAST.
      */
     @Override
-    public <T extends AbstractAST> T addAST(final T toAddAST, final SyntaxAnalyzer syntaxAnalyzer) {
+    public <T extends AbstractAST<?>> T addAST(final T toAddAST, final SyntaxAnalyzer syntaxAnalyzer) {
         return toAddAST;
+    }
+    
+    @Override
+    public Class<VariableDefinitionSemantic> semanticClass() {
+        return VariableDefinitionSemantic.class;
     }
     
 }

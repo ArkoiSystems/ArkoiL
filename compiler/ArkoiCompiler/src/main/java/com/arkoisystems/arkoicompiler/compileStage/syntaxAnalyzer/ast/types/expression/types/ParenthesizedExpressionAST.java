@@ -1,7 +1,10 @@
 package com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.expression.types;
 
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.SymbolToken;
+import com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.semantic.types.ParenthesizedExpressionSemantic;
+import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.ASTType;
+import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.AbstractAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.expression.AbstractExpressionAST;
 import com.google.gson.annotations.Expose;
 import lombok.Getter;
@@ -23,19 +26,19 @@ import lombok.Getter;
  * permissions and limitations under the License.
  */
 @Getter
-public class ParenthesizedExpressionAST extends AbstractExpressionAST
+public class ParenthesizedExpressionAST extends AbstractExpressionAST<ParenthesizedExpressionSemantic>
 {
     
     @Expose
     private final SymbolToken openParenthesisToken;
     
     @Expose
-    private final AbstractExpressionAST abstractExpressionAST;
+    private final AbstractExpressionAST<?> abstractExpressionAST;
     
     @Expose
     private final SymbolToken closeParenthesisToken;
     
-    public ParenthesizedExpressionAST(final SymbolToken openParenthesisToken, final AbstractExpressionAST abstractExpressionAST, final SymbolToken closeParenthesisToken) {
+    public ParenthesizedExpressionAST(final SymbolToken openParenthesisToken, final AbstractExpressionAST<?> abstractExpressionAST, final SymbolToken closeParenthesisToken) {
         super(ASTType.PARENTHESIZED_EXPRESSION);
         
         this.abstractExpressionAST = abstractExpressionAST;
@@ -44,6 +47,21 @@ public class ParenthesizedExpressionAST extends AbstractExpressionAST
         
         this.setStart(openParenthesisToken.getStart());
         this.setEnd(closeParenthesisToken.getEnd());
+    }
+    
+    @Override
+    public ParenthesizedExpressionAST parseAST(final AbstractAST<?> parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
+        return parentAST.addAST(this, syntaxAnalyzer);
+    }
+    
+    @Override
+    public <T extends AbstractAST<?>> T addAST(final T toAddAST, final SyntaxAnalyzer syntaxAnalyzer) {
+        return toAddAST;
+    }
+    
+    @Override
+    public Class<ParenthesizedExpressionSemantic> semanticClass() {
+        return ParenthesizedExpressionSemantic.class;
     }
     
 }

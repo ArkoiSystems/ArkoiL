@@ -11,12 +11,12 @@ public class ArgumentDefinitionParser extends Parser<ArgumentDefinitionAST>
 {
     
     @Override
-    public ArgumentDefinitionAST parse(final AbstractAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
+    public ArgumentDefinitionAST parse(final AbstractAST<?> parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
         return new ArgumentDefinitionAST().parseAST(parentAST, syntaxAnalyzer);
     }
     
     @Override
-    public boolean canParse(final AbstractAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
+    public boolean canParse(final AbstractAST<?> parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
         return syntaxAnalyzer.currentToken().getTokenType() == TokenType.IDENTIFIER && syntaxAnalyzer.matchesPeekToken(1, SymbolToken.SymbolType.COLON) != null;
     }
     

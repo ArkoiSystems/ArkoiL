@@ -1,5 +1,6 @@
 package com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast;
 
+import com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.semantic.AbstractSemantic;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.utils.Variables;
 import com.google.gson.annotations.Expose;
@@ -24,7 +25,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public abstract class AbstractAST
+public abstract class AbstractAST<S extends AbstractSemantic>
 {
     
     @Expose
@@ -57,7 +58,7 @@ public abstract class AbstractAST
      *
      * @return It just returns null because you need to overwrite it.
      */
-    public abstract AbstractAST parseAST(final AbstractAST parentAST, final SyntaxAnalyzer syntaxAnalyzer);
+    public abstract AbstractAST<?> parseAST(final AbstractAST<?> parentAST, final SyntaxAnalyzer syntaxAnalyzer);
     
     /**
      * This method is an abstract method which superclasses need to overwrite. It will
@@ -73,7 +74,9 @@ public abstract class AbstractAST
      *
      * @return It just returns null because you need to overwrite it.
      */
-    public abstract <T extends AbstractAST> T addAST(final T toAddAST, final SyntaxAnalyzer syntaxAnalyzer);
+    public abstract <T extends AbstractAST<?>> T addAST(final T toAddAST, final SyntaxAnalyzer syntaxAnalyzer);
+    
+    public abstract Class<S> semanticClass();
     
     @Override
     public String toString() {

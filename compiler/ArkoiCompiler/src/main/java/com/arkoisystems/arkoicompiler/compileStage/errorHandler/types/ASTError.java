@@ -26,9 +26,9 @@ public class ASTError extends AbstractError
 {
     
     @Expose
-    private final AbstractAST abstractAST;
+    private final AbstractAST<?> abstractAST;
     
-    public ASTError(final AbstractAST abstractAST, final String message, final Object... arguments) {
+    public ASTError(final AbstractAST<?> abstractAST, final String message, final Object... arguments) {
         super(abstractAST.getStart(), abstractAST.getEnd(), message, arguments);
         
         this.abstractAST = abstractAST;

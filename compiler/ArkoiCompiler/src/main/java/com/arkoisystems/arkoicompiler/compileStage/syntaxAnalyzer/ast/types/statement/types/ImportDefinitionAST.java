@@ -4,8 +4,9 @@ import com.arkoisystems.arkoicompiler.compileStage.errorHandler.types.ASTError;
 import com.arkoisystems.arkoicompiler.compileStage.errorHandler.types.TokenError;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.TokenType;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.IdentifierToken;
-import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.SymbolToken;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.StringToken;
+import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.SymbolToken;
+import com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.semantic.types.ImportDefinitionSemantic;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.ASTType;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.AbstractAST;
@@ -31,7 +32,7 @@ import lombok.Getter;
  * permissions and limitations under the License.
  */
 @Getter
-public class ImportDefinitionAST extends AbstractStatementAST
+public class ImportDefinitionAST extends AbstractStatementAST<ImportDefinitionSemantic>
 {
     
     @Expose
@@ -64,17 +65,17 @@ public class ImportDefinitionAST extends AbstractStatementAST
      *         parsed until to the end.
      */
     @Override
-    public AbstractStatementAST parseAST(final AbstractAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
+    public ImportDefinitionAST parseAST(final AbstractAST<?> parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
         if (!(parentAST instanceof RootAST)) {
             syntaxAnalyzer.errorHandler().addError(new ASTError(parentAST, "Couldn't parse the \"import\" statement because it isn't declared inside the root file."));
             return null;
         }
-        
+    
         if (syntaxAnalyzer.matchesCurrentToken(TokenType.IDENTIFIER) == null || !syntaxAnalyzer.currentToken().getTokenContent().equals("import")) {
             syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the \"import\" statement because the parsing doesn't start with the \"import\" keyword."));
             return null;
         } else this.setStart(syntaxAnalyzer.currentToken().getStart());
-        
+    
         if (syntaxAnalyzer.matchesNextToken(TokenType.STRING_LITERAL) == null) {
             syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the \"import\" statement because the \"import\" keyword isn't followed by an file path."));
             return null;
@@ -96,7 +97,6 @@ public class ImportDefinitionAST extends AbstractStatementAST
             syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the \"import\" statement because it doesn't end with a semicolon."));
             return null;
         }
-        
         return parentAST.addAST(this, syntaxAnalyzer);
     }
     
@@ -115,8 +115,13 @@ public class ImportDefinitionAST extends AbstractStatementAST
      *         ImportDefinitionAST.
      */
     @Override
-    public <T extends AbstractAST> T addAST(final T toAddAST, final SyntaxAnalyzer syntaxAnalyzer) {
+    public <T extends AbstractAST<?>> T addAST(final T toAddAST, final SyntaxAnalyzer syntaxAnalyzer) {
         return toAddAST;
+    }
+    
+    @Override
+    public Class<ImportDefinitionSemantic> semanticClass() {
+        return ImportDefinitionSemantic.class;
     }
     
 }

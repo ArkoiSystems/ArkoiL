@@ -5,6 +5,7 @@ import com.arkoisystems.arkoicompiler.compileStage.errorHandler.types.ParserErro
 import com.arkoisystems.arkoicompiler.compileStage.errorHandler.types.TokenError;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.EndOfFileToken;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.SymbolToken;
+import com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.semantic.types.BlockSemantic;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.ASTType;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.AbstractAST;
@@ -39,7 +40,7 @@ import java.util.List;
  */
 @Getter
 @Setter
-public class BlockAST extends AbstractAST
+public class BlockAST extends AbstractAST<BlockSemantic>
 {
     
     public static BlockParser BLOCK_PARSER = new BlockParser();
@@ -54,7 +55,7 @@ public class BlockAST extends AbstractAST
     private BlockType blockType;
     
     @Expose
-    private final List<AbstractAST> blockStorage;
+    private final List<AbstractAST<?>> blockStorage;
     
     /**
      * This constructor will initialize the statement with the AST-Type "BLOCK". This will
@@ -92,7 +93,7 @@ public class BlockAST extends AbstractAST
      *         until to the end.
      */
     @Override
-    public BlockAST parseAST(final AbstractAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
+    public BlockAST parseAST(final AbstractAST<?> parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
         if (!(parentAST instanceof FunctionDefinitionAST) && !(parentAST instanceof VariableDefinitionAST)) {
             syntaxAnalyzer.errorHandler().addError(new ASTError(parentAST, "Couldn't parse the BlockAST because it isn't declared inside a function/variable definition."));
             return null;
@@ -110,8 +111,8 @@ public class BlockAST extends AbstractAST
                 for (final Parser<?> parser : BLOCK_PARSERS) {
                     if (!parser.canParse(this, syntaxAnalyzer))
                         continue;
-                    
-                    final AbstractAST abstractAST = parser.parse(this, syntaxAnalyzer);
+    
+                    final AbstractAST<?> abstractAST = parser.parse(this, syntaxAnalyzer);
                     if (abstractAST == null) {
                         syntaxAnalyzer.errorHandler().addError(new ParserError(parser, syntaxAnalyzer.currentToken()));
                         return null;
@@ -140,7 +141,7 @@ public class BlockAST extends AbstractAST
                 return null;
             }
         
-            final AbstractExpressionAST abstractExpressionAST = AbstractExpressionAST.EXPRESSION_PARSER.parse(this, syntaxAnalyzer);
+            final AbstractExpressionAST<?> abstractExpressionAST = AbstractExpressionAST.EXPRESSION_PARSER.parse(this, syntaxAnalyzer);
             if (abstractExpressionAST == null) {
                 syntaxAnalyzer.errorHandler().addError(new ParserError(AbstractExpressionAST.EXPRESSION_PARSER, this.getStart(), syntaxAnalyzer.currentToken().getEnd(), "Couldn't parse the BlockAST because an error occurred during the parsing of the expression."));
                 return null;
@@ -175,9 +176,14 @@ public class BlockAST extends AbstractAST
      *         BlockAST.
      */
     @Override
-    public <T extends AbstractAST> T addAST(final T toAddAST, final SyntaxAnalyzer syntaxAnalyzer) {
+    public <T extends AbstractAST<?>> T addAST(final T toAddAST, final SyntaxAnalyzer syntaxAnalyzer) {
         this.blockStorage.add(toAddAST);
         return toAddAST;
+    }
+    
+    @Override
+    public Class<BlockSemantic> semanticClass() {
+        return BlockSemantic.class;
     }
     
     public enum BlockType

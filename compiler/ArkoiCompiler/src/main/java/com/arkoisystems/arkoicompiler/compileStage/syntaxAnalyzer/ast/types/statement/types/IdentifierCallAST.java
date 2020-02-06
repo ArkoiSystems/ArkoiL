@@ -3,6 +3,7 @@ package com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.sta
 import com.arkoisystems.arkoicompiler.compileStage.errorHandler.types.TokenError;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.TokenType;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.IdentifierToken;
+import com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.semantic.types.IdentifierCallSemantic;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.ASTType;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.AbstractAST;
@@ -27,7 +28,7 @@ import lombok.Getter;
  * permissions and limitations under the License.
  */
 @Getter
-public class IdentifierCallAST extends AbstractStatementAST
+public class IdentifierCallAST extends AbstractStatementAST<IdentifierCallSemantic>
 {
     
     @Expose
@@ -53,7 +54,7 @@ public class IdentifierCallAST extends AbstractStatementAST
      *         if it parsed until to the end.
      */
     @Override
-    public IdentifierCallAST parseAST(final AbstractAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
+    public IdentifierCallAST parseAST(final AbstractAST<?> parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
         if (syntaxAnalyzer.matchesCurrentToken(TokenType.IDENTIFIER) == null) {
             syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the \"identifier call\" statement because the parsing doesn't start with an Identifier."));
             return null;
@@ -80,8 +81,13 @@ public class IdentifierCallAST extends AbstractStatementAST
      *         IdentifierCallStatementAST.
      */
     @Override
-    public <T extends AbstractAST> T addAST(final T toAddAST, final SyntaxAnalyzer syntaxAnalyzer) {
+    public <T extends AbstractAST<?>> T addAST(final T toAddAST, final SyntaxAnalyzer syntaxAnalyzer) {
         return toAddAST;
+    }
+    
+    @Override
+    public Class<IdentifierCallSemantic> semanticClass() {
+        return IdentifierCallSemantic.class;
     }
     
 }

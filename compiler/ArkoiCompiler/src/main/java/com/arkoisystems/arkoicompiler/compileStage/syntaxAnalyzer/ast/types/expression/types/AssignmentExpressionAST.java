@@ -1,5 +1,7 @@
 package com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.expression.types;
 
+import com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.semantic.types.AssignmentExpressionSemantic;
+import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.ASTType;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.AbstractAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.expression.AbstractExpressionAST;
@@ -23,20 +25,20 @@ import lombok.Getter;
  * permissions and limitations under the License.
  */
 @Getter
-public class AssignmentExpressionAST extends AbstractExpressionAST
+public class AssignmentExpressionAST extends AbstractExpressionAST<AssignmentExpressionSemantic>
 {
     
     @Expose
-    private final AbstractAST leftSideAST;
+    private final AbstractAST<?> leftSideAST;
     
     @Expose
     private final AssignmentOperator assignmentOperator;
     
     @Expose
-    private final AbstractAST rightSideAST;
+    private final AbstractAST<?> rightSideAST;
     
     
-    public AssignmentExpressionAST(final AbstractAST leftSideAST, final AssignmentOperator assignmentOperator, final AbstractAST rightSideAST) {
+    public AssignmentExpressionAST(final AbstractAST<?> leftSideAST, final AssignmentOperator assignmentOperator, final AbstractAST<?> rightSideAST) {
         super(ASTType.ASSIGNMENT_EXPRESSION);
         
         this.assignmentOperator = assignmentOperator;
@@ -47,16 +49,31 @@ public class AssignmentExpressionAST extends AbstractExpressionAST
         this.setEnd(rightSideAST.getEnd());
     }
     
+    @Override
+    public AssignmentExpressionAST parseAST(final AbstractAST<?> parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
+        return parentAST.addAST(this, syntaxAnalyzer);
+    }
+    
+    @Override
+    public <T extends AbstractAST<?>> T addAST(final T toAddAST, final SyntaxAnalyzer syntaxAnalyzer) {
+        return toAddAST;
+    }
+    
+    @Override
+    public Class<AssignmentExpressionSemantic> semanticClass() {
+        return AssignmentExpressionSemantic.class;
+    }
+    
     public enum AssignmentOperator
     {
-    
+        
         ASSIGN,
         ADD_ASSIGN,
         SUB_ASSIGN,
         MUL_ASSIGN,
         DIV_ASSIGN,
         MOD_ASSIGN
-    
+        
     }
     
 }

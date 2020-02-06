@@ -2,8 +2,8 @@ package com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.ope
 
 import com.arkoisystems.arkoicompiler.compileStage.errorHandler.types.TokenError;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.TokenType;
-import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.StringToken;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.numbers.AbstractNumberToken;
+import com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.semantic.AbstractSemantic;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.ASTType;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.AbstractAST;
@@ -25,7 +25,7 @@ import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.oper
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  */
-public class NumberOperableAST extends AbstractOperableAST<AbstractNumberToken>
+public class NumberOperableAST extends AbstractOperableAST<AbstractNumberToken, AbstractSemantic>
 {
     
     public NumberOperableAST() {
@@ -33,8 +33,8 @@ public class NumberOperableAST extends AbstractOperableAST<AbstractNumberToken>
     }
     
     @Override
-    public AbstractOperableAST<?> parseAST(final AbstractAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
-        if(syntaxAnalyzer.matchesCurrentToken(TokenType.NUMBER_LITERAL) == null) {
+    public NumberOperableAST parseAST(final AbstractAST<?> parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
+        if (syntaxAnalyzer.matchesCurrentToken(TokenType.NUMBER_LITERAL) == null) {
             syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the number operable because the parsing doesn't start with a number."));
             return null;
         } else {
@@ -43,6 +43,11 @@ public class NumberOperableAST extends AbstractOperableAST<AbstractNumberToken>
             this.setEnd(this.getAbstractToken().getEnd());
         }
         return parentAST.addAST(this, syntaxAnalyzer);
+    }
+    
+    @Override
+    public Class<AbstractSemantic> semanticClass() {
+        return null;
     }
     
 }

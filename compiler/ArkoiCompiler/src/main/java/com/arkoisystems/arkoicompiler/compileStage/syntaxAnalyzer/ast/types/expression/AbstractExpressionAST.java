@@ -5,6 +5,7 @@ import com.arkoisystems.arkoicompiler.compileStage.errorHandler.types.TokenError
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.AbstractToken;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.TokenType;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.SymbolToken;
+import com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.semantic.AbstractSemantic;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.ASTType;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.AbstractAST;
@@ -48,7 +49,7 @@ import lombok.Getter;
     10. assignment (= += -= *= /= %=)
 */
 @Getter
-public class AbstractExpressionAST extends AbstractAST
+public class AbstractExpressionAST<S extends AbstractSemantic> extends AbstractAST<S>
 {
     
     public static ExpressionParser EXPRESSION_PARSER = new ExpressionParser();
@@ -81,9 +82,9 @@ public class AbstractExpressionAST extends AbstractAST
      *         parsed until to the end.
      */
     @Override
-    public AbstractExpressionAST parseAST(final AbstractAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
+    public AbstractExpressionAST<?> parseAST(final AbstractAST<?> parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
         final ExpressionAST expressionAST = this.parseExpression(syntaxAnalyzer);
-        if(expressionAST == null) {
+        if (expressionAST == null) {
             syntaxAnalyzer.errorHandler().addError(new ParserError(AbstractExpressionAST.EXPRESSION_PARSER, this, "Couldn't parse the expression because an error occurred during the parsing of the expression."));
             return null;
         }
@@ -105,20 +106,25 @@ public class AbstractExpressionAST extends AbstractAST
      *         AbstractExpressionAST.
      */
     @Override
-    public <T extends AbstractAST> T addAST(final T toAddAST, final SyntaxAnalyzer syntaxAnalyzer) {
+    public <T extends AbstractAST<?>> T addAST(final T toAddAST, final SyntaxAnalyzer syntaxAnalyzer) {
         return toAddAST;
     }
     
+    @Override
+    public Class<S> semanticClass() {
+        return null;
+    }
+    
     private ExpressionAST parseExpression(final SyntaxAnalyzer syntaxAnalyzer) {
-        final AbstractAST abstractAST = this.parseAssignment(syntaxAnalyzer);
-        if(abstractAST == null)
+        final AbstractAST<?> abstractAST = this.parseAssignment(syntaxAnalyzer);
+        if (abstractAST == null)
             return null;
         return new ExpressionAST(abstractAST);
     }
     
     // 10. assignment (= += -= *= /= %=)
-    private AbstractAST parseAssignment(final SyntaxAnalyzer syntaxAnalyzer) {
-        AbstractAST leftSideAST = this.parseLogicalOr(syntaxAnalyzer);
+    private AbstractAST<?> parseAssignment(final SyntaxAnalyzer syntaxAnalyzer) {
+        AbstractAST<?> leftSideAST = this.parseLogicalOr(syntaxAnalyzer);
         if (leftSideAST == null)
             return null;
         
@@ -126,7 +132,7 @@ public class AbstractExpressionAST extends AbstractAST
         if (equal_second && syntaxAnalyzer.matchesPeekToken(1, SymbolToken.SymbolType.PLUS) != null) {
             syntaxAnalyzer.nextToken(3);
             
-            final AbstractAST rightSideAST = this.parseLogicalOr(syntaxAnalyzer);
+            final AbstractAST<?> rightSideAST = this.parseLogicalOr(syntaxAnalyzer);
             if (rightSideAST == null)
                 return null;
             
@@ -134,7 +140,7 @@ public class AbstractExpressionAST extends AbstractAST
         } else if (equal_second && syntaxAnalyzer.matchesPeekToken(1, SymbolToken.SymbolType.MINUS) != null) {
             syntaxAnalyzer.nextToken(3);
             
-            final AbstractAST rightSideAST = this.parseLogicalOr(syntaxAnalyzer);
+            final AbstractAST<?> rightSideAST = this.parseLogicalOr(syntaxAnalyzer);
             if (rightSideAST == null)
                 return null;
             
@@ -142,7 +148,7 @@ public class AbstractExpressionAST extends AbstractAST
         } else if (equal_second && syntaxAnalyzer.matchesPeekToken(1, SymbolToken.SymbolType.ASTERISK) != null) {
             syntaxAnalyzer.nextToken(3);
             
-            final AbstractAST rightSideAST = this.parseLogicalOr(syntaxAnalyzer);
+            final AbstractAST<?> rightSideAST = this.parseLogicalOr(syntaxAnalyzer);
             if (rightSideAST == null)
                 return null;
             
@@ -150,7 +156,7 @@ public class AbstractExpressionAST extends AbstractAST
         } else if (equal_second && syntaxAnalyzer.matchesPeekToken(1, SymbolToken.SymbolType.SLASH) != null) {
             syntaxAnalyzer.nextToken(3);
             
-            final AbstractAST rightSideAST = this.parseLogicalOr(syntaxAnalyzer);
+            final AbstractAST<?> rightSideAST = this.parseLogicalOr(syntaxAnalyzer);
             if (rightSideAST == null)
                 return null;
             
@@ -158,7 +164,7 @@ public class AbstractExpressionAST extends AbstractAST
         } else if (equal_second && syntaxAnalyzer.matchesPeekToken(1, SymbolToken.SymbolType.PERCENT) != null) {
             syntaxAnalyzer.nextToken(3);
             
-            final AbstractAST rightSideAST = this.parseLogicalOr(syntaxAnalyzer);
+            final AbstractAST<?> rightSideAST = this.parseLogicalOr(syntaxAnalyzer);
             if (rightSideAST == null)
                 return null;
             
@@ -166,7 +172,7 @@ public class AbstractExpressionAST extends AbstractAST
         } else if (syntaxAnalyzer.matchesPeekToken(1, SymbolToken.SymbolType.EQUAL) != null) {
             syntaxAnalyzer.nextToken(3);
             
-            final AbstractAST rightSideAST = this.parseLogicalOr(syntaxAnalyzer);
+            final AbstractAST<?> rightSideAST = this.parseLogicalOr(syntaxAnalyzer);
             if (rightSideAST == null)
                 return null;
             
@@ -176,15 +182,15 @@ public class AbstractExpressionAST extends AbstractAST
     }
     
     // 9. logical OR (||)
-    private AbstractAST parseLogicalOr(final SyntaxAnalyzer syntaxAnalyzer) {
-        AbstractAST leftSideAST = this.parseLogicalAnd(syntaxAnalyzer);
+    private AbstractAST<?> parseLogicalOr(final SyntaxAnalyzer syntaxAnalyzer) {
+        AbstractAST<?> leftSideAST = this.parseLogicalAnd(syntaxAnalyzer);
         if (leftSideAST == null)
             return null;
         
         if (syntaxAnalyzer.matchesPeekToken(1, SymbolToken.SymbolType.VERTICAL_BAR) != null && syntaxAnalyzer.matchesPeekToken(2, SymbolToken.SymbolType.VERTICAL_BAR) != null) {
             syntaxAnalyzer.nextToken(3);
             
-            final AbstractAST rightSideAST = this.parseLogicalAnd(syntaxAnalyzer);
+            final AbstractAST<?> rightSideAST = this.parseLogicalAnd(syntaxAnalyzer);
             if (rightSideAST == null)
                 return null;
             
@@ -194,15 +200,15 @@ public class AbstractExpressionAST extends AbstractAST
     }
     
     // 8. logical AND (&&)
-    private AbstractAST parseLogicalAnd(final SyntaxAnalyzer syntaxAnalyzer) {
-        AbstractAST leftSideAST = this.parseEquality(syntaxAnalyzer);
+    private AbstractAST<?> parseLogicalAnd(final SyntaxAnalyzer syntaxAnalyzer) {
+        AbstractAST<?> leftSideAST = this.parseEquality(syntaxAnalyzer);
         if (leftSideAST == null)
             return null;
         
         if (syntaxAnalyzer.matchesPeekToken(1, SymbolToken.SymbolType.AMPERSAND) != null && syntaxAnalyzer.matchesPeekToken(2, SymbolToken.SymbolType.AMPERSAND) != null) {
             syntaxAnalyzer.nextToken(3);
             
-            final AbstractAST rightSideAST = this.parseEquality(syntaxAnalyzer);
+            final AbstractAST<?> rightSideAST = this.parseEquality(syntaxAnalyzer);
             if (rightSideAST == null)
                 return null;
             
@@ -212,15 +218,15 @@ public class AbstractExpressionAST extends AbstractAST
     }
     
     // 7. equality (== !=)
-    private AbstractAST parseEquality(final SyntaxAnalyzer syntaxAnalyzer) {
-        AbstractAST leftSideAST = this.parseRelational(syntaxAnalyzer);
+    private AbstractAST<?> parseEquality(final SyntaxAnalyzer syntaxAnalyzer) {
+        AbstractAST<?> leftSideAST = this.parseRelational(syntaxAnalyzer);
         if (leftSideAST == null)
             return null;
         
         if (syntaxAnalyzer.matchesPeekToken(1, SymbolToken.SymbolType.EQUAL) != null && syntaxAnalyzer.matchesPeekToken(2, SymbolToken.SymbolType.EQUAL) != null) {
             syntaxAnalyzer.nextToken(3);
             
-            final AbstractAST rightSideAST = this.parseRelational(syntaxAnalyzer);
+            final AbstractAST<?> rightSideAST = this.parseRelational(syntaxAnalyzer);
             if (rightSideAST == null)
                 return null;
             
@@ -228,7 +234,7 @@ public class AbstractExpressionAST extends AbstractAST
         } else if (syntaxAnalyzer.matchesPeekToken(1, SymbolToken.SymbolType.EQUAL) != null && syntaxAnalyzer.matchesPeekToken(2, SymbolToken.SymbolType.EXCLAMATION_MARK) != null) {
             syntaxAnalyzer.nextToken(3);
             
-            final AbstractAST rightSideAST = this.parseRelational(syntaxAnalyzer);
+            final AbstractAST<?> rightSideAST = this.parseRelational(syntaxAnalyzer);
             if (rightSideAST == null)
                 return null;
             
@@ -238,8 +244,8 @@ public class AbstractExpressionAST extends AbstractAST
     }
     
     // 6. relational (< > <= >= is)
-    private AbstractAST parseRelational(final SyntaxAnalyzer syntaxAnalyzer) {
-        AbstractAST leftSideAST = this.parseAdditive(syntaxAnalyzer);
+    private AbstractAST<?> parseRelational(final SyntaxAnalyzer syntaxAnalyzer) {
+        AbstractAST<?> leftSideAST = this.parseAdditive(syntaxAnalyzer);
         if (leftSideAST == null)
             return null;
         
@@ -247,7 +253,7 @@ public class AbstractExpressionAST extends AbstractAST
         if (syntaxAnalyzer.matchesPeekToken(1, SymbolToken.SymbolType.LESS_THAN_SIGN) != null && equal_second) {
             syntaxAnalyzer.nextToken(3);
             
-            final AbstractAST rightSideAST = this.parseAdditive(syntaxAnalyzer);
+            final AbstractAST<?> rightSideAST = this.parseAdditive(syntaxAnalyzer);
             if (rightSideAST == null)
                 return null;
             
@@ -255,7 +261,7 @@ public class AbstractExpressionAST extends AbstractAST
         } else if (syntaxAnalyzer.matchesPeekToken(1, SymbolToken.SymbolType.GREATER_THAN_SIGN) != null && equal_second) {
             syntaxAnalyzer.nextToken(3);
             
-            final AbstractAST rightSideAST = this.parseAdditive(syntaxAnalyzer);
+            final AbstractAST<?> rightSideAST = this.parseAdditive(syntaxAnalyzer);
             if (rightSideAST == null)
                 return null;
             
@@ -263,7 +269,7 @@ public class AbstractExpressionAST extends AbstractAST
         } else if (syntaxAnalyzer.matchesPeekToken(1, SymbolToken.SymbolType.GREATER_THAN_SIGN) != null) {
             syntaxAnalyzer.nextToken(3);
             
-            final AbstractAST rightSideAST = this.parseAdditive(syntaxAnalyzer);
+            final AbstractAST<?> rightSideAST = this.parseAdditive(syntaxAnalyzer);
             if (rightSideAST == null)
                 return null;
             
@@ -271,7 +277,7 @@ public class AbstractExpressionAST extends AbstractAST
         } else if (syntaxAnalyzer.matchesPeekToken(1, SymbolToken.SymbolType.GREATER_THAN_SIGN) != null) {
             syntaxAnalyzer.nextToken(3);
             
-            final AbstractAST rightSideAST = this.parseAdditive(syntaxAnalyzer);
+            final AbstractAST<?> rightSideAST = this.parseAdditive(syntaxAnalyzer);
             if (rightSideAST == null)
                 return null;
             
@@ -279,7 +285,7 @@ public class AbstractExpressionAST extends AbstractAST
         } else if (syntaxAnalyzer.matchesPeekToken(1, TokenType.IDENTIFIER) != null && syntaxAnalyzer.peekToken(1).getTokenContent().equals("is")) {
             syntaxAnalyzer.nextToken(3);
             
-            final AbstractAST rightSideAST = this.parseAdditive(syntaxAnalyzer);
+            final AbstractAST<?> rightSideAST = this.parseAdditive(syntaxAnalyzer);
             if (rightSideAST == null)
                 return null;
             
@@ -289,15 +295,15 @@ public class AbstractExpressionAST extends AbstractAST
     }
     
     // 5. additive (+ -)
-    private AbstractAST parseAdditive(final SyntaxAnalyzer syntaxAnalyzer) {
-        AbstractAST leftSideAST = this.parseMultiplicative(syntaxAnalyzer);
+    private AbstractAST<?> parseAdditive(final SyntaxAnalyzer syntaxAnalyzer) {
+        AbstractAST<?> leftSideAST = this.parseMultiplicative(syntaxAnalyzer);
         if (leftSideAST == null)
             return null;
         
         if (syntaxAnalyzer.matchesPeekToken(1, SymbolToken.SymbolType.PLUS) != null) {
             syntaxAnalyzer.nextToken(2);
             
-            final AbstractAST rightSideAST = this.parseMultiplicative(syntaxAnalyzer);
+            final AbstractAST<?> rightSideAST = this.parseMultiplicative(syntaxAnalyzer);
             if (rightSideAST == null)
                 return null;
             
@@ -305,7 +311,7 @@ public class AbstractExpressionAST extends AbstractAST
         } else if (syntaxAnalyzer.matchesPeekToken(1, SymbolToken.SymbolType.MINUS) != null) {
             syntaxAnalyzer.nextToken(2);
             
-            final AbstractAST rightSideAST = this.parseMultiplicative(syntaxAnalyzer);
+            final AbstractAST<?> rightSideAST = this.parseMultiplicative(syntaxAnalyzer);
             if (rightSideAST == null)
                 return null;
             
@@ -315,15 +321,15 @@ public class AbstractExpressionAST extends AbstractAST
     }
     
     // 4. multiplicative (* / %)
-    private AbstractAST parseMultiplicative(final SyntaxAnalyzer syntaxAnalyzer) {
-        AbstractAST leftSideAST = this.parseUnary(syntaxAnalyzer);
+    private AbstractAST<?> parseMultiplicative(final SyntaxAnalyzer syntaxAnalyzer) {
+        AbstractAST<?> leftSideAST = this.parseUnary(syntaxAnalyzer);
         if (leftSideAST == null)
             return null;
         
         if (syntaxAnalyzer.matchesPeekToken(1, SymbolToken.SymbolType.ASTERISK) != null) {
             syntaxAnalyzer.nextToken(2);
             
-            final AbstractAST rightSideAST = this.parseUnary(syntaxAnalyzer);
+            final AbstractAST<?> rightSideAST = this.parseUnary(syntaxAnalyzer);
             if (rightSideAST == null)
                 return null;
             
@@ -331,7 +337,7 @@ public class AbstractExpressionAST extends AbstractAST
         } else if (syntaxAnalyzer.matchesPeekToken(1, SymbolToken.SymbolType.SLASH) != null) {
             syntaxAnalyzer.nextToken(2);
             
-            final AbstractAST rightSideAST = this.parseUnary(syntaxAnalyzer);
+            final AbstractAST<?> rightSideAST = this.parseUnary(syntaxAnalyzer);
             if (rightSideAST == null)
                 return null;
             
@@ -339,7 +345,7 @@ public class AbstractExpressionAST extends AbstractAST
         } else if (syntaxAnalyzer.matchesPeekToken(1, SymbolToken.SymbolType.PERCENT) != null) {
             syntaxAnalyzer.nextToken(2);
             
-            final AbstractAST rightSideAST = this.parseUnary(syntaxAnalyzer);
+            final AbstractAST<?> rightSideAST = this.parseUnary(syntaxAnalyzer);
             if (rightSideAST == null)
                 return null;
             
@@ -349,12 +355,12 @@ public class AbstractExpressionAST extends AbstractAST
     }
     
     // 3. prefix (++expr --expr +expr -expr ~expr !expr)
-    private AbstractAST parseUnary(final SyntaxAnalyzer syntaxAnalyzer) {
+    private AbstractAST<?> parseUnary(final SyntaxAnalyzer syntaxAnalyzer) {
         if (syntaxAnalyzer.matchesCurrentToken(SymbolToken.SymbolType.PLUS) != null && syntaxAnalyzer.matchesPeekToken(1, SymbolToken.SymbolType.PLUS) != null) {
             final int start = syntaxAnalyzer.currentToken().getStart();
             syntaxAnalyzer.nextToken(2);
             
-            final AbstractAST rightSideAST = this.parseParenthesis(syntaxAnalyzer);
+            final AbstractAST<?> rightSideAST = this.parseParenthesis(syntaxAnalyzer);
             if (rightSideAST == null)
                 return null;
             return new PrefixUnaryExpressionAST(rightSideAST, PrefixUnaryExpressionAST.PrefixUnaryOperator.PREFIX_ADD, start);
@@ -362,7 +368,7 @@ public class AbstractExpressionAST extends AbstractAST
             final int start = syntaxAnalyzer.currentToken().getStart();
             syntaxAnalyzer.nextToken(2);
             
-            final AbstractAST rightSideAST = this.parseParenthesis(syntaxAnalyzer);
+            final AbstractAST<?> rightSideAST = this.parseParenthesis(syntaxAnalyzer);
             if (rightSideAST == null)
                 return null;
             return new PrefixUnaryExpressionAST(rightSideAST, PrefixUnaryExpressionAST.PrefixUnaryOperator.PREFIX_SUB, start);
@@ -370,7 +376,7 @@ public class AbstractExpressionAST extends AbstractAST
             final int start = syntaxAnalyzer.currentToken().getStart();
             syntaxAnalyzer.nextToken(2);
             
-            final AbstractAST rightSideAST = this.parseParenthesis(syntaxAnalyzer);
+            final AbstractAST<?> rightSideAST = this.parseParenthesis(syntaxAnalyzer);
             if (rightSideAST == null)
                 return null;
             return new PrefixUnaryExpressionAST(rightSideAST, PrefixUnaryExpressionAST.PrefixUnaryOperator.AFFIRM, start);
@@ -378,7 +384,7 @@ public class AbstractExpressionAST extends AbstractAST
             final int start = syntaxAnalyzer.currentToken().getStart();
             syntaxAnalyzer.nextToken(2);
             
-            final AbstractAST rightSideAST = this.parseParenthesis(syntaxAnalyzer);
+            final AbstractAST<?> rightSideAST = this.parseParenthesis(syntaxAnalyzer);
             if (rightSideAST == null)
                 return null;
             return new PrefixUnaryExpressionAST(rightSideAST, PrefixUnaryExpressionAST.PrefixUnaryOperator.NEGATE, start);
@@ -387,8 +393,8 @@ public class AbstractExpressionAST extends AbstractAST
     
     // brainfuck idk if its right need to test
     // 2. postfix (expr++ expr--)
-    private AbstractAST parsePostfix(final SyntaxAnalyzer syntaxAnalyzer) {
-        AbstractAST leftSideAST = this.parseParenthesis(syntaxAnalyzer);
+    private AbstractAST<?> parsePostfix(final SyntaxAnalyzer syntaxAnalyzer) {
+        AbstractAST<?> leftSideAST = this.parseParenthesis(syntaxAnalyzer);
         if (leftSideAST == null)
             return null;
         
@@ -403,7 +409,7 @@ public class AbstractExpressionAST extends AbstractAST
     }
     
     // 1. parenthesis ( (expr) )
-    private AbstractAST parseParenthesis(final SyntaxAnalyzer syntaxAnalyzer) {
+    private AbstractAST<?> parseParenthesis(final SyntaxAnalyzer syntaxAnalyzer) {
         if (syntaxAnalyzer.matchesCurrentToken(SymbolToken.SymbolType.OPENING_PARENTHESIS) != null) {
             final AbstractToken openingParenthesis = syntaxAnalyzer.currentToken();
             syntaxAnalyzer.nextToken();
@@ -413,7 +419,7 @@ public class AbstractExpressionAST extends AbstractAST
                 return null;
             }
             
-            final AbstractExpressionAST abstractExpressionAST = AbstractExpressionAST.EXPRESSION_PARSER.parse(this, syntaxAnalyzer);
+            final AbstractExpressionAST<?> abstractExpressionAST = AbstractExpressionAST.EXPRESSION_PARSER.parse(this, syntaxAnalyzer);
             if (abstractExpressionAST == null) {
                 syntaxAnalyzer.errorHandler().addError(new ParserError(AbstractExpressionAST.EXPRESSION_PARSER, syntaxAnalyzer.currentToken(), "Couldn't parse the parenthesized expression because an error occurred during the parsing of the inner expression."));
                 return null;
@@ -427,7 +433,7 @@ public class AbstractExpressionAST extends AbstractAST
         } else return this.parseOperable(syntaxAnalyzer);
     }
     
-    private AbstractOperableAST<?> parseOperable(final SyntaxAnalyzer syntaxAnalyzer) {
+    private AbstractOperableAST<?, ?> parseOperable(final SyntaxAnalyzer syntaxAnalyzer) {
         if (!AbstractOperableAST.OPERABLE_PARSER.canParse(this, syntaxAnalyzer)) {
             syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the operable token because the current token isn't operable."));
             return null;

@@ -5,6 +5,7 @@ import com.arkoisystems.arkoicompiler.compileStage.errorHandler.types.ParserErro
 import com.arkoisystems.arkoicompiler.compileStage.errorHandler.types.TokenError;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.TokenType;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.SymbolToken;
+import com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.semantic.AbstractSemantic;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.ASTType;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.AbstractAST;
@@ -30,10 +31,10 @@ import lombok.Getter;
  * permissions and limitations under the License.
  */
 @Getter
-public class ThisStatementAST extends AbstractStatementAST
+public class ThisStatementAST extends AbstractStatementAST<AbstractSemantic>
 {
     
-    private AbstractAST parentAST;
+    private AbstractAST<?> parentAST;
     
     /**
      * This constructor will initialize the statement with the AST-Type
@@ -69,7 +70,7 @@ public class ThisStatementAST extends AbstractStatementAST
      *         parsed until to the end.
      */
     @Override
-    public AbstractStatementAST parseAST(final AbstractAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
+    public AbstractStatementAST<?> parseAST(final AbstractAST<?> parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
         if (!(parentAST instanceof BlockAST) && !(parentAST instanceof AbstractExpressionAST)) {
             syntaxAnalyzer.errorHandler().addError(new ASTError(parentAST, "Couldn't parse the \"this\" statement because it isn't declared inside a block or an expression."));
             return null;
@@ -79,7 +80,7 @@ public class ThisStatementAST extends AbstractStatementAST
             syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the \"this\" statement because the parsing doesn't start with the \"this\" keyword."));
             return null;
         } else this.setStart(syntaxAnalyzer.currentToken().getStart());
-        
+    
         if (syntaxAnalyzer.matchesNextToken(SymbolToken.SymbolType.PERIOD) == null) {
             syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the \"this\" statement because the \"this\" keyword isn't followed by an period."));
             return null;
@@ -93,8 +94,8 @@ public class ThisStatementAST extends AbstractStatementAST
             syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the \"this\" statement because the period isn't followed by a valid statement."));
             return null;
         }
-        
-        final AbstractStatementAST abstractStatementAST = AbstractStatementAST.STATEMENT_PARSER.parse(parentAST, syntaxAnalyzer);
+    
+        final AbstractStatementAST<?> abstractStatementAST = AbstractStatementAST.STATEMENT_PARSER.parse(parentAST, syntaxAnalyzer);
         if (abstractStatementAST == null) {
             syntaxAnalyzer.errorHandler().addError(new ParserError(AbstractStatementAST.STATEMENT_PARSER, this, "Couldn't parse the \"this\" statement because an error occurred during the parsing of the statement."));
             return null;
@@ -119,8 +120,13 @@ public class ThisStatementAST extends AbstractStatementAST
      *         an "this statement".
      */
     @Override
-    public <T extends AbstractAST> T addAST(final T toAddAST, final SyntaxAnalyzer syntaxAnalyzer) {
+    public <T extends AbstractAST<?>> T addAST(final T toAddAST, final SyntaxAnalyzer syntaxAnalyzer) {
         return toAddAST;
+    }
+    
+    @Override
+    public Class<AbstractSemantic> semanticClass() {
+        return null;
     }
     
 }

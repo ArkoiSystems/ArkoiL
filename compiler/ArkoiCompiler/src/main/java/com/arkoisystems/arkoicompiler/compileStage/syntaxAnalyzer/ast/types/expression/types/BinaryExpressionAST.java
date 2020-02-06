@@ -1,5 +1,7 @@
 package com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.expression.types;
 
+import com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.semantic.types.BinaryExpressionSemantic;
+import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.ASTType;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.AbstractAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.expression.AbstractExpressionAST;
@@ -23,20 +25,20 @@ import lombok.Getter;
  * permissions and limitations under the License.
  */
 @Getter
-public class BinaryExpressionAST extends AbstractExpressionAST
+public class BinaryExpressionAST extends AbstractExpressionAST<BinaryExpressionSemantic>
 {
     
     @Expose
-    private final AbstractAST leftSideAST;
+    private final AbstractAST<?> leftSideAST;
     
     @Expose
     private final BinaryOperator binaryOperator;
     
     @Expose
-    private final AbstractAST rightSideAST;
+    private final AbstractAST<?> rightSideAST;
     
     
-    public BinaryExpressionAST(final AbstractAST leftSideAST, final BinaryOperator binaryOperator, final AbstractAST rightSideAST) {
+    public BinaryExpressionAST(final AbstractAST<?> leftSideAST, final BinaryOperator binaryOperator, final AbstractAST<?> rightSideAST) {
         super(ASTType.BINARY_EXPRESSION);
         
         this.binaryOperator = binaryOperator;
@@ -47,14 +49,30 @@ public class BinaryExpressionAST extends AbstractExpressionAST
         this.setEnd(rightSideAST.getEnd());
     }
     
-    public enum BinaryOperator {
+    @Override
+    public BinaryExpressionAST parseAST(final AbstractAST<?> parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
+        return parentAST.addAST(this, syntaxAnalyzer);
+    }
     
+    @Override
+    public <T extends AbstractAST<?>> T addAST(final T toAddAST, final SyntaxAnalyzer syntaxAnalyzer) {
+        return toAddAST;
+    }
+    
+    @Override
+    public Class<BinaryExpressionSemantic> semanticClass() {
+        return BinaryExpressionSemantic.class;
+    }
+    
+    public enum BinaryOperator
+    {
+        
         ADDITION,
         SUBTRACTION,
         MULTIPLICATION,
         DIVISION,
         MODULO
-    
+        
     }
     
 }

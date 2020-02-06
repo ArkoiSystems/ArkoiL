@@ -1,5 +1,7 @@
 package com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.expression.types;
 
+import com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.semantic.types.PrefixUnaryExpressionSemantic;
+import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.ASTType;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.AbstractAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.expression.AbstractExpressionAST;
@@ -23,15 +25,16 @@ import lombok.Getter;
  * permissions and limitations under the License.
  */
 @Getter
-public class PrefixUnaryExpressionAST extends AbstractExpressionAST
+public class PrefixUnaryExpressionAST extends AbstractExpressionAST<PrefixUnaryExpressionSemantic>
 {
+    
     @Expose
-    private final AbstractAST rightSideAST;
+    private final AbstractAST<?> rightSideAST;
     
     @Expose
     private final PrefixUnaryOperator prefixUnaryOperator;
     
-    public PrefixUnaryExpressionAST(final AbstractAST rightSideAST, final PrefixUnaryOperator prefixUnaryOperator, final int start) {
+    public PrefixUnaryExpressionAST(final AbstractAST<?> rightSideAST, final PrefixUnaryOperator prefixUnaryOperator, final int start) {
         super(ASTType.PREFIX_EXPRESSION);
         
         this.prefixUnaryOperator = prefixUnaryOperator;
@@ -41,9 +44,24 @@ public class PrefixUnaryExpressionAST extends AbstractExpressionAST
         this.setEnd(rightSideAST.getEnd());
     }
     
+    @Override
+    public PrefixUnaryExpressionAST parseAST(final AbstractAST<?> parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
+        return parentAST.addAST(this, syntaxAnalyzer);
+    }
+    
+    @Override
+    public <T extends AbstractAST<?>> T addAST(final T toAddAST, final SyntaxAnalyzer syntaxAnalyzer) {
+        return toAddAST;
+    }
+    
+    @Override
+    public Class<PrefixUnaryExpressionSemantic> semanticClass() {
+        return PrefixUnaryExpressionSemantic.class;
+    }
+    
     public enum PrefixUnaryOperator
     {
-    
+        
         PREFIX_ADD,
         PREFIX_SUB,
         NEGATE,

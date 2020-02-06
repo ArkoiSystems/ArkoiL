@@ -1,5 +1,7 @@
 package com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.expression.types;
 
+import com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.semantic.types.EqualityExpressionSemantic;
+import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.ASTType;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.AbstractAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.expression.AbstractExpressionAST;
@@ -23,20 +25,20 @@ import lombok.Getter;
  * permissions and limitations under the License.
  */
 @Getter
-public class EqualityExpressionAST extends AbstractExpressionAST
+public class EqualityExpressionAST extends AbstractExpressionAST<EqualityExpressionSemantic>
 {
     
     @Expose
-    private final AbstractAST leftSideAST;
+    private final AbstractAST<?> leftSideAST;
     
     @Expose
     private final EqualityOperator equalityOperator;
     
     @Expose
-    private final AbstractAST rightSideAST;
+    private final AbstractAST<?> rightSideAST;
     
     
-    public EqualityExpressionAST(final AbstractAST leftSideAST, final EqualityOperator equalityOperator, final AbstractAST rightSideAST) {
+    public EqualityExpressionAST(final AbstractAST<?> leftSideAST, final EqualityOperator equalityOperator, final AbstractAST<?> rightSideAST) {
         super(ASTType.EQUALITY_EXPRESSION);
         
         this.equalityOperator = equalityOperator;
@@ -47,12 +49,27 @@ public class EqualityExpressionAST extends AbstractExpressionAST
         this.setEnd(rightSideAST.getEnd());
     }
     
+    @Override
+    public EqualityExpressionAST parseAST(final AbstractAST<?> parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
+        return parentAST.addAST(this, syntaxAnalyzer);
+    }
+    
+    @Override
+    public <T extends AbstractAST<?>> T addAST(final T toAddAST, final SyntaxAnalyzer syntaxAnalyzer) {
+        return toAddAST;
+    }
+    
+    @Override
+    public Class<EqualityExpressionSemantic> semanticClass() {
+        return EqualityExpressionSemantic.class;
+    }
+    
     public enum EqualityOperator
     {
-    
+        
         EQUAL,
         NOT_EQUAL
-    
+        
     }
     
 }

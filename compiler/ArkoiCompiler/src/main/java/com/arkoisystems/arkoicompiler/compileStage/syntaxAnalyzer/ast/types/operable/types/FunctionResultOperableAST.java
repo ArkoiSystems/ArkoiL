@@ -1,6 +1,7 @@
 package com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.operable.types;
 
 import com.arkoisystems.arkoicompiler.compileStage.errorHandler.types.ParserError;
+import com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.semantic.types.FunctionResultOperableSemantic;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.ASTType;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.AbstractAST;
@@ -25,7 +26,7 @@ import lombok.Getter;
  * permissions and limitations under the License.
  */
 @Getter
-public class FunctionResultOperableAST extends AbstractOperableAST<FunctionInvokeAST>
+public class FunctionResultOperableAST extends AbstractOperableAST<FunctionInvokeAST, FunctionResultOperableSemantic>
 {
     
     public FunctionResultOperableAST(final FunctionInvokeAST functionInvokeAST) {
@@ -37,12 +38,17 @@ public class FunctionResultOperableAST extends AbstractOperableAST<FunctionInvok
     }
     
     @Override
-    public AbstractOperableAST<?> parseAST(final AbstractAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
+    public FunctionResultOperableAST parseAST(final AbstractAST<?> parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
         if (this.getAbstractToken() == null) {
             syntaxAnalyzer.errorHandler().addError(new ParserError(AbstractOperableAST.OPERABLE_PARSER, this, "Couldn't parse the function result operable because the function invoke is null."));
             return null;
         }
         return parentAST.addAST(this, syntaxAnalyzer);
+    }
+    
+    @Override
+    public Class<FunctionResultOperableSemantic> semanticClass() {
+        return FunctionResultOperableSemantic.class;
     }
     
 }

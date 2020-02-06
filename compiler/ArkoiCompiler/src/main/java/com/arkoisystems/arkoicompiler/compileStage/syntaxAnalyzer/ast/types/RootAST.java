@@ -5,6 +5,7 @@ import com.arkoisystems.arkoicompiler.compileStage.errorHandler.types.TokenError
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.AbstractToken;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.EndOfFileToken;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.SymbolToken;
+import com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.semantic.types.RootSemantic;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.ASTType;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.AbstractAST;
@@ -36,7 +37,7 @@ import java.util.List;
  * permissions and limitations under the License.
  */
 @Getter
-public class RootAST extends AbstractAST
+public class RootAST extends AbstractAST<RootSemantic>
 {
     
     private static Parser<?>[] ROOT_PARSERS = new Parser<?>[] {
@@ -90,17 +91,17 @@ public class RootAST extends AbstractAST
      *         the end.
      */
     @Override
-    public RootAST parseAST(final AbstractAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
+    public RootAST parseAST(final AbstractAST<?> parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
         main_loop:
         while (syntaxAnalyzer.getPosition() < syntaxAnalyzer.getTokens().length) {
             if (syntaxAnalyzer.currentToken() instanceof EndOfFileToken)
                 break;
-            
+        
             for (final Parser<?> parser : ROOT_PARSERS) {
                 if (!parser.canParse(this, syntaxAnalyzer))
                     continue;
-                
-                final AbstractAST abstractAST = parser.parse(this, syntaxAnalyzer);
+            
+                final AbstractAST<?> abstractAST = parser.parse(this, syntaxAnalyzer);
                 if (abstractAST == null) {
                     syntaxAnalyzer.errorHandler().addError(new ParserError(parser, syntaxAnalyzer.currentToken()));
                     return null;
@@ -120,16 +121,13 @@ public class RootAST extends AbstractAST
                             return null;
                         }
                     }
-                    
                     syntaxAnalyzer.nextToken();
                     continue main_loop;
                 }
             }
-            
             syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the AST because no parser could parse this token. Check for misspelling or something else."));
             return null;
         }
-        
         return this;
     }
     
@@ -149,7 +147,7 @@ public class RootAST extends AbstractAST
      *         Otherwise the ASTs get added to their specified list.
      */
     @Override
-    public <T extends AbstractAST> T addAST(final T toAddAST, final SyntaxAnalyzer syntaxAnalyzer) {
+    public <T extends AbstractAST<?>> T addAST(final T toAddAST, final SyntaxAnalyzer syntaxAnalyzer) {
         if (toAddAST instanceof VariableDefinitionAST)
             this.variableStorage.add((VariableDefinitionAST) toAddAST);
         else if (toAddAST instanceof FunctionDefinitionAST)
@@ -157,6 +155,11 @@ public class RootAST extends AbstractAST
         else if (toAddAST instanceof ImportDefinitionAST)
             this.importStorage.add((ImportDefinitionAST) toAddAST);
         return toAddAST;
+    }
+    
+    @Override
+    public Class<RootSemantic> semanticClass() {
+        return RootSemantic.class;
     }
     
     /**

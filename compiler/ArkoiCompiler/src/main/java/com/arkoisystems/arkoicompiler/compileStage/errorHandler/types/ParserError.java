@@ -42,9 +42,9 @@ public class ParserError extends AbstractError
         this.parser = parser;
     }
     
-    public ParserError(final Parser<?> parser, final AbstractAST abstractAST, final String message, final Object... arguments) {
+    public ParserError(final Parser<?> parser, final AbstractAST<?> abstractAST, final String message, final Object... arguments) {
         super(abstractAST.getStart(), abstractAST.getEnd(), message, arguments);
-        
+    
         this.parser = parser;
     }
     

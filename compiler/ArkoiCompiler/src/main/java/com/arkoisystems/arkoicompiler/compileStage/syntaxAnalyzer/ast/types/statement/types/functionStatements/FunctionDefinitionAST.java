@@ -6,6 +6,7 @@ import com.arkoisystems.arkoicompiler.compileStage.errorHandler.types.TokenError
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.TokenType;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.IdentifierToken;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.SymbolToken;
+import com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.semantic.types.FunctionDefinitionSemantic;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.ASTType;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.AbstractAST;
@@ -36,7 +37,7 @@ import java.util.List;
  */
 @Getter
 @Setter
-public class FunctionDefinitionAST extends FunctionStatementAST
+public class FunctionDefinitionAST extends FunctionStatementAST<FunctionDefinitionSemantic>
 {
     
     @Expose
@@ -105,17 +106,17 @@ public class FunctionDefinitionAST extends FunctionStatementAST
      *         parsed until to the end.
      */
     @Override
-    public FunctionDefinitionAST parseAST(final AbstractAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
+    public FunctionDefinitionAST parseAST(final AbstractAST<?> parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
         if (!(parentAST instanceof RootAST)) {
             syntaxAnalyzer.errorHandler().addError(new ASTError(parentAST, "Couldn't parse the \"function definition\" statement because it isn't declared inside the root file."));
             return null;
         }
-        
+    
         if (syntaxAnalyzer.matchesCurrentToken(TokenType.IDENTIFIER) == null || !syntaxAnalyzer.currentToken().getTokenContent().equals("fun")) {
             syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the \"function definition\" statement because the parsing doesn't start with the \"fun\" keyword."));
             return null;
         } else this.setStart(syntaxAnalyzer.currentToken().getStart());
-        
+    
         if (syntaxAnalyzer.matchesNextToken(TokenType.IDENTIFIER) == null) {
             syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the \"function definition\" statement because the \"fun\" keyword isn't followed by a function name."));
             return null;
@@ -206,8 +207,13 @@ public class FunctionDefinitionAST extends FunctionStatementAST
      *         FunctionDefinitionAST.
      */
     @Override
-    public <T extends AbstractAST> T addAST(final T toAddAST, final SyntaxAnalyzer syntaxAnalyzer) {
+    public <T extends AbstractAST<?>> T addAST(final T toAddAST, final SyntaxAnalyzer syntaxAnalyzer) {
         return toAddAST;
+    }
+    
+    @Override
+    public Class<FunctionDefinitionSemantic> semanticClass() {
+        return FunctionDefinitionSemantic.class;
     }
     
     /**

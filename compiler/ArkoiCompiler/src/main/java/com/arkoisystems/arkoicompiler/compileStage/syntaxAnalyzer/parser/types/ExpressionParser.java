@@ -28,12 +28,12 @@ public class ExpressionParser extends Parser<AbstractExpressionAST>
 {
     
     @Override
-    public AbstractExpressionAST parse(final AbstractAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
+    public AbstractExpressionAST parse(final AbstractAST<?> parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
         return new AbstractExpressionAST(null).parseAST(parentAST, syntaxAnalyzer);
     }
     
     @Override
-    public boolean canParse(final AbstractAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
+    public boolean canParse(final AbstractAST<?> parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
         switch (syntaxAnalyzer.currentToken().getTokenType()) {
             case STRING_LITERAL:
             case NUMBER_LITERAL:

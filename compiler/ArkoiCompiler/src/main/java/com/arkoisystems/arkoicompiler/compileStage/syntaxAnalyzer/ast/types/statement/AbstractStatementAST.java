@@ -5,6 +5,7 @@ import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.Abstrac
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.TokenType;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.IdentifierToken;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.SymbolToken;
+import com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.semantic.AbstractSemantic;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.ASTType;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.AbstractAST;
@@ -33,7 +34,7 @@ import lombok.Getter;
  * permissions and limitations under the License.
  */
 @Getter
-public class AbstractStatementAST extends AbstractAST
+public class AbstractStatementAST<S extends AbstractSemantic> extends AbstractAST<S>
 {
     
     public static StatementParser STATEMENT_PARSER = new StatementParser();
@@ -66,13 +67,13 @@ public class AbstractStatementAST extends AbstractAST
      *         parsed until to the end.
      */
     @Override
-    public AbstractStatementAST parseAST(final AbstractAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
+    public AbstractStatementAST<?> parseAST(final AbstractAST<?> parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
         final AbstractToken currentToken = syntaxAnalyzer.currentToken();
         if (syntaxAnalyzer.matchesCurrentToken(TokenType.IDENTIFIER) == null) {
             syntaxAnalyzer.errorHandler().addError(new TokenError(currentToken, "Couldn't parse the statement because it doesn't start with an IdentifierToken."));
             return null;
         }
-        
+    
         if (parentAST instanceof ThisStatementAST) {
             switch (currentToken.getTokenContent()) {
                 case "var":
@@ -156,8 +157,13 @@ public class AbstractStatementAST extends AbstractAST
      *         AbstractStatementAST.
      */
     @Override
-    public <T extends AbstractAST> T addAST(final T toAddAST, final SyntaxAnalyzer syntaxAnalyzer) {
+    public <T extends AbstractAST<?>> T addAST(final T toAddAST, final SyntaxAnalyzer syntaxAnalyzer) {
         return toAddAST;
+    }
+    
+    @Override
+    public Class<S> semanticClass() {
+        return null;
     }
     
 }

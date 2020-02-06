@@ -35,8 +35,8 @@ public abstract class Parser<T extends AbstractAST>
         this.childName = splittedPath[splittedPath.length - 1];
     }
     
-    public abstract T parse(final AbstractAST parentAST, final SyntaxAnalyzer syntaxAnalyzer);
+    public abstract T parse(final AbstractAST<?> parentAST, final SyntaxAnalyzer syntaxAnalyzer);
     
-    public abstract boolean canParse(final AbstractAST parentAST, final SyntaxAnalyzer syntaxAnalyzer);
+    public abstract boolean canParse(final AbstractAST<?> parentAST, final SyntaxAnalyzer syntaxAnalyzer);
     
 }

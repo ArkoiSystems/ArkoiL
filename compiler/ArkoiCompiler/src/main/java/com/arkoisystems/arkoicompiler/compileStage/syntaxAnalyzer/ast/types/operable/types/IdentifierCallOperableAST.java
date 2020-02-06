@@ -1,6 +1,7 @@
 package com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.operable.types;
 
 import com.arkoisystems.arkoicompiler.compileStage.errorHandler.types.ParserError;
+import com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.semantic.types.IdentifierCallOperableSemantic;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.ASTType;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.AbstractAST;
@@ -23,24 +24,29 @@ import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.stat
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  */
-public class IdentifierCallOperableAST extends AbstractOperableAST<IdentifierCallAST>
+public class IdentifierCallOperableAST extends AbstractOperableAST<IdentifierCallAST, IdentifierCallOperableSemantic>
 {
     
     public IdentifierCallOperableAST(final IdentifierCallAST identifierCallAST) {
         this.setAstType(ASTType.IDENTIFIER_CALL_OPERABLE);
         this.setAbstractToken(identifierCallAST);
-    
+        
         this.setStart(this.getAbstractToken().getStart());
         this.setEnd(this.getAbstractToken().getEnd());
     }
     
     @Override
-    public AbstractOperableAST<?> parseAST(final AbstractAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
+    public IdentifierCallOperableAST parseAST(final AbstractAST<?> parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
         if (this.getAbstractToken() == null) {
             syntaxAnalyzer.errorHandler().addError(new ParserError(AbstractOperableAST.OPERABLE_PARSER, this, "Couldn't parse the identifier call operable because the identifier call is null."));
             return null;
         }
         return parentAST.addAST(this, syntaxAnalyzer);
+    }
+    
+    @Override
+    public Class<IdentifierCallOperableSemantic> semanticClass() {
+        return IdentifierCallOperableSemantic.class;
     }
     
 }

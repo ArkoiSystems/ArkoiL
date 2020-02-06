@@ -1,6 +1,7 @@
 package com.arkoisystems.arkoicompiler;
 
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.LexicalAnalyzer;
+import com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.SemanticAnalyzer;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.google.gson.annotations.Expose;
 import lombok.Getter;
@@ -74,6 +75,14 @@ public class ArkoiCompiler
                 return false;
         }
         System.out.printf("The syntax analysis took %sms for all classes (%s in total)\n", ((System.nanoTime() - syntaxStart) / 1000000D), this.arkoiClasses.size());
+    
+        final long semanticStart = System.nanoTime();
+        for (final ArkoiClass arkoiClass : this.arkoiClasses.values()) {
+            final SemanticAnalyzer semanticAnalyzer = arkoiClass.analyseSemantic();
+            if (!semanticAnalyzer.processStage())
+                return false;
+        }
+        System.out.printf("The semantic analysis took %sms for all classes (%s in total)\n", ((System.nanoTime() - semanticStart) / 1000000D), this.arkoiClasses.size());
     
         System.out.printf("The compilation took %sms for all classes (%s in total)\n", ((System.nanoTime() - compileStart) / 1000000D), this.arkoiClasses.size());
         return true;

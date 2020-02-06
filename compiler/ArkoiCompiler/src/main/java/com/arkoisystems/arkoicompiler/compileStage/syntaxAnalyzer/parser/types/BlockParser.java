@@ -10,12 +10,12 @@ public class BlockParser extends Parser<BlockAST>
 {
     
     @Override
-    public BlockAST parse(final AbstractAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
+    public BlockAST parse(final AbstractAST<?> parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
         return new BlockAST().parseAST(parentAST, syntaxAnalyzer);
     }
     
     @Override
-    public boolean canParse(final AbstractAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
+    public boolean canParse(final AbstractAST<?> parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
         return syntaxAnalyzer.matchesCurrentToken(SymbolToken.SymbolType.OPENING_BRACE) != null || syntaxAnalyzer.matchesCurrentToken(SymbolToken.SymbolType.EQUAL) != null;
     }
     

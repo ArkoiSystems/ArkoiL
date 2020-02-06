@@ -1,5 +1,7 @@
 package com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.expression.types;
 
+import com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.semantic.types.LogicalExpressionSemantic;
+import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.ASTType;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.AbstractAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.expression.AbstractExpressionAST;
@@ -23,20 +25,20 @@ import lombok.Getter;
  * permissions and limitations under the License.
  */
 @Getter
-public class LogicalExpressionAST extends AbstractExpressionAST
+public class LogicalExpressionAST extends AbstractExpressionAST<LogicalExpressionSemantic>
 {
     
     @Expose
-    private final AbstractAST leftSideAST;
+    private final AbstractAST<?> leftSideAST;
     
     @Expose
     private final LogicalOperator logicalOperator;
     
     @Expose
-    private final AbstractAST rightSideAST;
+    private final AbstractAST<?> rightSideAST;
     
     
-    public LogicalExpressionAST(final AbstractAST leftSideAST, final LogicalOperator logicalOperator, final AbstractAST rightSideAST) {
+    public LogicalExpressionAST(final AbstractAST<?> leftSideAST, final LogicalOperator logicalOperator, final AbstractAST<?> rightSideAST) {
         super(ASTType.LOGICAL_EXPRESSION);
         
         this.logicalOperator = logicalOperator;
@@ -47,12 +49,27 @@ public class LogicalExpressionAST extends AbstractExpressionAST
         this.setEnd(rightSideAST.getEnd());
     }
     
+    @Override
+    public LogicalExpressionAST parseAST(final AbstractAST<?> parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
+        return parentAST.addAST(this, syntaxAnalyzer);
+    }
+    
+    @Override
+    public <T extends AbstractAST<?>> T addAST(final T toAddAST, final SyntaxAnalyzer syntaxAnalyzer) {
+        return toAddAST;
+    }
+    
+    @Override
+    public Class<LogicalExpressionSemantic> semanticClass() {
+        return LogicalExpressionSemantic.class;
+    }
+    
     public enum LogicalOperator
     {
-    
+        
         LOGICAL_AND,
         LOGICAL_OR
-    
+        
     }
     
 }

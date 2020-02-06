@@ -1,9 +1,10 @@
 package com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.expression.types;
 
+import com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.semantic.types.ExpressionSemantic;
+import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.ASTType;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.AbstractAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.expression.AbstractExpressionAST;
-import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.operable.AbstractOperableAST;
 import com.google.gson.annotations.Expose;
 import lombok.Getter;
 
@@ -24,19 +25,34 @@ import lombok.Getter;
  * permissions and limitations under the License.
  */
 @Getter
-public class ExpressionAST extends AbstractExpressionAST
+public class ExpressionAST extends AbstractExpressionAST<ExpressionSemantic>
 {
     
     @Expose
-    private final AbstractAST abstractAST;
+    private final AbstractAST<?> abstractAST;
     
-    public ExpressionAST(final AbstractAST abstractAST) {
+    public ExpressionAST(final AbstractAST<?> abstractAST) {
         super(ASTType.EXPRESSION);
         
         this.abstractAST = abstractAST;
         
         this.setStart(abstractAST.getStart());
         this.setEnd(abstractAST.getEnd());
+    }
+    
+    @Override
+    public ExpressionAST parseAST(final AbstractAST<?> parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
+        return parentAST.addAST(this, syntaxAnalyzer);
+    }
+    
+    @Override
+    public <T extends AbstractAST<?>> T addAST(final T toAddAST, final SyntaxAnalyzer syntaxAnalyzer) {
+        return toAddAST;
+    }
+    
+    @Override
+    public Class<ExpressionSemantic> semanticClass() {
+        return ExpressionSemantic.class;
     }
     
 }

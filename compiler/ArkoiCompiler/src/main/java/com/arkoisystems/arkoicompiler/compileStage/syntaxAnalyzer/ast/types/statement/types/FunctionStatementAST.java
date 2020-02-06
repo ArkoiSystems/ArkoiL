@@ -1,5 +1,6 @@
 package com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types;
 
+import com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.semantic.AbstractSemantic;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.ASTType;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.AbstractAST;
@@ -21,7 +22,7 @@ import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.stat
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  */
-public class FunctionStatementAST extends AbstractStatementAST
+public class FunctionStatementAST<S extends AbstractSemantic> extends AbstractStatementAST<S>
 {
     
     /**
@@ -49,7 +50,7 @@ public class FunctionStatementAST extends AbstractStatementAST
      * @return It just returns null because you need to overwrite it.
      */
     @Override
-    public FunctionStatementAST parseAST(final AbstractAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
+    public FunctionStatementAST<?> parseAST(final AbstractAST<?> parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
         return null;
     }
     
@@ -69,7 +70,12 @@ public class FunctionStatementAST extends AbstractStatementAST
      * @return It just returns null because you need to overwrite it.
      */
     @Override
-    public <T extends AbstractAST> T addAST(final T toAddAST, final SyntaxAnalyzer syntaxAnalyzer) {
+    public <T extends AbstractAST<?>> T addAST(final T toAddAST, final SyntaxAnalyzer syntaxAnalyzer) {
+        return null;
+    }
+    
+    @Override
+    public Class<S> semanticClass() {
         return null;
     }
     

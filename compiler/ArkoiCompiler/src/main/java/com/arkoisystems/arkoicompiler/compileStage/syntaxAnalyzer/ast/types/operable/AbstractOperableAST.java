@@ -5,6 +5,7 @@ import com.arkoisystems.arkoicompiler.compileStage.errorHandler.types.ParserErro
 import com.arkoisystems.arkoicompiler.compileStage.errorHandler.types.TokenError;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.AbstractToken;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.SymbolToken;
+import com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.semantic.AbstractSemantic;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.AbstractAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.operable.types.*;
@@ -35,7 +36,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class AbstractOperableAST<OT1> extends AbstractAST
+public class AbstractOperableAST<OT1, S extends AbstractSemantic> extends AbstractAST<S>
 {
     
     public static OperableParser OPERABLE_PARSER = new OperableParser();
@@ -48,7 +49,7 @@ public class AbstractOperableAST<OT1> extends AbstractAST
     }
     
     @Override
-    public AbstractOperableAST<?> parseAST(final AbstractAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
+    public AbstractOperableAST<?, ?> parseAST(final AbstractAST<?> parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
         final AbstractToken currentToken = syntaxAnalyzer.currentToken();
         switch (currentToken.getTokenType()) {
             case STRING_LITERAL:
@@ -56,7 +57,7 @@ public class AbstractOperableAST<OT1> extends AbstractAST
             case NUMBER_LITERAL:
                 return new NumberOperableAST().parseAST(parentAST, syntaxAnalyzer);
             case SYMBOL:
-                if(syntaxAnalyzer.matchesCurrentToken(SymbolToken.SymbolType.OPENING_BRACKET) != null)
+                if (syntaxAnalyzer.matchesCurrentToken(SymbolToken.SymbolType.OPENING_BRACKET) != null)
                     return new CollectionOperableAST().parseAST(parentAST, syntaxAnalyzer);
                 else {
                     syntaxAnalyzer.errorHandler().addError(new TokenError(currentToken, "Couldn't parse the operable because the SymbolType isn't supported."));
@@ -67,8 +68,8 @@ public class AbstractOperableAST<OT1> extends AbstractAST
                     syntaxAnalyzer.errorHandler().addError(new ParserError(AbstractStatementAST.STATEMENT_PARSER, parentAST.getStart(), syntaxAnalyzer.currentToken().getEnd(), "Couldn't parse the operable statement because it isn't parsable."));
                     return null;
                 }
-            
-                final AbstractStatementAST abstractStatementAST = AbstractStatementAST.STATEMENT_PARSER.parse(parentAST, syntaxAnalyzer);
+    
+                final AbstractStatementAST<?> abstractStatementAST = AbstractStatementAST.STATEMENT_PARSER.parse(parentAST, syntaxAnalyzer);
                 if (abstractStatementAST instanceof FunctionInvokeAST)
                     return new FunctionResultOperableAST((FunctionInvokeAST) abstractStatementAST).parseAST(parentAST, syntaxAnalyzer);
                 else if(abstractStatementAST instanceof IdentifierCallAST)
@@ -84,8 +85,13 @@ public class AbstractOperableAST<OT1> extends AbstractAST
     }
     
     @Override
-    public <T extends AbstractAST> T addAST(final T toAddAST, final SyntaxAnalyzer syntaxAnalyzer) {
+    public <T extends AbstractAST<?>> T addAST(final T toAddAST, final SyntaxAnalyzer syntaxAnalyzer) {
         return toAddAST;
+    }
+    
+    @Override
+    public Class<S> semanticClass() {
+        return null;
     }
     
 }

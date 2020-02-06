@@ -5,6 +5,7 @@ import com.arkoisystems.arkoicompiler.compileStage.errorHandler.types.TokenError
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.TokenType;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.IdentifierToken;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.SymbolToken;
+import com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.semantic.types.ArgumentDefinitionSemantic;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.ASTType;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.AbstractAST;
@@ -34,7 +35,7 @@ import java.util.List;
  */
 @Getter
 @Setter
-public class ArgumentDefinitionAST extends AbstractAST
+public class ArgumentDefinitionAST extends AbstractAST<ArgumentDefinitionSemantic>
 {
     
     public static ArgumentDefinitionParser ARGUMENT_DEFINITION_PARSER = new ArgumentDefinitionParser();
@@ -76,7 +77,7 @@ public class ArgumentDefinitionAST extends AbstractAST
      *         parsed until to the end.
      */
     @Override
-    public ArgumentDefinitionAST parseAST(final AbstractAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
+    public ArgumentDefinitionAST parseAST(final AbstractAST<?> parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
         if (syntaxAnalyzer.matchesCurrentToken(TokenType.IDENTIFIER) == null) {
             syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the argument definition because the parsing doesn't start with an identifier as name."));
             return null;
@@ -84,7 +85,7 @@ public class ArgumentDefinitionAST extends AbstractAST
             this.argumentNameIdentifier = (IdentifierToken) syntaxAnalyzer.currentToken();
             this.setStart(syntaxAnalyzer.currentToken().getStart());
         }
-        
+    
         if (syntaxAnalyzer.matchesNextToken(SymbolToken.SymbolType.COLON) == null) {
             syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the argument definition because the argument name isn't followed by a colon."));
             return null;
@@ -118,8 +119,13 @@ public class ArgumentDefinitionAST extends AbstractAST
      *         ArgumentDefinitionAST.
      */
     @Override
-    public <T extends AbstractAST> T addAST(final T toAddAST, final SyntaxAnalyzer syntaxAnalyzer) {
+    public <T extends AbstractAST<?>> T addAST(final T toAddAST, final SyntaxAnalyzer syntaxAnalyzer) {
         return toAddAST;
+    }
+    
+    @Override
+    public Class<ArgumentDefinitionSemantic> semanticClass() {
+        return ArgumentDefinitionSemantic.class;
     }
     
     /**
@@ -140,7 +146,7 @@ public class ArgumentDefinitionAST extends AbstractAST
      * @return It will return null if an error occurred or the given "argumentsASTs" list
      *         if it parsed until to the end.
      */
-    public static List<ArgumentDefinitionAST> parseArguments(final AbstractAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
+    public static List<ArgumentDefinitionAST> parseArguments(final AbstractAST<?> parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
         return parseArguments(parentAST, syntaxAnalyzer, new ArrayList<>());
     }
     
@@ -163,16 +169,16 @@ public class ArgumentDefinitionAST extends AbstractAST
      * @return It will return null if an error occurred or the given "argumentsASTs" list
      *         if it parsed until to the end.
      */
-    public static List<ArgumentDefinitionAST> parseArguments(final AbstractAST parentAST, final SyntaxAnalyzer syntaxAnalyzer, final List<ArgumentDefinitionAST> argumentASTs) {
+    public static List<ArgumentDefinitionAST> parseArguments(final AbstractAST<?> parentAST, final SyntaxAnalyzer syntaxAnalyzer, final List<ArgumentDefinitionAST> argumentASTs) {
         if (syntaxAnalyzer.matchesCurrentToken(SymbolToken.SymbolType.OPENING_PARENTHESIS) == null) {
             syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the arguments because parsing doesn't start with an opening parenthesis."));
             return null;
         } else syntaxAnalyzer.nextToken();
-        
+    
         while (syntaxAnalyzer.getPosition() < syntaxAnalyzer.getTokens().length) {
             if (!ArgumentDefinitionAST.ARGUMENT_DEFINITION_PARSER.canParse(parentAST, syntaxAnalyzer))
                 break;
-            
+        
             final ArgumentDefinitionAST argumentDefinitionAST = ArgumentDefinitionAST.ARGUMENT_DEFINITION_PARSER.parse(parentAST, syntaxAnalyzer);
             if (argumentDefinitionAST == null) {
                 syntaxAnalyzer.errorHandler().addError(new ParserError(ArgumentDefinitionAST.ARGUMENT_DEFINITION_PARSER, syntaxAnalyzer.currentToken(), "Couldn't parse the arguments because an error occurred during the parsing of an argument."));

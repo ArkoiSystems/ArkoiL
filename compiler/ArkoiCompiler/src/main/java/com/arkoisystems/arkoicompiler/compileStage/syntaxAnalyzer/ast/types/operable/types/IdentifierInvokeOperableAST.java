@@ -1,20 +1,13 @@
 package com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.operable.types;
 
-import com.arkoisystems.arkoicompiler.compileStage.errorHandler.types.ASTError;
 import com.arkoisystems.arkoicompiler.compileStage.errorHandler.types.ParserError;
-import com.arkoisystems.arkoicompiler.compileStage.errorHandler.types.TokenError;
-import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.SymbolToken;
+import com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.semantic.types.IdentifierInvokeOperableSemantic;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.ASTType;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.AbstractAST;
-import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.expression.AbstractExpressionAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.operable.AbstractOperableAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.IdentifierInvokeAST;
-import com.google.gson.annotations.Expose;
 import lombok.Getter;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Copyright © 2019 ArkoiSystems (https://www.arkoisystems.com/) All Rights Reserved.
@@ -33,24 +26,29 @@ import java.util.List;
  * permissions and limitations under the License.
  */
 @Getter
-public class IdentifierInvokeOperableAST extends AbstractOperableAST<IdentifierInvokeAST>
+public class IdentifierInvokeOperableAST extends AbstractOperableAST<IdentifierInvokeAST, IdentifierInvokeOperableSemantic>
 {
     
     public IdentifierInvokeOperableAST(final IdentifierInvokeAST identifierInvokeAST) {
         this.setAstType(ASTType.IDENTIFIER_INVOKE_OPERABLE);
         this.setAbstractToken(identifierInvokeAST);
-    
+        
         this.setStart(this.getAbstractToken().getStart());
         this.setEnd(this.getAbstractToken().getEnd());
     }
     
     @Override
-    public AbstractOperableAST<?> parseAST(final AbstractAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
+    public IdentifierInvokeOperableAST parseAST(final AbstractAST<?> parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
         if (this.getAbstractToken() == null) {
             syntaxAnalyzer.errorHandler().addError(new ParserError(AbstractOperableAST.OPERABLE_PARSER, this, "Couldn't parse the identifier invoke operable because the identifier invoke is null."));
             return null;
         }
         return parentAST.addAST(this, syntaxAnalyzer);
+    }
+    
+    @Override
+    public Class<IdentifierInvokeOperableSemantic> semanticClass() {
+        return IdentifierInvokeOperableSemantic.class;
     }
     
 }

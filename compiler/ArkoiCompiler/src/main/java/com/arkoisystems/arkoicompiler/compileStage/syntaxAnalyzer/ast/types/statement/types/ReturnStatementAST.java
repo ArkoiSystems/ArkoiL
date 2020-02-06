@@ -5,6 +5,7 @@ import com.arkoisystems.arkoicompiler.compileStage.errorHandler.types.ParserErro
 import com.arkoisystems.arkoicompiler.compileStage.errorHandler.types.TokenError;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.TokenType;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.SymbolToken;
+import com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.semantic.types.ReturnSemantic;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.ASTType;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.AbstractAST;
@@ -31,11 +32,11 @@ import lombok.Getter;
  * permissions and limitations under the License.
  */
 @Getter
-public class ReturnStatementAST extends AbstractStatementAST
+public class ReturnStatementAST extends AbstractStatementAST<ReturnSemantic>
 {
     
     @Expose
-    private AbstractExpressionAST abstractExpressionAST;
+    private AbstractExpressionAST<?> abstractExpressionAST;
     
     /**
      * This constructor is used to initialize the AST-Type "RETURN_STATEMENT_AST" for this
@@ -65,7 +66,7 @@ public class ReturnStatementAST extends AbstractStatementAST
      *         parsed until to the end.
      */
     @Override
-    public ReturnStatementAST parseAST(final AbstractAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
+    public ReturnStatementAST parseAST(final AbstractAST<?> parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
         if (!(parentAST instanceof BlockAST)) {
             syntaxAnalyzer.errorHandler().addError(new ASTError(parentAST, "Couldn't parse the \"return\" statement because it isn't declared inside a block."));
             return null;
@@ -83,8 +84,8 @@ public class ReturnStatementAST extends AbstractStatementAST
             syntaxAnalyzer.errorHandler().addError(new ParserError(AbstractExpressionAST.EXPRESSION_PARSER, syntaxAnalyzer.currentToken(), "Couldn't parse the \"return\" statement because the keyword isn't followed by an valid expression."));
             return null;
         }
-        
-        final AbstractExpressionAST abstractExpressionAST = AbstractExpressionAST.EXPRESSION_PARSER.parse(this, syntaxAnalyzer);
+    
+        final AbstractExpressionAST<?> abstractExpressionAST = AbstractExpressionAST.EXPRESSION_PARSER.parse(this, syntaxAnalyzer);
         if (abstractExpressionAST == null) {
             syntaxAnalyzer.errorHandler().addError(new ParserError(AbstractExpressionAST.EXPRESSION_PARSER, syntaxAnalyzer.currentToken(), "Couldn't parse the \"return\" statement because an error occurred during the parsing of the expression."));
             return null;
@@ -94,7 +95,6 @@ public class ReturnStatementAST extends AbstractStatementAST
             syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the \"return\" statement because it doesn't end with a semicolon."));
             return null;
         }
-        
         return parentAST.addAST(this, syntaxAnalyzer);
     }
     
@@ -113,8 +113,13 @@ public class ReturnStatementAST extends AbstractStatementAST
      *         a ReturnStatementAST.
      */
     @Override
-    public <T extends AbstractAST> T addAST(final T toAddAST, final SyntaxAnalyzer syntaxAnalyzer) {
+    public <T extends AbstractAST<?>> T addAST(final T toAddAST, final SyntaxAnalyzer syntaxAnalyzer) {
         return toAddAST;
+    }
+    
+    @Override
+    public Class<ReturnSemantic> semanticClass() {
+        return ReturnSemantic.class;
     }
     
 }

@@ -1,12 +1,12 @@
 package com.arkoisystems.arkoicompiler;
 
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.LexicalAnalyzer;
+import com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.SemanticAnalyzer;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.utils.Variables;
 import com.google.gson.annotations.Expose;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.Value;
 
 import java.nio.charset.StandardCharsets;
 
@@ -44,6 +44,9 @@ public class ArkoiClass
     @Expose
     private SyntaxAnalyzer syntaxAnalyzer;
     
+    @Expose
+    private SemanticAnalyzer semanticAnalyzer;
+    
     public ArkoiClass(final ArkoiCompiler arkoiCompiler, final byte[] content, final boolean nativeClass) {
         this.arkoiCompiler = arkoiCompiler;
         this.nativeClass = nativeClass;
@@ -63,12 +66,21 @@ public class ArkoiClass
     }
     
     public SyntaxAnalyzer analyseSyntax() {
-        if(this.lexicalAnalyzer == null) {
+        if (this.lexicalAnalyzer == null) {
             System.err.println("You can't analyse the syntax before lexing the file.");
             System.exit(-1);
             return null;
         }
         return this.syntaxAnalyzer = new SyntaxAnalyzer(this);
+    }
+    
+    public SemanticAnalyzer analyseSemantic() {
+        if (this.syntaxAnalyzer == null) {
+            System.err.println("You can't analyse the semantic before syntaxing the file.");
+            System.exit(-1);
+            return null;
+        }
+        return this.semanticAnalyzer = new SemanticAnalyzer(this);
     }
     
     @Override

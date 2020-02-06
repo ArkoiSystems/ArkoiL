@@ -4,6 +4,7 @@ import com.arkoisystems.arkoicompiler.compileStage.errorHandler.types.ASTError;
 import com.arkoisystems.arkoicompiler.compileStage.errorHandler.types.ParserError;
 import com.arkoisystems.arkoicompiler.compileStage.errorHandler.types.TokenError;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.SymbolToken;
+import com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.semantic.types.CollectionOperableSemantic;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.ASTType;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.AbstractAST;
@@ -32,11 +33,11 @@ import java.util.List;
  * permissions and limitations under the License.
  */
 @Getter
-public class CollectionOperableAST extends AbstractOperableAST<AbstractExpressionAST[]>
+public class CollectionOperableAST extends AbstractOperableAST<AbstractExpressionAST<?>[], CollectionOperableSemantic>
 {
     
     @Expose
-    private final List<AbstractExpressionAST> expressionASTs;
+    private final List<AbstractExpressionAST<?>> expressionASTs;
     
     public CollectionOperableAST() {
         this.setAstType(ASTType.COLLECTION_OPERABLE);
@@ -45,7 +46,7 @@ public class CollectionOperableAST extends AbstractOperableAST<AbstractExpressio
     }
     
     @Override
-    public AbstractOperableAST<?> parseAST(final AbstractAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
+    public AbstractOperableAST<?, ?> parseAST(final AbstractAST<?> parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
         if (syntaxAnalyzer.matchesCurrentToken(SymbolToken.SymbolType.OPENING_BRACKET) == null) {
             syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the collection operable because the parsing doesn't start with an opening bracket."));
             return null;
@@ -60,7 +61,7 @@ public class CollectionOperableAST extends AbstractOperableAST<AbstractExpressio
                 return null;
             }
             
-            final AbstractExpressionAST abstractExpressionAST = AbstractExpressionAST.EXPRESSION_PARSER.parse(this, syntaxAnalyzer);
+            final AbstractExpressionAST<?> abstractExpressionAST = AbstractExpressionAST.EXPRESSION_PARSER.parse(this, syntaxAnalyzer);
             if (abstractExpressionAST == null) {
                 syntaxAnalyzer.errorHandler().addError(new ASTError(this, "Couldn't parse the collection operable because there occurred an error while parsing the expression inside it."));
                 return null;
@@ -75,6 +76,11 @@ public class CollectionOperableAST extends AbstractOperableAST<AbstractExpressio
             return null;
         }
         return parentAST.addAST(this, syntaxAnalyzer);
+    }
+    
+    @Override
+    public Class<CollectionOperableSemantic> semanticClass() {
+        return CollectionOperableSemantic.class;
     }
     
 }

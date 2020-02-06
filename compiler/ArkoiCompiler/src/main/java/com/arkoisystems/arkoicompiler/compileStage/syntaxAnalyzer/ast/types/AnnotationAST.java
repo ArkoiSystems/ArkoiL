@@ -6,6 +6,7 @@ import com.arkoisystems.arkoicompiler.compileStage.errorHandler.types.TokenError
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.TokenType;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.IdentifierToken;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.SymbolToken;
+import com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.semantic.types.AnnotationSemantic;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.ASTType;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.AbstractAST;
@@ -35,7 +36,7 @@ import java.util.List;
  * permissions and limitations under the License.
  */
 @Getter
-public class AnnotationAST extends AbstractAST
+public class AnnotationAST extends AbstractAST<AnnotationSemantic>
 {
     
     public static AnnotationParser ANNOTATION_PARSER = new AnnotationParser();
@@ -108,17 +109,17 @@ public class AnnotationAST extends AbstractAST
      *         until to the end.
      */
     @Override
-    public AnnotationAST parseAST(final AbstractAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
+    public AnnotationAST parseAST(final AbstractAST<?> parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
         if (!(parentAST instanceof RootAST)) {
             syntaxAnalyzer.errorHandler().addError(new ASTError(parentAST, "Couldn't parse the Annotation because it isn't declared inside the root file."));
             return null;
         }
-        
+    
         if (syntaxAnalyzer.matchesCurrentToken(SymbolToken.SymbolType.AT_SIGN) == null) {
             syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the Annotation because the parsing doesn't start with an at sign aka. \"@\"."));
             return null;
         } else this.setStart(syntaxAnalyzer.currentToken().getStart());
-        
+    
         if (syntaxAnalyzer.matchesNextToken(TokenType.IDENTIFIER) == null) {
             syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the Annotation because the at sign isn't followed by an name for the annotation."));
             return null;
@@ -180,7 +181,6 @@ public class AnnotationAST extends AbstractAST
             
             return parentAST.addAST(this, syntaxAnalyzer);
         }
-        
         syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the Annotation because it isn't followed by an function or variable definition."));
         return null;
     }
@@ -202,8 +202,13 @@ public class AnnotationAST extends AbstractAST
      *         AnnotationAST.
      */
     @Override
-    public <T extends AbstractAST> T addAST(final T toAddAST, final SyntaxAnalyzer syntaxAnalyzer) {
+    public <T extends AbstractAST<?>> T addAST(final T toAddAST, final SyntaxAnalyzer syntaxAnalyzer) {
         return toAddAST;
+    }
+    
+    @Override
+    public Class<AnnotationSemantic> semanticClass() {
+        return AnnotationSemantic.class;
     }
     
 }

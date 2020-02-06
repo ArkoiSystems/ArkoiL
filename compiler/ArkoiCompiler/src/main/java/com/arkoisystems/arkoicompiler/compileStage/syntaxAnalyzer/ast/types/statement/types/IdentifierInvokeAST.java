@@ -5,6 +5,7 @@ import com.arkoisystems.arkoicompiler.compileStage.errorHandler.types.TokenError
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.TokenType;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.IdentifierToken;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.SymbolToken;
+import com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.semantic.types.IdentifierInvokeSemantic;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.ASTType;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.AbstractAST;
@@ -29,21 +30,21 @@ import lombok.Getter;
  * permissions and limitations under the License.
  */
 @Getter
-public class IdentifierInvokeAST extends AbstractStatementAST
+public class IdentifierInvokeAST extends AbstractStatementAST<IdentifierInvokeSemantic>
 {
     
     @Expose
     private IdentifierToken invokedIdentifierNameToken;
     
     @Expose
-    private AbstractStatementAST invokedIdentifierStatement;
+    private AbstractStatementAST<?> invokedIdentifierStatement;
     
     public IdentifierInvokeAST() {
         super(ASTType.IDENTIFIER_INVOKE);
     }
     
     @Override
-    public IdentifierInvokeAST parseAST(final AbstractAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
+    public IdentifierInvokeAST parseAST(final AbstractAST<?> parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
         if (syntaxAnalyzer.matchesCurrentToken(TokenType.IDENTIFIER) == null) {
             syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the \"identifier invoke\" statement because the parsing doesn't start with an identifier."));
             return null;
@@ -52,7 +53,7 @@ public class IdentifierInvokeAST extends AbstractStatementAST
             this.setStart(this.invokedIdentifierNameToken.getStart());
         }
         
-        if(syntaxAnalyzer.matchesNextToken(SymbolToken.SymbolType.PERIOD) == null) {
+        if (syntaxAnalyzer.matchesNextToken(SymbolToken.SymbolType.PERIOD) == null) {
             syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the \"identifier invoke\" statement because the name isn't followed by an period."));
             return null;
         } else {
@@ -65,7 +66,7 @@ public class IdentifierInvokeAST extends AbstractStatementAST
             return null;
         }
         
-        final AbstractStatementAST abstractStatementAST = AbstractStatementAST.STATEMENT_PARSER.parse(this, syntaxAnalyzer);
+        final AbstractStatementAST<?> abstractStatementAST = AbstractStatementAST.STATEMENT_PARSER.parse(this, syntaxAnalyzer);
         if(abstractStatementAST == null) {
             syntaxAnalyzer.errorHandler().addError(new ParserError(AbstractStatementAST.STATEMENT_PARSER, this, "Couldn't parse the \"identifier invoke\" statement because an error occurred during the parsing of the statement."));
             return null;
@@ -74,8 +75,13 @@ public class IdentifierInvokeAST extends AbstractStatementAST
     }
     
     @Override
-    public <T extends AbstractAST> T addAST(final T toAddAST, final SyntaxAnalyzer syntaxAnalyzer) {
+    public <T extends AbstractAST<?>> T addAST(final T toAddAST, final SyntaxAnalyzer syntaxAnalyzer) {
         return toAddAST;
+    }
+    
+    @Override
+    public Class<IdentifierInvokeSemantic> semanticClass() {
+        return IdentifierInvokeSemantic.class;
     }
     
 }

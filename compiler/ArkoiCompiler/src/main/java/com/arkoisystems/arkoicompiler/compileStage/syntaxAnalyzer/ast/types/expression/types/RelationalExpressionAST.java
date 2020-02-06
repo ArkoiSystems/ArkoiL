@@ -1,5 +1,7 @@
 package com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.expression.types;
 
+import com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.semantic.types.RelationalExpressionSemantic;
+import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.ASTType;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.AbstractAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.expression.AbstractExpressionAST;
@@ -23,20 +25,20 @@ import lombok.Getter;
  * permissions and limitations under the License.
  */
 @Getter
-public class RelationalExpressionAST extends AbstractExpressionAST
+public class RelationalExpressionAST extends AbstractExpressionAST<RelationalExpressionSemantic>
 {
     
     @Expose
-    private final AbstractAST leftSideAST;
+    private final AbstractAST<?> leftSideAST;
     
     @Expose
     private final RelationalOperator relationalOperator;
     
     @Expose
-    private final AbstractAST rightSideAST;
+    private final AbstractAST<?> rightSideAST;
     
     
-    public RelationalExpressionAST(final AbstractAST leftSideAST, final RelationalOperator relationalOperator, final AbstractAST rightSideAST) {
+    public RelationalExpressionAST(final AbstractAST<?> leftSideAST, final RelationalOperator relationalOperator, final AbstractAST<?> rightSideAST) {
         super(ASTType.RELATIONAL_EXPRESSION);
         
         this.relationalOperator = relationalOperator;
@@ -47,9 +49,24 @@ public class RelationalExpressionAST extends AbstractExpressionAST
         this.setEnd(rightSideAST.getEnd());
     }
     
+    @Override
+    public RelationalExpressionAST parseAST(final AbstractAST<?> parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
+        return parentAST.addAST(this, syntaxAnalyzer);
+    }
+    
+    @Override
+    public <T extends AbstractAST<?>> T addAST(final T toAddAST, final SyntaxAnalyzer syntaxAnalyzer) {
+        return toAddAST;
+    }
+    
+    @Override
+    public Class<RelationalExpressionSemantic> semanticClass() {
+        return RelationalExpressionSemantic.class;
+    }
+    
     public enum RelationalOperator
     {
-    
+        
         LESS_THAN,
         GREATER_THAN,
         LESS_EQUAL_THAN,

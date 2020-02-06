@@ -1,7 +1,7 @@
 import "test"; 
 
-var test_1 = test.test();
-var test_2 = this.greeting();
+var test = test.test();
+var test = this.greeting();
 
 # this method gets invoked first
 fun main<int>(args: string[]) {

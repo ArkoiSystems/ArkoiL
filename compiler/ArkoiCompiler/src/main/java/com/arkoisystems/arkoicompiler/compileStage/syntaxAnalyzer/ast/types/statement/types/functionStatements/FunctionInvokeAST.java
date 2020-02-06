@@ -6,6 +6,7 @@ import com.arkoisystems.arkoicompiler.compileStage.errorHandler.types.TokenError
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.TokenType;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.IdentifierToken;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.SymbolToken;
+import com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.semantic.types.FunctionInvokeSemantic;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.ASTType;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.AbstractAST;
@@ -13,7 +14,6 @@ import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.Bloc
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.expression.AbstractExpressionAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.FunctionStatementAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.IdentifierInvokeAST;
-import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.ThisStatementAST;
 import com.google.gson.annotations.Expose;
 import lombok.Getter;
 
@@ -37,14 +37,14 @@ import java.util.List;
  * permissions and limitations under the License.
  */
 @Getter
-public class FunctionInvokeAST extends FunctionStatementAST
+public class FunctionInvokeAST extends FunctionStatementAST<FunctionInvokeSemantic>
 {
     
     @Expose
     private final IdentifierToken invokedFunctionNameToken;
     
     @Expose
-    private final List<AbstractExpressionAST> invokedArguments;
+    private final List<AbstractExpressionAST<?>> invokedArguments;
     
     @Expose
     private final FunctionInvocationAccess functionInvocationAccess;
@@ -110,7 +110,7 @@ public class FunctionInvokeAST extends FunctionStatementAST
      *         parsed until to the end.
      */
     @Override
-    public FunctionInvokeAST parseAST(final AbstractAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
+    public FunctionInvokeAST parseAST(final AbstractAST<?> parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
         if (!(parentAST instanceof BlockAST) && !(parentAST instanceof AbstractExpressionAST) && !(parentAST instanceof IdentifierInvokeAST)) {
             syntaxAnalyzer.errorHandler().addError(new ASTError(parentAST, "Couldn't parse the \"function invoke\" statement because it isn't declared inside a block, variable invocation or an expression."));
             return null;
@@ -140,8 +140,8 @@ public class FunctionInvokeAST extends FunctionStatementAST
                 syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the \"function invoke\" statement because there is incorrect syntax of an expression inside the parenthesis."));
                 return null;
             }
-        
-            final AbstractExpressionAST abstractExpressionAST = AbstractExpressionAST.EXPRESSION_PARSER.parse(this, syntaxAnalyzer);
+    
+            final AbstractExpressionAST<?> abstractExpressionAST = AbstractExpressionAST.EXPRESSION_PARSER.parse(this, syntaxAnalyzer);
             if (abstractExpressionAST == null) {
                 syntaxAnalyzer.errorHandler().addError(new ParserError(AbstractExpressionAST.EXPRESSION_PARSER, this.getStart(), syntaxAnalyzer.currentToken().getEnd(), "Couldn't parse the \"function invoke\" statement because an error occurred during the parsing of the expression."));
             } else this.invokedArguments.add(abstractExpressionAST);
@@ -182,15 +182,20 @@ public class FunctionInvokeAST extends FunctionStatementAST
      *         FunctionInvokeAST.
      */
     @Override
-    public <T extends AbstractAST> T addAST(T toAddAST, SyntaxAnalyzer syntaxAnalyzer) {
+    public <T extends AbstractAST<?>> T addAST(T toAddAST, SyntaxAnalyzer syntaxAnalyzer) {
         return toAddAST;
+    }
+    
+    @Override
+    public Class<FunctionInvokeSemantic> semanticClass() {
+        return FunctionInvokeSemantic.class;
     }
     
     public enum FunctionInvocationAccess
     {
         
         BLOCK_INVOCATION,
-        EXPRESSION_INVOCATION;
+        EXPRESSION_INVOCATION
         
     }
     
