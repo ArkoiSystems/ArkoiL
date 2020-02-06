@@ -161,9 +161,4 @@ public class AbstractStatementAST<S extends AbstractSemantic> extends AbstractAS
         return toAddAST;
     }
     
-    @Override
-    public Class<S> semanticClass() {
-        return null;
-    }
-    
 }

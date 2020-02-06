@@ -206,9 +206,4 @@ public class AnnotationAST extends AbstractAST<AnnotationSemantic>
         return toAddAST;
     }
     
-    @Override
-    public Class<AnnotationSemantic> semanticClass() {
-        return AnnotationSemantic.class;
-    }
-    
 }

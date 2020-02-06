@@ -36,7 +36,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class AbstractOperableAST<OT1, S extends AbstractSemantic> extends AbstractAST<S>
+public class AbstractOperableAST<OT1, S extends AbstractSemantic<?>> extends AbstractAST<S>
 {
     
     public static OperableParser OPERABLE_PARSER = new OperableParser();
@@ -87,11 +87,6 @@ public class AbstractOperableAST<OT1, S extends AbstractSemantic> extends Abstra
     @Override
     public <T extends AbstractAST<?>> T addAST(final T toAddAST, final SyntaxAnalyzer syntaxAnalyzer) {
         return toAddAST;
-    }
-    
-    @Override
-    public Class<S> semanticClass() {
-        return null;
     }
     
 }

@@ -31,24 +31,24 @@ public class ArkoiCompilerTest
     @Test
     public void runCompiler() throws IOException {
         final ArkoiCompiler arkoiCompiler = new ArkoiCompiler();
-        
+    
         final File testDirectory = new File(COMPILER_TEST);
         if (testDirectory.listFiles() != null) {
             for (final File file : Objects.requireNonNull(testDirectory.listFiles()))
                 if (file.getName().endsWith(".ark"))
                     arkoiCompiler.addFile(file);
         }
-        
+    
         if (!arkoiCompiler.compile()) {
             System.err.println("Couldn't compile the file. Please see the stacktrace for errors:");
             arkoiCompiler.printStackTrace(System.err);
-        } else {
-            try (final PrintStream printStream = new PrintStream(new File(COMPILER_TEST + "/output.result"))) {
-                for (final ArkoiClass arkoiClass : arkoiCompiler.getArkoiClasses().values())
-                    printStream.print(arkoiClass);
-            } catch (final Exception ex) {
-                ex.printStackTrace();
-            }
+        }
+    
+        try (final PrintStream printStream = new PrintStream(new File(COMPILER_TEST + "/output.result"))) {
+            for (final ArkoiClass arkoiClass : arkoiCompiler.getArkoiClasses().values())
+                printStream.print(arkoiClass);
+        } catch (final Exception ex) {
+            ex.printStackTrace();
         }
     }
     

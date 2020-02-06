@@ -1,7 +1,7 @@
 package com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.semantic.types;
 
 import com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.semantic.AbstractSemantic;
-import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.AbstractAST;
+import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.BlockAST;
 
 /**
  * Copyright © 2019 ArkoiSystems (https://www.arkoisystems.com/) All Rights Reserved.
@@ -19,11 +19,16 @@ import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.AbstractAS
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  */
-public class BlockSemantic extends AbstractSemantic
+public class BlockSemantic extends AbstractSemantic<BlockAST>
 {
     
-    public BlockSemantic(final AbstractAST<?> abstractAST) {
-        super(abstractAST);
+    public BlockSemantic(final BlockAST blockAST) {
+        super(blockAST);
+    }
+    
+    @Override
+    public void analyse() {
+    
     }
     
 }

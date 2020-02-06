@@ -25,7 +25,7 @@ import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.oper
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  */
-public class NumberOperableAST extends AbstractOperableAST<AbstractNumberToken, AbstractSemantic>
+public class NumberOperableAST extends AbstractOperableAST<AbstractNumberToken, AbstractSemantic<?>>
 {
     
     public NumberOperableAST() {
@@ -43,11 +43,6 @@ public class NumberOperableAST extends AbstractOperableAST<AbstractNumberToken, 
             this.setEnd(this.getAbstractToken().getEnd());
         }
         return parentAST.addAST(this, syntaxAnalyzer);
-    }
-    
-    @Override
-    public Class<AbstractSemantic> semanticClass() {
-        return null;
     }
     
 }

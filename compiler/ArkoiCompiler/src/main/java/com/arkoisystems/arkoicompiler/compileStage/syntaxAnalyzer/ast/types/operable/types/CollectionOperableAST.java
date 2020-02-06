@@ -4,7 +4,7 @@ import com.arkoisystems.arkoicompiler.compileStage.errorHandler.types.ASTError;
 import com.arkoisystems.arkoicompiler.compileStage.errorHandler.types.ParserError;
 import com.arkoisystems.arkoicompiler.compileStage.errorHandler.types.TokenError;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.SymbolToken;
-import com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.semantic.types.CollectionOperableSemantic;
+import com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.semantic.types.operables.CollectionOperableSemantic;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.ASTType;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.AbstractAST;
@@ -76,11 +76,6 @@ public class CollectionOperableAST extends AbstractOperableAST<AbstractExpressio
             return null;
         }
         return parentAST.addAST(this, syntaxAnalyzer);
-    }
-    
-    @Override
-    public Class<CollectionOperableSemantic> semanticClass() {
-        return CollectionOperableSemantic.class;
     }
     
 }

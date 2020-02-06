@@ -123,11 +123,6 @@ public class ArgumentDefinitionAST extends AbstractAST<ArgumentDefinitionSemanti
         return toAddAST;
     }
     
-    @Override
-    public Class<ArgumentDefinitionSemantic> semanticClass() {
-        return ArgumentDefinitionSemantic.class;
-    }
-    
     /**
      * This method provides the ability to parse a list of arguments which is used by the
      * FunctionDefinitionAST for the function arguments. It will throw an error if the

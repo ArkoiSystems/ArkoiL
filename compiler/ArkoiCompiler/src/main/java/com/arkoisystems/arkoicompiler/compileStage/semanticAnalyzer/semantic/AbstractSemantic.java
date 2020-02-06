@@ -20,13 +20,15 @@ import lombok.Getter;
  * permissions and limitations under the License.
  */
 @Getter
-public abstract class AbstractSemantic
+public abstract class AbstractSemantic<A extends AbstractAST<?>>
 {
     
-    private final AbstractAST<?> abstractAST;
+    private final A abstractAST;
     
-    public AbstractSemantic(final AbstractAST<?> abstractAST) {
+    public AbstractSemantic(final A abstractAST) {
         this.abstractAST = abstractAST;
     }
+    
+    public abstract void analyse();
     
 }

@@ -122,11 +122,6 @@ public class TypeAST extends AbstractAST<TypeSemantic>
         return toAddAST;
     }
     
-    @Override
-    public Class<TypeSemantic> semanticClass() {
-        return TypeSemantic.class;
-    }
-    
     @Getter
     public enum TypeKind
     {

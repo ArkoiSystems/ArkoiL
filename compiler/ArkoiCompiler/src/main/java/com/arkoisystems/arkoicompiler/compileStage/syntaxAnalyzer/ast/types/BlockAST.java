@@ -181,11 +181,6 @@ public class BlockAST extends AbstractAST<BlockSemantic>
         return toAddAST;
     }
     
-    @Override
-    public Class<BlockSemantic> semanticClass() {
-        return BlockSemantic.class;
-    }
-    
     public enum BlockType
     {
         

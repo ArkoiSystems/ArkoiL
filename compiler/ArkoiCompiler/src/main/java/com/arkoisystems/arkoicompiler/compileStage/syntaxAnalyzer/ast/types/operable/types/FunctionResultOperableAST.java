@@ -1,7 +1,7 @@
 package com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.operable.types;
 
 import com.arkoisystems.arkoicompiler.compileStage.errorHandler.types.ParserError;
-import com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.semantic.types.FunctionResultOperableSemantic;
+import com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.semantic.types.operables.FunctionResultOperableSemantic;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.ASTType;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.AbstractAST;
@@ -44,11 +44,6 @@ public class FunctionResultOperableAST extends AbstractOperableAST<FunctionInvok
             return null;
         }
         return parentAST.addAST(this, syntaxAnalyzer);
-    }
-    
-    @Override
-    public Class<FunctionResultOperableSemantic> semanticClass() {
-        return FunctionResultOperableSemantic.class;
     }
     
 }

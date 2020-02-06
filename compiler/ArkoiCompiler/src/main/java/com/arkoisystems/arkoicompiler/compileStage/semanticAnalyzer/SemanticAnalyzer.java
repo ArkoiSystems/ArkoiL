@@ -4,10 +4,11 @@ import com.arkoisystems.arkoicompiler.ArkoiClass;
 import com.arkoisystems.arkoicompiler.compileStage.ICompileStage;
 import com.arkoisystems.arkoicompiler.compileStage.errorHandler.ErrorHandler;
 import com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.semantic.AbstractSemantic;
-import com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.semantic.types.RootSemantic;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.AbstractAST;
 import com.google.gson.annotations.Expose;
 import lombok.Getter;
+
+import java.lang.reflect.Constructor;
 
 /**
  * Copyright © 2019 ArkoiSystems (https://www.arkoisystems.com/) All Rights Reserved.
@@ -43,7 +44,7 @@ public class SemanticAnalyzer implements ICompileStage
     @Override
     public boolean processStage() {
         try {
-            final RootSemantic rootSemantic = this.parseSemanticClass(this.arkoiClass.getSyntaxAnalyzer().getRootAST());
+            this.analyseSemanticClass(this.arkoiClass.getSyntaxAnalyzer().getRootAST());
         } catch (final Exception ex) {
             ex.printStackTrace();
         }
@@ -55,8 +56,22 @@ public class SemanticAnalyzer implements ICompileStage
         return this.errorHandler;
     }
     
-    private <T extends AbstractSemantic> T parseSemanticClass(final AbstractAST<T> abstractAST) throws Exception {
-        return abstractAST.semanticClass().getDeclaredConstructor(AbstractAST.class).newInstance(abstractAST);
+    private void analyseSemanticClass(final AbstractAST<?> abstractAST) throws Exception {
+        String genericName = abstractAST.getClass().getGenericSuperclass().getTypeName();
+        genericName = genericName.substring(genericName.indexOf("<") + 1, genericName.length() - 1);
+        final Class<?> clazz = Class.forName(genericName);
+        
+        for (Constructor<?> constructor : clazz.getDeclaredConstructors()) {
+            if (constructor.getParameterCount() != 1)
+                continue;
+            if (constructor.getParameterTypes()[0].equals(abstractAST.getClass())) {
+                final Object object = constructor.newInstance(abstractAST);
+                if (object instanceof AbstractSemantic) {
+                    ((AbstractSemantic<?>) object).analyse();
+                    return;
+                }
+            }
+        }
     }
     
 }

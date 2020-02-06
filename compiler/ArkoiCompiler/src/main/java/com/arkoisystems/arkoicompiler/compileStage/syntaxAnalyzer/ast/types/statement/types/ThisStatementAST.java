@@ -31,7 +31,7 @@ import lombok.Getter;
  * permissions and limitations under the License.
  */
 @Getter
-public class ThisStatementAST extends AbstractStatementAST<AbstractSemantic>
+public class ThisStatementAST extends AbstractStatementAST<AbstractSemantic<?>>
 {
     
     private AbstractAST<?> parentAST;
@@ -122,11 +122,6 @@ public class ThisStatementAST extends AbstractStatementAST<AbstractSemantic>
     @Override
     public <T extends AbstractAST<?>> T addAST(final T toAddAST, final SyntaxAnalyzer syntaxAnalyzer) {
         return toAddAST;
-    }
-    
-    @Override
-    public Class<AbstractSemantic> semanticClass() {
-        return null;
     }
     
 }

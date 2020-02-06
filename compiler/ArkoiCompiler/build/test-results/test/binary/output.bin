@@ -1,4 +1,4 @@
-CThe lexical analysis took 17.976196ms for all classes (3 in total)
-BThe syntax analysis took 21.144703ms for all classes (3 in total)
-CThe semantic analysis took 0.928151ms for all classes (3 in total)
->The compilation took 42.930119ms for all classes (3 in total)
+BThe lexical analysis took 11.28266ms for all classes (3 in total)
+BThe syntax analysis took 18.357894ms for all classes (3 in total)
+CThe semantic analysis took 0.980624ms for all classes (3 in total)
+>The compilation took 32.860241ms for all classes (3 in total)

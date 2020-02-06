@@ -22,7 +22,7 @@ import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.stat
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  */
-public class FunctionStatementAST<S extends AbstractSemantic> extends AbstractStatementAST<S>
+public class FunctionStatementAST<S extends AbstractSemantic<?>> extends AbstractStatementAST<S>
 {
     
     /**
@@ -71,11 +71,6 @@ public class FunctionStatementAST<S extends AbstractSemantic> extends AbstractSt
      */
     @Override
     public <T extends AbstractAST<?>> T addAST(final T toAddAST, final SyntaxAnalyzer syntaxAnalyzer) {
-        return null;
-    }
-    
-    @Override
-    public Class<S> semanticClass() {
         return null;
     }
     

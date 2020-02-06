@@ -2,7 +2,6 @@ package com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types;
 
 import com.arkoisystems.arkoicompiler.compileStage.errorHandler.types.ParserError;
 import com.arkoisystems.arkoicompiler.compileStage.errorHandler.types.TokenError;
-import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.AbstractToken;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.EndOfFileToken;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.SymbolToken;
 import com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.semantic.types.RootSemantic;
@@ -155,47 +154,6 @@ public class RootAST extends AbstractAST<RootSemantic>
         else if (toAddAST instanceof ImportDefinitionAST)
             this.importStorage.add((ImportDefinitionAST) toAddAST);
         return toAddAST;
-    }
-    
-    @Override
-    public Class<RootSemantic> semanticClass() {
-        return RootSemantic.class;
-    }
-    
-    /**
-     * This method will search for a variable with the help of the declared Token. It will
-     * compare all variable names with the token content and return the found variable if
-     * present. If the method didn't found the variable it will just return null.
-     *
-     * @param abstractToken
-     *         The Token which is used to find the variable.
-     *
-     * @return It will just return null if it doesn't found anything, otherwise it will
-     *         return the found variable.
-     */
-    public VariableDefinitionAST getVariableByName(final AbstractToken abstractToken) {
-        for (final VariableDefinitionAST variableDefinitionAST : this.variableStorage)
-            if (variableDefinitionAST.getVariableNameToken().getTokenContent().equals(abstractToken.getTokenContent()))
-                return variableDefinitionAST;
-        return null;
-    }
-    
-    /**
-     * This method will search for a function with the help of the declared token. It will
-     * compare all function names with the token content and return the found function if
-     * present. If the method didn't found the function it will just return null.
-     *
-     * @param abstractToken
-     *         The Token which is used to find the function.
-     *
-     * @return It will just return null if it doesn't found anything, otherwise it will
-     *         return the found function.
-     */
-    public FunctionDefinitionAST getFunctionByName(final AbstractToken abstractToken) {
-        for (final FunctionDefinitionAST functionDefinitionAST : this.functionStorage)
-            if (functionDefinitionAST.getFunctionNameToken().getTokenContent().equals(abstractToken.getTokenContent()))
-                return functionDefinitionAST;
-        return null;
     }
     
 }

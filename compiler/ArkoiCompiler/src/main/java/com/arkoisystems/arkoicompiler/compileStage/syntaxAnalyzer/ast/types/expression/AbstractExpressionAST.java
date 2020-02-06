@@ -49,7 +49,7 @@ import lombok.Getter;
     10. assignment (= += -= *= /= %=)
 */
 @Getter
-public class AbstractExpressionAST<S extends AbstractSemantic> extends AbstractAST<S>
+public class AbstractExpressionAST<S extends AbstractSemantic<?>> extends AbstractAST<S>
 {
     
     public static ExpressionParser EXPRESSION_PARSER = new ExpressionParser();
@@ -108,11 +108,6 @@ public class AbstractExpressionAST<S extends AbstractSemantic> extends AbstractA
     @Override
     public <T extends AbstractAST<?>> T addAST(final T toAddAST, final SyntaxAnalyzer syntaxAnalyzer) {
         return toAddAST;
-    }
-    
-    @Override
-    public Class<S> semanticClass() {
-        return null;
     }
     
     private ExpressionAST parseExpression(final SyntaxAnalyzer syntaxAnalyzer) {

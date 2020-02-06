@@ -76,8 +76,6 @@ public abstract class AbstractAST<S extends AbstractSemantic>
      */
     public abstract <T extends AbstractAST<?>> T addAST(final T toAddAST, final SyntaxAnalyzer syntaxAnalyzer);
     
-    public abstract Class<S> semanticClass();
-    
     @Override
     public String toString() {
         return Variables.GSON.toJson(this);
