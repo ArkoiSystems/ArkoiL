@@ -42,7 +42,7 @@ public class ReturnStatementAST extends AbstractStatementAST
      * class. This will help to debug problems or check the AST for correct Syntax.
      */
     public ReturnStatementAST() {
-        this.setAstType(ASTType.RETURN_STATEMENT_AST);
+        super(ASTType.RETURN_STATEMENT);
     }
     
     /**
@@ -96,6 +96,25 @@ public class ReturnStatementAST extends AbstractStatementAST
         }
         
         return parentAST.addAST(this, syntaxAnalyzer);
+    }
+    
+    /**
+     * This method is just overwritten to prevent default code execution. So it will just
+     * return the input and doesn't check anything.
+     *
+     * @param toAddAST
+     *         The AST which should get added to the "ReturnStatementAST".
+     * @param syntaxAnalyzer
+     *         The SyntaxAnalyzer which should get used if you want to compare Tokens.
+     * @param <T>
+     *         The Type of the AST which should be added to the "ReturnStatementAST".
+     *
+     * @return It will just return the input "toAddAST" because you can't add ASTs to
+     *         a ReturnStatementAST.
+     */
+    @Override
+    public <T extends AbstractAST> T addAST(final T toAddAST, final SyntaxAnalyzer syntaxAnalyzer) {
+        return toAddAST;
     }
     
 }

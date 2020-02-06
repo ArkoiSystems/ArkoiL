@@ -87,13 +87,11 @@ public class AbstractExpressionAST extends AbstractAST
             syntaxAnalyzer.errorHandler().addError(new ParserError(AbstractExpressionAST.EXPRESSION_PARSER, this, "Couldn't parse the expression because an error occurred during the parsing of the expression."));
             return null;
         }
-//        System.out.println(expressionAST + ", " + parentAST.getClass().getSimpleName());
-    
         return parentAST.addAST(expressionAST, syntaxAnalyzer);
     }
     
     /**
-     * This method is just overwritten because this method extends the AbstractAST class.
+     * This method is just overwritten because this class extends the AbstractAST class.
      * It will just return the input and doesn't check anything.
      *
      * @param toAddAST

@@ -110,17 +110,27 @@ public class AbstractNumberToken extends AbstractToken
                 } else if (numberType.getPattern() != null)
                     numberPattern.append(numberType.getPattern()).append("|");
             }
-            
+    
             numberPattern
-                    .append("(?:-?[0-9]+\\.[0-9]*[")
+                    .append("(?:[0-9]+\\.[0-9]*[")
                     .append(numberSuffixes.toString())
-                    .append("]?)|(?:-?[0-9]*\\.[0-9]+[")
+                    .append("]?)|(?:[0-9]*\\.[0-9]+[")
                     .append(numberSuffixes.toString())
-                    .append("]?)|(?:-?[0-9]+[")
+                    .append("]?)|(?:[0-9]+[")
                     .append(numberSuffixes.toString())
                     .append("]?)")
                     .append(")");
-            
+    
+            //            numberPattern
+            //                    .append("(?:-?[0-9]+\\.[0-9]*[")
+            //                    .append(numberSuffixes.toString())
+            //                    .append("]?)|(?:-?[0-9]*\\.[0-9]+[")
+            //                    .append(numberSuffixes.toString())
+            //                    .append("]?)|(?:-?[0-9]+[")
+            //                    .append(numberSuffixes.toString())
+            //                    .append("]?)")
+            //                    .append(")");
+    
             NUMBER_PATTERN = numberPattern.toString();
         }
         

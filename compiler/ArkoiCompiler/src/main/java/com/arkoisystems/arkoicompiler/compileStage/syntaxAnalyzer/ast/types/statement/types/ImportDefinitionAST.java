@@ -46,7 +46,7 @@ public class ImportDefinitionAST extends AbstractStatementAST
      * correct syntax.
      */
     public ImportDefinitionAST() {
-        this.setAstType(ASTType.IMPORT_STATEMENT_AST);
+        super(ASTType.IMPORT_STATEMENT);
     }
     
     /**

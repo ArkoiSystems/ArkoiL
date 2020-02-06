@@ -2,11 +2,11 @@ package com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.parser.types;
 
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.AbstractToken;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.TokenType;
-import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.SymbolToken;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.AbstractAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.expression.AbstractExpressionAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.AbstractStatementAST;
+import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.IdentifierInvokeAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.ThisStatementAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.parser.Parser;
 import lombok.Getter;
@@ -17,7 +17,7 @@ public class StatementParser extends Parser<AbstractStatementAST>
     
     @Override
     public AbstractStatementAST parse(final AbstractAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
-        return new AbstractStatementAST().parseAST(parentAST, syntaxAnalyzer);
+        return new AbstractStatementAST(null).parseAST(parentAST, syntaxAnalyzer);
     }
     
     @Override
@@ -28,7 +28,7 @@ public class StatementParser extends Parser<AbstractStatementAST>
         
         if (parentAST instanceof ThisStatementAST) {
             switch (currentToken.getTokenContent()) {
-                case "val":
+                case "var":
                 case "fun":
                 case "import":
                 case "this":
@@ -39,7 +39,7 @@ public class StatementParser extends Parser<AbstractStatementAST>
             }
         } else if (parentAST instanceof AbstractExpressionAST) {
             switch (currentToken.getTokenContent()) {
-                case "val":
+                case "var":
                 case "fun":
                 case "import":
                 case "return":
@@ -48,9 +48,20 @@ public class StatementParser extends Parser<AbstractStatementAST>
                 default:
                     return true;
             }
+        } else if (parentAST instanceof IdentifierInvokeAST) {
+            switch (currentToken.getTokenContent()) {
+                case "var":
+                case "fun":
+                case "import":
+                case "return":
+                case "this":
+                    return false;
+                default:
+                    return true;
+            }
         } else {
             switch (currentToken.getTokenContent()) {
-                case "val":
+                case "var":
                 case "this":
                 case "import":
                 case "fun":

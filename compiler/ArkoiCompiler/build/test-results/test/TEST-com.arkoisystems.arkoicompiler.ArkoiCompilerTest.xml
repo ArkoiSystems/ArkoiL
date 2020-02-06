@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.arkoisystems.arkoicompiler.ArkoiCompilerTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2020-02-05T20:45:02" hostname="msi-ubuntu" time="0.08">
+<testsuite name="com.arkoisystems.arkoicompiler.ArkoiCompilerTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2020-02-06T18:17:46" hostname="msi-ubuntu" time="0.083">
   <properties/>
-  <testcase name="runCompiler" classname="com.arkoisystems.arkoicompiler.ArkoiCompilerTest" time="0.08"/>
-  <system-out><![CDATA[The lexical analysis took 10.63432ms for all classes (2 in total)
-The syntax analysis took 17.160625ms for all classes (2 in total)
-The compilation took 29.785742ms for all classes (2 in total)
+  <testcase name="runCompiler" classname="com.arkoisystems.arkoicompiler.ArkoiCompilerTest" time="0.083"/>
+  <system-out><![CDATA[The lexical analysis took 11.393991ms for all classes (3 in total)
+The syntax analysis took 17.839622ms for all classes (3 in total)
+The compilation took 31.593491ms for all classes (3 in total)
 ]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>

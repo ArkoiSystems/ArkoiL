@@ -6,12 +6,10 @@ import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.TokenTy
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.IdentifierToken;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.SymbolToken;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.SyntaxAnalyzer;
+import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.ASTType;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.AbstractAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.expression.AbstractExpressionAST;
-import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.ImportDefinitionAST;
-import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.ReturnStatementAST;
-import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.IdentifierCallStatementAST;
-import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.ThisStatementAST;
+import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.*;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.functionStatements.FunctionDefinitionAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.functionStatements.FunctionInvokeAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.variableStatements.VariableDefinitionAST;
@@ -40,11 +38,33 @@ public class AbstractStatementAST extends AbstractAST
     
     public static StatementParser STATEMENT_PARSER = new StatementParser();
     
-    
-    public AbstractStatementAST() {
-        super(null);
+    /**
+     * This constructor is used to get the AST-Type of the classes which extends this
+     * class. This will help to debug problems or check the AST for correct syntax.
+     *
+     * @param astType
+     *         The AST-Type which should get used by the class.
+     */
+    public AbstractStatementAST(final ASTType astType) {
+        super(astType);
     }
     
+    /**
+     * This method will parse the AbstractStatementAST and checks it for the correct
+     * syntax. This AST can be used by everything but some ASTs are different then others.
+     * So the ThisStatementAST will not accept a "this" keyword etc. Every statement needs
+     * to start with an IdentifierToken so they can be separated.
+     *
+     * @param parentAST
+     *         The parent of the AST. With it you can check for correct usage of the
+     *         statement.
+     * @param syntaxAnalyzer
+     *         The given SyntaxAnalyzer is used for checking the syntax of the current
+     *         Token list.
+     *
+     * @return It will return null if an error occurred or an AbstractStatementAST if it
+     *         parsed until to the end.
+     */
     @Override
     public AbstractStatementAST parseAST(final AbstractAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
         final AbstractToken currentToken = syntaxAnalyzer.currentToken();
@@ -52,7 +72,7 @@ public class AbstractStatementAST extends AbstractAST
             syntaxAnalyzer.errorHandler().addError(new TokenError(currentToken, "Couldn't parse the statement because it doesn't start with an IdentifierToken."));
             return null;
         }
-    
+        
         if (parentAST instanceof ThisStatementAST) {
             switch (currentToken.getTokenContent()) {
                 case "var":
@@ -65,7 +85,7 @@ public class AbstractStatementAST extends AbstractAST
                 default:
                     if (syntaxAnalyzer.matchesPeekToken(1, SymbolToken.SymbolType.OPENING_PARENTHESIS) != null)
                         return new FunctionInvokeAST((IdentifierToken) currentToken).parseAST(parentAST, syntaxAnalyzer);
-                    return new IdentifierCallStatementAST().parseAST(parentAST, syntaxAnalyzer);
+                    return new IdentifierCallAST().parseAST(parentAST, syntaxAnalyzer);
             }
         } else if (parentAST instanceof AbstractExpressionAST) {
             switch (currentToken.getTokenContent()) {
@@ -79,7 +99,24 @@ public class AbstractStatementAST extends AbstractAST
                 default:
                     if (syntaxAnalyzer.matchesPeekToken(1, SymbolToken.SymbolType.OPENING_PARENTHESIS) != null)
                         return new FunctionInvokeAST((IdentifierToken) currentToken, FunctionInvokeAST.FunctionInvocationAccess.EXPRESSION_INVOCATION).parseAST(parentAST, syntaxAnalyzer);
-                    return new IdentifierCallStatementAST().parseAST(parentAST, syntaxAnalyzer);
+                    if(syntaxAnalyzer.matchesPeekToken(1, SymbolToken.SymbolType.PERIOD) != null)
+                        return new IdentifierInvokeAST().parseAST(parentAST, syntaxAnalyzer);
+                    return new IdentifierCallAST().parseAST(parentAST, syntaxAnalyzer);
+            }
+        } else if (parentAST instanceof IdentifierInvokeAST) {
+            switch (currentToken.getTokenContent()) {
+                case "var":
+                case "fun":
+                case "import":
+                case "return":
+                case "this":
+                    return null;
+                default:
+                    if (syntaxAnalyzer.matchesPeekToken(1, SymbolToken.SymbolType.OPENING_PARENTHESIS) != null)
+                        return new FunctionInvokeAST((IdentifierToken) currentToken, FunctionInvokeAST.FunctionInvocationAccess.EXPRESSION_INVOCATION).parseAST(parentAST, syntaxAnalyzer);
+                    if(syntaxAnalyzer.matchesPeekToken(1, SymbolToken.SymbolType.PERIOD) != null)
+                        return new IdentifierInvokeAST().parseAST(parentAST, syntaxAnalyzer);
+                    return new IdentifierCallAST().parseAST(parentAST, syntaxAnalyzer);
             }
         } else {
             switch (currentToken.getTokenContent()) {
@@ -96,11 +133,28 @@ public class AbstractStatementAST extends AbstractAST
                 default:
                     if (syntaxAnalyzer.matchesPeekToken(1, SymbolToken.SymbolType.OPENING_PARENTHESIS) != null)
                         return new FunctionInvokeAST((IdentifierToken) currentToken).parseAST(parentAST, syntaxAnalyzer);
-                    return new IdentifierCallStatementAST().parseAST(parentAST, syntaxAnalyzer);
+                    if(syntaxAnalyzer.matchesPeekToken(1, SymbolToken.SymbolType.PERIOD) != null)
+                        return new IdentifierInvokeAST().parseAST(parentAST, syntaxAnalyzer);
+                    return new IdentifierCallAST().parseAST(parentAST, syntaxAnalyzer);
             }
         }
     }
     
+    /**
+     * This method is just overwritten because this class extends the AbstractAST class.
+     * It will just return the input and doesn't check anything.
+     *
+     * @param toAddAST
+     *         The AST which should get add to this class.
+     * @param syntaxAnalyzer
+     *         The given SyntaxAnalyzer is needed for checking and modification of the
+     *         current Token list/order.
+     * @param <T>
+     *         The Type of the AST which should be added to the AbstractStatementAST.
+     *
+     * @return It will just return the input "toAddAST" because you can't add ASTs to an
+     *         AbstractStatementAST.
+     */
     @Override
     public <T extends AbstractAST> T addAST(final T toAddAST, final SyntaxAnalyzer syntaxAnalyzer) {
         return toAddAST;

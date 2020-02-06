@@ -5,7 +5,7 @@ import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.SyntaxAnalyzer
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.ASTType;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.AbstractAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.operable.AbstractOperableAST;
-import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.IdentifierCallStatementAST;
+import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.IdentifierCallAST;
 
 /**
  * Copyright © 2019 ArkoiSystems (https://www.arkoisystems.com/) All Rights Reserved.
@@ -23,12 +23,12 @@ import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.stat
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  */
-public class IdentifierCallOperableAST extends AbstractOperableAST<IdentifierCallStatementAST>
+public class IdentifierCallOperableAST extends AbstractOperableAST<IdentifierCallAST>
 {
     
-    public IdentifierCallOperableAST(final IdentifierCallStatementAST identifierCallStatementAST) {
+    public IdentifierCallOperableAST(final IdentifierCallAST identifierCallAST) {
         this.setAstType(ASTType.IDENTIFIER_CALL_OPERABLE);
-        this.setAbstractToken(identifierCallStatementAST);
+        this.setAbstractToken(identifierCallAST);
     
         this.setStart(this.getAbstractToken().getStart());
         this.setEnd(this.getAbstractToken().getEnd());
@@ -37,7 +37,7 @@ public class IdentifierCallOperableAST extends AbstractOperableAST<IdentifierCal
     @Override
     public AbstractOperableAST<?> parseAST(final AbstractAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
         if (this.getAbstractToken() == null) {
-            syntaxAnalyzer.errorHandler().addError(new ParserError(AbstractOperableAST.OPERABLE_PARSER, this, "Couldn't parse the identifier call operable because the function invoke is null."));
+            syntaxAnalyzer.errorHandler().addError(new ParserError(AbstractOperableAST.OPERABLE_PARSER, this, "Couldn't parse the identifier call operable because the identifier call is null."));
             return null;
         }
         return parentAST.addAST(this, syntaxAnalyzer);

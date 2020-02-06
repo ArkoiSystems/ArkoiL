@@ -118,7 +118,7 @@ public class VariableDefinitionAST extends VariableStatementAST
             syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the \"variable definition\" statement because the variable name isn't followed by an equal sign for deceleration of the following expression."));
             return null;
         } else syntaxAnalyzer.nextToken();
-    
+        
         if (!AbstractExpressionAST.EXPRESSION_PARSER.canParse(this, syntaxAnalyzer)) {
             syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the \"variable definition\" statement because the equal sign is followed by an invalid expression."));
             return null;
@@ -136,6 +136,25 @@ public class VariableDefinitionAST extends VariableStatementAST
         }
     
         return parentAST.addAST(this, syntaxAnalyzer);
+    }
+    
+    /**
+     * This method is just overwritten to prevent default code execution. So it will just
+     * return the input and doesn't check anything.
+     *
+     * @param toAddAST
+     *         The AST which should get added to the "VariableDefinitionAST".
+     * @param syntaxAnalyzer
+     *         The SyntaxAnalyzer which should get used if you want to compare Tokens.
+     * @param <T>
+     *         The Type of the AST which should be added to the "VariableDefinitionAST".
+     *
+     * @return It will just return the input "toAddAST" because you can't add ASTs to a
+     *         VariableDefinitionAST.
+     */
+    @Override
+    public <T extends AbstractAST> T addAST(final T toAddAST, final SyntaxAnalyzer syntaxAnalyzer) {
+        return toAddAST;
     }
     
 }

@@ -41,7 +41,7 @@ public class ThisStatementAST extends AbstractStatementAST
      * syntax.
      */
     public ThisStatementAST() {
-        this.setAstType(ASTType.THIS_STATEMENT_AST);
+        super(ASTType.THIS_STATEMENT);
     }
     
     /**
@@ -94,7 +94,7 @@ public class ThisStatementAST extends AbstractStatementAST
             return null;
         }
         
-        final AbstractStatementAST abstractStatementAST = new AbstractStatementAST().parseAST(parentAST, syntaxAnalyzer);
+        final AbstractStatementAST abstractStatementAST = AbstractStatementAST.STATEMENT_PARSER.parse(parentAST, syntaxAnalyzer);
         if (abstractStatementAST == null) {
             syntaxAnalyzer.errorHandler().addError(new ParserError(AbstractStatementAST.STATEMENT_PARSER, this, "Couldn't parse the \"this\" statement because an error occurred during the parsing of the statement."));
             return null;

@@ -1,9 +1,14 @@
+import "test"; 
+
+var test_1 = test.test();
+var test_2 = this.greeting();
+
 # this method gets invoked first
 fun main<int>(args: string[]) {
-    this.print_greet(" ehehe ");
+    this.print_greet(test_1);
     return (20 + 10 * 5) * 2;
 }
 
-fun print_greet<>(test_argument: string) = println("%s , %s" % [this.greeting(), test_argument]);
+fun print_greet<>(test_argument: string) = println("%s , %s" % [test_2, test_argument]);
 
 fun greeting<string>() = "Hello World";

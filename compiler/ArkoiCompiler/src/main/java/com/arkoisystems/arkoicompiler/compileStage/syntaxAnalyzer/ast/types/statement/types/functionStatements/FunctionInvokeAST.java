@@ -12,6 +12,7 @@ import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.AbstractAS
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.BlockAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.expression.AbstractExpressionAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.FunctionStatementAST;
+import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.IdentifierInvokeAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.ThisStatementAST;
 import com.google.gson.annotations.Expose;
 import lombok.Getter;
@@ -110,8 +111,8 @@ public class FunctionInvokeAST extends FunctionStatementAST
      */
     @Override
     public FunctionInvokeAST parseAST(final AbstractAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
-        if (!(parentAST instanceof BlockAST) && !(parentAST instanceof AbstractExpressionAST)) {
-            syntaxAnalyzer.errorHandler().addError(new ASTError(parentAST, "Couldn't parse the \"function invoke\" statement because it isn't declared inside a block or an expression."));
+        if (!(parentAST instanceof BlockAST) && !(parentAST instanceof AbstractExpressionAST) && !(parentAST instanceof IdentifierInvokeAST)) {
+            syntaxAnalyzer.errorHandler().addError(new ASTError(parentAST, "Couldn't parse the \"function invoke\" statement because it isn't declared inside a block, variable invocation or an expression."));
             return null;
         }
     

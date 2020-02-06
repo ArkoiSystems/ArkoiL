@@ -9,7 +9,8 @@ import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.SyntaxAnalyzer
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.AbstractAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.operable.types.*;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.AbstractStatementAST;
-import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.IdentifierCallStatementAST;
+import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.IdentifierCallAST;
+import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.IdentifierInvokeAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.functionStatements.FunctionInvokeAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.parser.types.OperableParser;
 import com.google.gson.annotations.Expose;
@@ -70,8 +71,10 @@ public class AbstractOperableAST<OT1> extends AbstractAST
                 final AbstractStatementAST abstractStatementAST = AbstractStatementAST.STATEMENT_PARSER.parse(parentAST, syntaxAnalyzer);
                 if (abstractStatementAST instanceof FunctionInvokeAST)
                     return new FunctionResultOperableAST((FunctionInvokeAST) abstractStatementAST).parseAST(parentAST, syntaxAnalyzer);
-                else if(abstractStatementAST instanceof IdentifierCallStatementAST)
-                    return new IdentifierCallOperableAST((IdentifierCallStatementAST) abstractStatementAST).parseAST(parentAST, syntaxAnalyzer);
+                else if(abstractStatementAST instanceof IdentifierCallAST)
+                    return new IdentifierCallOperableAST((IdentifierCallAST) abstractStatementAST).parseAST(parentAST, syntaxAnalyzer);
+                else if(abstractStatementAST instanceof IdentifierInvokeAST)
+                    return new IdentifierInvokeOperableAST((IdentifierInvokeAST) abstractStatementAST).parseAST(parentAST, syntaxAnalyzer);
                 else if (abstractStatementAST != null) {
                     syntaxAnalyzer.errorHandler().addError(new ASTError(abstractStatementAST, "Couldn't parse the operable because it isn't a supported statement."));
                     return null;

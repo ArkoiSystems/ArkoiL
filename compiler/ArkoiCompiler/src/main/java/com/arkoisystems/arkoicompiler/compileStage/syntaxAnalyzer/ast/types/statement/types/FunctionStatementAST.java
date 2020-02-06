@@ -32,7 +32,7 @@ public class FunctionStatementAST extends AbstractStatementAST
      *         The AST-Type which should get used by the class.
      */
     public FunctionStatementAST(final ASTType astType) {
-        this.setAstType(astType);
+        super(astType);
     }
     
     /**

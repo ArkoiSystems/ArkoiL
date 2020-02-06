@@ -103,7 +103,7 @@ public class ArgumentDefinitionAST extends AbstractAST
     }
     
     /**
-     * This method is just overwritten because this method extends the AbstractAST class.
+     * This method is just overwritten because this class extends the AbstractAST class.
      * It will just return the input and doesn't check anything.
      *
      * @param toAddAST

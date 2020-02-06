@@ -27,18 +27,33 @@ import lombok.Getter;
  * permissions and limitations under the License.
  */
 @Getter
-public class IdentifierCallStatementAST extends AbstractStatementAST
+public class IdentifierCallAST extends AbstractStatementAST
 {
     
     @Expose
     private IdentifierToken calledIdentifierToken;
     
-    public IdentifierCallStatementAST() {
-        this.setAstType(ASTType.IDENTIFIER_CALL_STATEMENT_AST);
+    public IdentifierCallAST() {
+        super(ASTType.IDENTIFIER_CALL);
     }
     
+    /**
+     * This method will parse the "identifier call" statement and checks it for correct
+     * syntax. This statement can be used everywhere it is needed but especially in
+     * AbstractExpressionAST.
+     *
+     * @param parentAST
+     *         The parent of the AST. With it you can check for correct usage of the
+     *         statement.
+     * @param syntaxAnalyzer
+     *         The given SyntaxAnalyzer is used for checking the syntax of the current
+     *         Token list.
+     *
+     * @return It will return null if an error occurred or an IdentifierCallStatementAST
+     *         if it parsed until to the end.
+     */
     @Override
-    public AbstractStatementAST parseAST(final AbstractAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
+    public IdentifierCallAST parseAST(final AbstractAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
         if (syntaxAnalyzer.matchesCurrentToken(TokenType.IDENTIFIER) == null) {
             syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the \"identifier call\" statement because the parsing doesn't start with an Identifier."));
             return null;
@@ -50,6 +65,20 @@ public class IdentifierCallStatementAST extends AbstractStatementAST
         return parentAST.addAST(this, syntaxAnalyzer);
     }
     
+    /**
+     * This method is just overwritten to prevent default code execution. So it will just
+     * return the input and doesn't check anything.
+     *
+     * @param toAddAST
+     *         The AST which should get added to the "IdentifierCallStatementAST".
+     * @param syntaxAnalyzer
+     *         The SyntaxAnalyzer which should get used if you want to compare Tokens.
+     * @param <T>
+     *         The Type of the AST which should be added to the "IdentifierCallStatementAST".
+     *
+     * @return It will just return the input "toAddAST" because you can't add ASTs to an
+     *         IdentifierCallStatementAST.
+     */
     @Override
     public <T extends AbstractAST> T addAST(final T toAddAST, final SyntaxAnalyzer syntaxAnalyzer) {
         return toAddAST;

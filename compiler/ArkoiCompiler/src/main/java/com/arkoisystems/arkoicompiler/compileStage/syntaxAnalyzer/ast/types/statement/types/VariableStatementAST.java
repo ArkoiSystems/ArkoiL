@@ -32,7 +32,7 @@ public class VariableStatementAST extends AbstractStatementAST
      *         The AST-Type which should get used by the class.
      */
     public VariableStatementAST(final ASTType astType) {
-        this.setAstType(astType);
+        super(astType);
     }
     
     /**

@@ -31,13 +31,14 @@ public class ArkoiCompilerTest
     @Test
     public void runCompiler() throws IOException {
         final ArkoiCompiler arkoiCompiler = new ArkoiCompiler();
-        final File testDirectory = new File(COMPILER_TEST);
         
+        final File testDirectory = new File(COMPILER_TEST);
         if (testDirectory.listFiles() != null) {
             for (final File file : Objects.requireNonNull(testDirectory.listFiles()))
                 if (file.getName().endsWith(".ark"))
                     arkoiCompiler.addFile(file);
         }
+        
         if (!arkoiCompiler.compile()) {
             System.err.println("Couldn't compile the file. Please see the stacktrace for errors:");
             arkoiCompiler.printStackTrace(System.err);
