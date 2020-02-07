@@ -1,9 +1,11 @@
 package com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.parser.types;
 
+import com.arkoisystems.arkoicompiler.compileStage.errorHandler.types.ASTError;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.SymbolToken;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.AbstractAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.expression.AbstractExpressionAST;
+import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.expression.types.ExpressionAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.AbstractStatementAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.parser.Parser;
 
@@ -24,12 +26,17 @@ import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.parser.Parser;
         wip 9. ternary (? :)
     10. assignment (= += -= *= /= %=)
 */
-public class ExpressionParser extends Parser<AbstractExpressionAST>
+public class ExpressionParser extends Parser<ExpressionAST>
 {
     
     @Override
-    public AbstractExpressionAST parse(final AbstractAST<?> parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
-        return new AbstractExpressionAST(null).parseAST(parentAST, syntaxAnalyzer);
+    public ExpressionAST parse(final AbstractAST<?> parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
+        final AbstractExpressionAST<?> abstractExpressionAST = new AbstractExpressionAST<>(null).parseAST(parentAST, syntaxAnalyzer);
+        if(!(abstractExpressionAST instanceof ExpressionAST)) {
+            syntaxAnalyzer.errorHandler().addError(new ASTError<>(abstractExpressionAST, "Couldn't parse the expression because the result isn't an ExpressionAST."));
+            return null;
+        }
+        return (ExpressionAST) abstractExpressionAST;
     }
     
     @Override

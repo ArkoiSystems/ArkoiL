@@ -1,5 +1,6 @@
 package com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.semantic.types;
 
+import com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.SemanticAnalyzer;
 import com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.semantic.AbstractSemantic;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.AnnotationAST;
 
@@ -22,13 +23,13 @@ import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.Anno
 public class AnnotationSemantic extends AbstractSemantic<AnnotationAST>
 {
     
-    public AnnotationSemantic(final AnnotationAST annotationAST) {
-        super(annotationAST);
+    public AnnotationSemantic(final AbstractSemantic<?> abstractSemantic, final AnnotationAST annotationAST) {
+        super(abstractSemantic, annotationAST);
     }
     
     @Override
-    public void analyse() {
-    
+    public boolean analyse(final SemanticAnalyzer semanticAnalyzer) {
+        return false;
     }
     
 }

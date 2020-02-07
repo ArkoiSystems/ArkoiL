@@ -1,7 +1,9 @@
 package com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.semantic.types.operables;
 
+import com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.SemanticAnalyzer;
 import com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.semantic.AbstractSemantic;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.operable.types.FunctionResultOperableAST;
+import lombok.SneakyThrows;
 
 /**
  * Copyright © 2019 ArkoiSystems (https://www.arkoisystems.com/) All Rights Reserved.
@@ -22,13 +24,14 @@ import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.oper
 public class FunctionResultOperableSemantic extends AbstractSemantic<FunctionResultOperableAST>
 {
     
-    public FunctionResultOperableSemantic(final FunctionResultOperableAST functionResultOperableAST) {
-        super(functionResultOperableAST);
+    public FunctionResultOperableSemantic(final AbstractSemantic<?> abstractSemantic, final FunctionResultOperableAST functionResultOperableAST) {
+        super(abstractSemantic, functionResultOperableAST);
     }
     
+    @SneakyThrows
     @Override
-    public void analyse() {
-    
+    public boolean analyse(final SemanticAnalyzer semanticAnalyzer) {
+        return semanticAnalyzer.analyseSemanticClass(this.getLastContainerSemantic(), this.getAbstractAST().getOperableObject());
     }
     
 }

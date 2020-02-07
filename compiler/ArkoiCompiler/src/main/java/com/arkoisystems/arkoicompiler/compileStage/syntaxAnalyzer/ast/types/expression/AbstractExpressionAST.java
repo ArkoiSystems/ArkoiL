@@ -85,7 +85,7 @@ public class AbstractExpressionAST<S extends AbstractSemantic<?>> extends Abstra
     public AbstractExpressionAST<?> parseAST(final AbstractAST<?> parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
         final ExpressionAST expressionAST = this.parseExpression(syntaxAnalyzer);
         if (expressionAST == null) {
-            syntaxAnalyzer.errorHandler().addError(new ParserError(AbstractExpressionAST.EXPRESSION_PARSER, this, "Couldn't parse the expression because an error occurred during the parsing of the expression."));
+            syntaxAnalyzer.errorHandler().addError(new ParserError<>(AbstractExpressionAST.EXPRESSION_PARSER, this, "Couldn't parse the expression because an error occurred during the parsing of the expression."));
             return null;
         }
         return parentAST.addAST(expressionAST, syntaxAnalyzer);
@@ -416,7 +416,7 @@ public class AbstractExpressionAST<S extends AbstractSemantic<?>> extends Abstra
             
             final AbstractExpressionAST<?> abstractExpressionAST = AbstractExpressionAST.EXPRESSION_PARSER.parse(this, syntaxAnalyzer);
             if (abstractExpressionAST == null) {
-                syntaxAnalyzer.errorHandler().addError(new ParserError(AbstractExpressionAST.EXPRESSION_PARSER, syntaxAnalyzer.currentToken(), "Couldn't parse the parenthesized expression because an error occurred during the parsing of the inner expression."));
+                syntaxAnalyzer.errorHandler().addError(new ParserError<>(AbstractExpressionAST.EXPRESSION_PARSER, syntaxAnalyzer.currentToken(), "Couldn't parse the parenthesized expression because an error occurred during the parsing of the inner expression."));
                 return null;
             }
             

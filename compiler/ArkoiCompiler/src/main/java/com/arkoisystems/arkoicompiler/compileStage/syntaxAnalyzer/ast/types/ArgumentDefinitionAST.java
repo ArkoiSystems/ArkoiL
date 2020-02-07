@@ -5,7 +5,7 @@ import com.arkoisystems.arkoicompiler.compileStage.errorHandler.types.TokenError
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.TokenType;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.IdentifierToken;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.SymbolToken;
-import com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.semantic.types.ArgumentDefinitionSemantic;
+import com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.semantic.AbstractSemantic;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.ASTType;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.AbstractAST;
@@ -35,7 +35,7 @@ import java.util.List;
  */
 @Getter
 @Setter
-public class ArgumentDefinitionAST extends AbstractAST<ArgumentDefinitionSemantic>
+public class ArgumentDefinitionAST extends AbstractAST<AbstractSemantic<?>>
 {
     
     public static ArgumentDefinitionParser ARGUMENT_DEFINITION_PARSER = new ArgumentDefinitionParser();
@@ -97,9 +97,9 @@ public class ArgumentDefinitionAST extends AbstractAST<ArgumentDefinitionSemanti
         }
         
         if ((this.argumentType = TypeAST.TYPE_PARSER.parse(this, syntaxAnalyzer)) == null) {
-            syntaxAnalyzer.errorHandler().addError(new ParserError(TypeAST.TYPE_PARSER, this.getStart(), syntaxAnalyzer.currentToken().getEnd(), "Couldn't parse the argument definition because an eror occurred during the parsing of the type."));
+            syntaxAnalyzer.errorHandler().addError(new ParserError<>(TypeAST.TYPE_PARSER, this.getStart(), syntaxAnalyzer.currentToken().getEnd(), "Couldn't parse the argument definition because an eror occurred during the parsing of the type."));
             return null;
-        }
+        }else this.setEnd(syntaxAnalyzer.currentToken().getEnd());
         return parentAST.addAST(this, syntaxAnalyzer);
     }
     
@@ -176,14 +176,15 @@ public class ArgumentDefinitionAST extends AbstractAST<ArgumentDefinitionSemanti
         
             final ArgumentDefinitionAST argumentDefinitionAST = ArgumentDefinitionAST.ARGUMENT_DEFINITION_PARSER.parse(parentAST, syntaxAnalyzer);
             if (argumentDefinitionAST == null) {
-                syntaxAnalyzer.errorHandler().addError(new ParserError(ArgumentDefinitionAST.ARGUMENT_DEFINITION_PARSER, syntaxAnalyzer.currentToken(), "Couldn't parse the arguments because an error occurred during the parsing of an argument."));
+                syntaxAnalyzer.errorHandler().addError(new ParserError<>(ArgumentDefinitionAST.ARGUMENT_DEFINITION_PARSER, syntaxAnalyzer.currentToken(), "Couldn't parse the arguments because an error occurred during the parsing of an argument."));
                 return null;
             } else argumentASTs.add(argumentDefinitionAST);
-            
+    
             if (syntaxAnalyzer.matchesNextToken(SymbolToken.SymbolType.COMMA) == null)
                 break;
+            else syntaxAnalyzer.nextToken();
         }
-        
+    
         if (syntaxAnalyzer.matchesCurrentToken(SymbolToken.SymbolType.CLOSING_PARENTHESIS) == null) {
             syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the arguments because the parsing doesn't end with a closing parenthesis."));
             return null;

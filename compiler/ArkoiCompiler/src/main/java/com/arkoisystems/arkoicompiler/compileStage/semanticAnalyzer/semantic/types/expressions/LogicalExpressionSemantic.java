@@ -1,5 +1,6 @@
 package com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.semantic.types.expressions;
 
+import com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.SemanticAnalyzer;
 import com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.semantic.AbstractSemantic;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.expression.types.LogicalExpressionAST;
 
@@ -22,13 +23,14 @@ import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.expr
 public class LogicalExpressionSemantic extends AbstractSemantic<LogicalExpressionAST>
 {
     
-    public LogicalExpressionSemantic(final LogicalExpressionAST logicalExpressionAST) {
-        super(logicalExpressionAST);
+    public LogicalExpressionSemantic(final AbstractSemantic<?> abstractSemantic, final LogicalExpressionAST logicalExpressionAST) {
+        super(abstractSemantic, logicalExpressionAST);
     }
     
     @Override
-    public void analyse() {
-    
+    public boolean analyse(final SemanticAnalyzer semanticAnalyzer) {
+        System.out.println("Logical Expression Semantic");
+        return false;
     }
     
 }

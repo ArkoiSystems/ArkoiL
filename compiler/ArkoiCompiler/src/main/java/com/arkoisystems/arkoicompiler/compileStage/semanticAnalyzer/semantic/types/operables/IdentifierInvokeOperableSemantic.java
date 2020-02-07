@@ -1,7 +1,13 @@
 package com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.semantic.types.operables;
 
+import com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.SemanticAnalyzer;
 import com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.semantic.AbstractSemantic;
+import com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.semantic.types.statements.function.FunctionDefinitionSemantic;
+import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.AbstractAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.operable.types.IdentifierInvokeOperableAST;
+import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.IdentifierInvokeAST;
+import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.ImportDefinitionAST;
+import lombok.SneakyThrows;
 
 /**
  * Copyright © 2019 ArkoiSystems (https://www.arkoisystems.com/) All Rights Reserved.
@@ -22,13 +28,16 @@ import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.oper
 public class IdentifierInvokeOperableSemantic extends AbstractSemantic<IdentifierInvokeOperableAST>
 {
     
-    public IdentifierInvokeOperableSemantic(final IdentifierInvokeOperableAST identifierInvokeOperableAST) {
-        super(identifierInvokeOperableAST);
+    public IdentifierInvokeOperableSemantic(final AbstractSemantic<?> abstractSemantic, final IdentifierInvokeOperableAST identifierInvokeOperableAST) {
+        super(abstractSemantic, identifierInvokeOperableAST);
     }
     
+    @SneakyThrows
     @Override
-    public void analyse() {
-    
+    public boolean analyse(final SemanticAnalyzer semanticAnalyzer) {
+        return semanticAnalyzer.analyseSemanticClass(this.getLastContainerSemantic(), this.getAbstractAST().getOperableObject());
     }
+    
+    
     
 }

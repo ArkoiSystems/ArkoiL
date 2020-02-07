@@ -6,7 +6,7 @@ import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.TokenTy
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.IdentifierToken;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.StringToken;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.SymbolToken;
-import com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.semantic.types.statements.ImportDefinitionSemantic;
+import com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.semantic.AbstractSemantic;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.ASTType;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.AbstractAST;
@@ -32,7 +32,7 @@ import lombok.Getter;
  * permissions and limitations under the License.
  */
 @Getter
-public class ImportDefinitionAST extends AbstractStatementAST<ImportDefinitionSemantic>
+public class ImportDefinitionAST extends AbstractStatementAST<AbstractSemantic<?>>
 {
     
     @Expose
@@ -67,7 +67,7 @@ public class ImportDefinitionAST extends AbstractStatementAST<ImportDefinitionSe
     @Override
     public ImportDefinitionAST parseAST(final AbstractAST<?> parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
         if (!(parentAST instanceof RootAST)) {
-            syntaxAnalyzer.errorHandler().addError(new ASTError(parentAST, "Couldn't parse the \"import\" statement because it isn't declared inside the root file."));
+            syntaxAnalyzer.errorHandler().addError(new ASTError<>(parentAST, "Couldn't parse the \"import\" statement because it isn't declared inside the root file."));
             return null;
         }
     
@@ -96,7 +96,7 @@ public class ImportDefinitionAST extends AbstractStatementAST<ImportDefinitionSe
         if (syntaxAnalyzer.matchesNextToken(SymbolToken.SymbolType.SEMICOLON) == null) {
             syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the \"import\" statement because it doesn't end with a semicolon."));
             return null;
-        }
+        } else this.setEnd(syntaxAnalyzer.currentToken().getEnd());
         return parentAST.addAST(this, syntaxAnalyzer);
     }
     

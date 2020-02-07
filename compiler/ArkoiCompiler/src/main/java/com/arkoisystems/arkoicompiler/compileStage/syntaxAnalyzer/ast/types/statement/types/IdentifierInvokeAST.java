@@ -12,6 +12,7 @@ import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.AbstractAS
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.AbstractStatementAST;
 import com.google.gson.annotations.Expose;
 import lombok.Getter;
+import lombok.Setter;
 
 /**
  * Copyright © 2019 ArkoiSystems (https://www.arkoisystems.com/) All Rights Reserved.
@@ -29,9 +30,13 @@ import lombok.Getter;
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  */
+@Setter
 @Getter
 public class IdentifierInvokeAST extends AbstractStatementAST<IdentifierInvokeSemantic>
 {
+    
+    @Expose
+    private IdentifierAccess identifierAccess;
     
     @Expose
     private IdentifierToken invokedIdentifierNameToken;
@@ -41,6 +46,8 @@ public class IdentifierInvokeAST extends AbstractStatementAST<IdentifierInvokeSe
     
     public IdentifierInvokeAST() {
         super(ASTType.IDENTIFIER_INVOKE);
+        
+        this.identifierAccess = IdentifierAccess.GLOBAL_ACCESS;
     }
     
     @Override
@@ -68,7 +75,7 @@ public class IdentifierInvokeAST extends AbstractStatementAST<IdentifierInvokeSe
         
         final AbstractStatementAST<?> abstractStatementAST = AbstractStatementAST.STATEMENT_PARSER.parse(this, syntaxAnalyzer);
         if(abstractStatementAST == null) {
-            syntaxAnalyzer.errorHandler().addError(new ParserError(AbstractStatementAST.STATEMENT_PARSER, this, "Couldn't parse the \"identifier invoke\" statement because an error occurred during the parsing of the statement."));
+            syntaxAnalyzer.errorHandler().addError(new ParserError<>(AbstractStatementAST.STATEMENT_PARSER, this, "Couldn't parse the \"identifier invoke\" statement because an error occurred during the parsing of the statement."));
             return null;
         } else this.invokedIdentifierStatement = abstractStatementAST;
         return parentAST.addAST(this, syntaxAnalyzer);
@@ -77,6 +84,14 @@ public class IdentifierInvokeAST extends AbstractStatementAST<IdentifierInvokeSe
     @Override
     public <T extends AbstractAST<?>> T addAST(final T toAddAST, final SyntaxAnalyzer syntaxAnalyzer) {
         return toAddAST;
+    }
+    
+    public enum IdentifierAccess
+    {
+        
+        THIS_ACCESS,
+        GLOBAL_ACCESS,
+        
     }
     
 }

@@ -12,7 +12,7 @@ import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.oper
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.AbstractStatementAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.IdentifierCallAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.IdentifierInvokeAST;
-import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.functionStatements.FunctionInvokeAST;
+import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.function.FunctionInvokeAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.parser.types.OperableParser;
 import com.google.gson.annotations.Expose;
 import lombok.Getter;
@@ -42,7 +42,7 @@ public class AbstractOperableAST<OT1, S extends AbstractSemantic<?>> extends Abs
     public static OperableParser OPERABLE_PARSER = new OperableParser();
     
     @Expose
-    private OT1 abstractToken;
+    private OT1 operableObject;
     
     public AbstractOperableAST() {
         super(null);
@@ -65,7 +65,7 @@ public class AbstractOperableAST<OT1, S extends AbstractSemantic<?>> extends Abs
                 }
             case IDENTIFIER:
                 if (!AbstractStatementAST.STATEMENT_PARSER.canParse(parentAST, syntaxAnalyzer)) {
-                    syntaxAnalyzer.errorHandler().addError(new ParserError(AbstractStatementAST.STATEMENT_PARSER, parentAST.getStart(), syntaxAnalyzer.currentToken().getEnd(), "Couldn't parse the operable statement because it isn't parsable."));
+                    syntaxAnalyzer.errorHandler().addError(new ParserError<>(AbstractStatementAST.STATEMENT_PARSER, parentAST.getStart(), syntaxAnalyzer.currentToken().getEnd(), "Couldn't parse the operable statement because it isn't parsable."));
                     return null;
                 }
     
@@ -77,7 +77,7 @@ public class AbstractOperableAST<OT1, S extends AbstractSemantic<?>> extends Abs
                 else if(abstractStatementAST instanceof IdentifierInvokeAST)
                     return new IdentifierInvokeOperableAST((IdentifierInvokeAST) abstractStatementAST).parseAST(parentAST, syntaxAnalyzer);
                 else if (abstractStatementAST != null) {
-                    syntaxAnalyzer.errorHandler().addError(new ASTError(abstractStatementAST, "Couldn't parse the operable because it isn't a supported statement."));
+                    syntaxAnalyzer.errorHandler().addError(new ASTError<>(abstractStatementAST, "Couldn't parse the operable because it isn't a supported statement."));
                     return null;
                 }
         }

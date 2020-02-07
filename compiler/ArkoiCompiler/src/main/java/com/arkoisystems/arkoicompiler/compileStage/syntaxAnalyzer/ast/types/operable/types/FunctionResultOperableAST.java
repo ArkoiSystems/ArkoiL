@@ -6,7 +6,7 @@ import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.SyntaxAnalyzer
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.ASTType;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.AbstractAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.operable.AbstractOperableAST;
-import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.functionStatements.FunctionInvokeAST;
+import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.function.FunctionInvokeAST;
 import lombok.Getter;
 
 /**
@@ -31,16 +31,16 @@ public class FunctionResultOperableAST extends AbstractOperableAST<FunctionInvok
     
     public FunctionResultOperableAST(final FunctionInvokeAST functionInvokeAST) {
         this.setAstType(ASTType.FUNCTION_RESULT_OPERABLE);
-        this.setAbstractToken(functionInvokeAST);
+        this.setOperableObject(functionInvokeAST);
         
-        this.setStart(this.getAbstractToken().getStart());
-        this.setEnd(this.getAbstractToken().getEnd());
+        this.setStart(this.getOperableObject().getStart());
+        this.setEnd(this.getOperableObject().getEnd());
     }
     
     @Override
     public FunctionResultOperableAST parseAST(final AbstractAST<?> parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
-        if (this.getAbstractToken() == null) {
-            syntaxAnalyzer.errorHandler().addError(new ParserError(AbstractOperableAST.OPERABLE_PARSER, this, "Couldn't parse the function result operable because the function invoke is null."));
+        if (this.getOperableObject() == null) {
+            syntaxAnalyzer.errorHandler().addError(new ParserError<>(AbstractOperableAST.OPERABLE_PARSER, this, "Couldn't parse the function result operable because the function invoke is null."));
             return null;
         }
         return parentAST.addAST(this, syntaxAnalyzer);

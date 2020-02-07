@@ -10,6 +10,7 @@ import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.AbstractAS
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.AbstractStatementAST;
 import com.google.gson.annotations.Expose;
 import lombok.Getter;
+import lombok.Setter;
 
 /**
  * Copyright © 2019 ArkoiSystems (https://www.arkoisystems.com/) All Rights Reserved.
@@ -27,15 +28,21 @@ import lombok.Getter;
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  */
+@Setter
 @Getter
 public class IdentifierCallAST extends AbstractStatementAST<IdentifierCallSemantic>
 {
+    
+    @Expose
+    private IdentifierAccess identifierAccess;
     
     @Expose
     private IdentifierToken calledIdentifierToken;
     
     public IdentifierCallAST() {
         super(ASTType.IDENTIFIER_CALL);
+        
+        this.identifierAccess = IdentifierAccess.GLOBAL_ACCESS;
     }
     
     /**
@@ -83,6 +90,14 @@ public class IdentifierCallAST extends AbstractStatementAST<IdentifierCallSemant
     @Override
     public <T extends AbstractAST<?>> T addAST(final T toAddAST, final SyntaxAnalyzer syntaxAnalyzer) {
         return toAddAST;
+    }
+    
+    public enum IdentifierAccess
+    {
+        
+        THIS_ACCESS,
+        GLOBAL_ACCESS,
+        
     }
     
 }

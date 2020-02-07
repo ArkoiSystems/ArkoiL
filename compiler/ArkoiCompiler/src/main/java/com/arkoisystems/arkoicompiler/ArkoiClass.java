@@ -50,7 +50,7 @@ public class ArkoiClass
     public ArkoiClass(final ArkoiCompiler arkoiCompiler, final byte[] content, final boolean nativeClass) {
         this.arkoiCompiler = arkoiCompiler;
         this.nativeClass = nativeClass;
-        
+    
         this.content = new String(content, StandardCharsets.UTF_8);
     }
     
@@ -61,26 +61,22 @@ public class ArkoiClass
         this.nativeClass = false;
     }
     
-    public LexicalAnalyzer analyseLexical() {
-        return this.lexicalAnalyzer = new LexicalAnalyzer(this);
+    public void initializeLexical() {
+        this.lexicalAnalyzer = new LexicalAnalyzer(this);
     }
     
-    public SyntaxAnalyzer analyseSyntax() {
+    public void initializeSyntax() {
         if (this.lexicalAnalyzer == null) {
             System.err.println("You can't analyse the syntax before lexing the file.");
             System.exit(-1);
-            return null;
-        }
-        return this.syntaxAnalyzer = new SyntaxAnalyzer(this);
+        } else this.syntaxAnalyzer = new SyntaxAnalyzer(this);
     }
     
-    public SemanticAnalyzer analyseSemantic() {
+    public void initializeSemantic() throws Exception {
         if (this.syntaxAnalyzer == null) {
             System.err.println("You can't analyse the semantic before syntaxing the file.");
             System.exit(-1);
-            return null;
-        }
-        return this.semanticAnalyzer = new SemanticAnalyzer(this);
+        } else this.semanticAnalyzer = new SemanticAnalyzer(this);
     }
     
     @Override

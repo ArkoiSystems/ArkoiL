@@ -1,7 +1,9 @@
-package com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.semantic.types.statements.variableStatements;
+package com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.semantic.types.statements.variable;
 
+import com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.SemanticAnalyzer;
 import com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.semantic.AbstractSemantic;
-import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.variableStatements.VariableDefinitionAST;
+import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.variable.VariableDefinitionAST;
+import lombok.SneakyThrows;
 
 /**
  * Copyright © 2019 ArkoiSystems (https://www.arkoisystems.com/) All Rights Reserved.
@@ -22,13 +24,14 @@ import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.stat
 public class VariableDefinitionSemantic extends AbstractSemantic<VariableDefinitionAST>
 {
     
-    public VariableDefinitionSemantic(final VariableDefinitionAST variableDefinitionAST) {
-        super(variableDefinitionAST);
+    public VariableDefinitionSemantic(final AbstractSemantic<?> abstractSemantic, final VariableDefinitionAST variableDefinitionAST) {
+        super(abstractSemantic, variableDefinitionAST);
     }
     
+    @SneakyThrows
     @Override
-    public void analyse() {
-    
+    public boolean analyse(final SemanticAnalyzer semanticAnalyzer) {
+        return semanticAnalyzer.analyseSemanticClass(this.getLastContainerSemantic(), this.getAbstractAST().getExpressionAST());
     }
     
 }

@@ -38,9 +38,9 @@ public class StringOperableAST extends AbstractOperableAST<StringToken, Abstract
             syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the string operable because the parsing doesn't start with a string."));
             return null;
         } else {
-            this.setAbstractToken((StringToken) syntaxAnalyzer.currentToken());
-            this.setStart(this.getAbstractToken().getStart());
-            this.setEnd(this.getAbstractToken().getEnd());
+            this.setOperableObject((StringToken) syntaxAnalyzer.currentToken());
+            this.setStart(this.getOperableObject().getStart());
+            this.setEnd(this.getOperableObject().getEnd());
         }
         return parentAST.addAST(this, syntaxAnalyzer);
     }

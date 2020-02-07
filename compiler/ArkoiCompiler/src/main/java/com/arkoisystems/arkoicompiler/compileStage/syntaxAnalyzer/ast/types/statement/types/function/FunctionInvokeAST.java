@@ -1,4 +1,4 @@
-package com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.functionStatements;
+package com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.function;
 
 import com.arkoisystems.arkoicompiler.compileStage.errorHandler.types.ASTError;
 import com.arkoisystems.arkoicompiler.compileStage.errorHandler.types.ParserError;
@@ -6,7 +6,7 @@ import com.arkoisystems.arkoicompiler.compileStage.errorHandler.types.TokenError
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.TokenType;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.IdentifierToken;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.SymbolToken;
-import com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.semantic.types.statements.functionStatements.FunctionInvokeSemantic;
+import com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.semantic.types.statements.function.FunctionInvokeSemantic;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.ASTType;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.AbstractAST;
@@ -16,6 +16,7 @@ import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.stat
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.IdentifierInvokeAST;
 import com.google.gson.annotations.Expose;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,9 +37,13 @@ import java.util.List;
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  */
+@Setter
 @Getter
 public class FunctionInvokeAST extends FunctionStatementAST<FunctionInvokeSemantic>
 {
+    
+    @Expose
+    private FunctionAccess functionAccess;
     
     @Expose
     private final IdentifierToken invokedFunctionNameToken;
@@ -47,24 +52,25 @@ public class FunctionInvokeAST extends FunctionStatementAST<FunctionInvokeSemant
     private final List<AbstractExpressionAST<?>> invokedArguments;
     
     @Expose
-    private final FunctionInvocationAccess functionInvocationAccess;
+    private final FunctionInvocation functionInvocation;
     
     /**
      * This constructor will initialize the statement with the AST-Type "FUNCTION_INVOKE"
-     *. This will help to debug problems or check the AST for correct
-     * syntax. Also it will pass the IdentifierToken to this class which is used for the
-     * invoked function name and the FunctionInvocationAccess which is used to check if
-     * the statement ends with a semicolon or not.
+     * . This will help to debug problems or check the AST for correct syntax. Also it
+     * will pass the IdentifierToken to this class which is used for the invoked function
+     * name and the FunctionInvocationAccess which is used to check if the statement ends
+     * with a semicolon or not.
      *
      * @param invokedFunctionNameToken
      *         The function IdentifierToken which is used for the name of the function.
      */
-    public FunctionInvokeAST(final IdentifierToken invokedFunctionNameToken, final FunctionInvocationAccess functionInvocationAccess) {
+    public FunctionInvokeAST(final IdentifierToken invokedFunctionNameToken, final FunctionInvocation functionInvocation) {
         super(ASTType.FUNCTION_INVOKE);
         
         this.invokedFunctionNameToken = invokedFunctionNameToken;
-        this.functionInvocationAccess = functionInvocationAccess;
+        this.functionInvocation = functionInvocation;
         
+        this.functionAccess = FunctionAccess.GLOBAL_ACCESS;
         this.invokedArguments = new ArrayList<>();
     }
     
@@ -79,10 +85,11 @@ public class FunctionInvokeAST extends FunctionStatementAST<FunctionInvokeSemant
      */
     public FunctionInvokeAST(final IdentifierToken invokedFunctionNameToken) {
         super(ASTType.FUNCTION_INVOKE);
-        
+    
         this.invokedFunctionNameToken = invokedFunctionNameToken;
-        
-        this.functionInvocationAccess = FunctionInvocationAccess.BLOCK_INVOCATION;
+    
+        this.functionInvocation = FunctionInvocation.BLOCK_INVOCATION;
+        this.functionAccess = FunctionAccess.GLOBAL_ACCESS;
         this.invokedArguments = new ArrayList<>();
     }
     
@@ -112,12 +119,12 @@ public class FunctionInvokeAST extends FunctionStatementAST<FunctionInvokeSemant
     @Override
     public FunctionInvokeAST parseAST(final AbstractAST<?> parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
         if (!(parentAST instanceof BlockAST) && !(parentAST instanceof AbstractExpressionAST) && !(parentAST instanceof IdentifierInvokeAST)) {
-            syntaxAnalyzer.errorHandler().addError(new ASTError(parentAST, "Couldn't parse the \"function invoke\" statement because it isn't declared inside a block, variable invocation or an expression."));
+            syntaxAnalyzer.errorHandler().addError(new ASTError<>(parentAST, "Couldn't parse the \"function invoke\" statement because it isn't declared inside a block, variable invocation or an expression."));
             return null;
         }
     
         if (this.invokedFunctionNameToken == null) {
-            syntaxAnalyzer.errorHandler().addError(new ASTError(parentAST, "Couldn't parse the \"function invoke\" statement because the parent tried to parse an function invocation with no function name declared."));
+            syntaxAnalyzer.errorHandler().addError(new ASTError<>(parentAST, "Couldn't parse the \"function invoke\" statement because the parent tried to parse an function invocation with no function name declared."));
             return null;
         }
     
@@ -143,7 +150,7 @@ public class FunctionInvokeAST extends FunctionStatementAST<FunctionInvokeSemant
     
             final AbstractExpressionAST<?> abstractExpressionAST = AbstractExpressionAST.EXPRESSION_PARSER.parse(this, syntaxAnalyzer);
             if (abstractExpressionAST == null) {
-                syntaxAnalyzer.errorHandler().addError(new ParserError(AbstractExpressionAST.EXPRESSION_PARSER, this.getStart(), syntaxAnalyzer.currentToken().getEnd(), "Couldn't parse the \"function invoke\" statement because an error occurred during the parsing of the expression."));
+                syntaxAnalyzer.errorHandler().addError(new ParserError<>(AbstractExpressionAST.EXPRESSION_PARSER, this.getStart(), syntaxAnalyzer.currentToken().getEnd(), "Couldn't parse the \"function invoke\" statement because an error occurred during the parsing of the expression."));
             } else this.invokedArguments.add(abstractExpressionAST);
             
             if (syntaxAnalyzer.matchesNextToken(SymbolToken.SymbolType.CLOSING_PARENTHESIS) != null)
@@ -159,11 +166,10 @@ public class FunctionInvokeAST extends FunctionStatementAST<FunctionInvokeSemant
             return null;
         }
     
-        if (this.functionInvocationAccess.equals(FunctionInvocationAccess.BLOCK_INVOCATION) && syntaxAnalyzer.matchesNextToken(SymbolToken.SymbolType.SEMICOLON) == null) {
+        if (this.functionInvocation.equals(FunctionInvocation.BLOCK_INVOCATION) && syntaxAnalyzer.matchesNextToken(SymbolToken.SymbolType.SEMICOLON) == null) {
             syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the \"function invoke\" statement because it doesn't end with a semicolon but is used as a block invocation."));
             return null;
-        }
-    
+        } else this.setEnd(syntaxAnalyzer.currentToken().getEnd());
         return parentAST.addAST(this, syntaxAnalyzer);
     }
     
@@ -186,11 +192,19 @@ public class FunctionInvokeAST extends FunctionStatementAST<FunctionInvokeSemant
         return toAddAST;
     }
     
-    public enum FunctionInvocationAccess
+    public enum FunctionInvocation
     {
         
         BLOCK_INVOCATION,
         EXPRESSION_INVOCATION
+        
+    }
+    
+    public enum FunctionAccess
+    {
+        
+        THIS_ACCESS,
+        GLOBAL_ACCESS,
         
     }
     

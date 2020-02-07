@@ -1,4 +1,4 @@
-package com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.variableStatements;
+package com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.variable;
 
 import com.arkoisystems.arkoicompiler.compileStage.errorHandler.types.ASTError;
 import com.arkoisystems.arkoicompiler.compileStage.errorHandler.types.ParserError;
@@ -6,7 +6,7 @@ import com.arkoisystems.arkoicompiler.compileStage.errorHandler.types.TokenError
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.TokenType;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.IdentifierToken;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.SymbolToken;
-import com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.semantic.types.statements.variableStatements.VariableDefinitionSemantic;
+import com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.semantic.types.statements.variable.VariableDefinitionSemantic;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.ASTType;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.AbstractAST;
@@ -14,6 +14,7 @@ import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.Anno
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.BlockAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.RootAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.expression.AbstractExpressionAST;
+import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.expression.types.ExpressionAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.VariableStatementAST;
 import com.google.gson.annotations.Expose;
 import lombok.Getter;
@@ -49,7 +50,7 @@ public class VariableDefinitionAST extends VariableStatementAST<VariableDefiniti
     private IdentifierToken variableNameToken;
     
     @Expose
-    private AbstractExpressionAST<?> abstractExpressionAST;
+    private ExpressionAST expressionAST;
     
     /**
      * This constructor will initialize the statement with the AST-Type
@@ -101,7 +102,7 @@ public class VariableDefinitionAST extends VariableStatementAST<VariableDefiniti
     @Override
     public VariableDefinitionAST parseAST(final AbstractAST<?> parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
         if (!(parentAST instanceof RootAST) && !(parentAST instanceof BlockAST)) {
-            syntaxAnalyzer.errorHandler().addError(new ASTError(parentAST, "Couldn't parse the \"variable definition\" statement because it isn't declared inside the root file or in a block."));
+            syntaxAnalyzer.errorHandler().addError(new ASTError<>(parentAST, "Couldn't parse the \"variable definition\" statement because it isn't declared inside the root file or in a block."));
             return null;
         }
     
@@ -125,16 +126,16 @@ public class VariableDefinitionAST extends VariableStatementAST<VariableDefiniti
             return null;
         }
     
-        final AbstractExpressionAST<?> abstractExpressionAST = AbstractExpressionAST.EXPRESSION_PARSER.parse(this, syntaxAnalyzer);
-        if (abstractExpressionAST == null) {
-            syntaxAnalyzer.errorHandler().addError(new ParserError(AbstractExpressionAST.EXPRESSION_PARSER, this.getStart(), syntaxAnalyzer.currentToken().getEnd(), "Couldn't parse the \"variable definition\" statement because an error occurred during the parsing of the expression."));
+        final ExpressionAST expressionAST = AbstractExpressionAST.EXPRESSION_PARSER.parse(this, syntaxAnalyzer);
+        if (expressionAST == null) {
+            syntaxAnalyzer.errorHandler().addError(new ParserError<>(AbstractExpressionAST.EXPRESSION_PARSER, this.getStart(), syntaxAnalyzer.currentToken().getEnd(), "Couldn't parse the \"variable definition\" statement because an error occurred during the parsing of the expression."));
             return null;
-        } else this.abstractExpressionAST = abstractExpressionAST;
+        } else this.expressionAST = expressionAST;
     
         if (syntaxAnalyzer.matchesNextToken(SymbolToken.SymbolType.SEMICOLON) == null) {
             syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the \"variable definition\" statement because it doesn't end with an semicolon."));
             return null;
-        }
+        } else this.setEnd(syntaxAnalyzer.currentToken().getEnd());
         return parentAST.addAST(this, syntaxAnalyzer);
     }
     

@@ -1,6 +1,9 @@
 package com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.semantic;
 
+import com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.SemanticAnalyzer;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.AbstractAST;
+import com.arkoisystems.arkoicompiler.utils.Variables;
+import com.google.gson.annotations.Expose;
 import lombok.Getter;
 
 /**
@@ -23,12 +26,22 @@ import lombok.Getter;
 public abstract class AbstractSemantic<A extends AbstractAST<?>>
 {
     
+    @Expose
+    private final AbstractSemantic<?> lastContainerSemantic;
+    
+    @Expose
     private final A abstractAST;
     
-    public AbstractSemantic(final A abstractAST) {
+    public AbstractSemantic(final AbstractSemantic<?> lastContainerSemantic, final A abstractAST) {
+        this.lastContainerSemantic = lastContainerSemantic;
         this.abstractAST = abstractAST;
     }
     
-    public abstract void analyse();
+    public abstract boolean analyse(final SemanticAnalyzer semanticAnalyzer);
+    
+    @Override
+    public String toString() {
+        return Variables.GSON.toJson(this);
+    }
     
 }

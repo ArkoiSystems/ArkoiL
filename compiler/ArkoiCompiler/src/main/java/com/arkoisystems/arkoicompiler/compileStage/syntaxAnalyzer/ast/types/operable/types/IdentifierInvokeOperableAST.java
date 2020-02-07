@@ -31,16 +31,16 @@ public class IdentifierInvokeOperableAST extends AbstractOperableAST<IdentifierI
     
     public IdentifierInvokeOperableAST(final IdentifierInvokeAST identifierInvokeAST) {
         this.setAstType(ASTType.IDENTIFIER_INVOKE_OPERABLE);
-        this.setAbstractToken(identifierInvokeAST);
+        this.setOperableObject(identifierInvokeAST);
         
-        this.setStart(this.getAbstractToken().getStart());
-        this.setEnd(this.getAbstractToken().getEnd());
+        this.setStart(this.getOperableObject().getStart());
+        this.setEnd(this.getOperableObject().getEnd());
     }
     
     @Override
     public IdentifierInvokeOperableAST parseAST(final AbstractAST<?> parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
-        if (this.getAbstractToken() == null) {
-            syntaxAnalyzer.errorHandler().addError(new ParserError(AbstractOperableAST.OPERABLE_PARSER, this, "Couldn't parse the identifier invoke operable because the identifier invoke is null."));
+        if (this.getOperableObject() == null) {
+            syntaxAnalyzer.errorHandler().addError(new ParserError<>(AbstractOperableAST.OPERABLE_PARSER, this, "Couldn't parse the identifier invoke operable because the identifier invoke is null."));
             return null;
         }
         return parentAST.addAST(this, syntaxAnalyzer);

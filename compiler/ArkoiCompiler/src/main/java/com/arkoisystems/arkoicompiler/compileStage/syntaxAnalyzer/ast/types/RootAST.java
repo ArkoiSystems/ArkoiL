@@ -10,8 +10,8 @@ import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.ASTType;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.AbstractAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.AbstractStatementAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.ImportDefinitionAST;
-import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.functionStatements.FunctionDefinitionAST;
-import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.variableStatements.VariableDefinitionAST;
+import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.function.FunctionDefinitionAST;
+import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.variable.VariableDefinitionAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.parser.Parser;
 import com.google.gson.annotations.Expose;
 import lombok.Getter;
@@ -102,7 +102,7 @@ public class RootAST extends AbstractAST<RootSemantic>
             
                 final AbstractAST<?> abstractAST = parser.parse(this, syntaxAnalyzer);
                 if (abstractAST == null) {
-                    syntaxAnalyzer.errorHandler().addError(new ParserError(parser, syntaxAnalyzer.currentToken()));
+                    syntaxAnalyzer.errorHandler().addError(new ParserError<>(parser, syntaxAnalyzer.currentToken()));
                     return null;
                 } else {
                     if (abstractAST instanceof FunctionDefinitionAST) {

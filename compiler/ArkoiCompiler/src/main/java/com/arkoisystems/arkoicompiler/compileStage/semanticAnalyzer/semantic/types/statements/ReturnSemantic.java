@@ -1,7 +1,9 @@
 package com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.semantic.types.statements;
 
+import com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.SemanticAnalyzer;
 import com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.semantic.AbstractSemantic;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.ReturnStatementAST;
+import lombok.SneakyThrows;
 
 /**
  * Copyright © 2019 ArkoiSystems (https://www.arkoisystems.com/) All Rights Reserved.
@@ -22,13 +24,14 @@ import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.stat
 public class ReturnSemantic extends AbstractSemantic<ReturnStatementAST>
 {
     
-    public ReturnSemantic(final ReturnStatementAST returnStatementAST) {
-        super(returnStatementAST);
+    public ReturnSemantic(final AbstractSemantic<?> abstractSemantic, final ReturnStatementAST returnStatementAST) {
+        super(abstractSemantic, returnStatementAST);
     }
     
+    @SneakyThrows
     @Override
-    public void analyse() {
-    
+    public boolean analyse(final SemanticAnalyzer semanticAnalyzer) {
+        return semanticAnalyzer.analyseSemanticClass(this.getLastContainerSemantic(), this.getAbstractAST().getExpressionAST());
     }
     
 }

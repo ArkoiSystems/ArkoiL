@@ -25,7 +25,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public abstract class AbstractAST<S extends AbstractSemantic>
+public abstract class AbstractAST<S extends AbstractSemantic<?>>
 {
     
     @Expose

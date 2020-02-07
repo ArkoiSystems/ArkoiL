@@ -1,5 +1,6 @@
 package com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.semantic.types.expressions;
 
+import com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.SemanticAnalyzer;
 import com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.semantic.AbstractSemantic;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.expression.types.BinaryExpressionAST;
 
@@ -22,13 +23,14 @@ import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.expr
 public class BinaryExpressionSemantic extends AbstractSemantic<BinaryExpressionAST>
 {
     
-    public BinaryExpressionSemantic(final BinaryExpressionAST binaryExpressionAST) {
-        super(binaryExpressionAST);
+    public BinaryExpressionSemantic(final AbstractSemantic<?> abstractSemantic, final BinaryExpressionAST binaryExpressionAST) {
+        super(abstractSemantic, binaryExpressionAST);
     }
     
     @Override
-    public void analyse() {
-    
+    public boolean analyse(final SemanticAnalyzer semanticAnalyzer) {
+        System.out.println("Binary Expression Semantic");
+        return false;
     }
     
 }

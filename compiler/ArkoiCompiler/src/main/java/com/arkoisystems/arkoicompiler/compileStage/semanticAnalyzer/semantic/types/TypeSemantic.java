@@ -1,5 +1,6 @@
 package com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.semantic.types;
 
+import com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.SemanticAnalyzer;
 import com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.semantic.AbstractSemantic;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.TypeAST;
 
@@ -22,13 +23,13 @@ import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.Type
 public class TypeSemantic extends AbstractSemantic<TypeAST>
 {
     
-    public TypeSemantic(final TypeAST typeAST) {
-        super(typeAST);
+    public TypeSemantic(final AbstractSemantic<?> abstractSemantic, final TypeAST typeAST) {
+        super(abstractSemantic, typeAST);
     }
     
     @Override
-    public void analyse() {
-    
+    public boolean analyse(final SemanticAnalyzer semanticAnalyzer) {
+        return false;
     }
     
 }

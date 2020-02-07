@@ -11,9 +11,9 @@ import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.ASTType;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.AbstractAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.expression.AbstractExpressionAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.*;
-import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.functionStatements.FunctionDefinitionAST;
-import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.functionStatements.FunctionInvokeAST;
-import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.variableStatements.VariableDefinitionAST;
+import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.function.FunctionDefinitionAST;
+import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.function.FunctionInvokeAST;
+import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.variable.VariableDefinitionAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.parser.types.StatementParser;
 import lombok.Getter;
 
@@ -34,7 +34,7 @@ import lombok.Getter;
  * permissions and limitations under the License.
  */
 @Getter
-public class AbstractStatementAST<S extends AbstractSemantic> extends AbstractAST<S>
+public class AbstractStatementAST<S extends AbstractSemantic<?>> extends AbstractAST<S>
 {
     
     public static StatementParser STATEMENT_PARSER = new StatementParser();
@@ -99,7 +99,7 @@ public class AbstractStatementAST<S extends AbstractSemantic> extends AbstractAS
                     return new ThisStatementAST().parseAST(parentAST, syntaxAnalyzer);
                 default:
                     if (syntaxAnalyzer.matchesPeekToken(1, SymbolToken.SymbolType.OPENING_PARENTHESIS) != null)
-                        return new FunctionInvokeAST((IdentifierToken) currentToken, FunctionInvokeAST.FunctionInvocationAccess.EXPRESSION_INVOCATION).parseAST(parentAST, syntaxAnalyzer);
+                        return new FunctionInvokeAST((IdentifierToken) currentToken, FunctionInvokeAST.FunctionInvocation.EXPRESSION_INVOCATION).parseAST(parentAST, syntaxAnalyzer);
                     if(syntaxAnalyzer.matchesPeekToken(1, SymbolToken.SymbolType.PERIOD) != null)
                         return new IdentifierInvokeAST().parseAST(parentAST, syntaxAnalyzer);
                     return new IdentifierCallAST().parseAST(parentAST, syntaxAnalyzer);
@@ -114,7 +114,7 @@ public class AbstractStatementAST<S extends AbstractSemantic> extends AbstractAS
                     return null;
                 default:
                     if (syntaxAnalyzer.matchesPeekToken(1, SymbolToken.SymbolType.OPENING_PARENTHESIS) != null)
-                        return new FunctionInvokeAST((IdentifierToken) currentToken, FunctionInvokeAST.FunctionInvocationAccess.EXPRESSION_INVOCATION).parseAST(parentAST, syntaxAnalyzer);
+                        return new FunctionInvokeAST((IdentifierToken) currentToken, FunctionInvokeAST.FunctionInvocation.EXPRESSION_INVOCATION).parseAST(parentAST, syntaxAnalyzer);
                     if(syntaxAnalyzer.matchesPeekToken(1, SymbolToken.SymbolType.PERIOD) != null)
                         return new IdentifierInvokeAST().parseAST(parentAST, syntaxAnalyzer);
                     return new IdentifierCallAST().parseAST(parentAST, syntaxAnalyzer);

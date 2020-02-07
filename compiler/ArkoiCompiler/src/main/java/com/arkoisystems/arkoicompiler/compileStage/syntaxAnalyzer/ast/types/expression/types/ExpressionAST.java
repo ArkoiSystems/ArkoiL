@@ -1,6 +1,6 @@
 package com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.expression.types;
 
-import com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.semantic.types.statements.ExpressionSemantic;
+import com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.semantic.types.expressions.ExpressionSemantic;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.ASTType;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.AbstractAST;

@@ -12,12 +12,12 @@ import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.parser.Parser;
 import lombok.Getter;
 
 @Getter
-public class StatementParser extends Parser<AbstractStatementAST>
+public class StatementParser extends Parser<AbstractStatementAST<?>>
 {
     
     @Override
-    public AbstractStatementAST parse(final AbstractAST<?> parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
-        return new AbstractStatementAST(null).parseAST(parentAST, syntaxAnalyzer);
+    public AbstractStatementAST<?> parse(final AbstractAST<?> parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
+        return new AbstractStatementAST<>(null).parseAST(parentAST, syntaxAnalyzer);
     }
     
     @Override

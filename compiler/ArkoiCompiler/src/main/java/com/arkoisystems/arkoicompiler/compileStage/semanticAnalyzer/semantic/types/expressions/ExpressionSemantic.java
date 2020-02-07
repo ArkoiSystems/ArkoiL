@@ -1,7 +1,9 @@
-package com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.semantic.types;
+package com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.semantic.types.expressions;
 
+import com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.SemanticAnalyzer;
 import com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.semantic.AbstractSemantic;
-import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.ArgumentDefinitionAST;
+import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.expression.types.ExpressionAST;
+import lombok.SneakyThrows;
 
 /**
  * Copyright © 2019 ArkoiSystems (https://www.arkoisystems.com/) All Rights Reserved.
@@ -19,16 +21,17 @@ import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.Argu
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  */
-public class ArgumentDefinitionSemantic extends AbstractSemantic<ArgumentDefinitionAST>
+public class ExpressionSemantic extends AbstractSemantic<ExpressionAST>
 {
     
-    public ArgumentDefinitionSemantic(final ArgumentDefinitionAST argumentDefinitionAST) {
-        super(argumentDefinitionAST);
+    public ExpressionSemantic(final AbstractSemantic<?> abstractSemantic, final ExpressionAST expressionAST) {
+        super(abstractSemantic, expressionAST);
     }
     
+    @SneakyThrows
     @Override
-    public void analyse() {
-    
+    public boolean analyse(final SemanticAnalyzer semanticAnalyzer) {
+        return semanticAnalyzer.analyseSemanticClass(this.getLastContainerSemantic(), this.getAbstractAST().getAbstractAST());
     }
     
 }

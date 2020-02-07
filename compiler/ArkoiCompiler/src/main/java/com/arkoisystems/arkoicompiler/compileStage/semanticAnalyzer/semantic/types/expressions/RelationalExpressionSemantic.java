@@ -1,5 +1,6 @@
 package com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.semantic.types.expressions;
 
+import com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.SemanticAnalyzer;
 import com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.semantic.AbstractSemantic;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.expression.types.RelationalExpressionAST;
 
@@ -22,13 +23,14 @@ import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.expr
 public class RelationalExpressionSemantic extends AbstractSemantic<RelationalExpressionAST>
 {
     
-    public RelationalExpressionSemantic(final RelationalExpressionAST relationalExpressionAST) {
-        super(relationalExpressionAST);
+    public RelationalExpressionSemantic(final AbstractSemantic<?> abstractSemantic, final RelationalExpressionAST relationalExpressionAST) {
+        super(abstractSemantic, relationalExpressionAST);
     }
     
     @Override
-    public void analyse() {
-    
+    public boolean analyse(final SemanticAnalyzer semanticAnalyzer) {
+        System.out.println("Relational Expression Semantic");
+        return false;
     }
     
 }

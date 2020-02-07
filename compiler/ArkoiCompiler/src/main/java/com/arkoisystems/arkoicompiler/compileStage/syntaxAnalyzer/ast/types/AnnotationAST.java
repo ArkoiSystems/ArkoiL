@@ -10,8 +10,8 @@ import com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.semantic.typ
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.ASTType;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.AbstractAST;
-import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.functionStatements.FunctionDefinitionAST;
-import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.variableStatements.VariableDefinitionAST;
+import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.function.FunctionDefinitionAST;
+import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.variable.VariableDefinitionAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.parser.types.AnnotationParser;
 import com.google.gson.annotations.Expose;
 import lombok.Getter;
@@ -111,7 +111,7 @@ public class AnnotationAST extends AbstractAST<AnnotationSemantic>
     @Override
     public AnnotationAST parseAST(final AbstractAST<?> parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
         if (!(parentAST instanceof RootAST)) {
-            syntaxAnalyzer.errorHandler().addError(new ASTError(parentAST, "Couldn't parse the Annotation because it isn't declared inside the root file."));
+            syntaxAnalyzer.errorHandler().addError(new ASTError<>(parentAST, "Couldn't parse the Annotation because it isn't declared inside the root file."));
             return null;
         }
     
@@ -165,7 +165,7 @@ public class AnnotationAST extends AbstractAST<AnnotationSemantic>
         if (FunctionDefinitionAST.STATEMENT_PARSER.canParse(parentAST, syntaxAnalyzer)) {
             final FunctionDefinitionAST functionDefinitionAST = new FunctionDefinitionAST(this.annotationStorage).parseAST(parentAST, syntaxAnalyzer);
             if (functionDefinitionAST == null) {
-                syntaxAnalyzer.errorHandler().addError(new ParserError(FunctionDefinitionAST.STATEMENT_PARSER, this, "Couldn't parse the Annotation because an error occurred during the parsing of the function definition."));
+                syntaxAnalyzer.errorHandler().addError(new ParserError<>(FunctionDefinitionAST.STATEMENT_PARSER, this, "Couldn't parse the Annotation because an error occurred during the parsing of the function definition."));
                 return null;
             }
             
@@ -175,7 +175,7 @@ public class AnnotationAST extends AbstractAST<AnnotationSemantic>
         if (VariableDefinitionAST.STATEMENT_PARSER.canParse(parentAST, syntaxAnalyzer)) {
             final VariableDefinitionAST variableDefinitionAST = new VariableDefinitionAST(this.annotationStorage).parseAST(parentAST, syntaxAnalyzer);
             if (variableDefinitionAST == null) {
-                syntaxAnalyzer.errorHandler().addError(new ParserError(FunctionDefinitionAST.STATEMENT_PARSER, this, "Couldn't parse the Annotation because an error occurred during the parsing of the variable definition."));
+                syntaxAnalyzer.errorHandler().addError(new ParserError<>(FunctionDefinitionAST.STATEMENT_PARSER, this, "Couldn't parse the Annotation because an error occurred during the parsing of the variable definition."));
                 return null;
             }
             

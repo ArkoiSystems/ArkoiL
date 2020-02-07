@@ -1,4 +1,4 @@
-package com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.functionStatements;
+package com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.function;
 
 import com.arkoisystems.arkoicompiler.compileStage.errorHandler.types.ASTError;
 import com.arkoisystems.arkoicompiler.compileStage.errorHandler.types.ParserError;
@@ -6,7 +6,7 @@ import com.arkoisystems.arkoicompiler.compileStage.errorHandler.types.TokenError
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.TokenType;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.IdentifierToken;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.SymbolToken;
-import com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.semantic.types.statements.functionStatements.FunctionDefinitionSemantic;
+import com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.semantic.types.statements.function.FunctionDefinitionSemantic;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.ASTType;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.AbstractAST;
@@ -108,7 +108,7 @@ public class FunctionDefinitionAST extends FunctionStatementAST<FunctionDefiniti
     @Override
     public FunctionDefinitionAST parseAST(final AbstractAST<?> parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
         if (!(parentAST instanceof RootAST)) {
-            syntaxAnalyzer.errorHandler().addError(new ASTError(parentAST, "Couldn't parse the \"function definition\" statement because it isn't declared inside the root file."));
+            syntaxAnalyzer.errorHandler().addError(new ASTError<>(parentAST, "Couldn't parse the \"function definition\" statement because it isn't declared inside the root file."));
             return null;
         }
     
@@ -130,7 +130,7 @@ public class FunctionDefinitionAST extends FunctionStatementAST<FunctionDefiniti
         if (TypeAST.TYPE_PARSER.canParse(this, syntaxAnalyzer)) {
             final TypeAST typeAST = TypeAST.TYPE_PARSER.parse(this, syntaxAnalyzer);
             if (typeAST == null) {
-                syntaxAnalyzer.errorHandler().addError(new ParserError(TypeAST.TYPE_PARSER, this.getStart(), syntaxAnalyzer.currentToken().getEnd(), "Couldn't parse the \"function definition\" statement because an error occurred during the parsing of the return type."));
+                syntaxAnalyzer.errorHandler().addError(new ParserError<>(TypeAST.TYPE_PARSER, this.getStart(), syntaxAnalyzer.currentToken().getEnd(), "Couldn't parse the \"function definition\" statement because an error occurred during the parsing of the return type."));
             } else {
                 this.functionReturnTypeAST = typeAST;
                 syntaxAnalyzer.nextToken();
@@ -149,7 +149,7 @@ public class FunctionDefinitionAST extends FunctionStatementAST<FunctionDefiniti
     
         ArgumentDefinitionAST.parseArguments(this, syntaxAnalyzer, this.functionArgumentASTs);
         if (this.functionArgumentASTs == null) {
-            syntaxAnalyzer.errorHandler().addError(new ParserError(ArgumentDefinitionAST.ARGUMENT_DEFINITION_PARSER, this.getStart(), syntaxAnalyzer.currentToken().getEnd(), "Couldn't parse the \"function definition\" statement because an error occurred during the parsing of the arguments."));
+            syntaxAnalyzer.errorHandler().addError(new ParserError<>(ArgumentDefinitionAST.ARGUMENT_DEFINITION_PARSER, this.getStart(), syntaxAnalyzer.currentToken().getEnd(), "Couldn't parse the \"function definition\" statement because an error occurred during the parsing of the arguments."));
             return null;
         }
     
@@ -162,7 +162,7 @@ public class FunctionDefinitionAST extends FunctionStatementAST<FunctionDefiniti
             if (syntaxAnalyzer.matchesCurrentToken(SymbolToken.SymbolType.SEMICOLON) == null) {
                 syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the \"function definition\" statement because a native function needs to end direclty with an semicolon after the argument section."));
                 return null;
-            }
+            } else this.blockAST = new BlockAST();
         } else {
             if (syntaxAnalyzer.matchesCurrentToken(SymbolToken.SymbolType.OPENING_BRACE) == null && syntaxAnalyzer.matchesCurrentToken(SymbolToken.SymbolType.EQUAL) == null) {
                 syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the \"function definition\" statement because after the argument section no opening brace or equal sign was declared. You need one of them to declare if this function uses a block or is inlined."));
@@ -175,7 +175,7 @@ public class FunctionDefinitionAST extends FunctionStatementAST<FunctionDefiniti
             }
         
             if ((this.blockAST = BlockAST.BLOCK_PARSER.parse(this, syntaxAnalyzer)) == null) {
-                syntaxAnalyzer.errorHandler().addError(new ParserError(BlockAST.BLOCK_PARSER, this.getStart(), syntaxAnalyzer.currentToken().getEnd(), "Couldn't parse the \"function definition\" statement because an error occurred during parsing of the block/inlined block."));
+                syntaxAnalyzer.errorHandler().addError(new ParserError<>(BlockAST.BLOCK_PARSER, this.getStart(), syntaxAnalyzer.currentToken().getEnd(), "Couldn't parse the \"function definition\" statement because an error occurred during parsing of the block/inlined block."));
                 return null;
             }
         

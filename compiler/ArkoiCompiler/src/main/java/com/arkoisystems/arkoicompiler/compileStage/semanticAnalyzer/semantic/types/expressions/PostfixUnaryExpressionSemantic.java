@@ -1,5 +1,6 @@
 package com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.semantic.types.expressions;
 
+import com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.SemanticAnalyzer;
 import com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.semantic.AbstractSemantic;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.expression.types.PostfixUnaryExpressionAST;
 
@@ -22,13 +23,14 @@ import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.expr
 public class PostfixUnaryExpressionSemantic extends AbstractSemantic<PostfixUnaryExpressionAST>
 {
     
-    public PostfixUnaryExpressionSemantic(final PostfixUnaryExpressionAST postfixUnaryExpressionAST) {
-        super(postfixUnaryExpressionAST);
+    public PostfixUnaryExpressionSemantic(final AbstractSemantic<?> abstractSemantic, final PostfixUnaryExpressionAST postfixUnaryExpressionAST) {
+        super(abstractSemantic, postfixUnaryExpressionAST);
     }
     
     @Override
-    public void analyse() {
-    
+    public boolean analyse(final SemanticAnalyzer semanticAnalyzer) {
+        System.out.println("Postfix Expression Semantic");
+        return false;
     }
     
 }

@@ -29,16 +29,16 @@ public class IdentifierCallOperableAST extends AbstractOperableAST<IdentifierCal
     
     public IdentifierCallOperableAST(final IdentifierCallAST identifierCallAST) {
         this.setAstType(ASTType.IDENTIFIER_CALL_OPERABLE);
-        this.setAbstractToken(identifierCallAST);
+        this.setOperableObject(identifierCallAST);
         
-        this.setStart(this.getAbstractToken().getStart());
-        this.setEnd(this.getAbstractToken().getEnd());
+        this.setStart(this.getOperableObject().getStart());
+        this.setEnd(this.getOperableObject().getEnd());
     }
     
     @Override
     public IdentifierCallOperableAST parseAST(final AbstractAST<?> parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
-        if (this.getAbstractToken() == null) {
-            syntaxAnalyzer.errorHandler().addError(new ParserError(AbstractOperableAST.OPERABLE_PARSER, this, "Couldn't parse the identifier call operable because the identifier call is null."));
+        if (this.getOperableObject() == null) {
+            syntaxAnalyzer.errorHandler().addError(new ParserError<>(AbstractOperableAST.OPERABLE_PARSER, this, "Couldn't parse the identifier call operable because the identifier call is null."));
             return null;
         }
         return parentAST.addAST(this, syntaxAnalyzer);

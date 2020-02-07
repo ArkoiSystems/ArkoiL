@@ -5,14 +5,14 @@ import com.arkoisystems.arkoicompiler.compileStage.errorHandler.types.ParserErro
 import com.arkoisystems.arkoicompiler.compileStage.errorHandler.types.TokenError;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.EndOfFileToken;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.SymbolToken;
-import com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.semantic.types.BlockSemantic;
+import com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.semantic.AbstractSemantic;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.ASTType;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.AbstractAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.expression.AbstractExpressionAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.AbstractStatementAST;
-import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.functionStatements.FunctionDefinitionAST;
-import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.variableStatements.VariableDefinitionAST;
+import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.function.FunctionDefinitionAST;
+import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.variable.VariableDefinitionAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.parser.Parser;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.parser.types.BlockParser;
 import com.google.gson.annotations.Expose;
@@ -40,7 +40,7 @@ import java.util.List;
  */
 @Getter
 @Setter
-public class BlockAST extends AbstractAST<BlockSemantic>
+public class BlockAST extends AbstractAST<AbstractSemantic<?>>
 {
     
     public static BlockParser BLOCK_PARSER = new BlockParser();
@@ -94,8 +94,8 @@ public class BlockAST extends AbstractAST<BlockSemantic>
      */
     @Override
     public BlockAST parseAST(final AbstractAST<?> parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
-        if (!(parentAST instanceof FunctionDefinitionAST) && !(parentAST instanceof VariableDefinitionAST)) {
-            syntaxAnalyzer.errorHandler().addError(new ASTError(parentAST, "Couldn't parse the BlockAST because it isn't declared inside a function/variable definition."));
+        if (!(parentAST instanceof FunctionDefinitionAST) && !(parentAST instanceof VariableDefinitionAST) && !(parentAST instanceof BlockAST)) {
+            syntaxAnalyzer.errorHandler().addError(new ASTError<>(parentAST, "Couldn't parse the BlockAST because it isn't declared inside a function/variable definition or block."));
             return null;
         } else this.setStart(syntaxAnalyzer.currentToken().getStart());
     
@@ -114,10 +114,15 @@ public class BlockAST extends AbstractAST<BlockSemantic>
     
                     final AbstractAST<?> abstractAST = parser.parse(this, syntaxAnalyzer);
                     if (abstractAST == null) {
-                        syntaxAnalyzer.errorHandler().addError(new ParserError(parser, syntaxAnalyzer.currentToken()));
+                        syntaxAnalyzer.errorHandler().addError(new ParserError<>(parser, syntaxAnalyzer.currentToken()));
                         return null;
                     } else {
-                        if (syntaxAnalyzer.matchesCurrentToken(SymbolToken.SymbolType.SEMICOLON) == null) {
+                        if (abstractAST instanceof BlockAST) {
+                            if(syntaxAnalyzer.matchesCurrentToken(SymbolToken.SymbolType.CLOSING_BRACE) == null) {
+                                syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the \"BlockAST\" because it doesn't end with a closing brace."));
+                                return null;
+                            }
+                        } else if (syntaxAnalyzer.matchesCurrentToken(SymbolToken.SymbolType.SEMICOLON) == null) {
                             syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the \"%s\" because it doesn't end with a semicolon.", abstractAST.getClass().getSimpleName()));
                             return null;
                         }
@@ -143,7 +148,7 @@ public class BlockAST extends AbstractAST<BlockSemantic>
         
             final AbstractExpressionAST<?> abstractExpressionAST = AbstractExpressionAST.EXPRESSION_PARSER.parse(this, syntaxAnalyzer);
             if (abstractExpressionAST == null) {
-                syntaxAnalyzer.errorHandler().addError(new ParserError(AbstractExpressionAST.EXPRESSION_PARSER, this.getStart(), syntaxAnalyzer.currentToken().getEnd(), "Couldn't parse the BlockAST because an error occurred during the parsing of the expression."));
+                syntaxAnalyzer.errorHandler().addError(new ParserError<>(AbstractExpressionAST.EXPRESSION_PARSER, this.getStart(), syntaxAnalyzer.currentToken().getEnd(), "Couldn't parse the BlockAST because an error occurred during the parsing of the expression."));
                 return null;
             }
         

@@ -57,13 +57,13 @@ public class CollectionOperableAST extends AbstractOperableAST<AbstractExpressio
                 break;
             
             if (!AbstractExpressionAST.EXPRESSION_PARSER.canParse(this, syntaxAnalyzer)) {
-                syntaxAnalyzer.errorHandler().addError(new ParserError(AbstractExpressionAST.EXPRESSION_PARSER, syntaxAnalyzer.currentToken(), "Couldn't parse the collection operable because there is an invalid expression inside."));
+                syntaxAnalyzer.errorHandler().addError(new ParserError<>(AbstractExpressionAST.EXPRESSION_PARSER, syntaxAnalyzer.currentToken(), "Couldn't parse the collection operable because there is an invalid expression inside."));
                 return null;
             }
             
             final AbstractExpressionAST<?> abstractExpressionAST = AbstractExpressionAST.EXPRESSION_PARSER.parse(this, syntaxAnalyzer);
             if (abstractExpressionAST == null) {
-                syntaxAnalyzer.errorHandler().addError(new ASTError(this, "Couldn't parse the collection operable because there occurred an error while parsing the expression inside it."));
+                syntaxAnalyzer.errorHandler().addError(new ASTError<>(this, "Couldn't parse the collection operable because there occurred an error while parsing the expression inside it."));
                 return null;
             } else this.expressionASTs.add(abstractExpressionAST);
             

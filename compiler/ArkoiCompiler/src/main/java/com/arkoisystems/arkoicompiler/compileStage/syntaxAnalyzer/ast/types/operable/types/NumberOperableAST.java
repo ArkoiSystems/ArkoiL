@@ -38,9 +38,9 @@ public class NumberOperableAST extends AbstractOperableAST<AbstractNumberToken, 
             syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the number operable because the parsing doesn't start with a number."));
             return null;
         } else {
-            this.setAbstractToken((AbstractNumberToken) syntaxAnalyzer.currentToken());
-            this.setStart(this.getAbstractToken().getStart());
-            this.setEnd(this.getAbstractToken().getEnd());
+            this.setOperableObject((AbstractNumberToken) syntaxAnalyzer.currentToken());
+            this.setStart(this.getOperableObject().getStart());
+            this.setEnd(this.getOperableObject().getEnd());
         }
         return parentAST.addAST(this, syntaxAnalyzer);
     }

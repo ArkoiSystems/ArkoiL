@@ -1,5 +1,6 @@
 package com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.semantic.types.expressions;
 
+import com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.SemanticAnalyzer;
 import com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.semantic.AbstractSemantic;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.expression.types.ParenthesizedExpressionAST;
 
@@ -22,13 +23,14 @@ import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.expr
 public class ParenthesizedExpressionSemantic extends AbstractSemantic<ParenthesizedExpressionAST>
 {
     
-    public ParenthesizedExpressionSemantic(final ParenthesizedExpressionAST parenthesizedExpressionAST) {
-        super(parenthesizedExpressionAST);
+    public ParenthesizedExpressionSemantic(final AbstractSemantic<?> abstractSemantic, final ParenthesizedExpressionAST parenthesizedExpressionAST) {
+        super(abstractSemantic, parenthesizedExpressionAST);
     }
     
     @Override
-    public void analyse() {
-    
+    public boolean analyse(final SemanticAnalyzer semanticAnalyzer) {
+        System.out.println("Parenthesized Expression Semantic");
+        return false;
     }
     
 }

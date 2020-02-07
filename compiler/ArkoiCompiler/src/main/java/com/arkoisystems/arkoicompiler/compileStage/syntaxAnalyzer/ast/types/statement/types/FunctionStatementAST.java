@@ -50,7 +50,7 @@ public class FunctionStatementAST<S extends AbstractSemantic<?>> extends Abstrac
      * @return It just returns null because you need to overwrite it.
      */
     @Override
-    public FunctionStatementAST<?> parseAST(final AbstractAST<?> parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
+    public FunctionStatementAST<S> parseAST(final AbstractAST<?> parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
         return null;
     }
     

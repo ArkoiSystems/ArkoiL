@@ -1,7 +1,13 @@
 package com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.semantic.types.statements;
 
+import com.arkoisystems.arkoicompiler.compileStage.errorHandler.types.ASTError;
+import com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.SemanticAnalyzer;
 import com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.semantic.AbstractSemantic;
+import com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.semantic.types.RootSemantic;
+import com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.semantic.types.statements.function.FunctionDefinitionSemantic;
+import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.AbstractAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.IdentifierCallAST;
+import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.variable.VariableDefinitionAST;
 
 /**
  * Copyright © 2019 ArkoiSystems (https://www.arkoisystems.com/) All Rights Reserved.
@@ -22,13 +28,35 @@ import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.stat
 public class IdentifierCallSemantic extends AbstractSemantic<IdentifierCallAST>
 {
     
-    public IdentifierCallSemantic(final IdentifierCallAST identifierCallAST) {
-        super(identifierCallAST);
+    public IdentifierCallSemantic(final AbstractSemantic<?> abstractSemantic, final IdentifierCallAST identifierCallAST) {
+        super(abstractSemantic, identifierCallAST);
     }
     
     @Override
-    public void analyse() {
+    public boolean analyse(final SemanticAnalyzer semanticAnalyzer) {
+        AbstractAST<?> foundVariable = null;
+        if (this.getLastContainerSemantic() instanceof FunctionDefinitionSemantic) {
+            if (this.getAbstractAST().getIdentifierAccess() != IdentifierCallAST.IdentifierAccess.THIS_ACCESS) {
+                // TODO: Search function for variable
+            }
+            
+            foundVariable = this.searchRootAST(semanticAnalyzer);
+        } else if (this.getLastContainerSemantic() instanceof RootSemantic)
+            foundVariable = this.searchRootAST(semanticAnalyzer);
+        
+        if (foundVariable == null) {
+            semanticAnalyzer.errorHandler().addError(new ASTError<>(this.getAbstractAST(), "Couldn't find any variable with the name \"%s\".", this.getAbstractAST().getCalledIdentifierToken().getTokenContent()));
+            return false;
+        }
+        return true;
+    }
     
+    private AbstractAST<?> searchRootAST(final SemanticAnalyzer semanticAnalyzer) {
+        for (final VariableDefinitionAST variableDefinitionAST : semanticAnalyzer.getRootSemantic().getAbstractAST().getVariableStorage()) {
+            if (variableDefinitionAST.getVariableNameToken().getTokenContent().equals(this.getAbstractAST().getCalledIdentifierToken().getTokenContent()))
+                return variableDefinitionAST;
+        }
+        return null;
     }
     
 }

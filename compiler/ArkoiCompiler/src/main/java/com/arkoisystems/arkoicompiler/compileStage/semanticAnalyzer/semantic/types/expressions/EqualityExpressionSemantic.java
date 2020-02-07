@@ -1,5 +1,6 @@
 package com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.semantic.types.expressions;
 
+import com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.SemanticAnalyzer;
 import com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.semantic.AbstractSemantic;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.expression.types.EqualityExpressionAST;
 
@@ -22,13 +23,14 @@ import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.expr
 public class EqualityExpressionSemantic extends AbstractSemantic<EqualityExpressionAST>
 {
     
-    public EqualityExpressionSemantic(final EqualityExpressionAST equalityExpressionAST) {
-        super(equalityExpressionAST);
+    public EqualityExpressionSemantic(final AbstractSemantic<?> abstractSemantic, final EqualityExpressionAST equalityExpressionAST) {
+        super(abstractSemantic, equalityExpressionAST);
     }
     
     @Override
-    public void analyse() {
-    
+    public boolean analyse(final SemanticAnalyzer semanticAnalyzer) {
+        System.out.println("Equality Expression Semantic");
+        return false;
     }
     
 }

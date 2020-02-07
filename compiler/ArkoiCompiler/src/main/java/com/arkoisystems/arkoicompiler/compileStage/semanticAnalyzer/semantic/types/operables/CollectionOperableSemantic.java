@@ -1,5 +1,6 @@
 package com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.semantic.types.operables;
 
+import com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.SemanticAnalyzer;
 import com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.semantic.AbstractSemantic;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.operable.types.CollectionOperableAST;
 
@@ -22,13 +23,14 @@ import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.oper
 public class CollectionOperableSemantic extends AbstractSemantic<CollectionOperableAST>
 {
     
-    public CollectionOperableSemantic(final CollectionOperableAST collectionOperableAST) {
-        super(collectionOperableAST);
+    public CollectionOperableSemantic(final AbstractSemantic<?> abstractSemantic, final CollectionOperableAST collectionOperableAST) {
+        super(abstractSemantic, collectionOperableAST);
     }
     
     @Override
-    public void analyse() {
-    
+    public boolean analyse(final SemanticAnalyzer semanticAnalyzer) {
+        System.out.println("Collection Operable Semantic");
+        return false;
     }
     
 }

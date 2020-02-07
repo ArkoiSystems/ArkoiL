@@ -29,10 +29,10 @@ public class PrefixUnaryExpressionAST extends AbstractExpressionAST<PrefixUnaryE
 {
     
     @Expose
-    private final AbstractAST<?> rightSideAST;
+    private final PrefixUnaryOperator prefixUnaryOperator;
     
     @Expose
-    private final PrefixUnaryOperator prefixUnaryOperator;
+    private final AbstractAST<?> rightSideAST;
     
     public PrefixUnaryExpressionAST(final AbstractAST<?> rightSideAST, final PrefixUnaryOperator prefixUnaryOperator, final int start) {
         super(ASTType.PREFIX_EXPRESSION);

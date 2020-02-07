@@ -93,6 +93,9 @@ public class TypeAST extends AbstractAST<TypeSemantic>
             syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the Type because the parsing doesn't start with an IdentifierToken."));
             return null;
         } else this.typeKind = TypeKind.getTypeKind(syntaxAnalyzer.currentToken());
+        
+        this.setStart(syntaxAnalyzer.currentToken().getStart());
+        this.setEnd(syntaxAnalyzer.currentToken().getEnd());
     
         // This will check if the next two Tokens are an opening and closing bracket aka. "[]". If it is, then skip these two Tokens and set the "isArray" boolean to true.
         if (syntaxAnalyzer.matchesPeekToken(1, SymbolToken.SymbolType.OPENING_BRACKET) != null && syntaxAnalyzer.matchesPeekToken(2, SymbolToken.SymbolType.CLOSING_BRACKET) != null) {

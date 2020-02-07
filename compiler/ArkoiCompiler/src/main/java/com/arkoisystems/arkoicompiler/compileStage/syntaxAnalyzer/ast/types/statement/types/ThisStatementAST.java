@@ -12,6 +12,7 @@ import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.AbstractAS
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.BlockAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.expression.AbstractExpressionAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.AbstractStatementAST;
+import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.function.FunctionInvokeAST;
 import lombok.Getter;
 
 /**
@@ -72,7 +73,7 @@ public class ThisStatementAST extends AbstractStatementAST<AbstractSemantic<?>>
     @Override
     public AbstractStatementAST<?> parseAST(final AbstractAST<?> parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
         if (!(parentAST instanceof BlockAST) && !(parentAST instanceof AbstractExpressionAST)) {
-            syntaxAnalyzer.errorHandler().addError(new ASTError(parentAST, "Couldn't parse the \"this\" statement because it isn't declared inside a block or an expression."));
+            syntaxAnalyzer.errorHandler().addError(new ASTError<>(parentAST, "Couldn't parse the \"this\" statement because it isn't declared inside a block or an expression."));
             return null;
         } else this.parentAST = parentAST;
     
@@ -97,10 +98,21 @@ public class ThisStatementAST extends AbstractStatementAST<AbstractSemantic<?>>
     
         final AbstractStatementAST<?> abstractStatementAST = AbstractStatementAST.STATEMENT_PARSER.parse(parentAST, syntaxAnalyzer);
         if (abstractStatementAST == null) {
-            syntaxAnalyzer.errorHandler().addError(new ParserError(AbstractStatementAST.STATEMENT_PARSER, this, "Couldn't parse the \"this\" statement because an error occurred during the parsing of the statement."));
+            syntaxAnalyzer.errorHandler().addError(new ParserError<>(AbstractStatementAST.STATEMENT_PARSER, this, "Couldn't parse the \"this\" statement because an error occurred during the parsing of the statement."));
             return null;
         }
-        
+    
+        if (abstractStatementAST instanceof FunctionInvokeAST) {
+            final FunctionInvokeAST functionInvokeAST = (FunctionInvokeAST) abstractStatementAST;
+            functionInvokeAST.setFunctionAccess(FunctionInvokeAST.FunctionAccess.THIS_ACCESS);
+        } else if (abstractStatementAST instanceof IdentifierInvokeAST) {
+            final IdentifierInvokeAST identifierInvokeAST = (IdentifierInvokeAST) abstractStatementAST;
+            identifierInvokeAST.setIdentifierAccess(IdentifierInvokeAST.IdentifierAccess.THIS_ACCESS);
+        }else if (abstractStatementAST instanceof IdentifierCallAST) {
+            final IdentifierCallAST identifierCallAST = (IdentifierCallAST) abstractStatementAST;
+            identifierCallAST.setIdentifierAccess(IdentifierCallAST.IdentifierAccess.THIS_ACCESS);
+        }
+    
         // It will not add the AbstractStatementAST to the parent because it already did it during the parsing of the statement.
         return abstractStatementAST;
     }

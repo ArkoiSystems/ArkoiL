@@ -1,5 +1,6 @@
 package com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.semantic.types.expressions;
 
+import com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.SemanticAnalyzer;
 import com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.semantic.AbstractSemantic;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.expression.types.PrefixUnaryExpressionAST;
 
@@ -22,13 +23,14 @@ import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.expr
 public class PrefixUnaryExpressionSemantic extends AbstractSemantic<PrefixUnaryExpressionAST>
 {
     
-    public PrefixUnaryExpressionSemantic(final PrefixUnaryExpressionAST prefixUnaryExpressionAST) {
-        super(prefixUnaryExpressionAST);
+    public PrefixUnaryExpressionSemantic(final AbstractSemantic<?> abstractSemantic, final PrefixUnaryExpressionAST prefixUnaryExpressionAST) {
+        super(abstractSemantic, prefixUnaryExpressionAST);
     }
     
     @Override
-    public void analyse() {
-    
+    public boolean analyse(final SemanticAnalyzer semanticAnalyzer) {
+        System.out.println("Prefix Expression Semantic");
+        return false;
     }
     
 }

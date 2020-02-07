@@ -24,39 +24,34 @@ import lombok.Getter;
  * permissions and limitations under the License.
  */
 @Getter
-public class ParserError extends AbstractError
+public class ParserError<T extends Parser<?>> extends AbstractError
 {
     
     @Expose
-    private final Parser<?> parser;
+    private final T parser;
     
-    public ParserError(final Parser<?> parser, final int start, final int end, final String message, final Object... arguments) {
+    public ParserError(final T parser, final int start, final int end, final String message, final Object... arguments) {
         super(start, end, message, arguments);
-        
         this.parser = parser;
     }
     
-    public ParserError(final Parser<?> parser, final AbstractToken abstractToken, final String message, final Object... arguments) {
+    public ParserError(final T parser, final AbstractToken abstractToken, final String message, final Object... arguments) {
         super(abstractToken.getStart(), abstractToken.getEnd(), message, arguments);
-        
         this.parser = parser;
     }
     
-    public ParserError(final Parser<?> parser, final AbstractAST<?> abstractAST, final String message, final Object... arguments) {
+    public ParserError(final T parser, final AbstractAST<?> abstractAST, final String message, final Object... arguments) {
         super(abstractAST.getStart(), abstractAST.getEnd(), message, arguments);
-    
         this.parser = parser;
     }
     
-    public ParserError(final Parser<?> parser, final AbstractToken abstractToken) {
+    public ParserError(final T parser, final AbstractToken abstractToken) {
         super(abstractToken.getStart(), abstractToken.getEnd(), "Couldn't parse the \"" + parser.getChildName() + "\" because an error occurred.");
-        
         this.parser = parser;
     }
     
-    public ParserError(final Parser<?> parser, final int start, final int end) {
+    public ParserError(final T parser, final int start, final int end) {
         super(start, end, "Couldn't parse the \"" + parser.getChildName() + "\" because an error occurred.");
-        
         this.parser = parser;
     }
     

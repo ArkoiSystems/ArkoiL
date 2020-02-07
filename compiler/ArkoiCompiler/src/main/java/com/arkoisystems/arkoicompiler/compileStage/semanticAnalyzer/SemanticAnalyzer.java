@@ -4,7 +4,9 @@ import com.arkoisystems.arkoicompiler.ArkoiClass;
 import com.arkoisystems.arkoicompiler.compileStage.ICompileStage;
 import com.arkoisystems.arkoicompiler.compileStage.errorHandler.ErrorHandler;
 import com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.semantic.AbstractSemantic;
+import com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.semantic.types.RootSemantic;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.AbstractAST;
+import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.RootAST;
 import com.google.gson.annotations.Expose;
 import lombok.Getter;
 
@@ -35,20 +37,19 @@ public class SemanticAnalyzer implements ICompileStage
     @Expose
     private final SemanticErrorHandler errorHandler;
     
-    public SemanticAnalyzer(final ArkoiClass arkoiClass) {
+    @Expose
+    private final RootSemantic rootSemantic;
+    
+    public SemanticAnalyzer(final ArkoiClass arkoiClass) throws Exception {
         this.arkoiClass = arkoiClass;
         
         this.errorHandler = new SemanticErrorHandler();
+        this.rootSemantic = RootSemantic.class.getDeclaredConstructor(AbstractSemantic.class, RootAST.class).newInstance(null, arkoiClass.getSyntaxAnalyzer().getRootAST());
     }
     
     @Override
     public boolean processStage() {
-        try {
-            this.analyseSemanticClass(this.arkoiClass.getSyntaxAnalyzer().getRootAST());
-        } catch (final Exception ex) {
-            ex.printStackTrace();
-        }
-        return true;
+        return this.rootSemantic.analyse(this);
     }
     
     @Override
@@ -56,22 +57,30 @@ public class SemanticAnalyzer implements ICompileStage
         return this.errorHandler;
     }
     
-    private void analyseSemanticClass(final AbstractAST<?> abstractAST) throws Exception {
+    public boolean analyseSemanticClass(final AbstractSemantic<?> lastContainerSemantic, final AbstractAST<?> abstractAST) throws Exception {
+        return this.analyseSemanticClass(lastContainerSemantic, abstractAST, this);
+    }
+    
+    public boolean analyseSemanticClass(final AbstractSemantic<?> lastContainerSemantic, final AbstractAST<?> abstractAST, final SemanticAnalyzer semanticAnalyzer) throws Exception {
         String genericName = abstractAST.getClass().getGenericSuperclass().getTypeName();
         genericName = genericName.substring(genericName.indexOf("<") + 1, genericName.length() - 1);
-        final Class<?> clazz = Class.forName(genericName);
+        final String[] splittedName = genericName.split(", ");
+        genericName = splittedName[splittedName.length - 1];
         
+        if (genericName.endsWith("AbstractSemantic<?>"))
+            return true;
+        
+        final Class<?> clazz = Class.forName(genericName);
         for (Constructor<?> constructor : clazz.getDeclaredConstructors()) {
-            if (constructor.getParameterCount() != 1)
+            if (constructor.getParameterCount() != 2)
                 continue;
-            if (constructor.getParameterTypes()[0].equals(abstractAST.getClass())) {
-                final Object object = constructor.newInstance(abstractAST);
-                if (object instanceof AbstractSemantic) {
-                    ((AbstractSemantic<?>) object).analyse();
-                    return;
-                }
+            if (constructor.getParameterTypes()[0].equals(AbstractSemantic.class) && constructor.getParameterTypes()[1].equals(abstractAST.getClass())) {
+                final Object object = constructor.newInstance(lastContainerSemantic, abstractAST);
+                if (object instanceof AbstractSemantic)
+                    return ((AbstractSemantic<?>) object).analyse(semanticAnalyzer);
             }
         }
+        return false;
     }
     
 }
