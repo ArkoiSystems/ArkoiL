@@ -1,13 +1,17 @@
 package com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.operable.types;
 
+import com.arkoisystems.arkoicompiler.compileStage.errorHandler.types.ASTError;
 import com.arkoisystems.arkoicompiler.compileStage.errorHandler.types.TokenError;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.TokenType;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.numbers.AbstractNumberToken;
+import com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.SemanticAnalyzer;
 import com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.semantic.AbstractSemantic;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.ASTType;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.AbstractAST;
+import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.TypeAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.operable.AbstractOperableAST;
+import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.operable.types.expression.AbstractExpressionAST;
 
 /**
  * Copyright © 2019 ArkoiSystems (https://www.arkoisystems.com/) All Rights Reserved.
@@ -29,7 +33,7 @@ public class NumberOperableAST extends AbstractOperableAST<AbstractNumberToken, 
 {
     
     public NumberOperableAST() {
-        this.setAstType(ASTType.NUMBER_OPERABLE);
+        super(ASTType.NUMBER_OPERABLE);
     }
     
     @Override
@@ -43,6 +47,66 @@ public class NumberOperableAST extends AbstractOperableAST<AbstractNumberToken, 
             this.setEnd(this.getOperableObject().getEnd());
         }
         return parentAST.addAST(this, syntaxAnalyzer);
+    }
+    
+    @Override
+    public TypeAST.TypeKind binAdd(final SemanticAnalyzer semanticAnalyzer, final AbstractOperableAST<?, ?> rightSideOperable) {
+        if (rightSideOperable instanceof NumberOperableAST)
+            return TypeAST.TypeKind.combineKinds(this, rightSideOperable);
+        else if (rightSideOperable instanceof AbstractExpressionAST) {
+            final AbstractExpressionAST<?> abstractExpressionAST = (AbstractExpressionAST<?>) rightSideOperable;
+            if (abstractExpressionAST.getOperableObject() == null) {
+                semanticAnalyzer.errorHandler().addError(new ASTError<>(rightSideOperable, "Can't perform the addition because the expression result is null."));
+                return null;
+            }
+            
+            switch (abstractExpressionAST.getOperableObject()) {
+                case FLOAT:
+                    return TypeAST.TypeKind.combineKinds(this, TypeAST.TypeKind.FLOAT);
+                case INTEGER:
+                    return TypeAST.TypeKind.combineKinds(this, TypeAST.TypeKind.INTEGER);
+                case SHORT:
+                    return TypeAST.TypeKind.combineKinds(this, TypeAST.TypeKind.SHORT);
+                case DOUBLE:
+                    return TypeAST.TypeKind.combineKinds(this, TypeAST.TypeKind.DOUBLE);
+                case BYTE:
+                    return TypeAST.TypeKind.combineKinds(this, TypeAST.TypeKind.BYTE);
+                default:
+                    semanticAnalyzer.errorHandler().addError(new ASTError<>(rightSideOperable, "Can't perform the addition because the expression result isn't a number."));
+                    return null;
+            }
+        }
+        return super.binAdd(semanticAnalyzer, rightSideOperable);
+    }
+    
+    @Override
+    public TypeAST.TypeKind binMul(final SemanticAnalyzer semanticAnalyzer, final AbstractOperableAST<?, ?> rightSideOperable) {
+        if (rightSideOperable instanceof NumberOperableAST)
+            return TypeAST.TypeKind.combineKinds(this, rightSideOperable);
+        else if (rightSideOperable instanceof AbstractExpressionAST) {
+            final AbstractExpressionAST<?> abstractExpressionAST = (AbstractExpressionAST<?>) rightSideOperable;
+            if (abstractExpressionAST.getOperableObject() == null) {
+                semanticAnalyzer.errorHandler().addError(new ASTError<>(rightSideOperable, "Can't perform the multiplication because the expression result is null."));
+                return null;
+            }
+            
+            switch (abstractExpressionAST.getOperableObject()) {
+                case FLOAT:
+                    return TypeAST.TypeKind.combineKinds(this, TypeAST.TypeKind.FLOAT);
+                case INTEGER:
+                    return TypeAST.TypeKind.combineKinds(this, TypeAST.TypeKind.INTEGER);
+                case SHORT:
+                    return TypeAST.TypeKind.combineKinds(this, TypeAST.TypeKind.SHORT);
+                case DOUBLE:
+                    return TypeAST.TypeKind.combineKinds(this, TypeAST.TypeKind.DOUBLE);
+                case BYTE:
+                    return TypeAST.TypeKind.combineKinds(this, TypeAST.TypeKind.BYTE);
+                default:
+                    semanticAnalyzer.errorHandler().addError(new ASTError<>(rightSideOperable, "Can't perform the multiplication because the expression result isn't a number."));
+                    return null;
+            }
+        }
+        return super.binMul(semanticAnalyzer, rightSideOperable);
     }
     
 }

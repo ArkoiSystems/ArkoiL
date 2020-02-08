@@ -4,11 +4,12 @@ import com.arkoisystems.arkoicompiler.compileStage.errorHandler.types.ASTError;
 import com.arkoisystems.arkoicompiler.compileStage.errorHandler.types.ParserError;
 import com.arkoisystems.arkoicompiler.compileStage.errorHandler.types.TokenError;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.SymbolToken;
-import com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.semantic.types.operables.CollectionOperableSemantic;
+import com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.SemanticAnalyzer;
+import com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.semantic.types.operable.types.CollectionOperableSemantic;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.ASTType;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.AbstractAST;
-import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.expression.AbstractExpressionAST;
+import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.operable.types.expression.AbstractExpressionAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.operable.AbstractOperableAST;
 import com.google.gson.annotations.Expose;
 import lombok.Getter;
@@ -40,7 +41,7 @@ public class CollectionOperableAST extends AbstractOperableAST<AbstractExpressio
     private final List<AbstractExpressionAST<?>> expressionASTs;
     
     public CollectionOperableAST() {
-        this.setAstType(ASTType.COLLECTION_OPERABLE);
+        super(ASTType.COLLECTION_OPERABLE);
         
         this.expressionASTs = new ArrayList<>();
     }
@@ -66,11 +67,11 @@ public class CollectionOperableAST extends AbstractOperableAST<AbstractExpressio
                 syntaxAnalyzer.errorHandler().addError(new ASTError<>(this, "Couldn't parse the collection operable because there occurred an error while parsing the expression inside it."));
                 return null;
             } else this.expressionASTs.add(abstractExpressionAST);
-            
+    
             if (syntaxAnalyzer.matchesNextToken(SymbolToken.SymbolType.COMMA) != null)
                 syntaxAnalyzer.nextToken();
         }
-        
+    
         if (syntaxAnalyzer.matchesCurrentToken(SymbolToken.SymbolType.CLOSING_BRACKET) == null) {
             syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the collection operable because it doesn't end with an closing bracket."));
             return null;

@@ -8,6 +8,14 @@ import com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.semantic.typ
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.ASTType;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.AbstractAST;
+import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.operable.AbstractOperableAST;
+import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.operable.types.*;
+import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.operable.types.expression.AbstractExpressionAST;
+import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.operable.types.expression.types.ExpressionAST;
+import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.AbstractStatementAST;
+import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.IdentifierCallAST;
+import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.IdentifierInvokeAST;
+import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.statement.types.function.FunctionInvokeAST;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.parser.types.TypeParser;
 import com.google.gson.annotations.Expose;
 import lombok.Getter;
@@ -132,6 +140,9 @@ public class TypeAST extends AbstractAST<TypeSemantic>
         STRING("string"),
         INTEGER("int"),
         FLOAT("float"),
+        BYTE("byte"),
+        DOUBLE("double"),
+        SHORT("short"),
         BOOLEAN("boolean"),
         VOID("void"),
         OTHER(null);
@@ -163,12 +174,69 @@ public class TypeAST extends AbstractAST<TypeSemantic>
             for (final TypeKind typeKind : TypeKind.values()) {
                 if (typeKind.getName() == null)
                     continue;
-                
+        
                 if (typeKind.getName().equals(abstractToken.getTokenContent()))
                     return typeKind;
             }
             return TypeKind.OTHER;
         }
+        
+        public static TypeKind getTypeKind(final AbstractStatementAST<?> abstractStatementAST) {
+            if (abstractStatementAST instanceof FunctionInvokeAST) {
+                System.out.println("TODO: Make getTypeKind return the function invoke result");
+            } else if (abstractStatementAST instanceof IdentifierInvokeAST)
+                return getTypeKind(((IdentifierInvokeAST) abstractStatementAST).getInvokedIdentifierStatement());
+            else if (abstractStatementAST instanceof IdentifierCallAST) {
+                System.out.println("TODO: Make getTypeKind return the identifier call result");
+            }
+            return null;
+        }
+        
+        public static TypeKind getTypeKind(final AbstractOperableAST<?, ?> abstractOperableAST) {
+            if (abstractOperableAST instanceof NumberOperableAST) {
+                final NumberOperableAST numberOperableAST = (NumberOperableAST) abstractOperableAST;
+                switch (numberOperableAST.getOperableObject().getNumberType()) {
+                    case BYTE:
+                        return BYTE;
+                    case DOUBLE:
+                        return DOUBLE;
+                    case SHORT:
+                        return SHORT;
+                    case INTEGER:
+                    case HEXADECIMAL:
+                        return INTEGER;
+                    case FLOAT:
+                        return FLOAT;
+                    default:
+                        return null;
+                }
+            } else if (abstractOperableAST instanceof StringOperableAST)
+                return STRING;
+            else if (abstractOperableAST instanceof FunctionInvokeOperableAST) {
+                System.out.println("TODO: Make getTypeKind return the function invoke operable result");
+            } else if (abstractOperableAST instanceof IdentifierInvokeOperableAST)
+                return getTypeKind(((IdentifierInvokeOperableAST) abstractOperableAST).getOperableObject().getInvokedIdentifierStatement());
+            else if (abstractOperableAST instanceof IdentifierCallOperableAST) {
+                System.out.println("TODO: Make getTypeKind return the identifier call operable result");
+            } else if(abstractOperableAST instanceof AbstractExpressionAST)
+                return ((AbstractExpressionAST<?>) abstractOperableAST).getOperableObject();
+            return null;
+        }
+        
+        public static TypeKind combineKinds(AbstractOperableAST<?, ?> leftSideOperable, AbstractOperableAST<?, ?> rightSideOperable) {
+            return combineKinds(getTypeKind(leftSideOperable), getTypeKind(rightSideOperable));
+        }
+        
+        public static TypeKind combineKinds(AbstractOperableAST<?, ?> leftSideOperable, TypeKind rightSideKind) {
+            return combineKinds(getTypeKind(leftSideOperable), rightSideKind);
+        }
+        
+        public static TypeKind combineKinds(final TypeKind leftSideKind, final TypeKind rightSideKind) {
+            if(leftSideKind == INTEGER && rightSideKind == INTEGER)
+                return INTEGER;
+            return null;
+        }
+        
     }
     
 }

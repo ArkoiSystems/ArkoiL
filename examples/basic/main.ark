@@ -9,7 +9,7 @@ fun main<int>(args: string[]) {
     var test_3 = this.test_1;
     
     this.print_greet(test_1);
-    return (20 + 10 * 5) * 2;
+    return (20 + 10 * 5) * 2 + 3;
 }
 
 fun print_greet<>(test_argument: string) = println("%s , %s" % [test_2, test_argument]);

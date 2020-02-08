@@ -1,7 +1,7 @@
 package com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.operable.types;
 
 import com.arkoisystems.arkoicompiler.compileStage.errorHandler.types.ParserError;
-import com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.semantic.types.operables.IdentifierInvokeOperableSemantic;
+import com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.semantic.types.operable.types.IdentifierInvokeOperableSemantic;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.ASTType;
 import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.AbstractAST;
@@ -30,7 +30,8 @@ public class IdentifierInvokeOperableAST extends AbstractOperableAST<IdentifierI
 {
     
     public IdentifierInvokeOperableAST(final IdentifierInvokeAST identifierInvokeAST) {
-        this.setAstType(ASTType.IDENTIFIER_INVOKE_OPERABLE);
+        super(ASTType.IDENTIFIER_INVOKE_OPERABLE);
+        
         this.setOperableObject(identifierInvokeAST);
         
         this.setStart(this.getOperableObject().getStart());

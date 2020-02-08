@@ -29,7 +29,7 @@ public class StringOperableAST extends AbstractOperableAST<StringToken, Abstract
 {
     
     public StringOperableAST() {
-        this.setAstType(ASTType.STRING_OPERABLE);
+        super(ASTType.STRING_OPERABLE);
     }
     
     @Override
