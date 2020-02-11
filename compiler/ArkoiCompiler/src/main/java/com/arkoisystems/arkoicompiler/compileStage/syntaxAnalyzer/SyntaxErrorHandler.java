@@ -30,21 +30,39 @@ public class SyntaxErrorHandler extends ErrorHandler
     
     private final SyntaxAnalyzer syntaxAnalyzer;
     
+    /**
+     * This constructor is used to initialize this class with the SyntaxAnalyzer which is
+     * getting used during the process of syntax analyzing.
+     *
+     * @param syntaxAnalyzer
+     *         The SyntaxAnalyzer which is currently used.
+     */
     public SyntaxErrorHandler(final SyntaxAnalyzer syntaxAnalyzer) {
         this.syntaxAnalyzer = syntaxAnalyzer;
     }
     
+    /**
+     * This method will add an specified error "abstractError" to the current stage. It
+     * will just add the error to a list.
+     *
+     * @param abstractError
+     *         The AbstractError is the given error which contains data why something
+     */
     @Override
     public void addError(final AbstractError abstractError) {
         this.abstractErrors.add(abstractError);
     }
     
+    /**
+     * This method is used to print the stack trace of the error, which is useful to debug
+     * the program if something went wrong.
+     *
+     * @param printStream
+     *         The PrintStream in which the stack trace should be written to.
+     */
     @Override
     public void printStackTrace(final PrintStream printStream) {
-        if(this.abstractErrors.size() > 0)
-            printStream.println(this.syntaxAnalyzer.getRootAST());
-        
-        for(final AbstractError abstractError : this.abstractErrors)
+        for (final AbstractError abstractError : this.abstractErrors)
             printStream.println(abstractError.toString());
     }
     

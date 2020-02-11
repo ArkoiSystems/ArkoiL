@@ -1,5 +1,7 @@
 package com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast;
 
+import lombok.Getter;
+
 /**
  * Copyright © 2019 ArkoiSystems (https://www.arkoisystems.com/) All Rights Reserved.
  * Created ArkoiCompiler on the Sat Nov 09 2019 Author єхcsє#5543 aka Timo
@@ -16,10 +18,10 @@ package com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast;
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  */
+@Getter
 public enum ASTType
 {
     
-    IMPORT_STATEMENT,
     THIS_STATEMENT,
     RETURN_STATEMENT,
     
@@ -31,17 +33,12 @@ public enum ASTType
     POSTFIX_EXPRESSION,
     PREFIX_EXPRESSION,
     RELATIONAL_EXPRESSION,
-    EXPRESSION,
+    BASIC_EXPRESSION,
     
+    IMPORT_DEFINITION,
     ARGUMENT_DEFINITION,
     VARIABLE_DEFINITION,
     FUNCTION_DEFINITION,
-    
-    IDENTIFIER_CALL,
-    FUNCTION_CALL,
-    
-    IDENTIFIER_INVOKE,
-    FUNCTION_INVOKE,
     
     IDENTIFIER_INVOKE_OPERABLE,
     IDENTIFIER_CALL_OPERABLE,
@@ -53,5 +50,6 @@ public enum ASTType
     ANNOTATION,
     BLOCK,
     ROOT,
-    TYPE;
+    TYPE
+    
 }

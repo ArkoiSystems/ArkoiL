@@ -1,13 +1,13 @@
 package com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer;
 
 import com.arkoisystems.arkoicompiler.ArkoiClass;
-import com.arkoisystems.arkoicompiler.compileStage.ICompileStage;
+import com.arkoisystems.arkoicompiler.compileStage.AbstractStage;
 import com.arkoisystems.arkoicompiler.compileStage.errorHandler.ErrorHandler;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.AbstractToken;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.TokenType;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.SymbolToken;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.types.numbers.AbstractNumberToken;
-import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.RootAST;
+import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.types.RootSyntaxAST;
 import com.google.gson.annotations.Expose;
 import lombok.Getter;
 import lombok.Setter;
@@ -30,7 +30,7 @@ import lombok.Setter;
  */
 @Setter
 @Getter
-public class SyntaxAnalyzer implements ICompileStage
+public class SyntaxAnalyzer extends AbstractStage
 {
     
     private final ArkoiClass arkoiClass;
@@ -45,14 +45,14 @@ public class SyntaxAnalyzer implements ICompileStage
     private AbstractToken[] tokens;
     
     @Expose
-    private RootAST rootAST;
+    private RootSyntaxAST rootSyntaxAST;
     
     
     public SyntaxAnalyzer(final ArkoiClass arkoiClass) {
         this.arkoiClass = arkoiClass;
         
         this.errorHandler = new SyntaxErrorHandler(this);
-        this.rootAST = new RootAST(this);
+        this.rootSyntaxAST = new RootSyntaxAST(this);
     }
     
     @Override
@@ -64,7 +64,7 @@ public class SyntaxAnalyzer implements ICompileStage
                 .toArray(AbstractToken[]::new);
         this.position = 0;
     
-        return this.rootAST.parseAST(null, this) != null;
+        return this.rootSyntaxAST.parseAST(null, this) != null;
     }
     
     @Override

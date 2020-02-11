@@ -1,7 +1,7 @@
-import "test";
+import "./test" as test;
 
 var test_1 = test.test();
-var test_2 = this.greeting();
+var test_2 = this.greeting(1);
 
 # this method gets invoked first
 fun main<int>(args: string[]) {
@@ -9,10 +9,12 @@ fun main<int>(args: string[]) {
     var test_3 = this.test_1;
     
     this.print_greet(test_1);
-    return (20 + 10 * 5) * 2 + 3;
+    return (20 + -10 * 5f) * 2 + 3;
 }
 
 fun print_greet<>(test_argument: string) = println("%s , %s" % [test_2, test_argument]);
 
 fun greeting<string>() = "Hello World";
+fun greeting<string>() = "Hello World";
+
 fun greeting<string>(test: int) = "Hello World";

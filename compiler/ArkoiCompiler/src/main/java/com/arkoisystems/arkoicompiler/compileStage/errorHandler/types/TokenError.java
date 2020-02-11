@@ -2,7 +2,6 @@ package com.arkoisystems.arkoicompiler.compileStage.errorHandler.types;
 
 import com.arkoisystems.arkoicompiler.compileStage.errorHandler.AbstractError;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.AbstractToken;
-import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.AbstractAST;
 import com.google.gson.annotations.Expose;
 import lombok.Getter;
 

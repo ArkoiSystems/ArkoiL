@@ -27,16 +27,16 @@ import java.util.regex.Pattern;
 public enum TokenType
 {
     
-    WHITESPACE(WhiteSpaceToken.class, " \t\n"),
+    WHITESPACE(WhiteSpaceToken.class, "\\s"),
     COMMENT(CommentToken.class, "#.*"),
+    
+    SYMBOL(SymbolToken.class, "(@|:|;|\\{|\\}|\\(|\\)|\\[|\\]|,|\\.|<|>|\\+|-|\\*|/|%|!|=|&)"),
     
     STRING_LITERAL(StringToken.class, "\"(?:.|(?:\"))*\""),
     NUMBER_LITERAL(AbstractNumberToken.class, AbstractNumberToken.NumberType.NUMBER_PATTERN),
     
     // TODO: Add BOOLEAN_LITERAL and CHAR_LITERAL
     IDENTIFIER(IdentifierToken.class, "[a-zA-Z]+[a-zA-Z_0-9]*"),
-    
-    SYMBOL(SymbolToken.class, "(@|:|;|\\{|\\}|\\(|\\)|\\[|\\]|,|\\.|<|>|\\+|-|\\*|/|%|!|=|&)"),
     
     END_OF_FILE(EndOfFileToken.class, null);
     
