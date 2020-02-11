@@ -1,1375 +1,4 @@
 {
-  "content": "import \"test\";\n\nvar test_1 = test.test();\nvar test_2 = this.greeting();\n\n# this method gets invoked first\nfun main<int>(args: string[]) {\n    var test_1 = \"Hello\";\n    var test_3 = this.test_1;\n    \n    this.print_greet(test_1);\n    return (20 + 10 * 5) * 2 + 3;\n}\n\nfun print_greet<>(test_argument: string) = println(\"%s , %s\" % [test_2, test_argument]);\n\nfun greeting<string>() = \"Hello World\";\nfun greeting<string>(test: int) = \"Hello World\";\n",
-  "lexicalAnalyzer": {
-    "errorHandler": {},
-    "tokens": [
-      {
-        "tokenType": "IDENTIFIER",
-        "tokenContent": "import",
-        "start": 0,
-        "end": 6
-      },
-      {
-        "tokenType": "STRING_LITERAL",
-        "tokenContent": "test",
-        "start": 7,
-        "end": 13
-      },
-      {
-        "symbolType": "SEMICOLON",
-        "tokenType": "SYMBOL",
-        "tokenContent": ";",
-        "start": 13,
-        "end": 14
-      },
-      {
-        "tokenType": "IDENTIFIER",
-        "tokenContent": "var",
-        "start": 16,
-        "end": 19
-      },
-      {
-        "tokenType": "IDENTIFIER",
-        "tokenContent": "test_1",
-        "start": 20,
-        "end": 26
-      },
-      {
-        "symbolType": "EQUAL",
-        "tokenType": "SYMBOL",
-        "tokenContent": "=",
-        "start": 27,
-        "end": 28
-      },
-      {
-        "tokenType": "IDENTIFIER",
-        "tokenContent": "test",
-        "start": 29,
-        "end": 33
-      },
-      {
-        "symbolType": "PERIOD",
-        "tokenType": "SYMBOL",
-        "tokenContent": ".",
-        "start": 33,
-        "end": 34
-      },
-      {
-        "tokenType": "IDENTIFIER",
-        "tokenContent": "test",
-        "start": 34,
-        "end": 38
-      },
-      {
-        "symbolType": "OPENING_PARENTHESIS",
-        "tokenType": "SYMBOL",
-        "tokenContent": "(",
-        "start": 38,
-        "end": 39
-      },
-      {
-        "symbolType": "CLOSING_PARENTHESIS",
-        "tokenType": "SYMBOL",
-        "tokenContent": ")",
-        "start": 39,
-        "end": 40
-      },
-      {
-        "symbolType": "SEMICOLON",
-        "tokenType": "SYMBOL",
-        "tokenContent": ";",
-        "start": 40,
-        "end": 41
-      },
-      {
-        "tokenType": "IDENTIFIER",
-        "tokenContent": "var",
-        "start": 42,
-        "end": 45
-      },
-      {
-        "tokenType": "IDENTIFIER",
-        "tokenContent": "test_2",
-        "start": 46,
-        "end": 52
-      },
-      {
-        "symbolType": "EQUAL",
-        "tokenType": "SYMBOL",
-        "tokenContent": "=",
-        "start": 53,
-        "end": 54
-      },
-      {
-        "tokenType": "IDENTIFIER",
-        "tokenContent": "this",
-        "start": 55,
-        "end": 59
-      },
-      {
-        "symbolType": "PERIOD",
-        "tokenType": "SYMBOL",
-        "tokenContent": ".",
-        "start": 59,
-        "end": 60
-      },
-      {
-        "tokenType": "IDENTIFIER",
-        "tokenContent": "greeting",
-        "start": 60,
-        "end": 68
-      },
-      {
-        "symbolType": "OPENING_PARENTHESIS",
-        "tokenType": "SYMBOL",
-        "tokenContent": "(",
-        "start": 68,
-        "end": 69
-      },
-      {
-        "symbolType": "CLOSING_PARENTHESIS",
-        "tokenType": "SYMBOL",
-        "tokenContent": ")",
-        "start": 69,
-        "end": 70
-      },
-      {
-        "symbolType": "SEMICOLON",
-        "tokenType": "SYMBOL",
-        "tokenContent": ";",
-        "start": 70,
-        "end": 71
-      },
-      {
-        "tokenType": "COMMENT",
-        "tokenContent": "# this method gets invoked first",
-        "start": 73,
-        "end": 105
-      },
-      {
-        "tokenType": "IDENTIFIER",
-        "tokenContent": "fun",
-        "start": 106,
-        "end": 109
-      },
-      {
-        "tokenType": "IDENTIFIER",
-        "tokenContent": "main",
-        "start": 110,
-        "end": 114
-      },
-      {
-        "symbolType": "LESS_THAN_SIGN",
-        "tokenType": "SYMBOL",
-        "tokenContent": "<",
-        "start": 114,
-        "end": 115
-      },
-      {
-        "tokenType": "IDENTIFIER",
-        "tokenContent": "int",
-        "start": 115,
-        "end": 118
-      },
-      {
-        "symbolType": "GREATER_THAN_SIGN",
-        "tokenType": "SYMBOL",
-        "tokenContent": ">",
-        "start": 118,
-        "end": 119
-      },
-      {
-        "symbolType": "OPENING_PARENTHESIS",
-        "tokenType": "SYMBOL",
-        "tokenContent": "(",
-        "start": 119,
-        "end": 120
-      },
-      {
-        "tokenType": "IDENTIFIER",
-        "tokenContent": "args",
-        "start": 120,
-        "end": 124
-      },
-      {
-        "symbolType": "COLON",
-        "tokenType": "SYMBOL",
-        "tokenContent": ":",
-        "start": 124,
-        "end": 125
-      },
-      {
-        "tokenType": "IDENTIFIER",
-        "tokenContent": "string",
-        "start": 126,
-        "end": 132
-      },
-      {
-        "symbolType": "OPENING_BRACKET",
-        "tokenType": "SYMBOL",
-        "tokenContent": "[",
-        "start": 132,
-        "end": 133
-      },
-      {
-        "symbolType": "CLOSING_BRACKET",
-        "tokenType": "SYMBOL",
-        "tokenContent": "]",
-        "start": 133,
-        "end": 134
-      },
-      {
-        "symbolType": "CLOSING_PARENTHESIS",
-        "tokenType": "SYMBOL",
-        "tokenContent": ")",
-        "start": 134,
-        "end": 135
-      },
-      {
-        "symbolType": "OPENING_BRACE",
-        "tokenType": "SYMBOL",
-        "tokenContent": "{",
-        "start": 136,
-        "end": 137
-      },
-      {
-        "tokenType": "IDENTIFIER",
-        "tokenContent": "var",
-        "start": 142,
-        "end": 145
-      },
-      {
-        "tokenType": "IDENTIFIER",
-        "tokenContent": "test_1",
-        "start": 146,
-        "end": 152
-      },
-      {
-        "symbolType": "EQUAL",
-        "tokenType": "SYMBOL",
-        "tokenContent": "=",
-        "start": 153,
-        "end": 154
-      },
-      {
-        "tokenType": "STRING_LITERAL",
-        "tokenContent": "Hello",
-        "start": 155,
-        "end": 162
-      },
-      {
-        "symbolType": "SEMICOLON",
-        "tokenType": "SYMBOL",
-        "tokenContent": ";",
-        "start": 162,
-        "end": 163
-      },
-      {
-        "tokenType": "IDENTIFIER",
-        "tokenContent": "var",
-        "start": 168,
-        "end": 171
-      },
-      {
-        "tokenType": "IDENTIFIER",
-        "tokenContent": "test_3",
-        "start": 172,
-        "end": 178
-      },
-      {
-        "symbolType": "EQUAL",
-        "tokenType": "SYMBOL",
-        "tokenContent": "=",
-        "start": 179,
-        "end": 180
-      },
-      {
-        "tokenType": "IDENTIFIER",
-        "tokenContent": "this",
-        "start": 181,
-        "end": 185
-      },
-      {
-        "symbolType": "PERIOD",
-        "tokenType": "SYMBOL",
-        "tokenContent": ".",
-        "start": 185,
-        "end": 186
-      },
-      {
-        "tokenType": "IDENTIFIER",
-        "tokenContent": "test_1",
-        "start": 186,
-        "end": 192
-      },
-      {
-        "symbolType": "SEMICOLON",
-        "tokenType": "SYMBOL",
-        "tokenContent": ";",
-        "start": 192,
-        "end": 193
-      },
-      {
-        "tokenType": "IDENTIFIER",
-        "tokenContent": "this",
-        "start": 203,
-        "end": 207
-      },
-      {
-        "symbolType": "PERIOD",
-        "tokenType": "SYMBOL",
-        "tokenContent": ".",
-        "start": 207,
-        "end": 208
-      },
-      {
-        "tokenType": "IDENTIFIER",
-        "tokenContent": "print_greet",
-        "start": 208,
-        "end": 219
-      },
-      {
-        "symbolType": "OPENING_PARENTHESIS",
-        "tokenType": "SYMBOL",
-        "tokenContent": "(",
-        "start": 219,
-        "end": 220
-      },
-      {
-        "tokenType": "IDENTIFIER",
-        "tokenContent": "test_1",
-        "start": 220,
-        "end": 226
-      },
-      {
-        "symbolType": "CLOSING_PARENTHESIS",
-        "tokenType": "SYMBOL",
-        "tokenContent": ")",
-        "start": 226,
-        "end": 227
-      },
-      {
-        "symbolType": "SEMICOLON",
-        "tokenType": "SYMBOL",
-        "tokenContent": ";",
-        "start": 227,
-        "end": 228
-      },
-      {
-        "tokenType": "IDENTIFIER",
-        "tokenContent": "return",
-        "start": 233,
-        "end": 239
-      },
-      {
-        "symbolType": "OPENING_PARENTHESIS",
-        "tokenType": "SYMBOL",
-        "tokenContent": "(",
-        "start": 240,
-        "end": 241
-      },
-      {
-        "numberType": "INTEGER",
-        "tokenType": "NUMBER_LITERAL",
-        "tokenContent": "20",
-        "start": 241,
-        "end": 243
-      },
-      {
-        "symbolType": "PLUS",
-        "tokenType": "SYMBOL",
-        "tokenContent": "+",
-        "start": 244,
-        "end": 245
-      },
-      {
-        "numberType": "INTEGER",
-        "tokenType": "NUMBER_LITERAL",
-        "tokenContent": "10",
-        "start": 246,
-        "end": 248
-      },
-      {
-        "symbolType": "ASTERISK",
-        "tokenType": "SYMBOL",
-        "tokenContent": "*",
-        "start": 249,
-        "end": 250
-      },
-      {
-        "numberType": "INTEGER",
-        "tokenType": "NUMBER_LITERAL",
-        "tokenContent": "5",
-        "start": 251,
-        "end": 252
-      },
-      {
-        "symbolType": "CLOSING_PARENTHESIS",
-        "tokenType": "SYMBOL",
-        "tokenContent": ")",
-        "start": 252,
-        "end": 253
-      },
-      {
-        "symbolType": "ASTERISK",
-        "tokenType": "SYMBOL",
-        "tokenContent": "*",
-        "start": 254,
-        "end": 255
-      },
-      {
-        "numberType": "INTEGER",
-        "tokenType": "NUMBER_LITERAL",
-        "tokenContent": "2",
-        "start": 256,
-        "end": 257
-      },
-      {
-        "symbolType": "PLUS",
-        "tokenType": "SYMBOL",
-        "tokenContent": "+",
-        "start": 258,
-        "end": 259
-      },
-      {
-        "numberType": "INTEGER",
-        "tokenType": "NUMBER_LITERAL",
-        "tokenContent": "3",
-        "start": 260,
-        "end": 261
-      },
-      {
-        "symbolType": "SEMICOLON",
-        "tokenType": "SYMBOL",
-        "tokenContent": ";",
-        "start": 261,
-        "end": 262
-      },
-      {
-        "symbolType": "CLOSING_BRACE",
-        "tokenType": "SYMBOL",
-        "tokenContent": "}",
-        "start": 263,
-        "end": 264
-      },
-      {
-        "tokenType": "IDENTIFIER",
-        "tokenContent": "fun",
-        "start": 266,
-        "end": 269
-      },
-      {
-        "tokenType": "IDENTIFIER",
-        "tokenContent": "print_greet",
-        "start": 270,
-        "end": 281
-      },
-      {
-        "symbolType": "LESS_THAN_SIGN",
-        "tokenType": "SYMBOL",
-        "tokenContent": "<",
-        "start": 281,
-        "end": 282
-      },
-      {
-        "symbolType": "GREATER_THAN_SIGN",
-        "tokenType": "SYMBOL",
-        "tokenContent": ">",
-        "start": 282,
-        "end": 283
-      },
-      {
-        "symbolType": "OPENING_PARENTHESIS",
-        "tokenType": "SYMBOL",
-        "tokenContent": "(",
-        "start": 283,
-        "end": 284
-      },
-      {
-        "tokenType": "IDENTIFIER",
-        "tokenContent": "test_argument",
-        "start": 284,
-        "end": 297
-      },
-      {
-        "symbolType": "COLON",
-        "tokenType": "SYMBOL",
-        "tokenContent": ":",
-        "start": 297,
-        "end": 298
-      },
-      {
-        "tokenType": "IDENTIFIER",
-        "tokenContent": "string",
-        "start": 299,
-        "end": 305
-      },
-      {
-        "symbolType": "CLOSING_PARENTHESIS",
-        "tokenType": "SYMBOL",
-        "tokenContent": ")",
-        "start": 305,
-        "end": 306
-      },
-      {
-        "symbolType": "EQUAL",
-        "tokenType": "SYMBOL",
-        "tokenContent": "=",
-        "start": 307,
-        "end": 308
-      },
-      {
-        "tokenType": "IDENTIFIER",
-        "tokenContent": "println",
-        "start": 309,
-        "end": 316
-      },
-      {
-        "symbolType": "OPENING_PARENTHESIS",
-        "tokenType": "SYMBOL",
-        "tokenContent": "(",
-        "start": 316,
-        "end": 317
-      },
-      {
-        "tokenType": "STRING_LITERAL",
-        "tokenContent": "%s , %s",
-        "start": 317,
-        "end": 326
-      },
-      {
-        "symbolType": "PERCENT",
-        "tokenType": "SYMBOL",
-        "tokenContent": "%",
-        "start": 327,
-        "end": 328
-      },
-      {
-        "symbolType": "OPENING_BRACKET",
-        "tokenType": "SYMBOL",
-        "tokenContent": "[",
-        "start": 329,
-        "end": 330
-      },
-      {
-        "tokenType": "IDENTIFIER",
-        "tokenContent": "test_2",
-        "start": 330,
-        "end": 336
-      },
-      {
-        "symbolType": "COMMA",
-        "tokenType": "SYMBOL",
-        "tokenContent": ",",
-        "start": 336,
-        "end": 337
-      },
-      {
-        "tokenType": "IDENTIFIER",
-        "tokenContent": "test_argument",
-        "start": 338,
-        "end": 351
-      },
-      {
-        "symbolType": "CLOSING_BRACKET",
-        "tokenType": "SYMBOL",
-        "tokenContent": "]",
-        "start": 351,
-        "end": 352
-      },
-      {
-        "symbolType": "CLOSING_PARENTHESIS",
-        "tokenType": "SYMBOL",
-        "tokenContent": ")",
-        "start": 352,
-        "end": 353
-      },
-      {
-        "symbolType": "SEMICOLON",
-        "tokenType": "SYMBOL",
-        "tokenContent": ";",
-        "start": 353,
-        "end": 354
-      },
-      {
-        "tokenType": "IDENTIFIER",
-        "tokenContent": "fun",
-        "start": 356,
-        "end": 359
-      },
-      {
-        "tokenType": "IDENTIFIER",
-        "tokenContent": "greeting",
-        "start": 360,
-        "end": 368
-      },
-      {
-        "symbolType": "LESS_THAN_SIGN",
-        "tokenType": "SYMBOL",
-        "tokenContent": "<",
-        "start": 368,
-        "end": 369
-      },
-      {
-        "tokenType": "IDENTIFIER",
-        "tokenContent": "string",
-        "start": 369,
-        "end": 375
-      },
-      {
-        "symbolType": "GREATER_THAN_SIGN",
-        "tokenType": "SYMBOL",
-        "tokenContent": ">",
-        "start": 375,
-        "end": 376
-      },
-      {
-        "symbolType": "OPENING_PARENTHESIS",
-        "tokenType": "SYMBOL",
-        "tokenContent": "(",
-        "start": 376,
-        "end": 377
-      },
-      {
-        "symbolType": "CLOSING_PARENTHESIS",
-        "tokenType": "SYMBOL",
-        "tokenContent": ")",
-        "start": 377,
-        "end": 378
-      },
-      {
-        "symbolType": "EQUAL",
-        "tokenType": "SYMBOL",
-        "tokenContent": "=",
-        "start": 379,
-        "end": 380
-      },
-      {
-        "tokenType": "STRING_LITERAL",
-        "tokenContent": "Hello World",
-        "start": 381,
-        "end": 394
-      },
-      {
-        "symbolType": "SEMICOLON",
-        "tokenType": "SYMBOL",
-        "tokenContent": ";",
-        "start": 394,
-        "end": 395
-      },
-      {
-        "tokenType": "IDENTIFIER",
-        "tokenContent": "fun",
-        "start": 396,
-        "end": 399
-      },
-      {
-        "tokenType": "IDENTIFIER",
-        "tokenContent": "greeting",
-        "start": 400,
-        "end": 408
-      },
-      {
-        "symbolType": "LESS_THAN_SIGN",
-        "tokenType": "SYMBOL",
-        "tokenContent": "<",
-        "start": 408,
-        "end": 409
-      },
-      {
-        "tokenType": "IDENTIFIER",
-        "tokenContent": "string",
-        "start": 409,
-        "end": 415
-      },
-      {
-        "symbolType": "GREATER_THAN_SIGN",
-        "tokenType": "SYMBOL",
-        "tokenContent": ">",
-        "start": 415,
-        "end": 416
-      },
-      {
-        "symbolType": "OPENING_PARENTHESIS",
-        "tokenType": "SYMBOL",
-        "tokenContent": "(",
-        "start": 416,
-        "end": 417
-      },
-      {
-        "tokenType": "IDENTIFIER",
-        "tokenContent": "test",
-        "start": 417,
-        "end": 421
-      },
-      {
-        "symbolType": "COLON",
-        "tokenType": "SYMBOL",
-        "tokenContent": ":",
-        "start": 421,
-        "end": 422
-      },
-      {
-        "tokenType": "IDENTIFIER",
-        "tokenContent": "int",
-        "start": 423,
-        "end": 426
-      },
-      {
-        "symbolType": "CLOSING_PARENTHESIS",
-        "tokenType": "SYMBOL",
-        "tokenContent": ")",
-        "start": 426,
-        "end": 427
-      },
-      {
-        "symbolType": "EQUAL",
-        "tokenType": "SYMBOL",
-        "tokenContent": "=",
-        "start": 428,
-        "end": 429
-      },
-      {
-        "tokenType": "STRING_LITERAL",
-        "tokenContent": "Hello World",
-        "start": 430,
-        "end": 443
-      },
-      {
-        "symbolType": "SEMICOLON",
-        "tokenType": "SYMBOL",
-        "tokenContent": ";",
-        "start": 443,
-        "end": 444
-      },
-      {
-        "tokenType": "END_OF_FILE",
-        "tokenContent": "import \"test\";\n\nvar test_1 = test.test();\nvar test_2 = this.greeting();\n\n# this method gets invoked first\nfun main<int>(args: string[]) {\n    var test_1 = \"Hello\";\n    var test_3 = this.test_1;\n    \n    this.print_greet(test_1);\n    return (20 + 10 * 5) * 2 + 3;\n}\n\nfun print_greet<>(test_argument: string) = println(\"%s , %s\" % [test_2, test_argument]);\n\nfun greeting<string>() = \"Hello World\";\nfun greeting<string>(test: int) = \"Hello World\";\n",
-        "start": 0,
-        "end": 445
-      }
-    ]
-  },
-  "syntaxAnalyzer": {
-    "errorHandler": {},
-    "position": 111,
-    "rootAST": {
-      "importStorage": [
-        {
-          "importFilePathToken": {
-            "tokenType": "STRING_LITERAL",
-            "tokenContent": "test",
-            "start": 7,
-            "end": 13
-          },
-          "importNameToken": {
-            "tokenType": "IDENTIFIER",
-            "tokenContent": "test",
-            "start": -1,
-            "end": -1
-          },
-          "astType": "IMPORT_STATEMENT",
-          "start": 0,
-          "end": 14
-        }
-      ],
-      "variableStorage": [
-        {
-          "variableNameToken": {
-            "tokenType": "IDENTIFIER",
-            "tokenContent": "test_1",
-            "start": 20,
-            "end": 26
-          },
-          "expressionAST": {
-            "abstractAST": {
-              "operableObject": {
-                "identifierAccess": "GLOBAL_ACCESS",
-                "invokedIdentifierNameToken": {
-                  "tokenType": "IDENTIFIER",
-                  "tokenContent": "test",
-                  "start": 29,
-                  "end": 33
-                },
-                "invokedIdentifierStatement": {
-                  "astType": "FUNCTION_INVOKE",
-                  "start": 34,
-                  "end": 40
-                },
-                "astType": "IDENTIFIER_INVOKE",
-                "start": 29,
-                "end": 34
-              },
-              "astType": "IDENTIFIER_INVOKE_OPERABLE",
-              "start": 29,
-              "end": 34
-            },
-            "astType": "EXPRESSION",
-            "start": 29,
-            "end": 34
-          },
-          "astType": "VARIABLE_DEFINITION",
-          "start": 16,
-          "end": 41
-        },
-        {
-          "variableNameToken": {
-            "tokenType": "IDENTIFIER",
-            "tokenContent": "test_2",
-            "start": 46,
-            "end": 52
-          },
-          "expressionAST": {
-            "abstractAST": {
-              "operableObject": {
-                "functionAccess": "THIS_ACCESS",
-                "invokedFunctionNameToken": {
-                  "tokenType": "IDENTIFIER",
-                  "tokenContent": "greeting",
-                  "start": 60,
-                  "end": 68
-                },
-                "invokedArguments": [],
-                "functionInvocation": "EXPRESSION_INVOCATION",
-                "astType": "FUNCTION_INVOKE",
-                "start": 60,
-                "end": 70
-              },
-              "astType": "FUNCTION_INVOKE_OPERABLE",
-              "start": 60,
-              "end": 70
-            },
-            "astType": "EXPRESSION",
-            "start": 60,
-            "end": 70
-          },
-          "astType": "VARIABLE_DEFINITION",
-          "start": 42,
-          "end": 71
-        }
-      ],
-      "functionStorage": [
-        {
-          "functionAnnotationASTs": [],
-          "functionNameToken": {
-            "tokenType": "IDENTIFIER",
-            "tokenContent": "main",
-            "start": 110,
-            "end": 114
-          },
-          "functionReturnTypeAST": {
-            "typeKind": "INTEGER",
-            "isArray": false,
-            "astType": "TYPE",
-            "start": 115,
-            "end": 118
-          },
-          "functionArgumentASTs": [
-            {
-              "argumentNameIdentifier": {
-                "tokenType": "IDENTIFIER",
-                "tokenContent": "args",
-                "start": 120,
-                "end": 124
-              },
-              "argumentType": {
-                "typeKind": "STRING",
-                "isArray": true,
-                "astType": "TYPE",
-                "start": 126,
-                "end": 132
-              },
-              "astType": "ARGUMENT_DEFINITION",
-              "start": 120,
-              "end": 134
-            }
-          ],
-          "blockAST": {
-            "blockType": "BLOCK",
-            "blockStorage": [
-              {
-                "astType": "VARIABLE_DEFINITION",
-                "start": 142,
-                "end": 163
-              },
-              {
-                "astType": "VARIABLE_DEFINITION",
-                "start": 168,
-                "end": 193
-              },
-              {
-                "astType": "FUNCTION_INVOKE",
-                "start": 208,
-                "end": 228
-              },
-              {
-                "astType": "RETURN_STATEMENT",
-                "start": 233,
-                "end": 262
-              }
-            ],
-            "astType": "BLOCK",
-            "start": 136,
-            "end": 264
-          },
-          "astType": "FUNCTION_DEFINITION",
-          "start": 106,
-          "end": 264
-        },
-        {
-          "functionAnnotationASTs": [],
-          "functionNameToken": {
-            "tokenType": "IDENTIFIER",
-            "tokenContent": "print_greet",
-            "start": 270,
-            "end": 281
-          },
-          "functionReturnTypeAST": {
-            "typeKind": "VOID",
-            "isArray": false,
-            "astType": "TYPE",
-            "start": 0,
-            "end": 0
-          },
-          "functionArgumentASTs": [
-            {
-              "argumentNameIdentifier": {
-                "tokenType": "IDENTIFIER",
-                "tokenContent": "test_argument",
-                "start": 284,
-                "end": 297
-              },
-              "argumentType": {
-                "typeKind": "STRING",
-                "isArray": false,
-                "astType": "TYPE",
-                "start": 299,
-                "end": 305
-              },
-              "astType": "ARGUMENT_DEFINITION",
-              "start": 284,
-              "end": 305
-            }
-          ],
-          "blockAST": {
-            "blockType": "INLINE",
-            "blockStorage": [
-              {
-                "astType": "EXPRESSION",
-                "start": 309,
-                "end": 353
-              }
-            ],
-            "astType": "BLOCK",
-            "start": 307,
-            "end": 354
-          },
-          "astType": "FUNCTION_DEFINITION",
-          "start": 266,
-          "end": 354
-        },
-        {
-          "functionAnnotationASTs": [],
-          "functionNameToken": {
-            "tokenType": "IDENTIFIER",
-            "tokenContent": "greeting",
-            "start": 360,
-            "end": 368
-          },
-          "functionReturnTypeAST": {
-            "typeKind": "STRING",
-            "isArray": false,
-            "astType": "TYPE",
-            "start": 369,
-            "end": 375
-          },
-          "functionArgumentASTs": [],
-          "blockAST": {
-            "blockType": "INLINE",
-            "blockStorage": [
-              {
-                "astType": "EXPRESSION",
-                "start": 381,
-                "end": 394
-              }
-            ],
-            "astType": "BLOCK",
-            "start": 379,
-            "end": 395
-          },
-          "astType": "FUNCTION_DEFINITION",
-          "start": 356,
-          "end": 395
-        },
-        {
-          "functionAnnotationASTs": [],
-          "functionNameToken": {
-            "tokenType": "IDENTIFIER",
-            "tokenContent": "greeting",
-            "start": 400,
-            "end": 408
-          },
-          "functionReturnTypeAST": {
-            "typeKind": "STRING",
-            "isArray": false,
-            "astType": "TYPE",
-            "start": 409,
-            "end": 415
-          },
-          "functionArgumentASTs": [
-            {
-              "argumentNameIdentifier": {
-                "tokenType": "IDENTIFIER",
-                "tokenContent": "test",
-                "start": 417,
-                "end": 421
-              },
-              "argumentType": {
-                "typeKind": "INTEGER",
-                "isArray": false,
-                "astType": "TYPE",
-                "start": 423,
-                "end": 426
-              },
-              "astType": "ARGUMENT_DEFINITION",
-              "start": 417,
-              "end": 426
-            }
-          ],
-          "blockAST": {
-            "blockType": "INLINE",
-            "blockStorage": [
-              {
-                "astType": "EXPRESSION",
-                "start": 430,
-                "end": 443
-              }
-            ],
-            "astType": "BLOCK",
-            "start": 428,
-            "end": 444
-          },
-          "astType": "FUNCTION_DEFINITION",
-          "start": 396,
-          "end": 444
-        }
-      ],
-      "astType": "ROOT",
-      "start": 0,
-      "end": 445
-    }
-  },
-  "semanticAnalyzer": {
-    "errorHandler": {},
-    "rootSemantic": {
-      "abstractAST": {
-        "importStorage": [
-          {
-            "importFilePathToken": {
-              "tokenType": "STRING_LITERAL",
-              "tokenContent": "test",
-              "start": 7,
-              "end": 13
-            },
-            "importNameToken": {
-              "tokenType": "IDENTIFIER",
-              "tokenContent": "test",
-              "start": -1,
-              "end": -1
-            },
-            "astType": "IMPORT_STATEMENT",
-            "start": 0,
-            "end": 14
-          }
-        ],
-        "variableStorage": [
-          {
-            "variableNameToken": {
-              "tokenType": "IDENTIFIER",
-              "tokenContent": "test_1",
-              "start": 20,
-              "end": 26
-            },
-            "expressionAST": {
-              "abstractAST": {
-                "operableObject": {
-                  "identifierAccess": "GLOBAL_ACCESS",
-                  "invokedIdentifierNameToken": {
-                    "tokenType": "IDENTIFIER",
-                    "tokenContent": "test",
-                    "start": 29,
-                    "end": 33
-                  },
-                  "invokedIdentifierStatement": {
-                    "astType": "FUNCTION_INVOKE",
-                    "start": 34,
-                    "end": 40
-                  },
-                  "astType": "IDENTIFIER_INVOKE",
-                  "start": 29,
-                  "end": 34
-                },
-                "astType": "IDENTIFIER_INVOKE_OPERABLE",
-                "start": 29,
-                "end": 34
-              },
-              "astType": "EXPRESSION",
-              "start": 29,
-              "end": 34
-            },
-            "astType": "VARIABLE_DEFINITION",
-            "start": 16,
-            "end": 41
-          },
-          {
-            "variableNameToken": {
-              "tokenType": "IDENTIFIER",
-              "tokenContent": "test_2",
-              "start": 46,
-              "end": 52
-            },
-            "expressionAST": {
-              "abstractAST": {
-                "operableObject": {
-                  "functionAccess": "THIS_ACCESS",
-                  "invokedFunctionNameToken": {
-                    "tokenType": "IDENTIFIER",
-                    "tokenContent": "greeting",
-                    "start": 60,
-                    "end": 68
-                  },
-                  "invokedArguments": [],
-                  "functionInvocation": "EXPRESSION_INVOCATION",
-                  "astType": "FUNCTION_INVOKE",
-                  "start": 60,
-                  "end": 70
-                },
-                "astType": "FUNCTION_INVOKE_OPERABLE",
-                "start": 60,
-                "end": 70
-              },
-              "astType": "EXPRESSION",
-              "start": 60,
-              "end": 70
-            },
-            "astType": "VARIABLE_DEFINITION",
-            "start": 42,
-            "end": 71
-          }
-        ],
-        "functionStorage": [
-          {
-            "functionAnnotationASTs": [],
-            "functionNameToken": {
-              "tokenType": "IDENTIFIER",
-              "tokenContent": "main",
-              "start": 110,
-              "end": 114
-            },
-            "functionReturnTypeAST": {
-              "typeKind": "INTEGER",
-              "isArray": false,
-              "astType": "TYPE",
-              "start": 115,
-              "end": 118
-            },
-            "functionArgumentASTs": [
-              {
-                "argumentNameIdentifier": {
-                  "tokenType": "IDENTIFIER",
-                  "tokenContent": "args",
-                  "start": 120,
-                  "end": 124
-                },
-                "argumentType": {
-                  "typeKind": "STRING",
-                  "isArray": true,
-                  "astType": "TYPE",
-                  "start": 126,
-                  "end": 132
-                },
-                "astType": "ARGUMENT_DEFINITION",
-                "start": 120,
-                "end": 134
-              }
-            ],
-            "blockAST": {
-              "blockType": "BLOCK",
-              "blockStorage": [
-                {
-                  "astType": "VARIABLE_DEFINITION",
-                  "start": 142,
-                  "end": 163
-                },
-                {
-                  "astType": "VARIABLE_DEFINITION",
-                  "start": 168,
-                  "end": 193
-                },
-                {
-                  "astType": "FUNCTION_INVOKE",
-                  "start": 208,
-                  "end": 228
-                },
-                {
-                  "astType": "RETURN_STATEMENT",
-                  "start": 233,
-                  "end": 262
-                }
-              ],
-              "astType": "BLOCK",
-              "start": 136,
-              "end": 264
-            },
-            "astType": "FUNCTION_DEFINITION",
-            "start": 106,
-            "end": 264
-          },
-          {
-            "functionAnnotationASTs": [],
-            "functionNameToken": {
-              "tokenType": "IDENTIFIER",
-              "tokenContent": "print_greet",
-              "start": 270,
-              "end": 281
-            },
-            "functionReturnTypeAST": {
-              "typeKind": "VOID",
-              "isArray": false,
-              "astType": "TYPE",
-              "start": 0,
-              "end": 0
-            },
-            "functionArgumentASTs": [
-              {
-                "argumentNameIdentifier": {
-                  "tokenType": "IDENTIFIER",
-                  "tokenContent": "test_argument",
-                  "start": 284,
-                  "end": 297
-                },
-                "argumentType": {
-                  "typeKind": "STRING",
-                  "isArray": false,
-                  "astType": "TYPE",
-                  "start": 299,
-                  "end": 305
-                },
-                "astType": "ARGUMENT_DEFINITION",
-                "start": 284,
-                "end": 305
-              }
-            ],
-            "blockAST": {
-              "blockType": "INLINE",
-              "blockStorage": [
-                {
-                  "astType": "EXPRESSION",
-                  "start": 309,
-                  "end": 353
-                }
-              ],
-              "astType": "BLOCK",
-              "start": 307,
-              "end": 354
-            },
-            "astType": "FUNCTION_DEFINITION",
-            "start": 266,
-            "end": 354
-          },
-          {
-            "functionAnnotationASTs": [],
-            "functionNameToken": {
-              "tokenType": "IDENTIFIER",
-              "tokenContent": "greeting",
-              "start": 360,
-              "end": 368
-            },
-            "functionReturnTypeAST": {
-              "typeKind": "STRING",
-              "isArray": false,
-              "astType": "TYPE",
-              "start": 369,
-              "end": 375
-            },
-            "functionArgumentASTs": [],
-            "blockAST": {
-              "blockType": "INLINE",
-              "blockStorage": [
-                {
-                  "astType": "EXPRESSION",
-                  "start": 381,
-                  "end": 394
-                }
-              ],
-              "astType": "BLOCK",
-              "start": 379,
-              "end": 395
-            },
-            "astType": "FUNCTION_DEFINITION",
-            "start": 356,
-            "end": 395
-          },
-          {
-            "functionAnnotationASTs": [],
-            "functionNameToken": {
-              "tokenType": "IDENTIFIER",
-              "tokenContent": "greeting",
-              "start": 400,
-              "end": 408
-            },
-            "functionReturnTypeAST": {
-              "typeKind": "STRING",
-              "isArray": false,
-              "astType": "TYPE",
-              "start": 409,
-              "end": 415
-            },
-            "functionArgumentASTs": [
-              {
-                "argumentNameIdentifier": {
-                  "tokenType": "IDENTIFIER",
-                  "tokenContent": "test",
-                  "start": 417,
-                  "end": 421
-                },
-                "argumentType": {
-                  "typeKind": "INTEGER",
-                  "isArray": false,
-                  "astType": "TYPE",
-                  "start": 423,
-                  "end": 426
-                },
-                "astType": "ARGUMENT_DEFINITION",
-                "start": 417,
-                "end": 426
-              }
-            ],
-            "blockAST": {
-              "blockType": "INLINE",
-              "blockStorage": [
-                {
-                  "astType": "EXPRESSION",
-                  "start": 430,
-                  "end": 443
-                }
-              ],
-              "astType": "BLOCK",
-              "start": 428,
-              "end": 444
-            },
-            "astType": "FUNCTION_DEFINITION",
-            "start": 396,
-            "end": 444
-          }
-        ],
-        "astType": "ROOT",
-        "start": 0,
-        "end": 445
-      }
-    }
-  }
-}{
   "content": "fun test<string>() = \" ehehe \";\n",
   "lexicalAnalyzer": {
     "errorHandler": {},
@@ -1379,6 +8,12 @@
         "tokenContent": "fun",
         "start": 0,
         "end": 3
+      },
+      {
+        "tokenType": "WHITESPACE",
+        "tokenContent": " ",
+        "start": 3,
+        "end": 4
       },
       {
         "tokenType": "IDENTIFIER",
@@ -1421,11 +56,23 @@
         "end": 18
       },
       {
+        "tokenType": "WHITESPACE",
+        "tokenContent": " ",
+        "start": 18,
+        "end": 19
+      },
+      {
         "symbolType": "EQUAL",
         "tokenType": "SYMBOL",
         "tokenContent": "=",
         "start": 19,
         "end": 20
+      },
+      {
+        "tokenType": "WHITESPACE",
+        "tokenContent": " ",
+        "start": 20,
+        "end": 21
       },
       {
         "tokenType": "STRING_LITERAL",
@@ -1441,6 +88,12 @@
         "end": 31
       },
       {
+        "tokenType": "WHITESPACE",
+        "tokenContent": "\n",
+        "start": 31,
+        "end": 32
+      },
+      {
         "tokenType": "END_OF_FILE",
         "tokenContent": "fun test<string>() = \" ehehe \";\n",
         "start": 0,
@@ -1451,19 +104,19 @@
   "syntaxAnalyzer": {
     "errorHandler": {},
     "position": 10,
-    "rootAST": {
+    "rootSyntaxAST": {
       "importStorage": [],
       "variableStorage": [],
       "functionStorage": [
         {
-          "functionAnnotationASTs": [],
+          "functionAnnotationSyntaxASTS": [],
           "functionNameToken": {
             "tokenType": "IDENTIFIER",
             "tokenContent": "test",
             "start": 4,
             "end": 8
           },
-          "functionReturnTypeAST": {
+          "functionReturnTypeSyntaxAST": {
             "typeKind": "STRING",
             "isArray": false,
             "astType": "TYPE",
@@ -1471,11 +124,22 @@
             "end": 15
           },
           "functionArgumentASTs": [],
-          "blockAST": {
+          "blockSyntaxAST": {
             "blockType": "INLINE",
             "blockStorage": [
               {
-                "astType": "EXPRESSION",
+                "abstractOperableSyntaxAST": {
+                  "operableObject": {
+                    "tokenType": "STRING_LITERAL",
+                    "tokenContent": " ehehe ",
+                    "start": 21,
+                    "end": 30
+                  },
+                  "astType": "STRING_OPERABLE",
+                  "start": 21,
+                  "end": 30
+                },
+                "astType": "BASIC_EXPRESSION",
                 "start": 21,
                 "end": 30
               }
@@ -1496,49 +160,20 @@
   },
   "semanticAnalyzer": {
     "errorHandler": {},
-    "rootSemantic": {
-      "abstractAST": {
-        "importStorage": [],
-        "variableStorage": [],
-        "functionStorage": [
-          {
-            "functionAnnotationASTs": [],
-            "functionNameToken": {
-              "tokenType": "IDENTIFIER",
-              "tokenContent": "test",
-              "start": 4,
-              "end": 8
-            },
-            "functionReturnTypeAST": {
-              "typeKind": "STRING",
-              "isArray": false,
-              "astType": "TYPE",
-              "start": 9,
-              "end": 15
-            },
-            "functionArgumentASTs": [],
-            "blockAST": {
-              "blockType": "INLINE",
-              "blockStorage": [
-                {
-                  "astType": "EXPRESSION",
-                  "start": 21,
-                  "end": 30
-                }
-              ],
-              "astType": "BLOCK",
-              "start": 19,
-              "end": 31
-            },
-            "astType": "FUNCTION_DEFINITION",
-            "start": 0,
-            "end": 31
-          }
-        ],
-        "astType": "ROOT",
-        "start": 0,
-        "end": 32
-      }
+    "rootSemanticAST": {
+      "importStorage": [],
+      "variableStorage": [],
+      "functionStorage": [
+        {
+          "functionArguments": [],
+          "astType": "FUNCTION_DEFINITION",
+          "start": 0,
+          "end": 0
+        }
+      ],
+      "astType": "ROOT",
+      "start": 0,
+      "end": 0
     }
   }
 }{
@@ -1580,10 +215,28 @@
         "end": 16
       },
       {
+        "tokenType": "WHITESPACE",
+        "tokenContent": "\r",
+        "start": 16,
+        "end": 17
+      },
+      {
+        "tokenType": "WHITESPACE",
+        "tokenContent": "\n",
+        "start": 17,
+        "end": 18
+      },
+      {
         "tokenType": "IDENTIFIER",
         "tokenContent": "fun",
         "start": 18,
         "end": 21
+      },
+      {
+        "tokenType": "WHITESPACE",
+        "tokenContent": " ",
+        "start": 21,
+        "end": 22
       },
       {
         "tokenType": "IDENTIFIER",
@@ -1626,6 +279,12 @@
         "end": 40
       },
       {
+        "tokenType": "WHITESPACE",
+        "tokenContent": " ",
+        "start": 40,
+        "end": 41
+      },
+      {
         "tokenType": "IDENTIFIER",
         "tokenContent": "string",
         "start": 41,
@@ -1646,6 +305,18 @@
         "end": 49
       },
       {
+        "tokenType": "WHITESPACE",
+        "tokenContent": "\r",
+        "start": 49,
+        "end": 50
+      },
+      {
+        "tokenType": "WHITESPACE",
+        "tokenContent": "\n",
+        "start": 50,
+        "end": 51
+      },
+      {
         "tokenType": "END_OF_FILE",
         "tokenContent": "@native[default]\r\nfun println<>(message: string);\r\n",
         "start": 0,
@@ -1656,39 +327,1590 @@
   "syntaxAnalyzer": {
     "errorHandler": {},
     "position": 15,
-    "rootAST": {
+    "rootSyntaxAST": {
       "importStorage": [],
       "variableStorage": [],
+      "functionStorage": [],
+      "astType": "ROOT",
+      "start": 0,
+      "end": 51
+    }
+  },
+  "semanticAnalyzer": {
+    "errorHandler": {},
+    "rootSemanticAST": {
+      "importStorage": [],
+      "variableStorage": [],
+      "functionStorage": [],
+      "astType": "ROOT",
+      "start": 0,
+      "end": 0
+    }
+  }
+}{
+  "content": "import \"./test\" as test;\n\nvar test_1 = test.test();\nvar test_2 = this.greeting(1);\n\n# this method gets invoked first\nfun main<int>(args: string[]) {\n    var test_1 = \"Hello\";\n    var test_3 = this.test_1;\n    \n    this.print_greet(test_1);\n    return (20 + -10 * 5f) * 2 + 3;\n}\n\nfun print_greet<>(test_argument: string) = println(\"%s , %s\" % [test_2, test_argument]);\n\nfun greeting<string>() = \"Hello World\";\nfun greeting<string>() = \"Hello World\";\n\nfun greeting<string>(test: int) = \"Hello World\";\n",
+  "lexicalAnalyzer": {
+    "errorHandler": {},
+    "tokens": [
+      {
+        "tokenType": "IDENTIFIER",
+        "tokenContent": "import",
+        "start": 0,
+        "end": 6
+      },
+      {
+        "tokenType": "WHITESPACE",
+        "tokenContent": " ",
+        "start": 6,
+        "end": 7
+      },
+      {
+        "tokenType": "STRING_LITERAL",
+        "tokenContent": "./test",
+        "start": 7,
+        "end": 15
+      },
+      {
+        "tokenType": "WHITESPACE",
+        "tokenContent": " ",
+        "start": 15,
+        "end": 16
+      },
+      {
+        "tokenType": "IDENTIFIER",
+        "tokenContent": "as",
+        "start": 16,
+        "end": 18
+      },
+      {
+        "tokenType": "WHITESPACE",
+        "tokenContent": " ",
+        "start": 18,
+        "end": 19
+      },
+      {
+        "tokenType": "IDENTIFIER",
+        "tokenContent": "test",
+        "start": 19,
+        "end": 23
+      },
+      {
+        "symbolType": "SEMICOLON",
+        "tokenType": "SYMBOL",
+        "tokenContent": ";",
+        "start": 23,
+        "end": 24
+      },
+      {
+        "tokenType": "WHITESPACE",
+        "tokenContent": "\n",
+        "start": 24,
+        "end": 25
+      },
+      {
+        "tokenType": "WHITESPACE",
+        "tokenContent": "\n",
+        "start": 25,
+        "end": 26
+      },
+      {
+        "tokenType": "IDENTIFIER",
+        "tokenContent": "var",
+        "start": 26,
+        "end": 29
+      },
+      {
+        "tokenType": "WHITESPACE",
+        "tokenContent": " ",
+        "start": 29,
+        "end": 30
+      },
+      {
+        "tokenType": "IDENTIFIER",
+        "tokenContent": "test_1",
+        "start": 30,
+        "end": 36
+      },
+      {
+        "tokenType": "WHITESPACE",
+        "tokenContent": " ",
+        "start": 36,
+        "end": 37
+      },
+      {
+        "symbolType": "EQUAL",
+        "tokenType": "SYMBOL",
+        "tokenContent": "=",
+        "start": 37,
+        "end": 38
+      },
+      {
+        "tokenType": "WHITESPACE",
+        "tokenContent": " ",
+        "start": 38,
+        "end": 39
+      },
+      {
+        "tokenType": "IDENTIFIER",
+        "tokenContent": "test",
+        "start": 39,
+        "end": 43
+      },
+      {
+        "symbolType": "PERIOD",
+        "tokenType": "SYMBOL",
+        "tokenContent": ".",
+        "start": 43,
+        "end": 44
+      },
+      {
+        "tokenType": "IDENTIFIER",
+        "tokenContent": "test",
+        "start": 44,
+        "end": 48
+      },
+      {
+        "symbolType": "OPENING_PARENTHESIS",
+        "tokenType": "SYMBOL",
+        "tokenContent": "(",
+        "start": 48,
+        "end": 49
+      },
+      {
+        "symbolType": "CLOSING_PARENTHESIS",
+        "tokenType": "SYMBOL",
+        "tokenContent": ")",
+        "start": 49,
+        "end": 50
+      },
+      {
+        "symbolType": "SEMICOLON",
+        "tokenType": "SYMBOL",
+        "tokenContent": ";",
+        "start": 50,
+        "end": 51
+      },
+      {
+        "tokenType": "WHITESPACE",
+        "tokenContent": "\n",
+        "start": 51,
+        "end": 52
+      },
+      {
+        "tokenType": "IDENTIFIER",
+        "tokenContent": "var",
+        "start": 52,
+        "end": 55
+      },
+      {
+        "tokenType": "WHITESPACE",
+        "tokenContent": " ",
+        "start": 55,
+        "end": 56
+      },
+      {
+        "tokenType": "IDENTIFIER",
+        "tokenContent": "test_2",
+        "start": 56,
+        "end": 62
+      },
+      {
+        "tokenType": "WHITESPACE",
+        "tokenContent": " ",
+        "start": 62,
+        "end": 63
+      },
+      {
+        "symbolType": "EQUAL",
+        "tokenType": "SYMBOL",
+        "tokenContent": "=",
+        "start": 63,
+        "end": 64
+      },
+      {
+        "tokenType": "WHITESPACE",
+        "tokenContent": " ",
+        "start": 64,
+        "end": 65
+      },
+      {
+        "tokenType": "IDENTIFIER",
+        "tokenContent": "this",
+        "start": 65,
+        "end": 69
+      },
+      {
+        "symbolType": "PERIOD",
+        "tokenType": "SYMBOL",
+        "tokenContent": ".",
+        "start": 69,
+        "end": 70
+      },
+      {
+        "tokenType": "IDENTIFIER",
+        "tokenContent": "greeting",
+        "start": 70,
+        "end": 78
+      },
+      {
+        "symbolType": "OPENING_PARENTHESIS",
+        "tokenType": "SYMBOL",
+        "tokenContent": "(",
+        "start": 78,
+        "end": 79
+      },
+      {
+        "numberType": "INTEGER",
+        "tokenType": "NUMBER_LITERAL",
+        "tokenContent": "1",
+        "start": 79,
+        "end": 80
+      },
+      {
+        "symbolType": "CLOSING_PARENTHESIS",
+        "tokenType": "SYMBOL",
+        "tokenContent": ")",
+        "start": 80,
+        "end": 81
+      },
+      {
+        "symbolType": "SEMICOLON",
+        "tokenType": "SYMBOL",
+        "tokenContent": ";",
+        "start": 81,
+        "end": 82
+      },
+      {
+        "tokenType": "WHITESPACE",
+        "tokenContent": "\n",
+        "start": 82,
+        "end": 83
+      },
+      {
+        "tokenType": "WHITESPACE",
+        "tokenContent": "\n",
+        "start": 83,
+        "end": 84
+      },
+      {
+        "tokenType": "COMMENT",
+        "tokenContent": "# this method gets invoked first",
+        "start": 84,
+        "end": 116
+      },
+      {
+        "tokenType": "WHITESPACE",
+        "tokenContent": "\n",
+        "start": 116,
+        "end": 117
+      },
+      {
+        "tokenType": "IDENTIFIER",
+        "tokenContent": "fun",
+        "start": 117,
+        "end": 120
+      },
+      {
+        "tokenType": "WHITESPACE",
+        "tokenContent": " ",
+        "start": 120,
+        "end": 121
+      },
+      {
+        "tokenType": "IDENTIFIER",
+        "tokenContent": "main",
+        "start": 121,
+        "end": 125
+      },
+      {
+        "symbolType": "LESS_THAN_SIGN",
+        "tokenType": "SYMBOL",
+        "tokenContent": "<",
+        "start": 125,
+        "end": 126
+      },
+      {
+        "tokenType": "IDENTIFIER",
+        "tokenContent": "int",
+        "start": 126,
+        "end": 129
+      },
+      {
+        "symbolType": "GREATER_THAN_SIGN",
+        "tokenType": "SYMBOL",
+        "tokenContent": ">",
+        "start": 129,
+        "end": 130
+      },
+      {
+        "symbolType": "OPENING_PARENTHESIS",
+        "tokenType": "SYMBOL",
+        "tokenContent": "(",
+        "start": 130,
+        "end": 131
+      },
+      {
+        "tokenType": "IDENTIFIER",
+        "tokenContent": "args",
+        "start": 131,
+        "end": 135
+      },
+      {
+        "symbolType": "COLON",
+        "tokenType": "SYMBOL",
+        "tokenContent": ":",
+        "start": 135,
+        "end": 136
+      },
+      {
+        "tokenType": "WHITESPACE",
+        "tokenContent": " ",
+        "start": 136,
+        "end": 137
+      },
+      {
+        "tokenType": "IDENTIFIER",
+        "tokenContent": "string",
+        "start": 137,
+        "end": 143
+      },
+      {
+        "symbolType": "OPENING_BRACKET",
+        "tokenType": "SYMBOL",
+        "tokenContent": "[",
+        "start": 143,
+        "end": 144
+      },
+      {
+        "symbolType": "CLOSING_BRACKET",
+        "tokenType": "SYMBOL",
+        "tokenContent": "]",
+        "start": 144,
+        "end": 145
+      },
+      {
+        "symbolType": "CLOSING_PARENTHESIS",
+        "tokenType": "SYMBOL",
+        "tokenContent": ")",
+        "start": 145,
+        "end": 146
+      },
+      {
+        "tokenType": "WHITESPACE",
+        "tokenContent": " ",
+        "start": 146,
+        "end": 147
+      },
+      {
+        "symbolType": "OPENING_BRACE",
+        "tokenType": "SYMBOL",
+        "tokenContent": "{",
+        "start": 147,
+        "end": 148
+      },
+      {
+        "tokenType": "WHITESPACE",
+        "tokenContent": "\n",
+        "start": 148,
+        "end": 149
+      },
+      {
+        "tokenType": "WHITESPACE",
+        "tokenContent": " ",
+        "start": 149,
+        "end": 150
+      },
+      {
+        "tokenType": "WHITESPACE",
+        "tokenContent": " ",
+        "start": 150,
+        "end": 151
+      },
+      {
+        "tokenType": "WHITESPACE",
+        "tokenContent": " ",
+        "start": 151,
+        "end": 152
+      },
+      {
+        "tokenType": "WHITESPACE",
+        "tokenContent": " ",
+        "start": 152,
+        "end": 153
+      },
+      {
+        "tokenType": "IDENTIFIER",
+        "tokenContent": "var",
+        "start": 153,
+        "end": 156
+      },
+      {
+        "tokenType": "WHITESPACE",
+        "tokenContent": " ",
+        "start": 156,
+        "end": 157
+      },
+      {
+        "tokenType": "IDENTIFIER",
+        "tokenContent": "test_1",
+        "start": 157,
+        "end": 163
+      },
+      {
+        "tokenType": "WHITESPACE",
+        "tokenContent": " ",
+        "start": 163,
+        "end": 164
+      },
+      {
+        "symbolType": "EQUAL",
+        "tokenType": "SYMBOL",
+        "tokenContent": "=",
+        "start": 164,
+        "end": 165
+      },
+      {
+        "tokenType": "WHITESPACE",
+        "tokenContent": " ",
+        "start": 165,
+        "end": 166
+      },
+      {
+        "tokenType": "STRING_LITERAL",
+        "tokenContent": "Hello",
+        "start": 166,
+        "end": 173
+      },
+      {
+        "symbolType": "SEMICOLON",
+        "tokenType": "SYMBOL",
+        "tokenContent": ";",
+        "start": 173,
+        "end": 174
+      },
+      {
+        "tokenType": "WHITESPACE",
+        "tokenContent": "\n",
+        "start": 174,
+        "end": 175
+      },
+      {
+        "tokenType": "WHITESPACE",
+        "tokenContent": " ",
+        "start": 175,
+        "end": 176
+      },
+      {
+        "tokenType": "WHITESPACE",
+        "tokenContent": " ",
+        "start": 176,
+        "end": 177
+      },
+      {
+        "tokenType": "WHITESPACE",
+        "tokenContent": " ",
+        "start": 177,
+        "end": 178
+      },
+      {
+        "tokenType": "WHITESPACE",
+        "tokenContent": " ",
+        "start": 178,
+        "end": 179
+      },
+      {
+        "tokenType": "IDENTIFIER",
+        "tokenContent": "var",
+        "start": 179,
+        "end": 182
+      },
+      {
+        "tokenType": "WHITESPACE",
+        "tokenContent": " ",
+        "start": 182,
+        "end": 183
+      },
+      {
+        "tokenType": "IDENTIFIER",
+        "tokenContent": "test_3",
+        "start": 183,
+        "end": 189
+      },
+      {
+        "tokenType": "WHITESPACE",
+        "tokenContent": " ",
+        "start": 189,
+        "end": 190
+      },
+      {
+        "symbolType": "EQUAL",
+        "tokenType": "SYMBOL",
+        "tokenContent": "=",
+        "start": 190,
+        "end": 191
+      },
+      {
+        "tokenType": "WHITESPACE",
+        "tokenContent": " ",
+        "start": 191,
+        "end": 192
+      },
+      {
+        "tokenType": "IDENTIFIER",
+        "tokenContent": "this",
+        "start": 192,
+        "end": 196
+      },
+      {
+        "symbolType": "PERIOD",
+        "tokenType": "SYMBOL",
+        "tokenContent": ".",
+        "start": 196,
+        "end": 197
+      },
+      {
+        "tokenType": "IDENTIFIER",
+        "tokenContent": "test_1",
+        "start": 197,
+        "end": 203
+      },
+      {
+        "symbolType": "SEMICOLON",
+        "tokenType": "SYMBOL",
+        "tokenContent": ";",
+        "start": 203,
+        "end": 204
+      },
+      {
+        "tokenType": "WHITESPACE",
+        "tokenContent": "\n",
+        "start": 204,
+        "end": 205
+      },
+      {
+        "tokenType": "WHITESPACE",
+        "tokenContent": " ",
+        "start": 205,
+        "end": 206
+      },
+      {
+        "tokenType": "WHITESPACE",
+        "tokenContent": " ",
+        "start": 206,
+        "end": 207
+      },
+      {
+        "tokenType": "WHITESPACE",
+        "tokenContent": " ",
+        "start": 207,
+        "end": 208
+      },
+      {
+        "tokenType": "WHITESPACE",
+        "tokenContent": " ",
+        "start": 208,
+        "end": 209
+      },
+      {
+        "tokenType": "WHITESPACE",
+        "tokenContent": "\n",
+        "start": 209,
+        "end": 210
+      },
+      {
+        "tokenType": "WHITESPACE",
+        "tokenContent": " ",
+        "start": 210,
+        "end": 211
+      },
+      {
+        "tokenType": "WHITESPACE",
+        "tokenContent": " ",
+        "start": 211,
+        "end": 212
+      },
+      {
+        "tokenType": "WHITESPACE",
+        "tokenContent": " ",
+        "start": 212,
+        "end": 213
+      },
+      {
+        "tokenType": "WHITESPACE",
+        "tokenContent": " ",
+        "start": 213,
+        "end": 214
+      },
+      {
+        "tokenType": "IDENTIFIER",
+        "tokenContent": "this",
+        "start": 214,
+        "end": 218
+      },
+      {
+        "symbolType": "PERIOD",
+        "tokenType": "SYMBOL",
+        "tokenContent": ".",
+        "start": 218,
+        "end": 219
+      },
+      {
+        "tokenType": "IDENTIFIER",
+        "tokenContent": "print_greet",
+        "start": 219,
+        "end": 230
+      },
+      {
+        "symbolType": "OPENING_PARENTHESIS",
+        "tokenType": "SYMBOL",
+        "tokenContent": "(",
+        "start": 230,
+        "end": 231
+      },
+      {
+        "tokenType": "IDENTIFIER",
+        "tokenContent": "test_1",
+        "start": 231,
+        "end": 237
+      },
+      {
+        "symbolType": "CLOSING_PARENTHESIS",
+        "tokenType": "SYMBOL",
+        "tokenContent": ")",
+        "start": 237,
+        "end": 238
+      },
+      {
+        "symbolType": "SEMICOLON",
+        "tokenType": "SYMBOL",
+        "tokenContent": ";",
+        "start": 238,
+        "end": 239
+      },
+      {
+        "tokenType": "WHITESPACE",
+        "tokenContent": "\n",
+        "start": 239,
+        "end": 240
+      },
+      {
+        "tokenType": "WHITESPACE",
+        "tokenContent": " ",
+        "start": 240,
+        "end": 241
+      },
+      {
+        "tokenType": "WHITESPACE",
+        "tokenContent": " ",
+        "start": 241,
+        "end": 242
+      },
+      {
+        "tokenType": "WHITESPACE",
+        "tokenContent": " ",
+        "start": 242,
+        "end": 243
+      },
+      {
+        "tokenType": "WHITESPACE",
+        "tokenContent": " ",
+        "start": 243,
+        "end": 244
+      },
+      {
+        "tokenType": "IDENTIFIER",
+        "tokenContent": "return",
+        "start": 244,
+        "end": 250
+      },
+      {
+        "tokenType": "WHITESPACE",
+        "tokenContent": " ",
+        "start": 250,
+        "end": 251
+      },
+      {
+        "symbolType": "OPENING_PARENTHESIS",
+        "tokenType": "SYMBOL",
+        "tokenContent": "(",
+        "start": 251,
+        "end": 252
+      },
+      {
+        "numberType": "INTEGER",
+        "tokenType": "NUMBER_LITERAL",
+        "tokenContent": "20",
+        "start": 252,
+        "end": 254
+      },
+      {
+        "tokenType": "WHITESPACE",
+        "tokenContent": " ",
+        "start": 254,
+        "end": 255
+      },
+      {
+        "symbolType": "PLUS",
+        "tokenType": "SYMBOL",
+        "tokenContent": "+",
+        "start": 255,
+        "end": 256
+      },
+      {
+        "tokenType": "WHITESPACE",
+        "tokenContent": " ",
+        "start": 256,
+        "end": 257
+      },
+      {
+        "symbolType": "MINUS",
+        "tokenType": "SYMBOL",
+        "tokenContent": "-",
+        "start": 257,
+        "end": 258
+      },
+      {
+        "numberType": "INTEGER",
+        "tokenType": "NUMBER_LITERAL",
+        "tokenContent": "10",
+        "start": 258,
+        "end": 260
+      },
+      {
+        "tokenType": "WHITESPACE",
+        "tokenContent": " ",
+        "start": 260,
+        "end": 261
+      },
+      {
+        "symbolType": "ASTERISK",
+        "tokenType": "SYMBOL",
+        "tokenContent": "*",
+        "start": 261,
+        "end": 262
+      },
+      {
+        "tokenType": "WHITESPACE",
+        "tokenContent": " ",
+        "start": 262,
+        "end": 263
+      },
+      {
+        "numberType": "FLOAT",
+        "tokenType": "NUMBER_LITERAL",
+        "tokenContent": "5f",
+        "start": 263,
+        "end": 265
+      },
+      {
+        "symbolType": "CLOSING_PARENTHESIS",
+        "tokenType": "SYMBOL",
+        "tokenContent": ")",
+        "start": 265,
+        "end": 266
+      },
+      {
+        "tokenType": "WHITESPACE",
+        "tokenContent": " ",
+        "start": 266,
+        "end": 267
+      },
+      {
+        "symbolType": "ASTERISK",
+        "tokenType": "SYMBOL",
+        "tokenContent": "*",
+        "start": 267,
+        "end": 268
+      },
+      {
+        "tokenType": "WHITESPACE",
+        "tokenContent": " ",
+        "start": 268,
+        "end": 269
+      },
+      {
+        "numberType": "INTEGER",
+        "tokenType": "NUMBER_LITERAL",
+        "tokenContent": "2",
+        "start": 269,
+        "end": 270
+      },
+      {
+        "tokenType": "WHITESPACE",
+        "tokenContent": " ",
+        "start": 270,
+        "end": 271
+      },
+      {
+        "symbolType": "PLUS",
+        "tokenType": "SYMBOL",
+        "tokenContent": "+",
+        "start": 271,
+        "end": 272
+      },
+      {
+        "tokenType": "WHITESPACE",
+        "tokenContent": " ",
+        "start": 272,
+        "end": 273
+      },
+      {
+        "numberType": "INTEGER",
+        "tokenType": "NUMBER_LITERAL",
+        "tokenContent": "3",
+        "start": 273,
+        "end": 274
+      },
+      {
+        "symbolType": "SEMICOLON",
+        "tokenType": "SYMBOL",
+        "tokenContent": ";",
+        "start": 274,
+        "end": 275
+      },
+      {
+        "tokenType": "WHITESPACE",
+        "tokenContent": "\n",
+        "start": 275,
+        "end": 276
+      },
+      {
+        "symbolType": "CLOSING_BRACE",
+        "tokenType": "SYMBOL",
+        "tokenContent": "}",
+        "start": 276,
+        "end": 277
+      },
+      {
+        "tokenType": "WHITESPACE",
+        "tokenContent": "\n",
+        "start": 277,
+        "end": 278
+      },
+      {
+        "tokenType": "WHITESPACE",
+        "tokenContent": "\n",
+        "start": 278,
+        "end": 279
+      },
+      {
+        "tokenType": "IDENTIFIER",
+        "tokenContent": "fun",
+        "start": 279,
+        "end": 282
+      },
+      {
+        "tokenType": "WHITESPACE",
+        "tokenContent": " ",
+        "start": 282,
+        "end": 283
+      },
+      {
+        "tokenType": "IDENTIFIER",
+        "tokenContent": "print_greet",
+        "start": 283,
+        "end": 294
+      },
+      {
+        "symbolType": "LESS_THAN_SIGN",
+        "tokenType": "SYMBOL",
+        "tokenContent": "<",
+        "start": 294,
+        "end": 295
+      },
+      {
+        "symbolType": "GREATER_THAN_SIGN",
+        "tokenType": "SYMBOL",
+        "tokenContent": ">",
+        "start": 295,
+        "end": 296
+      },
+      {
+        "symbolType": "OPENING_PARENTHESIS",
+        "tokenType": "SYMBOL",
+        "tokenContent": "(",
+        "start": 296,
+        "end": 297
+      },
+      {
+        "tokenType": "IDENTIFIER",
+        "tokenContent": "test_argument",
+        "start": 297,
+        "end": 310
+      },
+      {
+        "symbolType": "COLON",
+        "tokenType": "SYMBOL",
+        "tokenContent": ":",
+        "start": 310,
+        "end": 311
+      },
+      {
+        "tokenType": "WHITESPACE",
+        "tokenContent": " ",
+        "start": 311,
+        "end": 312
+      },
+      {
+        "tokenType": "IDENTIFIER",
+        "tokenContent": "string",
+        "start": 312,
+        "end": 318
+      },
+      {
+        "symbolType": "CLOSING_PARENTHESIS",
+        "tokenType": "SYMBOL",
+        "tokenContent": ")",
+        "start": 318,
+        "end": 319
+      },
+      {
+        "tokenType": "WHITESPACE",
+        "tokenContent": " ",
+        "start": 319,
+        "end": 320
+      },
+      {
+        "symbolType": "EQUAL",
+        "tokenType": "SYMBOL",
+        "tokenContent": "=",
+        "start": 320,
+        "end": 321
+      },
+      {
+        "tokenType": "WHITESPACE",
+        "tokenContent": " ",
+        "start": 321,
+        "end": 322
+      },
+      {
+        "tokenType": "IDENTIFIER",
+        "tokenContent": "println",
+        "start": 322,
+        "end": 329
+      },
+      {
+        "symbolType": "OPENING_PARENTHESIS",
+        "tokenType": "SYMBOL",
+        "tokenContent": "(",
+        "start": 329,
+        "end": 330
+      },
+      {
+        "tokenType": "STRING_LITERAL",
+        "tokenContent": "%s , %s",
+        "start": 330,
+        "end": 339
+      },
+      {
+        "tokenType": "WHITESPACE",
+        "tokenContent": " ",
+        "start": 339,
+        "end": 340
+      },
+      {
+        "symbolType": "PERCENT",
+        "tokenType": "SYMBOL",
+        "tokenContent": "%",
+        "start": 340,
+        "end": 341
+      },
+      {
+        "tokenType": "WHITESPACE",
+        "tokenContent": " ",
+        "start": 341,
+        "end": 342
+      },
+      {
+        "symbolType": "OPENING_BRACKET",
+        "tokenType": "SYMBOL",
+        "tokenContent": "[",
+        "start": 342,
+        "end": 343
+      },
+      {
+        "tokenType": "IDENTIFIER",
+        "tokenContent": "test_2",
+        "start": 343,
+        "end": 349
+      },
+      {
+        "symbolType": "COMMA",
+        "tokenType": "SYMBOL",
+        "tokenContent": ",",
+        "start": 349,
+        "end": 350
+      },
+      {
+        "tokenType": "WHITESPACE",
+        "tokenContent": " ",
+        "start": 350,
+        "end": 351
+      },
+      {
+        "tokenType": "IDENTIFIER",
+        "tokenContent": "test_argument",
+        "start": 351,
+        "end": 364
+      },
+      {
+        "symbolType": "CLOSING_BRACKET",
+        "tokenType": "SYMBOL",
+        "tokenContent": "]",
+        "start": 364,
+        "end": 365
+      },
+      {
+        "symbolType": "CLOSING_PARENTHESIS",
+        "tokenType": "SYMBOL",
+        "tokenContent": ")",
+        "start": 365,
+        "end": 366
+      },
+      {
+        "symbolType": "SEMICOLON",
+        "tokenType": "SYMBOL",
+        "tokenContent": ";",
+        "start": 366,
+        "end": 367
+      },
+      {
+        "tokenType": "WHITESPACE",
+        "tokenContent": "\n",
+        "start": 367,
+        "end": 368
+      },
+      {
+        "tokenType": "WHITESPACE",
+        "tokenContent": "\n",
+        "start": 368,
+        "end": 369
+      },
+      {
+        "tokenType": "IDENTIFIER",
+        "tokenContent": "fun",
+        "start": 369,
+        "end": 372
+      },
+      {
+        "tokenType": "WHITESPACE",
+        "tokenContent": " ",
+        "start": 372,
+        "end": 373
+      },
+      {
+        "tokenType": "IDENTIFIER",
+        "tokenContent": "greeting",
+        "start": 373,
+        "end": 381
+      },
+      {
+        "symbolType": "LESS_THAN_SIGN",
+        "tokenType": "SYMBOL",
+        "tokenContent": "<",
+        "start": 381,
+        "end": 382
+      },
+      {
+        "tokenType": "IDENTIFIER",
+        "tokenContent": "string",
+        "start": 382,
+        "end": 388
+      },
+      {
+        "symbolType": "GREATER_THAN_SIGN",
+        "tokenType": "SYMBOL",
+        "tokenContent": ">",
+        "start": 388,
+        "end": 389
+      },
+      {
+        "symbolType": "OPENING_PARENTHESIS",
+        "tokenType": "SYMBOL",
+        "tokenContent": "(",
+        "start": 389,
+        "end": 390
+      },
+      {
+        "symbolType": "CLOSING_PARENTHESIS",
+        "tokenType": "SYMBOL",
+        "tokenContent": ")",
+        "start": 390,
+        "end": 391
+      },
+      {
+        "tokenType": "WHITESPACE",
+        "tokenContent": " ",
+        "start": 391,
+        "end": 392
+      },
+      {
+        "symbolType": "EQUAL",
+        "tokenType": "SYMBOL",
+        "tokenContent": "=",
+        "start": 392,
+        "end": 393
+      },
+      {
+        "tokenType": "WHITESPACE",
+        "tokenContent": " ",
+        "start": 393,
+        "end": 394
+      },
+      {
+        "tokenType": "STRING_LITERAL",
+        "tokenContent": "Hello World",
+        "start": 394,
+        "end": 407
+      },
+      {
+        "symbolType": "SEMICOLON",
+        "tokenType": "SYMBOL",
+        "tokenContent": ";",
+        "start": 407,
+        "end": 408
+      },
+      {
+        "tokenType": "WHITESPACE",
+        "tokenContent": "\n",
+        "start": 408,
+        "end": 409
+      },
+      {
+        "tokenType": "IDENTIFIER",
+        "tokenContent": "fun",
+        "start": 409,
+        "end": 412
+      },
+      {
+        "tokenType": "WHITESPACE",
+        "tokenContent": " ",
+        "start": 412,
+        "end": 413
+      },
+      {
+        "tokenType": "IDENTIFIER",
+        "tokenContent": "greeting",
+        "start": 413,
+        "end": 421
+      },
+      {
+        "symbolType": "LESS_THAN_SIGN",
+        "tokenType": "SYMBOL",
+        "tokenContent": "<",
+        "start": 421,
+        "end": 422
+      },
+      {
+        "tokenType": "IDENTIFIER",
+        "tokenContent": "string",
+        "start": 422,
+        "end": 428
+      },
+      {
+        "symbolType": "GREATER_THAN_SIGN",
+        "tokenType": "SYMBOL",
+        "tokenContent": ">",
+        "start": 428,
+        "end": 429
+      },
+      {
+        "symbolType": "OPENING_PARENTHESIS",
+        "tokenType": "SYMBOL",
+        "tokenContent": "(",
+        "start": 429,
+        "end": 430
+      },
+      {
+        "symbolType": "CLOSING_PARENTHESIS",
+        "tokenType": "SYMBOL",
+        "tokenContent": ")",
+        "start": 430,
+        "end": 431
+      },
+      {
+        "tokenType": "WHITESPACE",
+        "tokenContent": " ",
+        "start": 431,
+        "end": 432
+      },
+      {
+        "symbolType": "EQUAL",
+        "tokenType": "SYMBOL",
+        "tokenContent": "=",
+        "start": 432,
+        "end": 433
+      },
+      {
+        "tokenType": "WHITESPACE",
+        "tokenContent": " ",
+        "start": 433,
+        "end": 434
+      },
+      {
+        "tokenType": "STRING_LITERAL",
+        "tokenContent": "Hello World",
+        "start": 434,
+        "end": 447
+      },
+      {
+        "symbolType": "SEMICOLON",
+        "tokenType": "SYMBOL",
+        "tokenContent": ";",
+        "start": 447,
+        "end": 448
+      },
+      {
+        "tokenType": "WHITESPACE",
+        "tokenContent": "\n",
+        "start": 448,
+        "end": 449
+      },
+      {
+        "tokenType": "WHITESPACE",
+        "tokenContent": "\n",
+        "start": 449,
+        "end": 450
+      },
+      {
+        "tokenType": "IDENTIFIER",
+        "tokenContent": "fun",
+        "start": 450,
+        "end": 453
+      },
+      {
+        "tokenType": "WHITESPACE",
+        "tokenContent": " ",
+        "start": 453,
+        "end": 454
+      },
+      {
+        "tokenType": "IDENTIFIER",
+        "tokenContent": "greeting",
+        "start": 454,
+        "end": 462
+      },
+      {
+        "symbolType": "LESS_THAN_SIGN",
+        "tokenType": "SYMBOL",
+        "tokenContent": "<",
+        "start": 462,
+        "end": 463
+      },
+      {
+        "tokenType": "IDENTIFIER",
+        "tokenContent": "string",
+        "start": 463,
+        "end": 469
+      },
+      {
+        "symbolType": "GREATER_THAN_SIGN",
+        "tokenType": "SYMBOL",
+        "tokenContent": ">",
+        "start": 469,
+        "end": 470
+      },
+      {
+        "symbolType": "OPENING_PARENTHESIS",
+        "tokenType": "SYMBOL",
+        "tokenContent": "(",
+        "start": 470,
+        "end": 471
+      },
+      {
+        "tokenType": "IDENTIFIER",
+        "tokenContent": "test",
+        "start": 471,
+        "end": 475
+      },
+      {
+        "symbolType": "COLON",
+        "tokenType": "SYMBOL",
+        "tokenContent": ":",
+        "start": 475,
+        "end": 476
+      },
+      {
+        "tokenType": "WHITESPACE",
+        "tokenContent": " ",
+        "start": 476,
+        "end": 477
+      },
+      {
+        "tokenType": "IDENTIFIER",
+        "tokenContent": "int",
+        "start": 477,
+        "end": 480
+      },
+      {
+        "symbolType": "CLOSING_PARENTHESIS",
+        "tokenType": "SYMBOL",
+        "tokenContent": ")",
+        "start": 480,
+        "end": 481
+      },
+      {
+        "tokenType": "WHITESPACE",
+        "tokenContent": " ",
+        "start": 481,
+        "end": 482
+      },
+      {
+        "symbolType": "EQUAL",
+        "tokenType": "SYMBOL",
+        "tokenContent": "=",
+        "start": 482,
+        "end": 483
+      },
+      {
+        "tokenType": "WHITESPACE",
+        "tokenContent": " ",
+        "start": 483,
+        "end": 484
+      },
+      {
+        "tokenType": "STRING_LITERAL",
+        "tokenContent": "Hello World",
+        "start": 484,
+        "end": 497
+      },
+      {
+        "symbolType": "SEMICOLON",
+        "tokenType": "SYMBOL",
+        "tokenContent": ";",
+        "start": 497,
+        "end": 498
+      },
+      {
+        "tokenType": "WHITESPACE",
+        "tokenContent": "\n",
+        "start": 498,
+        "end": 499
+      },
+      {
+        "tokenType": "END_OF_FILE",
+        "tokenContent": "import \"./test\" as test;\n\nvar test_1 = test.test();\nvar test_2 = this.greeting(1);\n\n# this method gets invoked first\nfun main<int>(args: string[]) {\n    var test_1 = \"Hello\";\n    var test_3 = this.test_1;\n    \n    this.print_greet(test_1);\n    return (20 + -10 * 5f) * 2 + 3;\n}\n\nfun print_greet<>(test_argument: string) = println(\"%s , %s\" % [test_2, test_argument]);\n\nfun greeting<string>() = \"Hello World\";\nfun greeting<string>() = \"Hello World\";\n\nfun greeting<string>(test: int) = \"Hello World\";\n",
+        "start": 0,
+        "end": 499
+      }
+    ]
+  },
+  "syntaxAnalyzer": {
+    "errorHandler": {},
+    "position": 125,
+    "rootSyntaxAST": {
+      "importStorage": [
+        {
+          "importFilePathToken": {
+            "tokenType": "STRING_LITERAL",
+            "tokenContent": "./test",
+            "start": 7,
+            "end": 15
+          },
+          "importNameToken": {
+            "tokenType": "IDENTIFIER",
+            "tokenContent": "test",
+            "start": 19,
+            "end": 23
+          },
+          "astType": "IMPORT_DEFINITION",
+          "start": 0,
+          "end": 24
+        }
+      ],
+      "variableStorage": [
+        {
+          "variableAnnotations": [],
+          "variableNameToken": {
+            "tokenType": "IDENTIFIER",
+            "tokenContent": "test_1",
+            "start": 30,
+            "end": 36
+          },
+          "expressionAST": {
+            "abstractOperableSyntaxAST": {
+              "astType": "IDENTIFIER_INVOKE_OPERABLE",
+              "start": 39,
+              "end": 44
+            },
+            "astType": "BASIC_EXPRESSION",
+            "start": 39,
+            "end": 44
+          },
+          "astType": "VARIABLE_DEFINITION",
+          "start": 26,
+          "end": 51
+        },
+        {
+          "variableAnnotations": [],
+          "variableNameToken": {
+            "tokenType": "IDENTIFIER",
+            "tokenContent": "test_2",
+            "start": 56,
+            "end": 62
+          },
+          "expressionAST": {
+            "abstractOperableSyntaxAST": {
+              "astType": "FUNCTION_INVOKE_OPERABLE",
+              "start": 70,
+              "end": 81
+            },
+            "astType": "BASIC_EXPRESSION",
+            "start": 70,
+            "end": 81
+          },
+          "astType": "VARIABLE_DEFINITION",
+          "start": 52,
+          "end": 82
+        }
+      ],
       "functionStorage": [
         {
-          "functionAnnotationASTs": [
-            {
-              "annotationName": {
-                "tokenType": "IDENTIFIER",
-                "tokenContent": "native",
-                "start": 1,
-                "end": 7
-              },
-              "annotationArguments": [
-                {
-                  "tokenType": "IDENTIFIER",
-                  "tokenContent": "default",
-                  "start": 8,
-                  "end": 15
-                }
-              ],
-              "astType": "ANNOTATION",
-              "start": 0,
-              "end": 16
-            }
-          ],
+          "functionAnnotationSyntaxASTS": [],
           "functionNameToken": {
             "tokenType": "IDENTIFIER",
-            "tokenContent": "println",
-            "start": 22,
-            "end": 29
+            "tokenContent": "main",
+            "start": 121,
+            "end": 125
           },
-          "functionReturnTypeAST": {
+          "functionReturnTypeSyntaxAST": {
+            "typeKind": "INTEGER",
+            "isArray": false,
+            "astType": "TYPE",
+            "start": 126,
+            "end": 129
+          },
+          "functionArgumentASTs": [
+            {
+              "argumentNameIdentifier": {
+                "tokenType": "IDENTIFIER",
+                "tokenContent": "args",
+                "start": 131,
+                "end": 135
+              },
+              "argumentType": {
+                "typeKind": "STRING",
+                "isArray": true,
+                "astType": "TYPE",
+                "start": 137,
+                "end": 143
+              },
+              "astType": "ARGUMENT_DEFINITION",
+              "start": 131,
+              "end": 145
+            }
+          ],
+          "blockSyntaxAST": {
+            "blockType": "BLOCK",
+            "blockStorage": [
+              {
+                "variableAnnotations": [],
+                "variableNameToken": {
+                  "tokenType": "IDENTIFIER",
+                  "tokenContent": "test_1",
+                  "start": 157,
+                  "end": 163
+                },
+                "expressionAST": {
+                  "abstractOperableSyntaxAST": {
+                    "operableObject": {
+                      "tokenType": "STRING_LITERAL",
+                      "tokenContent": "Hello",
+                      "start": 166,
+                      "end": 173
+                    },
+                    "astType": "STRING_OPERABLE",
+                    "start": 166,
+                    "end": 173
+                  },
+                  "astType": "BASIC_EXPRESSION",
+                  "start": 166,
+                  "end": 173
+                },
+                "astType": "VARIABLE_DEFINITION",
+                "start": 153,
+                "end": 174
+              },
+              {
+                "variableAnnotations": [],
+                "variableNameToken": {
+                  "tokenType": "IDENTIFIER",
+                  "tokenContent": "test_3",
+                  "start": 183,
+                  "end": 189
+                },
+                "expressionAST": {
+                  "abstractOperableSyntaxAST": {
+                    "astType": "IDENTIFIER_CALL_OPERABLE",
+                    "start": 197,
+                    "end": 203
+                  },
+                  "astType": "BASIC_EXPRESSION",
+                  "start": 197,
+                  "end": 203
+                },
+                "astType": "VARIABLE_DEFINITION",
+                "start": 179,
+                "end": 204
+              },
+              {
+                "functionAccess": "THIS_ACCESS",
+                "invokedFunctionNameToken": {
+                  "tokenType": "IDENTIFIER",
+                  "tokenContent": "print_greet",
+                  "start": 219,
+                  "end": 230
+                },
+                "invokedArguments": [
+                  {
+                    "abstractOperableSyntaxAST": {
+                      "astType": "IDENTIFIER_CALL_OPERABLE",
+                      "start": 231,
+                      "end": 237
+                    },
+                    "astType": "BASIC_EXPRESSION",
+                    "start": 231,
+                    "end": 237
+                  }
+                ],
+                "functionInvocation": "BLOCK_INVOCATION",
+                "astType": "FUNCTION_INVOKE_OPERABLE",
+                "start": 219,
+                "end": 239
+              },
+              {
+                "expressionAST": {
+                  "abstractOperableSyntaxAST": {
+                    "astType": "BINARY_EXPRESSION",
+                    "start": 251,
+                    "end": 274
+                  },
+                  "astType": "BASIC_EXPRESSION",
+                  "start": 251,
+                  "end": 274
+                },
+                "astType": "RETURN_STATEMENT",
+                "start": 244,
+                "end": 275
+              }
+            ],
+            "astType": "BLOCK",
+            "start": 147,
+            "end": 277
+          },
+          "astType": "FUNCTION_DEFINITION",
+          "start": 117,
+          "end": 277
+        },
+        {
+          "functionAnnotationSyntaxASTS": [],
+          "functionNameToken": {
+            "tokenType": "IDENTIFIER",
+            "tokenContent": "print_greet",
+            "start": 283,
+            "end": 294
+          },
+          "functionReturnTypeSyntaxAST": {
             "typeKind": "VOID",
             "isArray": false,
             "astType": "TYPE",
@@ -1699,115 +1921,210 @@
             {
               "argumentNameIdentifier": {
                 "tokenType": "IDENTIFIER",
-                "tokenContent": "message",
-                "start": 32,
-                "end": 39
+                "tokenContent": "test_argument",
+                "start": 297,
+                "end": 310
               },
               "argumentType": {
                 "typeKind": "STRING",
                 "isArray": false,
                 "astType": "TYPE",
-                "start": 41,
-                "end": 47
+                "start": 312,
+                "end": 318
               },
               "astType": "ARGUMENT_DEFINITION",
-              "start": 32,
-              "end": 47
+              "start": 297,
+              "end": 318
             }
           ],
-          "blockAST": {
-            "blockStorage": [],
+          "blockSyntaxAST": {
+            "blockType": "INLINE",
+            "blockStorage": [
+              {
+                "abstractOperableSyntaxAST": {
+                  "astType": "FUNCTION_INVOKE_OPERABLE",
+                  "start": 322,
+                  "end": 366
+                },
+                "astType": "BASIC_EXPRESSION",
+                "start": 322,
+                "end": 366
+              }
+            ],
             "astType": "BLOCK",
-            "start": 0,
-            "end": 0
+            "start": 320,
+            "end": 367
           },
           "astType": "FUNCTION_DEFINITION",
-          "start": 18,
-          "end": 49
+          "start": 279,
+          "end": 367
+        },
+        {
+          "functionAnnotationSyntaxASTS": [],
+          "functionNameToken": {
+            "tokenType": "IDENTIFIER",
+            "tokenContent": "greeting",
+            "start": 373,
+            "end": 381
+          },
+          "functionReturnTypeSyntaxAST": {
+            "typeKind": "STRING",
+            "isArray": false,
+            "astType": "TYPE",
+            "start": 382,
+            "end": 388
+          },
+          "functionArgumentASTs": [],
+          "blockSyntaxAST": {
+            "blockType": "INLINE",
+            "blockStorage": [
+              {
+                "abstractOperableSyntaxAST": {
+                  "operableObject": {
+                    "tokenType": "STRING_LITERAL",
+                    "tokenContent": "Hello World",
+                    "start": 394,
+                    "end": 407
+                  },
+                  "astType": "STRING_OPERABLE",
+                  "start": 394,
+                  "end": 407
+                },
+                "astType": "BASIC_EXPRESSION",
+                "start": 394,
+                "end": 407
+              }
+            ],
+            "astType": "BLOCK",
+            "start": 392,
+            "end": 408
+          },
+          "astType": "FUNCTION_DEFINITION",
+          "start": 369,
+          "end": 408
+        },
+        {
+          "functionAnnotationSyntaxASTS": [],
+          "functionNameToken": {
+            "tokenType": "IDENTIFIER",
+            "tokenContent": "greeting",
+            "start": 413,
+            "end": 421
+          },
+          "functionReturnTypeSyntaxAST": {
+            "typeKind": "STRING",
+            "isArray": false,
+            "astType": "TYPE",
+            "start": 422,
+            "end": 428
+          },
+          "functionArgumentASTs": [],
+          "blockSyntaxAST": {
+            "blockType": "INLINE",
+            "blockStorage": [
+              {
+                "abstractOperableSyntaxAST": {
+                  "operableObject": {
+                    "tokenType": "STRING_LITERAL",
+                    "tokenContent": "Hello World",
+                    "start": 434,
+                    "end": 447
+                  },
+                  "astType": "STRING_OPERABLE",
+                  "start": 434,
+                  "end": 447
+                },
+                "astType": "BASIC_EXPRESSION",
+                "start": 434,
+                "end": 447
+              }
+            ],
+            "astType": "BLOCK",
+            "start": 432,
+            "end": 448
+          },
+          "astType": "FUNCTION_DEFINITION",
+          "start": 409,
+          "end": 448
+        },
+        {
+          "functionAnnotationSyntaxASTS": [],
+          "functionNameToken": {
+            "tokenType": "IDENTIFIER",
+            "tokenContent": "greeting",
+            "start": 454,
+            "end": 462
+          },
+          "functionReturnTypeSyntaxAST": {
+            "typeKind": "STRING",
+            "isArray": false,
+            "astType": "TYPE",
+            "start": 463,
+            "end": 469
+          },
+          "functionArgumentASTs": [
+            {
+              "argumentNameIdentifier": {
+                "tokenType": "IDENTIFIER",
+                "tokenContent": "test",
+                "start": 471,
+                "end": 475
+              },
+              "argumentType": {
+                "typeKind": "INTEGER",
+                "isArray": false,
+                "astType": "TYPE",
+                "start": 477,
+                "end": 480
+              },
+              "astType": "ARGUMENT_DEFINITION",
+              "start": 471,
+              "end": 480
+            }
+          ],
+          "blockSyntaxAST": {
+            "blockType": "INLINE",
+            "blockStorage": [
+              {
+                "abstractOperableSyntaxAST": {
+                  "operableObject": {
+                    "tokenType": "STRING_LITERAL",
+                    "tokenContent": "Hello World",
+                    "start": 484,
+                    "end": 497
+                  },
+                  "astType": "STRING_OPERABLE",
+                  "start": 484,
+                  "end": 497
+                },
+                "astType": "BASIC_EXPRESSION",
+                "start": 484,
+                "end": 497
+              }
+            ],
+            "astType": "BLOCK",
+            "start": 482,
+            "end": 498
+          },
+          "astType": "FUNCTION_DEFINITION",
+          "start": 450,
+          "end": 498
         }
       ],
       "astType": "ROOT",
       "start": 0,
-      "end": 51
+      "end": 499
     }
   },
   "semanticAnalyzer": {
     "errorHandler": {},
-    "rootSemantic": {
-      "abstractAST": {
-        "importStorage": [],
-        "variableStorage": [],
-        "functionStorage": [
-          {
-            "functionAnnotationASTs": [
-              {
-                "annotationName": {
-                  "tokenType": "IDENTIFIER",
-                  "tokenContent": "native",
-                  "start": 1,
-                  "end": 7
-                },
-                "annotationArguments": [
-                  {
-                    "tokenType": "IDENTIFIER",
-                    "tokenContent": "default",
-                    "start": 8,
-                    "end": 15
-                  }
-                ],
-                "astType": "ANNOTATION",
-                "start": 0,
-                "end": 16
-              }
-            ],
-            "functionNameToken": {
-              "tokenType": "IDENTIFIER",
-              "tokenContent": "println",
-              "start": 22,
-              "end": 29
-            },
-            "functionReturnTypeAST": {
-              "typeKind": "VOID",
-              "isArray": false,
-              "astType": "TYPE",
-              "start": 0,
-              "end": 0
-            },
-            "functionArgumentASTs": [
-              {
-                "argumentNameIdentifier": {
-                  "tokenType": "IDENTIFIER",
-                  "tokenContent": "message",
-                  "start": 32,
-                  "end": 39
-                },
-                "argumentType": {
-                  "typeKind": "STRING",
-                  "isArray": false,
-                  "astType": "TYPE",
-                  "start": 41,
-                  "end": 47
-                },
-                "astType": "ARGUMENT_DEFINITION",
-                "start": 32,
-                "end": 47
-              }
-            ],
-            "blockAST": {
-              "blockStorage": [],
-              "astType": "BLOCK",
-              "start": 0,
-              "end": 0
-            },
-            "astType": "FUNCTION_DEFINITION",
-            "start": 18,
-            "end": 49
-          }
-        ],
-        "astType": "ROOT",
-        "start": 0,
-        "end": 51
-      }
+    "rootSemanticAST": {
+      "importStorage": [],
+      "variableStorage": [],
+      "functionStorage": [],
+      "astType": "ROOT",
+      "start": 0,
+      "end": 0
     }
   }
 }

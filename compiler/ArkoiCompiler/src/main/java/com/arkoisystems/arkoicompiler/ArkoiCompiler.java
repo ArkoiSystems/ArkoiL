@@ -7,10 +7,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * Copyright © 2019 ArkoiSystems (https://www.arkoisystems.com/) All Rights Reserved.
@@ -46,52 +43,51 @@ public class ArkoiCompiler
     }
     
     public void addFile(final File file) throws IOException {
-        this.arkoiClasses.put(file.getAbsolutePath(), new ArkoiClass(this, Files.readAllBytes(file.toPath())));
+        this.arkoiClasses.put(file.getCanonicalPath(), new ArkoiClass(this, Files.readAllBytes(file.toPath())));
     }
     
     public void printStackTrace(final PrintStream errorStream) {
-        for (final ArkoiClass arkoiClass : this.arkoiClasses.values()) {
-            System.out.println("~~~  ~~~");
-            if (arkoiClass.getLexicalAnalyzer() != null)
-                arkoiClass.getLexicalAnalyzer().getErrorHandler().printStackTrace(errorStream);
-            if (arkoiClass.getSyntaxAnalyzer() != null)
-                arkoiClass.getSyntaxAnalyzer().getErrorHandler().printStackTrace(errorStream);
-            if (arkoiClass.getSemanticAnalyzer() != null)
-                arkoiClass.getSemanticAnalyzer().getErrorHandler().printStackTrace(errorStream);
+        for (final Map.Entry<String, ArkoiClass> classEntry : this.arkoiClasses.entrySet()) {
+            System.out.println(classEntry.getKey() + ":");
+            if (classEntry.getValue().getLexicalAnalyzer() != null)
+                classEntry.getValue().getLexicalAnalyzer().getErrorHandler().printStackTrace(errorStream);
+            if (classEntry.getValue().getSyntaxAnalyzer() != null)
+                classEntry.getValue().getSyntaxAnalyzer().getErrorHandler().printStackTrace(errorStream);
+            if (classEntry.getValue().getSemanticAnalyzer() != null)
+                classEntry.getValue().getSemanticAnalyzer().getErrorHandler().printStackTrace(errorStream);
         }
     }
     
     public boolean compile() throws Exception {
-        final long compileStart = System.nanoTime();
-        
         for (final ArkoiClass arkoiClass : this.arkoiClasses.values()) {
             arkoiClass.initializeLexical();
             arkoiClass.initializeSyntax();
             arkoiClass.initializeSemantic();
         }
-        
+    
+        final long compileStart = System.nanoTime();
         final long lexicalStart = System.nanoTime();
         for (final ArkoiClass arkoiClass : this.arkoiClasses.values()) {
             if (!arkoiClass.getLexicalAnalyzer().processStage())
                 return false;
         }
-        System.out.printf("The lexical analysis took %sms for all classes (%s in total)\n", ((System.nanoTime() - lexicalStart) / 1000000D), this.arkoiClasses.size());
-        
+        System.out.printf("The lexical analysis took %sms for all classes (%s in total)\n", (System.nanoTime() - lexicalStart) / 1000000D, this.arkoiClasses.size());
+    
         final long syntaxStart = System.nanoTime();
         for (final ArkoiClass arkoiClass : this.arkoiClasses.values()) {
             if (!arkoiClass.getSyntaxAnalyzer().processStage())
                 return false;
         }
-        System.out.printf("The syntax analysis took %sms for all classes (%s in total)\n", ((System.nanoTime() - syntaxStart) / 1000000D), this.arkoiClasses.size());
+        System.out.printf("The syntax analysis took %sms for all classes (%s in total)\n", (System.nanoTime() - syntaxStart) / 1000000D, this.arkoiClasses.size());
     
         final long semanticStart = System.nanoTime();
         for (final ArkoiClass arkoiClass : this.arkoiClasses.values()) {
             if (!arkoiClass.getSemanticAnalyzer().processStage())
                 return false;
         }
-        System.out.printf("The semantic analysis took %sms for all classes (%s in total)\n", ((System.nanoTime() - semanticStart) / 1000000D), this.arkoiClasses.size());
+        System.out.printf("The semantic analysis took %sms for all classes (%s in total)\n", (System.nanoTime() - semanticStart) / 1000000D, this.arkoiClasses.size());
     
-        System.out.printf("The compilation took %sms for all classes (%s in total)\n", ((System.nanoTime() - compileStart) / 1000000D), this.arkoiClasses.size());
+        System.out.printf("The compilation took %sms for all classes (%s in total)\n", (System.nanoTime() - compileStart) / 1000000D, this.arkoiClasses.size());
         return true;
     }
     
@@ -105,7 +101,7 @@ public class ArkoiCompiler
         
         final List<File> files = this.getAllFiles(nativeDirectory);
         for (final File file : files)
-            this.arkoiClasses.put(file.getAbsolutePath(), new ArkoiClass(this, Files.readAllBytes(file.toPath()), true));
+            this.arkoiClasses.put(file.getCanonicalPath(), new ArkoiClass(this, Files.readAllBytes(file.toPath()), true));
     }
     
     private List<File> getAllFiles(final File directory) {

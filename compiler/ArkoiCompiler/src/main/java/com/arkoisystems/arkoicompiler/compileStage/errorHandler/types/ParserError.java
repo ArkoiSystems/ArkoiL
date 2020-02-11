@@ -2,8 +2,8 @@ package com.arkoisystems.arkoicompiler.compileStage.errorHandler.types;
 
 import com.arkoisystems.arkoicompiler.compileStage.errorHandler.AbstractError;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.AbstractToken;
-import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.AbstractAST;
-import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.parser.Parser;
+import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.ast.AbstractSyntaxAST;
+import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.parser.AbstractParser;
 import com.google.gson.annotations.Expose;
 import lombok.Getter;
 
@@ -24,7 +24,7 @@ import lombok.Getter;
  * permissions and limitations under the License.
  */
 @Getter
-public class ParserError<T extends Parser<?>> extends AbstractError
+public class ParserError<T extends AbstractParser<?>> extends AbstractError
 {
     
     @Expose
@@ -40,8 +40,8 @@ public class ParserError<T extends Parser<?>> extends AbstractError
         this.parser = parser;
     }
     
-    public ParserError(final T parser, final AbstractAST<?> abstractAST, final String message, final Object... arguments) {
-        super(abstractAST.getStart(), abstractAST.getEnd(), message, arguments);
+    public ParserError(final T parser, final AbstractSyntaxAST abstractSyntaxAST, final String message, final Object... arguments) {
+        super(abstractSyntaxAST.getStart(), abstractSyntaxAST.getEnd(), message, arguments);
         this.parser = parser;
     }
     

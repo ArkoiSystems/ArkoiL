@@ -20,9 +20,24 @@ import java.io.PrintStream;
  */
 public abstract class ErrorHandler
 {
-
+    
+    /**
+     * This method will add an specified error "abstractError" to the current stage. Also
+     * it can handle the error in every way it wants.
+     *
+     * @param abstractError
+     *         The AbstractError is the given error which contains data why something
+     *         doesn't work.
+     */
     public abstract void addError(final AbstractError abstractError);
     
+    /**
+     * This method is used to print the stack trace of the error, which is useful to debug
+     * the program if something went wrong.
+     *
+     * @param printStream
+     *         The PrintStream in which the stack trace should be written to.
+     */
     public abstract void printStackTrace(final PrintStream printStream);
     
 }

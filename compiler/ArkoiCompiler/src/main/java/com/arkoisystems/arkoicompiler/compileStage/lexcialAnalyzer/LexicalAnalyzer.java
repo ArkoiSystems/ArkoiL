@@ -1,8 +1,7 @@
 package com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer;
 
 import com.arkoisystems.arkoicompiler.ArkoiClass;
-import com.arkoisystems.arkoicompiler.ArkoiCompiler;
-import com.arkoisystems.arkoicompiler.compileStage.ICompileStage;
+import com.arkoisystems.arkoicompiler.compileStage.AbstractStage;
 import com.arkoisystems.arkoicompiler.compileStage.errorHandler.ErrorHandler;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.AbstractToken;
 import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.token.TokenType;
@@ -32,12 +31,11 @@ import java.util.regex.Matcher;
  * permissions and limitations under the License.
  */
 @Getter
-public class LexicalAnalyzer implements ICompileStage
+public class LexicalAnalyzer extends AbstractStage
 {
     
     
     private final ArkoiClass arkoiClass;
-    
     
     @Expose
     private final LexicalErrorHandler errorHandler;
@@ -45,14 +43,12 @@ public class LexicalAnalyzer implements ICompileStage
     @Expose
     private final List<AbstractToken> tokens;
     
-    
     public LexicalAnalyzer(final ArkoiClass arkoiClass) {
         this.arkoiClass = arkoiClass;
-        
+    
         this.errorHandler = new LexicalErrorHandler();
         this.tokens = new ArrayList<>();
     }
-    
     
     @SneakyThrows
     @Override
@@ -61,7 +57,7 @@ public class LexicalAnalyzer implements ICompileStage
         while (matcher.find()) {
             final AbstractToken abstractToken = TokenType.createToken(matcher);
             if (abstractToken == null) {
-                // TODO: 1/1/2020 throw error
+                // TODO: Make it better ty
                 return false;
             } else this.tokens.add(abstractToken);
         }

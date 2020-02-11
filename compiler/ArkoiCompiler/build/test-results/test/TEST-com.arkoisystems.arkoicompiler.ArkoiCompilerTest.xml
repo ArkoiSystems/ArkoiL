@@ -1,38 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.arkoisystems.arkoicompiler.ArkoiCompilerTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2020-02-08T23:14:58" hostname="msi-ubuntu" time="0.096">
+<testsuite name="com.arkoisystems.arkoicompiler.ArkoiCompilerTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2020-02-11T23:39:04" hostname="msi-ubuntu" time="0.089">
   <properties/>
-  <testcase name="runCompiler" classname="com.arkoisystems.arkoicompiler.ArkoiCompilerTest" time="0.096"/>
-  <system-out><![CDATA[The lexical analysis took 11.225333ms for all classes (3 in total)
-The syntax analysis took 14.500919ms for all classes (3 in total)
-~~~  ~~~
-~~~  ~~~
-~~~  ~~~
+  <testcase name="runCompiler" classname="com.arkoisystems.arkoicompiler.ArkoiCompilerTest" time="0.089"/>
+  <system-out><![CDATA[The lexical analysis took 11.273059ms for all classes (3 in total)
+The syntax analysis took 13.358351ms for all classes (3 in total)
+/home/timo/dev/ArkoiL/examples/basic/test.ark:
+/home/timo/dev/ArkoiL/compiler/natives/system.ark:
+/home/timo/dev/ArkoiL/examples/basic/main.ark:
 ]]></system-out>
   <system-err><![CDATA[Couldn't compile the file. Please see the stacktrace for errors:
-{
-  "abstractAST": {
-    "functionAccess": "GLOBAL_ACCESS",
-    "invokedFunctionNameToken": {
-      "tokenType": "IDENTIFIER",
-      "tokenContent": "println",
-      "start": 309,
-      "end": 316
-    },
-    "invokedArguments": [
-      {
-        "astType": "EXPRESSION",
-        "start": 317,
-        "end": 0
-      }
-    ],
-    "functionInvocation": "EXPRESSION_INVOCATION",
-    "astType": "FUNCTION_INVOKE",
-    "start": 309,
-    "end": 353
-  },
-  "message": "Couldn't find any function in this class which matches the function name and arguments.",
-  "start": 309,
-  "end": 353
-}
 ]]></system-err>
 </testsuite>
