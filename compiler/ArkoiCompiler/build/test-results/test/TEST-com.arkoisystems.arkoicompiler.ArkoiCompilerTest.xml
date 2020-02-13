@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.arkoisystems.arkoicompiler.ArkoiCompilerTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2020-02-11T23:39:04" hostname="msi-ubuntu" time="0.089">
+<testsuite name="com.arkoisystems.arkoicompiler.ArkoiCompilerTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2020-02-13T23:14:38" hostname="msi-ubuntu" time="0.106">
   <properties/>
-  <testcase name="runCompiler" classname="com.arkoisystems.arkoicompiler.ArkoiCompilerTest" time="0.089"/>
-  <system-out><![CDATA[The lexical analysis took 11.273059ms for all classes (3 in total)
-The syntax analysis took 13.358351ms for all classes (3 in total)
-/home/timo/dev/ArkoiL/examples/basic/test.ark:
-/home/timo/dev/ArkoiL/compiler/natives/system.ark:
-/home/timo/dev/ArkoiL/examples/basic/main.ark:
+  <testcase name="runCompiler" classname="com.arkoisystems.arkoicompiler.ArkoiCompilerTest" time="0.106"/>
+  <system-out><![CDATA[The lexical analysis took 20.342499ms for all classes (3 in total)
+The syntax analysis took 9.491312ms for all classes (3 in total)
+TypeKind: INTEGER, FLOAT
+TypeKind: INTEGER, INTEGER
+TypeKind: INTEGER, INTEGER
+TypeKind: INTEGER, INTEGER
+The semantic analysis took 4.162613ms for all classes (3 in total)
+The compilation took 44.768351ms for all classes (3 in total)
 ]]></system-out>
-  <system-err><![CDATA[Couldn't compile the file. Please see the stacktrace for errors:
-]]></system-err>
+  <system-err><![CDATA[]]></system-err>
 </testsuite>

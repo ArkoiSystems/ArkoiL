@@ -1,8 +1,8 @@
 package com.arkoisystems.arkoicompiler;
 
-import com.arkoisystems.arkoicompiler.compileStage.lexcialAnalyzer.LexicalAnalyzer;
-import com.arkoisystems.arkoicompiler.compileStage.semanticAnalyzer.SemanticAnalyzer;
-import com.arkoisystems.arkoicompiler.compileStage.syntaxAnalyzer.SyntaxAnalyzer;
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.LexicalAnalyzer;
+import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.SemanticAnalyzer;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.utils.Variables;
 import com.google.gson.annotations.Expose;
 import lombok.Getter;
@@ -67,14 +67,14 @@ public class ArkoiClass
     
     public void initializeSyntax() {
         if (this.lexicalAnalyzer == null) {
-            System.err.println("You can't analyse the syntax before lexing the file.");
+            System.err.println("You can't analyse the syntax before lexing this class.");
             System.exit(-1);
         } else this.syntaxAnalyzer = new SyntaxAnalyzer(this);
     }
     
-    public void initializeSemantic() throws Exception {
+    public void initializeSemantic() {
         if (this.syntaxAnalyzer == null) {
-            System.err.println("You can't analyse the semantic before syntaxing the file.");
+            System.err.println("You can't analyse the semantic without syntax analyzing this class.");
             System.exit(-1);
         } else this.semanticAnalyzer = new SemanticAnalyzer(this);
     }

@@ -58,13 +58,9 @@ public class ArkoiCompiler
         }
     }
     
-    public boolean compile() throws Exception {
-        for (final ArkoiClass arkoiClass : this.arkoiClasses.values()) {
+    public boolean compile() {
+        for (final ArkoiClass arkoiClass : this.arkoiClasses.values())
             arkoiClass.initializeLexical();
-            arkoiClass.initializeSyntax();
-            arkoiClass.initializeSemantic();
-        }
-    
         final long compileStart = System.nanoTime();
         final long lexicalStart = System.nanoTime();
         for (final ArkoiClass arkoiClass : this.arkoiClasses.values()) {
@@ -73,6 +69,8 @@ public class ArkoiCompiler
         }
         System.out.printf("The lexical analysis took %sms for all classes (%s in total)\n", (System.nanoTime() - lexicalStart) / 1000000D, this.arkoiClasses.size());
     
+        for (final ArkoiClass arkoiClass : this.arkoiClasses.values())
+            arkoiClass.initializeSyntax();
         final long syntaxStart = System.nanoTime();
         for (final ArkoiClass arkoiClass : this.arkoiClasses.values()) {
             if (!arkoiClass.getSyntaxAnalyzer().processStage())
@@ -80,6 +78,8 @@ public class ArkoiCompiler
         }
         System.out.printf("The syntax analysis took %sms for all classes (%s in total)\n", (System.nanoTime() - syntaxStart) / 1000000D, this.arkoiClasses.size());
     
+        for (final ArkoiClass arkoiClass : this.arkoiClasses.values())
+            arkoiClass.initializeSemantic();
         final long semanticStart = System.nanoTime();
         for (final ArkoiClass arkoiClass : this.arkoiClasses.values()) {
             if (!arkoiClass.getSemanticAnalyzer().processStage())
