@@ -1,0 +1,2 @@
+@native[default]
+fun println<>(message: string);

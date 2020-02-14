@@ -38,7 +38,7 @@ public class NumberOperableSemanticAST extends AbstractOperableSemanticAST<Numbe
     }
     
     @Override
-    public AbstractNumberToken getOperableObject() {
+    public AbstractNumberToken getExpressionType() {
         if(this.getSyntaxAST().getOperableObject() == null) {
             this.getSemanticAnalyzer().errorHandler().addError(new SyntaxASTError<>(this.getSyntaxAST(), "Couldn't analyze this number operable because the content is null."));
             return null;
@@ -48,96 +48,6 @@ public class NumberOperableSemanticAST extends AbstractOperableSemanticAST<Numbe
     
     public AbstractNumberToken.NumberType getNumberType() {
         return this.getSyntaxAST().getOperableObject().getNumberType();
-    }
-    
-    @Override
-    public TypeSyntaxAST.TypeKind binAdd(SemanticAnalyzer semanticAnalyzer, AbstractOperableSyntaxAST<?> rightSideOperable) {
-        return super.binAdd(semanticAnalyzer, rightSideOperable);
-    }
-    
-    @Override
-    public TypeSyntaxAST.TypeKind binSub(SemanticAnalyzer semanticAnalyzer, AbstractOperableSyntaxAST<?> rightSideOperable) {
-        return super.binSub(semanticAnalyzer, rightSideOperable);
-    }
-    
-    @Override
-    public TypeSyntaxAST.TypeKind binMul(SemanticAnalyzer semanticAnalyzer, AbstractOperableSyntaxAST<?> rightSideOperable) {
-        return super.binMul(semanticAnalyzer, rightSideOperable);
-    }
-    
-    @Override
-    public TypeSyntaxAST.TypeKind binDiv(SemanticAnalyzer semanticAnalyzer, AbstractOperableSyntaxAST<?> rightSideOperable) {
-        return super.binDiv(semanticAnalyzer, rightSideOperable);
-    }
-    
-    @Override
-    public TypeSyntaxAST.TypeKind binMod(SemanticAnalyzer semanticAnalyzer, AbstractOperableSyntaxAST<?> rightSideOperable) {
-        return super.binMod(semanticAnalyzer, rightSideOperable);
-    }
-    
-    @Override
-    public TypeSyntaxAST.TypeKind equal(SemanticAnalyzer semanticAnalyzer, AbstractOperableSyntaxAST<?> rightSideOperable) {
-        return super.equal(semanticAnalyzer, rightSideOperable);
-    }
-    
-    @Override
-    public TypeSyntaxAST.TypeKind notEqual(SemanticAnalyzer semanticAnalyzer, AbstractOperableSyntaxAST<?> rightSideOperable) {
-        return super.notEqual(semanticAnalyzer, rightSideOperable);
-    }
-    
-    @Override
-    public TypeSyntaxAST.TypeKind postfixAdd(SemanticAnalyzer semanticAnalyzer) {
-        return super.postfixAdd(semanticAnalyzer);
-    }
-    
-    @Override
-    public TypeSyntaxAST.TypeKind postfixSub(SemanticAnalyzer semanticAnalyzer) {
-        return super.postfixSub(semanticAnalyzer);
-    }
-    
-    @Override
-    public TypeSyntaxAST.TypeKind prefixAdd(SemanticAnalyzer semanticAnalyzer) {
-        return super.prefixAdd(semanticAnalyzer);
-    }
-    
-    @Override
-    public TypeSyntaxAST.TypeKind prefixSub(SemanticAnalyzer semanticAnalyzer) {
-        return super.prefixSub(semanticAnalyzer);
-    }
-    
-    @Override
-    public TypeSyntaxAST.TypeKind prefixNegate(SemanticAnalyzer semanticAnalyzer) {
-        return super.prefixNegate(semanticAnalyzer);
-    }
-    
-    @Override
-    public TypeSyntaxAST.TypeKind prefixAffirm(SemanticAnalyzer semanticAnalyzer) {
-        return super.prefixAffirm(semanticAnalyzer);
-    }
-    
-    @Override
-    public TypeSyntaxAST.TypeKind relationalLessThan(SemanticAnalyzer semanticAnalyzer, AbstractOperableSyntaxAST<?> rightSideOperable) {
-        return super.relationalLessThan(semanticAnalyzer, rightSideOperable);
-    }
-    
-    @Override
-    public TypeSyntaxAST.TypeKind relationalLessEqualThan(SemanticAnalyzer semanticAnalyzer, AbstractOperableSyntaxAST<?> rightSideOperable) {
-        return super.relationalLessEqualThan(semanticAnalyzer, rightSideOperable);
-    }
-    
-    @Override
-    public TypeSyntaxAST.TypeKind relationalGreaterThan(SemanticAnalyzer semanticAnalyzer, AbstractOperableSyntaxAST<?> rightSideOperable) {
-        return super.relationalGreaterThan(semanticAnalyzer, rightSideOperable);
-    }
-    
-    @Override
-    public TypeSyntaxAST.TypeKind relationalGreaterEqualThan(SemanticAnalyzer semanticAnalyzer, AbstractOperableSyntaxAST<?> rightSideOperable) {
-        return super.relationalGreaterEqualThan(semanticAnalyzer, rightSideOperable);
-    }
-    
-    @Override
-    public TypeSyntaxAST.TypeKind relationalIs(SemanticAnalyzer semanticAnalyzer, AbstractOperableSyntaxAST<?> rightSideOperable) {
-        return super.relationalIs(semanticAnalyzer, rightSideOperable);
     }
     
 }

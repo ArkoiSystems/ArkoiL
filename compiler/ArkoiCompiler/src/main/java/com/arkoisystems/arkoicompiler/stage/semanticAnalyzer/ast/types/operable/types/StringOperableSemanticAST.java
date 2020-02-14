@@ -38,32 +38,12 @@ public class StringOperableSemanticAST extends AbstractOperableSemanticAST<Strin
     }
     
     @Override
-    public StringToken getOperableObject() {
+    public StringToken getExpressionType() {
         if(this.getSyntaxAST().getOperableObject() == null) {
             this.getSemanticAnalyzer().errorHandler().addError(new SyntaxASTError<>(this.getSyntaxAST(), "Couldn't analyze this string operable because the content is null."));
             return null;
         }
         return this.getSyntaxAST().getOperableObject();
-    }
-    
-    @Override
-    public TypeSyntaxAST.TypeKind binMod(SemanticAnalyzer semanticAnalyzer, AbstractOperableSyntaxAST<?> rightSideOperable) {
-        return super.binMod(semanticAnalyzer, rightSideOperable);
-    }
-    
-    @Override
-    public TypeSyntaxAST.TypeKind equal(SemanticAnalyzer semanticAnalyzer, AbstractOperableSyntaxAST<?> rightSideOperable) {
-        return super.equal(semanticAnalyzer, rightSideOperable);
-    }
-    
-    @Override
-    public TypeSyntaxAST.TypeKind notEqual(SemanticAnalyzer semanticAnalyzer, AbstractOperableSyntaxAST<?> rightSideOperable) {
-        return super.notEqual(semanticAnalyzer, rightSideOperable);
-    }
-    
-    @Override
-    public TypeSyntaxAST.TypeKind relationalIs(SemanticAnalyzer semanticAnalyzer, AbstractOperableSyntaxAST<?> rightSideOperable) {
-        return super.relationalIs(semanticAnalyzer, rightSideOperable);
     }
     
 }

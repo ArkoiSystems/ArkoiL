@@ -6,6 +6,7 @@ import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.AbstractSemanti
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.AbstractOperableSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.types.expression.types.ExpressionSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.statements.FunctionDefinitionSemanticAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.ASTAccess;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.TypeSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.FunctionInvokeOperableSyntaxAST;
@@ -46,33 +47,52 @@ public class FunctionInvokeOperableSemanticAST extends AbstractOperableSemanticA
         super(semanticAnalyzer, lastContainerAST, functionInvokeOperableSyntaxAST, ASTType.FUNCTION_INVOKE_OPERABLE);
     }
     
+    @Override
+    public TypeSyntaxAST.TypeKind getExpressionType() {
+        if (this.getInvokedFunction() == null)
+            return null;
+        
+        final FunctionDefinitionSemanticAST functionDefinitionSemanticAST = this.getInvokedFunction();
+        return functionDefinitionSemanticAST.getFunctionReturnType().getTypeKind();
+    }
+    
+    public ASTAccess getFunctionAccess() {
+        return this.getSyntaxAST().getFunctionAccess();
+    }
+    
     public FunctionDefinitionSemanticAST getInvokedFunction() {
         if (this.invokedFunction == null) {
             final String functionDescription = this.getFunctionDescription();
-            if(functionDescription == null)
+            if (functionDescription == null)
+                return null;
+            if (this.getFunctionAccess() == null)
                 return null;
             
-            final FunctionDefinitionSemanticAST functionDefinitionSemanticAST = this.getSemanticAnalyzer().getRootSemanticAST().findFunction(functionDescription);
+            FunctionDefinitionSemanticAST functionDefinitionSemanticAST = null;
+            if (this.getFunctionAccess() != ASTAccess.THIS_ACCESS)
+                functionDefinitionSemanticAST = this.getSemanticAnalyzer().getArkoiClass().getArkoiCompiler().findNativeSemanticFunction(functionDescription);
+            if (functionDefinitionSemanticAST == null)
+                functionDefinitionSemanticAST = this.getSemanticAnalyzer().getRootSemanticAST().findFunction(functionDescription);
             if (functionDefinitionSemanticAST == null) {
                 this.getSemanticAnalyzer().errorHandler().addError(new SyntaxASTError<>(this.getSyntaxAST(), "Couldn't analyze this function invoke because there exists no function with this description."));
                 return null;
-            } else return (this.invokedFunction = functionDefinitionSemanticAST);
+            }
+            return (this.invokedFunction = functionDefinitionSemanticAST);
         }
         return this.invokedFunction;
     }
     
     public List<ExpressionSemanticAST> getInvokedExpressions() {
         if(this.invokedExpressions == null) {
-            final List<ExpressionSemanticAST> invokedExpressions = new ArrayList<>();
+            this.invokedExpressions = new ArrayList<>();
             for(final ExpressionSyntaxAST expressionSyntaxAST : this.getSyntaxAST().getInvokedExpressions()) {
                 final ExpressionSemanticAST expressionSemanticAST
                         = new ExpressionSemanticAST(this.getSemanticAnalyzer(), this.getLastContainerAST(), expressionSyntaxAST);
-                
-                if(expressionSemanticAST.getExpressionOperable() == null)
+    
+                if (expressionSemanticAST.getExpressionType() == null)
                     return null;
-                invokedExpressions.add(expressionSemanticAST);
+                this.invokedExpressions.add(expressionSemanticAST);
             }
-            return (this.invokedExpressions = invokedExpressions);
         }
         return this.invokedExpressions;
     }
@@ -83,43 +103,12 @@ public class FunctionInvokeOperableSemanticAST extends AbstractOperableSemanticA
             return null;
         
         for(final ExpressionSemanticAST expressionSemanticAST : this.getInvokedExpressions()) {
-            final TypeSyntaxAST.TypeKind typeKind = expressionSemanticAST.getOperableObject();
+            final TypeSyntaxAST.TypeKind typeKind = expressionSemanticAST.getExpressionType();
             if(typeKind == null)
                 return null;
             descriptionBuilder.append(typeKind.name());
         }
         return descriptionBuilder.toString();
     }
-    
-    //    @Override
-    //    public FunctionInvokeOperableSemanticAST analyseAST(final SemanticAnalyzer semanticAnalyzer) {
-    //        if (this.getSyntaxAST().getFunctionInvocation() != FunctionInvokeOperableSyntaxAST.FunctionInvocation.EXPRESSION_INVOCATION) {
-    //            semanticAnalyzer.errorHandler().addError(new SyntaxASTError<>(this.getSyntaxAST(), "Couldn't analyze this AST because it wasn't invoked inside an expression."));
-    //            return null;
-    //        }
-    //
-    //        for (final ExpressionSyntaxAST expressionSyntaxAST : this.getSyntaxAST().getInvokedArguments()) {
-    //            final ExpressionSemanticAST expressionSemanticAST
-    //                    = new ExpressionSemanticAST(this.getLastContainerAST(), expressionSyntaxAST).analyseAST(semanticAnalyzer);
-    //            if (expressionSemanticAST == null)
-    //                return null;
-    //
-    //            this.invokedExpressions.add(expressionSemanticAST);
-    //        }
-    //
-    //        final FunctionDefinitionSemanticAST functionDefinitionSemanticAST = semanticAnalyzer.getRootSemanticAST().findFunction(this.getFunctionDescription());
-    //        if (functionDefinitionSemanticAST == null) {
-    //            semanticAnalyzer.errorHandler().addError(new SyntaxASTError<>(this.getSyntaxAST(), "Couldn't analyze this AST because no function exists with this description."));
-    //            return null;
-    //        } else this.invokedFunction = functionDefinitionSemanticAST;
-    //        return this;
-    //    }
-    //
-    //    private String getFunctionDescription() {
-    //        final StringBuilder functionDescription = new StringBuilder(this.getSyntaxAST().getInvokedFunctionNameToken().getTokenContent());
-    //        for (final ExpressionSemanticAST expressionSemanticAST : this.getInvokedExpressions())
-    //            functionDescription.append(expressionSemanticAST.getOperableObject().getName());
-    //        return functionDescription.toString().intern();
-    //    }
     
 }

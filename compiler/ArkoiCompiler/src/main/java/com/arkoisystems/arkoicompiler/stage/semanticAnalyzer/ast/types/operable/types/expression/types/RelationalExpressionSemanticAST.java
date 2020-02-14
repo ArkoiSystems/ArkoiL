@@ -2,6 +2,7 @@ package com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable
 
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.SemanticAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.AbstractSemanticAST;
+import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.AbstractOperableSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.types.expression.AbstractExpressionSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.TypeSyntaxAST;
@@ -36,34 +37,34 @@ public class RelationalExpressionSemanticAST extends AbstractExpressionSemanticA
     }
     
     @Override
-    public TypeSyntaxAST.TypeKind getOperableObject() {
+    public TypeSyntaxAST.TypeKind getExpressionType() {
         System.out.println("Relational Expression Semantic AST");
         return null;
     }
     
     @Override
-    public TypeSyntaxAST.TypeKind relationalGreaterThan(SemanticAnalyzer semanticAnalyzer, AbstractOperableSyntaxAST<?> rightSideOperable) {
-        return super.relationalGreaterThan(semanticAnalyzer, rightSideOperable);
+    public TypeSyntaxAST.TypeKind relationalGreaterThan(final AbstractOperableSemanticAST<?, ?> leftSideOperable, final AbstractOperableSemanticAST<?, ?> rightSideOperable) {
+        return super.relationalGreaterThan(leftSideOperable, rightSideOperable);
     }
     
     @Override
-    public TypeSyntaxAST.TypeKind relationalGreaterEqualThan(SemanticAnalyzer semanticAnalyzer, AbstractOperableSyntaxAST<?> rightSideOperable) {
-        return super.relationalGreaterEqualThan(semanticAnalyzer, rightSideOperable);
+    public TypeSyntaxAST.TypeKind relationalGreaterEqualThan(final AbstractOperableSemanticAST<?, ?> leftSideOperable, final AbstractOperableSemanticAST<?, ?> rightSideOperable) {
+        return super.relationalGreaterEqualThan(leftSideOperable, rightSideOperable);
     }
     
     @Override
-    public TypeSyntaxAST.TypeKind relationalLessThan(SemanticAnalyzer semanticAnalyzer, AbstractOperableSyntaxAST<?> rightSideOperable) {
-        return super.relationalLessThan(semanticAnalyzer, rightSideOperable);
+    public TypeSyntaxAST.TypeKind relationalLessThan(final AbstractOperableSemanticAST<?, ?> leftSideOperable, final AbstractOperableSemanticAST<?, ?> rightSideOperable) {
+        return super.relationalLessThan(leftSideOperable, rightSideOperable);
     }
     
     @Override
-    public TypeSyntaxAST.TypeKind relationalLessEqualThan(SemanticAnalyzer semanticAnalyzer, AbstractOperableSyntaxAST<?> rightSideOperable) {
-        return super.relationalLessEqualThan(semanticAnalyzer, rightSideOperable);
+    public TypeSyntaxAST.TypeKind relationalLessEqualThan(final AbstractOperableSemanticAST<?, ?> leftSideOperable, final AbstractOperableSemanticAST<?, ?> rightSideOperable) {
+        return super.relationalLessEqualThan(leftSideOperable, rightSideOperable);
     }
     
     @Override
-    public TypeSyntaxAST.TypeKind relationalIs(SemanticAnalyzer semanticAnalyzer, AbstractOperableSyntaxAST<?> rightSideOperable) {
-        return super.relationalIs(semanticAnalyzer, rightSideOperable);
+    public TypeSyntaxAST.TypeKind relationalIs(final AbstractOperableSemanticAST<?, ?> leftSideOperable, final AbstractOperableSemanticAST<?, ?> rightSideOperable) {
+        return super.relationalIs(leftSideOperable, rightSideOperable);
     }
     
 }

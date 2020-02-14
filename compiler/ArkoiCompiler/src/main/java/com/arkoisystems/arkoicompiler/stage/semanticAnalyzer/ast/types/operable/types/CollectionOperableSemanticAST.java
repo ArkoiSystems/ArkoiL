@@ -34,7 +34,12 @@ public class CollectionOperableSemanticAST extends AbstractOperableSemanticAST<C
         super(semanticAnalyzer, lastContainerAST, collectionOperableSyntaxAST, ASTType.COLLECTION_OPERABLE);
     }
     
-//    @Override
+    @Override
+    public TypeSyntaxAST.TypeKind getExpressionType() {
+        return TypeSyntaxAST.TypeKind.COLLECTION;
+    }
+    
+    //    @Override
 //    public CollectionOperableSemanticAST analyseAST(final SemanticAnalyzer semanticAnalyzer) {
 //        System.out.println("Collection Operable Semantic AST");
 //        return null;

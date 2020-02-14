@@ -86,13 +86,12 @@ public class RootSemanticAST extends AbstractSemanticAST<RootSyntaxAST>
                 return null;
             
             if (names.containsKey(importName.getTokenContent())) {
-                final AbstractSemanticAST<?> abstractSemanticAST = names.get(importName.getTokenContent());
-                this.getSemanticAnalyzer().errorHandler().addError(new DoubleSyntaxASTError<>(importDefinitionSemanticAST.getSyntaxAST(), abstractSemanticAST.getSyntaxAST(), "Couldn't analyze this import because there already exists another AST with the same name."));
+                final AbstractSemanticAST<?> alreadyExistAST = names.get(importName.getTokenContent());
+                this.getSemanticAnalyzer().errorHandler().addError(new DoubleSyntaxASTError<>(importDefinitionSemanticAST.getSyntaxAST(), alreadyExistAST.getSyntaxAST(), "Couldn't analyze this import because there already exists another AST with the same name."));
                 return null;
             } else names.put(importName.getTokenContent(), importDefinitionSemanticAST);
             
-            final ArkoiClass importTargetClass = importDefinitionSemanticAST.getImportTargetClass();
-            if (importTargetClass == null)
+            if (importDefinitionSemanticAST.getImportTargetClass() == null)
                 return null;
         }
         
@@ -105,14 +104,13 @@ public class RootSemanticAST extends AbstractSemanticAST<RootSyntaxAST>
                 return null;
             
             if (names.containsKey(variableName.getTokenContent())) {
-                final AbstractSemanticAST<?> abstractSemanticAST = names.get(variableName.getTokenContent());
-                this.getSemanticAnalyzer().errorHandler().addError(new DoubleSyntaxASTError<>(variableDefinitionSemanticAST.getSyntaxAST(), abstractSemanticAST.getSyntaxAST(), "Couldn't analyze this variable because there already exists another AST with the same name."));
+                final AbstractSemanticAST<?> alreadyExistAST = names.get(variableName.getTokenContent());
+                this.getSemanticAnalyzer().errorHandler().addError(new DoubleSyntaxASTError<>(variableDefinitionSemanticAST.getSyntaxAST(), alreadyExistAST.getSyntaxAST(), "Couldn't analyze this variable because there already exists another AST with the same name."));
                 return null;
             } else
                 names.put(variableName.getTokenContent(), variableDefinitionSemanticAST);
             
-            final ExpressionSemanticAST variableExpression = variableDefinitionSemanticAST.getVariableExpression();
-            if (variableExpression == null)
+            if (variableDefinitionSemanticAST.getVariableExpression() == null)
                 return null;
         }
         
@@ -125,10 +123,13 @@ public class RootSemanticAST extends AbstractSemanticAST<RootSyntaxAST>
                 return null;
             
             if (names.containsKey(functionDescription)) {
-                final AbstractSemanticAST<?> abstractSemanticAST = names.get(functionDescription);
-                this.getSemanticAnalyzer().errorHandler().addError(new DoubleSyntaxASTError<>(functionDefinitionSemanticAST.getSyntaxAST(), abstractSemanticAST.getSyntaxAST(), "Couldn't analyze this function because there already exists another one with the same description."));
+                final AbstractSemanticAST<?> alreadyExistAST = names.get(functionDescription);
+                this.getSemanticAnalyzer().errorHandler().addError(new DoubleSyntaxASTError<>(functionDefinitionSemanticAST.getSyntaxAST(), alreadyExistAST.getSyntaxAST(), "Couldn't analyze this function because there already exists another one with the same description."));
                 return null;
             } else names.put(functionDescription, functionDefinitionSemanticAST);
+            
+            if(functionDefinitionSemanticAST.getFunctionBlock() == null)
+                return null;
         }
         return this;
     }

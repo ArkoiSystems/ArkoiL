@@ -10,6 +10,7 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.ASTAccess;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.BlockSyntaxAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.FunctionInvokeOperableSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.IdentifierCallOperableSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.IdentifierInvokeOperableSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.AbstractExpressionSyntaxAST;
@@ -104,6 +105,9 @@ public class ThisStatementSyntaxAST extends AbstractStatementSyntaxAST
         if (abstractSyntaxAST instanceof IdentifierInvokeOperableSyntaxAST) {
             final IdentifierInvokeOperableSyntaxAST identifierInvokeOperableAST = (IdentifierInvokeOperableSyntaxAST) abstractSyntaxAST;
             identifierInvokeOperableAST.setIdentifierAccess(ASTAccess.THIS_ACCESS);
+        } else if (abstractSyntaxAST instanceof FunctionInvokeOperableSyntaxAST) {
+            final FunctionInvokeOperableSyntaxAST functionInvokeOperableSyntaxAST = (FunctionInvokeOperableSyntaxAST) abstractSyntaxAST;
+            functionInvokeOperableSyntaxAST.setFunctionAccess(ASTAccess.THIS_ACCESS);
         } else if (abstractSyntaxAST instanceof IdentifierCallOperableSyntaxAST) {
             final IdentifierCallOperableSyntaxAST identifierCallOperableAST = (IdentifierCallOperableSyntaxAST) abstractSyntaxAST;
             identifierCallOperableAST.setIdentifierAccess(ASTAccess.THIS_ACCESS);

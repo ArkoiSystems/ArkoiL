@@ -7,7 +7,6 @@ import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.SemanticAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.AbstractSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.types.ImportDefinitionSyntaxAST;
-import com.google.gson.annotations.Expose;
 import lombok.Setter;
 import lombok.SneakyThrows;
 
@@ -44,13 +43,15 @@ public class ImportDefinitionSemanticAST extends AbstractSemanticAST<ImportDefin
         if (this.importTargetClass == null) {
             final String filePath = new File(this.getSemanticAnalyzer().getArkoiClass().getArkoiCompiler().getWorkingDirectory() + File.separator +
                     this.getSyntaxAST().getImportFilePath().getTokenContent() + ".ark").getCanonicalPath();
-            
+        
             final ArkoiClass arkoiClass = this.getSemanticAnalyzer().getArkoiClass().getArkoiCompiler().getArkoiClasses().get(filePath);
             if (arkoiClass == null) {
                 this.getSemanticAnalyzer().errorHandler().addError(new SyntaxASTError<>(this.getSyntaxAST(), "Couldn't analyze this import because the compiler doesn't know any class with this path."));
                 return null;
-            } else return this.importTargetClass = arkoiClass;
-        } else return this.importTargetClass;
+            }
+            return (this.importTargetClass = arkoiClass);
+        }
+        return this.importTargetClass;
     }
     
     public IdentifierToken getImportName() {

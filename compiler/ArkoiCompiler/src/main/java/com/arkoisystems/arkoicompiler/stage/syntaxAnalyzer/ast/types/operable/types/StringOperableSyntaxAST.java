@@ -45,10 +45,10 @@ public class StringOperableSyntaxAST extends AbstractOperableSyntaxAST<StringTok
     }
     
     //    @Override
-    //    public TypeSyntaxAST.TypeKind binMod(final SemanticAnalyzer semanticAnalyzer, final AbstractOperableSyntaxAST<?> rightSideOperable) {
+    //    public TypeSyntaxAST.TypeKind binMod(final AbstractOperableSemanticAST<?, ?> leftSideOperable, final AbstractOperableSemanticAST<?, ?> rightSideOperable) {
     //        if (rightSideOperable instanceof CollectionOperableSyntaxAST)
     //            return TypeSyntaxAST.TypeKind.combineKinds(this, rightSideOperable);
-    //        return super.binMod(semanticAnalyzer, rightSideOperable);
+    //        return super.binMod(leftSideOperable, rightSideOperable);
     //    }
     
 }

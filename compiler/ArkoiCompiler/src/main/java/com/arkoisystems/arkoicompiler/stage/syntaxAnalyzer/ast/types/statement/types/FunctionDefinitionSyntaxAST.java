@@ -161,7 +161,10 @@ public class FunctionDefinitionSyntaxAST extends AbstractStatementSyntaxAST
             if (syntaxAnalyzer.matchesCurrentToken(SymbolToken.SymbolType.SEMICOLON) == null) {
                 syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the \"function definition\" statement because a native function needs to end direclty with an semicolon after the argument section."));
                 return null;
-            } else this.functionBlock = new BlockSyntaxAST();
+            } else {
+                this.functionBlock = new BlockSyntaxAST();
+                this.functionBlock.setBlockType(BlockSyntaxAST.BlockType.NATIVE);
+            }
         } else {
             if (syntaxAnalyzer.matchesCurrentToken(SymbolToken.SymbolType.OPENING_BRACE) == null && syntaxAnalyzer.matchesCurrentToken(SymbolToken.SymbolType.EQUAL) == null) {
                 syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the \"function definition\" statement because after the argument section no opening brace or equal sign was declared. You need one of them to declare if this function uses a block or is inlined."));

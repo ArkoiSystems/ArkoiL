@@ -54,7 +54,7 @@ public class ParenthesizedExpressionSyntaxAST extends AbstractExpressionSyntaxAS
     }
     
 //    @Override
-//    public TypeSyntaxAST.TypeKind binMul(final SemanticAnalyzer semanticAnalyzer, final AbstractOperableSyntaxAST<?> rightSideOperable) {
+//    public TypeSyntaxAST.TypeKind binMul(final AbstractOperableSemanticAST<?, ?> leftSideOperable, final AbstractOperableSemanticAST<?, ?> rightSideOperable) {
 //        if (rightSideOperable instanceof NumberOperableSyntaxAST)
 //            return TypeSyntaxAST.TypeKind.combineKinds(this, rightSideOperable);
 //        else if (rightSideOperable instanceof AbstractExpressionSyntaxAST) {
@@ -80,7 +80,7 @@ public class ParenthesizedExpressionSyntaxAST extends AbstractExpressionSyntaxAS
 //                    return null;
 //            }
 //        }
-//        return super.binMul(semanticAnalyzer, rightSideOperable);
+//        return super.binMul(leftSideOperable, rightSideOperable);
 //    }
     
 }

@@ -7,10 +7,7 @@ import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.AbstractSemanti
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.TypeSyntaxAST;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.AbstractOperableSyntaxAST;
-import com.google.gson.annotations.Expose;
 import lombok.Getter;
-import lombok.Setter;
 
 /**
  * Copyright © 2019 ArkoiSystems (https://www.arkoisystems.com/) All Rights Reserved.
@@ -36,137 +33,7 @@ public class AbstractOperableSemanticAST<T1 extends AbstractSyntaxAST, O> extend
         super(semanticAnalyzer, lastContainerAST, syntaxAST, astType);
     }
     
-    public O getOperableObject() {
-        return null;
-    }
-    
-    public TypeSyntaxAST.TypeKind binAdd(final SemanticAnalyzer semanticAnalyzer, final AbstractOperableSyntaxAST<?> rightSideOperable) {
-        semanticAnalyzer.errorHandler().addError(new DoubleError<>(this, rightSideOperable, this.getStart(), rightSideOperable.getEnd(), "Addition isn't supported by this operable."));
-        return null;
-    }
-    
-    public TypeSyntaxAST.TypeKind binSub(final SemanticAnalyzer semanticAnalyzer, final AbstractOperableSyntaxAST<?> rightSideOperable) {
-        semanticAnalyzer.errorHandler().addError(new DoubleError<>(this, rightSideOperable, this.getStart(), rightSideOperable.getEnd(), "Subtraction isn't supported by this operable."));
-        return null;
-    }
-    
-    public TypeSyntaxAST.TypeKind binMul(final SemanticAnalyzer semanticAnalyzer, final AbstractOperableSyntaxAST<?> rightSideOperable) {
-        semanticAnalyzer.errorHandler().addError(new DoubleError<>(this, rightSideOperable, this.getStart(), rightSideOperable.getEnd(), "Multiplication isn't supported by this operable."));
-        return null;
-    }
-    
-    public TypeSyntaxAST.TypeKind binDiv(final SemanticAnalyzer semanticAnalyzer, final AbstractOperableSyntaxAST<?> rightSideOperable) {
-        semanticAnalyzer.errorHandler().addError(new DoubleError<>(this, rightSideOperable, this.getStart(), rightSideOperable.getEnd(), "Division isn't supported by this operable."));
-        return null;
-    }
-    
-    public TypeSyntaxAST.TypeKind binMod(final SemanticAnalyzer semanticAnalyzer, final AbstractOperableSyntaxAST<?> rightSideOperable) {
-        semanticAnalyzer.errorHandler().addError(new DoubleError<>(this, rightSideOperable, this.getStart(), rightSideOperable.getEnd(), "Modulo isn't supported by this operable."));
-        return null;
-    }
-    
-    public TypeSyntaxAST.TypeKind assign(final SemanticAnalyzer semanticAnalyzer, final AbstractOperableSyntaxAST<?> rightSideOperable) {
-        semanticAnalyzer.errorHandler().addError(new DoubleError<>(this, rightSideOperable, this.getStart(), rightSideOperable.getEnd(), "Assignment isn't supported by this operable."));
-        return null;
-    }
-    
-    public TypeSyntaxAST.TypeKind addAssign(final SemanticAnalyzer semanticAnalyzer, final AbstractOperableSyntaxAST<?> rightSideOperable) {
-        semanticAnalyzer.errorHandler().addError(new DoubleError<>(this, rightSideOperable, this.getStart(), rightSideOperable.getEnd(), "Addition assignment isn't supported by this operable."));
-        return null;
-    }
-    
-    public TypeSyntaxAST.TypeKind subAssign(final SemanticAnalyzer semanticAnalyzer, final AbstractOperableSyntaxAST<?> rightSideOperable) {
-        semanticAnalyzer.errorHandler().addError(new DoubleError<>(this, rightSideOperable, this.getStart(), rightSideOperable.getEnd(), "Subtraction assignment isn't supported by this operable."));
-        return null;
-    }
-    
-    public TypeSyntaxAST.TypeKind mulAssign(final SemanticAnalyzer semanticAnalyzer, final AbstractOperableSyntaxAST<?> rightSideOperable) {
-        semanticAnalyzer.errorHandler().addError(new DoubleError<>(this, rightSideOperable, this.getStart(), rightSideOperable.getEnd(), "Multiplication assignment isn't supported by this operable."));
-        return null;
-    }
-    
-    public TypeSyntaxAST.TypeKind divAssign(final SemanticAnalyzer semanticAnalyzer, final AbstractOperableSyntaxAST<?> rightSideOperable) {
-        semanticAnalyzer.errorHandler().addError(new DoubleError<>(this, rightSideOperable, this.getStart(), rightSideOperable.getEnd(), "Division assignment isn't supported by this operable."));
-        return null;
-    }
-    
-    public TypeSyntaxAST.TypeKind modAssign(final SemanticAnalyzer semanticAnalyzer, final AbstractOperableSyntaxAST<?> rightSideOperable) {
-        semanticAnalyzer.errorHandler().addError(new DoubleError<>(this, rightSideOperable, this.getStart(), rightSideOperable.getEnd(), "Modulo assignment isn't supported by this operable."));
-        return null;
-    }
-    
-    public TypeSyntaxAST.TypeKind equal(final SemanticAnalyzer semanticAnalyzer, final AbstractOperableSyntaxAST<?> rightSideOperable) {
-        semanticAnalyzer.errorHandler().addError(new DoubleError<>(this, rightSideOperable, this.getStart(), rightSideOperable.getEnd(), "The \"equal\" operation isn't supported by this operable."));
-        return null;
-    }
-    
-    public TypeSyntaxAST.TypeKind notEqual(final SemanticAnalyzer semanticAnalyzer, final AbstractOperableSyntaxAST<?> rightSideOperable) {
-        semanticAnalyzer.errorHandler().addError(new DoubleError<>(this, rightSideOperable, this.getStart(), rightSideOperable.getEnd(), "The \"not equal\" operation isn't supported by this operable."));
-        return null;
-    }
-    
-    public TypeSyntaxAST.TypeKind logicalOr(final SemanticAnalyzer semanticAnalyzer, final AbstractOperableSyntaxAST<?> rightSideOperable) {
-        semanticAnalyzer.errorHandler().addError(new DoubleError<>(this, rightSideOperable, this.getStart(), rightSideOperable.getEnd(), "The \"logical or\" operation isn't supported by this operable."));
-        return null;
-    }
-    
-    public TypeSyntaxAST.TypeKind logicalAnd(final SemanticAnalyzer semanticAnalyzer, final AbstractOperableSyntaxAST<?> rightSideOperable) {
-        semanticAnalyzer.errorHandler().addError(new DoubleError<>(this, rightSideOperable, this.getStart(), rightSideOperable.getEnd(), "The \"logical and\" operation isn't supported by this operable."));
-        return null;
-    }
-    
-    public TypeSyntaxAST.TypeKind postfixAdd(final SemanticAnalyzer semanticAnalyzer) {
-        semanticAnalyzer.errorHandler().addError(new SemanticASTError<>(this, "The \"post addition\" operator isn't supported by this operable."));
-        return null;
-    }
-    
-    public TypeSyntaxAST.TypeKind postfixSub(final SemanticAnalyzer semanticAnalyzer) {
-        semanticAnalyzer.errorHandler().addError(new SemanticASTError<>(this, "The \"post subtraction\" operator isn't supported by this operable."));
-        return null;
-    }
-    
-    public TypeSyntaxAST.TypeKind prefixAdd(final SemanticAnalyzer semanticAnalyzer) {
-        semanticAnalyzer.errorHandler().addError(new SemanticASTError<>(this, "The \"pre addition\" operator isn't supported by this operable."));
-        return null;
-    }
-    
-    public TypeSyntaxAST.TypeKind prefixSub(final SemanticAnalyzer semanticAnalyzer) {
-        semanticAnalyzer.errorHandler().addError(new SemanticASTError<>(this, "The \"pre subtraction\" operator isn't supported by this operable."));
-        return null;
-    }
-    
-    public TypeSyntaxAST.TypeKind prefixNegate(final SemanticAnalyzer semanticAnalyzer) {
-        semanticAnalyzer.errorHandler().addError(new SemanticASTError<>(this, "The \"negate\" operator isn't supported by this operable."));
-        return null;
-    }
-    
-    public TypeSyntaxAST.TypeKind prefixAffirm(final SemanticAnalyzer semanticAnalyzer) {
-        semanticAnalyzer.errorHandler().addError(new SemanticASTError<>(this, "The \"affirm\" operator isn't supported by this operable."));
-        return null;
-    }
-    
-    public TypeSyntaxAST.TypeKind relationalLessThan(final SemanticAnalyzer semanticAnalyzer, final AbstractOperableSyntaxAST<?> rightSideOperable) {
-        semanticAnalyzer.errorHandler().addError(new SemanticASTError<>(this, "The \"less than\" operator isn't supported by this operable."));
-        return null;
-    }
-    
-    public TypeSyntaxAST.TypeKind relationalGreaterThan(final SemanticAnalyzer semanticAnalyzer, final AbstractOperableSyntaxAST<?> rightSideOperable) {
-        semanticAnalyzer.errorHandler().addError(new DoubleError<>(this, rightSideOperable, this.getStart(), rightSideOperable.getEnd(), "The \"greater than\" operator isn't supported by this operable."));
-        return null;
-    }
-    
-    public TypeSyntaxAST.TypeKind relationalLessEqualThan(final SemanticAnalyzer semanticAnalyzer, final AbstractOperableSyntaxAST<?> rightSideOperable) {
-        semanticAnalyzer.errorHandler().addError(new DoubleError<>(this, rightSideOperable, this.getStart(), rightSideOperable.getEnd(), "The \"less equal than\" operator isn't supported by this operable."));
-        return null;
-    }
-    
-    public TypeSyntaxAST.TypeKind relationalGreaterEqualThan(final SemanticAnalyzer semanticAnalyzer, final AbstractOperableSyntaxAST<?> rightSideOperable) {
-        semanticAnalyzer.errorHandler().addError(new DoubleError<>(this, rightSideOperable, this.getStart(), rightSideOperable.getEnd(), "The \"greater equal than\" operator isn't supported by this operable."));
-        return null;
-    }
-    
-    public TypeSyntaxAST.TypeKind relationalIs(final SemanticAnalyzer semanticAnalyzer, final AbstractOperableSyntaxAST<?> rightSideOperable) {
-        semanticAnalyzer.errorHandler().addError(new DoubleError<>(this, rightSideOperable, this.getStart(), rightSideOperable.getEnd(), "The \"is\" keyword isn't supported by this operable."));
+    public O getExpressionType() {
         return null;
     }
     

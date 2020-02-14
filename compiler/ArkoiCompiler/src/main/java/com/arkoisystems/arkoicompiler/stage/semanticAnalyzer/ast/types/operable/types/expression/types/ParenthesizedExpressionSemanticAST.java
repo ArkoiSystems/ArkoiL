@@ -5,11 +5,9 @@ import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.AbstractSemanti
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.types.expression.AbstractExpressionSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.TypeSyntaxAST;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.AbstractExpressionSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types.ExpressionSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types.ParenthesizedExpressionSyntaxAST;
 import com.google.gson.annotations.Expose;
-import lombok.Getter;
 import lombok.Setter;
 
 /**
@@ -40,21 +38,19 @@ public class ParenthesizedExpressionSemanticAST extends AbstractExpressionSemant
     }
     
     @Override
-    public TypeSyntaxAST.TypeKind getOperableObject() {
+    public TypeSyntaxAST.TypeKind getExpressionType() {
         if(this.getParenthesizedExpression() == null)
             return null;
-        return this.getParenthesizedExpression().getOperableObject();
+        return this.getParenthesizedExpression().getExpressionType();
     }
     
     public AbstractExpressionSemanticAST<?> getParenthesizedExpression() {
         if(this.parenthesizedExpression == null) {
             final ExpressionSyntaxAST expressionSyntaxAST = (ExpressionSyntaxAST) this.getSyntaxAST().getParenthesizedExpression();
-            final ExpressionSemanticAST expressionSemanticAST
+            this.parenthesizedExpression
                     = new ExpressionSemanticAST(this.getSemanticAnalyzer(), this.getLastContainerAST(), expressionSyntaxAST);
-            
-            if(expressionSemanticAST.getOperableObject() == null)
+            if(this.parenthesizedExpression.getExpressionType() == null)
                 return null;
-            return (this.parenthesizedExpression = expressionSemanticAST);
         }
         return this.parenthesizedExpression;
     }

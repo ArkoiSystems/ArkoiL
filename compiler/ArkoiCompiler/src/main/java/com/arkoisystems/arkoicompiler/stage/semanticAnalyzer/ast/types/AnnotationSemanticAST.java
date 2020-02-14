@@ -37,10 +37,4 @@ public class AnnotationSemanticAST extends AbstractSemanticAST<AnnotationSyntaxA
         return this.getSyntaxAST().getAnnotationName();
     }
     
-//    @Override
-//    public AnnotationSemanticAST analyseAST(final SemanticAnalyzer semanticAnalyzer) {
-//        System.out.println("Annotation Semantic AST");
-//        return null;
-//    }
-    
 }
