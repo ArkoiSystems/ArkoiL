@@ -1,8 +1,13 @@
-CThe lexical analysis took 20.342499ms for all classes (3 in total)
-AThe syntax analysis took 9.491312ms for all classes (3 in total)
+BThe lexical analysis took 17.49391ms for all classes (3 in total)
+BThe syntax analysis took 15.836388ms for all classes (3 in total)
 TypeKind: INTEGER, FLOAT
 TypeKind: INTEGER, INTEGER
 TypeKind: INTEGER, INTEGER
 TypeKind: INTEGER, INTEGER
-CThe semantic analysis took 4.162613ms for all classes (3 in total)
->The compilation took 44.768351ms for all classes (3 in total)
+TypeKind: INTEGER, FLOAT
+TypeKind: INTEGER, INTEGER
+TypeKind: INTEGER, INTEGER
+TypeKind: INTEGER, INTEGER
+TypeKind: STRING, COLLECTION
+DThe semantic analysis took 10.987141ms for all classes (3 in total)
+>The compilation took 46.673726ms for all classes (3 in total)

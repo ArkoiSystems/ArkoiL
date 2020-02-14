@@ -1,5 +1,6 @@
 package com.arkoisystems.arkoicompiler;
 
+import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.statements.FunctionDefinitionSemanticAST;
 import com.google.gson.annotations.Expose;
 import lombok.Getter;
 
@@ -59,28 +60,28 @@ public class ArkoiCompiler
     }
     
     public boolean compile() {
-        for (final ArkoiClass arkoiClass : this.arkoiClasses.values())
-            arkoiClass.initializeLexical();
         final long compileStart = System.nanoTime();
         final long lexicalStart = System.nanoTime();
+        for (final ArkoiClass arkoiClass : this.arkoiClasses.values())
+            arkoiClass.initializeLexical();
         for (final ArkoiClass arkoiClass : this.arkoiClasses.values()) {
             if (!arkoiClass.getLexicalAnalyzer().processStage())
                 return false;
         }
         System.out.printf("The lexical analysis took %sms for all classes (%s in total)\n", (System.nanoTime() - lexicalStart) / 1000000D, this.arkoiClasses.size());
     
+        final long syntaxStart = System.nanoTime();
         for (final ArkoiClass arkoiClass : this.arkoiClasses.values())
             arkoiClass.initializeSyntax();
-        final long syntaxStart = System.nanoTime();
         for (final ArkoiClass arkoiClass : this.arkoiClasses.values()) {
             if (!arkoiClass.getSyntaxAnalyzer().processStage())
                 return false;
         }
         System.out.printf("The syntax analysis took %sms for all classes (%s in total)\n", (System.nanoTime() - syntaxStart) / 1000000D, this.arkoiClasses.size());
     
+        final long semanticStart = System.nanoTime();
         for (final ArkoiClass arkoiClass : this.arkoiClasses.values())
             arkoiClass.initializeSemantic();
-        final long semanticStart = System.nanoTime();
         for (final ArkoiClass arkoiClass : this.arkoiClasses.values()) {
             if (!arkoiClass.getSemanticAnalyzer().processStage())
                 return false;
@@ -92,7 +93,7 @@ public class ArkoiCompiler
     }
     
     private void addNativeFiles() throws IOException {
-        final File nativeDirectory = new File("../natives");
+        final File nativeDirectory = new File("natives");
         if (!nativeDirectory.exists()) {
             System.err.println("Couldn't add the native files to the project. Please try to fix the problem with reinstalling the compiler.");
             System.exit(-1);
@@ -113,6 +114,19 @@ public class ArkoiCompiler
                 files.add(file);
         }
         return files;
+    }
+    
+    public FunctionDefinitionSemanticAST findNativeSemanticFunction(final String functionDescription) {
+        for (final ArkoiClass arkoiClass : this.arkoiClasses.values()) {
+            if (!arkoiClass.isNativeClass())
+                continue;
+            
+            for (final FunctionDefinitionSemanticAST functionDefinitionSemanticAST : arkoiClass.getSemanticAnalyzer().getRootSemanticAST().getFunctionStorage()) {
+                if (functionDefinitionSemanticAST.getFunctionDescription().equals(functionDescription) && functionDefinitionSemanticAST.getSyntaxAST().hasAnnotation("native"))
+                    return functionDefinitionSemanticAST;
+            }
+        }
+        return null;
     }
     
 }

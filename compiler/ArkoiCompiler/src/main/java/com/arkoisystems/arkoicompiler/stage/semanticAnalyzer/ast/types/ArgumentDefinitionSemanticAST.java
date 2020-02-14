@@ -40,13 +40,13 @@ public class ArgumentDefinitionSemanticAST extends AbstractSemanticAST<ArgumentD
     
     public IdentifierToken getArgumentName() {
         if(this.argumentName == null)
-            this.argumentName = this.getSyntaxAST().getArgumentName();
+            return (this.argumentName = this.getSyntaxAST().getArgumentName());
         return this.argumentName;
     }
     
     public TypeSemanticAST getArgumentType() {
         if(this.argumentType == null)
-            this.argumentType = new TypeSemanticAST(this.getSemanticAnalyzer(), this.getLastContainerAST(), this.getSyntaxAST().getArgumentType());
+            return (this.argumentType = new TypeSemanticAST(this.getSemanticAnalyzer(), this.getLastContainerAST(), this.getSyntaxAST().getArgumentType()));
         return this.argumentType;
     }
     

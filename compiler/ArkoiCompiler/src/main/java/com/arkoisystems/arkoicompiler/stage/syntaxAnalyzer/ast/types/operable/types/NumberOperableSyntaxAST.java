@@ -45,13 +45,13 @@ public class NumberOperableSyntaxAST extends AbstractOperableSyntaxAST<AbstractN
     }
     
 //    @Override
-//    public TypeSyntaxAST.TypeKind binAdd(final SemanticAnalyzer semanticAnalyzer, final AbstractOperableSyntaxAST<?> rightSideOperable) {
+//    public TypeSyntaxAST.TypeKind binAdd(final AbstractOperableSemanticAST<?, ?> leftSideOperable, final AbstractOperableSemanticAST<?, ?> rightSideOperable) {
 //        if (rightSideOperable instanceof NumberOperableSyntaxAST)
 //            return TypeSyntaxAST.TypeKind.combineKinds(this, rightSideOperable);
 //        else if (rightSideOperable instanceof AbstractExpressionSyntaxAST) {
 //            final AbstractExpressionSyntaxAST abstractExpressionAST = (AbstractExpressionSyntaxAST) rightSideOperable;
 //            if (abstractExpressionAST.getOperableObject() == null) {
-//                semanticAnalyzer.errorHandler().addError(new SyntaxASTError<>(rightSideOperable, "Can't perform the addition because the expression result is null."));
+//                this.getSemanticAnalyzer().errorHandler().addError(new SyntaxASTError<>(rightSideOperable, "Can't perform the addition because the expression result is null."));
 //                return null;
 //            }
 //
@@ -68,11 +68,11 @@ public class NumberOperableSyntaxAST extends AbstractOperableSyntaxAST<AbstractN
 //            }
 //            return TypeSyntaxAST.TypeKind.combineKinds(this, abstractExpressionAST.getOperableObject());
 //        }
-//        return super.binAdd(semanticAnalyzer, rightSideOperable);
+//        return super.binAdd(leftSideOperable, rightSideOperable);
 //    }
 //
 //    @Override
-//    public TypeSyntaxAST.TypeKind binMul(final SemanticAnalyzer semanticAnalyzer, final AbstractOperableSyntaxAST<?> rightSideOperable) {
+//    public TypeSyntaxAST.TypeKind binMul(final AbstractOperableSemanticAST<?, ?> leftSideOperable, final AbstractOperableSemanticAST<?, ?> rightSideOperable) {
 //        if (rightSideOperable instanceof NumberOperableSyntaxAST)
 //            return TypeSyntaxAST.TypeKind.combineKinds(this, rightSideOperable);
 //        else if (rightSideOperable instanceof AbstractExpressionSyntaxAST) {
@@ -95,11 +95,11 @@ public class NumberOperableSyntaxAST extends AbstractOperableSyntaxAST<AbstractN
 //            }
 //            return TypeSyntaxAST.TypeKind.combineKinds(this, abstractExpressionAST.getOperableObject());
 //        }
-//        return super.binMul(semanticAnalyzer, rightSideOperable);
+//        return super.binMul(leftSideOperable, rightSideOperable);
 //    }
 //
 //    @Override
-//    public TypeSyntaxAST.TypeKind prefixNegate(final SemanticAnalyzer semanticAnalyzer) {
+//    public TypeSyntaxAST.TypeKind prefixNegate(final AbstractOperableSemanticAST<?, ?> abstractOperableSemanticAST) {
 //        return TypeSyntaxAST.TypeKind.getTypeKind(this);
 //    }
     

@@ -168,7 +168,7 @@ public class BlockSyntaxAST extends AbstractSyntaxAST
     public enum BlockType
     {
         
-        BLOCK, INLINE
+        BLOCK, INLINE, NATIVE
         
     }
     

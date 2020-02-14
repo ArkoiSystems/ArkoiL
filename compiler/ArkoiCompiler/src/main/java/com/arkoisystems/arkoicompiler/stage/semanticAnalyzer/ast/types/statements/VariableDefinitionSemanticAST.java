@@ -48,9 +48,9 @@ public class VariableDefinitionSemanticAST extends AbstractSemanticAST<VariableD
     
     public List<AnnotationSemanticAST> getVariableAnnotations() {
         if (this.variableAnnotations == null) {
-            final List<AnnotationSemanticAST> variableAnnotations = new ArrayList<>();
-            final HashMap<String, AnnotationSemanticAST> names = new HashMap<>();
+            this.variableAnnotations = new ArrayList<>();
             
+            final HashMap<String, AnnotationSemanticAST> names = new HashMap<>();
             for (final AnnotationSyntaxAST annotationSyntaxAST : this.getSyntaxAST().getVariableAnnotations()) {
                 final AnnotationSemanticAST annotationSemanticAST
                         = new AnnotationSemanticAST(this.getSemanticAnalyzer(), this, annotationSyntaxAST);
@@ -60,15 +60,13 @@ public class VariableDefinitionSemanticAST extends AbstractSemanticAST<VariableD
                     return null;
                 
                 if (names.containsKey(annotationName.getTokenContent())) {
-                    final AbstractSemanticAST<?> abstractSemanticAST = names.get(annotationName.getTokenContent());
-                    this.getSemanticAnalyzer().errorHandler().addError(new DoubleSyntaxASTError<>(annotationSemanticAST.getSyntaxAST(), abstractSemanticAST.getSyntaxAST(), "Couldn't analyze this annotation because there already exists another one with the same name."));
+                    final AbstractSemanticAST<?> alreadyExistAST = names.get(annotationName.getTokenContent());
+                    this.getSemanticAnalyzer().errorHandler().addError(new DoubleSyntaxASTError<>(annotationSemanticAST.getSyntaxAST(), alreadyExistAST.getSyntaxAST(), "Couldn't analyze this annotation because there already exists another one with the same name."));
                     return null;
                 }
                 names.put(annotationName.getTokenContent(), annotationSemanticAST);
-                variableAnnotations.add(annotationSemanticAST);
+                this.variableAnnotations.add(annotationSemanticAST);
             }
-            
-            return (this.variableAnnotations = variableAnnotations);
         }
         return this.variableAnnotations;
     }
@@ -79,12 +77,10 @@ public class VariableDefinitionSemanticAST extends AbstractSemanticAST<VariableD
     
     public ExpressionSemanticAST getVariableExpression() {
         if (this.variableExpression == null) {
-            final ExpressionSemanticAST expressionSemanticAST
-                    = new ExpressionSemanticAST(this.getSemanticAnalyzer(), this, this.getSyntaxAST().getVariableExpression());
-            
-            if(expressionSemanticAST.getExpressionOperable() == null)
+            this.variableExpression
+                    = new ExpressionSemanticAST(this.getSemanticAnalyzer(), this.getLastContainerAST(), this.getSyntaxAST().getVariableExpression());
+            if (this.variableExpression.getExpressionType() == null)
                 return null;
-            return (this.variableExpression = expressionSemanticAST);
         }
         return this.variableExpression;
     }

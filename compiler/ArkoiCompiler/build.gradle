@@ -1,12 +1,20 @@
-plugins {
-	id 'java'
-	id 'org.jetbrains.kotlin.jvm' version '1.3.61'
-}
+apply plugin: 'java'
 
-group 'com.arkoisystems'
-version '2.0.0'
-
+version = '2.0.0'
 sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+task fatJar(type: Jar) {
+	manifest {
+		attributes(
+				'Implementation-Version': version,
+				'Main-Class': 'com.arkoisystems.arkoicompiler.bootstrap.Bootstrap'
+		)
+	}
+	baseName = project.name + '-all'
+	from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+	with jar
+}
 
 repositories {
 	mavenCentral()
@@ -17,17 +25,5 @@ dependencies {
 	annotationProcessor 'org.projectlombok:lombok:1.18.8'
 	compileOnly 'org.projectlombok:lombok:1.18.8'
 	compile 'com.google.code.gson:gson:2.8.5'
-	implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
-}
-
-compileKotlin {
-	kotlinOptions {
-		jvmTarget = "1.8"
-	}
-}
-
-compileTestKotlin {
-	kotlinOptions {
-		jvmTarget = "1.8"
-	}
+	compile 'commons-cli:commons-cli:1.4'
 }

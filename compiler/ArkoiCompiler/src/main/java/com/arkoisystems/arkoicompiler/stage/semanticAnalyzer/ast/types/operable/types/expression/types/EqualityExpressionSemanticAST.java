@@ -2,6 +2,7 @@ package com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable
 
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.SemanticAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.AbstractSemanticAST;
+import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.AbstractOperableSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.types.expression.AbstractExpressionSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.TypeSyntaxAST;
@@ -36,19 +37,19 @@ public class EqualityExpressionSemanticAST extends AbstractExpressionSemanticAST
     }
     
     @Override
-    public TypeSyntaxAST.TypeKind getOperableObject() {
+    public TypeSyntaxAST.TypeKind getExpressionType() {
         System.out.println("Equality Expression Semantic AST");
         return null;
     }
     
     @Override
-    public TypeSyntaxAST.TypeKind equal(SemanticAnalyzer semanticAnalyzer, AbstractOperableSyntaxAST<?> rightSideOperable) {
-        return super.equal(semanticAnalyzer, rightSideOperable);
+    public TypeSyntaxAST.TypeKind equal(final AbstractOperableSemanticAST<?, ?> leftSideOperable, final AbstractOperableSemanticAST<?, ?> rightSideOperable) {
+        return super.equal(leftSideOperable, rightSideOperable);
     }
     
     @Override
-    public TypeSyntaxAST.TypeKind notEqual(SemanticAnalyzer semanticAnalyzer, AbstractOperableSyntaxAST<?> rightSideOperable) {
-        return super.notEqual(semanticAnalyzer, rightSideOperable);
+    public TypeSyntaxAST.TypeKind notEqual(final AbstractOperableSemanticAST<?, ?> leftSideOperable, final AbstractOperableSemanticAST<?, ?> rightSideOperable) {
+        return super.notEqual(leftSideOperable, rightSideOperable);
     }
     
 }

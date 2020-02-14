@@ -6,7 +6,10 @@ import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.TokenType;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.SymbolToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.numbers.AbstractNumberToken;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.AbstractOperableSemanticAST;
+import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.types.CollectionOperableSemanticAST;
+import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.types.IdentifierCallOperableSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.types.NumberOperableSemanticAST;
+import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.types.StringOperableSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.types.expression.AbstractExpressionSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.ASTType;
@@ -165,12 +168,19 @@ public class TypeSyntaxAST extends AbstractSyntaxAST
         public static TypeKind getTypeKind(final AbstractOperableSemanticAST<?, ?> abstractOperableSemanticAST) {
             if (abstractOperableSemanticAST instanceof AbstractExpressionSemanticAST) {
                 final AbstractExpressionSemanticAST<?> abstractExpressionSemanticAST = (AbstractExpressionSemanticAST<?>) abstractOperableSemanticAST;
-                return abstractExpressionSemanticAST.getOperableObject();
+                return abstractExpressionSemanticAST.getExpressionType();
             } else if (abstractOperableSemanticAST instanceof NumberOperableSemanticAST) {
                 final NumberOperableSemanticAST numberExpression = (NumberOperableSemanticAST) abstractOperableSemanticAST;
                 return getTypeKind(numberExpression.getNumberType());
+            } else if (abstractOperableSemanticAST instanceof StringOperableSemanticAST) {
+                return STRING;
+            } else if (abstractOperableSemanticAST instanceof CollectionOperableSemanticAST) {
+                return COLLECTION;
+            } else if (abstractOperableSemanticAST instanceof IdentifierCallOperableSemanticAST) {
+                final IdentifierCallOperableSemanticAST identifierCallOperableSemanticAST = (IdentifierCallOperableSemanticAST) abstractOperableSemanticAST;
+                return identifierCallOperableSemanticAST.getExpressionType();
             } else {
-                System.out.println("TypeKind: Not supported yet #1");
+                System.out.println("TypeKind: Not supported yet #1: " + abstractOperableSemanticAST);
                 return null;
             }
         }
@@ -181,6 +191,8 @@ public class TypeSyntaxAST extends AbstractSyntaxAST
     
         private static TypeKind combineKinds(final TypeKind leftSideKind, final TypeKind rightSideKind) {
             System.out.println("TypeKind: " + leftSideKind + ", " + rightSideKind);
+            if(leftSideKind == STRING && rightSideKind == COLLECTION)
+                return STRING;
             return leftSideKind;
         }
     

@@ -103,7 +103,7 @@ public class AbstractExpressionSyntaxAST extends AbstractOperableSyntaxAST<TypeS
         AbstractOperableSyntaxAST<?> leftSideAST = this.parseLogicalOr(syntaxAnalyzer);
         if (leftSideAST == null)
             return null;
-        
+    
         final boolean equal_second = syntaxAnalyzer.matchesPeekToken(2, SymbolToken.SymbolType.EQUAL) != null;
         if (equal_second && syntaxAnalyzer.matchesPeekToken(1, SymbolToken.SymbolType.PLUS) != null) {
             syntaxAnalyzer.nextToken(3);
@@ -276,7 +276,7 @@ public class AbstractExpressionSyntaxAST extends AbstractOperableSyntaxAST<TypeS
         if (leftSideAST == null)
             return null;
         
-        if (syntaxAnalyzer.matchesPeekToken(1, SymbolToken.SymbolType.PLUS) != null) {
+        if (syntaxAnalyzer.matchesPeekToken(1, SymbolToken.SymbolType.PLUS) != null && syntaxAnalyzer.matchesPeekToken(2, SymbolToken.SymbolType.EQUAL) == null) {
             syntaxAnalyzer.nextToken(2);
             
             final AbstractOperableSyntaxAST<?> rightSideOperable = this.parseMultiplicative(syntaxAnalyzer);
@@ -284,7 +284,7 @@ public class AbstractExpressionSyntaxAST extends AbstractOperableSyntaxAST<TypeS
                 return null;
             
             leftSideAST = new BinaryExpressionSyntaxAST(leftSideAST, BinaryExpressionSyntaxAST.BinaryOperator.ADDITION, rightSideOperable);
-        } else if (syntaxAnalyzer.matchesPeekToken(1, SymbolToken.SymbolType.MINUS) != null) {
+        } else if (syntaxAnalyzer.matchesPeekToken(1, SymbolToken.SymbolType.MINUS) != null && syntaxAnalyzer.matchesPeekToken(2, SymbolToken.SymbolType.EQUAL) == null) {
             syntaxAnalyzer.nextToken(2);
             
             final AbstractOperableSyntaxAST<?> rightSideOperable = this.parseMultiplicative(syntaxAnalyzer);
@@ -302,7 +302,7 @@ public class AbstractExpressionSyntaxAST extends AbstractOperableSyntaxAST<TypeS
         if (leftSideAST == null)
             return null;
         
-        if (syntaxAnalyzer.matchesPeekToken(1, SymbolToken.SymbolType.ASTERISK) != null) {
+        if (syntaxAnalyzer.matchesPeekToken(1, SymbolToken.SymbolType.ASTERISK) != null && syntaxAnalyzer.matchesPeekToken(2, SymbolToken.SymbolType.EQUAL) == null) {
             syntaxAnalyzer.nextToken(2);
             
             final AbstractOperableSyntaxAST<?> rightSideOperable = this.parseUnary(syntaxAnalyzer);
@@ -310,7 +310,7 @@ public class AbstractExpressionSyntaxAST extends AbstractOperableSyntaxAST<TypeS
                 return null;
             
             leftSideAST = new BinaryExpressionSyntaxAST(leftSideAST, BinaryExpressionSyntaxAST.BinaryOperator.MULTIPLICATION, rightSideOperable);
-        } else if (syntaxAnalyzer.matchesPeekToken(1, SymbolToken.SymbolType.SLASH) != null) {
+        } else if (syntaxAnalyzer.matchesPeekToken(1, SymbolToken.SymbolType.SLASH) != null && syntaxAnalyzer.matchesPeekToken(2, SymbolToken.SymbolType.EQUAL) == null) {
             syntaxAnalyzer.nextToken(2);
             
             final AbstractOperableSyntaxAST<?> rightSideOperable = this.parseUnary(syntaxAnalyzer);
@@ -318,7 +318,7 @@ public class AbstractExpressionSyntaxAST extends AbstractOperableSyntaxAST<TypeS
                 return null;
             
             leftSideAST = new BinaryExpressionSyntaxAST(leftSideAST, BinaryExpressionSyntaxAST.BinaryOperator.DIVISION, rightSideOperable);
-        } else if (syntaxAnalyzer.matchesPeekToken(1, SymbolToken.SymbolType.PERCENT) != null) {
+        } else if (syntaxAnalyzer.matchesPeekToken(1, SymbolToken.SymbolType.PERCENT) != null && syntaxAnalyzer.matchesPeekToken(2, SymbolToken.SymbolType.EQUAL) == null) {
             syntaxAnalyzer.nextToken(2);
             
             final AbstractOperableSyntaxAST<?> rightSideOperable = this.parseUnary(syntaxAnalyzer);

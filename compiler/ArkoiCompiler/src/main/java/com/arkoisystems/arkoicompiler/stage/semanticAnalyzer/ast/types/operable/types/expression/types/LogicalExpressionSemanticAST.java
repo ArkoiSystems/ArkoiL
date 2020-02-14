@@ -2,6 +2,7 @@ package com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable
 
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.SemanticAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.AbstractSemanticAST;
+import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.AbstractOperableSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.types.expression.AbstractExpressionSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.TypeSyntaxAST;
@@ -36,19 +37,19 @@ public class LogicalExpressionSemanticAST extends AbstractExpressionSemanticAST<
     }
     
     @Override
-    public TypeSyntaxAST.TypeKind getOperableObject() {
+    public TypeSyntaxAST.TypeKind getExpressionType() {
         System.out.println("Logical Expression Semantic AST");
         return null;
     }
     
     @Override
-    public TypeSyntaxAST.TypeKind logicalAnd(SemanticAnalyzer semanticAnalyzer, AbstractOperableSyntaxAST<?> rightSideOperable) {
-        return super.logicalAnd(semanticAnalyzer, rightSideOperable);
+    public TypeSyntaxAST.TypeKind logicalAnd(final AbstractOperableSemanticAST<?, ?> leftSideOperable, final AbstractOperableSemanticAST<?, ?> rightSideOperable) {
+        return super.logicalAnd(leftSideOperable, rightSideOperable);
     }
     
     @Override
-    public TypeSyntaxAST.TypeKind logicalOr(SemanticAnalyzer semanticAnalyzer, AbstractOperableSyntaxAST<?> rightSideOperable) {
-        return super.logicalOr(semanticAnalyzer, rightSideOperable);
+    public TypeSyntaxAST.TypeKind logicalOr(final AbstractOperableSemanticAST<?, ?> leftSideOperable, final AbstractOperableSemanticAST<?, ?> rightSideOperable) {
+        return super.logicalOr(leftSideOperable, rightSideOperable);
     }
     
 }

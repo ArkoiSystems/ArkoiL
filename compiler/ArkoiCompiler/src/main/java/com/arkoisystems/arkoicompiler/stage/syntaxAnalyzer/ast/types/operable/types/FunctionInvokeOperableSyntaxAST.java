@@ -7,6 +7,7 @@ import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.TokenType;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.IdentifierToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.SymbolToken;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.ASTAccess;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.BlockSyntaxAST;
@@ -43,6 +44,9 @@ public class FunctionInvokeOperableSyntaxAST extends AbstractOperableSyntaxAST<T
 {
     
     @Expose
+    private ASTAccess functionAccess;
+    
+    @Expose
     private final IdentifierToken invokedFunctionName;
     
     @Expose
@@ -66,7 +70,8 @@ public class FunctionInvokeOperableSyntaxAST extends AbstractOperableSyntaxAST<T
         
         this.invokedFunctionName = invokedFunctionName;
         this.invocationType = invocationType;
-        
+    
+        this.functionAccess = ASTAccess.GLOBAL_ACCESS;
         this.invokedExpressions = new ArrayList<>();
     }
     
@@ -85,6 +90,7 @@ public class FunctionInvokeOperableSyntaxAST extends AbstractOperableSyntaxAST<T
         this.invokedFunctionName = invokedFunctionName;
         
         this.invocationType = FunctionInvocation.BLOCK_INVOCATION;
+        this.functionAccess = ASTAccess.GLOBAL_ACCESS;
         this.invokedExpressions = new ArrayList<>();
     }
     
