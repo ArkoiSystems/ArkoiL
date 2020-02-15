@@ -1,7 +1,13 @@
+/*
+ * Copyright © 2019-2020 ArkoiSystems (https://www.arkoisystems.com/) All Rights Reserved.
+ * Created ArkoiCompiler on February 15, 2020
+ * Author timo aka. єхcsє#5543
+ */
 package com.arkoisystems.arkoicompiler.bootstrap;
 
 import com.arkoisystems.arkoicompiler.ArkoiClass;
 import com.arkoisystems.arkoicompiler.ArkoiCompiler;
+import com.arkoisystems.arkoicompiler.utils.FileUtils;
 import lombok.SneakyThrows;
 import org.apache.commons.cli.*;
 
@@ -12,30 +18,25 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * Copyright © 2019 ArkoiSystems (https://www.arkoisystems.com/) All Rights Reserved.
- * Created ArkoiCompiler on the Sat Nov 09 2019 Author єхcsє#5543 aka timo
- * <p>
- * Licensed under the Apache License, Version 2.0 (the "License");
- * <p>
- * you may not use this file except in compliance with the License. You may obtain a copy
- * of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
- * Unless required by applicable law or agreed to in writing, software distributed under
- * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
+ * The {@link Bootstrap} class is used for the main method. It's the first method which is
+ * getting called. It will check the correctness of the input arguments and also will
+ * throw an error if the input {@link File} doesn't exists etc.
  */
 public class Bootstrap
 {
     
+    /**
+     * This method will get called at first when executing the program. It will check for
+     * correct arguments and if the input {@link File} exists.
+     *
+     * @param args
+     *         the arguments which are given from the Java program.
+     */
     @SneakyThrows
-    public static void main(String[] args) {
+    public static void main(final String[] args) {
         final Options options = new Options();
-        
         {
-            final Option inputDirectory = new Option("id", "inputDirectory", true, "target source directory");
+            final Option inputDirectory = new Option("ip", "inputPath", true, "target source directory or file");
             inputDirectory.setRequired(true);
             options.addOption(inputDirectory);
             
@@ -44,25 +45,34 @@ public class Bootstrap
             options.addOption(outputFile);
         }
         
-        CommandLineParser commandLineParser = new DefaultParser();
-        HelpFormatter helpFormatter = new HelpFormatter();
-        CommandLine commandLine;
-        
+        final CommandLine commandLine;
         try {
-            commandLine = commandLineParser.parse(options, args);
+            commandLine = new DefaultParser().parse(options, args);
         } catch (final ParseException ex) {
             System.out.println(ex.getMessage());
-            helpFormatter.printHelp("arkoi-compiler", options);
+            new HelpFormatter().printHelp("arkoi-compiler", options);
             return;
         }
         
-        final File inputDirectory = new File(commandLine.getOptionValue("inputDirectory"));
-        final ArkoiCompiler arkoiCompiler = new ArkoiCompiler(commandLine.getOptionValue("inputDirectory"));
+        final File targetPath = new File(commandLine.getOptionValue("inputPath"));
+        if (targetPath.exists())
+            throw new NullPointerException("The given \"inputPath\" doesn't exists. Please correct the path to a valid file or directory.");
         
-        for(final File file : getAllFiles(inputDirectory)) {
-            if(!file.getName().endsWith(".ark"))
-                continue;
-            arkoiCompiler.addFile(file);
+        final ArkoiCompiler arkoiCompiler;
+        if (targetPath.isDirectory()) {
+            arkoiCompiler = new ArkoiCompiler(commandLine.getOptionValue("inputDirectory"));
+            for (final File file : FileUtils.getAllFiles(targetPath)) {
+                if (!file.getName().endsWith(".ark"))
+                    continue;
+                arkoiCompiler.addFile(file);
+            }
+        } else {
+            if (!targetPath.getName().endsWith(".ark"))
+                throw new NullPointerException("Couldn't compile this file because it doesn't has the Arkoi file extension \".ark\".");
+            
+            final File inputDirectory = targetPath.getParentFile();
+            arkoiCompiler = new ArkoiCompiler(inputDirectory.getCanonicalPath());
+            arkoiCompiler.addFile(targetPath);
         }
         
         if (!arkoiCompiler.compile()) {
@@ -76,17 +86,6 @@ public class Bootstrap
         } catch (final Exception ex) {
             ex.printStackTrace();
         }
-    }
-    
-    private static List<File> getAllFiles(final File directory) {
-        final List<File> files = new ArrayList<>();
-        for (final File file : Objects.requireNonNull(directory.listFiles())) {
-            if (file.isDirectory())
-                files.addAll(getAllFiles(file));
-            else
-                files.add(file);
-        }
-        return files;
     }
     
 }

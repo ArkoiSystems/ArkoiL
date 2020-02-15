@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.arkoisystems.arkoicompiler.ArkoiCompilerTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2020-02-14T23:11:40" hostname="msi-ubuntu" time="0.11">
+<testsuite name="com.arkoisystems.arkoicompiler.ArkoiCompilerTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2020-02-15T21:19:46" hostname="msi-ubuntu" time="0.103">
   <properties/>
-  <testcase name="runCompiler" classname="com.arkoisystems.arkoicompiler.ArkoiCompilerTest" time="0.11"/>
-  <system-out><![CDATA[The lexical analysis took 17.49391ms for all classes (3 in total)
-The syntax analysis took 15.836388ms for all classes (3 in total)
+  <testcase name="runCompiler" classname="com.arkoisystems.arkoicompiler.ArkoiCompilerTest" time="0.103"/>
+  <system-out><![CDATA[The lexical analysis took 18.218474ms for all classes (3 in total)
+The syntax analysis took 15.269235ms for all classes (3 in total)
 TypeKind: INTEGER, FLOAT
 TypeKind: INTEGER, INTEGER
 TypeKind: INTEGER, INTEGER
@@ -13,8 +13,8 @@ TypeKind: INTEGER, INTEGER
 TypeKind: INTEGER, INTEGER
 TypeKind: INTEGER, INTEGER
 TypeKind: STRING, COLLECTION
-The semantic analysis took 10.987141ms for all classes (3 in total)
-The compilation took 46.673726ms for all classes (3 in total)
+The semantic analysis took 10.334118ms for all classes (3 in total)
+The compilation took 46.387558ms for all classes (3 in total)
 ]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>

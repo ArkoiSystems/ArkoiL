@@ -1,7 +1,12 @@
+/*
+ * Copyright © 2019-2020 ArkoiSystems (https://www.arkoisystems.com/) All Rights Reserved.
+ * Created ArkoiCompiler on February 15, 2020
+ * Author timo aka. єхcsє#5543
+ */
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.types;
 
-import com.arkoisystems.arkoicompiler.stage.errorHandler.types.SyntaxASTError;
 import com.arkoisystems.arkoicompiler.stage.errorHandler.types.ParserError;
+import com.arkoisystems.arkoicompiler.stage.errorHandler.types.SyntaxASTError;
 import com.arkoisystems.arkoicompiler.stage.errorHandler.types.TokenError;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.TokenType;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.IdentifierToken;
@@ -18,22 +23,6 @@ import lombok.Setter;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Copyright © 2019 ArkoiSystems (https://www.arkoisystems.com/) All Rights Reserved.
- * Created ArkoiCompiler on the Sat Nov 09 2019 Author єхcsє#5543 aka Timo
- * <p>
- * Licensed under the Apache License, Version 2.0 (the "License");
- * <p>
- * you may not use this file except in compliance with the License. You may obtain a copy
- * of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
- * Unless required by applicable law or agreed to in writing, software distributed under
- * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
- */
 @Getter
 @Setter
 public class FunctionDefinitionSyntaxAST extends AbstractStatementSyntaxAST
@@ -82,27 +71,29 @@ public class FunctionDefinitionSyntaxAST extends AbstractStatementSyntaxAST
     }
     
     /**
-     * This method will parse the "function definition" statement and checks it for the
-     * correct syntax. This statement can just be used in the RootAST. Also it can have
-     * annotations which enables pre-defined features. For that the "native" annotation
-     * gives the function the power to end directly with an semicolon after the argument
-     * section.
-     * <p>
-     * An example for this statement:
-     * <p>
-     * &#64;native[default]
-     * <p>
-     * fun println<>(message: string);
+     * This method will parse the {@link FunctionDefinitionSyntaxAST} with the given
+     * parameters. The only AST which can parse a {@link FunctionDefinitionSyntaxAST} is
+     * the {@link RootSyntaxAST}, because you can't define a function inside a {@link
+     * BlockSyntaxAST} or something else.
+     *
+     * <p> An example for this statement:</p>
+     * <pre>
+     *     &#64;native[default]
+     *     fun println<>(message: string);
+     * </pre>
+     *
+     * <note>Note that a {@link FunctionDefinitionSyntaxAST} can be native and so it
+     * doesn't need any block besides a semicolon to mark the end of the function
+     * definition.</note>
      *
      * @param parentAST
-     *         The parent of the AST. With it you can check for correct usage of the
-     *         statement.
+     *         the {@link AbstractSyntaxAST} for the parent check and error throwing.
      * @param syntaxAnalyzer
-     *         The given SyntaxAnalyzer is used for checking the syntax of the current
-     *         Token list.
+     *         the {@link SyntaxAnalyzer} which should be used to parse this {@link
+     *         FunctionDefinitionSyntaxAST}
      *
-     * @return It will return null if an error occurred or an FunctionDefinitionAST if it
-     *         parsed until to the end.
+     * @return the parsed {@link FunctionDefinitionSyntaxAST} or {@link null} if something
+     *         went wrong
      */
     @Override
     public FunctionDefinitionSyntaxAST parseAST(final AbstractSyntaxAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {

@@ -1,28 +1,36 @@
+/*
+ * Copyright © 2019-2020 ArkoiSystems (https://www.arkoisystems.com/) All Rights Reserved.
+ * Created ArkoiCompiler on February 15, 2020
+ * Author timo aka. єхcsє#5543
+ */
 package com.arkoisystems.arkoicompiler.stage;
 
 import com.arkoisystems.arkoicompiler.stage.errorHandler.ErrorHandler;
 
 /**
- * Copyright © 2019 ArkoiSystems (https://www.arkoisystems.com/) All Rights Reserved.
- * Created ArkoiCompiler on the Sat Nov 09 2019 Author єхcsє#5543 aka Timo
- * <p>
- * Licensed under the Apache License, Version 2.0 (the "License");
- * <p>
- * you may not use this file except in compliance with the License. You may obtain a copy
- * of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
- * Unless required by applicable law or agreed to in writing, software distributed under
- * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
+ * The abstract version of a stage which has some pre-defined methods to overwrite. Every
+ * stage need to have an {@link ErrorHandler} to report errors and the {@link
+ * AbstractStage#processStage()} method which will execute the code of the current stage.
  */
 public abstract class AbstractStage
 {
     
+    /**
+     * Returns the {@link ErrorHandler} of the current stage. So every stage needs to
+     * provide such a {@link ErrorHandler} which will make a lot of things easier.
+     *
+     * @return the {@link ErrorHandler} of the current stage.
+     */
     public abstract ErrorHandler errorHandler();
     
+    
+    /**
+     * This is an essential method to provide the capability to run every stage with the
+     * same method. Also it will return a flag ({@code boolean}), which will say if an
+     * error occurred or not.
+     *
+     * @return the flag if an error occurred or not.
+     */
     public abstract boolean processStage();
     
 }

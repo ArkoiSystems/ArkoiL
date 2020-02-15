@@ -1,74 +1,135 @@
+/*
+ * Copyright © 2019-2020 ArkoiSystems (https://www.arkoisystems.com/) All Rights Reserved.
+ * Created ArkoiCompiler on February 15, 2020
+ * Author timo aka. єхcsє#5543
+ */
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer;
 
 import com.arkoisystems.arkoicompiler.ArkoiClass;
 import com.arkoisystems.arkoicompiler.stage.AbstractStage;
-import com.arkoisystems.arkoicompiler.stage.errorHandler.ErrorHandler;
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.LexicalAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.TokenType;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.SymbolToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.numbers.AbstractNumberToken;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.RootSyntaxAST;
 import com.google.gson.annotations.Expose;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+
 /**
- * Copyright © 2019 ArkoiSystems (https://www.arkoisystems.com/) All Rights Reserved.
- * Created ArkoiCompiler on the Sat Nov 09 2019 Author єхcsє#5543 aka Timo
- * <p>
- * Licensed under the Apache License, Version 2.0 (the "License");
- * <p>
- * you may not use this file except in compliance with the License. You may obtain a copy
- * of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
- * Unless required by applicable law or agreed to in writing, software distributed under
- * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
+ * This class is an implementation of the {@link AbstractStage}. It will parse an AST
+ * (Abstract Syntax Tree) with help of the parsed {@link AbstractToken} list of the {@link
+ * LexicalAnalyzer}.
  */
 @Setter
 @Getter
 public class SyntaxAnalyzer extends AbstractStage
 {
     
+    /**
+     * This defines the {@link ArkoiClass} in which the {@link SyntaxAnalyzer} got
+     * created.
+     */
     private final ArkoiClass arkoiClass;
     
     
+    /**
+     * The {@link SyntaxErrorHandler} is used for error which are happening through the
+     * process of parsing the {@link AbstractSyntaxAST}'s.
+     */
     @Expose
     private final SyntaxErrorHandler errorHandler;
     
+    
+    /**
+     * The {@link AbstractToken[]} which is used to get current, peeked, next tokens
+     * without needing to use a {@link List} or something else.
+     */
+    private AbstractToken[] tokens;
+    
+    
+    /**
+     * The current token position of the {@link SyntaxAnalyzer}. Used for methods like
+     * {@link SyntaxAnalyzer#currentToken()} or {@link SyntaxAnalyzer#peekToken(int)}.
+     */
     @Expose
     private int position;
     
-    private AbstractToken[] tokens;
     
+    /**
+     * The {@link RootSyntaxAST} which is getting parsed directly at the beginning.
+     */
     @Expose
     private RootSyntaxAST rootSyntaxAST;
     
     
+    /**
+     * Constructs a new {@link SyntaxAnalyzer} with the given parameters. It will set the
+     * {@link ArkoiClass} it got created in and also the {@link SyntaxErrorHandler} and
+     * {@link RootSyntaxAST} are getting created.
+     *
+     * @param arkoiClass
+     *         the {@link ArkoiClass} in which the {@link SyntaxAnalyzer} got created.
+     */
     public SyntaxAnalyzer(final ArkoiClass arkoiClass) {
         this.arkoiClass = arkoiClass;
         
-        this.errorHandler = new SyntaxErrorHandler(this);
+        this.errorHandler = new SyntaxErrorHandler();
         this.rootSyntaxAST = new RootSyntaxAST(this);
     }
     
+    
+    /**
+     * Overwritten method from the {@link AbstractStage} class which will run this stage.
+     * It will reset the current position and the tokens array. Also it will return the
+     * {@link RootSyntaxAST} if the parsing went well or {@code null} if an error
+     * occurred.
+     *
+     * @return the {@link RootSyntaxAST} if everything went well or {@code null} if an
+     *         error occurred.
+     */
     @Override
     public boolean processStage() {
         this.tokens = this.arkoiClass.getLexicalAnalyzer().getTokens();
         this.position = 0;
-    
+        
         return this.rootSyntaxAST.parseAST(null, this) != null;
     }
     
+    
+    /**
+     * Overwritten method from the {@link AbstractStage} class which will return the
+     * created {@link SyntaxErrorHandler}.
+     *
+     * @return the {@link SyntaxErrorHandler} which got created in the constructor.
+     */
     @Override
-    public ErrorHandler errorHandler() {
+    public SyntaxErrorHandler errorHandler() {
         return this.errorHandler;
     }
     
-    public AbstractToken matchesCurrentToken(final AbstractNumberToken.NumberType numberType) {
+    
+    /**
+     * Checks if the current {@link AbstractToken} matches with the given {@link
+     * AbstractNumberToken.NumberType}. First of all it will check if the {@link
+     * AbstractToken} even is an instance of {@link AbstractNumberToken}. If not it will
+     * return null or the {@link AbstractNumberToken} which got checked for the {@link
+     * AbstractNumberToken.NumberType}.
+     *
+     * @param numberType
+     *         the {@link AbstractNumberToken.NumberType} which should get used to compare
+     *         with the current {@link AbstractToken} if it's an instance of {@link
+     *         AbstractNumberToken}.
+     *
+     * @return {@code null} if the current {@link AbstractToken} is not an {@link
+     *         AbstractNumberToken} or the {@link AbstractNumberToken.NumberType} doesn't
+     *         match.
+     */
+    public AbstractNumberToken matchesCurrentToken(final AbstractNumberToken.NumberType numberType) {
         final AbstractToken currentToken = this.currentToken();
         if (!(currentToken instanceof AbstractNumberToken))
             return null;
@@ -79,7 +140,24 @@ public class SyntaxAnalyzer extends AbstractStage
         return numberToken;
     }
     
-    public AbstractToken matchesNextToken(final AbstractNumberToken.NumberType numberType) {
+    
+    /**
+     * Checks if the next {@link AbstractToken} matches with the given {@link
+     * AbstractNumberToken.NumberType}. First of all it will check if the {@link
+     * AbstractToken} even is an instance of {@link AbstractNumberToken}. If not it will
+     * return null or the {@link AbstractNumberToken} which got checked for the {@link
+     * AbstractNumberToken.NumberType}.
+     *
+     * @param numberType
+     *         the {@link AbstractNumberToken.NumberType} which should get used to compare
+     *         with the next {@link AbstractToken} if it's an instance of {@link
+     *         AbstractNumberToken}.
+     *
+     * @return {@code null} if the next {@link AbstractToken} is not an {@link
+     *         AbstractNumberToken} or the {@link AbstractNumberToken.NumberType} doesn't
+     *         match.
+     */
+    public AbstractNumberToken matchesNextToken(final AbstractNumberToken.NumberType numberType) {
         final AbstractToken nextToken = this.nextToken();
         if (!(nextToken instanceof AbstractNumberToken))
             return null;
@@ -90,31 +168,22 @@ public class SyntaxAnalyzer extends AbstractStage
         return numberToken;
     }
     
-    public AbstractToken matchesPeekToken(final int peek, final AbstractNumberToken.NumberType numberType) {
-        if (peek == 0)
-            return this.matchesCurrentToken(numberType);
-        
-        final AbstractToken peekToken = this.peekToken(peek);
-        if (!(peekToken instanceof AbstractNumberToken))
-            return null;
-        
-        final AbstractNumberToken numberToken = (AbstractNumberToken) peekToken;
-        if (numberToken.getNumberType() != numberType)
-            return null;
-        return numberToken;
-    }
     
-    public AbstractToken matchesPeekToken(final int peek, final TokenType tokenType) {
-        if (peek == 0)
-            return this.matchesCurrentToken(tokenType);
-        
-        final AbstractToken peekToken = this.peekToken(peek);
-        if (peekToken.getTokenType() != tokenType)
-            return null;
-        return peekToken;
-    }
-    
-    public AbstractToken matchesCurrentToken(final SymbolToken.SymbolType symbolType) {
+    /**
+     * Checks if the current {@link AbstractToken} matches with the given {@link
+     * SymbolToken.SymbolType}. First of all it will check if the {@link AbstractToken}
+     * even is an instance of {@link SymbolToken}. If not it will return null or the
+     * {@link SymbolToken} which got checked for the {@link SymbolToken.SymbolType}.
+     *
+     * @param symbolType
+     *         the {@link SymbolToken.SymbolType} which should get used to compare with
+     *         the current {@link AbstractToken} if it's an instance of {@link
+     *         SymbolToken}.
+     *
+     * @return {@code null} if the current {@link AbstractToken} is not an {@link
+     *         SymbolToken} or the {@link SymbolToken.SymbolType} doesn't match.
+     */
+    public SymbolToken matchesCurrentToken(final SymbolToken.SymbolType symbolType) {
         final AbstractToken currentToken = this.currentToken();
         if (!(currentToken instanceof SymbolToken))
             return null;
@@ -125,7 +194,21 @@ public class SyntaxAnalyzer extends AbstractStage
         return symbolToken;
     }
     
-    public AbstractToken matchesNextToken(final SymbolToken.SymbolType symbolType) {
+    
+    /**
+     * Checks if the next {@link AbstractToken} matches with the given {@link
+     * SymbolToken.SymbolType}. First of all it will check if the {@link AbstractToken}
+     * even is an instance of {@link SymbolToken}. If not it will return null or the
+     * {@link SymbolToken} which got checked for the {@link SymbolToken.SymbolType}.
+     *
+     * @param symbolType
+     *         the {@link SymbolToken.SymbolType} which should get used to compare with
+     *         the next {@link AbstractToken} if it's an instance of {@link SymbolToken}.
+     *
+     * @return {@code null} if the next {@link AbstractToken} is not an {@link
+     *         SymbolToken} or the {@link SymbolToken.SymbolType} doesn't match.
+     */
+    public SymbolToken matchesNextToken(final SymbolToken.SymbolType symbolType) {
         final AbstractToken nextToken = this.nextToken();
         if (!(nextToken instanceof SymbolToken))
             return null;
@@ -136,11 +219,32 @@ public class SyntaxAnalyzer extends AbstractStage
         return symbolToken;
     }
     
-    public AbstractToken matchesPeekToken(final int peek, final SymbolToken.SymbolType symbolType) {
-        if (peek == 0)
+    
+    /**
+     * Check if the peeked {@link AbstractToken} matches with the given {@link
+     * SymbolToken.SymbolType}. At first it will check if the {@code offset} parameter
+     * equal to 0 because it will then just return the result of {@link
+     * SyntaxAnalyzer#matchesCurrentToken(SymbolToken.SymbolType)}. If not it will check
+     * if the peeked {@link AbstractToken} is an instance of {@link SymbolToken} and
+     * depending of that it will check for the match of the {@link SymbolToken.SymbolType}
+     * or simply just return null.
+     *
+     * @param offset
+     *         the offset which should get added to the current position.
+     * @param symbolType
+     *         the {@link SymbolToken.SymbolType} which should get used to compare the
+     *         peeked {@link AbstractToken}.
+     *
+     * @return {@code null} if the peeked {@link AbstractToken} isn't an instance of
+     *         {@link SymbolToken} or it doesn't match the given {@link
+     *         SymbolToken.SymbolType}. If it does it will just return the peeked {@link
+     *         AbstractToken}.
+     */
+    public SymbolToken matchesPeekToken(final int offset, final SymbolToken.SymbolType symbolType) {
+        if (offset == 0)
             return this.matchesCurrentToken(symbolType);
         
-        final AbstractToken peekToken = this.peekToken(peek);
+        final AbstractToken peekToken = this.peekToken(offset);
         if (!(peekToken instanceof SymbolToken))
             return null;
         
@@ -150,6 +254,20 @@ public class SyntaxAnalyzer extends AbstractStage
         return symbolToken;
     }
     
+    
+    /**
+     * Checks if the current {@link AbstractToken} matches with the given {@link
+     * TokenType}. If not it will return null or the {@link AbstractNumberToken} which got
+     * checked for the {@link TokenType}.
+     *
+     * @param tokenType
+     *         the {@link TokenType} which should get used to compare with the current
+     *         {@link AbstractToken}.
+     *
+     * @return {@code null} if the current {@link AbstractToken} doesn't match the given
+     *         {@link TokenType}. If it does it will just return the peeked {@link
+     *         AbstractToken}.
+     */
     public AbstractToken matchesCurrentToken(final TokenType tokenType) {
         final AbstractToken currentToken = this.currentToken();
         if (currentToken.getTokenType() != tokenType)
@@ -157,6 +275,20 @@ public class SyntaxAnalyzer extends AbstractStage
         return currentToken;
     }
     
+    
+    /**
+     * Checks if the next {@link AbstractToken} matches with the given {@link TokenType}.
+     * If not it will return null or the {@link SymbolToken} which got checked for the
+     * {@link SymbolToken.SymbolType}.
+     *
+     * @param tokenType
+     *         the {@link TokenType} which should get used to compare with the next {@link
+     *         AbstractToken}.
+     *
+     * @return {@code null} if the next {@link AbstractToken} doesn't match the given
+     *         {@link TokenType}. If it does it will just return the peeked {@link
+     *         AbstractToken}.
+     */
     public AbstractToken matchesNextToken(final TokenType tokenType) {
         final AbstractToken nextToken = this.nextToken();
         if (nextToken.getTokenType() != tokenType)
@@ -164,35 +296,88 @@ public class SyntaxAnalyzer extends AbstractStage
         return nextToken;
     }
     
-    public AbstractToken matchesNextToken(final int peek, final TokenType tokenType) {
-        if (peek == 0)
+    
+    /**
+     * Check if the peeked {@link AbstractToken} matches with the given {@link TokenType}.
+     * At first it will check if the {@code offset} parameter equal to 0 because it will
+     * then just return the result of {@link SyntaxAnalyzer#matchesCurrentToken(TokenType)}.
+     * If not it will check if the {@link TokenType} matches and depending of that it will
+     * return null or the {@link AbstractToken}.
+     *
+     * @param offset
+     *         the offset which should get added to the current position.
+     * @param tokenType
+     *         the {@link TokenType} which should get used to compare the peeked {@link
+     *         AbstractToken}.
+     *
+     * @return {@code null} if the peeked {@link AbstractToken} doesn't match the given
+     *         {@link TokenType}. If it does it will just return the peeked {@link
+     *         AbstractToken}.
+     */
+    public AbstractToken matchesPeekToken(final int offset, final TokenType tokenType) {
+        if (offset == 0)
             return this.matchesCurrentToken(tokenType);
         
-        final AbstractToken peekToken = this.peekToken(peek);
+        final AbstractToken peekToken = this.peekToken(offset);
         if (peekToken.getTokenType() != tokenType)
             return null;
         return peekToken;
     }
     
-    public AbstractToken peekToken(final int peek) {
-        if (this.position + peek > this.tokens.length)
+    
+    /**
+     * Returns the peeked {@link AbstractToken} with the offset declared as a parameter
+     * {@code offset}. If the offset goes out of bounds, it will just return the last
+     * {@link AbstractToken} of the array.
+     *
+     * @param offset
+     *         the offset which should get added to the current position.
+     *
+     * @return an {@link AbstractToken} which is used in the later process.
+     */
+    public AbstractToken peekToken(final int offset) {
+        if (this.position + offset > this.tokens.length)
             return this.tokens[this.tokens.length - 1];
-        return this.tokens[this.position + peek];
+        return this.tokens[this.position + offset];
     }
     
+    
+    /**
+     * Returns the current {@link AbstractToken} and returns the last {@link
+     * AbstractToken} of the array if it went out of bounds.
+     *
+     * @return an {@link AbstractToken} which is used in the later process.
+     */
     public AbstractToken currentToken() {
         if (this.position >= this.tokens.length)
             return this.tokens[this.tokens.length - 1];
         return this.tokens[position];
     }
     
-    public AbstractToken nextToken(final int positions) {
-        this.position += positions;
+    
+    /**
+     * Returns the next {@link AbstractToken} with an offset. It will return the last
+     * {@link AbstractToken} in the array if it went out of bounds.
+     *
+     * @param offset
+     *         the offset which should get added to the current position.
+     *
+     * @return an {@link AbstractToken} which is used in the later process.
+     */
+    public AbstractToken nextToken(final int offset) {
+        this.position += offset;
         if (this.position >= this.tokens.length)
             return this.tokens[this.tokens.length - 1];
         return this.currentToken();
     }
     
+    
+    /**
+     * Returns the next {@link AbstractToken} without any offset. It will return the last
+     * {@link AbstractToken} in the array if it went out of bounds.
+     *
+     * @return an {@link AbstractToken} which is used in the later process.
+     */
     public AbstractToken nextToken() {
         this.position++;
         if (this.position >= this.tokens.length)

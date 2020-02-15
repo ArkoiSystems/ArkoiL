@@ -1,42 +1,80 @@
+/*
+ * Copyright © 2019-2020 ArkoiSystems (https://www.arkoisystems.com/) All Rights Reserved.
+ * Created ArkoiCompiler on February 15, 2020
+ * Author timo aka. єхcsє#5543
+ */
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.parser;
 
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken;
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.TokenType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
 import com.google.gson.annotations.Expose;
 import lombok.Getter;
 
 /**
- * Copyright © 2019 ArkoiSystems (https://www.arkoisystems.com/) All Rights Reserved.
- * Created ArkoiCompiler on the Sat Nov 09 2019 Author єхcsє#5543 aka Timo
- * <p>
- * Licensed under the Apache License, Version 2.0 (the "License");
- * <p>
- * you may not use this file except in compliance with the License. You may obtain a copy
- * of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
- * Unless required by applicable law or agreed to in writing, software distributed under
- * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
+ * This class is used to define a {@link AbstractParser} for a specific {@link
+ * AbstractSyntaxAST}. So you can easily create an AST without any problems. Also this
+ * class is capable to test the current {@link AbstractToken} if it could be parsed by
+ * this AST.
+ *
+ * @param <T>
+ *         the {@link AbstractSyntaxAST} which should define this class.
  */
 @Getter
 public abstract class AbstractParser<T extends AbstractSyntaxAST>
 {
     
+    /**
+     * The parameter name of the current {@link AbstractParser}.
+     */
     @Expose
-    private final String childName;
+    private final String parameterName;
     
+    
+    /**
+     * This will construct a {@link AbstractParser} and initializes it's parameter name
+     * with the generic superclass.
+     */
     public AbstractParser() {
-        final String genericName = this.getClass().getGenericSuperclass().getTypeName();
-        final String typeName = genericName.substring(genericName.indexOf("<") + 1, genericName.length() - 1);
+        final String genericTypeName = this.getClass().getGenericSuperclass().getTypeName();
+        final String typeName = genericTypeName.substring(genericTypeName.indexOf("<") + 1, genericTypeName.length() - 1);
         final String[] splittedPath = typeName.split("\\.");
-        this.childName = splittedPath[splittedPath.length - 1];
+        this.parameterName = splittedPath[splittedPath.length - 1];
     }
     
+    
+    /**
+     * This method is used to parse the specified AST. Also it will pass some arguments to
+     * it like the parentAST ({@link AbstractSyntaxAST}) or the {@link SyntaxAnalyzer}. If
+     * this method returns null it indicates that an error occurred.
+     *
+     * @param parentAST
+     *         the {@link AbstractSyntaxAST} in which this AST is getting parsed.
+     * @param syntaxAnalyzer
+     *         the {@link SyntaxAnalyzer} which is used to call methods like {@link
+     *         SyntaxAnalyzer#matchesCurrentToken(TokenType)} etc.
+     *
+     * @return {@code null} if an error occurred or the specified {@link
+     *         AbstractSyntaxAST}.
+     */
     public abstract T parse(final AbstractSyntaxAST parentAST, final SyntaxAnalyzer syntaxAnalyzer);
     
+    
+    /**
+     * This method is used to check if the current {@link AbstractToken} is capable to
+     * parse the specified AST. If not it will return {@code false} or {@code true} if it
+     * would work.
+     *
+     * @param parentAST
+     *         the {@link AbstractSyntaxAST} in which this AST is getting parsed.
+     * @param syntaxAnalyzer
+     *         the {@link SyntaxAnalyzer} which is used to call methods like {@link
+     *         SyntaxAnalyzer#matchesCurrentToken(TokenType)} etc.
+     *
+     * @return {@code false} if it's not capable to parse the current {@link
+     *         AbstractToken} or {@code true} if it does.
+     */
     public abstract boolean canParse(final AbstractSyntaxAST parentAST, final SyntaxAnalyzer syntaxAnalyzer);
     
 }
