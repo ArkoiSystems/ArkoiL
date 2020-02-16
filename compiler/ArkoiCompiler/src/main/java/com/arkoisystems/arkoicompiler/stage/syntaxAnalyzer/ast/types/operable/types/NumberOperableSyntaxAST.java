@@ -6,10 +6,10 @@
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types;
 
 import com.arkoisystems.arkoicompiler.stage.errorHandler.types.TokenError;
-import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.TokenType;
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.numbers.AbstractNumberToken;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.ASTType;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.AbstractOperableSyntaxAST;
 
@@ -34,9 +34,9 @@ public class NumberOperableSyntaxAST extends AbstractOperableSyntaxAST<AbstractN
     }
     
 //    @Override
-//    public TypeSyntaxAST.TypeKind binAdd(final AbstractOperableSemanticAST<?, ?> leftSideOperable, final AbstractOperableSemanticAST<?, ?> rightSideOperable) {
+//    public TypeKind binAdd(final AbstractOperableSemanticAST<?, ?> leftSideOperable, final AbstractOperableSemanticAST<?, ?> rightSideOperable) {
 //        if (rightSideOperable instanceof NumberOperableSyntaxAST)
-//            return TypeSyntaxAST.TypeKind.combineKinds(this, rightSideOperable);
+//            return TypeKind.combineKinds(this, rightSideOperable);
 //        else if (rightSideOperable instanceof AbstractExpressionSyntaxAST) {
 //            final AbstractExpressionSyntaxAST abstractExpressionAST = (AbstractExpressionSyntaxAST) rightSideOperable;
 //            if (abstractExpressionAST.getOperableObject() == null) {
@@ -55,15 +55,15 @@ public class NumberOperableSyntaxAST extends AbstractOperableSyntaxAST<AbstractN
 //                    semanticAnalyzer.errorHandler().addError(new SyntaxASTError<>(rightSideOperable, "Can't perform the addition because the expression result isn't a number."));
 //                    return null;
 //            }
-//            return TypeSyntaxAST.TypeKind.combineKinds(this, abstractExpressionAST.getOperableObject());
+//            return TypeKind.combineKinds(this, abstractExpressionAST.getOperableObject());
 //        }
 //        return super.binAdd(leftSideOperable, rightSideOperable);
 //    }
 //
 //    @Override
-//    public TypeSyntaxAST.TypeKind binMul(final AbstractOperableSemanticAST<?, ?> leftSideOperable, final AbstractOperableSemanticAST<?, ?> rightSideOperable) {
+//    public TypeKind binMul(final AbstractOperableSemanticAST<?, ?> leftSideOperable, final AbstractOperableSemanticAST<?, ?> rightSideOperable) {
 //        if (rightSideOperable instanceof NumberOperableSyntaxAST)
-//            return TypeSyntaxAST.TypeKind.combineKinds(this, rightSideOperable);
+//            return TypeKind.combineKinds(this, rightSideOperable);
 //        else if (rightSideOperable instanceof AbstractExpressionSyntaxAST) {
 //            final AbstractExpressionSyntaxAST abstractExpressionAST = (AbstractExpressionSyntaxAST) rightSideOperable;
 //            if (abstractExpressionAST.getOperableObject() == null) {
@@ -82,14 +82,14 @@ public class NumberOperableSyntaxAST extends AbstractOperableSyntaxAST<AbstractN
 //                    semanticAnalyzer.errorHandler().addError(new SyntaxASTError<>(rightSideOperable, "Can't perform the multiplication because the expression result isn't a number."));
 //                    return null;
 //            }
-//            return TypeSyntaxAST.TypeKind.combineKinds(this, abstractExpressionAST.getOperableObject());
+//            return TypeKind.combineKinds(this, abstractExpressionAST.getOperableObject());
 //        }
 //        return super.binMul(leftSideOperable, rightSideOperable);
 //    }
 //
 //    @Override
-//    public TypeSyntaxAST.TypeKind prefixNegate(final AbstractOperableSemanticAST<?, ?> abstractOperableSemanticAST) {
-//        return TypeSyntaxAST.TypeKind.getTypeKind(this);
+//    public TypeKind prefixNegate(final AbstractOperableSemanticAST<?, ?> abstractOperableSemanticAST) {
+//        return TypeKind.getTypeKind(this);
 //    }
     
 }

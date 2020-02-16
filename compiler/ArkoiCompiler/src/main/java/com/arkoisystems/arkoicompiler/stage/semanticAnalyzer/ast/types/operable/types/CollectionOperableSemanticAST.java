@@ -8,15 +8,15 @@ package com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.SemanticAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.AbstractSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.AbstractOperableSemanticAST;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.ASTType;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.TypeSyntaxAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.CollectionOperableSyntaxAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class CollectionOperableSemanticAST extends AbstractOperableSemanticAST<CollectionOperableSyntaxAST, TypeSyntaxAST.TypeKind>
+public class CollectionOperableSemanticAST extends AbstractOperableSemanticAST<CollectionOperableSyntaxAST, TypeKind>
 {
     
     public CollectionOperableSemanticAST(final SemanticAnalyzer semanticAnalyzer, final AbstractSemanticAST<?> lastContainerAST, final CollectionOperableSyntaxAST collectionOperableSyntaxAST) {
@@ -24,8 +24,8 @@ public class CollectionOperableSemanticAST extends AbstractOperableSemanticAST<C
     }
     
     @Override
-    public TypeSyntaxAST.TypeKind getExpressionType() {
-        return TypeSyntaxAST.TypeKind.COLLECTION;
+    public TypeKind getExpressionType() {
+        return TypeKind.COLLECTION;
     }
     
     //    @Override

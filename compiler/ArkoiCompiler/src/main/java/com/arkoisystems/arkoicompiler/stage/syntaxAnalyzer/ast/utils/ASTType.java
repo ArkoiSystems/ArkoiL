@@ -3,11 +3,13 @@
  * Created ArkoiCompiler on February 15, 2020
  * Author timo aka. єхcsє#5543
  */
-package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast;
+package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils;
 
-import lombok.Getter;
-
-@Getter
+/**
+ * This enum contains for every AST one entry to differentiate these from each other. Also
+ * they are grouped in "statements", "expressions", "definitions", "operable" and
+ * "others".
+ */
 public enum ASTType
 {
     

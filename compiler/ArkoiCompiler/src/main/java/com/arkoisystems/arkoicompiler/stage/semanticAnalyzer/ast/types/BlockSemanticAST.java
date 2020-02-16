@@ -14,13 +14,14 @@ import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.types.expression.types.ExpressionSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.statements.ReturnStatementSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.statements.VariableDefinitionSemanticAST;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.ASTType;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.BlockSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.FunctionInvokeOperableSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types.ExpressionSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.types.ReturnStatementSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.types.VariableDefinitionSyntaxAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.BlockType;
 import com.google.gson.annotations.Expose;
 import lombok.Setter;
 
@@ -39,7 +40,7 @@ public class BlockSemanticAST extends AbstractSemanticAST<BlockSyntaxAST>
         super(semanticAnalyzer, lastContainerAST, blockSyntaxAST, ASTType.BLOCK);
     }
     
-    public BlockSyntaxAST.BlockType getBlockType() {
+    public BlockType getBlockType() {
         return this.getSyntaxAST().getBlockType();
     }
     
@@ -51,7 +52,7 @@ public class BlockSemanticAST extends AbstractSemanticAST<BlockSyntaxAST>
                 if (this.getBlockType() == null)
                     return null;
                 
-                if (this.getBlockType() == BlockSyntaxAST.BlockType.INLINE) {
+                if (this.getBlockType() == BlockType.INLINE) {
                     if (!(abstractSyntaxAST instanceof ExpressionSyntaxAST)) {
                         this.getSemanticAnalyzer().errorHandler().addError(new SyntaxASTError<>(abstractSyntaxAST, "Couldn't analyze this inlined-block because a non expression is inside the block."));
                         return null;

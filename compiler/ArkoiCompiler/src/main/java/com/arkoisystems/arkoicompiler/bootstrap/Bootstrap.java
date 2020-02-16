@@ -13,9 +13,6 @@ import org.apache.commons.cli.*;
 
 import java.io.File;
 import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
 
 /**
  * The {@link Bootstrap} class is used for the main method. It's the first method which is
@@ -55,12 +52,12 @@ public class Bootstrap
         }
         
         final File targetPath = new File(commandLine.getOptionValue("inputPath"));
-        if (targetPath.exists())
+        if (!targetPath.exists())
             throw new NullPointerException("The given \"inputPath\" doesn't exists. Please correct the path to a valid file or directory.");
         
         final ArkoiCompiler arkoiCompiler;
         if (targetPath.isDirectory()) {
-            arkoiCompiler = new ArkoiCompiler(commandLine.getOptionValue("inputDirectory"));
+            arkoiCompiler = new ArkoiCompiler(targetPath.getCanonicalPath());
             for (final File file : FileUtils.getAllFiles(targetPath)) {
                 if (!file.getName().endsWith(".ark"))
                     continue;

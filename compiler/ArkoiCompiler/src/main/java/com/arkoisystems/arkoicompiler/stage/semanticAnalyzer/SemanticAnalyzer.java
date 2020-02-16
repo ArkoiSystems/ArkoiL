@@ -23,7 +23,7 @@ public class SemanticAnalyzer extends AbstractStage
     private final SemanticErrorHandler errorHandler;
     
     @Expose
-    private RootSemanticAST rootSemanticAST;
+    private final RootSemanticAST rootSemanticAST;
     
     public SemanticAnalyzer(final ArkoiClass arkoiClass) {
         this.arkoiClass = arkoiClass;

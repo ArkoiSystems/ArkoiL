@@ -5,6 +5,8 @@
  */
 package com.arkoisystems.arkoicompiler.utils;
 
+import lombok.NonNull;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,14 +21,18 @@ public class FileUtils
     
     /**
      * Gets every file inside a specified directory. It also includes sub-directories an
-     * so on. If the {@link File[]} is null the method will throw an error.
+     * so on. If the {@link File[]} is null or the input {@link File} isn't a directory
+     * the method will throw an error.
      *
      * @param directory
      *         the start directory where all files and sub-directories are included.
      *
      * @return a list of all files without the directories.
      */
-    public static List<File> getAllFiles(final File directory) {
+    public static List<File> getAllFiles(@NonNull final File directory) {
+        if (!directory.isDirectory())
+            throw new NullPointerException("Couldn't get all files out of this directory, because it isn't a directory.");
+        
         final List<File> files = new ArrayList<>();
         for (final File file : Objects.requireNonNull(directory.listFiles())) {
             if (file.isDirectory())

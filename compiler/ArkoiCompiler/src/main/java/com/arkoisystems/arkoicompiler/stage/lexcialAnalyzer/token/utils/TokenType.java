@@ -3,8 +3,9 @@
  * Created ArkoiCompiler on February 15, 2020
  * Author timo aka. єхcsє#5543
  */
-package com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token;
+package com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils;
 
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.*;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.numbers.AbstractNumberToken;
 import lombok.Getter;

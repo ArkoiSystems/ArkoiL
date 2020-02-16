@@ -6,7 +6,7 @@
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.parser;
 
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken;
-import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.TokenType;
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
 import com.google.gson.annotations.Expose;
@@ -26,7 +26,8 @@ public abstract class AbstractParser<T extends AbstractSyntaxAST>
 {
     
     /**
-     * The parameter name of the current {@link AbstractParser}.
+     * The parameter name of the current {@link AbstractParser} which is defined through
+     * the class parameter.
      */
     @Expose
     private final String parameterName;
@@ -39,8 +40,8 @@ public abstract class AbstractParser<T extends AbstractSyntaxAST>
     public AbstractParser() {
         final String genericTypeName = this.getClass().getGenericSuperclass().getTypeName();
         final String typeName = genericTypeName.substring(genericTypeName.indexOf("<") + 1, genericTypeName.length() - 1);
-        final String[] splittedPath = typeName.split("\\.");
-        this.parameterName = splittedPath[splittedPath.length - 1];
+        final String[] separatedPath = typeName.split("\\.");
+        this.parameterName = separatedPath[separatedPath.length - 1];
     }
     
     

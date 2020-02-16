@@ -8,7 +8,6 @@ package com.arkoisystems.arkoicompiler;
 import org.junit.Test;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Objects;
 
@@ -32,7 +31,7 @@ public class ArkoiCompilerTest
             System.err.println("Couldn't compile the file. Please see the stacktrace for errors:");
             arkoiCompiler.printStackTrace(System.err);
         }
-        
+    
         try (final PrintStream printStream = new PrintStream(new File(COMPILER_TEST + "/output.result"))) {
             for (final ArkoiClass arkoiClass : arkoiCompiler.getArkoiClasses().values())
                 printStream.print(arkoiClass);
@@ -40,6 +39,5 @@ public class ArkoiCompilerTest
             ex.printStackTrace();
         }
     }
-    
     
 }

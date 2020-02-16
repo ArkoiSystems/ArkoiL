@@ -10,12 +10,15 @@ import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.statement
 import com.arkoisystems.arkoicompiler.utils.FileUtils;
 import com.google.gson.annotations.Expose;
 import lombok.Getter;
+import lombok.NonNull;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * The {@link ArkoiCompiler} class is used for compiling multiple files. It also contains
@@ -55,10 +58,10 @@ public class ArkoiCompiler
      * @throws IOException
      *         if something with the natives went wrong.
      */
-    public ArkoiCompiler(final String workingDirectory) throws IOException {
+    public ArkoiCompiler(@NonNull final String workingDirectory) throws IOException {
         this.workingDirectory = workingDirectory;
         this.arkoiClasses = new HashMap<>();
-        
+    
         this.addNativeFiles();
     }
     
@@ -73,7 +76,7 @@ public class ArkoiCompiler
      * @throws IOException
      *         if something went wrong during the reading of all bytes inside the file.
      */
-    public void addFile(final File file) throws IOException {
+    public void addFile(@NonNull final File file) throws IOException {
         this.arkoiClasses.put(file.getCanonicalPath(), new ArkoiClass(this, Files.readAllBytes(file.toPath())));
     }
     
@@ -85,7 +88,7 @@ public class ArkoiCompiler
      * @param errorStream
      *         the {@link PrintStream} which is used to print the StackTrace.
      */
-    public void printStackTrace(final PrintStream errorStream) {
+    public void printStackTrace(@NonNull final PrintStream errorStream) {
         for (final Map.Entry<String, ArkoiClass> classEntry : this.arkoiClasses.entrySet()) {
             errorStream.println(classEntry.getKey() + ":");
             if (classEntry.getValue().getLexicalAnalyzer() != null)
@@ -171,11 +174,11 @@ public class ArkoiCompiler
      * @return the found {@link FunctionDefinitionSemanticAST} or null if there doesn't
      *         exists any native functions with the same description.
      */
-    public FunctionDefinitionSemanticAST findNativeSemanticFunction(final String functionDescription) {
+    public FunctionDefinitionSemanticAST findNativeSemanticFunction(@NonNull final String functionDescription) {
         for (final ArkoiClass arkoiClass : this.arkoiClasses.values()) {
             if (!arkoiClass.isNativeClass())
                 continue;
-            
+        
             for (final FunctionDefinitionSemanticAST functionDefinitionSemanticAST : arkoiClass.getSemanticAnalyzer().getRootSemanticAST().getFunctionStorage()) {
                 if (functionDefinitionSemanticAST.getFunctionDescription().equals(functionDescription) && functionDefinitionSemanticAST.getSyntaxAST().hasAnnotation("native"))
                     return functionDefinitionSemanticAST;

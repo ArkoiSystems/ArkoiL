@@ -9,7 +9,7 @@ import com.arkoisystems.arkoicompiler.ArkoiClass;
 import com.arkoisystems.arkoicompiler.stage.AbstractStage;
 import com.arkoisystems.arkoicompiler.stage.errorHandler.ErrorHandler;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken;
-import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.TokenType;
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.EndOfFileToken;
 import com.google.gson.annotations.Expose;
 import lombok.Getter;
@@ -22,7 +22,6 @@ import java.util.regex.Matcher;
 @Getter
 public class LexicalAnalyzer extends AbstractStage
 {
-    
     
     private final ArkoiClass arkoiClass;
     

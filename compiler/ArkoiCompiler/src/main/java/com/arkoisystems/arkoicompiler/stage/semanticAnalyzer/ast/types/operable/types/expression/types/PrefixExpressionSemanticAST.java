@@ -15,11 +15,11 @@ import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.types.IdentifierInvokeOperableSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.types.NumberOperableSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.types.expression.AbstractExpressionSemanticAST;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.ASTType;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.TypeSyntaxAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.AbstractOperableSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.NumberOperableSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types.PrefixExpressionSyntaxAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
 import com.google.gson.annotations.Expose;
 import lombok.Setter;
 
@@ -30,21 +30,21 @@ public class PrefixExpressionSemanticAST extends AbstractExpressionSemanticAST<P
     @Expose
     private AbstractOperableSemanticAST<?, ?> rightSideOperable;
     
-    private TypeSyntaxAST.TypeKind expressionType;
+    private TypeKind expressionType;
     
     public PrefixExpressionSemanticAST(final SemanticAnalyzer semanticAnalyzer, final AbstractSemanticAST<?> lastContainerAST, final PrefixExpressionSyntaxAST prefixExpressionSyntaxAST) {
         super(semanticAnalyzer, lastContainerAST, prefixExpressionSyntaxAST, ASTType.PREFIX_EXPRESSION);
     }
     
     @Override
-    public TypeSyntaxAST.TypeKind getExpressionType() {
+    public TypeKind getExpressionType() {
         if (this.expressionType == null) {
             if (this.getRightSideOperable() == null)
                 return null;
             if (this.getPrefixUnaryOperator() == null)
                 return null;
             
-            final TypeSyntaxAST.TypeKind typeKind;
+            final TypeKind typeKind;
             switch (this.getPrefixUnaryOperator()) {
                 case AFFIRM:
                     typeKind = this.prefixAffirm(this.getRightSideOperable());
@@ -93,33 +93,33 @@ public class PrefixExpressionSemanticAST extends AbstractExpressionSemanticAST<P
     }
     
     @Override
-    public TypeSyntaxAST.TypeKind prefixAdd(final AbstractOperableSemanticAST<?, ?> abstractOperableSemanticAST) {
+    public TypeKind prefixAdd(final AbstractOperableSemanticAST<?, ?> abstractOperableSemanticAST) {
         return super.prefixAdd(abstractOperableSemanticAST);
     }
     
     @Override
-    public TypeSyntaxAST.TypeKind prefixSub(final AbstractOperableSemanticAST<?, ?> abstractOperableSemanticAST) {
+    public TypeKind prefixSub(final AbstractOperableSemanticAST<?, ?> abstractOperableSemanticAST) {
         return super.prefixSub(abstractOperableSemanticAST);
     }
     
     @Override
-    public TypeSyntaxAST.TypeKind prefixNegate(final AbstractOperableSemanticAST<?, ?> abstractOperableSemanticAST) {
+    public TypeKind prefixNegate(final AbstractOperableSemanticAST<?, ?> abstractOperableSemanticAST) {
         final AbstractOperableSemanticAST<?, ?> rightExpressionOperable = this.analyzeNumericOperable(abstractOperableSemanticAST);
         if (rightExpressionOperable == null) {
             this.getSemanticAnalyzer().errorHandler().addError(new SemanticASTError<>(abstractOperableSemanticAST, "Couldn't analyze the prefix expression because the prefix negate operation doesn't support this operable."));
             return null;
         }
-        return TypeSyntaxAST.TypeKind.getTypeKind(rightExpressionOperable);
+        return TypeKind.getTypeKind(rightExpressionOperable);
     }
     
     @Override
-    public TypeSyntaxAST.TypeKind prefixAffirm(final AbstractOperableSemanticAST<?, ?> abstractOperableSemanticAST) {
+    public TypeKind prefixAffirm(final AbstractOperableSemanticAST<?, ?> abstractOperableSemanticAST) {
         final AbstractOperableSemanticAST<?, ?> rightExpressionOperable = this.analyzeNumericOperable(abstractOperableSemanticAST);
         if (rightExpressionOperable == null) {
             this.getSemanticAnalyzer().errorHandler().addError(new SemanticASTError<>(abstractOperableSemanticAST, "Couldn't analyze the prefix expression because the prefix affirm operation doesn't support this operable."));
             return null;
         }
-        return TypeSyntaxAST.TypeKind.getTypeKind(rightExpressionOperable);
+        return TypeKind.getTypeKind(rightExpressionOperable);
     }
     
     private AbstractOperableSemanticAST<?, ?> analyzeNumericOperable(final AbstractOperableSemanticAST<?, ?> abstractOperableSemanticAST) {
