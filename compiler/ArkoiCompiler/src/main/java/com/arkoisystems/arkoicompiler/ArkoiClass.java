@@ -12,6 +12,7 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.utils.Variables;
 import com.google.gson.annotations.Expose;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.Setter;
 
 import java.nio.charset.StandardCharsets;
@@ -88,10 +89,10 @@ public class ArkoiClass
      * @param nativeClass
      *         the flag if the {@link ArkoiClass} should be a native class or not.
      */
-    public ArkoiClass(final ArkoiCompiler arkoiCompiler, final byte[] content, final boolean nativeClass) {
+    public ArkoiClass(@NonNull final ArkoiCompiler arkoiCompiler, @NonNull final byte[] content, final boolean nativeClass) {
         this.arkoiCompiler = arkoiCompiler;
         this.nativeClass = nativeClass;
-        
+    
         this.content = new String(content, StandardCharsets.UTF_8);
     }
     
@@ -110,9 +111,9 @@ public class ArkoiClass
      *         passed to the {@link LexicalAnalyzer} where it will produce a {@link
      *         java.util.List} with all tokens.
      */
-    public ArkoiClass(final ArkoiCompiler arkoiCompiler, final byte[] content) {
+    public ArkoiClass(@NonNull final ArkoiCompiler arkoiCompiler, @NonNull final byte[] content) {
         this.arkoiCompiler = arkoiCompiler;
-        
+    
         this.content = new String(content, StandardCharsets.UTF_8);
         this.nativeClass = false;
     }

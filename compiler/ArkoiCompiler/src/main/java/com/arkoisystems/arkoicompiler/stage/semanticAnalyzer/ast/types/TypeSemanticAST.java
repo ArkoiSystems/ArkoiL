@@ -7,10 +7,9 @@ package com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types;
 
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.SemanticAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.AbstractSemanticAST;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.ASTType;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.TypeSyntaxAST;
-import com.google.gson.annotations.Expose;
-import lombok.Getter;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
 import lombok.Setter;
 
 @Setter
@@ -21,7 +20,7 @@ public class TypeSemanticAST extends AbstractSemanticAST<TypeSyntaxAST>
         super(semanticAnalyzer, lastContainerAST, typeSyntaxAST, ASTType.TYPE);
     }
     
-    public TypeSyntaxAST.TypeKind getTypeKind() {
+    public TypeKind getTypeKind() {
         return this.getSyntaxAST().getTypeKind();
     }
     

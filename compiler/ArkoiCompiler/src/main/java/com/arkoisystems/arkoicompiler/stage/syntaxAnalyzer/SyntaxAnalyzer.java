@@ -9,13 +9,14 @@ import com.arkoisystems.arkoicompiler.ArkoiClass;
 import com.arkoisystems.arkoicompiler.stage.AbstractStage;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.LexicalAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken;
-import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.TokenType;
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.SymbolToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.numbers.AbstractNumberToken;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.RootSyntaxAST;
 import com.google.gson.annotations.Expose;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.Setter;
 
 import java.util.List;
@@ -75,7 +76,7 @@ public class SyntaxAnalyzer extends AbstractStage
      * @param arkoiClass
      *         the {@link ArkoiClass} in which the {@link SyntaxAnalyzer} got created.
      */
-    public SyntaxAnalyzer(final ArkoiClass arkoiClass) {
+    public SyntaxAnalyzer(@NonNull final ArkoiClass arkoiClass) {
         this.arkoiClass = arkoiClass;
         
         this.errorHandler = new SyntaxErrorHandler();
@@ -129,11 +130,11 @@ public class SyntaxAnalyzer extends AbstractStage
      *         AbstractNumberToken} or the {@link AbstractNumberToken.NumberType} doesn't
      *         match.
      */
-    public AbstractNumberToken matchesCurrentToken(final AbstractNumberToken.NumberType numberType) {
+    public AbstractNumberToken matchesCurrentToken(@NonNull final AbstractNumberToken.NumberType numberType) {
         final AbstractToken currentToken = this.currentToken();
         if (!(currentToken instanceof AbstractNumberToken))
             return null;
-        
+    
         final AbstractNumberToken numberToken = (AbstractNumberToken) currentToken;
         if (numberToken.getNumberType() != numberType)
             return null;
@@ -157,11 +158,11 @@ public class SyntaxAnalyzer extends AbstractStage
      *         AbstractNumberToken} or the {@link AbstractNumberToken.NumberType} doesn't
      *         match.
      */
-    public AbstractNumberToken matchesNextToken(final AbstractNumberToken.NumberType numberType) {
+    public AbstractNumberToken matchesNextToken(@NonNull final AbstractNumberToken.NumberType numberType) {
         final AbstractToken nextToken = this.nextToken();
         if (!(nextToken instanceof AbstractNumberToken))
             return null;
-        
+    
         final AbstractNumberToken numberToken = (AbstractNumberToken) nextToken;
         if (numberToken.getNumberType() != numberType)
             return null;
@@ -183,11 +184,11 @@ public class SyntaxAnalyzer extends AbstractStage
      * @return {@code null} if the current {@link AbstractToken} is not an {@link
      *         SymbolToken} or the {@link SymbolToken.SymbolType} doesn't match.
      */
-    public SymbolToken matchesCurrentToken(final SymbolToken.SymbolType symbolType) {
+    public SymbolToken matchesCurrentToken(@NonNull final SymbolToken.SymbolType symbolType) {
         final AbstractToken currentToken = this.currentToken();
         if (!(currentToken instanceof SymbolToken))
             return null;
-        
+    
         final SymbolToken symbolToken = (SymbolToken) currentToken;
         if (symbolToken.getSymbolType() != symbolType)
             return null;
@@ -208,11 +209,11 @@ public class SyntaxAnalyzer extends AbstractStage
      * @return {@code null} if the next {@link AbstractToken} is not an {@link
      *         SymbolToken} or the {@link SymbolToken.SymbolType} doesn't match.
      */
-    public SymbolToken matchesNextToken(final SymbolToken.SymbolType symbolType) {
+    public SymbolToken matchesNextToken(@NonNull final SymbolToken.SymbolType symbolType) {
         final AbstractToken nextToken = this.nextToken();
         if (!(nextToken instanceof SymbolToken))
             return null;
-        
+    
         final SymbolToken symbolToken = (SymbolToken) nextToken;
         if (symbolToken.getSymbolType() != symbolType)
             return null;
@@ -240,14 +241,14 @@ public class SyntaxAnalyzer extends AbstractStage
      *         SymbolToken.SymbolType}. If it does it will just return the peeked {@link
      *         AbstractToken}.
      */
-    public SymbolToken matchesPeekToken(final int offset, final SymbolToken.SymbolType symbolType) {
+    public SymbolToken matchesPeekToken(final int offset, @NonNull final SymbolToken.SymbolType symbolType) {
         if (offset == 0)
             return this.matchesCurrentToken(symbolType);
-        
+    
         final AbstractToken peekToken = this.peekToken(offset);
         if (!(peekToken instanceof SymbolToken))
             return null;
-        
+    
         final SymbolToken symbolToken = (SymbolToken) peekToken;
         if (symbolToken.getSymbolType() != symbolType)
             return null;
@@ -268,7 +269,7 @@ public class SyntaxAnalyzer extends AbstractStage
      *         {@link TokenType}. If it does it will just return the peeked {@link
      *         AbstractToken}.
      */
-    public AbstractToken matchesCurrentToken(final TokenType tokenType) {
+    public AbstractToken matchesCurrentToken(@NonNull final TokenType tokenType) {
         final AbstractToken currentToken = this.currentToken();
         if (currentToken.getTokenType() != tokenType)
             return null;
@@ -289,7 +290,7 @@ public class SyntaxAnalyzer extends AbstractStage
      *         {@link TokenType}. If it does it will just return the peeked {@link
      *         AbstractToken}.
      */
-    public AbstractToken matchesNextToken(final TokenType tokenType) {
+    public AbstractToken matchesNextToken(@NonNull final TokenType tokenType) {
         final AbstractToken nextToken = this.nextToken();
         if (nextToken.getTokenType() != tokenType)
             return null;
@@ -314,10 +315,10 @@ public class SyntaxAnalyzer extends AbstractStage
      *         {@link TokenType}. If it does it will just return the peeked {@link
      *         AbstractToken}.
      */
-    public AbstractToken matchesPeekToken(final int offset, final TokenType tokenType) {
+    public AbstractToken matchesPeekToken(final int offset, @NonNull final TokenType tokenType) {
         if (offset == 0)
             return this.matchesCurrentToken(tokenType);
-        
+    
         final AbstractToken peekToken = this.peekToken(offset);
         if (peekToken.getTokenType() != tokenType)
             return null;

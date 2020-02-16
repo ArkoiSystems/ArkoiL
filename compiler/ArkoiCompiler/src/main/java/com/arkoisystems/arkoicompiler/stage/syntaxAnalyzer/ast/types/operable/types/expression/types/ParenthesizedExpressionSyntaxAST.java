@@ -7,7 +7,7 @@ package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.t
 
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.SymbolToken;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.ASTType;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.AbstractExpressionSyntaxAST;
 import com.google.gson.annotations.Expose;
@@ -43,9 +43,9 @@ public class ParenthesizedExpressionSyntaxAST extends AbstractExpressionSyntaxAS
     }
     
 //    @Override
-//    public TypeSyntaxAST.TypeKind binMul(final AbstractOperableSemanticAST<?, ?> leftSideOperable, final AbstractOperableSemanticAST<?, ?> rightSideOperable) {
+//    public TypeKind binMul(final AbstractOperableSemanticAST<?, ?> leftSideOperable, final AbstractOperableSemanticAST<?, ?> rightSideOperable) {
 //        if (rightSideOperable instanceof NumberOperableSyntaxAST)
-//            return TypeSyntaxAST.TypeKind.combineKinds(this, rightSideOperable);
+//            return TypeKind.combineKinds(this, rightSideOperable);
 //        else if (rightSideOperable instanceof AbstractExpressionSyntaxAST) {
 //            final AbstractExpressionSyntaxAST abstractExpressionAST = (AbstractExpressionSyntaxAST) rightSideOperable;
 //            if (abstractExpressionAST.getOperableObject() == null) {
@@ -55,15 +55,15 @@ public class ParenthesizedExpressionSyntaxAST extends AbstractExpressionSyntaxAS
 //
 //            switch (abstractExpressionAST.getOperableObject()) {
 //                case FLOAT:
-//                    return TypeSyntaxAST.TypeKind.combineKinds(this, TypeSyntaxAST.TypeKind.FLOAT);
+//                    return TypeKind.combineKinds(this, TypeKind.FLOAT);
 //                case INTEGER:
-//                    return TypeSyntaxAST.TypeKind.combineKinds(this, TypeSyntaxAST.TypeKind.INTEGER);
+//                    return TypeKind.combineKinds(this, TypeKind.INTEGER);
 //                case SHORT:
-//                    return TypeSyntaxAST.TypeKind.combineKinds(this, TypeSyntaxAST.TypeKind.SHORT);
+//                    return TypeKind.combineKinds(this, TypeKind.SHORT);
 //                case DOUBLE:
-//                    return TypeSyntaxAST.TypeKind.combineKinds(this, TypeSyntaxAST.TypeKind.DOUBLE);
+//                    return TypeKind.combineKinds(this, TypeKind.DOUBLE);
 //                case BYTE:
-//                    return TypeSyntaxAST.TypeKind.combineKinds(this, TypeSyntaxAST.TypeKind.BYTE);
+//                    return TypeKind.combineKinds(this, TypeKind.BYTE);
 //                default:
 //                    semanticAnalyzer.errorHandler().addError(new SyntaxASTError<>(rightSideOperable, "Can't perform the multiplication because the expression result isn't a number."));
 //                    return null;

@@ -9,6 +9,7 @@ com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token
 com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types
 com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.numbers
 com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.numbers.types
+com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils
 com.arkoisystems.arkoicompiler.stage.semanticAnalyzer
 com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast
 com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types
@@ -26,6 +27,7 @@ com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.exp
 com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types
 com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement
 com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.types
+com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils
 com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.parser
 com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.parser.types
 com.arkoisystems.arkoicompiler.utils

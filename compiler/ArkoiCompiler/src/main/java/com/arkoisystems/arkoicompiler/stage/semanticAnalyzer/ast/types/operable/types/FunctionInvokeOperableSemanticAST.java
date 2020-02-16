@@ -11,11 +11,11 @@ import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.AbstractSemanti
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.AbstractOperableSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.types.expression.types.ExpressionSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.statements.FunctionDefinitionSemanticAST;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.ASTAccess;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.ASTType;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.TypeSyntaxAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTAccess;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.FunctionInvokeOperableSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types.ExpressionSyntaxAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
 import com.google.gson.annotations.Expose;
 import lombok.Setter;
 
@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Setter
-public class FunctionInvokeOperableSemanticAST extends AbstractOperableSemanticAST<FunctionInvokeOperableSyntaxAST, TypeSyntaxAST.TypeKind>
+public class FunctionInvokeOperableSemanticAST extends AbstractOperableSemanticAST<FunctionInvokeOperableSyntaxAST, TypeKind>
 {
     
     @Expose
@@ -37,7 +37,7 @@ public class FunctionInvokeOperableSemanticAST extends AbstractOperableSemanticA
     }
     
     @Override
-    public TypeSyntaxAST.TypeKind getExpressionType() {
+    public TypeKind getExpressionType() {
         if (this.getInvokedFunction() == null)
             return null;
         
@@ -92,7 +92,7 @@ public class FunctionInvokeOperableSemanticAST extends AbstractOperableSemanticA
             return null;
         
         for(final ExpressionSemanticAST expressionSemanticAST : this.getInvokedExpressions()) {
-            final TypeSyntaxAST.TypeKind typeKind = expressionSemanticAST.getExpressionType();
+            final TypeKind typeKind = expressionSemanticAST.getExpressionType();
             if(typeKind == null)
                 return null;
             descriptionBuilder.append(typeKind.name());

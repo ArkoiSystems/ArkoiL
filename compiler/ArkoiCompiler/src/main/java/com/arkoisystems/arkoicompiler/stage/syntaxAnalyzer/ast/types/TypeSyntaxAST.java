@@ -7,48 +7,61 @@ package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types;
 
 import com.arkoisystems.arkoicompiler.stage.errorHandler.types.TokenError;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken;
-import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.TokenType;
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.SymbolToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.numbers.AbstractNumberToken;
-import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.AbstractOperableSemanticAST;
-import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.types.CollectionOperableSemanticAST;
-import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.types.IdentifierCallOperableSemanticAST;
-import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.types.NumberOperableSemanticAST;
-import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.types.StringOperableSemanticAST;
-import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.types.expression.AbstractExpressionSemanticAST;
+import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.SemanticAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.ASTType;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.parser.types.TypeParser;
 import com.google.gson.annotations.Expose;
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ * Used if you want to create a new {@link TypeSyntaxAST}. But it is recommend to use the
+ * {@link TypeSyntaxAST#TYPE_PARSER} to parse a new {@link TypeSyntaxAST} because with it
+ * you can check if the current {@link AbstractToken} is capable to parse this AST.
+ */
 @Getter
 @Setter
 public class TypeSyntaxAST extends AbstractSyntaxAST
 {
     
+    /**
+     * This variable is static because we just want a single instance of the {@link
+     * TypeParser}.
+     */
     public static TypeParser TYPE_PARSER = new TypeParser();
     
     
+    /**
+     * The {@link TypeKind} specifies the type of this {@link TypeSyntaxAST}. It is used
+     * for later usage in the {@link SemanticAnalyzer}.
+     */
     @Expose
     private TypeKind typeKind;
     
+    
+    /**
+     * Defines if this {@link TypeSyntaxAST} is an array or not. Useful for later usage
+     * when generating pseudo code etc.
+     */
     @Expose
     private boolean isArray;
     
+    
     /**
-     * This constructor will initialize the AST with the AST-Type "TYPE". This will help
-     * to debug problems or check the AST for correct syntax. Also it will pass the
-     * TypeKind to this class which is used for comparing two types. Besides that it will
-     * pass through if the type is an array.
+     * Constructs a new {@link TypeSyntaxAST} with the defines parameters. This
+     * constructor is just used for in-build creation and not for parsing. So you can
+     * create a {@link TypeSyntaxAST} without the need to parse it.
      *
      * @param typeKind
-     *         The kind of the Type which is used for comparing two types if they are the
-     *         same.
+     *         the {@link TypeKind} which is used for later usage.
      * @param isArray
-     *         This boolean will say if the Type is an Array or not.
+     *         defines if the {@link TypeSyntaxAST} should be an array or not.
      */
     public TypeSyntaxAST(final TypeKind typeKind, final boolean isArray) {
         super(ASTType.TYPE);
@@ -57,30 +70,34 @@ public class TypeSyntaxAST extends AbstractSyntaxAST
         this.isArray = isArray;
     }
     
+    
     /**
-     * This constructor will initialize the AST with the AST-Type "TYPE". This will help
-     * to debug problems or check the AST for correct syntax. Besides that it will passes
-     * no other values.
+     * Constructs a new {@link TypeSyntaxAST} without pre-defining any variables. You use
+     * this constructor for parsing, so you also need to use the {@link
+     * TypeSyntaxAST#parseAST(AbstractSyntaxAST, SyntaxAnalyzer)} method to initialize all
+     * variables correctly.
      */
     public TypeSyntaxAST() {
         super(ASTType.TYPE);
     }
     
+    
     /**
-     * This method will parse the TypeAST and checks it for the correct syntax. This AST
-     * can be used by everything so it doesn't matter what the parent AST is. A TypeAST is
-     * used to specify an IdentifierToken as a Type. So "int" can be an Integer or
-     * "string" a String.
+     * Parses a new {@link TypeSyntaxAST} with the given parameters, where the {@link
+     * SyntaxAnalyzer} is used to check the syntax and the parent {@link
+     * AbstractSyntaxAST} is used to see if this AST can be created inside the parent.
+     * Also it will check if an array assignment is defined or not.
      *
      * @param parentAST
-     *         The parent of the AST. With it you can check for correct usage of the
-     *         statement.
+     *         the parent {@link AbstractSyntaxAST} which should get used to check if the
+     *         {@link AbstractSyntaxAST} can be created inside it.
      * @param syntaxAnalyzer
-     *         The given SyntaxAnalyzer is used for checking the syntax of the current
-     *         Token list.
+     *         the {@link SyntaxAnalyzer} which is used for checking the syntax with
+     *         methods like {@link SyntaxAnalyzer#matchesCurrentToken(TokenType)} or
+     *         {@link SyntaxAnalyzer#matchesNextToken(AbstractNumberToken.NumberType)}.
      *
-     * @return It will return null if an error occurred or an TypeAST if it parsed until
-     *         to the end.
+     * @return {@code null} if an error occurred or this {@link TypeSyntaxAST} if
+     *         everything worked correctly.
      */
     @Override
     public TypeSyntaxAST parseAST(final AbstractSyntaxAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
@@ -88,121 +105,21 @@ public class TypeSyntaxAST extends AbstractSyntaxAST
             syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the Type because the parsing doesn't start with an IdentifierToken."));
             return null;
         } else this.typeKind = TypeKind.getTypeKind(syntaxAnalyzer.currentToken());
-    
+        
         if (this.typeKind == null) {
             syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the Type because it isn't a valid type keyword."));
             return null;
         }
-    
+        
         this.setStart(syntaxAnalyzer.currentToken().getStart());
         this.setEnd(syntaxAnalyzer.currentToken().getEnd());
-    
+        
         // This will check if the next two Tokens are an opening and closing bracket aka. "[]". If it is, then skip these two Tokens and set the "isArray" boolean to true.
         if (syntaxAnalyzer.matchesPeekToken(1, SymbolToken.SymbolType.OPENING_BRACKET) != null && syntaxAnalyzer.matchesPeekToken(2, SymbolToken.SymbolType.CLOSING_BRACKET) != null) {
             syntaxAnalyzer.nextToken(2);
             this.isArray = true;
         }
         return this;
-    }
-    
-    @Getter
-    public enum TypeKind
-    {
-        
-        STRING("string"),
-        INTEGER("int"),
-        FLOAT("float"),
-        BYTE("byte"),
-        COLLECTION("[]"),
-        DOUBLE("double"),
-        SHORT("short"),
-        BOOLEAN("boolean"),
-        VOID("void");
-        
-        private final String name;
-        
-        /**
-         * This constructor will initialize the name of the TypeKind for later
-         * development.
-         *
-         * @param name
-         *         The name of the TypeKind e.g. "string" or "int"
-         */
-        TypeKind(final String name) {
-            this.name = name;
-        }
-        
-        /**
-         * This method will return the TypeKind of the input Token. If it doesn't find
-         * something equal to a TypeKind it will just return the TypeKind "OTHER".
-         *
-         * @param abstractToken
-         *         The input Token which get used to search the TypeKind.
-         *
-         * @return It will return by default "OTHER" or the found TypeKind with help of
-         *         the AbstractToken.
-         */
-        public static TypeKind getTypeKind(final AbstractToken abstractToken) {
-            for (final TypeKind typeKind : TypeKind.values()) {
-                if (typeKind == COLLECTION)
-                    continue;
-                if (typeKind.getName() == null)
-                    continue;
-                if (typeKind.getName().equals(abstractToken.getTokenContent()))
-                    return typeKind;
-            }
-            return null;
-        }
-    
-        public static TypeKind getTypeKind(final AbstractOperableSemanticAST<?, ?> abstractOperableSemanticAST) {
-            if (abstractOperableSemanticAST instanceof AbstractExpressionSemanticAST) {
-                final AbstractExpressionSemanticAST<?> abstractExpressionSemanticAST = (AbstractExpressionSemanticAST<?>) abstractOperableSemanticAST;
-                return abstractExpressionSemanticAST.getExpressionType();
-            } else if (abstractOperableSemanticAST instanceof NumberOperableSemanticAST) {
-                final NumberOperableSemanticAST numberExpression = (NumberOperableSemanticAST) abstractOperableSemanticAST;
-                return getTypeKind(numberExpression.getNumberType());
-            } else if (abstractOperableSemanticAST instanceof StringOperableSemanticAST) {
-                return STRING;
-            } else if (abstractOperableSemanticAST instanceof CollectionOperableSemanticAST) {
-                return COLLECTION;
-            } else if (abstractOperableSemanticAST instanceof IdentifierCallOperableSemanticAST) {
-                final IdentifierCallOperableSemanticAST identifierCallOperableSemanticAST = (IdentifierCallOperableSemanticAST) abstractOperableSemanticAST;
-                return identifierCallOperableSemanticAST.getExpressionType();
-            } else {
-                System.out.println("TypeKind: Not supported yet #1: " + abstractOperableSemanticAST);
-                return null;
-            }
-        }
-    
-        public static TypeKind combineKinds(final AbstractOperableSemanticAST<?, ?> leftSideOperable, final AbstractOperableSemanticAST<?, ?> rightSideOperable) {
-            return combineKinds(getTypeKind(leftSideOperable), getTypeKind(rightSideOperable));
-        }
-    
-        private static TypeKind combineKinds(final TypeKind leftSideKind, final TypeKind rightSideKind) {
-            System.out.println("TypeKind: " + leftSideKind + ", " + rightSideKind);
-            if(leftSideKind == STRING && rightSideKind == COLLECTION)
-                return STRING;
-            return leftSideKind;
-        }
-    
-        public static TypeKind getTypeKind(final AbstractNumberToken.NumberType numberType) {
-            switch (numberType) {
-                case BYTE:
-                    return BYTE;
-                case DOUBLE:
-                    return DOUBLE;
-                case SHORT:
-                    return SHORT;
-                case INTEGER:
-                case HEXADECIMAL:
-                    return INTEGER;
-                case FLOAT:
-                    return FLOAT;
-                default:
-                    return null;
-            }
-        }
-    
     }
     
 }

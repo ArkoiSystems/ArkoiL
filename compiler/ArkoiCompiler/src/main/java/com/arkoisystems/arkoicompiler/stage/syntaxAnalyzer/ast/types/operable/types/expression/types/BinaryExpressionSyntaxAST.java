@@ -6,7 +6,7 @@
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types;
 
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.ASTType;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.AbstractOperableSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.AbstractExpressionSyntaxAST;
@@ -44,9 +44,9 @@ public class BinaryExpressionSyntaxAST extends AbstractExpressionSyntaxAST
     }
     
 //    @Override
-//    public TypeSyntaxAST.TypeKind binAdd(final AbstractOperableSemanticAST<?, ?> leftSideOperable, final AbstractOperableSemanticAST<?, ?> rightSideOperable) {
+//    public TypeKind binAdd(final AbstractOperableSemanticAST<?, ?> leftSideOperable, final AbstractOperableSemanticAST<?, ?> rightSideOperable) {
 //        if (rightSideOperable instanceof NumberOperableSyntaxAST)
-//            return TypeSyntaxAST.TypeKind.combineKinds(this, rightSideOperable);
+//            return TypeKind.combineKinds(this, rightSideOperable);
 //        else if (rightSideOperable instanceof AbstractExpressionSyntaxAST) {
 //            final AbstractExpressionSyntaxAST abstractExpressionAST = (AbstractExpressionSyntaxAST) rightSideOperable;
 //            if (abstractExpressionAST.getOperableObject() == null) {
@@ -65,15 +65,15 @@ public class BinaryExpressionSyntaxAST extends AbstractExpressionSyntaxAST
 //                    semanticAnalyzer.errorHandler().addError(new SyntaxASTError<>(rightSideOperable, "Can't perform the addition because the expression result isn't a number."));
 //                    return null;
 //            }
-//            return TypeSyntaxAST.TypeKind.combineKinds(this, abstractExpressionAST.getOperableObject());
+//            return TypeKind.combineKinds(this, abstractExpressionAST.getOperableObject());
 //        }
 //        return super.binAdd(leftSideOperable, rightSideOperable);
 //    }
 //
 //    @Override
-//    public TypeSyntaxAST.TypeKind binSub(final AbstractOperableSemanticAST<?, ?> leftSideOperable, final AbstractOperableSemanticAST<?, ?> rightSideOperable) {
+//    public TypeKind binSub(final AbstractOperableSemanticAST<?, ?> leftSideOperable, final AbstractOperableSemanticAST<?, ?> rightSideOperable) {
 //        if (rightSideOperable instanceof NumberOperableSyntaxAST)
-//            return TypeSyntaxAST.TypeKind.combineKinds(this, rightSideOperable);
+//            return TypeKind.combineKinds(this, rightSideOperable);
 //        else if (rightSideOperable instanceof AbstractExpressionSyntaxAST) {
 //            final AbstractExpressionSyntaxAST abstractExpressionAST = (AbstractExpressionSyntaxAST) rightSideOperable;
 //            if (abstractExpressionAST.getOperableObject() == null) {
@@ -92,15 +92,15 @@ public class BinaryExpressionSyntaxAST extends AbstractExpressionSyntaxAST
 //                    semanticAnalyzer.errorHandler().addError(new SyntaxASTError<>(rightSideOperable, "Can't perform the subtraction because the expression result isn't a number."));
 //                    return null;
 //            }
-//            return TypeSyntaxAST.TypeKind.combineKinds(this, abstractExpressionAST.getOperableObject());
+//            return TypeKind.combineKinds(this, abstractExpressionAST.getOperableObject());
 //        }
 //        return super.binSub(leftSideOperable, rightSideOperable);
 //    }
 //
 //    @Override
-//    public TypeSyntaxAST.TypeKind binMul(final AbstractOperableSemanticAST<?, ?> leftSideOperable, final AbstractOperableSemanticAST<?, ?> rightSideOperable) {
+//    public TypeKind binMul(final AbstractOperableSemanticAST<?, ?> leftSideOperable, final AbstractOperableSemanticAST<?, ?> rightSideOperable) {
 //        if (rightSideOperable instanceof NumberOperableSyntaxAST)
-//            return TypeSyntaxAST.TypeKind.combineKinds(this, rightSideOperable);
+//            return TypeKind.combineKinds(this, rightSideOperable);
 //        else if (rightSideOperable instanceof AbstractExpressionSyntaxAST) {
 //            final AbstractExpressionSyntaxAST abstractExpressionAST = (AbstractExpressionSyntaxAST) rightSideOperable;
 //            if (abstractExpressionAST.getOperableObject() == null) {
@@ -119,15 +119,15 @@ public class BinaryExpressionSyntaxAST extends AbstractExpressionSyntaxAST
 //                    semanticAnalyzer.errorHandler().addError(new SyntaxASTError<>(rightSideOperable, "Can't perform the multiplication because the expression result isn't a number."));
 //                    return null;
 //            }
-//            return TypeSyntaxAST.TypeKind.combineKinds(this, abstractExpressionAST.getOperableObject());
+//            return TypeKind.combineKinds(this, abstractExpressionAST.getOperableObject());
 //        }
 //        return super.binMul(leftSideOperable, rightSideOperable);
 //    }
 //
 //    @Override
-//    public TypeSyntaxAST.TypeKind binDiv(final AbstractOperableSemanticAST<?, ?> leftSideOperable, final AbstractOperableSemanticAST<?, ?> rightSideOperable) {
+//    public TypeKind binDiv(final AbstractOperableSemanticAST<?, ?> leftSideOperable, final AbstractOperableSemanticAST<?, ?> rightSideOperable) {
 //        if (rightSideOperable instanceof NumberOperableSyntaxAST)
-//            return TypeSyntaxAST.TypeKind.combineKinds(this, rightSideOperable);
+//            return TypeKind.combineKinds(this, rightSideOperable);
 //        else if (rightSideOperable instanceof AbstractExpressionSyntaxAST) {
 //            final AbstractExpressionSyntaxAST abstractExpressionAST = (AbstractExpressionSyntaxAST) rightSideOperable;
 //            if (abstractExpressionAST.getOperableObject() == null) {
@@ -146,15 +146,15 @@ public class BinaryExpressionSyntaxAST extends AbstractExpressionSyntaxAST
 //                    semanticAnalyzer.errorHandler().addError(new SyntaxASTError<>(rightSideOperable, "Can't perform the division because the expression result isn't a number."));
 //                    return null;
 //            }
-//            return TypeSyntaxAST.TypeKind.combineKinds(this, abstractExpressionAST.getOperableObject());
+//            return TypeKind.combineKinds(this, abstractExpressionAST.getOperableObject());
 //        }
 //        return super.binDiv(leftSideOperable, rightSideOperable);
 //    }
 //
 //    @Override
-//    public TypeSyntaxAST.TypeKind binMod(final AbstractOperableSemanticAST<?, ?> leftSideOperable, final AbstractOperableSemanticAST<?, ?> rightSideOperable) {
+//    public TypeKind binMod(final AbstractOperableSemanticAST<?, ?> leftSideOperable, final AbstractOperableSemanticAST<?, ?> rightSideOperable) {
 //        if (rightSideOperable instanceof NumberOperableSyntaxAST)
-//            return TypeSyntaxAST.TypeKind.combineKinds(this, rightSideOperable);
+//            return TypeKind.combineKinds(this, rightSideOperable);
 //        else if (rightSideOperable instanceof AbstractExpressionSyntaxAST) {
 //            final AbstractExpressionSyntaxAST abstractExpressionAST = (AbstractExpressionSyntaxAST) rightSideOperable;
 //            if (abstractExpressionAST.getOperableObject() == null) {
@@ -173,7 +173,7 @@ public class BinaryExpressionSyntaxAST extends AbstractExpressionSyntaxAST
 //                    semanticAnalyzer.errorHandler().addError(new SyntaxASTError<>(rightSideOperable, "Can't perform the modular operation because the expression result isn't a number."));
 //                    return null;
 //            }
-//            return TypeSyntaxAST.TypeKind.combineKinds(this, abstractExpressionAST.getOperableObject());
+//            return TypeKind.combineKinds(this, abstractExpressionAST.getOperableObject());
 //        }
 //        return super.binMod(leftSideOperable, rightSideOperable);
 //    }

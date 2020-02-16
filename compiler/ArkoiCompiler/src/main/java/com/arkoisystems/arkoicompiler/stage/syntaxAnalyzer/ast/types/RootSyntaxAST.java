@@ -5,16 +5,22 @@
  */
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types;
 
+import com.arkoisystems.arkoicompiler.ArkoiClass;
+import com.arkoisystems.arkoicompiler.ArkoiCompiler;
 import com.arkoisystems.arkoicompiler.stage.errorHandler.types.TokenError;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.EndOfFileToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.SymbolToken;
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.numbers.AbstractNumberToken;
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
+import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.SemanticAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.AbstractStatementSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.types.FunctionDefinitionSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.types.ImportDefinitionSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.types.VariableDefinitionSyntaxAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.BlockType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.parser.AbstractParser;
 import com.google.gson.annotations.Expose;
 import lombok.Getter;
@@ -22,32 +28,57 @@ import lombok.Getter;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Used if you want to create a new {@link RootSyntaxAST}. It doesn't has an {@link
+ * AbstractParser} because you shouldn't treat this class like that. There should only be
+ * one instance for one {@link ArkoiClass}.
+ */
 @Getter
 public class RootSyntaxAST extends AbstractSyntaxAST
 {
     
-    private static AbstractParser<?>[] ROOT_PARSERS = new AbstractParser<?>[] {
+    /**
+     * This variable is used to get all {@link AbstractParser}'s which are supported by
+     * the {@link RootSyntaxAST}.
+     */
+    public static AbstractParser<?>[] ROOT_PARSERS = new AbstractParser<?>[] {
             AnnotationSyntaxAST.ANNOTATION_PARSER,
             AbstractStatementSyntaxAST.STATEMENT_PARSER,
     };
     
     
+    /**
+     * Declares the {@link List} for all {@link ImportDefinitionSyntaxAST}'s which got
+     * parsed. This variable is used frequently within the {@link SemanticAnalyzer}.
+     */
     @Expose
     private final List<ImportDefinitionSyntaxAST> importStorage;
     
+    
+    /**
+     * Declares the {@link List} for all {@link VariableDefinitionSyntaxAST}'s which got
+     * parsed. This variable is used frequently within the {@link SemanticAnalyzer}.
+     */
     @Expose
     private final List<VariableDefinitionSyntaxAST> variableStorage;
     
+    
+    /**
+     * Declares the {@link List} for all {@link FunctionDefinitionSyntaxAST}'s which got
+     * parsed. This variable is used frequently within the {@link SemanticAnalyzer}.
+     */
     @Expose
     private final List<FunctionDefinitionSyntaxAST> functionStorage;
     
+    
     /**
-     * This constructor will initialize the RootAST with the AST-Type "ROOT". This will
-     * help to debug problems or check the AST for correct syntax. Also it will pass the
-     * SyntaxAnalyzer for setting the end of this AST (input file length).
+     * Constructs a new {@link RootSyntaxAST} with the given parameters. The {@link
+     * SyntaxAnalyzer} is used to check syntax and also to get the {@link ArkoiClass} or
+     * {@link ArkoiCompiler}.
      *
      * @param syntaxAnalyzer
-     *         The SyntaxAnalyzer which get used to parse the tokens.
+     *         the {@link SyntaxAnalyzer} is part for the most code used by {@link
+     *         AbstractSyntaxAST}'s.
      */
     public RootSyntaxAST(final SyntaxAnalyzer syntaxAnalyzer) {
         super(ASTType.ROOT);
@@ -60,21 +91,28 @@ public class RootSyntaxAST extends AbstractSyntaxAST
         this.importStorage = new ArrayList<>();
     }
     
+    
     /**
-     * This method will parse the "RootAST" and checks it for correct syntax. The RootAST
-     * is used to store all variables, functions etc. Also it is called the "root file"
-     * because it is the outers layer of the whole AST. It will just parse annotations and
-     * statements and checks if they got parsed right.
+     * Parses a new {@link TypeSyntaxAST} with the given parameters, where the {@link
+     * SyntaxAnalyzer} is used to check the syntax and the parent {@link
+     * AbstractSyntaxAST} is used to see if this AST can be created inside the parent. It
+     * will parse every {@link ImportDefinitionSyntaxAST}, {@link
+     * VariableDefinitionSyntaxAST} and {@link FunctionDefinitionSyntaxAST} which are
+     * present at the root-level (the first layer of the AST). Besides that it will parse
+     * also {@link AnnotationSyntaxAST}'s but they return a followed {@link
+     * FunctionDefinitionSyntaxAST} or {@link VariableDefinitionSyntaxAST}. So basically
+     * just these three types of ASTs are getting parsed.
      *
      * @param parentAST
-     *         The parent of the AST. With it you can check for correct usage of the
-     *         statement.
+     *         the parent {@link AbstractSyntaxAST} which should get used to check if the
+     *         {@link AbstractSyntaxAST} can be created inside it.
      * @param syntaxAnalyzer
-     *         The given SyntaxAnalyzer is used for checking the syntax of the current
-     *         Token list.
+     *         the {@link SyntaxAnalyzer} which is used for checking the syntax with
+     *         methods like {@link SyntaxAnalyzer#matchesCurrentToken(TokenType)} )} or
+     *         {@link SyntaxAnalyzer#matchesNextToken(AbstractNumberToken.NumberType)}.
      *
-     * @return It will return null if an error occurred or a RootAST if it parsed until to
-     *         the end.
+     * @return {@code null} if an error occurred or the {@link RootSyntaxAST} if
+     *         everything worked correctly.
      */
     @Override
     public RootSyntaxAST parseAST(final AbstractSyntaxAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
@@ -82,19 +120,19 @@ public class RootSyntaxAST extends AbstractSyntaxAST
         while (syntaxAnalyzer.getPosition() < syntaxAnalyzer.getTokens().length) {
             if (syntaxAnalyzer.currentToken() instanceof EndOfFileToken)
                 break;
-        
+            
             for (final AbstractParser<?> abstractParser : ROOT_PARSERS) {
                 if (!abstractParser.canParse(this, syntaxAnalyzer))
                     continue;
-            
+                
                 final AbstractSyntaxAST abstractSyntaxAST = abstractParser.parse(this, syntaxAnalyzer);
                 if (abstractSyntaxAST != null) {
                     if (abstractSyntaxAST instanceof FunctionDefinitionSyntaxAST) {
                         final FunctionDefinitionSyntaxAST functionDefinitionAST = (FunctionDefinitionSyntaxAST) abstractSyntaxAST;
-                        if (functionDefinitionAST.getFunctionBlock().getBlockType() == BlockSyntaxAST.BlockType.INLINE && syntaxAnalyzer.matchesCurrentToken(SymbolToken.SymbolType.SEMICOLON) == null) {
+                        if (functionDefinitionAST.getFunctionBlock().getBlockType() == BlockType.INLINE && syntaxAnalyzer.matchesCurrentToken(SymbolToken.SymbolType.SEMICOLON) == null) {
                             syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the \"function definition\" statement because the inlined function doesn't end with a semicolon."));
                             return null;
-                        } else if (functionDefinitionAST.getFunctionBlock().getBlockType() == BlockSyntaxAST.BlockType.BLOCK && syntaxAnalyzer.matchesCurrentToken(SymbolToken.SymbolType.CLOSING_BRACE) == null) {
+                        } else if (functionDefinitionAST.getFunctionBlock().getBlockType() == BlockType.BLOCK && syntaxAnalyzer.matchesCurrentToken(SymbolToken.SymbolType.CLOSING_BRACE) == null) {
                             syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the \"function definition\" statement because it doesn't end with a closing brace."));
                             return null;
                         } else this.functionStorage.add(functionDefinitionAST);

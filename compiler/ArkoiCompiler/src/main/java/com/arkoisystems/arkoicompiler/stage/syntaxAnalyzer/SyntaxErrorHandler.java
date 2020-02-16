@@ -7,6 +7,7 @@ package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer;
 
 import com.arkoisystems.arkoicompiler.stage.errorHandler.AbstractError;
 import com.arkoisystems.arkoicompiler.stage.errorHandler.ErrorHandler;
+import lombok.NonNull;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
@@ -35,7 +36,7 @@ public class SyntaxErrorHandler extends ErrorHandler
      *         SyntaxErrorHandler#abstractErrors} list.
      */
     @Override
-    public void addError(final AbstractError abstractError) {
+    public void addError(@NonNull final AbstractError abstractError) {
         this.abstractErrors.add(abstractError);
     }
     
@@ -50,7 +51,7 @@ public class SyntaxErrorHandler extends ErrorHandler
      *         get written in.
      */
     @Override
-    public void printStackTrace(final PrintStream printStream) {
+    public void printStackTrace(@NonNull final PrintStream printStream) {
         for (final AbstractError abstractError : this.abstractErrors)
             printStream.println(abstractError.toString());
     }

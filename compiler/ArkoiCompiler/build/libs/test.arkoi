@@ -1,5 +1,5 @@
 {
-  "content": "@native[default]\r\nfun println<>(message: string);\r\n",
+  "nativeClass": true,
   "lexicalAnalyzer": {
     "errorHandler": {},
     "tokens": [
@@ -238,7 +238,7 @@
     }
   }
 }{
-  "content": "fun test<string>() = \" ehehe \";\n",
+  "nativeClass": false,
   "lexicalAnalyzer": {
     "errorHandler": {},
     "tokens": [
@@ -405,7 +405,7 @@
     }
   }
 }{
-  "content": "import \"./test\" as test;\n\nvar test_1 = test.test();\nvar test_2 = this.greeting(1);\nvar test_5 = (20 + -10 * 5f) * 2 + 3;\n\n# this method gets invoked first\nfun main<int>(args: string[]) {\n    var test_1 = \"Hello\";\n    var test_3 = this.test_1;\n    \n    {\n        var test_4 = test_5;\n    \n        {\n            var test_5 = \"Hello World\";\n        }\n    }\n    \n    this.print_greet(test_1);\n    return (20 + -10 * 5f) * 2 + 3;\n}\n\nfun print_greet<>(test_argument: string) = println(\"%s , %s\" % [test_2, test_argument]);\n\nfun greeting<string>() = \"Hello World\";\n\nfun greeting<string>(test: int) = \"Hello World\";\n",
+  "nativeClass": false,
   "lexicalAnalyzer": {
     "errorHandler": {},
     "tokens": [
