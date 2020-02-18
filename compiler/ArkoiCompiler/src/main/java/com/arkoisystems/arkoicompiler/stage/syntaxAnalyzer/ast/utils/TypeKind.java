@@ -6,7 +6,6 @@
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils;
 
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken;
-import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.numbers.AbstractNumberToken;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.SemanticAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.AbstractOperableSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.types.CollectionOperableSemanticAST;
@@ -98,8 +97,9 @@ public enum TypeKind
             final AbstractExpressionSemanticAST<?> abstractExpressionSemanticAST = (AbstractExpressionSemanticAST<?>) abstractOperableSemanticAST;
             return abstractExpressionSemanticAST.getExpressionType();
         } else if (abstractOperableSemanticAST instanceof NumberOperableSemanticAST) {
-            final NumberOperableSemanticAST numberExpression = (NumberOperableSemanticAST) abstractOperableSemanticAST;
-            return getTypeKind(numberExpression.getNumberType());
+            //            final NumberOperableSemanticAST numberExpression = (NumberOperableSemanticAST) abstractOperableSemanticAST;
+            //            return getTypeKind(numberExpression.getNumberType());
+            return null;
         } else if (abstractOperableSemanticAST instanceof StringOperableSemanticAST) {
             return STRING;
         } else if (abstractOperableSemanticAST instanceof CollectionOperableSemanticAST) {
@@ -164,36 +164,6 @@ public enum TypeKind
             }
         } else
             throw new NullPointerException("Combination isn't supported: " + leftSideKind + ", " + rightSideKind);
-    }
-    
-    
-    /**
-     * Gets the {@link TypeKind} with help of an {@link AbstractNumberToken.NumberType}.
-     * For now a Hexadecimal number is getting transformed to an Integer.
-     *
-     * @param numberType
-     *         the {@link AbstractNumberToken.NumberType} which is used to get the
-     *         specific {@link TypeKind}.
-     *
-     * @return {@code null} if the {@link AbstractNumberToken.NumberType} isn't supported
-     *         or is not found.
-     */
-    public static TypeKind getTypeKind(final AbstractNumberToken.NumberType numberType) {
-        switch (numberType) {
-            case BYTE:
-                return BYTE;
-            case DOUBLE:
-                return DOUBLE;
-            case SHORT:
-                return SHORT;
-            case INTEGER:
-            case HEXADECIMAL:
-                return INTEGER;
-            case FLOAT:
-                return FLOAT;
-            default:
-                return null;
-        }
     }
     
 }

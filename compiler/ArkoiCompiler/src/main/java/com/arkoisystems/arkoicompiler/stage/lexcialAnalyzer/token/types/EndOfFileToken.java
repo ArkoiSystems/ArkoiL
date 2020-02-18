@@ -5,20 +5,19 @@
  */
 package com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types;
 
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.LexicalAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
-
-import java.util.regex.Matcher;
 
 public class EndOfFileToken extends AbstractToken
 {
     
-    public EndOfFileToken(final String tokenContent, final int start, final int end) {
-        super(TokenType.END_OF_FILE, tokenContent, start, end);
+    public EndOfFileToken() {
+        this.setTokenType(TokenType.END_OF_FILE);
     }
     
     @Override
-    public AbstractToken parse(final Matcher matcher) {
+    public EndOfFileToken parse(final LexicalAnalyzer lexicalAnalyzer) {
         return this;
     }
     

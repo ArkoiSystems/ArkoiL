@@ -8,22 +8,23 @@ package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.t
 import com.arkoisystems.arkoicompiler.stage.errorHandler.types.ParserError;
 import com.arkoisystems.arkoicompiler.stage.errorHandler.types.SyntaxASTError;
 import com.arkoisystems.arkoicompiler.stage.errorHandler.types.TokenError;
-import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.IdentifierToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.SymbolToken;
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTAccess;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.BlockSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.AbstractOperableSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.AbstractExpressionSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types.ExpressionSyntaxAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTAccess;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
 import com.google.gson.annotations.Expose;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,14 +36,18 @@ public class FunctionInvokeOperableSyntaxAST extends AbstractOperableSyntaxAST<T
     @Expose
     private ASTAccess functionAccess;
     
+    
     @Expose
     private final IdentifierToken invokedFunctionName;
+    
     
     @Expose
     private final List<ExpressionSyntaxAST> invokedExpressions;
     
+    
     @Expose
     private final FunctionInvocation invocationType;
+    
     
     /**
      * This constructor will initialize the statement with the AST-Type "FUNCTION_INVOKE"
@@ -64,6 +69,7 @@ public class FunctionInvokeOperableSyntaxAST extends AbstractOperableSyntaxAST<T
         this.invokedExpressions = new ArrayList<>();
     }
     
+    
     /**
      * This constructor will initialize the statement with the AST-Type "FUNCTION_INVOKE"
      * . This will help to debug problems or check the AST for correct syntax. Also it
@@ -82,6 +88,7 @@ public class FunctionInvokeOperableSyntaxAST extends AbstractOperableSyntaxAST<T
         this.functionAccess = ASTAccess.GLOBAL_ACCESS;
         this.invokedExpressions = new ArrayList<>();
     }
+    
     
     /**
      * This method will parse the "function invoke" statement and checks it for the correct
@@ -162,6 +169,25 @@ public class FunctionInvokeOperableSyntaxAST extends AbstractOperableSyntaxAST<T
         } else this.setEnd(syntaxAnalyzer.currentToken().getEnd());
         return this;
     }
+    
+    
+    @Override
+    public void printAST(final PrintStream printStream, final String indents) {
+        printStream.println(indents + "├── access: " + this.getFunctionAccess());
+        printStream.println(indents + "├── identifier: " + this.getInvokedFunctionName().getTokenContent());
+        printStream.println(indents + "└── expressions: " + (this.getInvokedExpressions().isEmpty() ? "N/A" : ""));
+        for (int index = 0; index < this.getInvokedExpressions().size(); index++) {
+            final ExpressionSyntaxAST abstractSyntaxAST = this.getInvokedExpressions().get(index);
+            if (index == this.getInvokedExpressions().size() - 1) {
+                printStream.println(indents + "    └── " + abstractSyntaxAST.getExpressionOperable().getClass().getSimpleName());
+                abstractSyntaxAST.printAST(printStream, indents + "        ");
+            } else {
+                printStream.println(indents + "    ├── " + abstractSyntaxAST.getExpressionOperable().getClass().getSimpleName());
+                abstractSyntaxAST.printAST(printStream, indents + "    │   ");
+            }
+        }
+    }
+    
     
     public enum FunctionInvocation
     {

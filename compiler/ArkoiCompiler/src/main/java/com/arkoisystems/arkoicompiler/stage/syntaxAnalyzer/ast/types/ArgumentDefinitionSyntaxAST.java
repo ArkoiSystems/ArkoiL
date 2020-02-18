@@ -7,17 +7,18 @@ package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types;
 
 import com.arkoisystems.arkoicompiler.stage.errorHandler.types.ParserError;
 import com.arkoisystems.arkoicompiler.stage.errorHandler.types.TokenError;
-import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.IdentifierToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.SymbolToken;
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.parser.types.ArgumentDefinitionParser;
 import com.google.gson.annotations.Expose;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,8 +33,10 @@ public class ArgumentDefinitionSyntaxAST extends AbstractSyntaxAST
     @Expose
     private IdentifierToken argumentName;
     
+    
     @Expose
     private TypeSyntaxAST argumentType;
+    
     
     /**
      * This constructor will initialize the statement with the AST-Type
@@ -43,6 +46,7 @@ public class ArgumentDefinitionSyntaxAST extends AbstractSyntaxAST
     public ArgumentDefinitionSyntaxAST() {
         super(ASTType.ARGUMENT_DEFINITION);
     }
+    
     
     /**
      * This method will parse the ArgumentDefinitionAST and checks it for the correct
@@ -83,13 +87,21 @@ public class ArgumentDefinitionSyntaxAST extends AbstractSyntaxAST
             syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the argument definition because the colon isn't followed by a valid type."));
             return null;
         }
-        
+    
         if ((this.argumentType = TypeSyntaxAST.TYPE_PARSER.parse(this, syntaxAnalyzer)) == null) {
             syntaxAnalyzer.errorHandler().addError(new ParserError<>(TypeSyntaxAST.TYPE_PARSER, this.getStart(), syntaxAnalyzer.currentToken().getEnd(), "Couldn't parse the argument definition because an eror occurred during the parsing of the type."));
             return null;
-        }else this.setEnd(syntaxAnalyzer.currentToken().getEnd());
+        } else this.setEnd(syntaxAnalyzer.currentToken().getEnd());
         return this;
     }
+    
+    
+    @Override
+    public void printAST(final PrintStream printStream, final String indents) {
+        printStream.println(indents + "├── name: " + this.getArgumentName().getTokenContent());
+        printStream.println(indents + "└── type: " + this.getArgumentType().getTypeKind().getName() + (this.getArgumentType().isArray() ? "[]" : ""));
+    }
+    
     
     /**
      * This method provides the ability to parse a list of arguments which is used by the
@@ -112,6 +124,7 @@ public class ArgumentDefinitionSyntaxAST extends AbstractSyntaxAST
     public static List<ArgumentDefinitionSyntaxAST> parseArguments(final AbstractSyntaxAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
         return parseArguments(parentAST, syntaxAnalyzer, new ArrayList<>());
     }
+    
     
     /**
      * This method provides the ability to parse a list of arguments which is used by the

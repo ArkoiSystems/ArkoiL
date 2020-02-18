@@ -67,7 +67,7 @@ public class VariableDefinitionSemanticAST extends AbstractSemanticAST<VariableD
     public ExpressionSemanticAST getVariableExpression() {
         if (this.variableExpression == null) {
             this.variableExpression
-                    = new ExpressionSemanticAST(this.getSemanticAnalyzer(), this.getLastContainerAST(), this.getSyntaxAST().getVariableExpression());
+                    = new ExpressionSemanticAST(this.getSemanticAnalyzer(), this.getLastContainerAST(), this.getSyntaxAST().getVariableArguments());
             if (this.variableExpression.getExpressionType() == null)
                 return null;
         }

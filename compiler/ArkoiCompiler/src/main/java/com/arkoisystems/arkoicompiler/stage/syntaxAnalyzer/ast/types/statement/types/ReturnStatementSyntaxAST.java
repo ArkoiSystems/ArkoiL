@@ -5,20 +5,22 @@
  */
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.types;
 
-import com.arkoisystems.arkoicompiler.stage.errorHandler.types.SyntaxASTError;
 import com.arkoisystems.arkoicompiler.stage.errorHandler.types.ParserError;
+import com.arkoisystems.arkoicompiler.stage.errorHandler.types.SyntaxASTError;
 import com.arkoisystems.arkoicompiler.stage.errorHandler.types.TokenError;
-import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.SymbolToken;
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.BlockSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.AbstractExpressionSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types.ExpressionSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.AbstractStatementSyntaxAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.google.gson.annotations.Expose;
 import lombok.Getter;
+
+import java.io.PrintStream;
 
 @Getter
 public class ReturnStatementSyntaxAST extends AbstractStatementSyntaxAST
@@ -27,6 +29,7 @@ public class ReturnStatementSyntaxAST extends AbstractStatementSyntaxAST
     @Expose
     private ExpressionSyntaxAST returnExpression;
     
+    
     /**
      * This constructor is used to initialize the AST-Type "RETURN_STATEMENT_AST" for this
      * class. This will help to debug problems or check the AST for correct Syntax.
@@ -34,6 +37,7 @@ public class ReturnStatementSyntaxAST extends AbstractStatementSyntaxAST
     public ReturnStatementSyntaxAST() {
         super(ASTType.RETURN_STATEMENT);
     }
+    
     
     /**
      * This method will parse the "return" statement and checks it for the correct syntax.
@@ -79,12 +83,20 @@ public class ReturnStatementSyntaxAST extends AbstractStatementSyntaxAST
             syntaxAnalyzer.errorHandler().addError(new ParserError<>(AbstractExpressionSyntaxAST.EXPRESSION_PARSER, syntaxAnalyzer.currentToken(), "Couldn't parse the \"return\" statement because an error occurred during the parsing of the expression."));
             return null;
         } else this.returnExpression = expressionAST;
-        
+    
         if (syntaxAnalyzer.matchesNextToken(SymbolToken.SymbolType.SEMICOLON) == null) {
             syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the \"return\" statement because it doesn't end with a semicolon."));
             return null;
         } else this.setEnd(syntaxAnalyzer.currentToken().getEnd());
         return this;
+    }
+    
+    
+    @Override
+    public void printAST(final PrintStream printStream, final String indents) {
+        printStream.println(indents + "└── expression:");
+        printStream.println(indents + "    └── " + this.getReturnExpression().getExpressionOperable().getClass().getSimpleName());
+        this.getReturnExpression().printAST(printStream, indents + "        ");
     }
     
 }

@@ -7,14 +7,16 @@ package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast;
 
 import com.arkoisystems.arkoicompiler.ArkoiClass;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken;
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.SymbolToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
-import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.numbers.AbstractNumberToken;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.utils.Variables;
 import com.google.gson.annotations.Expose;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.io.PrintStream;
 
 /**
  * This class is used if you want to create an AST. With the {@link
@@ -71,12 +73,15 @@ public abstract class AbstractSyntaxAST
      * @param syntaxAnalyzer
      *         the {@link SyntaxAnalyzer} which is used for checking the syntax with
      *         methods like {@link SyntaxAnalyzer#matchesCurrentToken(TokenType)} or
-     *         {@link SyntaxAnalyzer#matchesNextToken(AbstractNumberToken.NumberType)}.
+     *         {@link SyntaxAnalyzer#matchesNextToken(SymbolToken.SymbolType)} )}.
      *
      * @return {@code null} if an error occurred or the parsed {@link AbstractSyntaxAST}
      *         if everything worked correctly.
      */
     public abstract AbstractSyntaxAST parseAST(final AbstractSyntaxAST parentAST, final SyntaxAnalyzer syntaxAnalyzer);
+    
+    
+    public abstract void printAST(final PrintStream printStream, final String indents);
     
     
     /**

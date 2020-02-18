@@ -5,21 +5,22 @@
  */
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types;
 
-import com.arkoisystems.arkoicompiler.stage.errorHandler.types.SyntaxASTError;
 import com.arkoisystems.arkoicompiler.stage.errorHandler.types.ParserError;
+import com.arkoisystems.arkoicompiler.stage.errorHandler.types.SyntaxASTError;
 import com.arkoisystems.arkoicompiler.stage.errorHandler.types.TokenError;
-import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.IdentifierToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.SymbolToken;
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.types.FunctionDefinitionSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.types.VariableDefinitionSyntaxAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.parser.types.AnnotationParser;
 import com.google.gson.annotations.Expose;
 import lombok.Getter;
 
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,8 +37,10 @@ public class AnnotationSyntaxAST extends AbstractSyntaxAST
     @Expose
     private IdentifierToken annotationName;
     
+    
     @Expose
     private List<IdentifierToken> annotationArguments;
+    
     
     /**
      * This constructor will initialize the AnnotationAST with the AST-Type "ANNOTATION".
@@ -59,6 +62,7 @@ public class AnnotationSyntaxAST extends AbstractSyntaxAST
         this.annotationStorage.add(this);
     }
     
+    
     /**
      * This constructor will initialize the AnnotationAST with the AST-Type "ANNOTATION".
      * This will help to debug problems or check the AST for correct syntax. It wont pass
@@ -72,6 +76,7 @@ public class AnnotationSyntaxAST extends AbstractSyntaxAST
         this.annotationStorage = new ArrayList<>();
         this.annotationStorage.add(this);
     }
+    
     
     /**AnnotationSemantic
      * This method will parse the AnnotationAST and checks it for the correct syntax. This
@@ -169,6 +174,15 @@ public class AnnotationSyntaxAST extends AbstractSyntaxAST
         }
         syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the Annotation because it isn't followed by an function or variable definition."));
         return null;
+    }
+    
+    
+    @Override
+    public void printAST(final PrintStream printStream, final String indents) {
+        printStream.println(indents + "├── name: " + this.getAnnotationName().getTokenContent());
+        printStream.println(indents + "└── arguments: " + (this.getAnnotationArguments().isEmpty() ? "N/A" : ""));
+        for (final IdentifierToken identifierToken : this.getAnnotationArguments())
+            printStream.println(indents + "    └── " + identifierToken.getTokenContent());
     }
     
 }

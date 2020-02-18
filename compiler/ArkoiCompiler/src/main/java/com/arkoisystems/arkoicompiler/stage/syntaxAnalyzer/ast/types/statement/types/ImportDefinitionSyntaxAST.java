@@ -7,17 +7,19 @@ package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.
 
 import com.arkoisystems.arkoicompiler.stage.errorHandler.types.SyntaxASTError;
 import com.arkoisystems.arkoicompiler.stage.errorHandler.types.TokenError;
-import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.IdentifierToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.StringToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.SymbolToken;
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.RootSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.AbstractStatementSyntaxAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.google.gson.annotations.Expose;
 import lombok.Getter;
+
+import java.io.PrintStream;
 
 @Getter
 public class ImportDefinitionSyntaxAST extends AbstractStatementSyntaxAST
@@ -26,8 +28,10 @@ public class ImportDefinitionSyntaxAST extends AbstractStatementSyntaxAST
     @Expose
     private StringToken importFilePath;
     
+    
     @Expose
     private IdentifierToken importName;
+    
     
     /**
      * This constructor will initialize the statement with the AST-Type
@@ -37,6 +41,7 @@ public class ImportDefinitionSyntaxAST extends AbstractStatementSyntaxAST
     public ImportDefinitionSyntaxAST() {
         super(ASTType.IMPORT_DEFINITION);
     }
+    
     
     /**
      * This method will parse the "import" statement and checks it for the correct syntax.
@@ -85,12 +90,19 @@ public class ImportDefinitionSyntaxAST extends AbstractStatementSyntaxAST
             final String[] splittedPath = this.importFilePath.getTokenContent().split("/");
             this.importName = new IdentifierToken(splittedPath[splittedPath.length - 1].replace(".ark", ""), -1, -1);
         }
-        
+    
         if (syntaxAnalyzer.matchesNextToken(SymbolToken.SymbolType.SEMICOLON) == null) {
             syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the \"import\" statement because it doesn't end with a semicolon."));
             return null;
         } else this.setEnd(syntaxAnalyzer.currentToken().getEnd());
         return this;
+    }
+    
+    
+    @Override
+    public void printAST(final PrintStream printStream, final String indents) {
+        printStream.println(indents + "├── name: " + this.getImportName().getTokenContent());
+        printStream.println(indents + "└── path: " + this.getImportFilePath().getTokenContent());
     }
     
 }

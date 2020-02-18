@@ -5,13 +5,13 @@
  */
 package com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types;
 
+import com.arkoisystems.arkoicompiler.stage.errorHandler.types.CharError;
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.LexicalAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
 import com.google.gson.annotations.Expose;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.util.regex.Matcher;
 
 @Getter
 @Setter
@@ -21,113 +21,65 @@ public class SymbolToken extends AbstractToken
     @Expose
     private SymbolType symbolType;
     
-    public SymbolToken(final String tokenContent, final int start, final int end) {
-        super(TokenType.SYMBOL, tokenContent, start, end);
+    public SymbolToken() {
+        this.setTokenType(TokenType.SYMBOL);
     }
     
     @Override
-    public AbstractToken parse(final Matcher matcher) {
-        switch (this.getTokenContent().charAt(0)) {
-            case '@':
-                this.setSymbolType(SymbolType.AT_SIGN);
+    public SymbolToken parse(final LexicalAnalyzer lexicalAnalyzer) {
+        final char currentChar = lexicalAnalyzer.currentChar();
+        for (final SymbolType symbolType : SymbolType.values())
+            if (symbolType.getCharacter() == currentChar) {
+                this.setSymbolType(symbolType);
                 break;
-            case ':':
-                this.setSymbolType(SymbolType.COLON);
-                break;
-            case ';':
-                this.setSymbolType(SymbolType.SEMICOLON);
-                break;
-            case '{':
-                this.setSymbolType(SymbolType.OPENING_BRACE);
-                break;
-            case '}':
-                this.setSymbolType(SymbolType.CLOSING_BRACE);
-                break;
-            case '(':
-                this.setSymbolType(SymbolType.OPENING_PARENTHESIS);
-                break;
-            case ')':
-                this.setSymbolType(SymbolType.CLOSING_PARENTHESIS);
-                break;
-            case '[':
-                this.setSymbolType(SymbolType.OPENING_BRACKET);
-                break;
-            case ']':
-                this.setSymbolType(SymbolType.CLOSING_BRACKET);
-                break;
-            case ',':
-                this.setSymbolType(SymbolType.COMMA);
-                break;
-            case '.':
-                this.setSymbolType(SymbolType.PERIOD);
-                break;
-            case '>':
-                this.setSymbolType(SymbolType.GREATER_THAN_SIGN);
-                break;
-            case '<':
-                this.setSymbolType(SymbolType.LESS_THAN_SIGN);
-                break;
-            case '+':
-                this.setSymbolType(SymbolType.PLUS);
-                break;
-            case '*':
-                this.setSymbolType(SymbolType.ASTERISK);
-                break;
-            case '/':
-                this.setSymbolType(SymbolType.SLASH);
-                break;
-            case '-':
-                this.setSymbolType(SymbolType.MINUS);
-                break;
-            case '%':
-                this.setSymbolType(SymbolType.PERCENT);
-                break;
-            case '=':
-                this.setSymbolType(SymbolType.EQUAL);
-                break;
-            case '!':
-                this.setSymbolType(SymbolType.EXCLAMATION_MARK);
-                break;
-            case '&':
-                this.setSymbolType(SymbolType.AMPERSAND);
-                break;
-        }
+            }
+        
+        if (this.getSymbolType() == null) {
+            lexicalAnalyzer.errorHandler().addError(new CharError(currentChar, lexicalAnalyzer.getPosition(), "Couldn't lex this symbol because it isn't supported."));
+            return null;
+        } else lexicalAnalyzer.next();
         return this;
     }
     
+    @Getter
     public enum SymbolType
     {
         
-        AT_SIGN,
-    
-        COLON,
-        SEMICOLON,
+        AT_SIGN('@'),
         
-        OPENING_BRACE,
-        CLOSING_BRACE,
+        COLON(':'),
+        SEMICOLON(';'),
         
-        OPENING_PARENTHESIS,
-        CLOSING_PARENTHESIS,
+        OPENING_BRACE('{'),
+        CLOSING_BRACE('}'),
         
-        OPENING_BRACKET,
-        CLOSING_BRACKET,
+        OPENING_PARENTHESIS('('),
+        CLOSING_PARENTHESIS(')'),
         
-        COMMA,
-        PERIOD,
+        OPENING_BRACKET('['),
+        CLOSING_BRACKET(']'),
         
-        LESS_THAN_SIGN,
-        GREATER_THAN_SIGN,
-    
-        VERTICAL_BAR,
-        AMPERSAND,
-        EXCLAMATION_MARK,
-        ASTERISK,
-        EQUAL,
-        PERCENT,
-        MINUS,
-        SLASH,
-        PLUS
+        COMMA(','),
+        PERIOD('.'),
         
+        LESS_THAN_SIGN('<'),
+        GREATER_THAN_SIGN('>'),
+        
+        VERTICAL_BAR('|'),
+        AMPERSAND('&'),
+        EXCLAMATION_MARK('!'),
+        ASTERISK('*'),
+        EQUAL('='),
+        PERCENT('%'),
+        MINUS('-'),
+        SLASH('/'),
+        PLUS('+');
+        
+        private final char character;
+        
+        SymbolType(final char character) {
+            this.character = character;
+        }
     }
     
 }

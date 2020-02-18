@@ -7,18 +7,19 @@ package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types;
 
 import com.arkoisystems.arkoicompiler.stage.errorHandler.types.TokenError;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken;
-import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.SymbolToken;
-import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.numbers.AbstractNumberToken;
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.SemanticAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.parser.types.TypeParser;
 import com.google.gson.annotations.Expose;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.io.PrintStream;
 
 /**
  * Used if you want to create a new {@link TypeSyntaxAST}. But it is recommend to use the
@@ -94,7 +95,7 @@ public class TypeSyntaxAST extends AbstractSyntaxAST
      * @param syntaxAnalyzer
      *         the {@link SyntaxAnalyzer} which is used for checking the syntax with
      *         methods like {@link SyntaxAnalyzer#matchesCurrentToken(TokenType)} or
-     *         {@link SyntaxAnalyzer#matchesNextToken(AbstractNumberToken.NumberType)}.
+     *         {@link SyntaxAnalyzer#matchesNextToken(SymbolToken.SymbolType)}.
      *
      * @return {@code null} if an error occurred or this {@link TypeSyntaxAST} if
      *         everything worked correctly.
@@ -113,7 +114,7 @@ public class TypeSyntaxAST extends AbstractSyntaxAST
         
         this.setStart(syntaxAnalyzer.currentToken().getStart());
         this.setEnd(syntaxAnalyzer.currentToken().getEnd());
-        
+    
         // This will check if the next two Tokens are an opening and closing bracket aka. "[]". If it is, then skip these two Tokens and set the "isArray" boolean to true.
         if (syntaxAnalyzer.matchesPeekToken(1, SymbolToken.SymbolType.OPENING_BRACKET) != null && syntaxAnalyzer.matchesPeekToken(2, SymbolToken.SymbolType.CLOSING_BRACKET) != null) {
             syntaxAnalyzer.nextToken(2);
@@ -121,5 +122,9 @@ public class TypeSyntaxAST extends AbstractSyntaxAST
         }
         return this;
     }
+    
+    
+    @Override
+    public void printAST(final PrintStream printStream, final String indents) { }
     
 }

@@ -8,20 +8,22 @@ package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.
 import com.arkoisystems.arkoicompiler.stage.errorHandler.types.ParserError;
 import com.arkoisystems.arkoicompiler.stage.errorHandler.types.SyntaxASTError;
 import com.arkoisystems.arkoicompiler.stage.errorHandler.types.TokenError;
-import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.IdentifierToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.SymbolToken;
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.*;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types.ExpressionSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.AbstractStatementSyntaxAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.BlockType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
 import com.google.gson.annotations.Expose;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,17 +35,22 @@ public class FunctionDefinitionSyntaxAST extends AbstractStatementSyntaxAST
     @Expose
     private List<AnnotationSyntaxAST> functionAnnotations;
     
+    
     @Expose
     private IdentifierToken functionName;
+    
     
     @Expose
     private TypeSyntaxAST functionReturnType;
     
+    
     @Expose
     private List<ArgumentDefinitionSyntaxAST> functionArguments;
     
+    
     @Expose
     private BlockSyntaxAST functionBlock;
+    
     
     /**
      * This constructor will initialize the statement with the AST-Type
@@ -60,6 +67,7 @@ public class FunctionDefinitionSyntaxAST extends AbstractStatementSyntaxAST
         this.functionArguments = new ArrayList<>();
     }
     
+    
     /**
      * This constructor will initialize the statement with the AST-Type
      * "FUNCTION_DEFINITION". This will help to debug problems or check the AST for
@@ -71,6 +79,7 @@ public class FunctionDefinitionSyntaxAST extends AbstractStatementSyntaxAST
         this.functionAnnotations = new ArrayList<>();
         this.functionArguments = new ArrayList<>();
     }
+    
     
     /**
      * This method will parse the {@link FunctionDefinitionSyntaxAST} with the given
@@ -182,10 +191,49 @@ public class FunctionDefinitionSyntaxAST extends AbstractStatementSyntaxAST
                 return null;
             }
         }
-        
+    
         this.setEnd(syntaxAnalyzer.currentToken().getEnd());
         return this;
     }
+    
+    
+    @Override
+    public void printAST(final PrintStream printStream, final String indents) {
+        printStream.println(indents + "├── annotations: " + (this.getFunctionAnnotations().isEmpty() ? "N/A" : ""));
+        for (int index = 0; index < this.getFunctionAnnotations().size(); index++) {
+            final AnnotationSyntaxAST abstractSyntaxAST = this.getFunctionAnnotations().get(index);
+            if (index == this.getFunctionAnnotations().size() - 1) {
+                printStream.println(indents + "│   │   ");
+                printStream.println(indents + "│   └── " + abstractSyntaxAST.getClass().getSimpleName());
+                abstractSyntaxAST.printAST(printStream, indents + "│       ");
+            } else {
+                printStream.println(indents + "│   │   ");
+                printStream.println(indents + "│   ├── " + abstractSyntaxAST.getClass().getSimpleName());
+                abstractSyntaxAST.printAST(printStream, indents + "│   │   ");
+            }
+        }
+        printStream.println(indents + "│");
+        printStream.println(indents + "├── name: " + this.getFunctionName().getTokenContent());
+        printStream.println(indents + "├── type: " + this.getFunctionReturnType().getTypeKind().getName() + (this.getFunctionReturnType().isArray() ? "[]" : ""));
+        printStream.println(indents + "├── arguments: " + (this.getFunctionArguments().isEmpty() ? "N/A" : ""));
+        for (int index = 0; index < this.getFunctionArguments().size(); index++) {
+            final ArgumentDefinitionSyntaxAST abstractSyntaxAST = this.getFunctionArguments().get(index);
+            if (index == this.getFunctionArguments().size() - 1) {
+                printStream.println(indents + "│   │   ");
+                printStream.println(indents + "│   └── " + abstractSyntaxAST.getClass().getSimpleName());
+                abstractSyntaxAST.printAST(printStream, indents + "│       ");
+            } else {
+                printStream.println(indents + "│   │   ");
+                printStream.println(indents + "│   ├── " + abstractSyntaxAST.getClass().getSimpleName());
+                abstractSyntaxAST.printAST(printStream, indents + "│   │   ");
+            }
+        }
+        printStream.println(indents + "│");
+        printStream.println(indents + "└── block: ");
+        printStream.println(indents + "    └── " + this.getFunctionBlock().getClass().getSimpleName());
+        this.getFunctionBlock().printAST(printStream, indents + "         ");
+    }
+    
     
     /**
      * This method loops through all annotation and returns true if it found an annotation

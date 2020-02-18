@@ -7,6 +7,8 @@ package com.arkoisystems.arkoicompiler;
 
 import com.arkoisystems.arkoicompiler.stage.AbstractStage;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.statements.FunctionDefinitionSemanticAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.RootSyntaxAST;
 import com.arkoisystems.arkoicompiler.utils.FileUtils;
 import com.google.gson.annotations.Expose;
 import lombok.Getter;
@@ -16,6 +18,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -178,13 +181,32 @@ public class ArkoiCompiler
         for (final ArkoiClass arkoiClass : this.arkoiClasses.values()) {
             if (!arkoiClass.isNativeClass())
                 continue;
-        
+    
             for (final FunctionDefinitionSemanticAST functionDefinitionSemanticAST : arkoiClass.getSemanticAnalyzer().getRootSemanticAST().getFunctionStorage()) {
                 if (functionDefinitionSemanticAST.getFunctionDescription().equals(functionDescription) && functionDefinitionSemanticAST.getSyntaxAST().hasAnnotation("native"))
                     return functionDefinitionSemanticAST;
             }
         }
         return null;
+    }
+    
+    public void printSyntaxTree(final PrintStream printStream) {
+        final List<RootSyntaxAST> roots = new ArrayList<>();
+        for (final ArkoiClass arkoiClass : this.getArkoiClasses().values())
+            roots.add(arkoiClass.getSyntaxAnalyzer().getRootSyntaxAST());
+        
+        for (int index = 0; index < roots.size(); index++) {
+            final AbstractSyntaxAST abstractSyntaxAST = roots.get(index);
+            if (index == roots.size() - 1) {
+                printStream.println("│");
+                printStream.println("└── " + abstractSyntaxAST.getClass().getSimpleName());
+                abstractSyntaxAST.printAST(printStream, "    ");
+            } else {
+                printStream.println("│");
+                printStream.println("├── " + abstractSyntaxAST.getClass().getSimpleName());
+                abstractSyntaxAST.printAST(printStream, "│   ");
+            }
+        }
     }
     
 }

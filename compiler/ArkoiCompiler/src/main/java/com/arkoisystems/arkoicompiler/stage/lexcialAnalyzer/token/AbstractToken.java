@@ -5,18 +5,15 @@
  */
 package com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token;
 
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.LexicalAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
 import com.arkoisystems.arkoicompiler.utils.Variables;
 import com.google.gson.annotations.Expose;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.regex.Matcher;
-
 @Getter
 @Setter
-@AllArgsConstructor
 public abstract class AbstractToken
 {
     
@@ -27,9 +24,9 @@ public abstract class AbstractToken
     private String tokenContent;
     
     @Expose
-    private final int start, end;
+    private int start, end;
     
-    public abstract AbstractToken parse(final Matcher matcher) throws Exception;
+    public abstract AbstractToken parse(final LexicalAnalyzer lexicalAnalyzer);
     
     @Override
     public String toString() {

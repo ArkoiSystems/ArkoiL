@@ -9,9 +9,9 @@ import com.arkoisystems.arkoicompiler.ArkoiClass;
 import com.arkoisystems.arkoicompiler.stage.AbstractStage;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.LexicalAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken;
-import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.NumberToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.SymbolToken;
-import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.numbers.AbstractNumberToken;
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.RootSyntaxAST;
 import com.google.gson.annotations.Expose;
@@ -113,63 +113,6 @@ public class SyntaxAnalyzer extends AbstractStage
         return this.errorHandler;
     }
     
-    
-    /**
-     * Checks if the current {@link AbstractToken} matches with the given {@link
-     * AbstractNumberToken.NumberType}. First of all it will check if the {@link
-     * AbstractToken} even is an instance of {@link AbstractNumberToken}. If not it will
-     * return null or the {@link AbstractNumberToken} which got checked for the {@link
-     * AbstractNumberToken.NumberType}.
-     *
-     * @param numberType
-     *         the {@link AbstractNumberToken.NumberType} which should get used to compare
-     *         with the current {@link AbstractToken} if it's an instance of {@link
-     *         AbstractNumberToken}.
-     *
-     * @return {@code null} if the current {@link AbstractToken} is not an {@link
-     *         AbstractNumberToken} or the {@link AbstractNumberToken.NumberType} doesn't
-     *         match.
-     */
-    public AbstractNumberToken matchesCurrentToken(@NonNull final AbstractNumberToken.NumberType numberType) {
-        final AbstractToken currentToken = this.currentToken();
-        if (!(currentToken instanceof AbstractNumberToken))
-            return null;
-    
-        final AbstractNumberToken numberToken = (AbstractNumberToken) currentToken;
-        if (numberToken.getNumberType() != numberType)
-            return null;
-        return numberToken;
-    }
-    
-    
-    /**
-     * Checks if the next {@link AbstractToken} matches with the given {@link
-     * AbstractNumberToken.NumberType}. First of all it will check if the {@link
-     * AbstractToken} even is an instance of {@link AbstractNumberToken}. If not it will
-     * return null or the {@link AbstractNumberToken} which got checked for the {@link
-     * AbstractNumberToken.NumberType}.
-     *
-     * @param numberType
-     *         the {@link AbstractNumberToken.NumberType} which should get used to compare
-     *         with the next {@link AbstractToken} if it's an instance of {@link
-     *         AbstractNumberToken}.
-     *
-     * @return {@code null} if the next {@link AbstractToken} is not an {@link
-     *         AbstractNumberToken} or the {@link AbstractNumberToken.NumberType} doesn't
-     *         match.
-     */
-    public AbstractNumberToken matchesNextToken(@NonNull final AbstractNumberToken.NumberType numberType) {
-        final AbstractToken nextToken = this.nextToken();
-        if (!(nextToken instanceof AbstractNumberToken))
-            return null;
-    
-        final AbstractNumberToken numberToken = (AbstractNumberToken) nextToken;
-        if (numberToken.getNumberType() != numberType)
-            return null;
-        return numberToken;
-    }
-    
-    
     /**
      * Checks if the current {@link AbstractToken} matches with the given {@link
      * SymbolToken.SymbolType}. First of all it will check if the {@link AbstractToken}
@@ -258,8 +201,8 @@ public class SyntaxAnalyzer extends AbstractStage
     
     /**
      * Checks if the current {@link AbstractToken} matches with the given {@link
-     * TokenType}. If not it will return null or the {@link AbstractNumberToken} which got
-     * checked for the {@link TokenType}.
+     * TokenType}. If not it will return null or the {@link NumberToken} which got checked
+     * for the {@link TokenType}.
      *
      * @param tokenType
      *         the {@link TokenType} which should get used to compare with the current
@@ -337,7 +280,7 @@ public class SyntaxAnalyzer extends AbstractStage
      * @return an {@link AbstractToken} which is used in the later process.
      */
     public AbstractToken peekToken(final int offset) {
-        if (this.position + offset > this.tokens.length)
+        if (this.position + offset >= this.tokens.length)
             return this.tokens[this.tokens.length - 1];
         return this.tokens[this.position + offset];
     }

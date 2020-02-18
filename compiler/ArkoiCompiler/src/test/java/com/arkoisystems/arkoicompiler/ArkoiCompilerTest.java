@@ -26,15 +26,14 @@ public class ArkoiCompilerTest
                 if (file.getName().endsWith(".ark"))
                     arkoiCompiler.addFile(file);
         }
-        
+    
         if (!arkoiCompiler.compile()) {
             System.err.println("Couldn't compile the file. Please see the stacktrace for errors:");
             arkoiCompiler.printStackTrace(System.err);
         }
     
         try (final PrintStream printStream = new PrintStream(new File(COMPILER_TEST + "/output.result"))) {
-            for (final ArkoiClass arkoiClass : arkoiCompiler.getArkoiClasses().values())
-                printStream.print(arkoiClass);
+            arkoiCompiler.printSyntaxTree(printStream);
         } catch (final Exception ex) {
             ex.printStackTrace();
         }

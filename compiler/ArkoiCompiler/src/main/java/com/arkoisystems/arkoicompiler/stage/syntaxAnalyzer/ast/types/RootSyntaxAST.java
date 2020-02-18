@@ -10,7 +10,6 @@ import com.arkoisystems.arkoicompiler.ArkoiCompiler;
 import com.arkoisystems.arkoicompiler.stage.errorHandler.types.TokenError;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.EndOfFileToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.SymbolToken;
-import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.numbers.AbstractNumberToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.SemanticAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
@@ -25,7 +24,9 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.parser.AbstractParser
 import com.google.gson.annotations.Expose;
 import lombok.Getter;
 
+import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -109,7 +110,7 @@ public class RootSyntaxAST extends AbstractSyntaxAST
      * @param syntaxAnalyzer
      *         the {@link SyntaxAnalyzer} which is used for checking the syntax with
      *         methods like {@link SyntaxAnalyzer#matchesCurrentToken(TokenType)} )} or
-     *         {@link SyntaxAnalyzer#matchesNextToken(AbstractNumberToken.NumberType)}.
+     *         {@link SyntaxAnalyzer#matchesNextToken(SymbolToken.SymbolType)}.
      *
      * @return {@code null} if an error occurred or the {@link RootSyntaxAST} if
      *         everything worked correctly.
@@ -155,6 +156,29 @@ public class RootSyntaxAST extends AbstractSyntaxAST
             return null;
         }
         return this;
+    }
+    
+    
+    @Override
+    public void printAST(final PrintStream printStream, final String indents) {
+        final List<AbstractSyntaxAST> abstractSyntaxASTs = new ArrayList<>();
+        abstractSyntaxASTs.addAll(this.getImportStorage());
+        abstractSyntaxASTs.addAll(this.getVariableStorage());
+        abstractSyntaxASTs.addAll(this.getFunctionStorage());
+        abstractSyntaxASTs.sort(Comparator.comparingInt(AbstractSyntaxAST::getStart));
+        
+        for (int index = 0; index < abstractSyntaxASTs.size(); index++) {
+            final AbstractSyntaxAST abstractSyntaxAST = abstractSyntaxASTs.get(index);
+            if (index == abstractSyntaxASTs.size() - 1) {
+                printStream.println(indents + "│");
+                printStream.println(indents + "└── " + abstractSyntaxAST.getClass().getSimpleName());
+                abstractSyntaxAST.printAST(printStream, indents + "    ");
+            } else {
+                printStream.println(indents + "│");
+                printStream.println(indents + "├── " + abstractSyntaxAST.getClass().getSimpleName());
+                abstractSyntaxAST.printAST(printStream, indents + "│   ");
+            }
+        }
     }
     
 }

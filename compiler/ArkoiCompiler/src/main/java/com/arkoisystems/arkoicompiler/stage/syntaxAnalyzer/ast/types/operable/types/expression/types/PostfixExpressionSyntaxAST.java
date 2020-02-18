@@ -6,12 +6,14 @@
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types;
 
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.AbstractOperableSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.AbstractExpressionSyntaxAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.google.gson.annotations.Expose;
 import lombok.Getter;
+
+import java.io.PrintStream;
 
 @Getter
 public class PostfixExpressionSyntaxAST extends AbstractExpressionSyntaxAST
@@ -20,8 +22,10 @@ public class PostfixExpressionSyntaxAST extends AbstractExpressionSyntaxAST
     @Expose
     private final AbstractOperableSyntaxAST<?> leftSideOperable;
     
+    
     @Expose
     private final PostfixUnaryOperator postfixUnaryOperator;
+    
     
     public PostfixExpressionSyntaxAST(final AbstractOperableSyntaxAST<?> leftSideOperable, final PostfixUnaryOperator postfixUnaryOperator, final int end) {
         super(ASTType.POSTFIX_EXPRESSION);
@@ -33,10 +37,21 @@ public class PostfixExpressionSyntaxAST extends AbstractExpressionSyntaxAST
         this.setEnd(end);
     }
     
+    
     @Override
     public PostfixExpressionSyntaxAST parseAST(final AbstractSyntaxAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
         return this;
     }
+    
+    
+    @Override
+    public void printAST(final PrintStream printStream, final String indents) {
+        printStream.println(indents + "├── left:");
+        printStream.println(indents + "│   └── " + this.getLeftSideOperable().getClass().getSimpleName());
+        this.getLeftSideOperable().printAST(printStream, indents + "│       ");
+        printStream.println(indents + "└── operator: " + this.getPostfixUnaryOperator());
+    }
+    
     
     public enum PostfixUnaryOperator
     {
