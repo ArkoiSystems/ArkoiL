@@ -7,19 +7,21 @@ package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.t
 
 import com.arkoisystems.arkoicompiler.stage.errorHandler.types.ParserError;
 import com.arkoisystems.arkoicompiler.stage.errorHandler.types.TokenError;
-import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.IdentifierToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.SymbolToken;
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTAccess;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.AbstractOperableSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.AbstractStatementSyntaxAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTAccess;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
 import com.google.gson.annotations.Expose;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.io.PrintStream;
 
 @Setter
 @Getter
@@ -29,17 +31,21 @@ public class IdentifierInvokeOperableSyntaxAST extends AbstractOperableSyntaxAST
     @Expose
     private ASTAccess identifierAccess;
     
+    
     @Expose
     private IdentifierToken invokedIdentifier;
     
+    
     @Expose
     private AbstractSyntaxAST invokePostStatement;
+    
     
     public IdentifierInvokeOperableSyntaxAST() {
         super(ASTType.IDENTIFIER_INVOKE_OPERABLE);
         
         this.identifierAccess = ASTAccess.GLOBAL_ACCESS;
     }
+    
     
     @Override
     public IdentifierInvokeOperableSyntaxAST parseAST(final AbstractSyntaxAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
@@ -70,6 +76,16 @@ public class IdentifierInvokeOperableSyntaxAST extends AbstractOperableSyntaxAST
             return null;
         } else this.invokePostStatement = abstractSyntaxAST;
         return this;
+    }
+    
+    
+    @Override
+    public void printAST(final PrintStream printStream, final String indents) {
+        printStream.println(indents + "├── access: " + this.getIdentifierAccess());
+        printStream.println(indents + "├── identifier: " + this.getInvokedIdentifier().getTokenContent());
+        printStream.println(indents + "└── statement:");
+        printStream.println(indents + "    └── " + this.getInvokePostStatement().getClass().getSimpleName());
+        this.getInvokePostStatement().printAST(printStream, indents + "        ");
     }
     
 }

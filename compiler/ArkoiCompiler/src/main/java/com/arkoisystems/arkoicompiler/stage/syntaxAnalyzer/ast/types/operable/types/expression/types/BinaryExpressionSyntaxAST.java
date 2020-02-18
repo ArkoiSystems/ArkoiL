@@ -6,12 +6,14 @@
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types;
 
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.AbstractOperableSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.AbstractExpressionSyntaxAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.google.gson.annotations.Expose;
 import lombok.Getter;
+
+import java.io.PrintStream;
 
 @Getter
 public class BinaryExpressionSyntaxAST extends AbstractExpressionSyntaxAST
@@ -20,8 +22,10 @@ public class BinaryExpressionSyntaxAST extends AbstractExpressionSyntaxAST
     @Expose
     private final AbstractOperableSyntaxAST<?> leftSideOperable;
     
+    
     @Expose
     private final BinaryOperator binaryOperator;
+    
     
     @Expose
     private final AbstractOperableSyntaxAST<?> rightSideOperable;
@@ -33,26 +37,40 @@ public class BinaryExpressionSyntaxAST extends AbstractExpressionSyntaxAST
         this.binaryOperator = binaryOperator;
         this.rightSideOperable = rightSideOperable;
         this.leftSideOperable = leftSideOperable;
-        
+    
         this.setStart(leftSideOperable.getStart());
         this.setEnd(rightSideOperable.getEnd());
     }
+    
     
     @Override
     public BinaryExpressionSyntaxAST parseAST(final AbstractSyntaxAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
         return this;
     }
     
-//    @Override
-//    public TypeKind binAdd(final AbstractOperableSemanticAST<?, ?> leftSideOperable, final AbstractOperableSemanticAST<?, ?> rightSideOperable) {
-//        if (rightSideOperable instanceof NumberOperableSyntaxAST)
-//            return TypeKind.combineKinds(this, rightSideOperable);
-//        else if (rightSideOperable instanceof AbstractExpressionSyntaxAST) {
-//            final AbstractExpressionSyntaxAST abstractExpressionAST = (AbstractExpressionSyntaxAST) rightSideOperable;
-//            if (abstractExpressionAST.getOperableObject() == null) {
-//                semanticAnalyzer.errorHandler().addError(new SyntaxASTError<>(rightSideOperable, "Can't perform the addition because the expression result is null."));
-//                return null;
-//            }
+    
+    @Override
+    public void printAST(final PrintStream printStream, final String indents) {
+        printStream.println(indents + "├── left:");
+        printStream.println(indents + "│   └── " + this.getLeftSideOperable().getClass().getSimpleName());
+        this.getLeftSideOperable().printAST(printStream, indents + "│        ");
+        printStream.println(indents + "├── operator: " + this.getBinaryOperator());
+        printStream.println(indents + "└── right:");
+        printStream.println(indents + "    └── " + this.getRightSideOperable().getClass().getSimpleName());
+        this.getRightSideOperable().printAST(printStream, indents + "        ");
+    }
+    
+    
+    //    @Override
+    //    public TypeKind binAdd(final AbstractOperableSemanticAST<?, ?> leftSideOperable, final AbstractOperableSemanticAST<?, ?> rightSideOperable) {
+    //        if (rightSideOperable instanceof NumberOperableSyntaxAST)
+    //            return TypeKind.combineKinds(this, rightSideOperable);
+    //        else if (rightSideOperable instanceof AbstractExpressionSyntaxAST) {
+    //            final AbstractExpressionSyntaxAST abstractExpressionAST = (AbstractExpressionSyntaxAST) rightSideOperable;
+    //            if (abstractExpressionAST.getOperableObject() == null) {
+    //                semanticAnalyzer.errorHandler().addError(new SyntaxASTError<>(rightSideOperable, "Can't perform the addition because the expression result is null."));
+    //                return null;
+    //            }
 //
 //            switch (abstractExpressionAST.getOperableObject()) {
 //                case FLOAT:

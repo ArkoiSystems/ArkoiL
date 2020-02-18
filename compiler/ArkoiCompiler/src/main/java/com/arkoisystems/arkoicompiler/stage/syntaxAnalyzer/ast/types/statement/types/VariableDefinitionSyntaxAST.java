@@ -5,14 +5,13 @@
  */
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.types;
 
-import com.arkoisystems.arkoicompiler.stage.errorHandler.types.SyntaxASTError;
 import com.arkoisystems.arkoicompiler.stage.errorHandler.types.ParserError;
+import com.arkoisystems.arkoicompiler.stage.errorHandler.types.SyntaxASTError;
 import com.arkoisystems.arkoicompiler.stage.errorHandler.types.TokenError;
-import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.IdentifierToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.SymbolToken;
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.AnnotationSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.BlockSyntaxAST;
@@ -20,10 +19,12 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.RootSyntaxA
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.AbstractExpressionSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types.ExpressionSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.AbstractStatementSyntaxAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.google.gson.annotations.Expose;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,11 +36,14 @@ public class VariableDefinitionSyntaxAST extends AbstractStatementSyntaxAST
     @Expose
     private final List<AnnotationSyntaxAST> variableAnnotations;
     
+    
     @Expose
     private IdentifierToken variableName;
     
+    
     @Expose
-    private ExpressionSyntaxAST variableExpression;
+    private ExpressionSyntaxAST variableArguments;
+    
     
     /**
      * This constructor will initialize the statement with the AST-Type
@@ -56,6 +60,7 @@ public class VariableDefinitionSyntaxAST extends AbstractStatementSyntaxAST
         this.variableAnnotations = annotationSyntaxAST.getAnnotationStorage();
     }
     
+    
     /**
      * This constructor will initialize the statement with the AST-Type
      * "VARIABLE_DEFINITION". This will help to debug problems or check the AST for
@@ -66,6 +71,7 @@ public class VariableDefinitionSyntaxAST extends AbstractStatementSyntaxAST
         
         this.variableAnnotations = new ArrayList<>();
     }
+    
     
     /**
      * This method will parse the "variable definition" statement and checks it for the
@@ -119,13 +125,36 @@ public class VariableDefinitionSyntaxAST extends AbstractStatementSyntaxAST
         if (expressionAST == null) {
             syntaxAnalyzer.errorHandler().addError(new ParserError<>(AbstractExpressionSyntaxAST.EXPRESSION_PARSER, this.getStart(), syntaxAnalyzer.currentToken().getEnd(), "Couldn't parse the \"variable definition\" statement because an error occurred during the parsing of the expression."));
             return null;
-        } else this.variableExpression = expressionAST;
+        } else this.variableArguments = expressionAST;
     
         if (syntaxAnalyzer.matchesNextToken(SymbolToken.SymbolType.SEMICOLON) == null) {
             syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the \"variable definition\" statement because it doesn't end with an semicolon."));
             return null;
         } else this.setEnd(syntaxAnalyzer.currentToken().getEnd());
         return this;
+    }
+    
+    
+    @Override
+    public void printAST(final PrintStream printStream, final String indents) {
+        printStream.println(indents + "├── annotations: " + (this.getVariableAnnotations().isEmpty() ? "N/A" : ""));
+        for (int index = 0; index < this.getVariableAnnotations().size(); index++) {
+            final AnnotationSyntaxAST annotationSyntaxAST = this.getVariableAnnotations().get(index);
+            if (index == this.getVariableAnnotations().size() - 1) {
+                printStream.println(indents + "│");
+                printStream.println(indents + "└── " + annotationSyntaxAST.getClass().getSimpleName());
+                annotationSyntaxAST.printAST(printStream, indents + "    ");
+            } else {
+                printStream.println(indents + "│");
+                printStream.println(indents + "├── " + annotationSyntaxAST.getClass().getSimpleName());
+                annotationSyntaxAST.printAST(printStream, indents + "│   ");
+            }
+        }
+        printStream.println(indents + "│");
+        printStream.println(indents + "├── name: " + this.getVariableName().getTokenContent());
+        printStream.println(indents + "└── arguments:");
+        printStream.println(indents + "    └── " + this.getVariableArguments().getExpressionOperable().getClass().getSimpleName());
+        this.getVariableArguments().printAST(printStream, indents + "        ");
     }
     
 }

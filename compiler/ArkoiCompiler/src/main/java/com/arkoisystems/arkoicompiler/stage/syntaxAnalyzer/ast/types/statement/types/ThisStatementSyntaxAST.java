@@ -8,11 +8,9 @@ package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.
 import com.arkoisystems.arkoicompiler.stage.errorHandler.types.ParserError;
 import com.arkoisystems.arkoicompiler.stage.errorHandler.types.SyntaxASTError;
 import com.arkoisystems.arkoicompiler.stage.errorHandler.types.TokenError;
-import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.SymbolToken;
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTAccess;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.BlockSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.FunctionInvokeOperableSyntaxAST;
@@ -20,7 +18,11 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.ty
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.IdentifierInvokeOperableSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.AbstractExpressionSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.AbstractStatementSyntaxAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTAccess;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import lombok.Getter;
+
+import java.io.PrintStream;
 
 @Getter
 public class ThisStatementSyntaxAST extends AbstractStatementSyntaxAST
@@ -34,6 +36,7 @@ public class ThisStatementSyntaxAST extends AbstractStatementSyntaxAST
     public ThisStatementSyntaxAST() {
         super(ASTType.THIS_STATEMENT);
     }
+    
     
     /**
      * This method will parse the "this" statement and checks it for the correct syntax.
@@ -103,5 +106,9 @@ public class ThisStatementSyntaxAST extends AbstractStatementSyntaxAST
         }
         return abstractSyntaxAST;
     }
+    
+    
+    @Override
+    public void printAST(final PrintStream printStream, final String indents) { }
     
 }

@@ -7,25 +7,28 @@ package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement;
 
 import com.arkoisystems.arkoicompiler.stage.errorHandler.types.TokenError;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken;
-import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.IdentifierToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.SymbolToken;
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.FunctionInvokeOperableSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.IdentifierCallOperableSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.IdentifierInvokeOperableSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.AbstractExpressionSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.types.*;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.parser.types.StatementParser;
 import lombok.Getter;
+
+import java.io.PrintStream;
 
 @Getter
 public class AbstractStatementSyntaxAST extends AbstractSyntaxAST
 {
     
     public static StatementParser STATEMENT_PARSER = new StatementParser();
+    
     
     /**
      * This constructor is used to get the AST-Type of the classes which extends this
@@ -37,6 +40,7 @@ public class AbstractStatementSyntaxAST extends AbstractSyntaxAST
     public AbstractStatementSyntaxAST(final ASTType astType) {
         super(astType);
     }
+    
     
     /**
      * This method will parse the AbstractStatementAST and checks it for the correct
@@ -129,6 +133,12 @@ public class AbstractStatementSyntaxAST extends AbstractSyntaxAST
                     return new IdentifierCallOperableSyntaxAST().parseAST(parentAST, syntaxAnalyzer);
             }
         }
+    }
+    
+    
+    @Override
+    public void printAST(final PrintStream printStream, final String indents) {
+    
     }
     
 }

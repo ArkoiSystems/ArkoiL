@@ -12,12 +12,12 @@ import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.AbstractSemanti
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.AbstractOperableSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.types.*;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.types.expression.AbstractExpressionSemanticAST;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.*;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types.AssignmentExpressionSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types.BinaryExpressionSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types.ExpressionSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types.ParenthesizedExpressionSyntaxAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
 import lombok.Setter;
 
@@ -38,8 +38,9 @@ public class ExpressionSemanticAST extends AbstractExpressionSemanticAST<Express
         if (this.expressionType == null) {
             final AbstractOperableSemanticAST<?, ?> expressionOperable = this.getExpressionOperable();
             if (expressionOperable instanceof NumberOperableSemanticAST) {
-                final NumberOperableSemanticAST numberOperableSemanticAST = (NumberOperableSemanticAST) expressionOperable;
-                return (this.expressionType = TypeKind.getTypeKind(numberOperableSemanticAST.getExpressionType().getNumberType()));
+                //                final NumberOperableSemanticAST numberOperableSemanticAST = (NumberOperableSemanticAST) expressionOperable;
+                //                return (this.expressionType = TypeKind.getTypeKind(numberOperableSemanticAST.getExpressionType().getNumberType()));
+                return null;
             } else if (expressionOperable instanceof StringOperableSemanticAST)
                 return (this.expressionType = TypeKind.STRING);
             else if (expressionOperable instanceof AbstractExpressionSemanticAST) {

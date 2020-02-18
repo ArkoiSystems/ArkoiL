@@ -5,21 +5,39 @@
  */
 package com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types;
 
+import com.arkoisystems.arkoicompiler.stage.errorHandler.types.CharError;
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.LexicalAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
 
+import java.util.Arrays;
 import java.util.regex.Matcher;
 
 public class StringToken extends AbstractToken
 {
     
-    public StringToken(final String tokenContent, final int start, final int end) {
-        super(TokenType.STRING_LITERAL, tokenContent, start, end);
+    public StringToken() {
+        this.setTokenType(TokenType.STRING_LITERAL);
     }
     
     @Override
-    public AbstractToken parse(final Matcher matcher) {
-        this.setTokenContent(this.getTokenContent().substring(1, this.getTokenContent().length() - 1));
+    public StringToken parse(final LexicalAnalyzer lexicalAnalyzer) {
+        if(lexicalAnalyzer.currentChar() != '"') {
+            lexicalAnalyzer.errorHandler().addError(new CharError(lexicalAnalyzer.currentChar(), lexicalAnalyzer.getPosition(), "Couldn't lex the string because it doesn't start with an \"."));
+            return null;
+        } else lexicalAnalyzer.next();
+        
+        this.setStart(lexicalAnalyzer.getPosition() - 1);
+        while(lexicalAnalyzer.getPosition() < lexicalAnalyzer.getContent().length) {
+            final char currentChar = lexicalAnalyzer.currentChar();
+            lexicalAnalyzer.next();
+            
+            if(currentChar == '"')
+                break;
+        }
+        this.setEnd(lexicalAnalyzer.getPosition());
+        
+        this.setTokenContent(new String(Arrays.copyOfRange(lexicalAnalyzer.getContent(), this.getStart() + 1, this.getEnd() - 1)).intern());
         return this;
     }
     

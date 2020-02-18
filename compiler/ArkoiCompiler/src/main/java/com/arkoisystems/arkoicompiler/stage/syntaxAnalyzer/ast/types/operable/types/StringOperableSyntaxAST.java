@@ -6,12 +6,14 @@
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types;
 
 import com.arkoisystems.arkoicompiler.stage.errorHandler.types.TokenError;
-import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.StringToken;
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.AbstractOperableSyntaxAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
+
+import java.io.PrintStream;
 
 public class StringOperableSyntaxAST extends AbstractOperableSyntaxAST<StringToken>
 {
@@ -19,6 +21,7 @@ public class StringOperableSyntaxAST extends AbstractOperableSyntaxAST<StringTok
     public StringOperableSyntaxAST() {
         super(ASTType.STRING_OPERABLE);
     }
+    
     
     @Override
     public StringOperableSyntaxAST parseAST(final AbstractSyntaxAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
@@ -31,6 +34,12 @@ public class StringOperableSyntaxAST extends AbstractOperableSyntaxAST<StringTok
             this.setEnd(this.getOperableObject().getEnd());
         }
         return this;
+    }
+    
+    
+    @Override
+    public void printAST(final PrintStream printStream, final String indents) {
+        printStream.println(indents + "└── operable: " + this.getOperableObject().getTokenContent());
     }
     
     //    @Override

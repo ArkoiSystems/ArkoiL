@@ -5,20 +5,22 @@
  */
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable;
 
-import com.arkoisystems.arkoicompiler.stage.errorHandler.types.SyntaxASTError;
 import com.arkoisystems.arkoicompiler.stage.errorHandler.types.ParserError;
+import com.arkoisystems.arkoicompiler.stage.errorHandler.types.SyntaxASTError;
 import com.arkoisystems.arkoicompiler.stage.errorHandler.types.TokenError;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.SymbolToken;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.*;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.AbstractStatementSyntaxAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.parser.types.OperableParser;
 import com.google.gson.annotations.Expose;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.io.PrintStream;
 
 @Getter
 @Setter
@@ -27,12 +29,15 @@ public class AbstractOperableSyntaxAST<O> extends AbstractSyntaxAST
     
     public static OperableParser OPERABLE_PARSER = new OperableParser();
     
+    
     @Expose
     private O operableObject;
+    
     
     public AbstractOperableSyntaxAST(final ASTType astType) {
         super(astType);
     }
+    
     
     @Override
     public AbstractOperableSyntaxAST<?> parseAST(final AbstractSyntaxAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
@@ -68,6 +73,12 @@ public class AbstractOperableSyntaxAST<O> extends AbstractSyntaxAST
                 }
         }
         return null;
+    }
+    
+    
+    @Override
+    public void printAST(final PrintStream printStream, final String indents) {
+    
     }
     
 }

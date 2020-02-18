@@ -11,7 +11,6 @@ import com.arkoisystems.arkoicompiler.stage.errorHandler.types.TokenError;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.EndOfFileToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.SymbolToken;
-import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.numbers.AbstractNumberToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
@@ -27,6 +26,7 @@ import com.google.gson.annotations.Expose;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -121,7 +121,7 @@ public class BlockSyntaxAST extends AbstractSyntaxAST
      * @param syntaxAnalyzer
      *         the {@link SyntaxAnalyzer} which is used for checking the syntax with
      *         methods like {@link SyntaxAnalyzer#matchesCurrentToken(TokenType)} )} or
-     *         {@link SyntaxAnalyzer#matchesNextToken(AbstractNumberToken.NumberType)}.
+     *         {@link SyntaxAnalyzer#matchesNextToken(SymbolToken.SymbolType)}.
      *
      * @return {@code null} if an error occurred or the {@link BlockSyntaxAST} if
      *         everything worked correctly.
@@ -195,9 +195,28 @@ public class BlockSyntaxAST extends AbstractSyntaxAST
             syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the BlockAST because the parsing doesn't start with an opening brace or equal sign to identify the block type."));
             return null;
         }
-        
+    
         this.setEnd(syntaxAnalyzer.currentToken().getEnd());
         return this;
+    }
+    
+    
+    @Override
+    public void printAST(final PrintStream printStream, final String indents) {
+        printStream.println(indents + "├── type: " + this.getBlockType());
+        printStream.println(indents + "└── storage: ");
+        for (int index = 0; index < this.getBlockStorage().size(); index++) {
+            final AbstractSyntaxAST abstractSyntaxAST = this.getBlockStorage().get(index);
+            if (index == this.getBlockStorage().size() - 1) {
+                printStream.println(indents + "    │   ");
+                printStream.println(indents + "    └── " + abstractSyntaxAST.getClass().getSimpleName());
+                abstractSyntaxAST.printAST(printStream, indents + "        ");
+            } else {
+                printStream.println(indents + "    │   ");
+                printStream.println(indents + "    ├── " + abstractSyntaxAST.getClass().getSimpleName());
+                abstractSyntaxAST.printAST(printStream, indents + "    │   ");
+            }
+        }
     }
     
 }
