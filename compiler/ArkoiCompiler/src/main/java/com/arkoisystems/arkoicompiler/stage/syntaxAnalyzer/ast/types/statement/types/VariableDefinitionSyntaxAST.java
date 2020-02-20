@@ -28,21 +28,20 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 
-@Getter
-@Setter
 public class VariableDefinitionSyntaxAST extends AbstractStatementSyntaxAST
 {
     
-    @Expose
+    
+    @Getter
     private final List<AnnotationSyntaxAST> variableAnnotations;
     
     
-    @Expose
+    @Getter
     private IdentifierToken variableName;
     
     
-    @Expose
-    private ExpressionSyntaxAST variableArguments;
+    @Getter
+    private ExpressionSyntaxAST variableExpression;
     
     
     /**
@@ -125,7 +124,7 @@ public class VariableDefinitionSyntaxAST extends AbstractStatementSyntaxAST
         if (expressionAST == null) {
             syntaxAnalyzer.errorHandler().addError(new ParserError<>(AbstractExpressionSyntaxAST.EXPRESSION_PARSER, this.getStart(), syntaxAnalyzer.currentToken().getEnd(), "Couldn't parse the \"variable definition\" statement because an error occurred during the parsing of the expression."));
             return null;
-        } else this.variableArguments = expressionAST;
+        } else this.variableExpression = expressionAST;
     
         if (syntaxAnalyzer.matchesNextToken(SymbolToken.SymbolType.SEMICOLON) == null) {
             syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the \"variable definition\" statement because it doesn't end with an semicolon."));
@@ -136,25 +135,25 @@ public class VariableDefinitionSyntaxAST extends AbstractStatementSyntaxAST
     
     
     @Override
-    public void printAST(final PrintStream printStream, final String indents) {
+    public void printSyntaxAST(final PrintStream printStream, final String indents) {
         printStream.println(indents + "├── annotations: " + (this.getVariableAnnotations().isEmpty() ? "N/A" : ""));
+        printStream.println(indents + "│");
         for (int index = 0; index < this.getVariableAnnotations().size(); index++) {
             final AnnotationSyntaxAST annotationSyntaxAST = this.getVariableAnnotations().get(index);
             if (index == this.getVariableAnnotations().size() - 1) {
                 printStream.println(indents + "│");
                 printStream.println(indents + "└── " + annotationSyntaxAST.getClass().getSimpleName());
-                annotationSyntaxAST.printAST(printStream, indents + "    ");
+                annotationSyntaxAST.printSyntaxAST(printStream, indents + "    ");
             } else {
                 printStream.println(indents + "│");
                 printStream.println(indents + "├── " + annotationSyntaxAST.getClass().getSimpleName());
-                annotationSyntaxAST.printAST(printStream, indents + "│   ");
+                annotationSyntaxAST.printSyntaxAST(printStream, indents + "│   ");
             }
         }
-        printStream.println(indents + "│");
         printStream.println(indents + "├── name: " + this.getVariableName().getTokenContent());
-        printStream.println(indents + "└── arguments:");
-        printStream.println(indents + "    └── " + this.getVariableArguments().getExpressionOperable().getClass().getSimpleName());
-        this.getVariableArguments().printAST(printStream, indents + "        ");
+        printStream.println(indents + "│");
+        printStream.println(indents + "└── expression:");
+        this.getVariableExpression().printSyntaxAST(printStream, indents + "    ");
     }
     
 }

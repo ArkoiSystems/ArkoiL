@@ -23,12 +23,14 @@ public class IdentifierToken extends AbstractToken
         this.setEnd(end);
     }
     
+    
     public IdentifierToken() {
         this.setTokenType(TokenType.IDENTIFIER);
     }
     
+    
     @Override
-    public IdentifierToken parse(final LexicalAnalyzer lexicalAnalyzer) {
+    public IdentifierToken lex(final LexicalAnalyzer lexicalAnalyzer) {
         final char currentChar = lexicalAnalyzer.currentChar();
         if (!Character.isJavaIdentifierStart(currentChar)) {
             lexicalAnalyzer.errorHandler().addError(new CharError(currentChar, lexicalAnalyzer.getPosition(), "Couldn't lex the Identifier because it doesn't start with an alphabetic char."));

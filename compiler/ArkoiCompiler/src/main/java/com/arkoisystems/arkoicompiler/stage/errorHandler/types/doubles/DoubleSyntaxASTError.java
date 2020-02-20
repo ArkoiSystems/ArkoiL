@@ -9,7 +9,6 @@ import com.arkoisystems.arkoicompiler.stage.errorHandler.types.DoubleError;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
 import lombok.Getter;
 
-@Getter
 public class DoubleSyntaxASTError<T1 extends AbstractSyntaxAST, T2 extends AbstractSyntaxAST> extends DoubleError<T1, T2>
 {
     

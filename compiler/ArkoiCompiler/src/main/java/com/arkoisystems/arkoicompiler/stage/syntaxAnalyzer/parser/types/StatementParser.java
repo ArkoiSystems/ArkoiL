@@ -47,7 +47,7 @@ public class StatementParser extends AbstractParser<AbstractSyntaxAST>
     
     /**
      * Tests if the current {@link AbstractToken} is capable to parse a new {@link
-     * AbstractStatementSyntaxAST}. Depending of the parent {@link AbstractSyntaxAST} it
+     * AbstractStatementSyntaxAST}. Depending on the parent {@link AbstractSyntaxAST} it
      * will check for different values of the previously checked {@link IdentifierToken}.
      * So you can't declare a {@link ThisStatementSyntaxAST} if the parent already is a
      * {@link ThisStatementSyntaxAST}.

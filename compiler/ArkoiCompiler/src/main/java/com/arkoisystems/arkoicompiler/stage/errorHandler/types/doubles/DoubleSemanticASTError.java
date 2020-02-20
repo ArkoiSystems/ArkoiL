@@ -10,7 +10,6 @@ import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.AbstractSemanti
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
 import lombok.Getter;
 
-@Getter
 public class DoubleSemanticASTError<T1 extends AbstractSemanticAST<?>, T2 extends AbstractSemanticAST<?>> extends DoubleError<T1, T2>
 {
     

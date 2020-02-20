@@ -21,28 +21,31 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.t
 import com.google.gson.annotations.Expose;
 import lombok.Setter;
 
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-@Setter
 public class FunctionDefinitionSemanticAST extends AbstractSemanticAST<FunctionDefinitionSyntaxAST>
 {
     
-    @Expose
+    
     private List<AnnotationSemanticAST> functionAnnotations;
     
-    @Expose
+    
     private List<ArgumentDefinitionSemanticAST> functionArguments;
     
-    @Expose
+    
     private BlockSemanticAST functionBlock;
     
+    
     private String functionDescription;
+    
     
     public FunctionDefinitionSemanticAST(final SemanticAnalyzer semanticAnalyzer, final AbstractSemanticAST<?> lastContainerAST, final FunctionDefinitionSyntaxAST functionDefinitionSyntaxAST) {
         super(semanticAnalyzer, lastContainerAST, functionDefinitionSyntaxAST, ASTType.FUNCTION_DEFINITION);
     }
+    
     
     public List<AnnotationSemanticAST> getFunctionAnnotations() {
         if(this.functionAnnotations == null) {
@@ -70,13 +73,16 @@ public class FunctionDefinitionSemanticAST extends AbstractSemanticAST<FunctionD
         return this.functionAnnotations;
     }
     
+    
     public TypeSyntaxAST getFunctionReturnType() {
         return this.getSyntaxAST().getFunctionReturnType();
     }
     
+    
     public IdentifierToken getFunctionName() {
         return this.getSyntaxAST().getFunctionName();
     }
+    
     
     public List<ArgumentDefinitionSemanticAST> getFunctionArguments() {
         if (this.functionArguments == null) {
@@ -103,6 +109,7 @@ public class FunctionDefinitionSemanticAST extends AbstractSemanticAST<FunctionD
         return this.functionArguments;
     }
     
+    
     public String getFunctionDescription() {
         if (this.functionDescription == null) {
             final StringBuilder descriptionBuilder = new StringBuilder(this.getFunctionName().getTokenContent());
@@ -112,6 +119,7 @@ public class FunctionDefinitionSemanticAST extends AbstractSemanticAST<FunctionD
         }
         return this.functionDescription;
     }
+    
     
     public BlockSemanticAST getFunctionBlock() {
         if (this.functionBlock == null) {
@@ -126,6 +134,7 @@ public class FunctionDefinitionSemanticAST extends AbstractSemanticAST<FunctionD
         }
         return this.functionBlock;
     }
+    
     
     public AbstractSemanticAST<?> findIdentifier(final IdentifierToken identifierToken) {
         if(this.getFunctionBlock() == null)

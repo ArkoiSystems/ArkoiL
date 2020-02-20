@@ -15,9 +15,7 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.parser.types.TypeParser;
-import com.google.gson.annotations.Expose;
 import lombok.Getter;
-import lombok.Setter;
 
 import java.io.PrintStream;
 
@@ -26,8 +24,6 @@ import java.io.PrintStream;
  * {@link TypeSyntaxAST#TYPE_PARSER} to parse a new {@link TypeSyntaxAST} because with it
  * you can check if the current {@link AbstractToken} is capable to parse this AST.
  */
-@Getter
-@Setter
 public class TypeSyntaxAST extends AbstractSyntaxAST
 {
     
@@ -42,7 +38,7 @@ public class TypeSyntaxAST extends AbstractSyntaxAST
      * The {@link TypeKind} specifies the type of this {@link TypeSyntaxAST}. It is used
      * for later usage in the {@link SemanticAnalyzer}.
      */
-    @Expose
+    @Getter
     private TypeKind typeKind;
     
     
@@ -50,7 +46,7 @@ public class TypeSyntaxAST extends AbstractSyntaxAST
      * Defines if this {@link TypeSyntaxAST} is an array or not. Useful for later usage
      * when generating pseudo code etc.
      */
-    @Expose
+    @Getter
     private boolean isArray;
     
     
@@ -124,7 +120,15 @@ public class TypeSyntaxAST extends AbstractSyntaxAST
     }
     
     
+    /**
+     * This method will do nothing because it isn't relevant for the future.
+     *
+     * @param printStream
+     *         the {@link PrintStream} which should get used for the output.
+     * @param indents
+     *         the {@code indents} which should get used when printing a new line.
+     */
     @Override
-    public void printAST(final PrintStream printStream, final String indents) { }
+    public void printSyntaxAST(final PrintStream printStream, final String indents) { }
     
 }

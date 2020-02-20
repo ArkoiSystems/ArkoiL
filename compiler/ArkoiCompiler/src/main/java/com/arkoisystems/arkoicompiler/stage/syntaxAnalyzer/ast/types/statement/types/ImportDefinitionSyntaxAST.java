@@ -21,15 +21,14 @@ import lombok.Getter;
 
 import java.io.PrintStream;
 
-@Getter
 public class ImportDefinitionSyntaxAST extends AbstractStatementSyntaxAST
 {
     
-    @Expose
+    @Getter
     private StringToken importFilePath;
     
     
-    @Expose
+    @Getter
     private IdentifierToken importName;
     
     
@@ -100,7 +99,7 @@ public class ImportDefinitionSyntaxAST extends AbstractStatementSyntaxAST
     
     
     @Override
-    public void printAST(final PrintStream printStream, final String indents) {
+    public void printSyntaxAST(final PrintStream printStream, final String indents) {
         printStream.println(indents + "├── name: " + this.getImportName().getTokenContent());
         printStream.println(indents + "└── path: " + this.getImportFilePath().getTokenContent());
     }

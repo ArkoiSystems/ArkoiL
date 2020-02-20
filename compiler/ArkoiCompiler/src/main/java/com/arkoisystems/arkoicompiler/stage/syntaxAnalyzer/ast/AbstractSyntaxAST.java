@@ -6,10 +6,12 @@
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast;
 
 import com.arkoisystems.arkoicompiler.ArkoiClass;
+import com.arkoisystems.arkoicompiler.ArkoiCompiler;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.SymbolToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.RootSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.utils.Variables;
 import com.google.gson.annotations.Expose;
@@ -25,8 +27,6 @@ import java.io.PrintStream;
  * print out this class as a JSON based {@link String} with the {@link
  * AbstractSyntaxAST#toString()} method.
  */
-@Getter
-@Setter
 public abstract class AbstractSyntaxAST
 {
     
@@ -35,7 +35,7 @@ public abstract class AbstractSyntaxAST
      * AbstractSyntaxAST}'s. Also it is useful for debugging if you use the output of the
      * {@link AbstractSyntaxAST#toString()} method.
      */
-    @Expose
+    @Getter
     private final ASTType astType;
     
     
@@ -43,7 +43,8 @@ public abstract class AbstractSyntaxAST
      * The start and end index of the AST as char positions from the input source declared
      * in {@link ArkoiClass} which you can get through the {@link SyntaxAnalyzer}.
      */
-    @Expose
+    @Getter
+    @Setter
     private int start, end;
     
     
@@ -81,19 +82,17 @@ public abstract class AbstractSyntaxAST
     public abstract AbstractSyntaxAST parseAST(final AbstractSyntaxAST parentAST, final SyntaxAnalyzer syntaxAnalyzer);
     
     
-    public abstract void printAST(final PrintStream printStream, final String indents);
-    
-    
     /**
-     * Returns this class as a JSON based {@link String} with all exposed variables etc.
-     * With this functionality you can better see problems or check each {@link
-     * AbstractSyntaxAST} for it's correctness.
+     * This method will be overwritten by the classes which extends {@link
+     * AbstractSyntaxAST}. It will print with help of the {@link PrintStream} and {@code
+     * indents} a tree which is used for debugging. To print all {@link RootSyntaxAST}'s
+     * you just need to call this method {@link ArkoiCompiler#printSyntaxTree(PrintStream)}.
      *
-     * @return this class as a JSON based {@link String}.
+     * @param printStream
+     *         the {@link PrintStream} which should get used for the output.
+     * @param indents
+     *         the {@code indents} which will make the AST look like a Tree.
      */
-    @Override
-    public String toString() {
-        return Variables.GSON.toJson(this);
-    }
+    public abstract void printSyntaxAST(final PrintStream printStream, final String indents);
     
 }

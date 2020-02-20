@@ -20,8 +20,9 @@ public class CommentToken extends AbstractToken
         this.setTokenType(TokenType.COMMENT);
     }
     
+    
     @Override
-    public CommentToken parse(final LexicalAnalyzer lexicalAnalyzer) {
+    public CommentToken lex(final LexicalAnalyzer lexicalAnalyzer) {
         if (lexicalAnalyzer.currentChar() != '#') {
             lexicalAnalyzer.getErrorHandler().addError(new CharError(lexicalAnalyzer.currentChar(), lexicalAnalyzer.getPosition(), "Couldn't lex this comment because it doesn't start with an \"#\"."));
             return null;

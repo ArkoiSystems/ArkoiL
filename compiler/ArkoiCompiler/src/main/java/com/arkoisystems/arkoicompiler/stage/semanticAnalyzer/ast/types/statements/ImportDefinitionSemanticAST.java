@@ -16,16 +16,18 @@ import lombok.Setter;
 import lombok.SneakyThrows;
 
 import java.io.File;
+import java.io.PrintStream;
 
-@Setter
 public class ImportDefinitionSemanticAST extends AbstractSemanticAST<ImportDefinitionSyntaxAST>
 {
     
     private ArkoiClass importTargetClass;
     
+    
     public ImportDefinitionSemanticAST(final SemanticAnalyzer semanticAnalyzer, final AbstractSemanticAST<?> lastContainerAST, final ImportDefinitionSyntaxAST importDefinitionSyntaxAST) {
         super(semanticAnalyzer, lastContainerAST, importDefinitionSyntaxAST, ASTType.IMPORT_DEFINITION);
     }
+    
     
     @SneakyThrows
     public ArkoiClass getImportTargetClass() {
@@ -42,6 +44,7 @@ public class ImportDefinitionSemanticAST extends AbstractSemanticAST<ImportDefin
         }
         return this.importTargetClass;
     }
+    
     
     public IdentifierToken getImportName() {
         return this.getSyntaxAST().getImportName();

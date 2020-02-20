@@ -10,12 +10,12 @@ import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken;
 import com.google.gson.annotations.Expose;
 import lombok.Getter;
 
-@Getter
 public class TokenError extends AbstractError
 {
     
-    @Expose
+    @Getter
     private final AbstractToken abstractToken;
+    
     
     public TokenError(final AbstractToken abstractToken, final String message, final Object... arguments) {
         super(abstractToken.getStart(), abstractToken.getEnd(), message, arguments);

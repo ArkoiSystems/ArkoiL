@@ -16,8 +16,9 @@ public class EndOfFileToken extends AbstractToken
         this.setTokenType(TokenType.END_OF_FILE);
     }
     
+    
     @Override
-    public EndOfFileToken parse(final LexicalAnalyzer lexicalAnalyzer) {
+    public EndOfFileToken lex(final LexicalAnalyzer lexicalAnalyzer) {
         return this;
     }
     

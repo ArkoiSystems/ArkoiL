@@ -13,14 +13,14 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.ArgumentDef
 import com.google.gson.annotations.Expose;
 import lombok.Setter;
 
-@Setter
+import java.io.PrintStream;
+
 public class ArgumentDefinitionSemanticAST extends AbstractSemanticAST<ArgumentDefinitionSyntaxAST>
 {
     
-    @Expose
     private IdentifierToken argumentName;
     
-    @Expose
+    
     private TypeSemanticAST argumentType;
     
     public ArgumentDefinitionSemanticAST(final SemanticAnalyzer semanticAnalyzer, final AbstractSemanticAST<?> lastContainerAST, final ArgumentDefinitionSyntaxAST argumentDefinitionSyntaxAST) {

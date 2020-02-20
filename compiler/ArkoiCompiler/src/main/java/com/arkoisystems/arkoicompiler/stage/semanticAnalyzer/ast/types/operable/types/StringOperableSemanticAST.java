@@ -15,8 +15,8 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.ty
 import lombok.Getter;
 import lombok.Setter;
 
-@Getter
-@Setter
+import java.io.PrintStream;
+
 public class StringOperableSemanticAST extends AbstractOperableSemanticAST<StringOperableSyntaxAST, StringToken>
 {
     
@@ -24,8 +24,9 @@ public class StringOperableSemanticAST extends AbstractOperableSemanticAST<Strin
         super(semanticAnalyzer, lastContainerAST, stringOperableSyntaxAST, ASTType.STRING_OPERABLE);
     }
     
+    
     @Override
-    public StringToken getExpressionType() {
+    public StringToken getOperableObject() {
         if(this.getSyntaxAST().getOperableObject() == null) {
             this.getSemanticAnalyzer().errorHandler().addError(new SyntaxASTError<>(this.getSyntaxAST(), "Couldn't analyze this string operable because the content is null."));
             return null;

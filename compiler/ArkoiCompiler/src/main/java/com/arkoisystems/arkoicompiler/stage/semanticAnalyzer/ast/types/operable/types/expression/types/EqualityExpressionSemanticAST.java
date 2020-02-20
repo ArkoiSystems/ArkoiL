@@ -15,8 +15,8 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
 import lombok.Getter;
 import lombok.Setter;
 
-@Getter
-@Setter
+import java.io.PrintStream;
+
 public class EqualityExpressionSemanticAST extends AbstractExpressionSemanticAST<EqualityExpressionSyntaxAST>
 {
     
@@ -24,16 +24,19 @@ public class EqualityExpressionSemanticAST extends AbstractExpressionSemanticAST
         super(semanticAnalyzer, lastContainerAST, equalityExpressionSyntaxAST, ASTType.EQUALITY_EXPRESSION);
     }
     
+    
     @Override
-    public TypeKind getExpressionType() {
+    public TypeKind getOperableObject() {
         System.out.println("Equality Expression Semantic AST");
         return null;
     }
+    
     
     @Override
     public TypeKind equal(final AbstractOperableSemanticAST<?, ?> leftSideOperable, final AbstractOperableSemanticAST<?, ?> rightSideOperable) {
         return super.equal(leftSideOperable, rightSideOperable);
     }
+    
     
     @Override
     public TypeKind notEqual(final AbstractOperableSemanticAST<?, ?> leftSideOperable, final AbstractOperableSemanticAST<?, ?> rightSideOperable) {

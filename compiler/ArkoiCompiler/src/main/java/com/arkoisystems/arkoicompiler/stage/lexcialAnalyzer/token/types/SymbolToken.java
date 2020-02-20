@@ -13,20 +13,21 @@ import com.google.gson.annotations.Expose;
 import lombok.Getter;
 import lombok.Setter;
 
-@Getter
-@Setter
 public class SymbolToken extends AbstractToken
 {
     
-    @Expose
+    @Getter
+    @Setter
     private SymbolType symbolType;
+    
     
     public SymbolToken() {
         this.setTokenType(TokenType.SYMBOL);
     }
     
+    
     @Override
-    public SymbolToken parse(final LexicalAnalyzer lexicalAnalyzer) {
+    public SymbolToken lex(final LexicalAnalyzer lexicalAnalyzer) {
         final char currentChar = lexicalAnalyzer.currentChar();
         for (final SymbolType symbolType : SymbolType.values())
             if (symbolType.getCharacter() == currentChar) {
@@ -41,7 +42,7 @@ public class SymbolToken extends AbstractToken
         return this;
     }
     
-    @Getter
+    
     public enum SymbolType
     {
         
@@ -74,7 +75,8 @@ public class SymbolToken extends AbstractToken
         MINUS('-'),
         SLASH('/'),
         PLUS('+');
-        
+    
+        @Getter
         private final char character;
         
         SymbolType(final char character) {

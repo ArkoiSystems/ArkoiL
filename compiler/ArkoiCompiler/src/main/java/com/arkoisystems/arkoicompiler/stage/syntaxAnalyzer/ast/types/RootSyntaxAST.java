@@ -21,7 +21,6 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.t
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.BlockType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.parser.AbstractParser;
-import com.google.gson.annotations.Expose;
 import lombok.Getter;
 
 import java.io.PrintStream;
@@ -34,7 +33,6 @@ import java.util.List;
  * AbstractParser} because you shouldn't treat this class like that. There should only be
  * one instance for one {@link ArkoiClass}.
  */
-@Getter
 public class RootSyntaxAST extends AbstractSyntaxAST
 {
     
@@ -52,7 +50,7 @@ public class RootSyntaxAST extends AbstractSyntaxAST
      * Declares the {@link List} for all {@link ImportDefinitionSyntaxAST}'s which got
      * parsed. This variable is used frequently within the {@link SemanticAnalyzer}.
      */
-    @Expose
+    @Getter
     private final List<ImportDefinitionSyntaxAST> importStorage;
     
     
@@ -60,7 +58,7 @@ public class RootSyntaxAST extends AbstractSyntaxAST
      * Declares the {@link List} for all {@link VariableDefinitionSyntaxAST}'s which got
      * parsed. This variable is used frequently within the {@link SemanticAnalyzer}.
      */
-    @Expose
+    @Getter
     private final List<VariableDefinitionSyntaxAST> variableStorage;
     
     
@@ -68,8 +66,16 @@ public class RootSyntaxAST extends AbstractSyntaxAST
      * Declares the {@link List} for all {@link FunctionDefinitionSyntaxAST}'s which got
      * parsed. This variable is used frequently within the {@link SemanticAnalyzer}.
      */
-    @Expose
+    @Getter
     private final List<FunctionDefinitionSyntaxAST> functionStorage;
+    
+    
+    /**
+     * Declares the {@link List} for all {@link AbstractSyntaxAST}'s which got parsed
+     * inside here. Also they are sorted, so you can check the order of variables or
+     * imports.
+     */
+    private final List<AbstractSyntaxAST> sortedStorage;
     
     
     /**
@@ -89,6 +95,7 @@ public class RootSyntaxAST extends AbstractSyntaxAST
         
         this.variableStorage = new ArrayList<>();
         this.functionStorage = new ArrayList<>();
+        this.sortedStorage = new ArrayList<>();
         this.importStorage = new ArrayList<>();
     }
     
@@ -142,12 +149,14 @@ public class RootSyntaxAST extends AbstractSyntaxAST
                             syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the \"%s\" because it doesn't end with a semicolon.", abstractSyntaxAST.getClass().getSimpleName()));
                             return null;
                         }
-                        
-                        if(abstractSyntaxAST instanceof VariableDefinitionSyntaxAST)
+    
+                        if (abstractSyntaxAST instanceof VariableDefinitionSyntaxAST)
                             this.variableStorage.add((VariableDefinitionSyntaxAST) abstractSyntaxAST);
-                        else if(abstractSyntaxAST instanceof ImportDefinitionSyntaxAST)
+                        else if (abstractSyntaxAST instanceof ImportDefinitionSyntaxAST)
                             this.importStorage.add((ImportDefinitionSyntaxAST) abstractSyntaxAST);
                     }
+    
+                    this.sortedStorage.add(abstractSyntaxAST);
                     syntaxAnalyzer.nextToken();
                     continue main_loop;
                 } else return null;
@@ -159,26 +168,71 @@ public class RootSyntaxAST extends AbstractSyntaxAST
     }
     
     
+    /**
+     * Prints out a Tree for the  {@link RootSyntaxAST} class. It will show every {@link
+     * ImportDefinitionSyntaxAST}, {@link VariableDefinitionSyntaxAST} and {@link
+     * FunctionDefinitionSyntaxAST}. This method should just been called by {@link
+     * ArkoiCompiler#printSyntaxTree(PrintStream)}.
+     *
+     * @param printStream
+     *         the {@link PrintStream} which should get used for the output.
+     * @param indents
+     *         the indents which the Tree should add before printing a new line.
+     */
     @Override
-    public void printAST(final PrintStream printStream, final String indents) {
-        final List<AbstractSyntaxAST> abstractSyntaxASTs = new ArrayList<>();
-        abstractSyntaxASTs.addAll(this.getImportStorage());
-        abstractSyntaxASTs.addAll(this.getVariableStorage());
-        abstractSyntaxASTs.addAll(this.getFunctionStorage());
-        abstractSyntaxASTs.sort(Comparator.comparingInt(AbstractSyntaxAST::getStart));
-        
-        for (int index = 0; index < abstractSyntaxASTs.size(); index++) {
-            final AbstractSyntaxAST abstractSyntaxAST = abstractSyntaxASTs.get(index);
-            if (index == abstractSyntaxASTs.size() - 1) {
-                printStream.println(indents + "│");
-                printStream.println(indents + "└── " + abstractSyntaxAST.getClass().getSimpleName());
-                abstractSyntaxAST.printAST(printStream, indents + "    ");
+    public void printSyntaxAST(final PrintStream printStream, final String indents) {
+        printStream.println(indents + "├── imports: " + (this.getImportStorage().isEmpty() ? "N/A" : ""));
+        for (int index = 0; index < this.getImportStorage().size(); index++) {
+            final AbstractSyntaxAST abstractSyntaxAST = this.getImportStorage().get(index);
+            if (index == this.getImportStorage().size() - 1) {
+                printStream.println(indents + "│   └── " + abstractSyntaxAST.getClass().getSimpleName());
+                abstractSyntaxAST.printSyntaxAST(printStream, indents + "│       ");
             } else {
-                printStream.println(indents + "│");
-                printStream.println(indents + "├── " + abstractSyntaxAST.getClass().getSimpleName());
-                abstractSyntaxAST.printAST(printStream, indents + "│   ");
+                printStream.println(indents + "│   ├── " + abstractSyntaxAST.getClass().getSimpleName());
+                abstractSyntaxAST.printSyntaxAST(printStream, indents + "│   │   ");
+                printStream.println(indents + "│   │   ");
             }
         }
+        
+        printStream.println(indents + "│");
+        printStream.println(indents + "├── variables: " + (this.getVariableStorage().isEmpty() ? "N/A" : ""));
+        for (int index = 0; index < this.getVariableStorage().size(); index++) {
+            final AbstractSyntaxAST abstractSyntaxAST = this.getVariableStorage().get(index);
+            if (index == this.getVariableStorage().size() - 1) {
+                printStream.println(indents + "│   └── " + abstractSyntaxAST.getClass().getSimpleName());
+                abstractSyntaxAST.printSyntaxAST(printStream, indents + "│       ");
+            } else {
+                printStream.println(indents + "│   ├── " + abstractSyntaxAST.getClass().getSimpleName());
+                abstractSyntaxAST.printSyntaxAST(printStream, indents + "│   │   ");
+                printStream.println(indents + "│   │   ");
+            }
+        }
+        
+        printStream.println(indents + "│");
+        printStream.println(indents + "└── functions: " + (this.getFunctionStorage().isEmpty() ? "N/A" : ""));
+        for (int index = 0; index < this.getFunctionStorage().size(); index++) {
+            final AbstractSyntaxAST abstractSyntaxAST = this.getFunctionStorage().get(index);
+            if (index == this.getFunctionStorage().size() - 1) {
+                printStream.println(indents + "    └── " + abstractSyntaxAST.getClass().getSimpleName());
+                abstractSyntaxAST.printSyntaxAST(printStream, indents + "        ");
+            } else {
+                printStream.println(indents + "    ├── " + abstractSyntaxAST.getClass().getSimpleName());
+                abstractSyntaxAST.printSyntaxAST(printStream, indents + "    │   ");
+                printStream.println(indents + "    │   ");
+            }
+        }
+    }
+    
+    
+    /**
+     * Just returns the {@link #sortedStorage} {@link List} which got sorted by the
+     * integrated Java method. (Not the smartest solution)
+     *
+     * @return the {@link #sortedStorage} {@link List} which got sorted before.
+     */
+    public List<AbstractSyntaxAST> getSortedStorage() {
+        this.sortedStorage.sort(Comparator.comparingInt(AbstractSyntaxAST::getStart));
+        return this.sortedStorage;
     }
     
 }

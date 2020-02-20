@@ -24,21 +24,21 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 
-@Getter
 public class AnnotationSyntaxAST extends AbstractSyntaxAST
 {
     
     public static AnnotationParser ANNOTATION_PARSER = new AnnotationParser();
     
     
+    @Getter
     private final List<AnnotationSyntaxAST> annotationStorage;
     
     
-    @Expose
+    @Getter
     private IdentifierToken annotationName;
     
     
-    @Expose
+    @Getter
     private List<IdentifierToken> annotationArguments;
     
     
@@ -178,7 +178,7 @@ public class AnnotationSyntaxAST extends AbstractSyntaxAST
     
     
     @Override
-    public void printAST(final PrintStream printStream, final String indents) {
+    public void printSyntaxAST(final PrintStream printStream, final String indents) {
         printStream.println(indents + "├── name: " + this.getAnnotationName().getTokenContent());
         printStream.println(indents + "└── arguments: " + (this.getAnnotationArguments().isEmpty() ? "N/A" : ""));
         for (final IdentifierToken identifierToken : this.getAnnotationArguments())

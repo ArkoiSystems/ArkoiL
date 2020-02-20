@@ -73,7 +73,7 @@ public class BlockSyntaxAST extends AbstractSyntaxAST
      *      }
      * </pre>
      */
-    @Expose
+    
     private BlockType blockType;
     
     
@@ -81,7 +81,7 @@ public class BlockSyntaxAST extends AbstractSyntaxAST
      * Declares the {@link List} for every {@link AbstractSyntaxAST} which got parsed
      * inside the block.
      */
-    @Expose
+    
     private final List<AbstractSyntaxAST> blockStorage;
     
     
@@ -202,19 +202,18 @@ public class BlockSyntaxAST extends AbstractSyntaxAST
     
     
     @Override
-    public void printAST(final PrintStream printStream, final String indents) {
+    public void printSyntaxAST(final PrintStream printStream, final String indents) {
         printStream.println(indents + "├── type: " + this.getBlockType());
-        printStream.println(indents + "└── storage: ");
+        printStream.println(indents + "└── storage: " + (this.getBlockStorage().isEmpty() ? "N/A" : ""));
         for (int index = 0; index < this.getBlockStorage().size(); index++) {
             final AbstractSyntaxAST abstractSyntaxAST = this.getBlockStorage().get(index);
             if (index == this.getBlockStorage().size() - 1) {
-                printStream.println(indents + "    │   ");
                 printStream.println(indents + "    └── " + abstractSyntaxAST.getClass().getSimpleName());
-                abstractSyntaxAST.printAST(printStream, indents + "        ");
+                abstractSyntaxAST.printSyntaxAST(printStream, indents + "        ");
             } else {
-                printStream.println(indents + "    │   ");
                 printStream.println(indents + "    ├── " + abstractSyntaxAST.getClass().getSimpleName());
-                abstractSyntaxAST.printAST(printStream, indents + "    │   ");
+                abstractSyntaxAST.printSyntaxAST(printStream, indents + "    │   ");
+                printStream.println(indents + "    │   ");
             }
         }
     }

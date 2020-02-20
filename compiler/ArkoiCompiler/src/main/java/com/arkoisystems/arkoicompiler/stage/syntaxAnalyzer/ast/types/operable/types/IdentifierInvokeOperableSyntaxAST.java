@@ -23,20 +23,18 @@ import lombok.Setter;
 
 import java.io.PrintStream;
 
-@Setter
-@Getter
 public class IdentifierInvokeOperableSyntaxAST extends AbstractOperableSyntaxAST<TypeKind>
 {
     
-    @Expose
+    @Getter
     private ASTAccess identifierAccess;
     
     
-    @Expose
+    @Getter
     private IdentifierToken invokedIdentifier;
     
     
-    @Expose
+    @Getter
     private AbstractSyntaxAST invokePostStatement;
     
     
@@ -80,12 +78,12 @@ public class IdentifierInvokeOperableSyntaxAST extends AbstractOperableSyntaxAST
     
     
     @Override
-    public void printAST(final PrintStream printStream, final String indents) {
+    public void printSyntaxAST(final PrintStream printStream, final String indents) {
         printStream.println(indents + "├── access: " + this.getIdentifierAccess());
         printStream.println(indents + "├── identifier: " + this.getInvokedIdentifier().getTokenContent());
         printStream.println(indents + "└── statement:");
         printStream.println(indents + "    └── " + this.getInvokePostStatement().getClass().getSimpleName());
-        this.getInvokePostStatement().printAST(printStream, indents + "        ");
+        this.getInvokePostStatement().printSyntaxAST(printStream, indents + "        ");
     }
     
 }

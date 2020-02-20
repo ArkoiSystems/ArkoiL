@@ -15,8 +15,8 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
 import lombok.Getter;
 import lombok.Setter;
 
-@Getter
-@Setter
+import java.io.PrintStream;
+
 public class RelationalExpressionSemanticAST extends AbstractExpressionSemanticAST<RelationalExpressionSyntaxAST>
 {
     
@@ -24,31 +24,37 @@ public class RelationalExpressionSemanticAST extends AbstractExpressionSemanticA
         super(semanticAnalyzer, lastContainerAST, relationalExpressionSyntaxAST, ASTType.RELATIONAL_EXPRESSION);
     }
     
+    
     @Override
-    public TypeKind getExpressionType() {
+    public TypeKind getOperableObject() {
         System.out.println("Relational Expression Semantic AST");
         return null;
     }
+    
     
     @Override
     public TypeKind relationalGreaterThan(final AbstractOperableSemanticAST<?, ?> leftSideOperable, final AbstractOperableSemanticAST<?, ?> rightSideOperable) {
         return super.relationalGreaterThan(leftSideOperable, rightSideOperable);
     }
     
+    
     @Override
     public TypeKind relationalGreaterEqualThan(final AbstractOperableSemanticAST<?, ?> leftSideOperable, final AbstractOperableSemanticAST<?, ?> rightSideOperable) {
         return super.relationalGreaterEqualThan(leftSideOperable, rightSideOperable);
     }
+    
     
     @Override
     public TypeKind relationalLessThan(final AbstractOperableSemanticAST<?, ?> leftSideOperable, final AbstractOperableSemanticAST<?, ?> rightSideOperable) {
         return super.relationalLessThan(leftSideOperable, rightSideOperable);
     }
     
+    
     @Override
     public TypeKind relationalLessEqualThan(final AbstractOperableSemanticAST<?, ?> leftSideOperable, final AbstractOperableSemanticAST<?, ?> rightSideOperable) {
         return super.relationalLessEqualThan(leftSideOperable, rightSideOperable);
     }
+    
     
     @Override
     public TypeKind relationalIs(final AbstractOperableSemanticAST<?, ?> leftSideOperable, final AbstractOperableSemanticAST<?, ?> rightSideOperable) {

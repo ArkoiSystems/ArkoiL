@@ -15,15 +15,14 @@ import lombok.Getter;
 
 import java.io.PrintStream;
 
-@Getter
 public class PostfixExpressionSyntaxAST extends AbstractExpressionSyntaxAST
 {
     
-    @Expose
+    @Getter
     private final AbstractOperableSyntaxAST<?> leftSideOperable;
     
     
-    @Expose
+    @Getter
     private final PostfixUnaryOperator postfixUnaryOperator;
     
     
@@ -45,10 +44,10 @@ public class PostfixExpressionSyntaxAST extends AbstractExpressionSyntaxAST
     
     
     @Override
-    public void printAST(final PrintStream printStream, final String indents) {
+    public void printSyntaxAST(final PrintStream printStream, final String indents) {
         printStream.println(indents + "├── left:");
         printStream.println(indents + "│   └── " + this.getLeftSideOperable().getClass().getSimpleName());
-        this.getLeftSideOperable().printAST(printStream, indents + "│       ");
+        this.getLeftSideOperable().printSyntaxAST(printStream, indents + "│       ");
         printStream.println(indents + "└── operator: " + this.getPostfixUnaryOperator());
     }
     

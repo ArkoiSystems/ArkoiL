@@ -22,11 +22,10 @@ import lombok.Getter;
 
 import java.io.PrintStream;
 
-@Getter
 public class ReturnStatementSyntaxAST extends AbstractStatementSyntaxAST
 {
     
-    @Expose
+    @Getter
     private ExpressionSyntaxAST returnExpression;
     
     
@@ -93,10 +92,9 @@ public class ReturnStatementSyntaxAST extends AbstractStatementSyntaxAST
     
     
     @Override
-    public void printAST(final PrintStream printStream, final String indents) {
+    public void printSyntaxAST(final PrintStream printStream, final String indents) {
         printStream.println(indents + "└── expression:");
-        printStream.println(indents + "    └── " + this.getReturnExpression().getExpressionOperable().getClass().getSimpleName());
-        this.getReturnExpression().printAST(printStream, indents + "        ");
+        this.getReturnExpression().printSyntaxAST(printStream, indents + "    ");
     }
     
 }

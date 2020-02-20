@@ -21,7 +21,6 @@ import lombok.Getter;
  * @param <T>
  *         the {@link AbstractSyntaxAST} which should define this class.
  */
-@Getter
 public abstract class AbstractParser<T extends AbstractSyntaxAST>
 {
     
@@ -29,7 +28,7 @@ public abstract class AbstractParser<T extends AbstractSyntaxAST>
      * The parameter name of the current {@link AbstractParser} which is defined through
      * the class parameter.
      */
-    @Expose
+    @Getter
     private final String parameterName;
     
     

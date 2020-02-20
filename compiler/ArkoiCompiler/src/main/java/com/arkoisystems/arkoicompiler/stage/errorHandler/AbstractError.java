@@ -10,16 +10,16 @@ import com.google.gson.annotations.Expose;
 import lombok.Getter;
 import lombok.Setter;
 
-@Getter
-@Setter
 public abstract class AbstractError
 {
     
-    @Expose
+    @Getter
     private final String message;
     
-    @Expose
+    
+    @Getter
     private final int start, end;
+    
     
     public AbstractError(final int start, final int end, final String message, final Object... arguments) {
         this.start = start;
@@ -27,6 +27,7 @@ public abstract class AbstractError
     
         this.message = String.format(message, arguments);
     }
+    
     
     @Override
     public String toString() {

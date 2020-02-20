@@ -15,19 +15,18 @@ import lombok.Getter;
 
 import java.io.PrintStream;
 
-@Getter
 public class ParenthesizedExpressionSyntaxAST extends AbstractExpressionSyntaxAST
 {
     
-    @Expose
+    @Getter
     private final SymbolToken openParenthesis;
     
     
-    @Expose
+    @Getter
     private final ExpressionSyntaxAST parenthesizedExpression;
     
     
-    @Expose
+    @Getter
     private final SymbolToken closeParenthesis;
     
     
@@ -50,40 +49,10 @@ public class ParenthesizedExpressionSyntaxAST extends AbstractExpressionSyntaxAS
     
     
     @Override
-    public void printAST(final PrintStream printStream, final String indents) {
+    public void printSyntaxAST(final PrintStream printStream, final String indents) {
         printStream.println(indents + "└── operable:");
         printStream.println(indents + "    └── " + this.getParenthesizedExpression().getClass().getSimpleName());
-        this.getParenthesizedExpression().printAST(printStream, indents + "        ");
+        this.getParenthesizedExpression().printSyntaxAST(printStream, indents + "        ");
     }
-    
-    //    @Override
-    //    public TypeKind binMul(final AbstractOperableSemanticAST<?, ?> leftSideOperable, final AbstractOperableSemanticAST<?, ?> rightSideOperable) {
-    //        if (rightSideOperable instanceof NumberOperableSyntaxAST)
-    //            return TypeKind.combineKinds(this, rightSideOperable);
-    //        else if (rightSideOperable instanceof AbstractExpressionSyntaxAST) {
-    //            final AbstractExpressionSyntaxAST abstractExpressionAST = (AbstractExpressionSyntaxAST) rightSideOperable;
-    //            if (abstractExpressionAST.getOperableObject() == null) {
-    //                semanticAnalyzer.errorHandler().addError(new SyntaxASTError<>(rightSideOperable, "Can't perform the multiplication because the expression result is null."));
-    //                return null;
-    //            }
-//
-//            switch (abstractExpressionAST.getOperableObject()) {
-//                case FLOAT:
-//                    return TypeKind.combineKinds(this, TypeKind.FLOAT);
-//                case INTEGER:
-//                    return TypeKind.combineKinds(this, TypeKind.INTEGER);
-//                case SHORT:
-//                    return TypeKind.combineKinds(this, TypeKind.SHORT);
-//                case DOUBLE:
-//                    return TypeKind.combineKinds(this, TypeKind.DOUBLE);
-//                case BYTE:
-//                    return TypeKind.combineKinds(this, TypeKind.BYTE);
-//                default:
-//                    semanticAnalyzer.errorHandler().addError(new SyntaxASTError<>(rightSideOperable, "Can't perform the multiplication because the expression result isn't a number."));
-//                    return null;
-//            }
-//        }
-//        return super.binMul(leftSideOperable, rightSideOperable);
-//    }
     
 }

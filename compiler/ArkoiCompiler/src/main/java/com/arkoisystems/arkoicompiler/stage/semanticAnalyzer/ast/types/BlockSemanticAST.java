@@ -25,24 +25,26 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.BlockType;
 import com.google.gson.annotations.Expose;
 import lombok.Setter;
 
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-@Setter
 public class BlockSemanticAST extends AbstractSemanticAST<BlockSyntaxAST>
 {
     
-    @Expose
     private List<AbstractSemanticAST<?>> blockStorage;
+    
     
     public BlockSemanticAST(final SemanticAnalyzer semanticAnalyzer, final AbstractSemanticAST<?> lastContainerAST, final BlockSyntaxAST blockSyntaxAST) {
         super(semanticAnalyzer, lastContainerAST, blockSyntaxAST, ASTType.BLOCK);
     }
     
+    
     public BlockType getBlockType() {
         return this.getSyntaxAST().getBlockType();
     }
+    
     
     public List<AbstractSemanticAST<?>> getBlockStorage() {
         if (this.blockStorage == null) {
@@ -62,7 +64,7 @@ public class BlockSemanticAST extends AbstractSemanticAST<BlockSyntaxAST>
                     final ExpressionSemanticAST expressionSemanticAST
                             = new ExpressionSemanticAST(this.getSemanticAnalyzer(), this.getLastContainerAST(), expressionSyntaxAST);
                     
-                    if (expressionSemanticAST.getExpressionType() == null)
+                    if (expressionSemanticAST.getOperableObject() == null)
                         return null;
                     this.blockStorage.add(expressionSemanticAST);
                 } else {
@@ -97,7 +99,7 @@ public class BlockSemanticAST extends AbstractSemanticAST<BlockSyntaxAST>
                             return null;
                         if (functionInvokeOperableSemanticAST.getInvokedExpressions() == null)
                             return null;
-                        if (functionInvokeOperableSemanticAST.getExpressionType() == null)
+                        if (functionInvokeOperableSemanticAST.getOperableObject() == null)
                             return null;
                         this.blockStorage.add(functionInvokeOperableSemanticAST);
                     } else if (abstractSyntaxAST instanceof ReturnStatementSyntaxAST) {
@@ -122,6 +124,7 @@ public class BlockSemanticAST extends AbstractSemanticAST<BlockSyntaxAST>
         }
         return this.blockStorage;
     }
+    
     
     private boolean foundDuplicatedNames(HashMap<String, AbstractSemanticAST<?>> names) {
         if (this.getBlockStorage() == null)
@@ -148,6 +151,7 @@ public class BlockSemanticAST extends AbstractSemanticAST<BlockSyntaxAST>
         }
         return false;
     }
+    
     
     public AbstractSemanticAST<?> findIdentifier(final IdentifierToken identifierToken) {
         if(this.getBlockStorage() == null)
