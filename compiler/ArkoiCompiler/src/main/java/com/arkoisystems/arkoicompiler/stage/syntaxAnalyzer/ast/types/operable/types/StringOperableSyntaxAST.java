@@ -38,15 +38,8 @@ public class StringOperableSyntaxAST extends AbstractOperableSyntaxAST<StringTok
     
     
     @Override
-    public void printAST(final PrintStream printStream, final String indents) {
+    public void printSyntaxAST(final PrintStream printStream, final String indents) {
         printStream.println(indents + "└── operable: " + this.getOperableObject().getTokenContent());
     }
-    
-    //    @Override
-    //    public TypeKind binMod(final AbstractOperableSemanticAST<?, ?> leftSideOperable, final AbstractOperableSemanticAST<?, ?> rightSideOperable) {
-    //        if (rightSideOperable instanceof CollectionOperableSyntaxAST)
-    //            return TypeKind.combineKinds(this, rightSideOperable);
-    //        return super.binMod(leftSideOperable, rightSideOperable);
-    //    }
     
 }

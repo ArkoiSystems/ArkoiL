@@ -12,7 +12,8 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.TypeSyntaxA
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
 import lombok.Setter;
 
-@Setter
+import java.io.PrintStream;
+
 public class TypeSemanticAST extends AbstractSemanticAST<TypeSyntaxAST>
 {
     
@@ -20,12 +21,9 @@ public class TypeSemanticAST extends AbstractSemanticAST<TypeSyntaxAST>
         super(semanticAnalyzer, lastContainerAST, typeSyntaxAST, ASTType.TYPE);
     }
     
+    
     public TypeKind getTypeKind() {
         return this.getSyntaxAST().getTypeKind();
-    }
-    
-    public boolean isArray() {
-        return this.getSyntaxAST().isArray();
     }
     
 }

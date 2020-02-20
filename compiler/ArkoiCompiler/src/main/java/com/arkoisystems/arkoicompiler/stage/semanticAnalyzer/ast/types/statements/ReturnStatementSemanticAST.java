@@ -14,32 +14,28 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.t
 import com.google.gson.annotations.Expose;
 import lombok.Setter;
 
-@Setter
+import java.io.PrintStream;
+
 public class ReturnStatementSemanticAST extends AbstractSemanticAST<ReturnStatementSyntaxAST>
 {
     
-    @Expose
     private ExpressionSemanticAST returnExpression;
+    
     
     public ReturnStatementSemanticAST(final SemanticAnalyzer semanticAnalyzer, final AbstractSemanticAST<?> lastContainerAST, final ReturnStatementSyntaxAST returnStatementSyntaxAST) {
         super(semanticAnalyzer, lastContainerAST, returnStatementSyntaxAST, ASTType.RETURN_STATEMENT);
     }
+    
     
     public ExpressionSemanticAST getReturnExpression() {
         if(this.returnExpression == null) {
             final ExpressionSyntaxAST expressionSyntaxAST = this.getSyntaxAST().getReturnExpression();
             this.returnExpression
                     = new ExpressionSemanticAST(this.getSemanticAnalyzer(), this.getLastContainerAST(), expressionSyntaxAST);
-            if(this.returnExpression.getExpressionType() == null)
+            if(this.returnExpression.getOperableObject() == null)
                 return null;
         }
         return this.returnExpression;
     }
-    
-    //    @Override
-//    public ReturnStatementSemanticAST analyseAST(final SemanticAnalyzer semanticAnalyzer) {
-//        System.out.println("Return Statement Semantic AST");
-//        return null;
-//    }
     
 }

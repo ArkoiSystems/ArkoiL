@@ -15,11 +15,10 @@ import lombok.Getter;
 
 import java.io.PrintStream;
 
-@Getter
 public class ExpressionSyntaxAST extends AbstractExpressionSyntaxAST
 {
     
-    @Expose
+    @Getter
     private final AbstractOperableSyntaxAST<?> expressionOperable;
     
     
@@ -40,8 +39,8 @@ public class ExpressionSyntaxAST extends AbstractExpressionSyntaxAST
     
     
     @Override
-    public void printAST(final PrintStream printStream, final String indents) {
-        this.getExpressionOperable().printAST(printStream, indents);
+    public void printSyntaxAST(final PrintStream printStream, final String indents) {
+        this.getExpressionOperable().printSyntaxAST(printStream, indents);
     }
     
 }

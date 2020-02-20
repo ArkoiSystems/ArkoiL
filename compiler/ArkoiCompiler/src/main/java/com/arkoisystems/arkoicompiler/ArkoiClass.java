@@ -23,14 +23,13 @@ import java.nio.charset.StandardCharsets;
  * compiler. Also you can output this class in a JSON like view with the method {@link
  * ArkoiClass#toString()}.
  */
-@Getter
-@Setter
 public class ArkoiClass
 {
     
     /**
      * The {@link ArkoiCompiler} in which the {@link ArkoiClass} got created.
      */
+    @Getter
     private final ArkoiCompiler arkoiCompiler;
     
     
@@ -39,6 +38,7 @@ public class ArkoiClass
      * {@link LexicalAnalyzer} because only there the content is needed to parse the
      * {@link com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken}'s.
      */
+    @Getter
     private final String content;
     
     
@@ -46,15 +46,22 @@ public class ArkoiClass
      * Defines if the {@link ArkoiClass} is a native class or not. This is used if you
      * want to get default functions from the natives.
      */
-    @Expose
+    @Getter
     private final boolean nativeClass;
+    
+    
+    /**
+     * Defines the path to the file which contains the data {@link #content}.
+     */
+    @Getter
+    private final String filePath;
     
     
     /**
      * The {@link LexicalAnalyzer} is used to generate the {@link AbstractToken} list for
      * later use in the {@link SyntaxAnalyzer}.
      */
-    @Expose
+    @Getter
     private LexicalAnalyzer lexicalAnalyzer;
     
     
@@ -62,7 +69,7 @@ public class ArkoiClass
      * The {@link SyntaxAnalyzer} is used to generate the AST (Abstract Syntax Tree) for
      * later use in the {@link SemanticAnalyzer}.
      */
-    @Expose
+    @Getter
     private SyntaxAnalyzer syntaxAnalyzer;
     
     
@@ -70,7 +77,7 @@ public class ArkoiClass
      * The {@link SemanticAnalyzer} is used to generate an enhanced AST (Abstract Syntax
      * Tree) for later use.
      */
-    @Expose
+    @Getter
     private SemanticAnalyzer semanticAnalyzer;
     
     
@@ -82,6 +89,8 @@ public class ArkoiClass
      * @param arkoiCompiler
      *         the {@link ArkoiCompiler} which should get used to compile the given
      *         contents.
+     * @param filePath
+     *         the path to the file which contains this declared content.
      * @param content
      *         the {@code byte[]} is used for the compilation of everything. It will be
      *         passed to the {@link LexicalAnalyzer} where it will produce a {@link
@@ -89,10 +98,11 @@ public class ArkoiClass
      * @param nativeClass
      *         the flag if the {@link ArkoiClass} should be a native class or not.
      */
-    public ArkoiClass(@NonNull final ArkoiCompiler arkoiCompiler, @NonNull final byte[] content, final boolean nativeClass) {
+    public ArkoiClass(@NonNull final ArkoiCompiler arkoiCompiler, final String filePath, @NonNull final byte[] content, final boolean nativeClass) {
         this.arkoiCompiler = arkoiCompiler;
         this.nativeClass = nativeClass;
-    
+        this.filePath = filePath;
+        
         this.content = new String(content, StandardCharsets.UTF_8);
     }
     
@@ -100,20 +110,23 @@ public class ArkoiClass
     /**
      * This will construct a new {@link ArkoiClass} with the given parameters. It will set
      * the native flag to false, so if you want to create a native {@link ArkoiClass} you
-     * should use the other constructor ({@link ArkoiClass#ArkoiClass(ArkoiCompiler,
+     * should use the other constructor ({@link ArkoiClass#ArkoiClass(ArkoiCompiler, String,
      * byte[], boolean)}).
      *
      * @param arkoiCompiler
      *         the {@link ArkoiCompiler} which should get used to compile the given
      *         contents.
+     * @param filePath
+     *         the path to the file which contains this declared content.
      * @param content
      *         the {@link byte[]} is used for the compilation of everything. It will be
      *         passed to the {@link LexicalAnalyzer} where it will produce a {@link
      *         java.util.List} with all tokens.
      */
-    public ArkoiClass(@NonNull final ArkoiCompiler arkoiCompiler, @NonNull final byte[] content) {
+    public ArkoiClass(@NonNull final ArkoiCompiler arkoiCompiler, final String filePath, @NonNull final byte[] content) {
         this.arkoiCompiler = arkoiCompiler;
-    
+        this.filePath = filePath;
+        
         this.content = new String(content, StandardCharsets.UTF_8);
         this.nativeClass = false;
     }

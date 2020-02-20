@@ -11,29 +11,30 @@ import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.SemanticAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.AbstractSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.AnnotationSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.types.expression.types.ExpressionSemanticAST;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.AnnotationSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.types.VariableDefinitionSyntaxAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.google.gson.annotations.Expose;
 import lombok.Setter;
 
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-@Setter
 public class VariableDefinitionSemanticAST extends AbstractSemanticAST<VariableDefinitionSyntaxAST>
 {
     
-    @Expose
     private List<AnnotationSemanticAST> variableAnnotations;
     
-    @Expose
+    
     private ExpressionSemanticAST variableExpression;
+    
     
     public VariableDefinitionSemanticAST(final SemanticAnalyzer semanticAnalyzer, final AbstractSemanticAST<?> lastContainerAST, final VariableDefinitionSyntaxAST variableDefinitionSyntaxAST) {
         super(semanticAnalyzer, lastContainerAST, variableDefinitionSyntaxAST, ASTType.VARIABLE_DEFINITION);
     }
+    
     
     public List<AnnotationSemanticAST> getVariableAnnotations() {
         if (this.variableAnnotations == null) {
@@ -60,15 +61,17 @@ public class VariableDefinitionSemanticAST extends AbstractSemanticAST<VariableD
         return this.variableAnnotations;
     }
     
+    
     public IdentifierToken getVariableName() {
         return this.getSyntaxAST().getVariableName();
     }
     
+    
     public ExpressionSemanticAST getVariableExpression() {
         if (this.variableExpression == null) {
             this.variableExpression
-                    = new ExpressionSemanticAST(this.getSemanticAnalyzer(), this.getLastContainerAST(), this.getSyntaxAST().getVariableArguments());
-            if (this.variableExpression.getExpressionType() == null)
+                    = new ExpressionSemanticAST(this.getSemanticAnalyzer(), this, this.getSyntaxAST().getVariableExpression());
+            if (this.variableExpression.getOperableObject() == null)
                 return null;
         }
         return this.variableExpression;

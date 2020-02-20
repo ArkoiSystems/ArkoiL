@@ -15,15 +15,14 @@ import lombok.Getter;
 
 import java.io.PrintStream;
 
-@Getter
 public class PrefixExpressionSyntaxAST extends AbstractExpressionSyntaxAST
 {
     
-    @Expose
+    @Getter
     private final PrefixUnaryOperator prefixUnaryOperator;
     
     
-    @Expose
+    @Getter
     private final AbstractOperableSyntaxAST<?> rightSideOperable;
     
     
@@ -45,39 +44,12 @@ public class PrefixExpressionSyntaxAST extends AbstractExpressionSyntaxAST
     
     
     @Override
-    public void printAST(final PrintStream printStream, final String indents) {
+    public void printSyntaxAST(final PrintStream printStream, final String indents) {
         printStream.println(indents + "├── operator: " + this.getPrefixUnaryOperator());
         printStream.println(indents + "└── right:");
         printStream.println(indents + "    └── " + this.getRightSideOperable().getClass().getSimpleName());
-        this.getRightSideOperable().printAST(printStream, indents + "        ");
+        this.getRightSideOperable().printSyntaxAST(printStream, indents + "        ");
     }
-    
-    //    @Override
-    //    public TypeKind binMul(final AbstractOperableSemanticAST<?, ?> leftSideOperable, final AbstractOperableSemanticAST<?, ?> rightSideOperable) {
-    //        if (rightSideOperable instanceof NumberOperableSyntaxAST)
-    //            return TypeKind.combineKinds(this, rightSideOperable);
-    //        else if (rightSideOperable instanceof AbstractExpressionSyntaxAST) {
-    //            final AbstractExpressionSyntaxAST abstractExpressionAST = (AbstractExpressionSyntaxAST) rightSideOperable;
-    //            if (abstractExpressionAST.getOperableObject() == null) {
-    //                semanticAnalyzer.errorHandler().addError(new SyntaxASTError<>(rightSideOperable, "Can't perform the multiplication because the expression result is null."));
-    //                return null;
-    //            }
-//
-//            switch (abstractExpressionAST.getOperableObject()) {
-//                case FLOAT:
-//                case INTEGER:
-//                case SHORT:
-//                case DOUBLE:
-//                case BYTE:
-//                    break;
-//                default:
-//                    semanticAnalyzer.errorHandler().addError(new SyntaxASTError<>(rightSideOperable, "Can't perform the multiplication because the expression result isn't a number."));
-//                    return null;
-//            }
-//            return TypeKind.combineKinds(this, abstractExpressionAST.getOperableObject());
-//        }
-//        return super.binMul(leftSideOperable, rightSideOperable);
-//    }
     
     public enum PrefixUnaryOperator
     {

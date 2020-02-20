@@ -23,8 +23,9 @@ public class NumberToken extends AbstractToken
         this.setTokenType(TokenType.NUMBER_LITERAL);
     }
     
+    
     @Override
-    public NumberToken parse(final LexicalAnalyzer lexicalAnalyzer) {
+    public NumberToken lex(final LexicalAnalyzer lexicalAnalyzer) {
         if (!Character.isDigit(lexicalAnalyzer.currentChar()) && lexicalAnalyzer.currentChar() != '.') {
             lexicalAnalyzer.errorHandler().addError(new CharError(lexicalAnalyzer.currentChar(), lexicalAnalyzer.getPosition(), "Couldn't lex the number because it doesn't start with a digit or dot."));
             return null;

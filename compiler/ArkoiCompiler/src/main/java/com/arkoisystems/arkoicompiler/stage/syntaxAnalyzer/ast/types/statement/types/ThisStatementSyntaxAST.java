@@ -24,7 +24,6 @@ import lombok.Getter;
 
 import java.io.PrintStream;
 
-@Getter
 public class ThisStatementSyntaxAST extends AbstractStatementSyntaxAST
 {
     
@@ -109,6 +108,6 @@ public class ThisStatementSyntaxAST extends AbstractStatementSyntaxAST
     
     
     @Override
-    public void printAST(final PrintStream printStream, final String indents) { }
+    public void printSyntaxAST(final PrintStream printStream, final String indents) { }
     
 }

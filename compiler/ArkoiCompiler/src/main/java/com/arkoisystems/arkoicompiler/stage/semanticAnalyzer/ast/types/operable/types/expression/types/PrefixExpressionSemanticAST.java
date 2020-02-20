@@ -23,21 +23,24 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
 import com.google.gson.annotations.Expose;
 import lombok.Setter;
 
-@Setter
+import java.io.PrintStream;
+
 public class PrefixExpressionSemanticAST extends AbstractExpressionSemanticAST<PrefixExpressionSyntaxAST>
 {
     
-    @Expose
     private AbstractOperableSemanticAST<?, ?> rightSideOperable;
     
+    
     private TypeKind expressionType;
+    
     
     public PrefixExpressionSemanticAST(final SemanticAnalyzer semanticAnalyzer, final AbstractSemanticAST<?> lastContainerAST, final PrefixExpressionSyntaxAST prefixExpressionSyntaxAST) {
         super(semanticAnalyzer, lastContainerAST, prefixExpressionSyntaxAST, ASTType.PREFIX_EXPRESSION);
     }
     
+    
     @Override
-    public TypeKind getExpressionType() {
+    public TypeKind getOperableObject() {
         if (this.expressionType == null) {
             if (this.getRightSideOperable() == null)
                 return null;
@@ -67,9 +70,11 @@ public class PrefixExpressionSemanticAST extends AbstractExpressionSemanticAST<P
         return this.expressionType;
     }
     
+    
     public PrefixExpressionSyntaxAST.PrefixUnaryOperator getPrefixUnaryOperator() {
         return this.getSyntaxAST().getPrefixUnaryOperator();
     }
+    
     
     public AbstractOperableSemanticAST<?, ?> getRightSideOperable() {
         if (this.rightSideOperable == null)
@@ -77,13 +82,14 @@ public class PrefixExpressionSemanticAST extends AbstractExpressionSemanticAST<P
         return this.rightSideOperable;
     }
     
+    
     private AbstractOperableSemanticAST<?, ?> analyzeOperable(final AbstractOperableSyntaxAST<?> abstractOperableSyntaxAST) {
         if (abstractOperableSyntaxAST instanceof NumberOperableSyntaxAST) {
             final NumberOperableSyntaxAST numberOperableSyntaxAST = (NumberOperableSyntaxAST) abstractOperableSyntaxAST;
             final NumberOperableSemanticAST numberOperableSemanticAST
                     = new NumberOperableSemanticAST(this.getSemanticAnalyzer(), this.getLastContainerAST(), numberOperableSyntaxAST);
             
-            if (numberOperableSemanticAST.getExpressionType() == null)
+            if (numberOperableSemanticAST.getOperableObject() == null)
                 return null;
             return numberOperableSemanticAST;
         } else {
@@ -92,15 +98,28 @@ public class PrefixExpressionSemanticAST extends AbstractExpressionSemanticAST<P
         }
     }
     
+    
     @Override
     public TypeKind prefixAdd(final AbstractOperableSemanticAST<?, ?> abstractOperableSemanticAST) {
-        return super.prefixAdd(abstractOperableSemanticAST);
+        final AbstractOperableSemanticAST<?, ?> rightExpressionOperable = this.analyzeNumericOperable(abstractOperableSemanticAST);
+        if (rightExpressionOperable == null) {
+            this.getSemanticAnalyzer().errorHandler().addError(new SemanticASTError<>(abstractOperableSemanticAST, "Couldn't analyze the prefix expression because the prefix add operation doesn't support this operable."));
+            return null;
+        }
+        return TypeKind.getTypeKind(rightExpressionOperable);
     }
+    
     
     @Override
     public TypeKind prefixSub(final AbstractOperableSemanticAST<?, ?> abstractOperableSemanticAST) {
-        return super.prefixSub(abstractOperableSemanticAST);
+        final AbstractOperableSemanticAST<?, ?> rightExpressionOperable = this.analyzeNumericOperable(abstractOperableSemanticAST);
+        if (rightExpressionOperable == null) {
+            this.getSemanticAnalyzer().errorHandler().addError(new SemanticASTError<>(abstractOperableSemanticAST, "Couldn't analyze the prefix expression because the prefix sub operation doesn't support this operable."));
+            return null;
+        }
+        return TypeKind.getTypeKind(rightExpressionOperable);
     }
+    
     
     @Override
     public TypeKind prefixNegate(final AbstractOperableSemanticAST<?, ?> abstractOperableSemanticAST) {
@@ -112,6 +131,7 @@ public class PrefixExpressionSemanticAST extends AbstractExpressionSemanticAST<P
         return TypeKind.getTypeKind(rightExpressionOperable);
     }
     
+    
     @Override
     public TypeKind prefixAffirm(final AbstractOperableSemanticAST<?, ?> abstractOperableSemanticAST) {
         final AbstractOperableSemanticAST<?, ?> rightExpressionOperable = this.analyzeNumericOperable(abstractOperableSemanticAST);
@@ -122,13 +142,14 @@ public class PrefixExpressionSemanticAST extends AbstractExpressionSemanticAST<P
         return TypeKind.getTypeKind(rightExpressionOperable);
     }
     
+    
     private AbstractOperableSemanticAST<?, ?> analyzeNumericOperable(final AbstractOperableSemanticAST<?, ?> abstractOperableSemanticAST) {
         if (abstractOperableSemanticAST instanceof ParenthesizedExpressionSemanticAST) {
             final ParenthesizedExpressionSemanticAST parenthesizedExpressionSemanticAST = (ParenthesizedExpressionSemanticAST) abstractOperableSemanticAST;
-            if (parenthesizedExpressionSemanticAST.getExpressionType() == null)
+            if (parenthesizedExpressionSemanticAST.getOperableObject() == null)
                 return null;
             
-            switch (parenthesizedExpressionSemanticAST.getExpressionType()) {
+            switch (parenthesizedExpressionSemanticAST.getOperableObject()) {
                 case BYTE:
                 case FLOAT:
                 case DOUBLE:
@@ -140,10 +161,10 @@ public class PrefixExpressionSemanticAST extends AbstractExpressionSemanticAST<P
             }
         } else if (abstractOperableSemanticAST instanceof FunctionInvokeOperableSemanticAST) {
             final FunctionInvokeOperableSemanticAST functionInvokeOperableSemanticAST = (FunctionInvokeOperableSemanticAST) abstractOperableSemanticAST;
-            if (functionInvokeOperableSemanticAST.getExpressionType() == null)
+            if (functionInvokeOperableSemanticAST.getOperableObject() == null)
                 return null;
             
-            switch (functionInvokeOperableSemanticAST.getExpressionType()) {
+            switch (functionInvokeOperableSemanticAST.getOperableObject()) {
                 case BYTE:
                 case FLOAT:
                 case DOUBLE:
@@ -155,10 +176,10 @@ public class PrefixExpressionSemanticAST extends AbstractExpressionSemanticAST<P
             }
         } else if (abstractOperableSemanticAST instanceof IdentifierCallOperableSemanticAST) {
             final IdentifierCallOperableSemanticAST identifierCallOperableSemanticAST = (IdentifierCallOperableSemanticAST) abstractOperableSemanticAST;
-            if (identifierCallOperableSemanticAST.getExpressionType() == null)
+            if (identifierCallOperableSemanticAST.getOperableObject() == null)
                 return null;
             
-            switch (identifierCallOperableSemanticAST.getExpressionType()) {
+            switch (identifierCallOperableSemanticAST.getOperableObject()) {
                 case BYTE:
                 case FLOAT:
                 case DOUBLE:
@@ -170,10 +191,10 @@ public class PrefixExpressionSemanticAST extends AbstractExpressionSemanticAST<P
             }
         } else if (abstractOperableSemanticAST instanceof IdentifierInvokeOperableSemanticAST) {
             final IdentifierInvokeOperableSemanticAST identifierInvokeOperableSemanticAST = (IdentifierInvokeOperableSemanticAST) abstractOperableSemanticAST;
-            if (identifierInvokeOperableSemanticAST.getExpressionType() == null)
+            if (identifierInvokeOperableSemanticAST.getOperableObject() == null)
                 return null;
             
-            switch (identifierInvokeOperableSemanticAST.getExpressionType()) {
+            switch (identifierInvokeOperableSemanticAST.getOperableObject()) {
                 case BYTE:
                 case FLOAT:
                 case DOUBLE:

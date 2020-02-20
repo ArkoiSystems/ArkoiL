@@ -13,21 +13,29 @@ import com.google.gson.annotations.Expose;
 import lombok.Getter;
 import lombok.Setter;
 
-@Getter
-@Setter
+import java.io.PrintStream;
+
 public abstract class AbstractSemanticAST<T extends AbstractSyntaxAST>
 {
     
+    @Getter
     private final AbstractSemanticAST<?> lastContainerAST;
     
+    
+    @Getter
     private final SemanticAnalyzer semanticAnalyzer;
     
+    
+    @Getter
     private final T syntaxAST;
     
-    @Expose
+    
+    @Getter
     private final ASTType astType;
     
-    @Expose
+    
+    @Getter
+    @Setter
     private int start, end;
     
     public AbstractSemanticAST(final SemanticAnalyzer semanticAnalyzer, final AbstractSemanticAST<?> lastContainerAST, final T syntaxAST, final ASTType astType) {

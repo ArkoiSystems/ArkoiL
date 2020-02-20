@@ -7,6 +7,7 @@ package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer;
 
 import com.arkoisystems.arkoicompiler.stage.errorHandler.AbstractError;
 import com.arkoisystems.arkoicompiler.stage.errorHandler.ErrorHandler;
+import com.google.gson.Gson;
 import lombok.NonNull;
 
 import java.io.PrintStream;
@@ -43,8 +44,8 @@ public class SyntaxErrorHandler extends ErrorHandler
     
     /**
      * Prints the stack trace with the content of the {@link SyntaxErrorHandler#abstractErrors}
-     * list. It will just write the {@link com.google.gson.Gson#toJson(Object)} {@link
-     * String} to the {@link PrintStream}.
+     * list. It will just write the {@link Gson#toJson(Object)} {@link String} to the
+     * {@link PrintStream}.
      *
      * @param printStream
      *         the given {@link PrintStream} in which every {@link AbstractError} should

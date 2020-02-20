@@ -20,16 +20,14 @@ import lombok.Setter;
 
 import java.io.PrintStream;
 
-@Setter
-@Getter
 public class IdentifierCallOperableSyntaxAST extends AbstractOperableSyntaxAST<TypeKind>
 {
     
-    @Expose
+    @Getter
     private ASTAccess identifierAccess;
     
     
-    @Expose
+    @Getter
     private IdentifierToken calledIdentifier;
     
     
@@ -62,15 +60,16 @@ public class IdentifierCallOperableSyntaxAST extends AbstractOperableSyntaxAST<T
             return null;
         } else {
             this.calledIdentifier = (IdentifierToken) syntaxAnalyzer.currentToken();
-            this.setStart(this.calledIdentifier.getStart());
-            this.setEnd(this.calledIdentifier.getEnd());
+            
+            this.setStart(this.getCalledIdentifier().getStart());
+            this.setEnd(this.getCalledIdentifier().getEnd());
         }
         return this;
     }
     
     
     @Override
-    public void printAST(final PrintStream printStream, final String indents) {
+    public void printSyntaxAST(final PrintStream printStream, final String indents) {
         printStream.println(indents + "├── access: " + this.getIdentifierAccess());
         printStream.println(indents + "└── identifier: " + this.getCalledIdentifier().getTokenContent());
     }

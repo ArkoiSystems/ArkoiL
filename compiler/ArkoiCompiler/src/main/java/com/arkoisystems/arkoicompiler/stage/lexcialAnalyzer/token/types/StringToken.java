@@ -20,8 +20,9 @@ public class StringToken extends AbstractToken
         this.setTokenType(TokenType.STRING_LITERAL);
     }
     
+    
     @Override
-    public StringToken parse(final LexicalAnalyzer lexicalAnalyzer) {
+    public StringToken lex(final LexicalAnalyzer lexicalAnalyzer) {
         if(lexicalAnalyzer.currentChar() != '"') {
             lexicalAnalyzer.errorHandler().addError(new CharError(lexicalAnalyzer.currentChar(), lexicalAnalyzer.getPosition(), "Couldn't lex the string because it doesn't start with an \"."));
             return null;

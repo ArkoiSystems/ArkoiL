@@ -30,11 +30,11 @@ public class ArgumentDefinitionSyntaxAST extends AbstractSyntaxAST
     public static ArgumentDefinitionParser ARGUMENT_DEFINITION_PARSER = new ArgumentDefinitionParser();
     
     
-    @Expose
+    
     private IdentifierToken argumentName;
     
     
-    @Expose
+    
     private TypeSyntaxAST argumentType;
     
     
@@ -97,7 +97,7 @@ public class ArgumentDefinitionSyntaxAST extends AbstractSyntaxAST
     
     
     @Override
-    public void printAST(final PrintStream printStream, final String indents) {
+    public void printSyntaxAST(final PrintStream printStream, final String indents) {
         printStream.println(indents + "├── name: " + this.getArgumentName().getTokenContent());
         printStream.println(indents + "└── type: " + this.getArgumentType().getTypeKind().getName() + (this.getArgumentType().isArray() ? "[]" : ""));
     }

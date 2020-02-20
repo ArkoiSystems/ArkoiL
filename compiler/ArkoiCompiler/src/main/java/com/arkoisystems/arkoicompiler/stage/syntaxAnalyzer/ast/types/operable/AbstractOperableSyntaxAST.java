@@ -22,15 +22,14 @@ import lombok.Setter;
 
 import java.io.PrintStream;
 
-@Getter
-@Setter
 public class AbstractOperableSyntaxAST<O> extends AbstractSyntaxAST
 {
     
     public static OperableParser OPERABLE_PARSER = new OperableParser();
     
     
-    @Expose
+    @Getter
+    @Setter
     private O operableObject;
     
     
@@ -77,8 +76,6 @@ public class AbstractOperableSyntaxAST<O> extends AbstractSyntaxAST
     
     
     @Override
-    public void printAST(final PrintStream printStream, final String indents) {
-    
-    }
+    public void printSyntaxAST(final PrintStream printStream, final String indents) { }
     
 }

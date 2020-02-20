@@ -13,17 +13,20 @@ import com.google.gson.annotations.Expose;
 import lombok.Getter;
 import lombok.SneakyThrows;
 
-@Getter
 public class SemanticAnalyzer extends AbstractStage
 {
     
+    @Getter
     private final ArkoiClass arkoiClass;
     
-    @Expose
+    
+    @Getter
     private final SemanticErrorHandler errorHandler;
     
-    @Expose
+    
+    @Getter
     private final RootSemanticAST rootSemanticAST;
+    
     
     public SemanticAnalyzer(final ArkoiClass arkoiClass) {
         this.arkoiClass = arkoiClass;
@@ -32,11 +35,13 @@ public class SemanticAnalyzer extends AbstractStage
         this.rootSemanticAST = new RootSemanticAST(this, arkoiClass.getSyntaxAnalyzer().getRootSyntaxAST());
     }
     
+    
     @SneakyThrows
     @Override
     public boolean processStage() {
-        return this.rootSemanticAST.initialize() != null;
+        return this.getRootSemanticAST().initialize() != null;
     }
+    
     
     @Override
     public ErrorHandler errorHandler() {

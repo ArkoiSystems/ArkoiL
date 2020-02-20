@@ -13,14 +13,21 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.AnnotationS
 import lombok.Getter;
 import lombok.Setter;
 
-@Getter
-@Setter
+import java.io.PrintStream;
+import java.util.List;
+
 public class AnnotationSemanticAST extends AbstractSemanticAST<AnnotationSyntaxAST>
 {
     
     public AnnotationSemanticAST(final SemanticAnalyzer semanticAnalyzer, final AbstractSemanticAST<?> lastContainerAST, final AnnotationSyntaxAST annotationSyntaxAST) {
         super(semanticAnalyzer, lastContainerAST, annotationSyntaxAST, ASTType.ANNOTATION);
     }
+    
+    
+    public List<IdentifierToken> getAnnotationArguments() {
+        return this.getSyntaxAST().getAnnotationArguments();
+    }
+    
     
     public IdentifierToken getAnnotationName() {
         return this.getSyntaxAST().getAnnotationName();

@@ -20,32 +20,28 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.ty
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTAccess;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
-import com.google.gson.annotations.Expose;
 import lombok.Getter;
-import lombok.Setter;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 
-@Setter
-@Getter
 public class FunctionInvokeOperableSyntaxAST extends AbstractOperableSyntaxAST<TypeKind>
 {
     
-    @Expose
+    @Getter
     private ASTAccess functionAccess;
     
     
-    @Expose
+    @Getter
     private final IdentifierToken invokedFunctionName;
     
     
-    @Expose
+    @Getter
     private final List<ExpressionSyntaxAST> invokedExpressions;
     
     
-    @Expose
+    @Getter
     private final FunctionInvocation invocationType;
     
     
@@ -155,7 +151,7 @@ public class FunctionInvokeOperableSyntaxAST extends AbstractOperableSyntaxAST<T
             else if (syntaxAnalyzer.matchesCurrentToken(SymbolToken.SymbolType.COMMA) == null) {
                 syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the \"function invoke\" statement because an expression isn't followed by an comma or an closing parenthesis."));
                 return null;
-            }
+            } else syntaxAnalyzer.nextToken();
         }
         
         if (syntaxAnalyzer.matchesCurrentToken(SymbolToken.SymbolType.CLOSING_PARENTHESIS) == null) {
@@ -172,7 +168,7 @@ public class FunctionInvokeOperableSyntaxAST extends AbstractOperableSyntaxAST<T
     
     
     @Override
-    public void printAST(final PrintStream printStream, final String indents) {
+    public void printSyntaxAST(final PrintStream printStream, final String indents) {
         printStream.println(indents + "├── access: " + this.getFunctionAccess());
         printStream.println(indents + "├── identifier: " + this.getInvokedFunctionName().getTokenContent());
         printStream.println(indents + "└── expressions: " + (this.getInvokedExpressions().isEmpty() ? "N/A" : ""));
@@ -180,10 +176,10 @@ public class FunctionInvokeOperableSyntaxAST extends AbstractOperableSyntaxAST<T
             final ExpressionSyntaxAST abstractSyntaxAST = this.getInvokedExpressions().get(index);
             if (index == this.getInvokedExpressions().size() - 1) {
                 printStream.println(indents + "    └── " + abstractSyntaxAST.getExpressionOperable().getClass().getSimpleName());
-                abstractSyntaxAST.printAST(printStream, indents + "        ");
+                abstractSyntaxAST.printSyntaxAST(printStream, indents + "        ");
             } else {
                 printStream.println(indents + "    ├── " + abstractSyntaxAST.getExpressionOperable().getClass().getSimpleName());
-                abstractSyntaxAST.printAST(printStream, indents + "    │   ");
+                abstractSyntaxAST.printSyntaxAST(printStream, indents + "    │   ");
             }
         }
     }

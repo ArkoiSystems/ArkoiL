@@ -9,15 +9,16 @@ import com.arkoisystems.arkoicompiler.stage.errorHandler.AbstractError;
 import com.google.gson.annotations.Expose;
 import lombok.Getter;
 
-@Getter
 public class DoubleError<T1, T2> extends AbstractError
 {
     
-    @Expose
+    @Getter
     private final T1 firstAbstractAST;
     
-    @Expose
+    
+    @Getter
     private final T2 secondAbstractAST;
+    
     
     public DoubleError(final T1 firstAbstractAST, final T2 secondAbstractAST, final int start, final int end, final String message, final Object... arguments) {
         super(start, end, message, arguments);

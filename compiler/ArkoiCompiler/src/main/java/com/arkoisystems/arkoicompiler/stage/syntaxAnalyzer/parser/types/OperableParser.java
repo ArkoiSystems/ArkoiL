@@ -44,7 +44,7 @@ public class OperableParser extends AbstractParser<AbstractOperableSyntaxAST<?>>
     
     /**
      * Tests if the current {@link AbstractToken} is capable to parse a new {@link
-     * AbstractOperableSyntaxAST}. Depending of the current {@link AbstractToken}'s type
+     * AbstractOperableSyntaxAST}. Depending on the current {@link AbstractToken}'s type
      * it will return {@code true} if it's would work or {@code false} if it wouldn't.
      *
      * @param parentAST

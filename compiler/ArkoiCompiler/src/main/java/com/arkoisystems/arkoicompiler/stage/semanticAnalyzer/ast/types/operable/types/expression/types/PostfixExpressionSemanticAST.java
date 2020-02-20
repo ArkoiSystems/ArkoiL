@@ -25,21 +25,24 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
 import com.google.gson.annotations.Expose;
 import lombok.Setter;
 
-@Setter
+import java.io.PrintStream;
+
 public class PostfixExpressionSemanticAST extends AbstractExpressionSemanticAST<PostfixExpressionSyntaxAST>
 {
     
-    @Expose
     private AbstractOperableSemanticAST<?, ?> leftSideOperable;
     
+    
     private TypeKind expressionType;
+    
     
     public PostfixExpressionSemanticAST(final SemanticAnalyzer semanticAnalyzer, final AbstractSemanticAST<?> lastContainerAST, final PostfixExpressionSyntaxAST postfixExpressionSyntaxAST) {
         super(semanticAnalyzer, lastContainerAST, postfixExpressionSyntaxAST, ASTType.POSTFIX_EXPRESSION);
     }
     
+    
     @Override
-    public TypeKind getExpressionType() {
+    public TypeKind getOperableObject() {
         if (this.expressionType == null) {
             if (this.getPostfixUnaryOperator() == null)
                 return null;
@@ -63,15 +66,18 @@ public class PostfixExpressionSemanticAST extends AbstractExpressionSemanticAST<
         return this.expressionType;
     }
     
+    
     public AbstractOperableSemanticAST<?, ?> getLeftSideOperable() {
         if (this.leftSideOperable == null)
             return (this.leftSideOperable = this.analyzeOperable(this.getSyntaxAST().getLeftSideOperable()));
         return this.leftSideOperable;
     }
     
+    
     public PostfixExpressionSyntaxAST.PostfixUnaryOperator getPostfixUnaryOperator() {
         return this.getSyntaxAST().getPostfixUnaryOperator();
     }
+    
     
     private AbstractOperableSemanticAST<?, ?> analyzeOperable(final AbstractOperableSyntaxAST<?> abstractOperableSyntaxAST) {
         if (abstractOperableSyntaxAST instanceof ParenthesizedExpressionSyntaxAST) {
@@ -79,7 +85,7 @@ public class PostfixExpressionSemanticAST extends AbstractExpressionSemanticAST<
             final ParenthesizedExpressionSemanticAST parenthesizedExpressionSemanticAST
                     = new ParenthesizedExpressionSemanticAST(this.getSemanticAnalyzer(), this.getLastContainerAST(), parenthesizedExpressionSyntaxAST);
             
-            if (parenthesizedExpressionSemanticAST.getExpressionType() == null)
+            if (parenthesizedExpressionSemanticAST.getOperableObject() == null)
                 return null;
             return parenthesizedExpressionSemanticAST;
         } else if (abstractOperableSyntaxAST instanceof NumberOperableSyntaxAST) {
@@ -87,7 +93,7 @@ public class PostfixExpressionSemanticAST extends AbstractExpressionSemanticAST<
             final NumberOperableSemanticAST numberOperableSemanticAST
                     = new NumberOperableSemanticAST(this.getSemanticAnalyzer(), this.getLastContainerAST(), numberOperableSyntaxAST);
             
-            if (numberOperableSemanticAST.getExpressionType() == null)
+            if (numberOperableSemanticAST.getOperableObject() == null)
                 return null;
             return numberOperableSemanticAST;
         } else if (abstractOperableSyntaxAST instanceof IdentifierCallOperableSyntaxAST) {
@@ -95,7 +101,7 @@ public class PostfixExpressionSemanticAST extends AbstractExpressionSemanticAST<
             final IdentifierCallOperableSemanticAST identifierCallOperableSemanticAST
                     = new IdentifierCallOperableSemanticAST(this.getSemanticAnalyzer(), this.getLastContainerAST(), identifierCallOperableSyntaxAST);
     
-            if (identifierCallOperableSemanticAST.getExpressionType() == null)
+            if (identifierCallOperableSemanticAST.getOperableObject() == null)
                 return null;
             return identifierCallOperableSemanticAST;
         } else if (abstractOperableSyntaxAST instanceof IdentifierInvokeOperableSyntaxAST) {
@@ -103,7 +109,7 @@ public class PostfixExpressionSemanticAST extends AbstractExpressionSemanticAST<
             final IdentifierInvokeOperableSemanticAST identifierInvokeOperableSemanticAST
                     = new IdentifierInvokeOperableSemanticAST(this.getSemanticAnalyzer(), this.getLastContainerAST(), identifierInvokeOperableSyntaxAST);
     
-            if (identifierInvokeOperableSemanticAST.getExpressionType() == null)
+            if (identifierInvokeOperableSemanticAST.getOperableObject() == null)
                 return null;
             return identifierInvokeOperableSemanticAST;
         } else {
@@ -111,6 +117,7 @@ public class PostfixExpressionSemanticAST extends AbstractExpressionSemanticAST<
             return null;
         }
     }
+    
     
     @Override
     public TypeKind postfixAdd(final AbstractOperableSemanticAST<?, ?> abstractOperableSemanticAST) {
@@ -122,6 +129,7 @@ public class PostfixExpressionSemanticAST extends AbstractExpressionSemanticAST<
         return TypeKind.getTypeKind(leftExpressionOperable);
     }
     
+    
     @Override
     public TypeKind postfixSub(final AbstractOperableSemanticAST<?, ?> abstractOperableSemanticAST) {
         final AbstractOperableSemanticAST<?, ?> leftExpressionOperable = this.analyzeNumericOperable(abstractOperableSemanticAST);
@@ -132,13 +140,14 @@ public class PostfixExpressionSemanticAST extends AbstractExpressionSemanticAST<
         return TypeKind.getTypeKind(leftExpressionOperable);
     }
     
+    
     private AbstractOperableSemanticAST<?, ?> analyzeNumericOperable(final AbstractOperableSemanticAST<?, ?> abstractOperableSemanticAST) {
         if (abstractOperableSemanticAST instanceof ParenthesizedExpressionSemanticAST) {
             final ParenthesizedExpressionSemanticAST parenthesizedExpressionSemanticAST = (ParenthesizedExpressionSemanticAST) abstractOperableSemanticAST;
-            if (parenthesizedExpressionSemanticAST.getExpressionType() == null)
+            if (parenthesizedExpressionSemanticAST.getOperableObject() == null)
                 return null;
             
-            switch (parenthesizedExpressionSemanticAST.getExpressionType()) {
+            switch (parenthesizedExpressionSemanticAST.getOperableObject()) {
                 case BYTE:
                 case FLOAT:
                 case DOUBLE:
@@ -150,10 +159,10 @@ public class PostfixExpressionSemanticAST extends AbstractExpressionSemanticAST<
             }
         } else if (abstractOperableSemanticAST instanceof IdentifierCallOperableSemanticAST) {
             final IdentifierCallOperableSemanticAST identifierCallOperableSemanticAST = (IdentifierCallOperableSemanticAST) abstractOperableSemanticAST;
-            if (identifierCallOperableSemanticAST.getExpressionType() == null)
+            if (identifierCallOperableSemanticAST.getOperableObject() == null)
                 return null;
             
-            switch (identifierCallOperableSemanticAST.getExpressionType()) {
+            switch (identifierCallOperableSemanticAST.getOperableObject()) {
                 case BYTE:
                 case FLOAT:
                 case DOUBLE:
@@ -165,10 +174,10 @@ public class PostfixExpressionSemanticAST extends AbstractExpressionSemanticAST<
             }
         } else if (abstractOperableSemanticAST instanceof IdentifierInvokeOperableSemanticAST) {
             final IdentifierInvokeOperableSemanticAST identifierInvokeOperableSemanticAST = (IdentifierInvokeOperableSemanticAST) abstractOperableSemanticAST;
-            if (identifierInvokeOperableSemanticAST.getExpressionType() == null)
+            if (identifierInvokeOperableSemanticAST.getOperableObject() == null)
                 return null;
             
-            switch (identifierInvokeOperableSemanticAST.getExpressionType()) {
+            switch (identifierInvokeOperableSemanticAST.getOperableObject()) {
                 case BYTE:
                 case FLOAT:
                 case DOUBLE:

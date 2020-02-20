@@ -38,67 +38,8 @@ public class NumberOperableSyntaxAST extends AbstractOperableSyntaxAST<NumberTok
     
     
     @Override
-    public void printAST(final PrintStream printStream, final String indents) {
+    public void printSyntaxAST(final PrintStream printStream, final String indents) {
         printStream.println(indents + "└── operable: " + this.getOperableObject().getTokenContent());
     }
-    
-    //    @Override
-    //    public TypeKind binAdd(final AbstractOperableSemanticAST<?, ?> leftSideOperable, final AbstractOperableSemanticAST<?, ?> rightSideOperable) {
-    //        if (rightSideOperable instanceof NumberOperableSyntaxAST)
-    //            return TypeKind.combineKinds(this, rightSideOperable);
-    //        else if (rightSideOperable instanceof AbstractExpressionSyntaxAST) {
-    //            final AbstractExpressionSyntaxAST abstractExpressionAST = (AbstractExpressionSyntaxAST) rightSideOperable;
-    //            if (abstractExpressionAST.getOperableObject() == null) {
-    //                this.getSemanticAnalyzer().errorHandler().addError(new SyntaxASTError<>(rightSideOperable, "Can't perform the addition because the expression result is null."));
-    //                return null;
-    //            }
-//
-//            switch (abstractExpressionAST.getOperableObject()) {
-//                case FLOAT:
-//                case INTEGER:
-//                case SHORT:
-//                case DOUBLE:
-//                case BYTE:
-//                    break;
-//                default:
-//                    semanticAnalyzer.errorHandler().addError(new SyntaxASTError<>(rightSideOperable, "Can't perform the addition because the expression result isn't a number."));
-//                    return null;
-//            }
-//            return TypeKind.combineKinds(this, abstractExpressionAST.getOperableObject());
-//        }
-//        return super.binAdd(leftSideOperable, rightSideOperable);
-//    }
-//
-//    @Override
-//    public TypeKind binMul(final AbstractOperableSemanticAST<?, ?> leftSideOperable, final AbstractOperableSemanticAST<?, ?> rightSideOperable) {
-//        if (rightSideOperable instanceof NumberOperableSyntaxAST)
-//            return TypeKind.combineKinds(this, rightSideOperable);
-//        else if (rightSideOperable instanceof AbstractExpressionSyntaxAST) {
-//            final AbstractExpressionSyntaxAST abstractExpressionAST = (AbstractExpressionSyntaxAST) rightSideOperable;
-//            if (abstractExpressionAST.getOperableObject() == null) {
-//                semanticAnalyzer.errorHandler().addError(new SyntaxASTError<>(rightSideOperable, "Can't perform the multiplication because the expression result is null."));
-//                return null;
-//            }
-//
-//            switch (abstractExpressionAST.getOperableObject()) {
-//                case FLOAT:
-//                case INTEGER:
-//                case SHORT:
-//                case DOUBLE:
-//                case BYTE:
-//                    break;
-//                default:
-//                    semanticAnalyzer.errorHandler().addError(new SyntaxASTError<>(rightSideOperable, "Can't perform the multiplication because the expression result isn't a number."));
-//                    return null;
-//            }
-//            return TypeKind.combineKinds(this, abstractExpressionAST.getOperableObject());
-//        }
-//        return super.binMul(leftSideOperable, rightSideOperable);
-//    }
-//
-//    @Override
-//    public TypeKind prefixNegate(final AbstractOperableSemanticAST<?, ?> abstractOperableSemanticAST) {
-//        return TypeKind.getTypeKind(this);
-//    }
     
 }

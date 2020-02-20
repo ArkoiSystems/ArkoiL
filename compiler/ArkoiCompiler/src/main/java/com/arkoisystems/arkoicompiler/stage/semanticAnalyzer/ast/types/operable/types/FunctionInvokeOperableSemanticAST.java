@@ -19,25 +19,26 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
 import com.google.gson.annotations.Expose;
 import lombok.Setter;
 
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 
-@Setter
 public class FunctionInvokeOperableSemanticAST extends AbstractOperableSemanticAST<FunctionInvokeOperableSyntaxAST, TypeKind>
 {
     
-    @Expose
     private FunctionDefinitionSemanticAST invokedFunction;
     
-    @Expose
+    
     private List<ExpressionSemanticAST> invokedExpressions;
+    
     
     public FunctionInvokeOperableSemanticAST(final SemanticAnalyzer semanticAnalyzer, final AbstractSemanticAST<?> lastContainerAST, final FunctionInvokeOperableSyntaxAST functionInvokeOperableSyntaxAST) {
         super(semanticAnalyzer, lastContainerAST, functionInvokeOperableSyntaxAST, ASTType.FUNCTION_INVOKE_OPERABLE);
     }
     
+    
     @Override
-    public TypeKind getExpressionType() {
+    public TypeKind getOperableObject() {
         if (this.getInvokedFunction() == null)
             return null;
         
@@ -45,9 +46,11 @@ public class FunctionInvokeOperableSemanticAST extends AbstractOperableSemanticA
         return functionDefinitionSemanticAST.getFunctionReturnType().getTypeKind();
     }
     
+    
     public ASTAccess getFunctionAccess() {
         return this.getSyntaxAST().getFunctionAccess();
     }
+    
     
     public FunctionDefinitionSemanticAST getInvokedFunction() {
         if (this.invokedFunction == null) {
@@ -71,6 +74,7 @@ public class FunctionInvokeOperableSemanticAST extends AbstractOperableSemanticA
         return this.invokedFunction;
     }
     
+    
     public List<ExpressionSemanticAST> getInvokedExpressions() {
         if(this.invokedExpressions == null) {
             this.invokedExpressions = new ArrayList<>();
@@ -78,7 +82,7 @@ public class FunctionInvokeOperableSemanticAST extends AbstractOperableSemanticA
                 final ExpressionSemanticAST expressionSemanticAST
                         = new ExpressionSemanticAST(this.getSemanticAnalyzer(), this.getLastContainerAST(), expressionSyntaxAST);
     
-                if (expressionSemanticAST.getExpressionType() == null)
+                if (expressionSemanticAST.getOperableObject() == null)
                     return null;
                 this.invokedExpressions.add(expressionSemanticAST);
             }
@@ -86,13 +90,14 @@ public class FunctionInvokeOperableSemanticAST extends AbstractOperableSemanticA
         return this.invokedExpressions;
     }
     
+    
     private String getFunctionDescription() {
         final StringBuilder descriptionBuilder = new StringBuilder(this.getSyntaxAST().getInvokedFunctionName().getTokenContent());
         if(this.getInvokedExpressions() == null)
             return null;
         
         for(final ExpressionSemanticAST expressionSemanticAST : this.getInvokedExpressions()) {
-            final TypeKind typeKind = expressionSemanticAST.getExpressionType();
+            final TypeKind typeKind = expressionSemanticAST.getOperableObject();
             if(typeKind == null)
                 return null;
             descriptionBuilder.append(typeKind.name());

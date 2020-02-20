@@ -9,12 +9,12 @@ import com.arkoisystems.arkoicompiler.stage.errorHandler.AbstractError;
 import com.google.gson.annotations.Expose;
 import lombok.Getter;
 
-@Getter
 public class CharError extends AbstractError
 {
     
-    @Expose
+    @Getter
     private final char character;
+    
     
     public CharError(final char character, final int index, final String message, final Object... arguments) {
         super(index, index + 1, message, arguments);

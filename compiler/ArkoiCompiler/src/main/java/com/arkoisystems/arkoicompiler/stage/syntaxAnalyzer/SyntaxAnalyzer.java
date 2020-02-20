@@ -26,8 +26,6 @@ import java.util.List;
  * (Abstract Syntax Tree) with help of the parsed {@link AbstractToken} list of the {@link
  * LexicalAnalyzer}.
  */
-@Setter
-@Getter
 public class SyntaxAnalyzer extends AbstractStage
 {
     
@@ -35,14 +33,15 @@ public class SyntaxAnalyzer extends AbstractStage
      * This defines the {@link ArkoiClass} in which the {@link SyntaxAnalyzer} got
      * created.
      */
+    @Getter
     private final ArkoiClass arkoiClass;
     
     
     /**
-     * The {@link SyntaxErrorHandler} is used for error which are happening through the
+     * The {@link SyntaxErrorHandler} is used for errors which are happening through the
      * process of parsing the {@link AbstractSyntaxAST}'s.
      */
-    @Expose
+    @Getter
     private final SyntaxErrorHandler errorHandler;
     
     
@@ -50,6 +49,7 @@ public class SyntaxAnalyzer extends AbstractStage
      * The {@link AbstractToken[]} which is used to get current, peeked, next tokens
      * without needing to use a {@link List} or something else.
      */
+    @Getter
     private AbstractToken[] tokens;
     
     
@@ -57,14 +57,14 @@ public class SyntaxAnalyzer extends AbstractStage
      * The current token position of the {@link SyntaxAnalyzer}. Used for methods like
      * {@link SyntaxAnalyzer#currentToken()} or {@link SyntaxAnalyzer#peekToken(int)}.
      */
-    @Expose
+    @Getter
     private int position;
     
     
     /**
      * The {@link RootSyntaxAST} which is getting parsed directly at the beginning.
      */
-    @Expose
+    @Getter
     private RootSyntaxAST rootSyntaxAST;
     
     
@@ -112,6 +112,7 @@ public class SyntaxAnalyzer extends AbstractStage
     public SyntaxErrorHandler errorHandler() {
         return this.errorHandler;
     }
+    
     
     /**
      * Checks if the current {@link AbstractToken} matches with the given {@link

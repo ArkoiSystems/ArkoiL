@@ -14,6 +14,7 @@ import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.types.StringOperableSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.types.expression.AbstractExpressionSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.TypeSyntaxAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types.CastExpressionSyntaxAST;
 import lombok.Getter;
 
 /**
@@ -21,7 +22,6 @@ import lombok.Getter;
  * important for later usage in the {@link SemanticAnalyzer} because it will check if they
  * can be combined etc.
  */
-@Getter
 public enum TypeKind
 {
     
@@ -39,20 +39,43 @@ public enum TypeKind
     /**
      * The name of the enum entry e.g. "double" or "short"
      */
+    @Getter
     private final String name;
     
     
+    /**
+     * Defines whether the entry is numeric or not.
+     */
+    @Getter
     private final boolean isNumeric;
     
     
+    /**
+     * Defines the precision of the entry so that a double has a higher precision than a
+     * float.
+     */
+    @Getter
     private final double precision;
     
     
+    /**
+     * Constructs a new enum entry with the given parameters. It will define the name, if
+     * it's numeric and the precision of it.
+     *
+     * @param name
+     *         the name which should get used for this entry.
+     * @param isNumeric
+     *         defines whether the entry is numeric or not.
+     * @param precision
+     *         the precision of an entry so a {@link #DOUBLE} will have a higher precision
+     *         than a {@link #FLOAT}.
+     */
     TypeKind(final String name, final boolean isNumeric, final double precision) {
         this.isNumeric = isNumeric;
         this.precision = precision;
         this.name = name;
     }
+    
     
     /**
      * Gets the {@link TypeKind} of an {@link AbstractToken} through the token content. It
@@ -95,18 +118,17 @@ public enum TypeKind
     public static TypeKind getTypeKind(final AbstractOperableSemanticAST<?, ?> abstractOperableSemanticAST) {
         if (abstractOperableSemanticAST instanceof AbstractExpressionSemanticAST) {
             final AbstractExpressionSemanticAST<?> abstractExpressionSemanticAST = (AbstractExpressionSemanticAST<?>) abstractOperableSemanticAST;
-            return abstractExpressionSemanticAST.getExpressionType();
+            return abstractExpressionSemanticAST.getOperableObject();
         } else if (abstractOperableSemanticAST instanceof NumberOperableSemanticAST) {
-            //            final NumberOperableSemanticAST numberExpression = (NumberOperableSemanticAST) abstractOperableSemanticAST;
-            //            return getTypeKind(numberExpression.getNumberType());
-            return null;
+            final NumberOperableSemanticAST numberExpression = (NumberOperableSemanticAST) abstractOperableSemanticAST;
+            return numberExpression.getOperableObject();
         } else if (abstractOperableSemanticAST instanceof StringOperableSemanticAST) {
             return STRING;
         } else if (abstractOperableSemanticAST instanceof CollectionOperableSemanticAST) {
             return COLLECTION;
         } else if (abstractOperableSemanticAST instanceof IdentifierCallOperableSemanticAST) {
             final IdentifierCallOperableSemanticAST identifierCallOperableSemanticAST = (IdentifierCallOperableSemanticAST) abstractOperableSemanticAST;
-            return identifierCallOperableSemanticAST.getExpressionType();
+            return identifierCallOperableSemanticAST.getOperableObject();
         } else {
             System.out.println("TypeKind: Not supported yet #1: " + abstractOperableSemanticAST);
             return null;
@@ -150,20 +172,42 @@ public enum TypeKind
      *         supported.
      */
     private static TypeKind combineKinds(final TypeKind leftSideKind, final TypeKind rightSideKind) {
-        System.out.print(leftSideKind + ", " + rightSideKind + ": ");
         if (leftSideKind == STRING && rightSideKind == COLLECTION) {
-            System.out.print(STRING + "\n");
             return STRING;
         } else if (leftSideKind.isNumeric() && rightSideKind.isNumeric()) {
-            if (rightSideKind.getPrecision() > leftSideKind.getPrecision()) {
-                System.out.print(rightSideKind + "\n");
+            if (rightSideKind.getPrecision() > leftSideKind.getPrecision())
                 return rightSideKind;
-            } else {
-                System.out.print(leftSideKind + "\n");
+            else
                 return leftSideKind;
-            }
         } else
             throw new NullPointerException("Combination isn't supported: " + leftSideKind + ", " + rightSideKind);
     }
     
+    
+    /**
+     * Resolves the {@link TypeKind} of the given {@link CastExpressionSyntaxAST.CastOperator}
+     * and returns it if something was found.
+     *
+     * @param castOperator
+     *         the {@link CastExpressionSyntaxAST.CastOperator} which should get used.
+     *
+     * @return {@code null} if the {@link CastExpressionSyntaxAST.CastOperator} isn't
+     *         supported or the resolved {@link TypeKind}.
+     */
+    public static TypeKind getTypeKind(final CastExpressionSyntaxAST.CastOperator castOperator) {
+        switch (castOperator) {
+            case SHORT:
+                return SHORT;
+            case DOUBLE:
+                return DOUBLE;
+            case FLOAT:
+                return FLOAT;
+            case INTEGER:
+                return INTEGER;
+            case BYTE:
+                return BYTE;
+            default:
+                return null;
+        }
+    }
 }

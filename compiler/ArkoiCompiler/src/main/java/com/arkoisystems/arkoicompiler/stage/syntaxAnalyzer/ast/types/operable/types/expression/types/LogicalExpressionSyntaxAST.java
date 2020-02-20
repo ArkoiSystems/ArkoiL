@@ -15,19 +15,18 @@ import lombok.Getter;
 
 import java.io.PrintStream;
 
-@Getter
 public class LogicalExpressionSyntaxAST extends AbstractExpressionSyntaxAST
 {
     
-    @Expose
+    @Getter
     private final AbstractOperableSyntaxAST<?> leftSideOperable;
     
     
-    @Expose
+    @Getter
     private final LogicalOperator logicalOperator;
     
     
-    @Expose
+    @Getter
     private final AbstractOperableSyntaxAST<?> rightSideOperable;
     
     
@@ -50,14 +49,14 @@ public class LogicalExpressionSyntaxAST extends AbstractExpressionSyntaxAST
     
     
     @Override
-    public void printAST(final PrintStream printStream, final String indents) {
+    public void printSyntaxAST(final PrintStream printStream, final String indents) {
         printStream.println(indents + "├── left:");
         printStream.println(indents + "│   └── " + this.getLeftSideOperable().getClass().getSimpleName());
-        this.getLeftSideOperable().printAST(printStream, indents + "│       ");
+        this.getLeftSideOperable().printSyntaxAST(printStream, indents + "│       ");
         printStream.println(indents + "├── operator: " + this.getLogicalOperator());
         printStream.println(indents + "└── right:");
         printStream.println(indents + "    └── " + this.getRightSideOperable().getClass().getSimpleName());
-        this.getRightSideOperable().printAST(printStream, indents + "        ");
+        this.getRightSideOperable().printSyntaxAST(printStream, indents + "        ");
     }
     
     

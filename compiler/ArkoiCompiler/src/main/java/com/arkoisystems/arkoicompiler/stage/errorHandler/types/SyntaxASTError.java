@@ -10,12 +10,12 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST
 import com.google.gson.annotations.Expose;
 import lombok.Getter;
 
-@Getter
 public class SyntaxASTError<T extends AbstractSyntaxAST> extends AbstractError
 {
     
-    @Expose
+    @Getter
     private final T abstractAST;
+    
     
     public SyntaxASTError(final T abstractAST, final String message, final Object... arguments) {
         super(abstractAST.getStart(), abstractAST.getEnd(), message, arguments);

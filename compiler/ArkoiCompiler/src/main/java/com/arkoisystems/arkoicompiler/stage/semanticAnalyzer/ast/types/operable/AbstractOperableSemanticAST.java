@@ -11,7 +11,8 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
 import lombok.Getter;
 
-@Getter
+import java.io.PrintStream;
+
 public class AbstractOperableSemanticAST<T1 extends AbstractSyntaxAST, O> extends AbstractSemanticAST<T1>
 {
     
@@ -19,7 +20,8 @@ public class AbstractOperableSemanticAST<T1 extends AbstractSyntaxAST, O> extend
         super(semanticAnalyzer, lastContainerAST, syntaxAST, astType);
     }
     
-    public O getExpressionType() {
+    
+    public O getOperableObject() {
         return null;
     }
     

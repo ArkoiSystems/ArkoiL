@@ -11,7 +11,6 @@ import com.arkoisystems.arkoicompiler.stage.errorHandler.types.TokenError;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.SymbolToken;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.ArgumentDefinitionSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.AbstractOperableSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.AbstractExpressionSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types.ExpressionSyntaxAST;
@@ -23,11 +22,10 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 
-@Getter
 public class CollectionOperableSyntaxAST extends AbstractOperableSyntaxAST<AbstractExpressionSyntaxAST[]>
 {
     
-    @Expose
+    @Getter
     private final List<ExpressionSyntaxAST> collectionExpressions;
     
     
@@ -73,18 +71,17 @@ public class CollectionOperableSyntaxAST extends AbstractOperableSyntaxAST<Abstr
     
     
     @Override
-    public void printAST(final PrintStream printStream, final String indents) {
+    public void printSyntaxAST(final PrintStream printStream, final String indents) {
         printStream.println(indents + "└── expressions: " + (this.getCollectionExpressions().isEmpty() ? "N/A" : ""));
         for (int index = 0; index < this.getCollectionExpressions().size(); index++) {
             final ExpressionSyntaxAST abstractSyntaxAST = this.getCollectionExpressions().get(index);
             if (index == this.getCollectionExpressions().size() - 1) {
-                printStream.println(indents + "    │   ");
                 printStream.println(indents + "    └── " + abstractSyntaxAST.getExpressionOperable().getClass().getSimpleName());
-                abstractSyntaxAST.printAST(printStream, indents + "        ");
+                abstractSyntaxAST.printSyntaxAST(printStream, indents + "        ");
             } else {
-                printStream.println(indents + "    │   ");
                 printStream.println(indents + "    ├── " + abstractSyntaxAST.getExpressionOperable().getClass().getSimpleName());
-                abstractSyntaxAST.printAST(printStream, indents + "    │   ");
+                abstractSyntaxAST.printSyntaxAST(printStream, indents + "    │   ");
+                printStream.println(indents + "    │   ");
             }
         }
     }

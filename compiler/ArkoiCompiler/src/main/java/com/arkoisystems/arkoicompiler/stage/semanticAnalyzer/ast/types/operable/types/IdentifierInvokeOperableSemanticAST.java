@@ -12,57 +12,59 @@ import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.AbstractSemanti
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.AbstractOperableSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.statements.FunctionDefinitionSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.statements.ImportDefinitionSemanticAST;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTAccess;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.FunctionInvokeOperableSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.IdentifierInvokeOperableSyntaxAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTAccess;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
 import com.google.gson.annotations.Expose;
 import lombok.Setter;
 
-@Setter
 public class IdentifierInvokeOperableSemanticAST extends AbstractOperableSemanticAST<IdentifierInvokeOperableSyntaxAST, TypeKind>
 {
     
-    @Expose
     private AbstractSemanticAST<?> invokedIdentifier;
     
-    @Expose
+    
     private AbstractSemanticAST<?> invokePostStatement;
+    
     
     public IdentifierInvokeOperableSemanticAST(final SemanticAnalyzer semanticAnalyzer, final AbstractSemanticAST<?> lastContainerAST, final IdentifierInvokeOperableSyntaxAST identifierInvokeOperableSyntaxAST) {
         super(semanticAnalyzer, lastContainerAST, identifierInvokeOperableSyntaxAST, ASTType.IDENTIFIER_INVOKE_OPERABLE);
     }
     
+    
     @Override
-    public TypeKind getExpressionType() {
+    public TypeKind getOperableObject() {
         if (this.getInvokePostStatement() == null)
             return null;
         
         final AbstractSemanticAST<?> invokedPostStatement = this.getInvokePostStatement();
         if (invokedPostStatement instanceof FunctionInvokeOperableSemanticAST) {
             final FunctionInvokeOperableSemanticAST functionInvokeOperableSemanticAST = (FunctionInvokeOperableSemanticAST) invokedPostStatement;
-            return functionInvokeOperableSemanticAST.getExpressionType();
+            return functionInvokeOperableSemanticAST.getOperableObject();
         } else if (invokedPostStatement instanceof IdentifierInvokeOperableSemanticAST) {
             final IdentifierInvokeOperableSemanticAST identifierInvokeOperableSemanticAST = (IdentifierInvokeOperableSemanticAST) invokedPostStatement;
-            return identifierInvokeOperableSemanticAST.getExpressionType();
+            return identifierInvokeOperableSemanticAST.getOperableObject();
         } else if (invokedPostStatement instanceof IdentifierCallOperableSemanticAST) {
             final IdentifierCallOperableSemanticAST identifierCallOperableSemanticAST = (IdentifierCallOperableSemanticAST) invokedPostStatement;
-            return identifierCallOperableSemanticAST.getExpressionType();
+            return identifierCallOperableSemanticAST.getOperableObject();
         } else {
             this.getSemanticAnalyzer().errorHandler().addError(new SemanticASTError<>(invokedPostStatement, "Couldn't analyze this identifier invoke because the followed statement isn't supported."));
             return null;
         }
     }
     
+    
     public ASTAccess getIdentifierAccess() {
         return this.getSyntaxAST().getIdentifierAccess();
     }
     
+    
     public AbstractSemanticAST<?> getInvokedIdentifier() {
         if (this.invokedIdentifier == null) {
             AbstractSemanticAST<?> abstractSemanticAST = null;
-            if (this.getIdentifierAccess() != ASTAccess.THIS_ACCESS && this.getLastContainerAST() instanceof FunctionDefinitionSemanticAST) {
+            if (this.getIdentifierAccess() != ASTAccess.THIS_ACCESS && this.getLastFunctionDefinition(this.getLastContainerAST()) instanceof FunctionDefinitionSemanticAST) {
                 final FunctionDefinitionSemanticAST functionDefinitionSemanticAST = (FunctionDefinitionSemanticAST) this.getLastContainerAST();
                 abstractSemanticAST = functionDefinitionSemanticAST.findIdentifier(this.getSyntaxAST().getInvokedIdentifier());
             }
@@ -77,6 +79,19 @@ public class IdentifierInvokeOperableSemanticAST extends AbstractOperableSemanti
         }
         return this.invokedIdentifier;
     }
+    
+    
+    private FunctionDefinitionSemanticAST getLastFunctionDefinition(final AbstractSemanticAST<?> abstractSemanticAST) {
+        if (abstractSemanticAST.getClass() == FunctionDefinitionSemanticAST.class)
+            return (FunctionDefinitionSemanticAST) abstractSemanticAST;
+        else if (abstractSemanticAST.getLastContainerAST() == null)
+            return null;
+        else if (abstractSemanticAST.getLastContainerAST().getClass() == FunctionDefinitionSemanticAST.class)
+            return (FunctionDefinitionSemanticAST) abstractSemanticAST.getLastContainerAST();
+        else
+            return this.getLastFunctionDefinition(abstractSemanticAST.getLastContainerAST());
+    }
+    
     
     public AbstractSemanticAST<?> getInvokePostStatement() {
         if (this.invokePostStatement == null) {

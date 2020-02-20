@@ -5,13 +5,9 @@
  */
 package com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils;
 
-import lombok.Getter;
-
-@Getter
 public enum TokenType
 {
     
-    WHITESPACE,
     COMMENT,
     SYMBOL,
     

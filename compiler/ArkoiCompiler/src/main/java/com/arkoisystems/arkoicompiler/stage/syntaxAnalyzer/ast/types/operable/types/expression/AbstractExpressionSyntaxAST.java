@@ -25,7 +25,7 @@ import java.io.PrintStream;
 /*
     Operator Precedence:
     1. parenthesis ( (expr) )
-    2. number casting ( expr fFdDsSiIlLbB )
+    2. number casting ( expr fFdDsSiIbB )
     3. postfix (expr++ expr--)
     4. prefix (++expr --expr +expr -expr ~expr !expr)
     5. multiplicative (* / %)
@@ -40,7 +40,6 @@ import java.io.PrintStream;
         wip 9. ternary (? :)
     11. assignment (= += -= *= /= %=)
 */
-@Getter
 public class AbstractExpressionSyntaxAST extends AbstractOperableSyntaxAST<TypeKind>
 {
     
@@ -84,7 +83,7 @@ public class AbstractExpressionSyntaxAST extends AbstractOperableSyntaxAST<TypeK
     }
     
     @Override
-    public void printAST(final PrintStream printStream, final String indents) {
+    public void printSyntaxAST(final PrintStream printStream, final String indents) {
     
     }
     
@@ -380,7 +379,7 @@ public class AbstractExpressionSyntaxAST extends AbstractOperableSyntaxAST<TypeK
         return leftSideAST;
     }
     
-    // 2. number casting ( expr-fFdDsSiIlLbB )
+    // 2. number casting ( expr-fFdDsSiIbB )
     private AbstractOperableSyntaxAST<?> parseNumberCast(final SyntaxAnalyzer syntaxAnalyzer) {
         AbstractOperableSyntaxAST<?> leftSideAST = this.parseParenthesis(syntaxAnalyzer);
         if (leftSideAST == null)
@@ -405,11 +404,7 @@ public class AbstractExpressionSyntaxAST extends AbstractOperableSyntaxAST<TypeK
                 case "i":
                 case "I":
                     syntaxAnalyzer.nextToken();
-                    return new CastExpressionSyntaxAST(leftSideAST, CastExpressionSyntaxAST.CastOperator.INT);
-                case "l":
-                case "L":
-                    syntaxAnalyzer.nextToken();
-                    return new CastExpressionSyntaxAST(leftSideAST, CastExpressionSyntaxAST.CastOperator.LONG);
+                    return new CastExpressionSyntaxAST(leftSideAST, CastExpressionSyntaxAST.CastOperator.INTEGER);
                 case "b":
                 case "B":
                     syntaxAnalyzer.nextToken();

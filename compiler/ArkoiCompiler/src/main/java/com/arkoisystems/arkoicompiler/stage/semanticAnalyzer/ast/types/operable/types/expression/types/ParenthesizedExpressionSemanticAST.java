@@ -15,30 +15,33 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
 import com.google.gson.annotations.Expose;
 import lombok.Setter;
 
-@Setter
+import java.io.PrintStream;
+
 public class ParenthesizedExpressionSemanticAST extends AbstractExpressionSemanticAST<ParenthesizedExpressionSyntaxAST>
 {
     
-    @Expose
     private AbstractExpressionSemanticAST<?> parenthesizedExpression;
+    
     
     public ParenthesizedExpressionSemanticAST(final SemanticAnalyzer semanticAnalyzer, final AbstractSemanticAST<?> lastContainerAST, final ParenthesizedExpressionSyntaxAST parenthesizedExpressionSyntaxAST) {
         super(semanticAnalyzer, lastContainerAST, parenthesizedExpressionSyntaxAST, ASTType.PARENTHESIZED_EXPRESSION);
     }
     
+    
     @Override
-    public TypeKind getExpressionType() {
+    public TypeKind getOperableObject() {
         if(this.getParenthesizedExpression() == null)
             return null;
-        return this.getParenthesizedExpression().getExpressionType();
+        return this.getParenthesizedExpression().getOperableObject();
     }
+    
     
     public AbstractExpressionSemanticAST<?> getParenthesizedExpression() {
         if(this.parenthesizedExpression == null) {
-            final ExpressionSyntaxAST expressionSyntaxAST = (ExpressionSyntaxAST) this.getSyntaxAST().getParenthesizedExpression();
+            final ExpressionSyntaxAST expressionSyntaxAST = this.getSyntaxAST().getParenthesizedExpression();
             this.parenthesizedExpression
                     = new ExpressionSemanticAST(this.getSemanticAnalyzer(), this.getLastContainerAST(), expressionSyntaxAST);
-            if(this.parenthesizedExpression.getExpressionType() == null)
+            if(this.parenthesizedExpression.getOperableObject() == null)
                 return null;
         }
         return this.parenthesizedExpression;

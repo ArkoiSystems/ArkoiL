@@ -14,7 +14,6 @@ import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenTyp
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.*;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types.ExpressionSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.AbstractStatementSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.BlockType;
@@ -27,28 +26,27 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 
-@Getter
-@Setter
 public class FunctionDefinitionSyntaxAST extends AbstractStatementSyntaxAST
 {
     
-    @Expose
+    
+    @Getter
     private List<AnnotationSyntaxAST> functionAnnotations;
     
     
-    @Expose
+    @Getter
     private IdentifierToken functionName;
     
     
-    @Expose
+    @Getter
     private TypeSyntaxAST functionReturnType;
     
     
-    @Expose
+    @Getter
     private List<ArgumentDefinitionSyntaxAST> functionArguments;
     
     
-    @Expose
+    @Getter
     private BlockSyntaxAST functionBlock;
     
     
@@ -198,40 +196,38 @@ public class FunctionDefinitionSyntaxAST extends AbstractStatementSyntaxAST
     
     
     @Override
-    public void printAST(final PrintStream printStream, final String indents) {
+    public void printSyntaxAST(final PrintStream printStream, final String indents) {
         printStream.println(indents + "├── annotations: " + (this.getFunctionAnnotations().isEmpty() ? "N/A" : ""));
         for (int index = 0; index < this.getFunctionAnnotations().size(); index++) {
             final AnnotationSyntaxAST abstractSyntaxAST = this.getFunctionAnnotations().get(index);
             if (index == this.getFunctionAnnotations().size() - 1) {
-                printStream.println(indents + "│   │   ");
                 printStream.println(indents + "│   └── " + abstractSyntaxAST.getClass().getSimpleName());
-                abstractSyntaxAST.printAST(printStream, indents + "│       ");
+                abstractSyntaxAST.printSyntaxAST(printStream, indents + "│       ");
             } else {
-                printStream.println(indents + "│   │   ");
                 printStream.println(indents + "│   ├── " + abstractSyntaxAST.getClass().getSimpleName());
-                abstractSyntaxAST.printAST(printStream, indents + "│   │   ");
+                abstractSyntaxAST.printSyntaxAST(printStream, indents + "│   │   ");
+                printStream.println(indents + "│   │   ");
             }
         }
         printStream.println(indents + "│");
         printStream.println(indents + "├── name: " + this.getFunctionName().getTokenContent());
         printStream.println(indents + "├── type: " + this.getFunctionReturnType().getTypeKind().getName() + (this.getFunctionReturnType().isArray() ? "[]" : ""));
+        printStream.println(indents + "│");
         printStream.println(indents + "├── arguments: " + (this.getFunctionArguments().isEmpty() ? "N/A" : ""));
         for (int index = 0; index < this.getFunctionArguments().size(); index++) {
             final ArgumentDefinitionSyntaxAST abstractSyntaxAST = this.getFunctionArguments().get(index);
             if (index == this.getFunctionArguments().size() - 1) {
-                printStream.println(indents + "│   │   ");
                 printStream.println(indents + "│   └── " + abstractSyntaxAST.getClass().getSimpleName());
-                abstractSyntaxAST.printAST(printStream, indents + "│       ");
+                abstractSyntaxAST.printSyntaxAST(printStream, indents + "│       ");
             } else {
-                printStream.println(indents + "│   │   ");
                 printStream.println(indents + "│   ├── " + abstractSyntaxAST.getClass().getSimpleName());
-                abstractSyntaxAST.printAST(printStream, indents + "│   │   ");
+                abstractSyntaxAST.printSyntaxAST(printStream, indents + "│   │   ");
+                printStream.println(indents + "│   │   ");
             }
         }
         printStream.println(indents + "│");
         printStream.println(indents + "└── block: ");
-        printStream.println(indents + "    └── " + this.getFunctionBlock().getClass().getSimpleName());
-        this.getFunctionBlock().printAST(printStream, indents + "         ");
+        this.getFunctionBlock().printSyntaxAST(printStream, indents + "     ");
     }
     
     

@@ -10,12 +10,12 @@ import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.AbstractSemanti
 import com.google.gson.annotations.Expose;
 import lombok.Getter;
 
-@Getter
 public class SemanticASTError<T extends AbstractSemanticAST<?>> extends AbstractError
 {
     
-    @Expose
+    @Getter
     private final T abstractAST;
+    
     
     public SemanticASTError(final T abstractAST, final String message, final Object... arguments) {
         super(abstractAST.getStart(), abstractAST.getEnd(), message, arguments);

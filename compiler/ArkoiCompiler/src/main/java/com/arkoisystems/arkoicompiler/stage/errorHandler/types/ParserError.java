@@ -12,32 +12,37 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.parser.AbstractParser
 import com.google.gson.annotations.Expose;
 import lombok.Getter;
 
-@Getter
 public class ParserError<T extends AbstractParser<?>> extends AbstractError
 {
     
-    @Expose
+    
+    @Getter
     private final T parser;
+    
     
     public ParserError(final T parser, final int start, final int end, final String message, final Object... arguments) {
         super(start, end, message, arguments);
         this.parser = parser;
     }
     
+    
     public ParserError(final T parser, final AbstractToken abstractToken, final String message, final Object... arguments) {
         super(abstractToken.getStart(), abstractToken.getEnd(), message, arguments);
         this.parser = parser;
     }
+    
     
     public ParserError(final T parser, final AbstractSyntaxAST abstractSyntaxAST, final String message, final Object... arguments) {
         super(abstractSyntaxAST.getStart(), abstractSyntaxAST.getEnd(), message, arguments);
         this.parser = parser;
     }
     
+    
     public ParserError(final T parser, final AbstractToken abstractToken) {
         super(abstractToken.getStart(), abstractToken.getEnd(), "Couldn't parse the \"" + parser.getParameterName() + "\" because an error occurred.");
         this.parser = parser;
     }
+    
     
     public ParserError(final T parser, final int start, final int end) {
         super(start, end, "Couldn't parse the \"" + parser.getParameterName() + "\" because an error occurred.");
