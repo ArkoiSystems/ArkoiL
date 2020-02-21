@@ -20,7 +20,6 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.ty
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.AbstractStatementSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTAccess;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
-import lombok.Getter;
 
 import java.io.PrintStream;
 
@@ -64,7 +63,7 @@ public class ThisStatementSyntaxAST extends AbstractStatementSyntaxAST
     @Override
     public AbstractSyntaxAST parseAST(final AbstractSyntaxAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
         if (!(parentAST instanceof BlockSyntaxAST) && !(parentAST instanceof AbstractExpressionSyntaxAST)) {
-            syntaxAnalyzer.errorHandler().addError(new SyntaxASTError<>(parentAST, "Couldn't parse the \"this\" statement because it isn't declared inside a block or an expression."));
+            syntaxAnalyzer.errorHandler().addError(new SyntaxASTError<>(syntaxAnalyzer.getArkoiClass(), parentAST, "Couldn't parse the \"this\" statement because it isn't declared inside a block or an expression."));
             return null;
         }
     

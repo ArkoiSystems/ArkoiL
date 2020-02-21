@@ -5,23 +5,20 @@
  */
 package com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.statements;
 
-import com.arkoisystems.arkoicompiler.stage.errorHandler.types.doubles.DoubleSyntaxASTError;
+import com.arkoisystems.arkoicompiler.stage.errorHandler.types.SemanticASTError;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.IdentifierToken;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.SemanticAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.AbstractSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.AnnotationSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.ArgumentDefinitionSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.BlockSemanticAST;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.AnnotationSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.ArgumentDefinitionSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.BlockSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.TypeSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.types.FunctionDefinitionSyntaxAST;
-import com.google.gson.annotations.Expose;
-import lombok.Setter;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 
-import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -51,7 +48,7 @@ public class FunctionDefinitionSemanticAST extends AbstractSemanticAST<FunctionD
         if(this.functionAnnotations == null) {
             this.functionAnnotations = new ArrayList<>();
             
-            final HashMap<String, AnnotationSemanticAST> names = new HashMap<>();
+            final HashMap<String, AbstractSemanticAST<?>> names = new HashMap<>();
             for(final AnnotationSyntaxAST annotationSyntaxAST : this.getSyntaxAST().getFunctionAnnotations()) {
                 final AnnotationSemanticAST annotationSemanticAST
                         = new AnnotationSemanticAST(this.getSemanticAnalyzer(), this, annotationSyntaxAST);
@@ -62,7 +59,13 @@ public class FunctionDefinitionSemanticAST extends AbstractSemanticAST<FunctionD
         
                 if (names.containsKey(annotationName.getTokenContent())) {
                     final AbstractSemanticAST<?> alreadyExistAST = names.get(annotationName.getTokenContent());
-                    this.getSemanticAnalyzer().errorHandler().addError(new DoubleSyntaxASTError<>(annotationSemanticAST.getSyntaxAST(), alreadyExistAST.getSyntaxAST(), "Couldn't analyze this annotation because there already exists another one with the same name."));
+                    this.getSemanticAnalyzer().errorHandler().addError(new SemanticASTError<>(
+                            this.getSemanticAnalyzer().getArkoiClass(),
+                            new AbstractSemanticAST[]{alreadyExistAST},
+                            alreadyExistAST.getStart(),
+                            annotationSemanticAST.getEnd(),
+                            "Couldn't analyze this annotation because there already exists another one with the same name."
+                    ));
                     return null;
                 }
                 
@@ -99,7 +102,13 @@ public class FunctionDefinitionSemanticAST extends AbstractSemanticAST<FunctionD
                 
                 if (names.containsKey(argumentName.getTokenContent())) {
                     final AbstractSemanticAST<?> alreadyExistAST = names.get(argumentName.getTokenContent());
-                    this.getSemanticAnalyzer().errorHandler().addError(new DoubleSyntaxASTError<>(argumentDefinitionSemanticAST.getSyntaxAST(), alreadyExistAST.getSyntaxAST(), "Couldn't analyze this argument because there already exists another AST with the same name."));
+                    this.getSemanticAnalyzer().errorHandler().addError(new SemanticASTError<>(
+                            this.getSemanticAnalyzer().getArkoiClass(),
+                            new AbstractSemanticAST[]{alreadyExistAST},
+                            alreadyExistAST.getStart(),
+                            argumentDefinitionSemanticAST.getEnd(),
+                            "Couldn't analyze this argument because there already exists another AST with the same name."
+                    ));
                     return null;
                 } else names.put(argumentName.getTokenContent(), argumentDefinitionSemanticAST);
                 
@@ -126,10 +135,14 @@ public class FunctionDefinitionSemanticAST extends AbstractSemanticAST<FunctionD
             final BlockSyntaxAST blockSyntaxAST = this.getSyntaxAST().getFunctionBlock();
             this.functionBlock
                     = new BlockSemanticAST(this.getSemanticAnalyzer(), this, blockSyntaxAST);
+    
+            final HashMap<String, AbstractSemanticAST<?>> names = new HashMap<>();
+            for(final ArgumentDefinitionSemanticAST argumentDefinitionSemanticAST : this.getFunctionArguments())
+                names.put(argumentDefinitionSemanticAST.getArgumentName().getTokenContent(), argumentDefinitionSemanticAST);
             
             if (this.functionBlock.getBlockType() == null)
                 return null;
-            if (this.functionBlock.getBlockStorage() == null)
+            if (this.functionBlock.getBlockStorage(names) == null)
                 return null;
         }
         return this.functionBlock;
@@ -137,9 +150,15 @@ public class FunctionDefinitionSemanticAST extends AbstractSemanticAST<FunctionD
     
     
     public AbstractSemanticAST<?> findIdentifier(final IdentifierToken identifierToken) {
-        if(this.getFunctionBlock() == null)
+        if (this.getFunctionBlock() == null)
             return null;
-        return this.getFunctionBlock().findIdentifier(identifierToken);
+        AbstractSemanticAST<?> abstractSemanticAST = this.getFunctionBlock().findIdentifier(identifierToken);
+        if (abstractSemanticAST == null) {
+            for (final ArgumentDefinitionSemanticAST argumentDefinitionSemanticAST : this.getFunctionArguments())
+                if (argumentDefinitionSemanticAST.getArgumentName().getTokenContent().equals(identifierToken.getTokenContent()))
+                    return argumentDefinitionSemanticAST;
+            return null;
+        } else return abstractSemanticAST;
     }
     
 }

@@ -17,7 +17,6 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.A
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTAccess;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
-import com.google.gson.annotations.Expose;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -27,6 +26,7 @@ public class IdentifierInvokeOperableSyntaxAST extends AbstractOperableSyntaxAST
 {
     
     @Getter
+    @Setter
     private ASTAccess identifierAccess;
     
     

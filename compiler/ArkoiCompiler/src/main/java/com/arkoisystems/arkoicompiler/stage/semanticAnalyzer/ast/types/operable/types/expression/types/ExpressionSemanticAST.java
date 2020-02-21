@@ -16,9 +16,6 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.ty
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types.*;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
-import lombok.Setter;
-
-import java.io.PrintStream;
 
 public class ExpressionSemanticAST extends AbstractExpressionSemanticAST<ExpressionSyntaxAST>
 {
@@ -58,7 +55,11 @@ public class ExpressionSemanticAST extends AbstractExpressionSemanticAST<Express
             } else if (expressionOperable == null)
                 return null;
             else {
-                this.getSemanticAnalyzer().errorHandler().addError(new SemanticASTError<>(expressionOperable, "Couldn't analyze the expression because the operable object isn't supported."));
+                this.getSemanticAnalyzer().errorHandler().addError(new SemanticASTError<>(
+                        this.getSemanticAnalyzer().getArkoiClass(),
+                        new AbstractSemanticAST[] { expressionOperable },
+                        "Couldn't analyze the expression because the operable object isn't supported."
+                ));
                 return null;
             }
         }
@@ -163,7 +164,7 @@ public class ExpressionSemanticAST extends AbstractExpressionSemanticAST<Express
                     return null;
                 return (this.expressionOperable = castExpressionSemanticAST);
             } else {
-                this.getSemanticAnalyzer().errorHandler().addError(new SyntaxASTError<>(this.getSyntaxAST().getExpressionOperable(), "Couldn't analyze this expression because the operable isn't supported."));
+                this.getSemanticAnalyzer().errorHandler().addError(new SyntaxASTError<>(this.getSemanticAnalyzer().getArkoiClass(), this.getSyntaxAST().getExpressionOperable(), "Couldn't analyze this expression because the operable isn't supported."));
                 return null;
             }
         }

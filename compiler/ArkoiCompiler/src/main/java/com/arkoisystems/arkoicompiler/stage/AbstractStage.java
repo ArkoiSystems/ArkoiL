@@ -6,6 +6,8 @@
 package com.arkoisystems.arkoicompiler.stage;
 
 import com.arkoisystems.arkoicompiler.stage.errorHandler.ErrorHandler;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * The abstract version of a stage which has some pre-defined methods to overwrite. Every
@@ -14,6 +16,14 @@ import com.arkoisystems.arkoicompiler.stage.errorHandler.ErrorHandler;
  */
 public abstract class AbstractStage
 {
+    
+    /**
+     * Defines a flag if the stage failed to run or not.
+     */
+    @Getter
+    @Setter
+    private boolean failedStage = false;
+    
     
     /**
      * Returns the {@link ErrorHandler} of the current stage. So every stage needs to

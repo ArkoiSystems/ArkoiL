@@ -9,6 +9,7 @@ fun main<int>(args: string[]) {
     var test_1 = "Hello";
     var test_3 = this.test_1;
     var test_6 = 1;
+    var args = "Test";
     
     this.print_greet(test_1);
     return (20++ + -10 * 5f) * 2 + (test_6 += 1);

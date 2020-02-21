@@ -15,15 +15,11 @@ import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.types.IdentifierInvokeOperableSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.types.NumberOperableSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.types.expression.AbstractExpressionSemanticAST;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.AbstractOperableSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.NumberOperableSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types.PrefixExpressionSyntaxAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
-import com.google.gson.annotations.Expose;
-import lombok.Setter;
-
-import java.io.PrintStream;
 
 public class PrefixExpressionSemanticAST extends AbstractExpressionSemanticAST<PrefixExpressionSyntaxAST>
 {
@@ -93,7 +89,7 @@ public class PrefixExpressionSemanticAST extends AbstractExpressionSemanticAST<P
                 return null;
             return numberOperableSemanticAST;
         } else {
-            this.getSemanticAnalyzer().errorHandler().addError(new SyntaxASTError<>(abstractOperableSyntaxAST, "Couldn't analyze this operable because it isn't supported by the binary expression."));
+            this.getSemanticAnalyzer().errorHandler().addError(new SyntaxASTError<>(this.getSemanticAnalyzer().getArkoiClass(), abstractOperableSyntaxAST, "Couldn't analyze this operable because it isn't supported by the binary expression."));
             return null;
         }
     }
@@ -103,7 +99,11 @@ public class PrefixExpressionSemanticAST extends AbstractExpressionSemanticAST<P
     public TypeKind prefixAdd(final AbstractOperableSemanticAST<?, ?> abstractOperableSemanticAST) {
         final AbstractOperableSemanticAST<?, ?> rightExpressionOperable = this.analyzeNumericOperable(abstractOperableSemanticAST);
         if (rightExpressionOperable == null) {
-            this.getSemanticAnalyzer().errorHandler().addError(new SemanticASTError<>(abstractOperableSemanticAST, "Couldn't analyze the prefix expression because the prefix add operation doesn't support this operable."));
+            this.getSemanticAnalyzer().errorHandler().addError(new SemanticASTError<>(
+                    this.getSemanticAnalyzer().getArkoiClass(),
+                    new AbstractSemanticAST[] { abstractOperableSemanticAST },
+                    "Couldn't analyze the prefix expression because the prefix add operation doesn't support this operable."
+            ));
             return null;
         }
         return TypeKind.getTypeKind(rightExpressionOperable);
@@ -114,7 +114,11 @@ public class PrefixExpressionSemanticAST extends AbstractExpressionSemanticAST<P
     public TypeKind prefixSub(final AbstractOperableSemanticAST<?, ?> abstractOperableSemanticAST) {
         final AbstractOperableSemanticAST<?, ?> rightExpressionOperable = this.analyzeNumericOperable(abstractOperableSemanticAST);
         if (rightExpressionOperable == null) {
-            this.getSemanticAnalyzer().errorHandler().addError(new SemanticASTError<>(abstractOperableSemanticAST, "Couldn't analyze the prefix expression because the prefix sub operation doesn't support this operable."));
+            this.getSemanticAnalyzer().errorHandler().addError(new SemanticASTError<>(
+                    this.getSemanticAnalyzer().getArkoiClass(),
+                    new AbstractSemanticAST[] { abstractOperableSemanticAST },
+                    "Couldn't analyze the prefix expression because the prefix sub operation doesn't support this operable."
+            ));
             return null;
         }
         return TypeKind.getTypeKind(rightExpressionOperable);
@@ -125,7 +129,11 @@ public class PrefixExpressionSemanticAST extends AbstractExpressionSemanticAST<P
     public TypeKind prefixNegate(final AbstractOperableSemanticAST<?, ?> abstractOperableSemanticAST) {
         final AbstractOperableSemanticAST<?, ?> rightExpressionOperable = this.analyzeNumericOperable(abstractOperableSemanticAST);
         if (rightExpressionOperable == null) {
-            this.getSemanticAnalyzer().errorHandler().addError(new SemanticASTError<>(abstractOperableSemanticAST, "Couldn't analyze the prefix expression because the prefix negate operation doesn't support this operable."));
+            this.getSemanticAnalyzer().errorHandler().addError(new SemanticASTError<>(
+                    this.getSemanticAnalyzer().getArkoiClass(),
+                    new AbstractSemanticAST[] { abstractOperableSemanticAST },
+                    "Couldn't analyze the prefix expression because the prefix negate operation doesn't support this operable."
+            ));
             return null;
         }
         return TypeKind.getTypeKind(rightExpressionOperable);
@@ -136,7 +144,11 @@ public class PrefixExpressionSemanticAST extends AbstractExpressionSemanticAST<P
     public TypeKind prefixAffirm(final AbstractOperableSemanticAST<?, ?> abstractOperableSemanticAST) {
         final AbstractOperableSemanticAST<?, ?> rightExpressionOperable = this.analyzeNumericOperable(abstractOperableSemanticAST);
         if (rightExpressionOperable == null) {
-            this.getSemanticAnalyzer().errorHandler().addError(new SemanticASTError<>(abstractOperableSemanticAST, "Couldn't analyze the prefix expression because the prefix affirm operation doesn't support this operable."));
+            this.getSemanticAnalyzer().errorHandler().addError(new SemanticASTError<>(
+                    this.getSemanticAnalyzer().getArkoiClass(),
+                    new AbstractSemanticAST[] { abstractOperableSemanticAST },
+                    "Couldn't analyze the prefix expression because the prefix affirm operation doesn't support this operable."
+            ));
             return null;
         }
         return TypeKind.getTypeKind(rightExpressionOperable);

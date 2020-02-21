@@ -18,9 +18,7 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.A
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.BlockType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
-import com.google.gson.annotations.Expose;
 import lombok.Getter;
-import lombok.Setter;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
@@ -107,7 +105,7 @@ public class FunctionDefinitionSyntaxAST extends AbstractStatementSyntaxAST
     @Override
     public FunctionDefinitionSyntaxAST parseAST(final AbstractSyntaxAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
         if (!(parentAST instanceof RootSyntaxAST)) {
-            syntaxAnalyzer.errorHandler().addError(new SyntaxASTError<>(parentAST, "Couldn't parse the \"function definition\" statement because it isn't declared inside the root file."));
+            syntaxAnalyzer.errorHandler().addError(new SyntaxASTError<>(syntaxAnalyzer.getArkoiClass(), parentAST, "Couldn't parse the \"function definition\" statement because it isn't declared inside the root file."));
             return null;
         }
     

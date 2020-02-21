@@ -16,7 +16,6 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.ty
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.AbstractStatementSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.parser.types.OperableParser;
-import com.google.gson.annotations.Expose;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -67,7 +66,7 @@ public class AbstractOperableSyntaxAST<O> extends AbstractSyntaxAST
                 else if (abstractSyntaxAST instanceof IdentifierInvokeOperableSyntaxAST)
                     return (IdentifierInvokeOperableSyntaxAST) abstractSyntaxAST;
                 else if (abstractSyntaxAST != null) {
-                    syntaxAnalyzer.errorHandler().addError(new SyntaxASTError<>(abstractSyntaxAST, "Couldn't parse the operable because it isn't a supported statement."));
+                    syntaxAnalyzer.errorHandler().addError(new SyntaxASTError<>(syntaxAnalyzer.getArkoiClass(), abstractSyntaxAST, "Couldn't parse the operable because it isn't a supported statement."));
                     return null;
                 }
         }

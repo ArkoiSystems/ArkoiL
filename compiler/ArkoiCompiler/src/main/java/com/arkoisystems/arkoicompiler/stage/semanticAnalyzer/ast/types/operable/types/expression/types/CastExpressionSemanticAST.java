@@ -17,10 +17,7 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.ty
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types.ParenthesizedExpressionSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
-import com.google.gson.annotations.Expose;
 import lombok.Setter;
-
-import java.io.PrintStream;
 
 @Setter
 public class CastExpressionSemanticAST extends AbstractExpressionSemanticAST<CastExpressionSyntaxAST>
@@ -83,7 +80,7 @@ public class CastExpressionSemanticAST extends AbstractExpressionSemanticAST<Cas
                 return null;
             return numberOperableSemanticAST;
         } else {
-            this.getSemanticAnalyzer().errorHandler().addError(new SyntaxASTError<>(abstractOperableSyntaxAST, "Couldn't analyze this operable because it isn't supported by the cast expression."));
+            this.getSemanticAnalyzer().errorHandler().addError(new SyntaxASTError<>(this.getSemanticAnalyzer().getArkoiClass(), abstractOperableSyntaxAST, "Couldn't analyze this operable because it isn't supported by the cast expression."));
             return null;
         }
     }

@@ -7,12 +7,9 @@ package com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types;
 
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.SemanticAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.AbstractSemanticAST;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.TypeSyntaxAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
-import lombok.Setter;
-
-import java.io.PrintStream;
 
 public class TypeSemanticAST extends AbstractSemanticAST<TypeSyntaxAST>
 {

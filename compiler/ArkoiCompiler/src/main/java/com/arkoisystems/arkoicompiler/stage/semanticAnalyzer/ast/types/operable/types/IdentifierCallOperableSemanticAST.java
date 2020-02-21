@@ -9,6 +9,7 @@ import com.arkoisystems.arkoicompiler.stage.errorHandler.types.SemanticASTError;
 import com.arkoisystems.arkoicompiler.stage.errorHandler.types.SyntaxASTError;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.SemanticAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.AbstractSemanticAST;
+import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.ArgumentDefinitionSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.AbstractOperableSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.statements.FunctionDefinitionSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.statements.VariableDefinitionSemanticAST;
@@ -16,8 +17,6 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.ty
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTAccess;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
-import com.google.gson.annotations.Expose;
-import lombok.Setter;
 
 public class IdentifierCallOperableSemanticAST extends AbstractOperableSemanticAST<IdentifierCallOperableSyntaxAST, TypeKind>
 {
@@ -41,8 +40,19 @@ public class IdentifierCallOperableSemanticAST extends AbstractOperableSemanticA
             if (variableDefinitionSemanticAST.getVariableExpression() == null)
                 return null;
             return variableDefinitionSemanticAST.getVariableExpression().getOperableObject();
+        } else if (foundIdentifier instanceof ArgumentDefinitionSemanticAST) {
+            final ArgumentDefinitionSemanticAST argumentDefinitionSemanticAST = (ArgumentDefinitionSemanticAST) foundIdentifier;
+            if (argumentDefinitionSemanticAST.getArgumentName() == null)
+                return null;
+            if(argumentDefinitionSemanticAST.getArgumentType() == null)
+                return null;
+            return argumentDefinitionSemanticAST.getArgumentType().getTypeKind();
         } else {
-            this.getSemanticAnalyzer().errorHandler().addError(new SemanticASTError<>(foundIdentifier, "The found identifier isn't supported by an identifier call."));
+            this.getSemanticAnalyzer().errorHandler().addError(new SemanticASTError<>(
+                    this.getSemanticAnalyzer().getArkoiClass(),
+                    new AbstractSemanticAST[]{foundIdentifier},
+                    "The found identifier isn't compatible with an identifier call:"
+            ));
             return null;
         }
     }
@@ -64,7 +74,11 @@ public class IdentifierCallOperableSemanticAST extends AbstractOperableSemanticA
             if (abstractSemanticAST == null)
                 abstractSemanticAST = this.getSemanticAnalyzer().getRootSemanticAST().findIdentifier(this.getSyntaxAST().getCalledIdentifier());
             if (abstractSemanticAST == null) {
-                this.getSemanticAnalyzer().errorHandler().addError(new SyntaxASTError<>(this.getSyntaxAST(), "There doesn't exist any identifier with this name."));
+                this.getSemanticAnalyzer().errorHandler().addError(new SyntaxASTError<>(
+                        this.getSemanticAnalyzer().getArkoiClass(),
+                        this.getSyntaxAST(),
+                        "No identifier with the same name could be found:"
+                ));
                 return null;
             }
             return (this.foundIdentifier = abstractSemanticAST);

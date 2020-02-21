@@ -5,27 +5,25 @@
  */
 package com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types;
 
+import com.arkoisystems.arkoicompiler.stage.errorHandler.types.SemanticASTError;
 import com.arkoisystems.arkoicompiler.stage.errorHandler.types.SyntaxASTError;
-import com.arkoisystems.arkoicompiler.stage.errorHandler.types.doubles.DoubleSyntaxASTError;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.IdentifierToken;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.SemanticAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.AbstractSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.types.FunctionInvokeOperableSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.types.expression.types.ExpressionSemanticAST;
+import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.statements.ImportDefinitionSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.statements.ReturnStatementSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.statements.VariableDefinitionSemanticAST;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.BlockSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.FunctionInvokeOperableSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types.ExpressionSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.types.ReturnStatementSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.types.VariableDefinitionSyntaxAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.BlockType;
-import com.google.gson.annotations.Expose;
-import lombok.Setter;
 
-import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -47,6 +45,10 @@ public class BlockSemanticAST extends AbstractSemanticAST<BlockSyntaxAST>
     
     
     public List<AbstractSemanticAST<?>> getBlockStorage() {
+        return this.getBlockStorage(new HashMap<>());
+    }
+    
+    public List<AbstractSemanticAST<?>> getBlockStorage(final HashMap<String, AbstractSemanticAST<?>> names) {
         if (this.blockStorage == null) {
             this.blockStorage = new ArrayList<>();
             
@@ -56,7 +58,7 @@ public class BlockSemanticAST extends AbstractSemanticAST<BlockSyntaxAST>
                 
                 if (this.getBlockType() == BlockType.INLINE) {
                     if (!(abstractSyntaxAST instanceof ExpressionSyntaxAST)) {
-                        this.getSemanticAnalyzer().errorHandler().addError(new SyntaxASTError<>(abstractSyntaxAST, "Couldn't analyze this inlined-block because a non expression is inside the block."));
+                        this.getSemanticAnalyzer().errorHandler().addError(new SyntaxASTError<>(this.getSemanticAnalyzer().getArkoiClass(), abstractSyntaxAST, "Couldn't analyze this inlined-block because a non expression is inside the block."));
                         return null;
                     }
                     
@@ -87,6 +89,19 @@ public class BlockSemanticAST extends AbstractSemanticAST<BlockSyntaxAST>
                             return null;
                         if (variableDefinitionSemanticAST.getVariableName() == null)
                             return null;
+                        
+                        if (names.containsKey(variableDefinitionSemanticAST.getVariableName().getTokenContent())) {
+                            final AbstractSemanticAST<?> alreadyExistAST = names.get(variableDefinitionSemanticAST.getVariableName().getTokenContent());
+                            this.getSemanticAnalyzer().errorHandler().addError(new SemanticASTError<>(
+                                    this.getSemanticAnalyzer().getArkoiClass(),
+                                    new AbstractSemanticAST[] { alreadyExistAST, variableDefinitionSemanticAST },
+                                    "There already exists %s with the same name:",
+                                    (alreadyExistAST instanceof ImportDefinitionSemanticAST) ? "an import" : "a variable"
+                            ));
+                            return null;
+                        } else
+                            names.put(variableDefinitionSemanticAST.getVariableName().getTokenContent(), variableDefinitionSemanticAST);
+                        
                         if (variableDefinitionSemanticAST.getVariableExpression() == null)
                             return null;
                         this.blockStorage.add(variableDefinitionSemanticAST);
@@ -94,7 +109,7 @@ public class BlockSemanticAST extends AbstractSemanticAST<BlockSyntaxAST>
                         final FunctionInvokeOperableSyntaxAST functionInvokeOperableSyntaxAST = (FunctionInvokeOperableSyntaxAST) abstractSyntaxAST;
                         final FunctionInvokeOperableSemanticAST functionInvokeOperableSemanticAST
                                 = new FunctionInvokeOperableSemanticAST(this.getSemanticAnalyzer(), this.getLastContainerAST(), functionInvokeOperableSyntaxAST);
-    
+                        
                         if (functionInvokeOperableSemanticAST.getInvokedFunction() == null)
                             return null;
                         if (functionInvokeOperableSemanticAST.getInvokedExpressions() == null)
@@ -106,14 +121,18 @@ public class BlockSemanticAST extends AbstractSemanticAST<BlockSyntaxAST>
                         final ReturnStatementSyntaxAST returnStatementSyntaxAST = (ReturnStatementSyntaxAST) abstractSyntaxAST;
                         final ReturnStatementSemanticAST returnStatementSemanticAST
                                 = new ReturnStatementSemanticAST(this.getSemanticAnalyzer(), this.getLastContainerAST(), returnStatementSyntaxAST);
-    
+                        
                         // TODO: Check if the function has a return type of void and if doesn't has a expression.
                         
                         if (returnStatementSemanticAST.getReturnExpression() == null)
                             return null;
                         this.blockStorage.add(returnStatementSemanticAST);
                     } else {
-                        this.getSemanticAnalyzer().errorHandler().addError(new SyntaxASTError<>(abstractSyntaxAST, "Couldn't analyze this AST because it isn't supported by the block."));
+                        this.getSemanticAnalyzer().errorHandler().addError(new SyntaxASTError<>(
+                                this.getSemanticAnalyzer().getArkoiClass(),
+                                abstractSyntaxAST,
+                                "Couldn't analyze this AST because it isn't supported by the block."
+                        ));
                         return null;
                     }
                 }
@@ -143,7 +162,13 @@ public class BlockSemanticAST extends AbstractSemanticAST<BlockSyntaxAST>
                 
                 if (names.containsKey(variableName.getTokenContent())) {
                     final AbstractSemanticAST<?> alreadyExistAST = names.get(variableName.getTokenContent());
-                    this.getSemanticAnalyzer().errorHandler().addError(new DoubleSyntaxASTError<>(alreadyExistAST.getSyntaxAST(), abstractSemanticAST.getSyntaxAST(), "Couldn't analyze this variable because there already exists another one with the same name."));
+                    this.getSemanticAnalyzer().errorHandler().addError(new SemanticASTError<>(
+                            this.getSemanticAnalyzer().getArkoiClass(),
+                            new AbstractSemanticAST[] { alreadyExistAST },
+                            alreadyExistAST.getStart(),
+                            abstractSemanticAST.getEnd(),
+                            "Couldn't analyze this variable because there already exists another one with the same name."
+                    ));
                     return true;
                 } else
                     names.put(variableName.getTokenContent(), variableDefinitionSemanticAST);

@@ -15,7 +15,6 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.Ab
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.AbstractExpressionSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types.ExpressionSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
-import com.google.gson.annotations.Expose;
 import lombok.Getter;
 
 import java.io.PrintStream;
@@ -54,7 +53,7 @@ public class CollectionOperableSyntaxAST extends AbstractOperableSyntaxAST<Abstr
             
             final ExpressionSyntaxAST abstractExpressionAST = AbstractExpressionSyntaxAST.EXPRESSION_PARSER.parse(this, syntaxAnalyzer);
             if (abstractExpressionAST == null) {
-                syntaxAnalyzer.errorHandler().addError(new SyntaxASTError<>(this, "Couldn't parse the collection operable because there occurred an error while parsing the expression inside it."));
+                syntaxAnalyzer.errorHandler().addError(new SyntaxASTError<>(syntaxAnalyzer.getArkoiClass(), this, "Couldn't parse the collection operable because there occurred an error while parsing the expression inside it."));
                 return null;
             } else this.collectionExpressions.add(abstractExpressionAST);
     

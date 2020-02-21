@@ -8,7 +8,6 @@ package com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.errorHandler.AbstractError;
 import com.arkoisystems.arkoicompiler.stage.errorHandler.ErrorHandler;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxErrorHandler;
-import com.google.gson.Gson;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
@@ -17,7 +16,7 @@ import java.util.List;
 /**
  * The implementation of the {@link ErrorHandler} for the {@link LexicalAnalyzer} which
  * needs to provide an {@link ErrorHandler}. It will just stores the {@link
- * AbstractError}'s until it needs to print them.
+ * AbstractError}s until it needs to print them.
  */
 public class LexicalErrorHandler extends ErrorHandler
 {
@@ -42,15 +41,6 @@ public class LexicalErrorHandler extends ErrorHandler
     }
     
     
-    /**
-     * Prints the stack trace with the content of the {@link LexicalErrorHandler#abstractErrors}
-     * list. It will just write the {@link Gson#toJson(Object)} {@link String} to the
-     * {@link PrintStream}.
-     *
-     * @param printStream
-     *         the given {@link PrintStream} in which every {@link AbstractError} should
-     *         get written in.
-     */
     @Override
     public void printStackTrace(final PrintStream printStream) {
         for (final AbstractError abstractError : this.abstractErrors)

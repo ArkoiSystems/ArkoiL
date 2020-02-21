@@ -37,7 +37,7 @@ public class RootSyntaxAST extends AbstractSyntaxAST
 {
     
     /**
-     * This variable is used to get all {@link AbstractParser}'s which are supported by
+     * This variable is used to get all {@link AbstractParser}s which are supported by
      * the {@link RootSyntaxAST}.
      */
     public static AbstractParser<?>[] ROOT_PARSERS = new AbstractParser<?>[] {
@@ -47,7 +47,7 @@ public class RootSyntaxAST extends AbstractSyntaxAST
     
     
     /**
-     * Declares the {@link List} for all {@link ImportDefinitionSyntaxAST}'s which got
+     * Declares the {@link List} for all {@link ImportDefinitionSyntaxAST}s which got
      * parsed. This variable is used frequently within the {@link SemanticAnalyzer}.
      */
     @Getter
@@ -55,7 +55,7 @@ public class RootSyntaxAST extends AbstractSyntaxAST
     
     
     /**
-     * Declares the {@link List} for all {@link VariableDefinitionSyntaxAST}'s which got
+     * Declares the {@link List} for all {@link VariableDefinitionSyntaxAST}s which got
      * parsed. This variable is used frequently within the {@link SemanticAnalyzer}.
      */
     @Getter
@@ -63,7 +63,7 @@ public class RootSyntaxAST extends AbstractSyntaxAST
     
     
     /**
-     * Declares the {@link List} for all {@link FunctionDefinitionSyntaxAST}'s which got
+     * Declares the {@link List} for all {@link FunctionDefinitionSyntaxAST}s which got
      * parsed. This variable is used frequently within the {@link SemanticAnalyzer}.
      */
     @Getter
@@ -71,7 +71,7 @@ public class RootSyntaxAST extends AbstractSyntaxAST
     
     
     /**
-     * Declares the {@link List} for all {@link AbstractSyntaxAST}'s which got parsed
+     * Declares the {@link List} for all {@link AbstractSyntaxAST}s which got parsed
      * inside here. Also they are sorted, so you can check the order of variables or
      * imports.
      */
@@ -85,12 +85,12 @@ public class RootSyntaxAST extends AbstractSyntaxAST
      *
      * @param syntaxAnalyzer
      *         the {@link SyntaxAnalyzer} is part for the most code used by {@link
-     *         AbstractSyntaxAST}'s.
+     *         AbstractSyntaxAST}s.
      */
     public RootSyntaxAST(final SyntaxAnalyzer syntaxAnalyzer) {
         super(ASTType.ROOT);
         
-        this.setEnd(syntaxAnalyzer.getArkoiClass().getContent().length());
+        this.setEnd(syntaxAnalyzer.getArkoiClass().getContent().length);
         this.setStart(0);
         
         this.variableStorage = new ArrayList<>();
@@ -107,7 +107,7 @@ public class RootSyntaxAST extends AbstractSyntaxAST
      * will parse every {@link ImportDefinitionSyntaxAST}, {@link
      * VariableDefinitionSyntaxAST} and {@link FunctionDefinitionSyntaxAST} which are
      * present at the root-level (the first layer of the AST). Besides that it will parse
-     * also {@link AnnotationSyntaxAST}'s but they return a followed {@link
+     * also {@link AnnotationSyntaxAST}s but they return a followed {@link
      * FunctionDefinitionSyntaxAST} or {@link VariableDefinitionSyntaxAST}. So basically
      * just these three types of ASTs are getting parsed.
      *

@@ -160,6 +160,14 @@ Syntax Trees:
            │            │   └── expression:
            │            │       └── operable: 1
            │            │   
+           │            ├── VariableDefinitionSyntaxAST
+           │            │   ├── annotations: N/A
+           │            │   │
+           │            │   ├── name: args
+           │            │   │
+           │            │   └── expression:
+           │            │       └── operable: Test
+           │            │   
            │            ├── FunctionInvokeOperableSyntaxAST
            │            │   ├── access: THIS_ACCESS
            │            │   ├── identifier: print_greet

@@ -20,9 +20,7 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.ty
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types.ExpressionSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.AbstractStatementSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
-import com.google.gson.annotations.Expose;
 import lombok.Getter;
-import lombok.Setter;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
@@ -96,7 +94,7 @@ public class VariableDefinitionSyntaxAST extends AbstractStatementSyntaxAST
     @Override
     public VariableDefinitionSyntaxAST parseAST(final AbstractSyntaxAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
         if (!(parentAST instanceof RootSyntaxAST) && !(parentAST instanceof BlockSyntaxAST)) {
-            syntaxAnalyzer.errorHandler().addError(new SyntaxASTError<>(parentAST, "Couldn't parse the \"variable definition\" statement because it isn't declared inside the root file or in a block."));
+            syntaxAnalyzer.errorHandler().addError(new SyntaxASTError<>(syntaxAnalyzer.getArkoiClass(), parentAST, "Couldn't parse the \"variable definition\" statement because it isn't declared inside the root file or in a block."));
             return null;
         }
     

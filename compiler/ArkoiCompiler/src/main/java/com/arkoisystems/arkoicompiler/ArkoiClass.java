@@ -9,11 +9,8 @@ import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.LexicalAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.SemanticAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
-import com.arkoisystems.arkoicompiler.utils.Variables;
-import com.google.gson.annotations.Expose;
 import lombok.Getter;
 import lombok.NonNull;
-import lombok.Setter;
 
 import java.nio.charset.StandardCharsets;
 
@@ -36,10 +33,10 @@ public class ArkoiClass
     /**
      * The content which is used to compile everything. Usually it is just used inside the
      * {@link LexicalAnalyzer} because only there the content is needed to parse the
-     * {@link com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken}'s.
+     * {@link AbstractToken}s.
      */
     @Getter
-    private final String content;
+    private final char[] content;
     
     
     /**
@@ -103,7 +100,7 @@ public class ArkoiClass
         this.nativeClass = nativeClass;
         this.filePath = filePath;
         
-        this.content = new String(content, StandardCharsets.UTF_8);
+        this.content = new String(content, StandardCharsets.UTF_8).toCharArray();
     }
     
     
@@ -127,7 +124,7 @@ public class ArkoiClass
         this.arkoiCompiler = arkoiCompiler;
         this.filePath = filePath;
         
-        this.content = new String(content, StandardCharsets.UTF_8);
+        this.content = new String(content, StandardCharsets.UTF_8).toCharArray();
         this.nativeClass = false;
     }
     
@@ -165,19 +162,6 @@ public class ArkoiClass
         if (this.syntaxAnalyzer == null) {
             throw new NullPointerException("You need to initialize the SyntaxAnalyzer before initializing the SemanticAnalyzer, because it needs the output of the SyntaxAnalyzer.");
         } else this.semanticAnalyzer = new SemanticAnalyzer(this);
-    }
-    
-    
-    /**
-     * Returns this class as a JSON based {@link String} with all exposed variables etc.
-     * With this functionality you can better see problems or check each stage for its
-     * correctness.
-     *
-     * @return this class as a JSON based {@link String}.
-     */
-    @Override
-    public String toString() {
-        return Variables.GSON.toJson(this);
     }
     
 }

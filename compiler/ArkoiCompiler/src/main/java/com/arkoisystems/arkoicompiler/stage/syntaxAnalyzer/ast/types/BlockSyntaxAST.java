@@ -22,7 +22,6 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.BlockType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.parser.AbstractParser;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.parser.types.BlockParser;
-import com.google.gson.annotations.Expose;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -48,7 +47,7 @@ public class BlockSyntaxAST extends AbstractSyntaxAST
     
     
     /**
-     * This variable is used to get all {@link AbstractParser}'s which are supported by
+     * This variable is used to get all {@link AbstractParser}s which are supported by
      * the {@link BlockParser}.
      */
     private static AbstractParser<?>[] BLOCK_PARSERS = new AbstractParser<?>[] {
@@ -129,7 +128,7 @@ public class BlockSyntaxAST extends AbstractSyntaxAST
     @Override
     public BlockSyntaxAST parseAST(final AbstractSyntaxAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
         if (!(parentAST instanceof FunctionDefinitionSyntaxAST) && !(parentAST instanceof VariableDefinitionSyntaxAST) && !(parentAST instanceof BlockSyntaxAST)) {
-            syntaxAnalyzer.errorHandler().addError(new SyntaxASTError<>(parentAST, "Couldn't parse the BlockAST because it isn't declared inside a function/variable definition or block."));
+            syntaxAnalyzer.errorHandler().addError(new SyntaxASTError<>(syntaxAnalyzer.getArkoiClass(), parentAST, "Couldn't parse the BlockAST because it isn't declared inside a function/variable definition or block."));
             return null;
         } else this.setStart(syntaxAnalyzer.currentToken().getStart());
         

@@ -9,8 +9,6 @@ import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.LexicalAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.NumberToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
-import com.arkoisystems.arkoicompiler.utils.Variables;
-import com.google.gson.annotations.Expose;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -18,7 +16,7 @@ public abstract class AbstractToken
 {
     
     /**
-     * The {@link TokenType} is used to differentiate {@link AbstractToken}'s. Also it
+     * The {@link TokenType} is used to differentiate {@link AbstractToken}s. Also it
      * helps when debugging with the {@link #toString()} method.
      */
     @Getter
@@ -57,18 +55,5 @@ public abstract class AbstractToken
      *         successfully.
      */
     public abstract AbstractToken lex(final LexicalAnalyzer lexicalAnalyzer);
-    
-    
-    /**
-     * Returns this class as a JSON based {@link String} with all exposed variables etc.
-     * With this functionality you can better see problems or check each {@link
-     * AbstractSyntaxAST} for it's correctness.
-     *
-     * @return this class as a JSON based {@link String}.
-     */
-    @Override
-    public String toString() {
-        return Variables.GSON.toJson(this);
-    }
     
 }

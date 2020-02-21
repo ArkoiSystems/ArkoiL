@@ -6,6 +6,7 @@
 package com.arkoisystems.arkoicompiler.stage.errorHandler;
 
 import java.io.PrintStream;
+import java.text.SimpleDateFormat;
 
 /**
  * This class contains some important methods which are needed for a {@link ErrorHandler}.
@@ -15,8 +16,16 @@ import java.io.PrintStream;
 public abstract class ErrorHandler
 {
     
+    
     /**
-     * Used to add {@link AbstractError}'s to the Handler for later usage.
+     * Defines a {@link SimpleDateFormat} for later debugging to see the time in which
+     * this error happened.
+     */
+    public static SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("HH:mm:ss");
+    
+    
+    /**
+     * Used to add {@link AbstractError}s to the Handler for later usage.
      *
      * @param abstractError
      *         the {@link AbstractError} which should get added to the Handler.

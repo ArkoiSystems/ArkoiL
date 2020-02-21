@@ -137,10 +137,10 @@ public enum TypeKind
     
     
     /**
-     * Combines two {@link AbstractOperableSemanticAST}'s and returns just one {@link
+     * Combines two {@link AbstractOperableSemanticAST}s and returns just one {@link
      * TypeKind}. It is just a sub-method for the real method ({@link
-     * TypeKind#combineKinds(TypeKind, TypeKind)}) which is used if the {@link TypeKind}'s
-     * of the two {@link AbstractOperableSemanticAST}'s was found.
+     * TypeKind#combineKinds(TypeKind, TypeKind)}) which is used if the {@link TypeKind}s
+     * of the two {@link AbstractOperableSemanticAST}s was found.
      *
      * @param leftSideOperable
      *         the left {@link AbstractOperableSemanticAST} which is used to resolve it's
@@ -158,7 +158,7 @@ public enum TypeKind
     
     
     /**
-     * The main method to combine two {@link TypeKind}'s. If the combination isn't
+     * The main method to combine two {@link TypeKind}s. If the combination isn't
      * supported, it will throw an error.
      *
      * @param leftSideKind

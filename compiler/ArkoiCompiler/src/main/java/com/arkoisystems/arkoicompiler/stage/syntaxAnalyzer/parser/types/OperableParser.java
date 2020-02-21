@@ -6,8 +6,8 @@
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.parser.types;
 
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken;
-import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.SymbolToken;
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.AbstractOperableSyntaxAST;
@@ -44,7 +44,7 @@ public class OperableParser extends AbstractParser<AbstractOperableSyntaxAST<?>>
     
     /**
      * Tests if the current {@link AbstractToken} is capable to parse a new {@link
-     * AbstractOperableSyntaxAST}. Depending on the current {@link AbstractToken}'s type
+     * AbstractOperableSyntaxAST}. Depending on the current {@link AbstractToken}s type
      * it will return {@code true} if it's would work or {@code false} if it wouldn't.
      *
      * @param parentAST
@@ -53,7 +53,7 @@ public class OperableParser extends AbstractParser<AbstractOperableSyntaxAST<?>>
      *         the {@link SyntaxAnalyzer} which is used to call methods like {@link
      *         SyntaxAnalyzer#matchesCurrentToken(TokenType)} etc.
      *
-     * @return {@code false} if the current {@link AbstractToken}'s type isn't capable to
+     * @return {@code false} if the current {@link AbstractToken}s type isn't capable to
      *         parse a new {@link AbstractOperableSyntaxAST} or {@code true} if it is.
      */
     @Override

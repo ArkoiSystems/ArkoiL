@@ -5,13 +5,12 @@
  */
 package com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types;
 
-import com.arkoisystems.arkoicompiler.stage.errorHandler.types.CharError;
+import com.arkoisystems.arkoicompiler.stage.errorHandler.types.LexicalError;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.LexicalAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
 
 import java.util.Arrays;
-import java.util.regex.Matcher;
 
 public class CommentToken extends AbstractToken
 {
@@ -24,12 +23,12 @@ public class CommentToken extends AbstractToken
     @Override
     public CommentToken lex(final LexicalAnalyzer lexicalAnalyzer) {
         if (lexicalAnalyzer.currentChar() != '#') {
-            lexicalAnalyzer.getErrorHandler().addError(new CharError(lexicalAnalyzer.currentChar(), lexicalAnalyzer.getPosition(), "Couldn't lex this comment because it doesn't start with an \"#\"."));
+            lexicalAnalyzer.getErrorHandler().addError(new LexicalError(lexicalAnalyzer.getArkoiClass(), lexicalAnalyzer.getPosition(), "Couldn't lex this comment because it doesn't start with an \"#\"."));
             return null;
         }
     
         this.setStart(lexicalAnalyzer.getPosition());
-        while (lexicalAnalyzer.getPosition() < lexicalAnalyzer.getContent().length) {
+        while (lexicalAnalyzer.getPosition() < lexicalAnalyzer.getArkoiClass().getContent().length) {
             final char currentChar = lexicalAnalyzer.currentChar();
             lexicalAnalyzer.next();
         
@@ -38,7 +37,7 @@ public class CommentToken extends AbstractToken
         }
         this.setEnd(lexicalAnalyzer.getPosition());
         
-        this.setTokenContent(new String(Arrays.copyOfRange(lexicalAnalyzer.getContent(), this.getStart(), this.getEnd())).intern());
+        this.setTokenContent(new String(Arrays.copyOfRange(lexicalAnalyzer.getArkoiClass().getContent(), this.getStart(), this.getEnd())).intern());
         return this;
     }
     

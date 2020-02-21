@@ -17,8 +17,6 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.ty
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTAccess;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
-import com.google.gson.annotations.Expose;
-import lombok.Setter;
 
 public class IdentifierInvokeOperableSemanticAST extends AbstractOperableSemanticAST<IdentifierInvokeOperableSyntaxAST, TypeKind>
 {
@@ -50,7 +48,11 @@ public class IdentifierInvokeOperableSemanticAST extends AbstractOperableSemanti
             final IdentifierCallOperableSemanticAST identifierCallOperableSemanticAST = (IdentifierCallOperableSemanticAST) invokedPostStatement;
             return identifierCallOperableSemanticAST.getOperableObject();
         } else {
-            this.getSemanticAnalyzer().errorHandler().addError(new SemanticASTError<>(invokedPostStatement, "Couldn't analyze this identifier invoke because the followed statement isn't supported."));
+            this.getSemanticAnalyzer().errorHandler().addError(new SemanticASTError<>(
+                    this.getSemanticAnalyzer().getArkoiClass(),
+                    new AbstractSemanticAST[] { invokedPostStatement },
+                    "Couldn't analyze this identifier invoke because the followed statement isn't supported."
+            ));
             return null;
         }
     }
@@ -72,7 +74,7 @@ public class IdentifierInvokeOperableSemanticAST extends AbstractOperableSemanti
             if (abstractSemanticAST == null)
                 abstractSemanticAST = this.getSemanticAnalyzer().getRootSemanticAST().findIdentifier(this.getSyntaxAST().getInvokedIdentifier());
             if (abstractSemanticAST == null) {
-                this.getSemanticAnalyzer().errorHandler().addError(new SyntaxASTError<>(this.getSyntaxAST(), "Couldn't analyze this identifier invoke because there is no existing identifier with this name."));
+                this.getSemanticAnalyzer().errorHandler().addError(new SyntaxASTError<>(this.getSemanticAnalyzer().getArkoiClass(), this.getSyntaxAST(), "Couldn't analyze this identifier invoke because there is no existing identifier with this name."));
                 return null;
             }
             return (this.invokedIdentifier = abstractSemanticAST);
@@ -113,7 +115,7 @@ public class IdentifierInvokeOperableSemanticAST extends AbstractOperableSemanti
                         return null;
                     this.invokePostStatement = functionInvokeOperableSemanticAST;
                 } else {
-                    this.getSemanticAnalyzer().errorHandler().addError(new SyntaxASTError<>(this.getSyntaxAST().getInvokePostStatement(), "Couldn't analyze this AST because it isn't supported by the identifier invoke operable."));
+                    this.getSemanticAnalyzer().errorHandler().addError(new SyntaxASTError<>(this.getSemanticAnalyzer().getArkoiClass(), this.getSyntaxAST().getInvokePostStatement(), "Couldn't analyze this AST because it isn't supported by the identifier invoke operable."));
                     return null;
                 }
             }

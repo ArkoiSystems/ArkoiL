@@ -12,10 +12,7 @@ import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.NumberOperableSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
-import lombok.Getter;
 import lombok.Setter;
-
-import java.io.PrintStream;
 
 public class NumberOperableSemanticAST extends AbstractOperableSemanticAST<NumberOperableSyntaxAST, TypeKind>
 {

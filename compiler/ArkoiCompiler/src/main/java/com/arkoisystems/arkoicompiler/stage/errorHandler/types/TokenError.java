@@ -7,7 +7,6 @@ package com.arkoisystems.arkoicompiler.stage.errorHandler.types;
 
 import com.arkoisystems.arkoicompiler.stage.errorHandler.AbstractError;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken;
-import com.google.gson.annotations.Expose;
 import lombok.Getter;
 
 public class TokenError extends AbstractError

@@ -14,10 +14,8 @@ import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.SymbolTo
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.RootSyntaxAST;
-import com.google.gson.annotations.Expose;
 import lombok.Getter;
 import lombok.NonNull;
-import lombok.Setter;
 
 import java.util.List;
 
@@ -39,7 +37,7 @@ public class SyntaxAnalyzer extends AbstractStage
     
     /**
      * The {@link SyntaxErrorHandler} is used for errors which are happening through the
-     * process of parsing the {@link AbstractSyntaxAST}'s.
+     * process of parsing the {@link AbstractSyntaxAST}s.
      */
     @Getter
     private final SyntaxErrorHandler errorHandler;
