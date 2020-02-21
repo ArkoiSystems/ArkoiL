@@ -5,10 +5,7 @@
  */
 package com.arkoisystems.arkoicompiler.stage.errorHandler;
 
-import com.arkoisystems.arkoicompiler.utils.Variables;
-import com.google.gson.annotations.Expose;
 import lombok.Getter;
-import lombok.Setter;
 
 public abstract class AbstractError
 {
@@ -26,12 +23,6 @@ public abstract class AbstractError
         this.end = end;
     
         this.message = String.format(message, arguments);
-    }
-    
-    
-    @Override
-    public String toString() {
-        return Variables.GSON.toJson(this);
     }
     
 }

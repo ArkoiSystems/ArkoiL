@@ -5,7 +5,7 @@
  */
 package com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types;
 
-import com.arkoisystems.arkoicompiler.stage.errorHandler.types.CharError;
+import com.arkoisystems.arkoicompiler.stage.errorHandler.types.LexicalError;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.LexicalAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
@@ -33,19 +33,19 @@ public class IdentifierToken extends AbstractToken
     public IdentifierToken lex(final LexicalAnalyzer lexicalAnalyzer) {
         final char currentChar = lexicalAnalyzer.currentChar();
         if (!Character.isJavaIdentifierStart(currentChar)) {
-            lexicalAnalyzer.errorHandler().addError(new CharError(currentChar, lexicalAnalyzer.getPosition(), "Couldn't lex the Identifier because it doesn't start with an alphabetic char."));
+            lexicalAnalyzer.errorHandler().addError(new LexicalError(lexicalAnalyzer.getArkoiClass(), lexicalAnalyzer.getPosition(), "Couldn't lex the Identifier because it doesn't start with an alphabetic char."));
             return null;
         } else lexicalAnalyzer.next();
         
         this.setStart(lexicalAnalyzer.getPosition() - 1);
-        while(lexicalAnalyzer.getPosition() < lexicalAnalyzer.getContent().length) {
-            if(!Character.isUnicodeIdentifierPart(lexicalAnalyzer.currentChar()))
+        while(lexicalAnalyzer.getPosition() < lexicalAnalyzer.getArkoiClass().getContent().length) {
+            if(!Character.isUnicodeIdentifierPart(lexicalAnalyzer.currentChar())) {
+                this.setEnd(lexicalAnalyzer.getPosition() - 1);
                 break;
-            lexicalAnalyzer.next();
+            } else lexicalAnalyzer.next();
         }
-        this.setEnd(lexicalAnalyzer.getPosition());
     
-        this.setTokenContent(new String(Arrays.copyOfRange(lexicalAnalyzer.getContent(), this.getStart(), this.getEnd())).intern());
+        this.setTokenContent(new String(Arrays.copyOfRange(lexicalAnalyzer.getArkoiClass().getContent(), this.getStart(), this.getEnd() + 1)).intern());
         return this;
     }
     

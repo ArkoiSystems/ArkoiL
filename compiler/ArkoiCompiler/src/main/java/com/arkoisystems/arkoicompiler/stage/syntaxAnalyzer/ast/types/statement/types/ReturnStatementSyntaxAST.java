@@ -17,7 +17,6 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.ty
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types.ExpressionSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.AbstractStatementSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
-import com.google.gson.annotations.Expose;
 import lombok.Getter;
 
 import java.io.PrintStream;
@@ -60,7 +59,7 @@ public class ReturnStatementSyntaxAST extends AbstractStatementSyntaxAST
     @Override
     public ReturnStatementSyntaxAST parseAST(final AbstractSyntaxAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
         if (!(parentAST instanceof BlockSyntaxAST)) {
-            syntaxAnalyzer.errorHandler().addError(new SyntaxASTError<>(parentAST, "Couldn't parse the \"return\" statement because it isn't declared inside a block."));
+            syntaxAnalyzer.errorHandler().addError(new SyntaxASTError<>(syntaxAnalyzer.getArkoiClass(), parentAST, "Couldn't parse the \"return\" statement because it isn't declared inside a block."));
             return null;
         }
     

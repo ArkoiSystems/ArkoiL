@@ -7,11 +7,8 @@ package com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable
 
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.SemanticAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.AbstractSemanticAST;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
-import lombok.Getter;
-
-import java.io.PrintStream;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 
 public class AbstractOperableSemanticAST<T1 extends AbstractSyntaxAST, O> extends AbstractSemanticAST<T1>
 {

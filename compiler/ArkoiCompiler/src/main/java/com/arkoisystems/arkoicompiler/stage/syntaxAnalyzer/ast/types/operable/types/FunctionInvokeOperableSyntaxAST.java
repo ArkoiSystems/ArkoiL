@@ -21,6 +21,7 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTAccess;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
@@ -30,6 +31,7 @@ public class FunctionInvokeOperableSyntaxAST extends AbstractOperableSyntaxAST<T
 {
     
     @Getter
+    @Setter
     private ASTAccess functionAccess;
     
     
@@ -112,12 +114,12 @@ public class FunctionInvokeOperableSyntaxAST extends AbstractOperableSyntaxAST<T
     @Override
     public FunctionInvokeOperableSyntaxAST parseAST(final AbstractSyntaxAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
         if (!(parentAST instanceof BlockSyntaxAST) && !(parentAST instanceof AbstractExpressionSyntaxAST) && !(parentAST instanceof IdentifierInvokeOperableSyntaxAST)) {
-            syntaxAnalyzer.errorHandler().addError(new SyntaxASTError<>(parentAST, "Couldn't parse the \"function invoke\" statement because it isn't declared inside a block, variable invocation or an expression."));
+            syntaxAnalyzer.errorHandler().addError(new SyntaxASTError<>(syntaxAnalyzer.getArkoiClass(), parentAST, "Couldn't parse the \"function invoke\" statement because it isn't declared inside a block, variable invocation or an expression."));
             return null;
         }
     
         if (this.invokedFunctionName == null) {
-            syntaxAnalyzer.errorHandler().addError(new SyntaxASTError<>(parentAST, "Couldn't parse the \"function invoke\" statement because the parent tried to parse an function invocation with no function name declared."));
+            syntaxAnalyzer.errorHandler().addError(new SyntaxASTError<>(syntaxAnalyzer.getArkoiClass(), parentAST, "Couldn't parse the \"function invoke\" statement because the parent tried to parse an function invocation with no function name declared."));
             return null;
         }
     

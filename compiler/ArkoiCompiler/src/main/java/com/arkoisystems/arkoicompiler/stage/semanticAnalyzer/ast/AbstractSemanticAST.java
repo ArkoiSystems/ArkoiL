@@ -6,14 +6,10 @@
 package com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast;
 
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.SemanticAnalyzer;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
-import com.arkoisystems.arkoicompiler.utils.Variables;
-import com.google.gson.annotations.Expose;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.io.PrintStream;
 
 public abstract class AbstractSemanticAST<T extends AbstractSyntaxAST>
 {
@@ -47,11 +43,6 @@ public abstract class AbstractSemanticAST<T extends AbstractSyntaxAST>
     
     public AbstractSemanticAST<?> initialize() {
         return null;
-    }
-    
-    @Override
-    public String toString() {
-        return Variables.GSON.toJson(this.getSyntaxAST());
     }
     
 }

@@ -9,11 +9,10 @@ import com.arkoisystems.arkoicompiler.ArkoiClass;
 import com.arkoisystems.arkoicompiler.ArkoiCompiler;
 import com.arkoisystems.arkoicompiler.stage.AbstractStage;
 import com.arkoisystems.arkoicompiler.stage.errorHandler.ErrorHandler;
-import com.arkoisystems.arkoicompiler.stage.errorHandler.types.CharError;
+import com.arkoisystems.arkoicompiler.stage.errorHandler.types.LexicalError;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.*;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
-import com.google.gson.annotations.Expose;
 import lombok.Getter;
 import lombok.SneakyThrows;
 
@@ -22,7 +21,7 @@ import java.util.List;
 
 /**
  * This class is an implementation of the {@link AbstractStage}. It will lex a list of
- * {@link AbstractToken}'s with the help of the content from the {@link ArkoiClass}.
+ * {@link AbstractToken}s with the help of the content from the {@link ArkoiClass}.
  */
 public class LexicalAnalyzer extends AbstractStage
 {
@@ -44,15 +43,7 @@ public class LexicalAnalyzer extends AbstractStage
     
     
     /**
-     * The input content of the {@link ArkoiClass} which got translated to an {@code
-     * char[]} for better access (peeking, next, current etc).
-     */
-    @Getter
-    private final char[] content;
-    
-    
-    /**
-     * This {@link AbstractToken}[] is used to access the lexed {@link AbstractToken}'s
+     * This {@link AbstractToken}[] is used to access the lexed {@link AbstractToken}s
      * like in the {@link SyntaxAnalyzer} for methods like {@link
      * SyntaxAnalyzer#matchesNextToken(SymbolToken.SymbolType)}.
      */
@@ -80,13 +71,12 @@ public class LexicalAnalyzer extends AbstractStage
         this.arkoiClass = arkoiClass;
         
         this.errorHandler = new LexicalErrorHandler();
-        this.content = arkoiClass.getContent().toCharArray();
     }
     
     
     /**
      * Overwritten method from the {@link AbstractStage} class which will run this stage.
-     * The lexer will go through every position in the {@link #content} array. It will
+     * The lexer will go through every position in the {@link ArkoiClass#content} array. It will
      * skip newlines (and every other "whitespace" character e.g. 0x0c, 0x0a and 0x0d).
      * Comments are getting lexed but they don't get added to the tokens list because they
      * are irrelevant for the later process and are just used for the developers.
@@ -98,7 +88,7 @@ public class LexicalAnalyzer extends AbstractStage
     @Override
     public boolean processStage() {
         final List<AbstractToken> tokens = new ArrayList<>();
-        while (this.position < this.content.length) {
+        while (this.position < this.getArkoiClass().getContent().length) {
             final char currentChar = this.currentChar();
             switch (currentChar) {
                 case 0x0c:
@@ -111,8 +101,11 @@ public class LexicalAnalyzer extends AbstractStage
                     break;
                 case '#': {
                     final CommentToken commentToken = new CommentToken().lex(this);
-                    if (commentToken == null)
-                        return false;
+                    if (commentToken == null) {
+                        this.setFailedStage(true);
+                        this.next();
+                        continue;
+                    }
                     break;
                 }
                 case '@':
@@ -136,15 +129,21 @@ public class LexicalAnalyzer extends AbstractStage
                 case '=':
                 case '&': {
                     final SymbolToken symbolToken = new SymbolToken().lex(this);
-                    if (symbolToken == null)
-                        return false;
+                    if (symbolToken == null) {
+                        this.setFailedStage(true);
+                        this.next();
+                        continue;
+                    }
                     tokens.add(symbolToken);
                     break;
                 }
                 case '"': {
                     final StringToken stringToken = new StringToken().lex(this);
-                    if (stringToken == null)
-                        return false;
+                    if (stringToken == null) {
+                        this.setFailedStage(true);
+                        this.next();
+                        continue;
+                    }
                     tokens.add(stringToken);
                     break;
                 }
@@ -162,8 +161,11 @@ public class LexicalAnalyzer extends AbstractStage
                     final NumberToken numberToken = new NumberToken().lex(this);
                     if (numberToken == null) {
                         final SymbolToken symbolToken = new SymbolToken().lex(this);
-                        if (symbolToken == null)
-                            return false;
+                        if (symbolToken == null) {
+                            this.setFailedStage(true);
+                            this.next();
+                            continue;
+                        }
                         tokens.add(symbolToken);
                         break;
                     } else tokens.add(numberToken);
@@ -218,19 +220,25 @@ public class LexicalAnalyzer extends AbstractStage
                 case 'x':
                 case 'X': {
                     final IdentifierToken identifierToken = new IdentifierToken().lex(this);
-                    if (identifierToken == null)
-                        return false;
+                    if (identifierToken == null) {
+                        this.setFailedStage(true);
+                        this.next();
+                        continue;
+                    }
                     tokens.add(identifierToken);
                     break;
                 }
                 default:
-                    this.getErrorHandler().addError(new CharError(currentChar, this.position, "Couldn't lex this file because it contains an unknown character."));
-                    return false;
+                    this.getErrorHandler().addError(new LexicalError(this.getArkoiClass(), this.position, "The defined character is unknown for the lexical analyzer:"));
+                    this.setFailedStage(true);
+                    this.next();
+                    break;
             }
         }
+        
         tokens.add(new EndOfFileToken());
         this.tokens = tokens.toArray(new AbstractToken[] { });
-        return true;
+        return !this.isFailedStage();
     }
     
     
@@ -258,8 +266,8 @@ public class LexicalAnalyzer extends AbstractStage
     public void next(final int positions) {
         this.position += positions;
         
-        if (this.position >= this.content.length)
-            this.position = this.content.length;
+        if (this.position >= this.getArkoiClass().getContent().length)
+            this.position = this.getArkoiClass().getContent().length;
     }
     
     
@@ -271,8 +279,8 @@ public class LexicalAnalyzer extends AbstractStage
     public void next() {
         this.position++;
         
-        if (this.position >= this.content.length)
-            this.position = this.content.length;
+        if (this.position >= this.getArkoiClass().getContent().length)
+            this.position = this.getArkoiClass().getContent().length;
     }
     
     
@@ -290,24 +298,24 @@ public class LexicalAnalyzer extends AbstractStage
      *         the last possible char in the {@link #content} array.
      */
     public char peekChar(final int offset) {
-        if (this.position + offset >= this.content.length)
-            return this.content[this.content.length - 1];
-        return this.content[this.position + offset];
+        if (this.position + offset >= this.getArkoiClass().getContent().length)
+            return this.getArkoiClass().getContent()[this.getArkoiClass().getContent().length - 1];
+        return this.getArkoiClass().getContent()[this.position + offset];
     }
     
     
     /**
      * Returns the current char and checks if the position went out of bounds. If the
      * current {@link #position} went out of bounds, it will simply return the last
-     * possible char of the {@link #content} array.
+     * possible char of the {@link ArkoiClass#content} array.
      *
      * @return the current token if it didn't went out of bounds. If it did, it will
-     *         return the last possible char in the {@link #content} array.
+     *         return the last possible char in the {@link ArkoiClass#content} array.
      */
     public char currentChar() {
-        if (this.position >= this.content.length)
-            return this.content[this.content.length - 1];
-        return this.content[this.position];
+        if (this.position >= this.getArkoiClass().getContent().length)
+            return this.getArkoiClass().getContent()[this.getArkoiClass().getContent().length - 1];
+        return this.getArkoiClass().getContent()[this.position];
     }
     
     

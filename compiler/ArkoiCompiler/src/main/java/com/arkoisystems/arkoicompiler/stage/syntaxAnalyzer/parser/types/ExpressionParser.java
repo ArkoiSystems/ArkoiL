@@ -7,8 +7,8 @@ package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.parser.types;
 
 import com.arkoisystems.arkoicompiler.stage.errorHandler.types.SyntaxASTError;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken;
-import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.SymbolToken;
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.TypeSyntaxAST;
@@ -47,7 +47,7 @@ public class ExpressionParser extends AbstractParser<ExpressionSyntaxAST>
             return null;
         
         if (!(abstractExpressionAST instanceof ExpressionSyntaxAST)) {
-            syntaxAnalyzer.errorHandler().addError(new SyntaxASTError<>(abstractExpressionAST, "Couldn't parse the expression because the result isn't an ExpressionAST."));
+            syntaxAnalyzer.errorHandler().addError(new SyntaxASTError<>(syntaxAnalyzer.getArkoiClass(), abstractExpressionAST, "Couldn't parse the expression because the result isn't an ExpressionAST."));
             return null;
         }
         return (ExpressionSyntaxAST) abstractExpressionAST;
@@ -65,7 +65,7 @@ public class ExpressionParser extends AbstractParser<ExpressionSyntaxAST>
      *         the {@link SyntaxAnalyzer} which is used to call methods like {@link
      *         SyntaxAnalyzer#matchesCurrentToken(TokenType)} etc.
      *
-     * @return {@code false} if the current {@link AbstractToken}'s type isn't supported
+     * @return {@code false} if the current {@link AbstractToken}s type isn't supported
      *         or {@code true} if it is.
      */
     @Override

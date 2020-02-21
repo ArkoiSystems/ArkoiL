@@ -9,7 +9,6 @@ import com.arkoisystems.arkoicompiler.ArkoiClass;
 import com.arkoisystems.arkoicompiler.stage.AbstractStage;
 import com.arkoisystems.arkoicompiler.stage.errorHandler.ErrorHandler;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.RootSemanticAST;
-import com.google.gson.annotations.Expose;
 import lombok.Getter;
 import lombok.SneakyThrows;
 

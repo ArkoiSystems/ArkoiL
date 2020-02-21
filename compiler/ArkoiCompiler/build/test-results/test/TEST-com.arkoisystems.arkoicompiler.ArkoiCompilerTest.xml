@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.arkoisystems.arkoicompiler.ArkoiCompilerTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2020-02-21T22:12:51" hostname="msi-ubuntu" time="0.055">
+  <properties/>
+  <testcase name="runCompiler" classname="com.arkoisystems.arkoicompiler.ArkoiCompilerTest" time="0.055"/>
+  <system-out><![CDATA[The lexical analysis took 16.039691ms for all classes (3 in total)
+The syntax analysis took 14.950485ms for all classes (3 in total)
+]]></system-out>
+  <system-err><![CDATA[Couldn't compile the file. Please see the stacktrace for errors:
+[23:12:51|INFO] There already exists a variable with the same name:
+  >>> fun main<int>(args: string[]) {
+                    ^~~~~~~~~~~~~^
+  >>> var args = "Test";
+              ^~~~~~~~~~~~~~~~~^
+
+]]></system-err>
+</testsuite>

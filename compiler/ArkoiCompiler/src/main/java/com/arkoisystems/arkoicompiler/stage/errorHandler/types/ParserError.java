@@ -9,7 +9,6 @@ import com.arkoisystems.arkoicompiler.stage.errorHandler.AbstractError;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.parser.AbstractParser;
-import com.google.gson.annotations.Expose;
 import lombok.Getter;
 
 public class ParserError<T extends AbstractParser<?>> extends AbstractError

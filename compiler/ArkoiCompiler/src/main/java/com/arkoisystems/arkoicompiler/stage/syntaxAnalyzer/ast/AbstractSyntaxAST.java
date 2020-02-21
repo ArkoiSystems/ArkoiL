@@ -13,11 +13,10 @@ import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenTyp
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.RootSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
-import com.arkoisystems.arkoicompiler.utils.Variables;
-import com.google.gson.annotations.Expose;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 
 /**
@@ -32,7 +31,7 @@ public abstract class AbstractSyntaxAST
     
     /**
      * The {@link ASTType} is used to differentiate it from other {@link
-     * AbstractSyntaxAST}'s. Also it is useful for debugging if you use the output of the
+     * AbstractSyntaxAST}s. Also it is useful for debugging if you use the output of the
      * {@link AbstractSyntaxAST#toString()} method.
      */
     @Getter
@@ -85,7 +84,7 @@ public abstract class AbstractSyntaxAST
     /**
      * This method will be overwritten by the classes which extends {@link
      * AbstractSyntaxAST}. It will print with help of the {@link PrintStream} and {@code
-     * indents} a tree which is used for debugging. To print all {@link RootSyntaxAST}'s
+     * indents} a tree which is used for debugging. To print all {@link RootSyntaxAST}s
      * you just need to call this method {@link ArkoiCompiler#printSyntaxTree(PrintStream)}.
      *
      * @param printStream
@@ -94,5 +93,21 @@ public abstract class AbstractSyntaxAST
      *         the {@code indents} which will make the AST look like a Tree.
      */
     public abstract void printSyntaxAST(final PrintStream printStream, final String indents);
+    
+    
+    /**
+     * Generates the SyntaxTree with help of the {@link #printSyntaxAST(PrintStream,
+     * String)} method and returns it.
+     *
+     * @return a SyntaxTree with help of the {@link #printSyntaxAST(PrintStream, String)}
+     *         method.
+     */
+    @Override
+    public String toString() {
+        final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        final PrintStream printStream = new PrintStream(byteArrayOutputStream);
+        this.printSyntaxAST(printStream, "");
+        return byteArrayOutputStream.toString();
+    }
     
 }

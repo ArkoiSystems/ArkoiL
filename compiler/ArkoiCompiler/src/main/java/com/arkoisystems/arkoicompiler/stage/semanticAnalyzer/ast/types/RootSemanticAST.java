@@ -5,7 +5,7 @@
  */
 package com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types;
 
-import com.arkoisystems.arkoicompiler.stage.errorHandler.types.doubles.DoubleSyntaxASTError;
+import com.arkoisystems.arkoicompiler.stage.errorHandler.types.SemanticASTError;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.IdentifierToken;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.SemanticAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.AbstractSemanticAST;
@@ -34,7 +34,7 @@ public class RootSemanticAST extends AbstractSemanticAST<RootSyntaxAST>
     
     
     /**
-     * Declares a {@link List} of {@link ImportDefinitionSemanticAST}'s that were added
+     * Declares a {@link List} of {@link ImportDefinitionSemanticAST}s that were added
      * when the {@link #initialize()} method was executed.
      */
     @Getter
@@ -42,7 +42,7 @@ public class RootSemanticAST extends AbstractSemanticAST<RootSyntaxAST>
     
     
     /**
-     * Declares a {@link List} of {@link VariableDefinitionSemanticAST}'s that were added
+     * Declares a {@link List} of {@link VariableDefinitionSemanticAST}s that were added
      * when the {@link #initialize()} method was executed.
      */
     @Getter
@@ -50,7 +50,7 @@ public class RootSemanticAST extends AbstractSemanticAST<RootSyntaxAST>
     
     
     /**
-     * Declares a {@link List} of {@link FunctionDefinitionSemanticAST}'s that were added
+     * Declares a {@link List} of {@link FunctionDefinitionSemanticAST}s that were added
      * when the {@link RootSemanticAST} was constructed.
      */
     @Getter
@@ -60,11 +60,11 @@ public class RootSemanticAST extends AbstractSemanticAST<RootSyntaxAST>
     /**
      * Constructs a new {@link RootSemanticAST} with the given parameters. The {@code
      * semanticAnalyzer} is used to set the internal {@link SemanticAnalyzer} for later
-     * use when checking the semantic or creating new {@link AbstractSemanticAST}'s.
+     * use when checking the semantic or creating new {@link AbstractSemanticAST}s.
      *
      * @param semanticAnalyzer
      *         the {@link SemanticAnalyzer} which should get used when creating new {@link
-     *         AbstractSemanticAST}'s or when checking the semantic of them.
+     *         AbstractSemanticAST}s or when checking the semantic of them.
      * @param rootSyntaxAST
      *         the {@link RootSyntaxAST} which should get checked for semantic errors.
      */
@@ -110,9 +110,11 @@ public class RootSemanticAST extends AbstractSemanticAST<RootSyntaxAST>
                 
                 if (names.containsKey(importName.getTokenContent())) {
                     final AbstractSemanticAST<?> alreadyExistAST = names.get(importName.getTokenContent());
-                    this.getSemanticAnalyzer().errorHandler().addError(new DoubleSyntaxASTError<>(
-                            importDefinitionSemanticAST.getSyntaxAST(),
-                            alreadyExistAST.getSyntaxAST(),
+                    this.getSemanticAnalyzer().errorHandler().addError(new SemanticASTError<>(
+                            this.getSemanticAnalyzer().getArkoiClass(),
+                            new AbstractSemanticAST[] { alreadyExistAST },
+                            alreadyExistAST.getStart(),
+                            importDefinitionSemanticAST.getEnd(),
                             "There already exists %s with the same name.",
                             (alreadyExistAST instanceof ImportDefinitionSemanticAST) ? "an import" : "a variable"
                     ));
@@ -134,9 +136,11 @@ public class RootSemanticAST extends AbstractSemanticAST<RootSyntaxAST>
                 
                 if (names.containsKey(variableName.getTokenContent())) {
                     final AbstractSemanticAST<?> alreadyExistAST = names.get(variableName.getTokenContent());
-                    this.getSemanticAnalyzer().errorHandler().addError(new DoubleSyntaxASTError<>(
-                            variableDefinitionSemanticAST.getSyntaxAST(),
-                            alreadyExistAST.getSyntaxAST(),
+                    this.getSemanticAnalyzer().errorHandler().addError(new SemanticASTError<>(
+                            this.getSemanticAnalyzer().getArkoiClass(),
+                            new AbstractSemanticAST[] { alreadyExistAST },
+                            alreadyExistAST.getStart(),
+                            variableDefinitionSemanticAST.getEnd(),
                             "There already exists %s with the same name.",
                             (alreadyExistAST instanceof ImportDefinitionSemanticAST) ? "an import" : "a variable"
                     ));
@@ -160,9 +164,11 @@ public class RootSemanticAST extends AbstractSemanticAST<RootSyntaxAST>
             
             if (names.containsKey(functionDescription)) {
                 final AbstractSemanticAST<?> alreadyExistAST = names.get(functionDescription);
-                this.getSemanticAnalyzer().errorHandler().addError(new DoubleSyntaxASTError<>(
-                        functionDefinitionSemanticAST.getSyntaxAST(),
-                        alreadyExistAST.getSyntaxAST(),
+                this.getSemanticAnalyzer().errorHandler().addError(new SemanticASTError<>(
+                        this.getSemanticAnalyzer().getArkoiClass(),
+                        new AbstractSemanticAST[]{alreadyExistAST},
+                        alreadyExistAST.getStart(),
+                        functionDefinitionSemanticAST.getEnd(),
                         "There already exists another function with the same name and arguments."
                 ));
                 return null;
@@ -177,8 +183,8 @@ public class RootSemanticAST extends AbstractSemanticAST<RootSyntaxAST>
     
     /**
      * Finds an {@link AbstractSemanticAST} with help of an {@link IdentifierToken}. It
-     * will go through all {@link ImportDefinitionSemanticAST}'s and {@link
-     * VariableDefinitionSemanticAST}'s and searched for a match with the given {@link
+     * will go through all {@link ImportDefinitionSemanticAST}s and {@link
+     * VariableDefinitionSemanticAST}s and searched for a match with the given {@link
      * IdentifierToken}.
      *
      * @param identifierToken
@@ -204,7 +210,7 @@ public class RootSemanticAST extends AbstractSemanticAST<RootSyntaxAST>
     
     /**
      * Finds an {@link FunctionDefinitionSemanticAST} using the given {@code
-     * functionDescription}. It goes through all {@link FunctionDefinitionSemanticAST}'s
+     * functionDescription}. It goes through all {@link FunctionDefinitionSemanticAST}s
      * and checks them for a match. Depending on this {@code null} or the found {@link
      * FunctionDefinitionSemanticAST} is returned.
      *

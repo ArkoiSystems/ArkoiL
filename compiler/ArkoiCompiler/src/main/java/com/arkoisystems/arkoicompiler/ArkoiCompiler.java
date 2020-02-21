@@ -6,13 +6,10 @@
 package com.arkoisystems.arkoicompiler;
 
 import com.arkoisystems.arkoicompiler.stage.AbstractStage;
-import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.AbstractSemanticAST;
-import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.RootSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.statements.FunctionDefinitionSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.RootSyntaxAST;
 import com.arkoisystems.arkoicompiler.utils.FileUtils;
-import com.google.gson.annotations.Expose;
 import lombok.Getter;
 import lombok.NonNull;
 
@@ -35,7 +32,7 @@ public class ArkoiCompiler
     
     /**
      * This {@link HashMap} contains every {@link ArkoiClass} with the canonical path as a
-     * key. You can use it to search a specified file or getting all {@link ArkoiClass}'s
+     * key. You can use it to search a specified file or getting all {@link ArkoiClass}s
      * inside it.
      */
     @Getter
@@ -94,7 +91,6 @@ public class ArkoiCompiler
      */
     public void printStackTrace(@NonNull final PrintStream errorStream) {
         for (final Map.Entry<String, ArkoiClass> classEntry : this.getArkoiClasses().entrySet()) {
-            errorStream.println(classEntry.getKey() + ":");
             if (classEntry.getValue().getLexicalAnalyzer() != null)
                 classEntry.getValue().getLexicalAnalyzer().getErrorHandler().printStackTrace(errorStream);
             if (classEntry.getValue().getSyntaxAnalyzer() != null)
@@ -106,8 +102,8 @@ public class ArkoiCompiler
     
     /**
      * The main method of this whole class. It will initialize every stage of the given
-     * {@link ArkoiClass}'s and tries to proceed them. If something doesn't work the
-     * {@link AbstractStage#processStage()} method will return false and so the {@link
+     * {@link ArkoiClass}s and tries to proceed them. If something doesn't work the {@link
+     * AbstractStage#processStage()} method will return false and so the {@link
      * ArkoiCompiler#compile()} method too. This will indicate that an error occurred.
      *
      * @return true if everything worked correctly or false if an error occurred.
@@ -131,7 +127,8 @@ public class ArkoiCompiler
                 return false;
         }
         System.out.printf("The syntax analysis took %sms for all classes (%s in total)\n", (System.nanoTime() - syntaxStart) / 1_000_000D, this.getArkoiClasses().size());
-        
+    
+    
         final long semanticStart = System.nanoTime();
         for (final ArkoiClass arkoiClass : this.getArkoiClasses().values())
             arkoiClass.initializeSemantic();
@@ -191,10 +188,21 @@ public class ArkoiCompiler
         return null;
     }
     
+    
+    /**
+     * Prints a tree with all the data required for debugging the {@link RootSyntaxAST}.
+     * It iterates through every {@link RootSyntaxAST} which got collected and calls the
+     * method {@link AbstractSyntaxAST#printSyntaxAST(PrintStream, String)} inside it.
+     *
+     * @param printStream
+     *         the {@link PrintStream} in which all data should get written in.
+     */
     public void printSyntaxTree(final PrintStream printStream) {
         final List<RootSyntaxAST> roots = new ArrayList<>();
-        for (final ArkoiClass arkoiClass : this.getArkoiClasses().values())
-            roots.add(arkoiClass.getSyntaxAnalyzer().getRootSyntaxAST());
+        for (final ArkoiClass arkoiClass : this.getArkoiClasses().values()) {
+            if (arkoiClass.getSyntaxAnalyzer() != null)
+                roots.add(arkoiClass.getSyntaxAnalyzer().getRootSyntaxAST());
+        }
         
         printStream.println("Syntax Trees:");
         for (int index = 0; index < roots.size(); index++) {

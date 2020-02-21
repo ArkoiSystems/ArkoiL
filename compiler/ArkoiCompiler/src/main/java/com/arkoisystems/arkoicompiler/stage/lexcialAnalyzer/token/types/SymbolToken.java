@@ -5,11 +5,10 @@
  */
 package com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types;
 
-import com.arkoisystems.arkoicompiler.stage.errorHandler.types.CharError;
+import com.arkoisystems.arkoicompiler.stage.errorHandler.types.LexicalError;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.LexicalAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
-import com.google.gson.annotations.Expose;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -36,9 +35,14 @@ public class SymbolToken extends AbstractToken
             }
         
         if (this.getSymbolType() == null) {
-            lexicalAnalyzer.errorHandler().addError(new CharError(currentChar, lexicalAnalyzer.getPosition(), "Couldn't lex this symbol because it isn't supported."));
+            lexicalAnalyzer.errorHandler().addError(new LexicalError(lexicalAnalyzer.getArkoiClass(), lexicalAnalyzer.getPosition(), "Couldn't lex this symbol because it isn't supported."));
             return null;
-        } else lexicalAnalyzer.next();
+        } else {
+            this.setStart(lexicalAnalyzer.getPosition());
+            this.setEnd(lexicalAnalyzer.getPosition());
+            
+            lexicalAnalyzer.next();
+        }
         return this;
     }
     

@@ -12,15 +12,11 @@ import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.AbstractSemanti
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.AbstractOperableSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.types.*;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.types.expression.AbstractExpressionSemanticAST;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types.*;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.AbstractOperableSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.*;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types.*;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
-import com.google.gson.annotations.Expose;
-import lombok.Setter;
-
-import java.io.PrintStream;
 
 public class BinaryExpressionSemanticAST extends AbstractExpressionSemanticAST<BinaryExpressionSyntaxAST>
 {
@@ -182,7 +178,7 @@ public class BinaryExpressionSemanticAST extends AbstractExpressionSemanticAST<B
                 return null;
             return castExpressionSemanticAST;
         }  else {
-            this.getSemanticAnalyzer().errorHandler().addError(new SyntaxASTError<>(abstractOperableSyntaxAST, "Couldn't analyze this operable because it isn't supported by the binary expression."));
+            this.getSemanticAnalyzer().errorHandler().addError(new SyntaxASTError<>(this.getSemanticAnalyzer().getArkoiClass(), abstractOperableSyntaxAST, "Couldn't analyze this operable because it isn't supported by the binary expression."));
             return null;
         }
     }
@@ -194,10 +190,18 @@ public class BinaryExpressionSemanticAST extends AbstractExpressionSemanticAST<B
                 leftExpressionOperable = this.analyzeNumericOperable(leftSideOperable),
                 rightExpressionOperable = this.analyzeNumericOperable(rightSideOperable);
         if (leftExpressionOperable == null) {
-            this.getSemanticAnalyzer().errorHandler().addError(new SemanticASTError<>(leftSideOperable, "Couldn't analyze this binary expression because the left side operable isn't supported by an addition."));
+            this.getSemanticAnalyzer().errorHandler().addError(new SemanticASTError<>(
+                    this.getSemanticAnalyzer().getArkoiClass(),
+                    new AbstractSemanticAST[] { leftSideOperable },
+                    "Couldn't analyze this binary expression because the left side operable isn't supported by an addition."
+            ));
             return null;
         } else if (rightExpressionOperable == null) {
-            this.getSemanticAnalyzer().errorHandler().addError(new SemanticASTError<>(rightSideOperable, "Couldn't analyze this binary expression because the right side operable isn't supported by an addition."));
+            this.getSemanticAnalyzer().errorHandler().addError(new SemanticASTError<>(
+                    this.getSemanticAnalyzer().getArkoiClass(),
+                    new AbstractSemanticAST[] { rightSideOperable },
+                    "Couldn't analyze this binary expression because the right side operable isn't supported by an addition."
+            ));
             return null;
         }
         return TypeKind.combineKinds(leftExpressionOperable, rightExpressionOperable);
@@ -210,10 +214,18 @@ public class BinaryExpressionSemanticAST extends AbstractExpressionSemanticAST<B
                 leftExpressionOperable = this.analyzeNumericOperable(leftSideOperable),
                 rightExpressionOperable = this.analyzeNumericOperable(rightSideOperable);
         if (leftExpressionOperable == null) {
-            this.getSemanticAnalyzer().errorHandler().addError(new SemanticASTError<>(leftSideOperable, "Couldn't analyze this binary expression because the left side operable isn't supported by a subtraction."));
+            this.getSemanticAnalyzer().errorHandler().addError(new SemanticASTError<>(
+                    this.getSemanticAnalyzer().getArkoiClass(),
+                    new AbstractSemanticAST[] { leftSideOperable },
+                    "Couldn't analyze this binary expression because the left side operable isn't supported by a subtraction."
+            ));
             return null;
         } else if (rightExpressionOperable == null) {
-            this.getSemanticAnalyzer().errorHandler().addError(new SemanticASTError<>(rightSideOperable, "Couldn't analyze this binary expression because the right side operable isn't supported by a subtraction."));
+            this.getSemanticAnalyzer().errorHandler().addError(new SemanticASTError<>(
+                    this.getSemanticAnalyzer().getArkoiClass(),
+                    new AbstractSemanticAST[] { rightSideOperable },
+                    "Couldn't analyze this binary expression because the right side operable isn't supported by a subtraction."
+            ));
             return null;
         }
         return TypeKind.combineKinds(leftExpressionOperable, rightExpressionOperable);
@@ -226,10 +238,18 @@ public class BinaryExpressionSemanticAST extends AbstractExpressionSemanticAST<B
                 leftExpressionOperable = this.analyzeNumericOperable(leftSideOperable),
                 rightExpressionOperable = this.analyzeNumericOperable(rightSideOperable);
         if (leftExpressionOperable == null) {
-            this.getSemanticAnalyzer().errorHandler().addError(new SemanticASTError<>(leftSideOperable, "Couldn't analyze this binary expression because the left side operable isn't supported by a multiplication."));
+            this.getSemanticAnalyzer().errorHandler().addError(new SemanticASTError<>(
+                    this.getSemanticAnalyzer().getArkoiClass(),
+                    new AbstractSemanticAST[] { leftSideOperable },
+                    "Couldn't analyze this binary expression because the left side operable isn't supported by a multiplication."
+            ));
             return null;
         } else if (rightExpressionOperable == null) {
-            this.getSemanticAnalyzer().errorHandler().addError(new SemanticASTError<>(rightSideOperable, "Couldn't analyze this binary expression because the right side operable isn't supported by a multiplication."));
+            this.getSemanticAnalyzer().errorHandler().addError(new SemanticASTError<>(
+                    this.getSemanticAnalyzer().getArkoiClass(),
+                    new AbstractSemanticAST[] { rightSideOperable },
+                    "Couldn't analyze this binary expression because the right side operable isn't supported by a multiplication."
+            ));
             return null;
         }
         return TypeKind.combineKinds(leftExpressionOperable, rightExpressionOperable);
@@ -242,10 +262,18 @@ public class BinaryExpressionSemanticAST extends AbstractExpressionSemanticAST<B
                 leftExpressionOperable = this.analyzeNumericOperable(leftSideOperable),
                 rightExpressionOperable = this.analyzeNumericOperable(rightSideOperable);
         if (leftExpressionOperable == null) {
-            this.getSemanticAnalyzer().errorHandler().addError(new SemanticASTError<>(leftSideOperable, "Couldn't analyze this binary expression because the left side operable isn't supported by a division."));
+            this.getSemanticAnalyzer().errorHandler().addError(new SemanticASTError<>(
+                    this.getSemanticAnalyzer().getArkoiClass(),
+                    new AbstractSemanticAST[] { leftSideOperable },
+                    "Couldn't analyze this binary expression because the left side operable isn't supported by a division."
+            ));
             return null;
         } else if (rightExpressionOperable == null) {
-            this.getSemanticAnalyzer().errorHandler().addError(new SemanticASTError<>(rightSideOperable, "Couldn't analyze this binary expression because the right side operable isn't supported by a division."));
+            this.getSemanticAnalyzer().errorHandler().addError(new SemanticASTError<>(
+                    this.getSemanticAnalyzer().getArkoiClass(),
+                    new AbstractSemanticAST[] { rightSideOperable },
+                    "Couldn't analyze this binary expression because the right side operable isn't supported by a division."
+            ));
             return null;
         }
         return TypeKind.combineKinds(leftExpressionOperable, rightExpressionOperable);
@@ -265,10 +293,18 @@ public class BinaryExpressionSemanticAST extends AbstractExpressionSemanticAST<B
         else rightExpressionOperable = this.analyzeNumericOperable(rightSideOperable);
         
         if (leftExpressionOperable == null) {
-            this.getSemanticAnalyzer().errorHandler().addError(new SemanticASTError<>(leftSideOperable, "Couldn't analyze this binary expression because the left side operable isn't supported by the modulo operator."));
+            this.getSemanticAnalyzer().errorHandler().addError(new SemanticASTError<>(
+                    this.getSemanticAnalyzer().getArkoiClass(),
+                    new AbstractSemanticAST[] { leftSideOperable },
+                    "Couldn't analyze this binary expression because the left side operable isn't supported by the modulo operator."
+            ));
             return null;
         } else if (rightExpressionOperable == null) {
-            this.getSemanticAnalyzer().errorHandler().addError(new SemanticASTError<>(rightSideOperable, "Couldn't analyze this binary expression because the right side operable isn't supported by the modulo operator."));
+            this.getSemanticAnalyzer().errorHandler().addError(new SemanticASTError<>(
+                    this.getSemanticAnalyzer().getArkoiClass(),
+                    new AbstractSemanticAST[] { rightSideOperable },
+                    "Couldn't analyze this binary expression because the right side operable isn't supported by the modulo operator."
+            ));
             return null;
         }
         return TypeKind.combineKinds(leftExpressionOperable, rightExpressionOperable);
