@@ -3,12 +3,9 @@ com.arkoisystems.arkoicompiler.bootstrap
 com.arkoisystems.arkoicompiler.stage
 com.arkoisystems.arkoicompiler.stage.errorHandler
 com.arkoisystems.arkoicompiler.stage.errorHandler.types
-com.arkoisystems.arkoicompiler.stage.errorHandler.types.doubles
 com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer
 com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token
 com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types
-com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.numbers
-com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.numbers.types
 com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils
 com.arkoisystems.arkoicompiler.stage.semanticAnalyzer
 com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast
