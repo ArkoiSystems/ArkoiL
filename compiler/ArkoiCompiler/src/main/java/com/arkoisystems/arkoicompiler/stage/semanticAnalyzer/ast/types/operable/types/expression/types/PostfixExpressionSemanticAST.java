@@ -5,19 +5,20 @@
  */
 package com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.types.expression.types;
 
-import com.arkoisystems.arkoicompiler.stage.errorHandler.types.SemanticASTError;
-import com.arkoisystems.arkoicompiler.stage.errorHandler.types.SyntaxASTError;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.SemanticAnalyzer;
+import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.SemanticErrorType;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.AbstractSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.AbstractOperableSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.types.IdentifierCallOperableSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.types.IdentifierInvokeOperableSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.types.NumberOperableSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.types.expression.AbstractExpressionSemanticAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.AbstractOperableSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.IdentifierCallOperableSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.IdentifierInvokeOperableSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.NumberOperableSyntaxAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.operators.PostfixOperatorType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types.ParenthesizedExpressionSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types.PostfixExpressionSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
@@ -70,8 +71,8 @@ public class PostfixExpressionSemanticAST extends AbstractExpressionSemanticAST<
     }
     
     
-    public PostfixExpressionSyntaxAST.PostfixUnaryOperator getPostfixUnaryOperator() {
-        return this.getSyntaxAST().getPostfixUnaryOperator();
+    public PostfixOperatorType getPostfixUnaryOperator() {
+        return this.getSyntaxAST().getPostfixOperatorType();
     }
     
     
@@ -109,7 +110,11 @@ public class PostfixExpressionSemanticAST extends AbstractExpressionSemanticAST<
                 return null;
             return identifierInvokeOperableSemanticAST;
         } else {
-            this.getSemanticAnalyzer().errorHandler().addError(new SyntaxASTError<>(this.getSemanticAnalyzer().getArkoiClass(), abstractOperableSyntaxAST, "Couldn't analyze this operable because it isn't supported by the postfix expression."));
+            this.addError(
+                    this.getSemanticAnalyzer().getArkoiClass(),
+                    abstractOperableSyntaxAST,
+                    SemanticErrorType.POSTFIX_OPERABLE_NOT_SUPPORTED
+            );
             return null;
         }
     }
@@ -119,11 +124,12 @@ public class PostfixExpressionSemanticAST extends AbstractExpressionSemanticAST<
     public TypeKind postfixAdd(final AbstractOperableSemanticAST<?, ?> abstractOperableSemanticAST) {
         final AbstractOperableSemanticAST<?, ?> leftExpressionOperable = this.analyzeNumericOperable(abstractOperableSemanticAST);
         if(leftExpressionOperable == null) {
-            this.getSemanticAnalyzer().errorHandler().addError(new SemanticASTError<>(
+            this.addError(
                     this.getSemanticAnalyzer().getArkoiClass(),
-                    new AbstractSemanticAST[] { abstractOperableSemanticAST },
-                    "Couldn't analyze this postfix expression because the left side operable isn't supported by the post addition operator."
-            ));
+                    abstractOperableSemanticAST,
+                    SemanticErrorType.POSTFIX_ADD_OPERABLE_NOT_SUPPORTED
+            );
+            this.setFailed(true);
             return null;
         }
         return TypeKind.getTypeKind(leftExpressionOperable);
@@ -134,11 +140,11 @@ public class PostfixExpressionSemanticAST extends AbstractExpressionSemanticAST<
     public TypeKind postfixSub(final AbstractOperableSemanticAST<?, ?> abstractOperableSemanticAST) {
         final AbstractOperableSemanticAST<?, ?> leftExpressionOperable = this.analyzeNumericOperable(abstractOperableSemanticAST);
         if(leftExpressionOperable == null) {
-            this.getSemanticAnalyzer().errorHandler().addError(new SemanticASTError<>(
+            this.addError(
                     this.getSemanticAnalyzer().getArkoiClass(),
-                    new AbstractSemanticAST[] { abstractOperableSemanticAST },
-                    "Couldn't analyze this postfix expression because the left side operable isn't supported by the post subtraction operator."
-            ));
+                    abstractOperableSemanticAST,
+                    SemanticErrorType.POSTFIX_SUB_OPERABLE_NOT_SUPPORTED
+            );
             return null;
         }
         return TypeKind.getTypeKind(leftExpressionOperable);

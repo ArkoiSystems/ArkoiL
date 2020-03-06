@@ -14,7 +14,7 @@ import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.types.StringOperableSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.types.expression.AbstractExpressionSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.TypeSyntaxAST;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types.CastExpressionSyntaxAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.operators.CastOperatorType;
 import lombok.Getter;
 
 /**
@@ -63,7 +63,7 @@ public enum TypeKind
      * it's numeric and the precision of it.
      *
      * @param name
-     *         the name which should get used for this entry.
+     *         the name which is used used for this entry.
      * @param isNumeric
      *         defines whether the entry is numeric or not.
      * @param precision
@@ -185,17 +185,17 @@ public enum TypeKind
     
     
     /**
-     * Resolves the {@link TypeKind} of the given {@link CastExpressionSyntaxAST.CastOperator}
-     * and returns it if something was found.
+     * Resolves the {@link TypeKind} of the given {@link CastOperatorType} and returns it
+     * if something was found.
      *
-     * @param castOperator
-     *         the {@link CastExpressionSyntaxAST.CastOperator} which should get used.
+     * @param castOperatorType
+     *         the {@link CastOperatorType} which is used used.
      *
-     * @return {@code null} if the {@link CastExpressionSyntaxAST.CastOperator} isn't
-     *         supported or the resolved {@link TypeKind}.
+     * @return {@code null} if the {@link CastOperatorType} isn't supported or the
+     *         resolved {@link TypeKind}.
      */
-    public static TypeKind getTypeKind(final CastExpressionSyntaxAST.CastOperator castOperator) {
-        switch (castOperator) {
+    public static TypeKind getTypeKind(final CastOperatorType castOperatorType) {
+        switch (castOperatorType) {
             case SHORT:
                 return SHORT;
             case DOUBLE:

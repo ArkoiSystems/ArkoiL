@@ -5,11 +5,9 @@
  */
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types;
 
-import com.arkoisystems.arkoicompiler.stage.errorHandler.types.ParserError;
-import com.arkoisystems.arkoicompiler.stage.errorHandler.types.SyntaxASTError;
-import com.arkoisystems.arkoicompiler.stage.errorHandler.types.TokenError;
-import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.SymbolToken;
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.SymbolType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxErrorType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.AbstractOperableSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.AbstractExpressionSyntaxAST;
@@ -28,43 +26,59 @@ public class CollectionOperableSyntaxAST extends AbstractOperableSyntaxAST<Abstr
     private final List<ExpressionSyntaxAST> collectionExpressions;
     
     
-    public CollectionOperableSyntaxAST() {
-        super(ASTType.COLLECTION_OPERABLE);
+    public CollectionOperableSyntaxAST(final SyntaxAnalyzer syntaxAnalyzer) {
+        super(syntaxAnalyzer, ASTType.COLLECTION_OPERABLE);
         
         this.collectionExpressions = new ArrayList<>();
     }
     
     
     @Override
-    public AbstractOperableSyntaxAST<?> parseAST(final AbstractSyntaxAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
-        if (syntaxAnalyzer.matchesCurrentToken(SymbolToken.SymbolType.OPENING_BRACKET) == null) {
-            syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the collection operable because the parsing doesn't start with an opening bracket."));
+    public AbstractOperableSyntaxAST<?> parseAST(final AbstractSyntaxAST parentAST) {
+        if (this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.OPENING_BRACKET) == null) {
+            this.addError(
+                    this.getSyntaxAnalyzer().getArkoiClass(),
+                    this.getSyntaxAnalyzer().currentToken(),
+                    SyntaxErrorType.COLLECTION_OPERABLE_WRONG_START
+            );
             return null;
-        } else syntaxAnalyzer.nextToken();
+        }
         
-        while (syntaxAnalyzer.getPosition() < syntaxAnalyzer.getTokens().length) {
-            if (syntaxAnalyzer.matchesCurrentToken(SymbolToken.SymbolType.CLOSING_BRACKET) != null)
+        this.setStart(this.getSyntaxAnalyzer().currentToken().getStart());
+        this.getSyntaxAnalyzer().nextToken();
+        
+        while (this.getSyntaxAnalyzer().getPosition() < this.getSyntaxAnalyzer().getTokens().length) {
+            if (this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.CLOSING_BRACKET) != null)
                 break;
             
-            if (!AbstractExpressionSyntaxAST.EXPRESSION_PARSER.canParse(this, syntaxAnalyzer)) {
-                syntaxAnalyzer.errorHandler().addError(new ParserError<>(AbstractExpressionSyntaxAST.EXPRESSION_PARSER, syntaxAnalyzer.currentToken(), "Couldn't parse the collection operable because there is an invalid expression inside."));
+            if (!AbstractExpressionSyntaxAST.EXPRESSION_PARSER.canParse(this, this.getSyntaxAnalyzer())) {
+                this.addError(
+                        this.getSyntaxAnalyzer().getArkoiClass(),
+                        this.getSyntaxAnalyzer().currentToken(),
+                        SyntaxErrorType.COLLECTION_OPERABLE_INVALID_EXPRESSION
+                );
                 return null;
             }
             
-            final ExpressionSyntaxAST abstractExpressionAST = AbstractExpressionSyntaxAST.EXPRESSION_PARSER.parse(this, syntaxAnalyzer);
-            if (abstractExpressionAST == null) {
-                syntaxAnalyzer.errorHandler().addError(new SyntaxASTError<>(syntaxAnalyzer.getArkoiClass(), this, "Couldn't parse the collection operable because there occurred an error while parsing the expression inside it."));
+            final ExpressionSyntaxAST abstractExpressionAST = AbstractExpressionSyntaxAST.EXPRESSION_PARSER.parse(this, this.getSyntaxAnalyzer());
+            if (abstractExpressionAST == null)
                 return null;
-            } else this.collectionExpressions.add(abstractExpressionAST);
-    
-            if (syntaxAnalyzer.matchesNextToken(SymbolToken.SymbolType.COMMA) != null)
-                syntaxAnalyzer.nextToken();
+            this.collectionExpressions.add(abstractExpressionAST);
+            
+            if (this.getSyntaxAnalyzer().matchesNextToken(SymbolType.COMMA) != null)
+                this.getSyntaxAnalyzer().nextToken();
         }
         
-        if (syntaxAnalyzer.matchesCurrentToken(SymbolToken.SymbolType.CLOSING_BRACKET) == null) {
-            syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the collection operable because it doesn't end with an closing bracket."));
+        if (this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.CLOSING_BRACKET) == null) {
+            this.addError(
+                    this.getSyntaxAnalyzer().getArkoiClass(),
+                    this.getSyntaxAnalyzer().currentToken(),
+                    SyntaxErrorType.COLLECTION_OPERABLE_WRONG_ENDING
+            );
             return null;
         }
+        
+        this.setEnd(this.getSyntaxAnalyzer().currentToken().getEnd());
         return this;
     }
     

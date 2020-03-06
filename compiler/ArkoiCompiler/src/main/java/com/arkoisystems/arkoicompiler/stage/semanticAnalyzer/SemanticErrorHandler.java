@@ -5,31 +5,31 @@
  */
 package com.arkoisystems.arkoicompiler.stage.semanticAnalyzer;
 
-import com.arkoisystems.arkoicompiler.stage.errorHandler.AbstractError;
+import com.arkoisystems.arkoicompiler.stage.errorHandler.ArkoiError;
 import com.arkoisystems.arkoicompiler.stage.errorHandler.ErrorHandler;
 import lombok.Getter;
 
 import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
 
 public class SemanticErrorHandler extends ErrorHandler
 {
     
     @Getter
-    private final List<AbstractError> abstractErrors = new ArrayList<>();
+    private final HashMap<Integer, ArkoiError> arkoiErrors = new HashMap<>();
     
     
     @Override
-    public void addError(final AbstractError abstractError) {
-        this.getAbstractErrors().add(abstractError);
+    public void addError(final ArkoiError arkoiError) {
+        if (!this.getArkoiErrors().containsKey(arkoiError.hashCode()))
+            this.getArkoiErrors().put(arkoiError.hashCode(), arkoiError);
     }
     
     
     @Override
     public void printStackTrace(final PrintStream printStream) {
-        for (final AbstractError abstractError : this.getAbstractErrors())
-            printStream.println(abstractError.toString());
+        for (final ArkoiError arkoiError : this.getArkoiErrors().values())
+            printStream.println(arkoiError.toString());
     }
     
 }

@@ -5,13 +5,11 @@
  */
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.types;
 
-import com.arkoisystems.arkoicompiler.stage.errorHandler.types.ParserError;
-import com.arkoisystems.arkoicompiler.stage.errorHandler.types.SyntaxASTError;
-import com.arkoisystems.arkoicompiler.stage.errorHandler.types.TokenError;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.IdentifierToken;
-import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.SymbolToken;
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.SymbolType;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxErrorType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.*;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.AbstractStatementSyntaxAST;
@@ -19,6 +17,7 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.BlockType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
@@ -29,6 +28,7 @@ public class FunctionDefinitionSyntaxAST extends AbstractStatementSyntaxAST
     
     
     @Getter
+    @Setter
     private List<AnnotationSyntaxAST> functionAnnotations;
     
     
@@ -48,147 +48,158 @@ public class FunctionDefinitionSyntaxAST extends AbstractStatementSyntaxAST
     private BlockSyntaxAST functionBlock;
     
     
-    /**
-     * This constructor will initialize the statement with the AST-Type
-     * "FUNCTION_DEFINITION". This will help to debug problems or check the AST for
-     * correct syntax. Also it will pass the annotations which got parsed previously.
-     *
-     * @param functionAnnotations
-     *         The annotation list which got parsed already.
-     */
-    public FunctionDefinitionSyntaxAST(final List<AnnotationSyntaxAST> functionAnnotations) {
-        super(ASTType.FUNCTION_DEFINITION);
+    public FunctionDefinitionSyntaxAST(final SyntaxAnalyzer syntaxAnalyzer, final List<AnnotationSyntaxAST> functionAnnotations) {
+        super(syntaxAnalyzer, ASTType.FUNCTION_DEFINITION);
         
         this.functionAnnotations = functionAnnotations;
         this.functionArguments = new ArrayList<>();
     }
     
     
-    /**
-     * This constructor will initialize the statement with the AST-Type
-     * "FUNCTION_DEFINITION". This will help to debug problems or check the AST for
-     * correct syntax.
-     */
-    public FunctionDefinitionSyntaxAST() {
-        super(ASTType.FUNCTION_DEFINITION);
+    public FunctionDefinitionSyntaxAST(final SyntaxAnalyzer syntaxAnalyzer) {
+        super(syntaxAnalyzer, ASTType.FUNCTION_DEFINITION);
         
         this.functionAnnotations = new ArrayList<>();
         this.functionArguments = new ArrayList<>();
     }
     
     
-    /**
-     * This method will parse the {@link FunctionDefinitionSyntaxAST} with the given
-     * parameters. The only AST which can parse a {@link FunctionDefinitionSyntaxAST} is
-     * the {@link RootSyntaxAST}, because you can't define a function inside a {@link
-     * BlockSyntaxAST} or something else.
-     *
-     * <p> An example for this statement:</p>
-     * <pre>
-     *     &#64;native[default]
-     *     fun println<>(message: string);
-     * </pre>
-     *
-     * <note>Note that a {@link FunctionDefinitionSyntaxAST} can be native and so it
-     * doesn't need any block besides a semicolon to mark the end of the function
-     * definition.</note>
-     *
-     * @param parentAST
-     *         the {@link AbstractSyntaxAST} for the parent check and error throwing.
-     * @param syntaxAnalyzer
-     *         the {@link SyntaxAnalyzer} which should be used to parse this {@link
-     *         FunctionDefinitionSyntaxAST}
-     *
-     * @return the parsed {@link FunctionDefinitionSyntaxAST} or {@link null} if something
-     *         went wrong
-     */
     @Override
-    public FunctionDefinitionSyntaxAST parseAST(final AbstractSyntaxAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
+    public FunctionDefinitionSyntaxAST parseAST(final AbstractSyntaxAST parentAST) {
         if (!(parentAST instanceof RootSyntaxAST)) {
-            syntaxAnalyzer.errorHandler().addError(new SyntaxASTError<>(syntaxAnalyzer.getArkoiClass(), parentAST, "Couldn't parse the \"function definition\" statement because it isn't declared inside the root file."));
+            this.addError(
+                    this.getSyntaxAnalyzer().getArkoiClass(),
+                    this.getSyntaxAnalyzer().currentToken(),
+                    SyntaxErrorType.FUNCTION_DEFINITION_WRONG_PARENT
+            );
             return null;
         }
-    
-        if (syntaxAnalyzer.matchesCurrentToken(TokenType.IDENTIFIER) == null || !syntaxAnalyzer.currentToken().getTokenContent().equals("fun")) {
-            syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the \"function definition\" statement because the parsing doesn't start with the \"fun\" keyword."));
-            return null;
-        } else this.setStart(syntaxAnalyzer.currentToken().getStart());
-    
-        if (syntaxAnalyzer.matchesNextToken(TokenType.IDENTIFIER) == null) {
-            syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the \"function definition\" statement because the \"fun\" keyword isn't followed by a function name."));
-            return null;
-        } else this.functionName = (IdentifierToken) syntaxAnalyzer.currentToken();
-    
-        if (syntaxAnalyzer.matchesNextToken(SymbolToken.SymbolType.LESS_THAN_SIGN) == null) {
-            syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the \"function definition\" statement because the function name isn't followed by an opening sign aka. \"<\"."));
-            return null;
-        } else syntaxAnalyzer.nextToken();
-    
-        if (TypeSyntaxAST.TYPE_PARSER.canParse(this, syntaxAnalyzer)) {
-            final TypeSyntaxAST typeSyntaxAST = TypeSyntaxAST.TYPE_PARSER.parse(this, syntaxAnalyzer);
-            if (typeSyntaxAST == null) {
-                syntaxAnalyzer.errorHandler().addError(new ParserError<>(TypeSyntaxAST.TYPE_PARSER, this.getStart(), syntaxAnalyzer.currentToken().getEnd(), "Couldn't parse the \"function definition\" statement because an error occurred during the parsing of the return type."));
-            } else {
-                this.functionReturnType = typeSyntaxAST;
-                syntaxAnalyzer.nextToken();
-            }
-        } else this.functionReturnType = new TypeSyntaxAST(TypeKind.VOID, false);
-    
-        if (syntaxAnalyzer.matchesCurrentToken(SymbolToken.SymbolType.GREATER_THAN_SIGN) == null) {
-            syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the \"function definition\" statement because the return type section doesn't end with a closing sign aka. \">\"."));
+        
+        if (this.getSyntaxAnalyzer().matchesCurrentToken(TokenType.IDENTIFIER) == null || !this.getSyntaxAnalyzer().currentToken().getTokenContent().equals("fun")) {
+            this.addError(
+                    this.getSyntaxAnalyzer().getArkoiClass(),
+                    this.getSyntaxAnalyzer().currentToken(),
+                    SyntaxErrorType.FUNCTION_DEFINITION_WRONG_START
+            );
             return null;
         }
-    
-        if (syntaxAnalyzer.matchesNextToken(SymbolToken.SymbolType.OPENING_PARENTHESIS) == null) {
-            syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the \"function definition\" statement because the argument section doesn't start with an opening parenthesis."));
+        this.setStart(this.getSyntaxAnalyzer().currentToken().getStart());
+        
+        if (this.getSyntaxAnalyzer().matchesNextToken(TokenType.IDENTIFIER) == null) {
+            this.addError(
+                    this.getSyntaxAnalyzer().getArkoiClass(),
+                    this.getSyntaxAnalyzer().currentToken(),
+                    SyntaxErrorType.FUNCTION_DEFINITION_NO_NAME
+            );
             return null;
         }
-    
-        ArgumentDefinitionSyntaxAST.parseArguments(this, syntaxAnalyzer, this.functionArguments);
-        if (this.functionArguments == null) {
-            syntaxAnalyzer.errorHandler().addError(new ParserError<>(ArgumentDefinitionSyntaxAST.ARGUMENT_DEFINITION_PARSER, this.getStart(), syntaxAnalyzer.currentToken().getEnd(), "Couldn't parse the \"function definition\" statement because an error occurred during the parsing of the arguments."));
+        this.functionName = (IdentifierToken) this.getSyntaxAnalyzer().currentToken();
+        
+        if (this.getSyntaxAnalyzer().matchesNextToken(SymbolType.LESS_THAN_SIGN) == null) {
+            this.addError(
+                    this.getSyntaxAnalyzer().getArkoiClass(),
+                    this.getSyntaxAnalyzer().currentToken(),
+                    SyntaxErrorType.FUNCTION_DEFINITION_WRONG_RETURN_TYPE_START
+            );
             return null;
         }
-    
-        if (syntaxAnalyzer.matchesCurrentToken(SymbolToken.SymbolType.CLOSING_PARENTHESIS) == null) {
-            syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the \"function definition\" statement because the argument section doesn't end with a closing parenthesis."));
+        this.getSyntaxAnalyzer().nextToken();
+        
+        if (TypeSyntaxAST.TYPE_PARSER.canParse(this, this.getSyntaxAnalyzer())) {
+            final TypeSyntaxAST typeSyntaxAST = TypeSyntaxAST.TYPE_PARSER.parse(this, this.getSyntaxAnalyzer());
+            if (typeSyntaxAST == null)
+                return null;
+            
+            this.functionReturnType = typeSyntaxAST;
+            this.getSyntaxAnalyzer().nextToken();
+        }
+        this.functionReturnType = new TypeSyntaxAST(this.getSyntaxAnalyzer(), TypeKind.VOID, false);
+        
+        if (this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.GREATER_THAN_SIGN) == null) {
+            this.addError(
+                    this.getSyntaxAnalyzer().getArkoiClass(),
+                    this.getSyntaxAnalyzer().currentToken(),
+                    SyntaxErrorType.FUNCTION_DEFINITION_WRONG_RETURN_TYPE_ENDING
+            );
             return null;
-        } else syntaxAnalyzer.nextToken();
-    
+        }
+        
+        if (this.getSyntaxAnalyzer().matchesNextToken(SymbolType.OPENING_PARENTHESIS) == null) {
+            this.addError(
+                    this.getSyntaxAnalyzer().getArkoiClass(),
+                    this.getSyntaxAnalyzer().currentToken(),
+                    SyntaxErrorType.FUNCTION_DEFINITION_WRONG_ARGUMENTS_START
+            );
+            return null;
+        }
+        
+        this.functionArguments = ArgumentDefinitionSyntaxAST.parseArguments(this, this.getSyntaxAnalyzer());
+        if (this.functionArguments == null)
+            return null;
+        
+        if (this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.CLOSING_PARENTHESIS) == null) {
+            this.addError(
+                    this.getSyntaxAnalyzer().getArkoiClass(),
+                    this.getSyntaxAnalyzer().currentToken(),
+                    SyntaxErrorType.FUNCTION_DEFINITION_WRONG_ARGUMENTS_ENDING
+            );
+            return null;
+        } else this.getSyntaxAnalyzer().nextToken();
+        
         if (this.hasAnnotation("native")) {
-            if (syntaxAnalyzer.matchesCurrentToken(SymbolToken.SymbolType.SEMICOLON) == null) {
-                syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the \"function definition\" statement because a native function needs to end direclty with an semicolon after the argument section."));
-                return null;
-            } else {
-                this.functionBlock = new BlockSyntaxAST();
-                this.functionBlock.setBlockType(BlockType.NATIVE);
-            }
-        } else {
-            if (syntaxAnalyzer.matchesCurrentToken(SymbolToken.SymbolType.OPENING_BRACE) == null && syntaxAnalyzer.matchesCurrentToken(SymbolToken.SymbolType.EQUAL) == null) {
-                syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the \"function definition\" statement because after the argument section no opening brace or equal sign was declared. You need one of them to declare if this function uses a block or is inlined."));
+            if (this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.SEMICOLON) == null) {
+                this.addError(
+                        this.getSyntaxAnalyzer().getArkoiClass(),
+                        this.getSyntaxAnalyzer().currentToken(),
+                        SyntaxErrorType.FUNCTION_DEFINITION_WRONG_NATIVE_ENDING
+                );
                 return null;
             }
-        
-            if (!BlockSyntaxAST.BLOCK_PARSER.canParse(this, syntaxAnalyzer)) {
-                syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the \"function definition\" statement because the block separator isn't followed by a valid block."));
-                return null;
-            }
-        
-            if ((this.functionBlock = BlockSyntaxAST.BLOCK_PARSER.parse(this, syntaxAnalyzer)) == null) {
-                syntaxAnalyzer.errorHandler().addError(new ParserError<>(BlockSyntaxAST.BLOCK_PARSER, this.getStart(), syntaxAnalyzer.currentToken().getEnd(), "Couldn't parse the \"function definition\" statement because an error occurred during parsing of the block/inlined block."));
-                return null;
-            }
-        
-            if (this.functionBlock.getBlockType() == BlockType.INLINE && syntaxAnalyzer.matchesCurrentToken(SymbolToken.SymbolType.SEMICOLON) == null) {
-                syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the \"function definition\" statement because an inlined function needs to end with a semicolon."));
-                return null;
-            } else if (this.functionBlock.getBlockType() == BlockType.BLOCK && syntaxAnalyzer.matchesCurrentToken(SymbolToken.SymbolType.CLOSING_BRACE) == null) {
-                syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the \"function definition\" statement because a block needs to end with a closing brace aka. \"}\"."));
-                return null;
-            }
+            
+            this.functionBlock = new BlockSyntaxAST(this.getSyntaxAnalyzer());
+            this.functionBlock.setBlockType(BlockType.NATIVE);
+            return this;
         }
-    
-        this.setEnd(syntaxAnalyzer.currentToken().getEnd());
+        
+        if (this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.OPENING_BRACE) == null && this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.EQUAL) == null) {
+            this.addError(
+                    this.getSyntaxAnalyzer().getArkoiClass(),
+                    this.getSyntaxAnalyzer().currentToken(),
+                    SyntaxErrorType.FUNCTION_DEFINITION_WRONG_BLOCK_START
+            );
+            return null;
+        }
+        
+        if (!BlockSyntaxAST.BLOCK_PARSER.canParse(this, this.getSyntaxAnalyzer())) {
+            this.addError(
+                    this.getSyntaxAnalyzer().getArkoiClass(),
+                    this.getSyntaxAnalyzer().currentToken(),
+                    SyntaxErrorType.FUNCTION_DEFINITION_NO_VALID_BLOCK
+            );
+            return null;
+        }
+        
+        this.functionBlock = BlockSyntaxAST.BLOCK_PARSER.parse(this, this.getSyntaxAnalyzer());
+        if (this.functionBlock == null)
+            return null;
+        
+        if (this.functionBlock.getBlockType() == BlockType.INLINE && this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.SEMICOLON) == null) {
+            this.addError(
+                    this.getSyntaxAnalyzer().getArkoiClass(),
+                    this.getSyntaxAnalyzer().currentToken(),
+                    SyntaxErrorType.FUNCTION_DEFINITION_WRONG_INLINED_BLOCK_ENDING
+            );
+            return null;
+        } else if (this.functionBlock.getBlockType() == BlockType.BLOCK && this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.CLOSING_BRACE) == null) {
+            this.addError(
+                    this.getSyntaxAnalyzer().getArkoiClass(),
+                    this.getSyntaxAnalyzer().currentToken(),
+                    SyntaxErrorType.FUNCTION_DEFINITION_WRONG_BLOCK_ENDING
+            );
+            return null;
+        }
+        
+        this.setEnd(this.getSyntaxAnalyzer().currentToken().getEnd());
         return this;
     }
     
@@ -229,16 +240,6 @@ public class FunctionDefinitionSyntaxAST extends AbstractStatementSyntaxAST
     }
     
     
-    /**
-     * This method loops through all annotation and returns true if it found an annotation
-     * with the defined name.
-     *
-     * @param annotationName
-     *         The name which is used to search if the annotation is present.
-     *
-     * @return It will return false if the list is empty or it doesn't found anything.
-     *         Otherwise it will just return true.
-     */
     public boolean hasAnnotation(final String annotationName) {
         for (final AnnotationSyntaxAST annotationSyntaxAST : this.functionAnnotations)
             if (annotationSyntaxAST.getAnnotationName().getTokenContent().equals(annotationName))

@@ -9,8 +9,10 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.AbstractOperableSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.AbstractExpressionSyntaxAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.operators.LogicalOperatorType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.io.PrintStream;
 
@@ -18,31 +20,21 @@ public class LogicalExpressionSyntaxAST extends AbstractExpressionSyntaxAST
 {
     
     @Getter
-    private final AbstractOperableSyntaxAST<?> leftSideOperable;
+    private LogicalOperatorType logicalOperatorType;
     
     
     @Getter
-    private final LogicalOperator logicalOperator;
+    @Setter
+    private AbstractOperableSyntaxAST<?> leftSideOperable, rightSideOperable;
     
     
-    @Getter
-    private final AbstractOperableSyntaxAST<?> rightSideOperable;
-    
-    
-    public LogicalExpressionSyntaxAST(final AbstractOperableSyntaxAST<?> leftSideOperable, final LogicalOperator logicalOperator, final AbstractOperableSyntaxAST<?> rightSideOperable) {
-        super(ASTType.LOGICAL_EXPRESSION);
-        
-        this.logicalOperator = logicalOperator;
-        this.rightSideOperable = rightSideOperable;
-        this.leftSideOperable = leftSideOperable;
-    
-        this.setStart(leftSideOperable.getStart());
-        this.setEnd(rightSideOperable.getEnd());
+    public LogicalExpressionSyntaxAST(final SyntaxAnalyzer syntaxAnalyzer) {
+        super(syntaxAnalyzer, ASTType.LOGICAL_EXPRESSION);
     }
     
     
     @Override
-    public LogicalExpressionSyntaxAST parseAST(final AbstractSyntaxAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
+    public AbstractOperableSyntaxAST<?> parseAST(final AbstractSyntaxAST parentAST) {
         return this;
     }
     
@@ -52,19 +44,10 @@ public class LogicalExpressionSyntaxAST extends AbstractExpressionSyntaxAST
         printStream.println(indents + "├── left:");
         printStream.println(indents + "│   └── " + this.getLeftSideOperable().getClass().getSimpleName());
         this.getLeftSideOperable().printSyntaxAST(printStream, indents + "│       ");
-        printStream.println(indents + "├── operator: " + this.getLogicalOperator());
+        printStream.println(indents + "├── operator: " + this.getLogicalOperatorType());
         printStream.println(indents + "└── right:");
         printStream.println(indents + "    └── " + this.getRightSideOperable().getClass().getSimpleName());
         this.getRightSideOperable().printSyntaxAST(printStream, indents + "        ");
-    }
-    
-    
-    public enum LogicalOperator
-    {
-        
-        LOGICAL_AND,
-        LOGICAL_OR
-        
     }
     
 }

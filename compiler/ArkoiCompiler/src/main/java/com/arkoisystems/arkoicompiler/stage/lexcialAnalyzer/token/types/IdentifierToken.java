@@ -5,7 +5,6 @@
  */
 package com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types;
 
-import com.arkoisystems.arkoicompiler.stage.errorHandler.types.LexicalError;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.LexicalAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
@@ -15,8 +14,8 @@ import java.util.Arrays;
 public class IdentifierToken extends AbstractToken
 {
     
-    public IdentifierToken(final String content, final int start, final int end) {
-        super();
+    public IdentifierToken(final LexicalAnalyzer lexicalAnalyzer, final String content, final int start, final int end) {
+        super(lexicalAnalyzer, TokenType.IDENTIFIER);
         
         this.setTokenContent(content);
         this.setStart(start);
@@ -24,28 +23,32 @@ public class IdentifierToken extends AbstractToken
     }
     
     
-    public IdentifierToken() {
-        this.setTokenType(TokenType.IDENTIFIER);
+    public IdentifierToken(final LexicalAnalyzer lexicalAnalyzer) {
+        super(lexicalAnalyzer, TokenType.IDENTIFIER);
     }
     
     
     @Override
-    public IdentifierToken lex(final LexicalAnalyzer lexicalAnalyzer) {
-        final char currentChar = lexicalAnalyzer.currentChar();
+    public IdentifierToken parseToken() {
+        final char currentChar = this.getLexicalAnalyzer().currentChar();
         if (!Character.isJavaIdentifierStart(currentChar)) {
-            lexicalAnalyzer.errorHandler().addError(new LexicalError(lexicalAnalyzer.getArkoiClass(), lexicalAnalyzer.getPosition(), "Couldn't lex the Identifier because it doesn't start with an alphabetic char."));
+            this.addError(
+                    this.getLexicalAnalyzer().getArkoiClass(),
+                    this.getLexicalAnalyzer().getPosition(),
+                    "Couldn't lex the Identifier because it doesn't start with an alphabetic char."
+            );
             return null;
-        } else lexicalAnalyzer.next();
+        } else this.getLexicalAnalyzer().next();
         
-        this.setStart(lexicalAnalyzer.getPosition() - 1);
-        while(lexicalAnalyzer.getPosition() < lexicalAnalyzer.getArkoiClass().getContent().length) {
-            if(!Character.isUnicodeIdentifierPart(lexicalAnalyzer.currentChar())) {
-                this.setEnd(lexicalAnalyzer.getPosition() - 1);
+        this.setStart(this.getLexicalAnalyzer().getPosition() - 1);
+        while (this.getLexicalAnalyzer().getPosition() < this.getLexicalAnalyzer().getArkoiClass().getContent().length) {
+            if (!Character.isUnicodeIdentifierPart(this.getLexicalAnalyzer().currentChar())) {
+                this.setEnd(this.getLexicalAnalyzer().getPosition());
                 break;
-            } else lexicalAnalyzer.next();
+            } else this.getLexicalAnalyzer().next();
         }
-    
-        this.setTokenContent(new String(Arrays.copyOfRange(lexicalAnalyzer.getArkoiClass().getContent(), this.getStart(), this.getEnd() + 1)).intern());
+        
+        this.setTokenContent(new String(Arrays.copyOfRange(this.getLexicalAnalyzer().getArkoiClass().getContent(), this.getStart(), this.getEnd())).intern());
         return this;
     }
     

@@ -5,9 +5,8 @@
  */
 package com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.types;
 
-import com.arkoisystems.arkoicompiler.stage.errorHandler.types.SemanticASTError;
-import com.arkoisystems.arkoicompiler.stage.errorHandler.types.SyntaxASTError;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.SemanticAnalyzer;
+import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.SemanticErrorType;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.AbstractSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.ArgumentDefinitionSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.AbstractOperableSemanticAST;
@@ -48,11 +47,11 @@ public class IdentifierCallOperableSemanticAST extends AbstractOperableSemanticA
                 return null;
             return argumentDefinitionSemanticAST.getArgumentType().getTypeKind();
         } else {
-            this.getSemanticAnalyzer().errorHandler().addError(new SemanticASTError<>(
+            this.addError(
                     this.getSemanticAnalyzer().getArkoiClass(),
-                    new AbstractSemanticAST[]{foundIdentifier},
-                    "The found identifier isn't compatible with an identifier call:"
-            ));
+                    foundIdentifier,
+                    SemanticErrorType.IDENTIFIER_CALL_AST_NOT_SUPPORTED
+            );
             return null;
         }
     }
@@ -74,11 +73,11 @@ public class IdentifierCallOperableSemanticAST extends AbstractOperableSemanticA
             if (abstractSemanticAST == null)
                 abstractSemanticAST = this.getSemanticAnalyzer().getRootSemanticAST().findIdentifier(this.getSyntaxAST().getCalledIdentifier());
             if (abstractSemanticAST == null) {
-                this.getSemanticAnalyzer().errorHandler().addError(new SyntaxASTError<>(
+                this.addError(
                         this.getSemanticAnalyzer().getArkoiClass(),
                         this.getSyntaxAST(),
-                        "No identifier with the same name could be found:"
-                ));
+                        SemanticErrorType.IDENTIFIER_CALL_NO_SUCH_IDENTIFIER
+                );
                 return null;
             }
             return (this.foundIdentifier = abstractSemanticAST);

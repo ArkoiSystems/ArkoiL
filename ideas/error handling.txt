@@ -1,6 +1,0 @@
-lexical error:
-
-[17:23:53|\033[1;37mINFO] The defined character is unknown and so it will just be ignored:
-  >>>  var test_1 = test.test(); '
-                                 ^
-                            

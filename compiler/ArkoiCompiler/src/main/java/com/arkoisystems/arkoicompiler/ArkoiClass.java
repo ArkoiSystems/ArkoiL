@@ -13,6 +13,8 @@ import lombok.Getter;
 import lombok.NonNull;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.Objects;
 
 /**
  * {@link ArkoiClass} provides methods and variables for the compilation of the given
@@ -58,7 +60,6 @@ public class ArkoiClass
      * The {@link LexicalAnalyzer} is used to generate the {@link AbstractToken} list for
      * later use in the {@link SyntaxAnalyzer}.
      */
-    @Getter
     private LexicalAnalyzer lexicalAnalyzer;
     
     
@@ -66,7 +67,6 @@ public class ArkoiClass
      * The {@link SyntaxAnalyzer} is used to generate the AST (Abstract Syntax Tree) for
      * later use in the {@link SemanticAnalyzer}.
      */
-    @Getter
     private SyntaxAnalyzer syntaxAnalyzer;
     
     
@@ -74,7 +74,6 @@ public class ArkoiClass
      * The {@link SemanticAnalyzer} is used to generate an enhanced AST (Abstract Syntax
      * Tree) for later use.
      */
-    @Getter
     private SemanticAnalyzer semanticAnalyzer;
     
     
@@ -84,7 +83,7 @@ public class ArkoiClass
      * getting used inside the {@link ArkoiCompiler} when adding new native files.
      *
      * @param arkoiCompiler
-     *         the {@link ArkoiCompiler} which should get used to compile the given
+     *         the {@link ArkoiCompiler} which is used used to compile the given
      *         contents.
      * @param filePath
      *         the path to the file which contains this declared content.
@@ -95,7 +94,7 @@ public class ArkoiClass
      * @param nativeClass
      *         the flag if the {@link ArkoiClass} should be a native class or not.
      */
-    public ArkoiClass(@NonNull final ArkoiCompiler arkoiCompiler, final String filePath, @NonNull final byte[] content, final boolean nativeClass) {
+    public ArkoiClass(@NonNull final ArkoiCompiler arkoiCompiler, @NonNull final String filePath, @NonNull final byte[] content, final boolean nativeClass) {
         this.arkoiCompiler = arkoiCompiler;
         this.nativeClass = nativeClass;
         this.filePath = filePath;
@@ -111,7 +110,7 @@ public class ArkoiClass
      * byte[], boolean)}).
      *
      * @param arkoiCompiler
-     *         the {@link ArkoiCompiler} which should get used to compile the given
+     *         the {@link ArkoiCompiler} which is used used to compile the given
      *         contents.
      * @param filePath
      *         the path to the file which contains this declared content.
@@ -120,7 +119,7 @@ public class ArkoiClass
      *         passed to the {@link LexicalAnalyzer} where it will produce a {@link
      *         java.util.List} with all tokens.
      */
-    public ArkoiClass(@NonNull final ArkoiCompiler arkoiCompiler, final String filePath, @NonNull final byte[] content) {
+    public ArkoiClass(@NonNull final ArkoiCompiler arkoiCompiler, @NonNull final String filePath, @NonNull final byte[] content) {
         this.arkoiCompiler = arkoiCompiler;
         this.filePath = filePath;
         
@@ -162,6 +161,41 @@ public class ArkoiClass
         if (this.syntaxAnalyzer == null) {
             throw new NullPointerException("You need to initialize the SyntaxAnalyzer before initializing the SemanticAnalyzer, because it needs the output of the SyntaxAnalyzer.");
         } else this.semanticAnalyzer = new SemanticAnalyzer(this);
+    }
+    
+    
+    public LexicalAnalyzer getLexicalAnalyzer() {
+        if(this.lexicalAnalyzer == null)
+            this.initializeLexical();
+        return this.lexicalAnalyzer;
+    }
+    
+    
+    public SyntaxAnalyzer getSyntaxAnalyzer() {
+        if(this.syntaxAnalyzer == null)
+            this.initializeSyntax();
+        return this.syntaxAnalyzer;
+    }
+    
+    
+    public SemanticAnalyzer getSemanticAnalyzer() {
+        if(this.semanticAnalyzer == null)
+            this.initializeSemantic();
+        return this.semanticAnalyzer;
+    }
+    
+    
+    /**
+     * Returns a unique hash for this {@link ArkoiClass}. This hash is used when comparing
+     * for errors etc.
+     *
+     * @return a unique hash for this {@link ArkoiClass}.
+     */
+    @Override
+    public int hashCode() {
+        int result = Objects.hash(this.isNativeClass(), this.getFilePath());
+        result = 31 * result + Arrays.hashCode(getContent());
+        return result;
     }
     
 }

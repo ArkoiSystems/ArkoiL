@@ -5,40 +5,48 @@
  */
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types;
 
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.IdentifierToken;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.AbstractOperableSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.AbstractExpressionSyntaxAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.operators.CastOperatorType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.io.PrintStream;
+
+import static com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType.IDENTIFIER;
 
 public class CastExpressionSyntaxAST extends AbstractExpressionSyntaxAST
 {
     
-    @Getter
-    private final AbstractOperableSyntaxAST<?> leftSideOperable;
-    
     
     @Getter
-    private final CastOperator castOperator;
+    @Setter
+    private CastOperatorType castOperatorType;
     
     
-    public CastExpressionSyntaxAST(final AbstractOperableSyntaxAST<?> leftSideOperable, final CastOperator castOperator) {
-        super(ASTType.CAST_EXPRESSION);
+    @Getter
+    @Setter
+    private AbstractOperableSyntaxAST<?> leftSideOperable;
+    
+    
+    public CastExpressionSyntaxAST(final SyntaxAnalyzer syntaxAnalyzer, final AbstractOperableSyntaxAST<?> leftSideOperable, final CastOperatorType castOperatorType, final int end) {
+        super(syntaxAnalyzer, ASTType.CAST_EXPRESSION);
         
-        this.castOperator = castOperator;
         this.leftSideOperable = leftSideOperable;
+        this.castOperatorType = castOperatorType;
         
-        this.setStart(leftSideOperable.getStart());
-        this.setEnd(leftSideOperable.getStart() + 1);
+        this.setStart(this.leftSideOperable.getStart());
+        this.setEnd(end);
     }
     
     
     @Override
-    public CastExpressionSyntaxAST parseAST(final AbstractSyntaxAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
-        return this;
+    public AbstractOperableSyntaxAST<?> parseAST(final AbstractSyntaxAST parentAST) {
+        return null;
     }
     
     
@@ -47,19 +55,7 @@ public class CastExpressionSyntaxAST extends AbstractExpressionSyntaxAST
         printStream.println(indents + "├── left:");
         printStream.println(indents + "│   └── " + this.getLeftSideOperable().getClass().getSimpleName());
         this.getLeftSideOperable().printSyntaxAST(printStream, indents + "│       ");
-        printStream.println(indents + "└── operator: " + this.getCastOperator());
-    }
-    
-    
-    public enum CastOperator
-    {
-        
-        BYTE,
-        FLOAT,
-        SHORT,
-        DOUBLE,
-        INTEGER
-        
+        printStream.println(indents + "└── operator: " + this.getCastOperatorType());
     }
     
 }

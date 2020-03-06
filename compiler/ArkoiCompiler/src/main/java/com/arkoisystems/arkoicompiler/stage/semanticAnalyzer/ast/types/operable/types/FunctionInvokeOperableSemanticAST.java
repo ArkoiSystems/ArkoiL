@@ -5,17 +5,19 @@
  */
 package com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.types;
 
-import com.arkoisystems.arkoicompiler.stage.errorHandler.types.SyntaxASTError;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.SemanticAnalyzer;
+import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.SemanticErrorType;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.AbstractSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.AbstractOperableSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.types.expression.types.ExpressionSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.statements.FunctionDefinitionSemanticAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.FunctionInvokeOperableSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types.ExpressionSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTAccess;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
+import lombok.Getter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,8 +31,14 @@ public class FunctionInvokeOperableSemanticAST extends AbstractOperableSemanticA
     private List<ExpressionSemanticAST> invokedExpressions;
     
     
-    public FunctionInvokeOperableSemanticAST(final SemanticAnalyzer semanticAnalyzer, final AbstractSemanticAST<?> lastContainerAST, final FunctionInvokeOperableSyntaxAST functionInvokeOperableSyntaxAST) {
+    @Getter
+    private final AbstractSemanticAST<?> sourceSemanticAST;
+    
+    
+    public FunctionInvokeOperableSemanticAST(final SemanticAnalyzer semanticAnalyzer, final AbstractSemanticAST<?> sourceSemanticAST, final AbstractSemanticAST<?> lastContainerAST, final FunctionInvokeOperableSyntaxAST functionInvokeOperableSyntaxAST) {
         super(semanticAnalyzer, lastContainerAST, functionInvokeOperableSyntaxAST, ASTType.FUNCTION_INVOKE_OPERABLE);
+        
+        this.sourceSemanticAST = sourceSemanticAST;
     }
     
     
@@ -52,18 +60,27 @@ public class FunctionInvokeOperableSemanticAST extends AbstractOperableSemanticA
     public FunctionDefinitionSemanticAST getInvokedFunction() {
         if (this.invokedFunction == null) {
             final String functionDescription = this.getFunctionDescription();
-            if (functionDescription == null)
+            if (functionDescription == null) {
+                this.setFailed(true);
                 return null;
-            if (this.getFunctionAccess() == null)
+            }
+    
+            if (this.getFunctionAccess() == null) {
+                this.setFailed(true);
                 return null;
-            
+            }
+    
             FunctionDefinitionSemanticAST functionDefinitionSemanticAST = null;
             if (this.getFunctionAccess() != ASTAccess.THIS_ACCESS)
                 functionDefinitionSemanticAST = this.getSemanticAnalyzer().getArkoiClass().getArkoiCompiler().findNativeSemanticFunction(functionDescription);
             if (functionDefinitionSemanticAST == null)
                 functionDefinitionSemanticAST = this.getSemanticAnalyzer().getRootSemanticAST().findFunction(functionDescription);
             if (functionDefinitionSemanticAST == null) {
-                this.getSemanticAnalyzer().errorHandler().addError(new SyntaxASTError<>(this.getSemanticAnalyzer().getArkoiClass(), this.getSyntaxAST(), "Couldn't analyze this function invoke because there exists no function with this description."));
+                this.getSourceSemanticAST().addError(
+                        this.getSourceSemanticAST().getSemanticAnalyzer().getArkoiClass(),
+                       this.getSyntaxAST(),
+                        SemanticErrorType.FUNCTION_NO_SUCH_FUNCTION
+                );
                 return null;
             }
             return (this.invokedFunction = functionDefinitionSemanticAST);
@@ -79,8 +96,10 @@ public class FunctionInvokeOperableSemanticAST extends AbstractOperableSemanticA
                 final ExpressionSemanticAST expressionSemanticAST
                         = new ExpressionSemanticAST(this.getSemanticAnalyzer(), this.getLastContainerAST(), expressionSyntaxAST);
     
-                if (expressionSemanticAST.getOperableObject() == null)
-                    return null;
+                expressionSemanticAST.getOperableObject();
+    
+                if (expressionSemanticAST.isFailed())
+                    this.setFailed(true);
                 this.invokedExpressions.add(expressionSemanticAST);
             }
         }

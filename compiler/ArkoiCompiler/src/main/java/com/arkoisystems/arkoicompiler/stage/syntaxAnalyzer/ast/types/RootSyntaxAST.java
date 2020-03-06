@@ -7,12 +7,11 @@ package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types;
 
 import com.arkoisystems.arkoicompiler.ArkoiClass;
 import com.arkoisystems.arkoicompiler.ArkoiCompiler;
-import com.arkoisystems.arkoicompiler.stage.errorHandler.types.TokenError;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.EndOfFileToken;
-import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.SymbolToken;
-import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.SymbolType;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.SemanticAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxErrorType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.AbstractStatementSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.types.FunctionDefinitionSyntaxAST;
@@ -83,12 +82,14 @@ public class RootSyntaxAST extends AbstractSyntaxAST
      * SyntaxAnalyzer} is used to check syntax and also to get the {@link ArkoiClass} or
      * {@link ArkoiCompiler}.
      *
+     *
      * @param syntaxAnalyzer
-     *         the {@link SyntaxAnalyzer} is part for the most code used by {@link
-     *         AbstractSyntaxAST}s.
+     *         the {@link SyntaxAnalyzer} which is used to check for correct syntax with
+     *         methods like {@link SyntaxAnalyzer#matchesNextToken(SymbolType)}
+     *         or {@link * SyntaxAnalyzer#nextToken()}.
      */
     public RootSyntaxAST(final SyntaxAnalyzer syntaxAnalyzer) {
-        super(ASTType.ROOT);
+        super(syntaxAnalyzer, ASTType.ROOT);
         
         this.setEnd(syntaxAnalyzer.getArkoiClass().getContent().length);
         this.setStart(0);
@@ -112,59 +113,82 @@ public class RootSyntaxAST extends AbstractSyntaxAST
      * just these three types of ASTs are getting parsed.
      *
      * @param parentAST
-     *         the parent {@link AbstractSyntaxAST} which should get used to check if the
+     *         the parent {@link AbstractSyntaxAST} which is used used to check if the
      *         {@link AbstractSyntaxAST} can be created inside it.
-     * @param syntaxAnalyzer
-     *         the {@link SyntaxAnalyzer} which is used for checking the syntax with
-     *         methods like {@link SyntaxAnalyzer#matchesCurrentToken(TokenType)} )} or
-     *         {@link SyntaxAnalyzer#matchesNextToken(SymbolToken.SymbolType)}.
-     *
      * @return {@code null} if an error occurred or the {@link RootSyntaxAST} if
      *         everything worked correctly.
      */
     @Override
-    public RootSyntaxAST parseAST(final AbstractSyntaxAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
+    public RootSyntaxAST parseAST(final AbstractSyntaxAST parentAST) {
         main_loop:
-        while (syntaxAnalyzer.getPosition() < syntaxAnalyzer.getTokens().length) {
-            if (syntaxAnalyzer.currentToken() instanceof EndOfFileToken)
+        while (this.getSyntaxAnalyzer().getPosition() < this.getSyntaxAnalyzer().getTokens().length) {
+            if (this.getSyntaxAnalyzer().currentToken() instanceof EndOfFileToken)
                 break;
             
             for (final AbstractParser<?> abstractParser : ROOT_PARSERS) {
-                if (!abstractParser.canParse(this, syntaxAnalyzer))
+                if (!abstractParser.canParse(this, this.getSyntaxAnalyzer()))
                     continue;
-                
-                final AbstractSyntaxAST abstractSyntaxAST = abstractParser.parse(this, syntaxAnalyzer);
+    
+                final AbstractSyntaxAST abstractSyntaxAST = abstractParser.parse(this, this.getSyntaxAnalyzer());
                 if (abstractSyntaxAST != null) {
+                    if(abstractSyntaxAST.isFailed())
+                        this.setFailed(true);
+                    
                     if (abstractSyntaxAST instanceof FunctionDefinitionSyntaxAST) {
                         final FunctionDefinitionSyntaxAST functionDefinitionAST = (FunctionDefinitionSyntaxAST) abstractSyntaxAST;
-                        if (functionDefinitionAST.getFunctionBlock().getBlockType() == BlockType.INLINE && syntaxAnalyzer.matchesCurrentToken(SymbolToken.SymbolType.SEMICOLON) == null) {
-                            syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the \"function definition\" statement because the inlined function doesn't end with a semicolon."));
-                            return null;
-                        } else if (functionDefinitionAST.getFunctionBlock().getBlockType() == BlockType.BLOCK && syntaxAnalyzer.matchesCurrentToken(SymbolToken.SymbolType.CLOSING_BRACE) == null) {
-                            syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the \"function definition\" statement because it doesn't end with a closing brace."));
-                            return null;
-                        } else this.functionStorage.add(functionDefinitionAST);
+                        if (functionDefinitionAST.getFunctionBlock().getBlockType() == BlockType.INLINE && this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.SEMICOLON) == null) {
+                            this.addError(
+                                    this.getSyntaxAnalyzer().getArkoiClass(),
+                                    this.getSyntaxAnalyzer().currentToken(),
+                                    SyntaxErrorType.ROOT_INLINED_FUNCTION_HAS_WRONG_ENDING
+                            );
+                            this.skipToNextValidToken();
+                            continue main_loop;
+                        } else if (functionDefinitionAST.getFunctionBlock().getBlockType() == BlockType.BLOCK && this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.CLOSING_BRACE) == null) {
+                            this.addError(
+                                    this.getSyntaxAnalyzer().getArkoiClass(),
+                                    this.getSyntaxAnalyzer().currentToken(),
+                                    SyntaxErrorType.ROOT_BLOCK_FUNCTION_HAS_WRONG_ENDING
+                            );
+                            this.skipToNextValidToken();
+                            continue main_loop;
+                        } else
+                            this.functionStorage.add(functionDefinitionAST);
                     } else {
-                        if (syntaxAnalyzer.matchesCurrentToken(SymbolToken.SymbolType.SEMICOLON) == null) {
-                            syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the \"%s\" because it doesn't end with a semicolon.", abstractSyntaxAST.getClass().getSimpleName()));
-                            return null;
+                        if (this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.SEMICOLON) == null) {
+                            this.addError(
+                                    this.getSyntaxAnalyzer().getArkoiClass(),
+                                    this.getSyntaxAnalyzer().currentToken(),
+                                    SyntaxErrorType.ROOT_STATEMENT_HAS_WRONG_ENDING,
+                                    abstractSyntaxAST.getClass().getSimpleName()
+                            );
+                            this.skipToNextValidToken();
+                            continue main_loop;
                         }
-    
+                    
                         if (abstractSyntaxAST instanceof VariableDefinitionSyntaxAST)
                             this.variableStorage.add((VariableDefinitionSyntaxAST) abstractSyntaxAST);
                         else if (abstractSyntaxAST instanceof ImportDefinitionSyntaxAST)
                             this.importStorage.add((ImportDefinitionSyntaxAST) abstractSyntaxAST);
                     }
-    
+                
                     this.sortedStorage.add(abstractSyntaxAST);
-                    syntaxAnalyzer.nextToken();
-                    continue main_loop;
-                } else return null;
+                    this.getSyntaxAnalyzer().nextToken();
+                } else {
+                    this.skipToNextValidToken();
+                    this.setFailed(true);
+                }
+                continue main_loop;
             }
-            syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the AST because no parser could parse this token. Check for misspelling or something else."));
-            return null;
+        
+            this.addError(
+                    this.getSyntaxAnalyzer().getArkoiClass(),
+                    this.getSyntaxAnalyzer().currentToken(),
+                    SyntaxErrorType.ROOT_NO_PARSER_FOUND
+            );
+            this.skipToNextValidToken();
         }
-        return this;
+        return this.isFailed() ? null : this;
     }
     
     
@@ -175,7 +199,7 @@ public class RootSyntaxAST extends AbstractSyntaxAST
      * ArkoiCompiler#printSyntaxTree(PrintStream)}.
      *
      * @param printStream
-     *         the {@link PrintStream} which should get used for the output.
+     *         the {@link PrintStream} which is used used for the output.
      * @param indents
      *         the indents which the Tree should add before printing a new line.
      */

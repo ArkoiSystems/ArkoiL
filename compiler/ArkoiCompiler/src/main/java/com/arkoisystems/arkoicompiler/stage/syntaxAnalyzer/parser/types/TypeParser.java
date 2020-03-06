@@ -37,7 +37,7 @@ public class TypeParser extends AbstractParser<TypeSyntaxAST>
      */
     @Override
     public TypeSyntaxAST parse(final AbstractSyntaxAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
-        return new TypeSyntaxAST().parseAST(parentAST, syntaxAnalyzer);
+        return new TypeSyntaxAST(syntaxAnalyzer).parseAST(parentAST);
     }
     
     

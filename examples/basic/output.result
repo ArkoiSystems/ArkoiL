@@ -35,7 +35,7 @@ Syntax Trees:
    │           ├── annotations: N/A
    │           │
    │           ├── name: test
-   │           ├── type: string
+   │           ├── type: void
    │           │
    │           ├── arguments: N/A
    │           │
@@ -58,13 +58,7 @@ Syntax Trees:
        │   │   ├── name: test_1
        │   │   │
        │   │   └── expression:
-       │   │       ├── access: GLOBAL_ACCESS
-       │   │       ├── identifier: test
-       │   │       └── statement:
-       │   │           └── FunctionInvokeOperableSyntaxAST
-       │   │               ├── access: GLOBAL_ACCESS
-       │   │               ├── identifier: test
-       │   │               └── expressions: N/A
+       │   │       └── operable: 1
        │   │   
        │   ├── VariableDefinitionSyntaxAST
        │   │   ├── annotations: N/A
@@ -74,11 +68,7 @@ Syntax Trees:
        │   │   └── expression:
        │   │       ├── access: THIS_ACCESS
        │   │       ├── identifier: greeting
-       │   │       └── expressions: 
-       │   │           ├── NumberOperableSyntaxAST
-       │   │           │   └── operable: 1
-       │   │           └── NumberOperableSyntaxAST
-       │   │               └── operable: 3
+       │   │       └── expressions: N/A
        │   │   
        │   └── VariableDefinitionSyntaxAST
        │       ├── annotations: N/A
@@ -93,20 +83,33 @@ Syntax Trees:
        │           │        │       └── operable:
        │           │        │           └── ExpressionSyntaxAST
        │           │        │               ├── left:
-       │           │        │               │   └── PrefixExpressionSyntaxAST
-       │           │        │               │        ├── operator: PREFIX_ADD
-       │           │        │               │        └── right:
-       │           │        │               │            └── NumberOperableSyntaxAST
-       │           │        │               │                └── operable: 20
-       │           │        │               ├── operator: ADDITION
+       │           │        │               │   └── IdentifierCallOperableSyntaxAST
+       │           │        │               │        ├── access: GLOBAL_ACCESS
+       │           │        │               │        └── identifier: test_1
+       │           │        │               ├── operator: SUBTRACTION
        │           │        │               └── right:
        │           │        │                   └── BinaryExpressionSyntaxAST
        │           │        │                       ├── left:
-       │           │        │                       │   └── PrefixExpressionSyntaxAST
-       │           │        │                       │        ├── operator: NEGATE
-       │           │        │                       │        └── right:
-       │           │        │                       │            └── NumberOperableSyntaxAST
-       │           │        │                       │                └── operable: 10
+       │           │        │                       │   └── ParenthesizedExpressionSyntaxAST
+       │           │        │                       │        └── operable:
+       │           │        │                       │            └── ExpressionSyntaxAST
+       │           │        │                       │                ├── left:
+       │           │        │                       │                │   └── IdentifierCallOperableSyntaxAST
+       │           │        │                       │                │        ├── access: GLOBAL_ACCESS
+       │           │        │                       │                │        └── identifier: test_1
+       │           │        │                       │                ├── operator: ADD_ASSIGN
+       │           │        │                       │                └── right:
+       │           │        │                       │                    └── BinaryExpressionSyntaxAST
+       │           │        │                       │                        ├── left:
+       │           │        │                       │                        │   └── NumberOperableSyntaxAST
+       │           │        │                       │                        │        └── operable: 4
+       │           │        │                       │                        ├── operator: ADDITION
+       │           │        │                       │                        └── right:
+       │           │        │                       │                            └── PrefixExpressionSyntaxAST
+       │           │        │                       │                                ├── operator: NEGATE
+       │           │        │                       │                                └── right:
+       │           │        │                       │                                    └── NumberOperableSyntaxAST
+       │           │        │                       │                                        └── operable: 10
        │           │        │                       ├── operator: MULTIPLICATION
        │           │        │                       └── right:
        │           │        │                           └── NumberOperableSyntaxAST
@@ -125,7 +128,7 @@ Syntax Trees:
            │   ├── annotations: N/A
            │   │
            │   ├── name: main
-           │   ├── type: int
+           │   ├── type: void
            │   │
            │   ├── arguments: 
            │   │   └── ArgumentDefinitionSyntaxAST
@@ -160,14 +163,6 @@ Syntax Trees:
            │            │   └── expression:
            │            │       └── operable: 1
            │            │   
-           │            ├── VariableDefinitionSyntaxAST
-           │            │   ├── annotations: N/A
-           │            │   │
-           │            │   ├── name: args
-           │            │   │
-           │            │   └── expression:
-           │            │       └── operable: Test
-           │            │   
            │            ├── FunctionInvokeOperableSyntaxAST
            │            │   ├── access: THIS_ACCESS
            │            │   ├── identifier: print_greet
@@ -190,12 +185,15 @@ Syntax Trees:
            │                    │        │                │        │   └── NumberOperableSyntaxAST
            │                    │        │                │        │       └── operable: 20
            │                    │        │                │        └── operator: POSTFIX_ADD
-           │                    │        │                ├── operator: SUBTRACTION
+           │                    │        │                ├── operator: ADDITION
            │                    │        │                └── right:
            │                    │        │                    └── BinaryExpressionSyntaxAST
            │                    │        │                        ├── left:
-           │                    │        │                        │   └── NumberOperableSyntaxAST
-           │                    │        │                        │        └── operable: 10
+           │                    │        │                        │   └── PrefixExpressionSyntaxAST
+           │                    │        │                        │        ├── operator: NEGATE
+           │                    │        │                        │        └── right:
+           │                    │        │                        │            └── NumberOperableSyntaxAST
+           │                    │        │                        │                └── operable: 10
            │                    │        │                        ├── operator: MULTIPLICATION
            │                    │        │                        └── right:
            │                    │        │                            └── CastExpressionSyntaxAST
@@ -205,8 +203,20 @@ Syntax Trees:
            │                    │        │                                └── operator: FLOAT
            │                    │        ├── operator: MULTIPLICATION
            │                    │        └── right:
-           │                    │            └── NumberOperableSyntaxAST
-           │                    │                └── operable: 2
+           │                    │            └── BinaryExpressionSyntaxAST
+           │                    │                ├── left:
+           │                    │                │   └── BinaryExpressionSyntaxAST
+           │                    │                │        ├── left:
+           │                    │                │        │   └── NumberOperableSyntaxAST
+           │                    │                │        │        └── operable: 2
+           │                    │                │        ├── operator: EXPONENTIAL
+           │                    │                │        └── right:
+           │                    │                │            └── NumberOperableSyntaxAST
+           │                    │                │                └── operable: 3
+           │                    │                ├── operator: EXPONENTIAL
+           │                    │                └── right:
+           │                    │                    └── NumberOperableSyntaxAST
+           │                    │                        └── operable: 4
            │                    ├── operator: ADDITION
            │                    └── right:
            │                        └── ParenthesizedExpressionSyntaxAST
@@ -255,34 +265,13 @@ Syntax Trees:
            │                                        ├── access: GLOBAL_ACCESS
            │                                        └── identifier: test_argument
            │   
-           ├── FunctionDefinitionSyntaxAST
-           │   ├── annotations: N/A
-           │   │
-           │   ├── name: greeting
-           │   ├── type: string
-           │   │
-           │   ├── arguments: N/A
-           │   │
-           │   └── block: 
-           │        ├── type: INLINE
-           │        └── storage: 
-           │            └── ExpressionSyntaxAST
-           │                └── operable: Hello World
-           │   
            └── FunctionDefinitionSyntaxAST
                ├── annotations: N/A
                │
                ├── name: greeting
-               ├── type: string
+               ├── type: void
                │
-               ├── arguments: 
-               │   ├── ArgumentDefinitionSyntaxAST
-               │   │   ├── name: test
-               │   │   └── type: int
-               │   │   
-               │   └── ArgumentDefinitionSyntaxAST
-               │       ├── name: test_2
-               │       └── type: int
+               ├── arguments: N/A
                │
                └── block: 
                     ├── type: INLINE

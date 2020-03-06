@@ -6,7 +6,7 @@
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.parser.types;
 
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken;
-import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.SymbolToken;
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.SymbolType;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
@@ -37,7 +37,7 @@ public class AnnotationParser extends AbstractParser<AbstractSyntaxAST>
      */
     @Override
     public AbstractSyntaxAST parse(final AbstractSyntaxAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
-        return new AnnotationSyntaxAST().parseAST(parentAST, syntaxAnalyzer);
+        return new AnnotationSyntaxAST(syntaxAnalyzer).parseAST(parentAST);
     }
     
     
@@ -57,7 +57,7 @@ public class AnnotationParser extends AbstractParser<AbstractSyntaxAST>
      */
     @Override
     public boolean canParse(final AbstractSyntaxAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
-        return syntaxAnalyzer.matchesCurrentToken(SymbolToken.SymbolType.AT_SIGN) != null;
+        return syntaxAnalyzer.matchesCurrentToken(SymbolType.AT_SIGN) != null;
     }
     
 }

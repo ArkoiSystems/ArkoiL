@@ -5,12 +5,16 @@
  */
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types;
 
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.SymbolType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.AbstractOperableSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.AbstractExpressionSyntaxAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.operators.LogicalOperatorType;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.operators.PostfixOperatorType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.io.PrintStream;
 
@@ -18,26 +22,28 @@ public class PostfixExpressionSyntaxAST extends AbstractExpressionSyntaxAST
 {
     
     @Getter
-    private final AbstractOperableSyntaxAST<?> leftSideOperable;
+    @Setter
+    private PostfixOperatorType postfixOperatorType;
     
     
     @Getter
-    private final PostfixUnaryOperator postfixUnaryOperator;
+    @Setter
+    private AbstractOperableSyntaxAST<?> leftSideOperable;
     
     
-    public PostfixExpressionSyntaxAST(final AbstractOperableSyntaxAST<?> leftSideOperable, final PostfixUnaryOperator postfixUnaryOperator, final int end) {
-        super(ASTType.POSTFIX_EXPRESSION);
+    public PostfixExpressionSyntaxAST(final SyntaxAnalyzer syntaxAnalyzer, final AbstractOperableSyntaxAST<?> leftSideOperable, final PostfixOperatorType postfixOperatorType, final int end) {
+        super(syntaxAnalyzer, ASTType.POSTFIX_EXPRESSION);
         
-        this.postfixUnaryOperator = postfixUnaryOperator;
+        this.postfixOperatorType = postfixOperatorType;
         this.leftSideOperable = leftSideOperable;
         
-        this.setStart(leftSideOperable.getStart());
+        this.setStart(this.leftSideOperable.getStart());
         this.setEnd(end);
     }
     
     
     @Override
-    public PostfixExpressionSyntaxAST parseAST(final AbstractSyntaxAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
+    public AbstractOperableSyntaxAST<?> parseAST(final AbstractSyntaxAST parentAST) {
         return this;
     }
     
@@ -47,16 +53,7 @@ public class PostfixExpressionSyntaxAST extends AbstractExpressionSyntaxAST
         printStream.println(indents + "├── left:");
         printStream.println(indents + "│   └── " + this.getLeftSideOperable().getClass().getSimpleName());
         this.getLeftSideOperable().printSyntaxAST(printStream, indents + "│       ");
-        printStream.println(indents + "└── operator: " + this.getPostfixUnaryOperator());
-    }
-    
-    
-    public enum PostfixUnaryOperator
-    {
-        
-        POSTFIX_ADD,
-        POSTFIX_SUB,
-        
+        printStream.println(indents + "└── operator: " + this.getPostfixOperatorType());
     }
     
 }

@@ -103,41 +103,35 @@ public class ArkoiCompiler
     /**
      * The main method of this whole class. It will initialize every stage of the given
      * {@link ArkoiClass}s and tries to proceed them. If something doesn't work the {@link
-     * AbstractStage#processStage()} method will return false and so the {@link
-     * ArkoiCompiler#compile()} method too. This will indicate that an error occurred.
+     * AbstractStage#processStage()} method will return false and so this method too. This
+     * will indicate that an error occurred.
      *
      * @return true if everything worked correctly or false if an error occurred.
      */
     public boolean compile() {
         final long compileStart = System.nanoTime();
-        final long lexicalStart = System.nanoTime();
-        for (final ArkoiClass arkoiClass : this.getArkoiClasses().values())
-            arkoiClass.initializeLexical();
-        for (final ArkoiClass arkoiClass : this.getArkoiClasses().values()) {
-            if (!arkoiClass.getLexicalAnalyzer().processStage())
-                return false;
-        }
-        System.out.printf("The lexical analysis took %sms for all classes (%s in total)\n", (System.nanoTime() - lexicalStart) / 1_000_000D, this.arkoiClasses.size());
+        {
+            final long lexicalStart = System.nanoTime();
+            for (final ArkoiClass arkoiClass : this.getArkoiClasses().values()) {
+                if (!arkoiClass.getLexicalAnalyzer().processStage())
+                    return false;
+            }
+            System.out.printf("The lexical analysis took %sms for all classes (%s in total)\n", (System.nanoTime() - lexicalStart) / 1_000_000D, this.arkoiClasses.size());
         
-        final long syntaxStart = System.nanoTime();
-        for (final ArkoiClass arkoiClass : this.getArkoiClasses().values())
-            arkoiClass.initializeSyntax();
-        for (final ArkoiClass arkoiClass : this.getArkoiClasses().values()) {
-            if (!arkoiClass.getSyntaxAnalyzer().processStage())
-                return false;
-        }
-        System.out.printf("The syntax analysis took %sms for all classes (%s in total)\n", (System.nanoTime() - syntaxStart) / 1_000_000D, this.getArkoiClasses().size());
-    
-    
-        final long semanticStart = System.nanoTime();
-        for (final ArkoiClass arkoiClass : this.getArkoiClasses().values())
-            arkoiClass.initializeSemantic();
-        for (final ArkoiClass arkoiClass : this.getArkoiClasses().values()) {
-            if (!arkoiClass.getSemanticAnalyzer().processStage())
-                return false;
-        }
-        System.out.printf("The semantic analysis took %sms for all classes (%s in total)\n", (System.nanoTime() - semanticStart) / 1_000_000D, this.getArkoiClasses().size());
+            final long syntaxStart = System.nanoTime();
+            for (final ArkoiClass arkoiClass : this.getArkoiClasses().values()) {
+                if (!arkoiClass.getSyntaxAnalyzer().processStage())
+                    return false;
+            }
+            System.out.printf("The syntax analysis took %sms for all classes (%s in total)\n", (System.nanoTime() - syntaxStart) / 1_000_000D, this.getArkoiClasses().size());
         
+            final long semanticStart = System.nanoTime();
+            for (final ArkoiClass arkoiClass : this.getArkoiClasses().values()) {
+                if (!arkoiClass.getSemanticAnalyzer().processStage())
+                    return false;
+            }
+            System.out.printf("The semantic analysis took %sms for all classes (%s in total)\n", (System.nanoTime() - semanticStart) / 1_000_000D, this.getArkoiClasses().size());
+        }
         System.out.printf("The compilation took %sms for all classes (%s in total)\n", (System.nanoTime() - compileStart) / 1_000_000D, this.getArkoiClasses().size());
         return true;
     }
@@ -218,5 +212,6 @@ public class ArkoiCompiler
             }
         }
     }
+    
     
 }

@@ -5,10 +5,10 @@
  */
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types;
 
-import com.arkoisystems.arkoicompiler.stage.errorHandler.types.TokenError;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.IdentifierToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxErrorType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.AbstractOperableSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTAccess;
@@ -31,8 +31,8 @@ public class IdentifierCallOperableSyntaxAST extends AbstractOperableSyntaxAST<T
     private IdentifierToken calledIdentifier;
     
     
-    public IdentifierCallOperableSyntaxAST() {
-        super(ASTType.IDENTIFIER_CALL_OPERABLE);
+    public IdentifierCallOperableSyntaxAST(final SyntaxAnalyzer syntaxAnalyzer) {
+        super(syntaxAnalyzer, ASTType.IDENTIFIER_CALL_OPERABLE);
         
         this.identifierAccess = ASTAccess.GLOBAL_ACCESS;
     }
@@ -46,24 +46,24 @@ public class IdentifierCallOperableSyntaxAST extends AbstractOperableSyntaxAST<T
      * @param parentAST
      *         The parent of the AST. With it you can check for correct usage of the
      *         statement.
-     * @param syntaxAnalyzer
-     *         The given SyntaxAnalyzer is used for checking the syntax of the current
-     *         Token list.
      *
      * @return It will return null if an error occurred or an IdentifierCallStatementAST
      *         if it parsed until to the end.
      */
     @Override
-    public IdentifierCallOperableSyntaxAST parseAST(final AbstractSyntaxAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
-        if (syntaxAnalyzer.matchesCurrentToken(TokenType.IDENTIFIER) == null) {
-            syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the \"identifier call\" statement because the parsing doesn't start with an Identifier."));
+    public IdentifierCallOperableSyntaxAST parseAST(final AbstractSyntaxAST parentAST) {
+        if (this.getSyntaxAnalyzer().matchesCurrentToken(TokenType.IDENTIFIER) == null) {
+            this.addError(
+                    this.getSyntaxAnalyzer().getArkoiClass(),
+                    this.getSyntaxAnalyzer().currentToken(),
+                    SyntaxErrorType.IDENTIFIER_CALL_NO_IDENTIFIER
+            );
             return null;
-        } else {
-            this.calledIdentifier = (IdentifierToken) syntaxAnalyzer.currentToken();
-            
-            this.setStart(this.getCalledIdentifier().getStart());
-            this.setEnd(this.getCalledIdentifier().getEnd());
         }
+        
+        this.calledIdentifier = (IdentifierToken) this.getSyntaxAnalyzer().currentToken();
+        this.setStart(this.getCalledIdentifier().getStart());
+        this.setEnd(this.getCalledIdentifier().getEnd());
         return this;
     }
     

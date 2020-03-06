@@ -42,10 +42,13 @@ public class CollectionOperableSemanticAST extends AbstractOperableSemanticAST<C
             
             for (final ExpressionSyntaxAST expressionSyntaxAST : this.getSyntaxAST().getCollectionExpressions()) {
                 final ExpressionSemanticAST expressionSemanticAST = new ExpressionSemanticAST(this.getSemanticAnalyzer(), this.getLastContainerAST(), expressionSyntaxAST);
-                if (expressionSemanticAST.getOperableObject() == null)
-                    return null;
+                expressionSemanticAST.getOperableObject();
+    
+                if (expressionSemanticAST.isFailed())
+                    this.setFailed(true);
                 this.collectionExpressions.add(expressionSemanticAST);
             }
+            return this.isFailed() ? null : this.collectionExpressions;
         }
         return this.collectionExpressions;
     }

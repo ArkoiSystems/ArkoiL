@@ -34,7 +34,7 @@ public class ParenthesizedExpressionSemanticAST extends AbstractExpressionSemant
     
     public AbstractExpressionSemanticAST<?> getParenthesizedExpression() {
         if(this.parenthesizedExpression == null) {
-            final ExpressionSyntaxAST expressionSyntaxAST = this.getSyntaxAST().getParenthesizedExpression();
+            final ExpressionSyntaxAST expressionSyntaxAST = this.getSyntaxAST().getExpressionSyntaxAST();
             this.parenthesizedExpression
                     = new ExpressionSemanticAST(this.getSemanticAnalyzer(), this.getLastContainerAST(), expressionSyntaxAST);
             if(this.parenthesizedExpression.getOperableObject() == null)

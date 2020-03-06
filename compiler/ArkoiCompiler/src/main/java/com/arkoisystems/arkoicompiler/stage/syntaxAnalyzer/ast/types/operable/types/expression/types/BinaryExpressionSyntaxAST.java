@@ -5,12 +5,15 @@
  */
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types;
 
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.SymbolType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.AbstractOperableSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.AbstractExpressionSyntaxAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.operators.BinaryOperatorType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.io.PrintStream;
 
@@ -19,32 +22,31 @@ public class BinaryExpressionSyntaxAST extends AbstractExpressionSyntaxAST
 {
     
     @Getter
-    private final AbstractOperableSyntaxAST<?> leftSideOperable;
+    @Setter
+    private BinaryOperatorType binaryOperatorType;
     
     
     @Getter
-    private final BinaryOperator binaryOperator;
+    @Setter
+    private AbstractOperableSyntaxAST<?> leftSideOperable, rightSideOperable;
     
     
-    @Getter
-    private final AbstractOperableSyntaxAST<?> rightSideOperable;
-    
-    
-    public BinaryExpressionSyntaxAST(final AbstractOperableSyntaxAST<?> leftSideOperable, final BinaryOperator binaryOperator, final AbstractOperableSyntaxAST<?> rightSideOperable) {
-        super(ASTType.BINARY_EXPRESSION);
+    public BinaryExpressionSyntaxAST(final SyntaxAnalyzer syntaxAnalyzer, final AbstractOperableSyntaxAST<?> leftSideOperable, final BinaryOperatorType binaryOperatorType, final AbstractOperableSyntaxAST<?> rightSideOperable) {
+        super(syntaxAnalyzer, ASTType.BINARY_EXPRESSION);
         
-        this.binaryOperator = binaryOperator;
         this.rightSideOperable = rightSideOperable;
         this.leftSideOperable = leftSideOperable;
-    
-        this.setStart(leftSideOperable.getStart());
-        this.setEnd(rightSideOperable.getEnd());
+        
+        this.binaryOperatorType = binaryOperatorType;
+        
+        this.setStart(this.leftSideOperable.getStart());
+        this.setEnd(this.rightSideOperable.getEnd());
     }
     
     
     @Override
-    public BinaryExpressionSyntaxAST parseAST(final AbstractSyntaxAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
-        return this;
+    public AbstractOperableSyntaxAST<?> parseAST(final AbstractSyntaxAST parentAST) {
+        return null;
     }
     
     
@@ -53,21 +55,10 @@ public class BinaryExpressionSyntaxAST extends AbstractExpressionSyntaxAST
         printStream.println(indents + "├── left:");
         printStream.println(indents + "│   └── " + this.getLeftSideOperable().getClass().getSimpleName());
         this.getLeftSideOperable().printSyntaxAST(printStream, indents + "│        ");
-        printStream.println(indents + "├── operator: " + this.getBinaryOperator());
+        printStream.println(indents + "├── operator: " + this.getBinaryOperatorType());
         printStream.println(indents + "└── right:");
         printStream.println(indents + "    └── " + this.getRightSideOperable().getClass().getSimpleName());
         this.getRightSideOperable().printSyntaxAST(printStream, indents + "        ");
-    }
-    
-    public enum BinaryOperator
-    {
-        
-        ADDITION,
-        SUBTRACTION,
-        MULTIPLICATION,
-        DIVISION,
-        MODULO
-        
     }
     
 }

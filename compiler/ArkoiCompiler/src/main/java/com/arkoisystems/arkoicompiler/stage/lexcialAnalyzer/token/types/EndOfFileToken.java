@@ -12,13 +12,18 @@ import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenTyp
 public class EndOfFileToken extends AbstractToken
 {
     
-    public EndOfFileToken() {
-        this.setTokenType(TokenType.END_OF_FILE);
+    public EndOfFileToken(final LexicalAnalyzer lexicalAnalyzer) {
+        super(lexicalAnalyzer, TokenType.END_OF_FILE);
+        
+        this.setTokenContent("EOF");
+        
+        this.setStart(0);
+        this.setEnd(lexicalAnalyzer.getArkoiClass().getContent().length);
     }
     
     
     @Override
-    public EndOfFileToken lex(final LexicalAnalyzer lexicalAnalyzer) {
+    public EndOfFileToken parseToken() {
         return this;
     }
     

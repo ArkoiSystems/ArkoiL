@@ -8,10 +8,11 @@ package com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer;
 import com.arkoisystems.arkoicompiler.ArkoiClass;
 import com.arkoisystems.arkoicompiler.ArkoiCompiler;
 import com.arkoisystems.arkoicompiler.stage.AbstractStage;
-import com.arkoisystems.arkoicompiler.stage.errorHandler.ErrorHandler;
-import com.arkoisystems.arkoicompiler.stage.errorHandler.types.LexicalError;
+import com.arkoisystems.arkoicompiler.stage.errorHandler.ArkoiError;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.*;
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.SymbolType;
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
 import lombok.Getter;
 import lombok.SneakyThrows;
@@ -43,17 +44,17 @@ public class LexicalAnalyzer extends AbstractStage
     
     
     /**
-     * This {@link AbstractToken}[] is used to access the lexed {@link AbstractToken}s
+     * This {@link AbstractToken}[] is used to access the parsed {@link AbstractToken}s
      * like in the {@link SyntaxAnalyzer} for methods like {@link
-     * SyntaxAnalyzer#matchesNextToken(SymbolToken.SymbolType)}.
+     * SyntaxAnalyzer#matchesNextToken(SymbolType)}.
      */
     @Getter
     private AbstractToken[] tokens;
     
     
     /**
-     * The current position in the {@link LexicalAnalyzer#content} array. This position is
-     * used to peek and get tokens (e.g. {@link #next()} or {@link #peekChar(int)}).
+     * The current position in the {@link ArkoiClass#content} array. This position is used
+     * to peek and get tokens (e.g. {@link #next()} or {@link #peekChar(int)}).
      */
     @Getter
     private int position;
@@ -69,7 +70,7 @@ public class LexicalAnalyzer extends AbstractStage
      */
     public LexicalAnalyzer(final ArkoiClass arkoiClass) {
         this.arkoiClass = arkoiClass;
-        
+    
         this.errorHandler = new LexicalErrorHandler();
     }
     
@@ -90,153 +91,86 @@ public class LexicalAnalyzer extends AbstractStage
         final List<AbstractToken> tokens = new ArrayList<>();
         while (this.position < this.getArkoiClass().getContent().length) {
             final char currentChar = this.currentChar();
-            switch (currentChar) {
-                case 0x0c:
-                case 0x0a:
-                case 0x20:
-                case 0x0d:
-                case 0x09:
-                case 0x0b:
-                    this.next();
-                    break;
-                case '#': {
-                    final CommentToken commentToken = new CommentToken().lex(this);
-                    if (commentToken == null) {
-                        this.setFailedStage(true);
-                        this.next();
-                        continue;
-                    }
-                    break;
+            if (Character.isWhitespace(currentChar)) {
+                final WhitespaceToken whitespaceToken = new WhitespaceToken(this).parseToken();
+                if (whitespaceToken != null) {
+                    tokens.add(whitespaceToken);
+                    continue;
                 }
-                case '@':
-                case ':':
-                case ';':
-                case '{':
-                case '}':
-                case '(':
-                case ')':
-                case '[':
-                case ']':
-                case ',':
-                case '<':
-                case '>':
-                case '+':
-                case '-':
-                case '*':
-                case '/':
-                case '%':
-                case '!':
-                case '=':
-                case '&': {
-                    final SymbolToken symbolToken = new SymbolToken().lex(this);
-                    if (symbolToken == null) {
-                        this.setFailedStage(true);
-                        this.next();
-                        continue;
-                    }
-                    tokens.add(symbolToken);
-                    break;
-                }
-                case '"': {
-                    final StringToken stringToken = new StringToken().lex(this);
-                    if (stringToken == null) {
-                        this.setFailedStage(true);
-                        this.next();
-                        continue;
-                    }
+                continue;
+            } else if (currentChar == '#') {
+                final CommentToken commentToken = new CommentToken(this).parseToken();
+                if (commentToken != null)
+                    continue;
+            } else if (currentChar == '"') {
+                final StringToken stringToken = new StringToken(this).parseToken();
+                if (stringToken != null) {
                     tokens.add(stringToken);
-                    break;
+                    continue;
                 }
-                case '0':
-                case '1':
-                case '2':
-                case '3':
-                case '4':
-                case '5':
-                case '6':
-                case '7':
-                case '8':
-                case '9':
-                case '.': {
-                    final NumberToken numberToken = new NumberToken().lex(this);
-                    if (numberToken == null) {
-                        final SymbolToken symbolToken = new SymbolToken().lex(this);
-                        if (symbolToken == null) {
-                            this.setFailedStage(true);
-                            this.next();
+            } else if (Character.isDigit(currentChar) || currentChar == '.') {
+                final NumberToken numberToken = new NumberToken(this).parseToken();
+                if (numberToken != null) {
+                    tokens.add(numberToken);
+                    continue;
+                }
+        
+                final SymbolToken symbolToken = new SymbolToken(this).parseToken();
+                if (symbolToken != null) {
+                    tokens.add(symbolToken);
+                    continue;
+                }
+            } else if (Character.isJavaIdentifierStart(currentChar)) {
+                final IdentifierToken identifierToken = new IdentifierToken(this).parseToken();
+                if (identifierToken != null) {
+                    tokens.add(identifierToken);
+                    continue;
+                }
+            } else {
+                switch (currentChar) {
+                    case '@':
+                    case '^':
+                    case ':':
+                    case ';':
+                    case '{':
+                    case '}':
+                    case '(':
+                    case ')':
+                    case '[':
+                    case ']':
+                    case ',':
+                    case '<':
+                    case '>':
+                    case '+':
+                    case '-':
+                    case '*':
+                    case '/':
+                    case '%':
+                    case '!':
+                    case '=':
+                    case '&': {
+                        final SymbolToken symbolToken = new SymbolToken(this).parseToken();
+                        if (symbolToken != null) {
+                            tokens.add(symbolToken);
                             continue;
                         }
-                        tokens.add(symbolToken);
                         break;
-                    } else tokens.add(numberToken);
-                    break;
-                }
-                case 'a':
-                case 'A':
-                case 'b':
-                case 'B':
-                case 'c':
-                case 'C':
-                case 'd':
-                case 'D':
-                case 'e':
-                case 'E':
-                case 'f':
-                case 'F':
-                case 'g':
-                case 'G':
-                case 'h':
-                case 'H':
-                case 'i':
-                case 'I':
-                case 'j':
-                case 'J':
-                case 'k':
-                case 'K':
-                case 'l':
-                case 'L':
-                case 'm':
-                case 'M':
-                case 'n':
-                case 'N':
-                case 'o':
-                case 'O':
-                case 'p':
-                case 'P':
-                case 'q':
-                case 'Q':
-                case 'r':
-                case 'R':
-                case 's':
-                case 'S':
-                case 't':
-                case 'T':
-                case 'u':
-                case 'U':
-                case 'v':
-                case 'V':
-                case 'w':
-                case 'W':
-                case 'x':
-                case 'X': {
-                    final IdentifierToken identifierToken = new IdentifierToken().lex(this);
-                    if (identifierToken == null) {
-                        this.setFailedStage(true);
-                        this.next();
-                        continue;
                     }
-                    tokens.add(identifierToken);
-                    break;
+                    default:
+                        this.getErrorHandler().addError(new ArkoiError(
+                                this.getArkoiClass(),
+                                this.position,
+                                "The defined character is unknown for the lexical analyzer:"
+                        ));
+                        break;
                 }
-                default:
-                    this.getErrorHandler().addError(new LexicalError(this.getArkoiClass(), this.position, "The defined character is unknown for the lexical analyzer:"));
-                    this.setFailedStage(true);
-                    this.next();
-                    break;
             }
+    
+            this.setFailedStage(true);
+            this.next();
         }
-        
-        tokens.add(new EndOfFileToken());
+    
+        tokens.add(new EndOfFileToken(this));
         this.tokens = tokens.toArray(new AbstractToken[] { });
         return !this.isFailedStage();
     }
@@ -249,8 +183,30 @@ public class LexicalAnalyzer extends AbstractStage
      * @return the {@link LexicalErrorHandler} which got created in the constructor.
      */
     @Override
-    public ErrorHandler errorHandler() {
+    public LexicalErrorHandler errorHandler() {
         return this.errorHandler;
+    }
+    
+    
+    /**
+     * Returns an array full of {@link TokenType}s which you can use for testing out the
+     * {@link LexicalAnalyzer}. Also you can set if {@link TokenType#WHITESPACE} should be
+     * inside the array or not.
+     *
+     * @param whitespaces
+     *         the flag if the {@link TokenType#WHITESPACE} should be inside the array or
+     *         not.
+     *
+     * @return an array full of {@link TokenType}s.
+     */
+    public TokenType[] getTokenTypes(final boolean whitespaces) {
+        final List<TokenType> tokenTypes = new ArrayList<>();
+        for (final AbstractToken abstractToken : this.getTokens()) {
+            if (!whitespaces && abstractToken.getTokenType() == TokenType.WHITESPACE)
+                continue;
+            tokenTypes.add(abstractToken.getTokenType());
+        }
+        return tokenTypes.toArray(new TokenType[] { });
     }
     
     
@@ -290,12 +246,12 @@ public class LexicalAnalyzer extends AbstractStage
      * #position}.
      *
      * @param offset
-     *         the offset which should get added to the current position {@link
+     *         the offset which is used added to the current position {@link
      *         #position}. Keep in mind, that it won't change the position and just
      *         returns the peeked token.
      *
      * @return the peeked token if it didn't went out of bounds. If it did, it will return
-     *         the last possible char in the {@link #content} array.
+     *         the last possible char in the {@link ArkoiClass#content} array.
      */
     public char peekChar(final int offset) {
         if (this.position + offset >= this.getArkoiClass().getContent().length)

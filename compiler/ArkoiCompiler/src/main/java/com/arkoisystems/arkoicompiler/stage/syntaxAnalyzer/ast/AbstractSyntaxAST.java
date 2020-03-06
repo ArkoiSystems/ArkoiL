@@ -7,10 +7,12 @@ package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast;
 
 import com.arkoisystems.arkoicompiler.ArkoiClass;
 import com.arkoisystems.arkoicompiler.ArkoiCompiler;
+import com.arkoisystems.arkoicompiler.stage.errorHandler.ArkoiError;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken;
-import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.SymbolToken;
-import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.EndOfFileToken;
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.SymbolType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxErrorType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.RootSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import lombok.Getter;
@@ -18,16 +20,26 @@ import lombok.Setter;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+import java.util.Objects;
 
 /**
  * This class is used if you want to create an AST. With the {@link
- * AbstractSyntaxAST#parseAST(AbstractSyntaxAST, SyntaxAnalyzer)} method you can check the
- * syntax and initialize all variables which are needed for later usage. Also you can
- * print out this class as a JSON based {@link String} with the {@link
- * AbstractSyntaxAST#toString()} method.
+ * AbstractSyntaxAST#parseAST(AbstractSyntaxAST)} method you can check the syntax and
+ * initialize all variables which are needed for later usage. Also you can print out this
+ * class as a JSON based {@link String} with the {@link AbstractSyntaxAST#toString()}
+ * method.
  */
 public abstract class AbstractSyntaxAST
 {
+    
+    /**
+     * The {@link SyntaxAnalyzer} which is used to check the syntax with methods like
+     * {@link SyntaxAnalyzer#matchesNextToken(SymbolType)} or {@link
+     * SyntaxAnalyzer#nextToken()}.
+     */
+    @Getter
+    private final SyntaxAnalyzer syntaxAnalyzer;
+    
     
     /**
      * The {@link ASTType} is used to differentiate it from other {@link
@@ -48,13 +60,27 @@ public abstract class AbstractSyntaxAST
     
     
     /**
-     * Just constructs a new {@link AbstractSyntaxAST} with the defined {@link ASTType}.
+     * Defines if the {@link AbstractSyntaxAST} failed to parse the {@link
+     * AbstractSyntaxAST} or not.
+     */
+    @Getter
+    @Setter
+    private boolean failed;
+    
+    /**
+     * Just constructs a new {@link AbstractSyntaxAST} with the defined {@link ASTType}
+     * and {@link SyntaxAnalyzer} as help for checking the syntax or debugging.
      *
+     * @param syntaxAnalyzer
+     *         the {@link SyntaxAnalyzer} which is used to check for correct syntax with
+     *         methods like {@link SyntaxAnalyzer#matchesNextToken(SymbolType)} or {@link
+     *         * SyntaxAnalyzer#nextToken()}.
      * @param astType
-     *         the {@link ASTType} which should get used to identify this specific {@link
+     *         the {@link ASTType} which is used used to identify this specific {@link
      *         AbstractSyntaxAST}.
      */
-    public AbstractSyntaxAST(final ASTType astType) {
+    public AbstractSyntaxAST(final SyntaxAnalyzer syntaxAnalyzer, final ASTType astType) {
+        this.syntaxAnalyzer = syntaxAnalyzer;
         this.astType = astType;
     }
     
@@ -68,17 +94,13 @@ public abstract class AbstractSyntaxAST
      * current/next and peeked {@link AbstractToken}.
      *
      * @param parentAST
-     *         the parent {@link AbstractSyntaxAST} which should get used to check if the
+     *         the parent {@link AbstractSyntaxAST} which is used used to check if the
      *         {@link AbstractSyntaxAST} can be created inside it.
-     * @param syntaxAnalyzer
-     *         the {@link SyntaxAnalyzer} which is used for checking the syntax with
-     *         methods like {@link SyntaxAnalyzer#matchesCurrentToken(TokenType)} or
-     *         {@link SyntaxAnalyzer#matchesNextToken(SymbolToken.SymbolType)} )}.
      *
      * @return {@code null} if an error occurred or the parsed {@link AbstractSyntaxAST}
      *         if everything worked correctly.
      */
-    public abstract AbstractSyntaxAST parseAST(final AbstractSyntaxAST parentAST, final SyntaxAnalyzer syntaxAnalyzer);
+    public abstract AbstractSyntaxAST parseAST(final AbstractSyntaxAST parentAST);
     
     
     /**
@@ -88,11 +110,138 @@ public abstract class AbstractSyntaxAST
      * you just need to call this method {@link ArkoiCompiler#printSyntaxTree(PrintStream)}.
      *
      * @param printStream
-     *         the {@link PrintStream} which should get used for the output.
+     *         the {@link PrintStream} which is used used for the output.
      * @param indents
      *         the {@code indents} which will make the AST look like a Tree.
      */
     public abstract void printSyntaxAST(final PrintStream printStream, final String indents);
+    
+    
+    protected void skipToNextValidToken() {
+        int openingBraces = 0;
+        while (this.getSyntaxAnalyzer().getPosition() < this.getSyntaxAnalyzer().getTokens().length) {
+            if (this.getSyntaxAnalyzer().currentToken() instanceof EndOfFileToken)
+                break;
+            if (this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.OPENING_BRACE) != null)
+                openingBraces++;
+            else if (this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.CLOSING_BRACE) != null) {
+                openingBraces--;
+                if (openingBraces > 0)
+                    continue;
+                this.getSyntaxAnalyzer().nextToken();
+                break;
+            } else if (openingBraces == 0 && this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.SEMICOLON) != null) {
+                this.getSyntaxAnalyzer().nextToken();
+                break;
+            }
+            this.getSyntaxAnalyzer().nextToken();
+        }
+        this.setFailed(true);
+    }
+    
+    
+    /**
+     * Creates and adds a new {@link ArkoiError} with the given parameters to the stack
+     * trace which is used for better debugging.
+     *
+     * @param arkoiClass
+     *         the {@link ArkoiClass} which is used to get important information about the
+     *         source error.
+     * @param abstractSyntaxASTs
+     *         the {@link AbstractSyntaxAST}[] which is used to get all ASTs which are
+     *         involved in the error.
+     * @param message
+     *         the error message which should get printed out.
+     * @param arguments
+     *         the arguments list for the error message from the {@link SyntaxErrorType}.
+     */
+    public void addError(final ArkoiClass arkoiClass, final AbstractSyntaxAST[] abstractSyntaxASTs, final String message, final Object... arguments) {
+        this.getSyntaxAnalyzer().getErrorHandler().addError(new ArkoiError(
+                arkoiClass,
+                abstractSyntaxASTs,
+                message,
+                arguments
+        ));
+        this.setFailed(true);
+    }
+    
+    
+    /**
+     * Creates and adds a new {@link ArkoiError} with the given parameters to the stack
+     * trace which is used for better debugging.
+     *
+     * @param arkoiClass
+     *         the {@link ArkoiClass} which is used to get important information about the
+     *         source error.
+     * @param abstractSyntaxAST
+     *         the {@link AbstractSyntaxAST} which is used to get the source line etc.
+     * @param message
+     *         the error message which should get printed out.
+     * @param arguments
+     *         the arguments list for the error message from the {@link SyntaxErrorType}.
+     */
+    public void addError(final ArkoiClass arkoiClass, final AbstractSyntaxAST abstractSyntaxAST, final String message, final Object... arguments) {
+        this.getSyntaxAnalyzer().getErrorHandler().addError(new ArkoiError(
+                arkoiClass,
+                abstractSyntaxAST,
+                message,
+                arguments
+        ));
+        this.setFailed(true);
+    }
+    
+    
+    /**
+     * Creates and adds a new {@link ArkoiError} with the given parameters to the stack
+     * trace which is used for better debugging.
+     *
+     * @param arkoiClass
+     *         the {@link ArkoiClass} which is used to get important information about the
+     *         source error.
+     * @param start
+     *         the starting position where the error occurred in the source code.
+     * @param end
+     *         the ending position where the error occurred in the source code.
+     * @param message
+     *         the error message which should get printed out.
+     * @param arguments
+     *         the arguments list for the error message from the {@link SyntaxErrorType}.
+     */
+    public void addError(final ArkoiClass arkoiClass, final int start, final int end, final String message, final Object... arguments) {
+        this.getSyntaxAnalyzer().getErrorHandler().addError(new ArkoiError(
+                arkoiClass,
+                start,
+                end,
+                message,
+                arguments
+        ));
+        this.setFailed(true);
+    }
+    
+    
+    /**
+     * Creates and adds a new {@link ArkoiError} with the given parameters to the stack
+     * trace which is used for better debugging.
+     *
+     * @param arkoiClass
+     *         the {@link ArkoiClass} which is used to get important information about the
+     *         source error.
+     * @param abstractToken
+     *         the {@link AbstractToken} which is used to get the source line etc.
+     * @param message
+     *         the error message which should get printed out.
+     * @param arguments
+     *         the arguments list for the error message from the {@link SyntaxErrorType}.
+     */
+    public void addError(final ArkoiClass arkoiClass, final AbstractToken abstractToken, final String message, final Object... arguments) {
+        this.getSyntaxAnalyzer().getErrorHandler().addError(new ArkoiError(
+                arkoiClass,
+                abstractToken,
+                message,
+                arguments
+        ));
+        this.setFailed(true);
+    }
     
     
     /**
@@ -108,6 +257,18 @@ public abstract class AbstractSyntaxAST
         final PrintStream printStream = new PrintStream(byteArrayOutputStream);
         this.printSyntaxAST(printStream, "");
         return byteArrayOutputStream.toString();
+    }
+    
+    
+    /**
+     * Returns a unique hash for this {@link AbstractSyntaxAST}. This hash is used when
+     * comparing for errors etc.
+     *
+     * @return a unique hash for this {@link AbstractSyntaxAST}.
+     */
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.getAstType(), this.getStart(), this.getEnd());
     }
     
 }

@@ -5,9 +5,8 @@
  */
 package com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.types.expression.types;
 
-import com.arkoisystems.arkoicompiler.stage.errorHandler.types.SemanticASTError;
-import com.arkoisystems.arkoicompiler.stage.errorHandler.types.SyntaxASTError;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.SemanticAnalyzer;
+import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.SemanticErrorType;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.AbstractSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.AbstractOperableSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.types.*;
@@ -18,6 +17,7 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.ty
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.IdentifierInvokeOperableSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.NumberOperableSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.StringOperableSyntaxAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.operators.AssignmentOperatorType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types.*;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
@@ -83,8 +83,8 @@ public class AssignmentExpressionSemanticAST extends AbstractExpressionSemanticA
     }
     
     
-    public AssignmentExpressionSyntaxAST.AssignmentOperator getAssignmentOperator() {
-        return this.getSyntaxAST().getAssignmentOperator();
+    public AssignmentOperatorType getAssignmentOperator() {
+        return this.getSyntaxAST().getAssignmentOperatorType();
     }
     
     
@@ -185,7 +185,11 @@ public class AssignmentExpressionSemanticAST extends AbstractExpressionSemanticA
                 return null;
             return identifierInvokeOperableSemanticAST;
         } else {
-            this.getSemanticAnalyzer().errorHandler().addError(new SyntaxASTError<>(this.getSemanticAnalyzer().getArkoiClass(), abstractOperableSyntaxAST, "Couldn't analyze this operable because it isn't supported by the assignment expression."));
+            this.addError(
+                    this.getSemanticAnalyzer().getArkoiClass(),
+                    abstractOperableSyntaxAST,
+                    SemanticErrorType.ASSIGN_OPERABLE_NOT_SUPPORTED
+            );
             return null;
         }
     }
@@ -195,29 +199,29 @@ public class AssignmentExpressionSemanticAST extends AbstractExpressionSemanticA
     public TypeKind assign(final AbstractOperableSemanticAST<?, ?> leftSideOperable, final AbstractOperableSemanticAST<?, ?> rightSideOperable) {
         final AbstractOperableSemanticAST<?, ?> leftAssignedOperable = this.analyzeAssignedOperable(leftSideOperable);
         if (leftAssignedOperable == null) {
-            this.getSemanticAnalyzer().errorHandler().addError(new SemanticASTError<>(
+            this.addError(
                     this.getSemanticAnalyzer().getArkoiClass(),
-                    new AbstractSemanticAST[] { leftSideOperable },
-                    "Couldn't analyze the assignment because the left side operable isn't supported as assignable operable."
-            ));
+                    leftSideOperable,
+                    SemanticErrorType.ASSIGN_ASSIGNMENT_OPERABLE_NOT_SUPPORTED
+            );
             return null;
         }
         final AbstractOperableSemanticAST<?, ?> rightExpressionOperable = this.analyzeExpressionOperable(rightSideOperable);
         if(rightExpressionOperable == null) {
-            this.getSemanticAnalyzer().errorHandler().addError(new SemanticASTError<>(
+            this.addError(
                     this.getSemanticAnalyzer().getArkoiClass(),
-                    new AbstractSemanticAST[] { rightSideOperable },
-                    "Couldn't analyze the assignment because the right side operable isn't supported as an assignment operable."
-            ));
+                    rightSideOperable,
+                    SemanticErrorType.ASSIGN_ASSIGNMENT_OPERABLE_NOT_SUPPORTED
+            );
             return null;
         }
         final TypeKind leftTypeKind = TypeKind.getTypeKind(leftAssignedOperable), rightTypeKind = TypeKind.getTypeKind(rightExpressionOperable);
         if(leftTypeKind != rightTypeKind) {
-            this.getSemanticAnalyzer().errorHandler().addError(new SemanticASTError<>(
+            this.addError(
                     this.getSemanticAnalyzer().getArkoiClass(),
-                    new AbstractSemanticAST[] { rightExpressionOperable },
-                    "Couldn't analyze the assignment because the assigned operable type doesn't match the expression type."
-            ));
+                    rightExpressionOperable,
+                    SemanticErrorType.ASSIGN_ASSIGNMENT_OPERABLE_NOT_SUPPORTED
+            );
             return null;
         }
         return leftTypeKind;
@@ -228,29 +232,29 @@ public class AssignmentExpressionSemanticAST extends AbstractExpressionSemanticA
     public TypeKind addAssign(final AbstractOperableSemanticAST<?, ?> leftSideOperable, final AbstractOperableSemanticAST<?, ?> rightSideOperable) {
         final AbstractOperableSemanticAST<?, ?> leftAssignedOperable = this.analyzeAssignedOperable(leftSideOperable);
         if (leftAssignedOperable == null) {
-            this.getSemanticAnalyzer().errorHandler().addError(new SemanticASTError<>(
+            this.addError(
                     this.getSemanticAnalyzer().getArkoiClass(),
-                    new AbstractSemanticAST[] { leftSideOperable },
-                    "Couldn't analyze the add assignment because the left side operable isn't supported as assignable operable."
-            ));
+                    leftSideOperable,
+                    SemanticErrorType.ASSIGN_ADD_ASSIGNMENT_OPERABLE_NOT_SUPPORTED
+            );
             return null;
         }
         final AbstractOperableSemanticAST<?, ?> rightExpressionOperable = this.analyzeExpressionOperable(rightSideOperable);
         if(rightExpressionOperable == null) {
-            this.getSemanticAnalyzer().errorHandler().addError(new SemanticASTError<>(
+            this.addError(
                     this.getSemanticAnalyzer().getArkoiClass(),
-                    new AbstractSemanticAST[] { rightSideOperable },
-                    "Couldn't analyze the add assignment because the right side operable isn't supported as an assignment operable."
-            ));
+                    rightSideOperable,
+                    SemanticErrorType.ASSIGN_ADD_ASSIGNMENT_OPERABLE_NOT_SUPPORTED
+            );
             return null;
         }
         final TypeKind leftTypeKind = TypeKind.getTypeKind(leftAssignedOperable), rightTypeKind = TypeKind.getTypeKind(rightExpressionOperable);
         if(leftTypeKind != rightTypeKind) {
-            this.getSemanticAnalyzer().errorHandler().addError(new SemanticASTError<>(
+            this.addError(
                     this.getSemanticAnalyzer().getArkoiClass(),
-                    new AbstractSemanticAST[] { rightExpressionOperable },
-                    "Couldn't analyze the add assignment because the assigned operable type doesn't match the expression type."
-            ));
+                    rightExpressionOperable,
+                    SemanticErrorType.ASSIGN_ADD_ASSIGNMENT_OPERABLE_NOT_SUPPORTED
+            );
             return null;
         }
         return leftTypeKind;
@@ -261,29 +265,29 @@ public class AssignmentExpressionSemanticAST extends AbstractExpressionSemanticA
     public TypeKind subAssign(final AbstractOperableSemanticAST<?, ?> leftSideOperable, final AbstractOperableSemanticAST<?, ?> rightSideOperable) {
         final AbstractOperableSemanticAST<?, ?> leftAssignedOperable = this.analyzeAssignedOperable(leftSideOperable);
         if (leftAssignedOperable == null) {
-            this.getSemanticAnalyzer().errorHandler().addError(new SemanticASTError<>(
+            this.addError(
                     this.getSemanticAnalyzer().getArkoiClass(),
-                    new AbstractSemanticAST[] { leftSideOperable },
-                    "Couldn't analyze the sub assignment because the left side operable isn't supported as assignable operable."
-            ));
+                    leftSideOperable,
+                    SemanticErrorType.ASSIGN_SUB_ASSIGNMENT_OPERABLE_NOT_SUPPORTED
+            );
             return null;
         }
         final AbstractOperableSemanticAST<?, ?> rightExpressionOperable = this.analyzeExpressionOperable(rightSideOperable);
         if(rightExpressionOperable == null) {
-            this.getSemanticAnalyzer().errorHandler().addError(new SemanticASTError<>(
+            this.addError(
                     this.getSemanticAnalyzer().getArkoiClass(),
-                    new AbstractSemanticAST[] { rightSideOperable },
-                    "Couldn't analyze the sub assignment because the right side operable isn't supported as an assignment operable."
-            ));
+                    rightSideOperable,
+                    SemanticErrorType.ASSIGN_SUB_ASSIGNMENT_OPERABLE_NOT_SUPPORTED
+            );
             return null;
         }
         final TypeKind leftTypeKind = TypeKind.getTypeKind(leftAssignedOperable), rightTypeKind = TypeKind.getTypeKind(rightExpressionOperable);
         if(leftTypeKind != rightTypeKind) {
-            this.getSemanticAnalyzer().errorHandler().addError(new SemanticASTError<>(
+            this.addError(
                     this.getSemanticAnalyzer().getArkoiClass(),
-                    new AbstractSemanticAST[] { rightExpressionOperable },
-                    "Couldn't analyze the sub assignment because the assigned operable type doesn't match the expression type."
-            ));
+                    rightExpressionOperable,
+                    SemanticErrorType.ASSIGN_SUB_ASSIGNMENT_OPERABLE_NOT_SUPPORTED
+            );
             return null;
         }
         return leftTypeKind;
@@ -294,29 +298,30 @@ public class AssignmentExpressionSemanticAST extends AbstractExpressionSemanticA
     public TypeKind mulAssign(final AbstractOperableSemanticAST<?, ?> leftSideOperable, final AbstractOperableSemanticAST<?, ?> rightSideOperable) {
         final AbstractOperableSemanticAST<?, ?> leftAssignedOperable = this.analyzeAssignedOperable(leftSideOperable);
         if (leftAssignedOperable == null) {
-            this.getSemanticAnalyzer().errorHandler().addError(new SemanticASTError<>(
+            this.addError(
                     this.getSemanticAnalyzer().getArkoiClass(),
-                    new AbstractSemanticAST[] { leftSideOperable },
-                    "Couldn't analyze the mul assignment because the left side operable isn't supported as assignable operable."
-            ));
+                    leftSideOperable,
+                    SemanticErrorType.ASSIGN_MUL_ASSIGNMENT_OPERABLE_NOT_SUPPORTED
+            );
             return null;
         }
         final AbstractOperableSemanticAST<?, ?> rightExpressionOperable = this.analyzeExpressionOperable(rightSideOperable);
         if(rightExpressionOperable == null) {
-            this.getSemanticAnalyzer().errorHandler().addError(new SemanticASTError<>(
+            this.addError(
                     this.getSemanticAnalyzer().getArkoiClass(),
-                    new AbstractSemanticAST[] { rightSideOperable },
-                    "Couldn't analyze the mul assignment because the right side operable isn't supported as an assignment operable."
-            ));
+                    rightSideOperable,
+                    SemanticErrorType.ASSIGN_MUL_ASSIGNMENT_OPERABLE_NOT_SUPPORTED
+            );
+            this.setFailed(true);
             return null;
         }
         final TypeKind leftTypeKind = TypeKind.getTypeKind(leftAssignedOperable), rightTypeKind = TypeKind.getTypeKind(rightExpressionOperable);
         if(leftTypeKind != rightTypeKind) {
-            this.getSemanticAnalyzer().errorHandler().addError(new SemanticASTError<>(
+            this.addError(
                     this.getSemanticAnalyzer().getArkoiClass(),
-                    new AbstractSemanticAST[] { rightExpressionOperable },
-                    "Couldn't analyze mul the assignment because the assigned operable type doesn't match the expression type."
-            ));
+                    rightExpressionOperable,
+                    SemanticErrorType.ASSIGN_MUL_ASSIGNMENT_OPERABLE_NOT_SUPPORTED
+            );
             return null;
         }
         return leftTypeKind;
@@ -327,29 +332,29 @@ public class AssignmentExpressionSemanticAST extends AbstractExpressionSemanticA
     public TypeKind divAssign(final AbstractOperableSemanticAST<?, ?> leftSideOperable, final AbstractOperableSemanticAST<?, ?> rightSideOperable) {
         final AbstractOperableSemanticAST<?, ?> leftAssignedOperable = this.analyzeAssignedOperable(leftSideOperable);
         if (leftAssignedOperable == null) {
-            this.getSemanticAnalyzer().errorHandler().addError(new SemanticASTError<>(
+            this.addError(
                     this.getSemanticAnalyzer().getArkoiClass(),
-                    new AbstractSemanticAST[] { leftSideOperable },
-                    "Couldn't analyze the div assignment because the left side operable isn't supported as assignable operable."
-            ));
+                    leftSideOperable,
+                    SemanticErrorType.ASSIGN_DIV_ASSIGNMENT_OPERABLE_NOT_SUPPORTED
+            );
             return null;
         }
         final AbstractOperableSemanticAST<?, ?> rightExpressionOperable = this.analyzeExpressionOperable(rightSideOperable);
         if(rightExpressionOperable == null) {
-            this.getSemanticAnalyzer().errorHandler().addError(new SemanticASTError<>(
+            this.addError(
                     this.getSemanticAnalyzer().getArkoiClass(),
-                    new AbstractSemanticAST[] { rightSideOperable },
-                    "Couldn't analyze the div assignment because the right side operable isn't supported as an assignment operable."
-            ));
+                    rightSideOperable,
+                    SemanticErrorType.ASSIGN_DIV_ASSIGNMENT_OPERABLE_NOT_SUPPORTED
+            );
             return null;
         }
         final TypeKind leftTypeKind = TypeKind.getTypeKind(leftAssignedOperable), rightTypeKind = TypeKind.getTypeKind(rightExpressionOperable);
         if(leftTypeKind != rightTypeKind) {
-            this.getSemanticAnalyzer().errorHandler().addError(new SemanticASTError<>(
+            this.addError(
                     this.getSemanticAnalyzer().getArkoiClass(),
-                    new AbstractSemanticAST[] { rightExpressionOperable },
-                    "Couldn't analyze the div assignment because the assigned operable type doesn't match the expression type."
-            ));
+                    rightExpressionOperable,
+                    SemanticErrorType.ASSIGN_DIV_ASSIGNMENT_OPERABLE_NOT_SUPPORTED
+            );
             return null;
         }
         return leftTypeKind;
@@ -360,29 +365,30 @@ public class AssignmentExpressionSemanticAST extends AbstractExpressionSemanticA
     public TypeKind modAssign(final AbstractOperableSemanticAST<?, ?> leftSideOperable, final AbstractOperableSemanticAST<?, ?> rightSideOperable) {
         final AbstractOperableSemanticAST<?, ?> leftAssignedOperable = this.analyzeAssignedOperable(leftSideOperable);
         if (leftAssignedOperable == null) {
-            this.getSemanticAnalyzer().errorHandler().addError(new SemanticASTError<>(
+            this.addError(
                     this.getSemanticAnalyzer().getArkoiClass(),
-                    new AbstractSemanticAST[] { leftSideOperable },
-                    "Couldn't analyze the mod assignment because the left side operable isn't supported as assignable operable."
-            ));
+                    leftSideOperable,
+                    SemanticErrorType.ASSIGN_MOD_ASSIGNMENT_OPERABLE_NOT_SUPPORTED
+            );
             return null;
         }
         final AbstractOperableSemanticAST<?, ?> rightExpressionOperable = this.analyzeExpressionOperable(rightSideOperable);
         if(rightExpressionOperable == null) {
-            this.getSemanticAnalyzer().errorHandler().addError(new SemanticASTError<>(
+            this.addError(
                     this.getSemanticAnalyzer().getArkoiClass(),
-                    new AbstractSemanticAST[] { rightSideOperable },
-                    "Couldn't analyze the mod assignment because the right side operable isn't supported as an assignment operable."
-            ));
+                    rightSideOperable,
+                    SemanticErrorType.ASSIGN_MOD_ASSIGNMENT_OPERABLE_NOT_SUPPORTED
+            );
+            this.setFailed(true);
             return null;
         }
         final TypeKind leftTypeKind = TypeKind.getTypeKind(leftAssignedOperable), rightTypeKind = TypeKind.getTypeKind(rightExpressionOperable);
         if(leftTypeKind != rightTypeKind) {
-            this.getSemanticAnalyzer().errorHandler().addError(new SemanticASTError<>(
+            this.addError(
                     this.getSemanticAnalyzer().getArkoiClass(),
-                    new AbstractSemanticAST[] { rightExpressionOperable },
-                    "Couldn't analyze the mod assignment because the assigned operable type doesn't match the expression type."
-            ));
+                    rightExpressionOperable,
+                    SemanticErrorType.ASSIGN_MOD_ASSIGNMENT_OPERABLE_NOT_SUPPORTED
+            );
             return null;
         }
         return leftTypeKind;
@@ -400,7 +406,7 @@ public class AssignmentExpressionSemanticAST extends AbstractExpressionSemanticA
         if (abstractOperableSemanticAST instanceof IdentifierCallOperableSemanticAST) {
             final IdentifierCallOperableSemanticAST identifierCallOperableSemanticAST = (IdentifierCallOperableSemanticAST) abstractOperableSemanticAST;
             final AbstractSemanticAST<?> foundIdentifier = identifierCallOperableSemanticAST.getFoundIdentifier();
-            if(foundIdentifier instanceof VariableDefinitionSemanticAST)
+            if (foundIdentifier instanceof VariableDefinitionSemanticAST)
                 return abstractOperableSemanticAST;
         } else if (abstractOperableSemanticAST instanceof IdentifierInvokeOperableSemanticAST) {
             final IdentifierInvokeOperableSemanticAST identifierInvokeOperableSemanticAST = (IdentifierInvokeOperableSemanticAST) abstractOperableSemanticAST;

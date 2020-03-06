@@ -7,7 +7,7 @@ package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.parser.types;
 
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.IdentifierToken;
-import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.SymbolToken;
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.SymbolType;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
@@ -38,7 +38,7 @@ public class ArgumentDefinitionParser extends AbstractParser<ArgumentDefinitionS
      */
     @Override
     public ArgumentDefinitionSyntaxAST parse(final AbstractSyntaxAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
-        return new ArgumentDefinitionSyntaxAST().parseAST(parentAST, syntaxAnalyzer);
+        return new ArgumentDefinitionSyntaxAST(syntaxAnalyzer).parseAST(parentAST);
     }
     
     
@@ -59,7 +59,7 @@ public class ArgumentDefinitionParser extends AbstractParser<ArgumentDefinitionS
      */
     @Override
     public boolean canParse(final AbstractSyntaxAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
-        return syntaxAnalyzer.currentToken().getTokenType() == TokenType.IDENTIFIER && syntaxAnalyzer.matchesPeekToken(1, SymbolToken.SymbolType.COLON) != null;
+        return syntaxAnalyzer.currentToken().getTokenType() == TokenType.IDENTIFIER && syntaxAnalyzer.matchesPeekToken(1, SymbolType.COLON) != null;
     }
     
 }

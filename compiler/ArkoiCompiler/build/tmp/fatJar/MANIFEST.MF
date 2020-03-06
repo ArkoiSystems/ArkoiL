@@ -1,4 +1,0 @@
-Manifest-Version: 1.0
-Implementation-Version: 2.0.0
-Main-Class: com.arkoisystems.arkoicompiler.bootstrap.Bootstrap
-

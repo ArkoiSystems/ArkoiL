@@ -11,6 +11,7 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.Ab
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.AbstractExpressionSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.io.PrintStream;
 
@@ -18,21 +19,22 @@ public class ExpressionSyntaxAST extends AbstractExpressionSyntaxAST
 {
     
     @Getter
-    private final AbstractOperableSyntaxAST<?> expressionOperable;
+    @Setter
+    private AbstractOperableSyntaxAST<?> expressionOperable;
     
     
-    public ExpressionSyntaxAST(final AbstractOperableSyntaxAST<?> expressionOperable) {
-        super(ASTType.BASIC_EXPRESSION);
+    public ExpressionSyntaxAST(final SyntaxAnalyzer syntaxAnalyzer, final AbstractOperableSyntaxAST<?> expressionOperable) {
+        super(syntaxAnalyzer, ASTType.BASIC_EXPRESSION);
         
         this.expressionOperable = expressionOperable;
         
-        this.setStart(expressionOperable.getStart());
-        this.setEnd(expressionOperable.getEnd());
+        this.setStart(this.expressionOperable.getStart());
+        this.setEnd(this.expressionOperable.getEnd());
     }
     
     
     @Override
-    public ExpressionSyntaxAST parseAST(final AbstractSyntaxAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
+    public ExpressionSyntaxAST parseAST(final AbstractSyntaxAST parentAST) {
         return this;
     }
     

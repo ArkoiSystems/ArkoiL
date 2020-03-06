@@ -5,12 +5,15 @@
  */
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types;
 
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.SymbolType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.AbstractOperableSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.AbstractExpressionSyntaxAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.operators.PrefixOperatorType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.io.PrintStream;
 
@@ -18,17 +21,19 @@ public class PrefixExpressionSyntaxAST extends AbstractExpressionSyntaxAST
 {
     
     @Getter
-    private final PrefixUnaryOperator prefixUnaryOperator;
+    @Setter
+    private PrefixOperatorType prefixOperatorType;
     
     
     @Getter
-    private final AbstractOperableSyntaxAST<?> rightSideOperable;
+    @Setter
+    private AbstractOperableSyntaxAST<?> rightSideOperable;
     
     
-    public PrefixExpressionSyntaxAST(final AbstractOperableSyntaxAST<?> rightSideOperable, final PrefixUnaryOperator prefixUnaryOperator, final int start) {
-        super(ASTType.PREFIX_EXPRESSION);
+    public PrefixExpressionSyntaxAST(final SyntaxAnalyzer syntaxAnalyzer, final int start, final AbstractOperableSyntaxAST<?> rightSideOperable, final PrefixOperatorType prefixOperatorType) {
+        super(syntaxAnalyzer, ASTType.PREFIX_EXPRESSION);
         
-        this.prefixUnaryOperator = prefixUnaryOperator;
+        this.prefixOperatorType = prefixOperatorType;
         this.rightSideOperable = rightSideOperable;
         
         this.setStart(start);
@@ -37,27 +42,17 @@ public class PrefixExpressionSyntaxAST extends AbstractExpressionSyntaxAST
     
     
     @Override
-    public PrefixExpressionSyntaxAST parseAST(final AbstractSyntaxAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
+    public AbstractOperableSyntaxAST<?> parseAST(final AbstractSyntaxAST parentAST) {
         return this;
     }
     
     
     @Override
     public void printSyntaxAST(final PrintStream printStream, final String indents) {
-        printStream.println(indents + "├── operator: " + this.getPrefixUnaryOperator());
+        printStream.println(indents + "├── operator: " + this.getPrefixOperatorType());
         printStream.println(indents + "└── right:");
         printStream.println(indents + "    └── " + this.getRightSideOperable().getClass().getSimpleName());
         this.getRightSideOperable().printSyntaxAST(printStream, indents + "        ");
-    }
-    
-    public enum PrefixUnaryOperator
-    {
-        
-        PREFIX_ADD,
-        PREFIX_SUB,
-        NEGATE,
-        AFFIRM
-        
     }
     
 }
