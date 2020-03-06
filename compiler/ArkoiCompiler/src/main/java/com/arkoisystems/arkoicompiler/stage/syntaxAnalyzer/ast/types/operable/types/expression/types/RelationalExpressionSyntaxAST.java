@@ -5,12 +5,16 @@
  */
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types;
 
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.SymbolType;
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.AbstractOperableSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.AbstractExpressionSyntaxAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.operators.RelationalOperatorType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.io.PrintStream;
 
@@ -18,32 +22,23 @@ public class RelationalExpressionSyntaxAST extends AbstractExpressionSyntaxAST
 {
     
     @Getter
-    private final AbstractOperableSyntaxAST<?> leftSideOperable;
+    @Setter
+    private RelationalOperatorType relationalOperatorType;
     
     
     @Getter
-    private final RelationalOperator relationalOperator;
+    @Setter
+    private AbstractOperableSyntaxAST<?> leftSideOperable, rightSideOperable;
     
     
-    @Getter
-    private final AbstractOperableSyntaxAST<?> rightSideOperable;
-    
-    
-    public RelationalExpressionSyntaxAST(final AbstractOperableSyntaxAST<?> leftSideOperable, final RelationalOperator relationalOperator, final AbstractOperableSyntaxAST<?> rightSideOperable) {
-        super(ASTType.RELATIONAL_EXPRESSION);
-        
-        this.relationalOperator = relationalOperator;
-        this.rightSideOperable = rightSideOperable;
-        this.leftSideOperable = leftSideOperable;
-    
-        this.setStart(leftSideOperable.getStart());
-        this.setEnd(rightSideOperable.getEnd());
+    public RelationalExpressionSyntaxAST(final SyntaxAnalyzer syntaxAnalyzer) {
+        super(syntaxAnalyzer, ASTType.RELATIONAL_EXPRESSION);
     }
     
     
     @Override
-    public RelationalExpressionSyntaxAST parseAST(final AbstractSyntaxAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
-        return this;
+    public AbstractOperableSyntaxAST<?> parseAST(final AbstractSyntaxAST parentAST) {
+        return null;
     }
     
     @Override
@@ -51,21 +46,10 @@ public class RelationalExpressionSyntaxAST extends AbstractExpressionSyntaxAST
         printStream.println(indents + "├── left:");
         printStream.println(indents + "│   └── " + this.getLeftSideOperable().getClass().getSimpleName());
         this.getLeftSideOperable().printSyntaxAST(printStream, indents + "│       ");
-        printStream.println(indents + "├── operator: " + this.getRelationalOperator());
+        printStream.println(indents + "├── operator: " + this.getRelationalOperatorType());
         printStream.println(indents + "└── right:");
         printStream.println(indents + "    └── " + this.getRightSideOperable().getClass().getSimpleName());
         this.getRightSideOperable().printSyntaxAST(printStream, indents + "        ");
-    }
-    
-    public enum RelationalOperator
-    {
-        
-        LESS_THAN,
-        GREATER_THAN,
-        LESS_EQUAL_THAN,
-        GREATER_EQUAL_THAN,
-        IS
-        
     }
     
 }

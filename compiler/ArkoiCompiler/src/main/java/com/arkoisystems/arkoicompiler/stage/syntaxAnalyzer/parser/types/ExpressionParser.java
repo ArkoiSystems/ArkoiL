@@ -5,13 +5,13 @@
  */
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.parser.types;
 
-import com.arkoisystems.arkoicompiler.stage.errorHandler.types.SyntaxASTError;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.SymbolToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.TypeSyntaxAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.AbstractOperableSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.AbstractExpressionSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types.ExpressionSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.AbstractStatementSyntaxAST;
@@ -42,15 +42,19 @@ public class ExpressionParser extends AbstractParser<ExpressionSyntaxAST>
      */
     @Override
     public ExpressionSyntaxAST parse(final AbstractSyntaxAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
-        final AbstractExpressionSyntaxAST abstractExpressionAST = new AbstractExpressionSyntaxAST(null).parseAST(parentAST, syntaxAnalyzer);
-        if (abstractExpressionAST == null)
+        final AbstractOperableSyntaxAST<?> abstractOperableSyntaxAST = new AbstractExpressionSyntaxAST(syntaxAnalyzer, null).parseAST(parentAST);
+        if (abstractOperableSyntaxAST == null)
             return null;
         
-        if (!(abstractExpressionAST instanceof ExpressionSyntaxAST)) {
-            syntaxAnalyzer.errorHandler().addError(new SyntaxASTError<>(syntaxAnalyzer.getArkoiClass(), abstractExpressionAST, "Couldn't parse the expression because the result isn't an ExpressionAST."));
+        if (!(abstractOperableSyntaxAST instanceof ExpressionSyntaxAST)) {
+            abstractOperableSyntaxAST.addError(
+                    syntaxAnalyzer.getArkoiClass(),
+                    abstractOperableSyntaxAST,
+                    "Couldn't parse the expression because the result isn't an ExpressionAST."
+            );
             return null;
         }
-        return (ExpressionSyntaxAST) abstractExpressionAST;
+        return (ExpressionSyntaxAST) abstractOperableSyntaxAST;
     }
     
     

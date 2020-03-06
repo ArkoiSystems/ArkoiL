@@ -5,12 +5,11 @@
  */
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types;
 
-import com.arkoisystems.arkoicompiler.stage.errorHandler.types.ParserError;
-import com.arkoisystems.arkoicompiler.stage.errorHandler.types.TokenError;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.IdentifierToken;
-import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.SymbolToken;
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.SymbolType;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxErrorType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.AbstractOperableSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.AbstractStatementSyntaxAST;
@@ -38,41 +37,53 @@ public class IdentifierInvokeOperableSyntaxAST extends AbstractOperableSyntaxAST
     private AbstractSyntaxAST invokePostStatement;
     
     
-    public IdentifierInvokeOperableSyntaxAST() {
-        super(ASTType.IDENTIFIER_INVOKE_OPERABLE);
+    public IdentifierInvokeOperableSyntaxAST(final SyntaxAnalyzer syntaxAnalyzer) {
+        super(syntaxAnalyzer, ASTType.IDENTIFIER_INVOKE_OPERABLE);
         
         this.identifierAccess = ASTAccess.GLOBAL_ACCESS;
     }
     
     
     @Override
-    public IdentifierInvokeOperableSyntaxAST parseAST(final AbstractSyntaxAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
-        if (syntaxAnalyzer.matchesCurrentToken(TokenType.IDENTIFIER) == null) {
-            syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the \"identifier invoke\" statement because the parsing doesn't start with an identifier."));
-            return null;
-        } else {
-            this.invokedIdentifier = (IdentifierToken) syntaxAnalyzer.currentToken();
-            this.setStart(this.invokedIdentifier.getStart());
-        }
-        
-        if (syntaxAnalyzer.matchesNextToken(SymbolToken.SymbolType.PERIOD) == null) {
-            syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the \"identifier invoke\" statement because the name isn't followed by an period."));
-            return null;
-        } else {
-            this.setEnd(syntaxAnalyzer.currentToken().getEnd());
-            syntaxAnalyzer.nextToken();
-        }
-        
-        if (!AbstractStatementSyntaxAST.STATEMENT_PARSER.canParse(this, syntaxAnalyzer)) {
-            syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the \"identifier invoke\" statement because the period isn't followed by an valid statement."));
+    public IdentifierInvokeOperableSyntaxAST parseAST(final AbstractSyntaxAST parentAST) {
+        if (this.getSyntaxAnalyzer().matchesCurrentToken(TokenType.IDENTIFIER) == null) {
+            this.addError(
+                    this.getSyntaxAnalyzer().getArkoiClass(),
+                    this.getSyntaxAnalyzer().currentToken(),
+                    SyntaxErrorType.IDENTIFIER_INVOKE_WRONG_START
+            );
             return null;
         }
         
-        final AbstractSyntaxAST abstractSyntaxAST = AbstractStatementSyntaxAST.STATEMENT_PARSER.parse(this, syntaxAnalyzer);
-        if (abstractSyntaxAST == null) {
-            syntaxAnalyzer.errorHandler().addError(new ParserError<>(AbstractStatementSyntaxAST.STATEMENT_PARSER, this, "Couldn't parse the \"identifier invoke\" statement because an error occurred during the parsing of the statement."));
+        this.invokedIdentifier = (IdentifierToken) this.getSyntaxAnalyzer().currentToken();
+        this.setStart(this.invokedIdentifier.getStart());
+        
+        if (this.getSyntaxAnalyzer().matchesNextToken(SymbolType.PERIOD) == null) {
+            this.addError(
+                    this.getSyntaxAnalyzer().getArkoiClass(),
+                    this.getSyntaxAnalyzer().currentToken(),
+                    SyntaxErrorType.IDENTIFIER_INVOKE_NO_SEPARATOR
+            );
             return null;
-        } else this.invokePostStatement = abstractSyntaxAST;
+        }
+        
+        this.setEnd(this.getSyntaxAnalyzer().currentToken().getEnd());
+        this.getSyntaxAnalyzer().nextToken();
+        
+        if (!AbstractStatementSyntaxAST.STATEMENT_PARSER.canParse(this, this.getSyntaxAnalyzer())) {
+            this.addError(
+                    this.getSyntaxAnalyzer().getArkoiClass(),
+                    this.getSyntaxAnalyzer().currentToken(),
+                    SyntaxErrorType.IDENTIFIER_INVOKE_NO_VALID_STATEMENT
+            );
+            return null;
+        }
+        
+        final AbstractSyntaxAST abstractSyntaxAST = AbstractStatementSyntaxAST.STATEMENT_PARSER.parse(this, this.getSyntaxAnalyzer());
+        if (abstractSyntaxAST == null)
+            return null;
+        
+        this.invokePostStatement = abstractSyntaxAST;
         return this;
     }
     

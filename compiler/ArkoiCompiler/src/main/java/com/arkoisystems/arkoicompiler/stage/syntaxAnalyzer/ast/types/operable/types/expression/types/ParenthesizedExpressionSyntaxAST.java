@@ -8,9 +8,11 @@ package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.t
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.SymbolToken;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.AbstractOperableSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.AbstractExpressionSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.io.PrintStream;
 
@@ -18,31 +20,30 @@ public class ParenthesizedExpressionSyntaxAST extends AbstractExpressionSyntaxAS
 {
     
     @Getter
-    private final SymbolToken openParenthesis;
+    @Setter
+    private ExpressionSyntaxAST expressionSyntaxAST;
     
     
     @Getter
-    private final ExpressionSyntaxAST parenthesizedExpression;
+    @Setter
+    private SymbolToken openParenthesis, closeParenthesis;
     
     
-    @Getter
-    private final SymbolToken closeParenthesis;
-    
-    
-    public ParenthesizedExpressionSyntaxAST(final SymbolToken openParenthesis, final ExpressionSyntaxAST parenthesizedExpression, final SymbolToken closeParenthesis) {
-        super(ASTType.PARENTHESIZED_EXPRESSION);
+    public ParenthesizedExpressionSyntaxAST(final SyntaxAnalyzer syntaxAnalyzer, final SymbolToken openParenthesis, final ExpressionSyntaxAST expressionSyntaxAST, final SymbolToken closeParenthesis) {
+        super(syntaxAnalyzer, ASTType.PARENTHESIZED_EXPRESSION);
         
-        this.parenthesizedExpression = parenthesizedExpression;
         this.closeParenthesis = closeParenthesis;
         this.openParenthesis = openParenthesis;
         
-        this.setStart(openParenthesis.getStart());
-        this.setEnd(closeParenthesis.getEnd());
+        this.expressionSyntaxAST = expressionSyntaxAST;
+        
+        this.setStart(this.openParenthesis.getStart());
+        this.setEnd(this.closeParenthesis.getEnd());
     }
     
     
     @Override
-    public ParenthesizedExpressionSyntaxAST parseAST(final AbstractSyntaxAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
+    public AbstractOperableSyntaxAST<?> parseAST(final AbstractSyntaxAST parentAST) {
         return this;
     }
     
@@ -50,8 +51,8 @@ public class ParenthesizedExpressionSyntaxAST extends AbstractExpressionSyntaxAS
     @Override
     public void printSyntaxAST(final PrintStream printStream, final String indents) {
         printStream.println(indents + "└── operable:");
-        printStream.println(indents + "    └── " + this.getParenthesizedExpression().getClass().getSimpleName());
-        this.getParenthesizedExpression().printSyntaxAST(printStream, indents + "        ");
+        printStream.println(indents + "    └── " + this.getExpressionSyntaxAST().getClass().getSimpleName());
+        this.getExpressionSyntaxAST().printSyntaxAST(printStream, indents + "        ");
     }
     
 }

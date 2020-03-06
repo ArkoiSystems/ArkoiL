@@ -7,7 +7,6 @@ package com.arkoisystems.arkoicompiler.stage.semanticAnalyzer;
 
 import com.arkoisystems.arkoicompiler.ArkoiClass;
 import com.arkoisystems.arkoicompiler.stage.AbstractStage;
-import com.arkoisystems.arkoicompiler.stage.errorHandler.ErrorHandler;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.RootSemanticAST;
 import lombok.Getter;
 import lombok.SneakyThrows;
@@ -38,12 +37,13 @@ public class SemanticAnalyzer extends AbstractStage
     @SneakyThrows
     @Override
     public boolean processStage() {
-        return this.getRootSemanticAST().initialize() != null;
+        this.rootSemanticAST.initialize();
+        return !this.rootSemanticAST.isFailed();
     }
     
     
     @Override
-    public ErrorHandler errorHandler() {
+    public SemanticErrorHandler errorHandler() {
         return this.errorHandler;
     }
     

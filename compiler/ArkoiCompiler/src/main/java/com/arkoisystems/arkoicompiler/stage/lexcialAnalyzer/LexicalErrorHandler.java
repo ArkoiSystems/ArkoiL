@@ -5,7 +5,7 @@
  */
 package com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer;
 
-import com.arkoisystems.arkoicompiler.stage.errorHandler.AbstractError;
+import com.arkoisystems.arkoicompiler.stage.errorHandler.ArkoiError;
 import com.arkoisystems.arkoicompiler.stage.errorHandler.ErrorHandler;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxErrorHandler;
 
@@ -15,36 +15,35 @@ import java.util.List;
 
 /**
  * The implementation of the {@link ErrorHandler} for the {@link LexicalAnalyzer} which
- * needs to provide an {@link ErrorHandler}. It will just stores the {@link
- * AbstractError}s until it needs to print them.
+ * needs to provide an {@link ErrorHandler}. It will just stores the {@link ArkoiError}s
+ * until it needs to print them.
  */
 public class LexicalErrorHandler extends ErrorHandler
 {
     
     /**
-     * The {@link AbstractError} list which is used to store the thrown errors.
+     * The {@link ArkoiError} list which is used to store the thrown errors.
      */
-    private final List<AbstractError> abstractErrors = new ArrayList<>();
+    private final List<ArkoiError> abstractErrors = new ArrayList<>();
     
     
     /**
-     * Adds the given {@link AbstractError} to the {@link LexicalErrorHandler#abstractErrors}
+     * Adds the given {@link ArkoiError} to the {@link LexicalErrorHandler#abstractErrors}
      * list for later usage (see {@link SyntaxErrorHandler#printStackTrace(PrintStream)}).
      *
-     * @param abstractError
-     *         the given {@link AbstractError} which should get added to the {@link
+     * @param arkoiError
+     *         the given {@link ArkoiError} which is used added to the {@link
      *         LexicalErrorHandler#abstractErrors} list.
      */
-    @Override
-    public void addError(final AbstractError abstractError) {
-        this.abstractErrors.add(abstractError);
+    public void addError(final ArkoiError arkoiError) {
+        this.abstractErrors.add(arkoiError);
     }
     
     
     @Override
     public void printStackTrace(final PrintStream printStream) {
-        for (final AbstractError abstractError : this.abstractErrors)
-            printStream.println(abstractError.toString());
+        for (final ArkoiError arkoiError : this.abstractErrors)
+            printStream.println(arkoiError.toString());
     }
     
 }

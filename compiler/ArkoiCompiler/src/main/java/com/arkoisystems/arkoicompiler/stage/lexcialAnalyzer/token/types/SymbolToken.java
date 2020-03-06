@@ -5,9 +5,9 @@
  */
 package com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types;
 
-import com.arkoisystems.arkoicompiler.stage.errorHandler.types.LexicalError;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.LexicalAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken;
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.SymbolType;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
 import lombok.Getter;
 import lombok.Setter;
@@ -20,14 +20,16 @@ public class SymbolToken extends AbstractToken
     private SymbolType symbolType;
     
     
-    public SymbolToken() {
-        this.setTokenType(TokenType.SYMBOL);
+    public SymbolToken(final LexicalAnalyzer lexicalAnalyzer) {
+        super(lexicalAnalyzer, TokenType.SYMBOL);
     }
     
     
     @Override
-    public SymbolToken lex(final LexicalAnalyzer lexicalAnalyzer) {
-        final char currentChar = lexicalAnalyzer.currentChar();
+    public SymbolToken parseToken() {
+        final char currentChar = this.getLexicalAnalyzer().currentChar();
+        this.setTokenContent(String.valueOf(currentChar));
+        
         for (final SymbolType symbolType : SymbolType.values())
             if (symbolType.getCharacter() == currentChar) {
                 this.setSymbolType(symbolType);
@@ -35,57 +37,18 @@ public class SymbolToken extends AbstractToken
             }
         
         if (this.getSymbolType() == null) {
-            lexicalAnalyzer.errorHandler().addError(new LexicalError(lexicalAnalyzer.getArkoiClass(), lexicalAnalyzer.getPosition(), "Couldn't lex this symbol because it isn't supported."));
+            this.addError(
+                    this.getLexicalAnalyzer().getArkoiClass(),
+                    this.getLexicalAnalyzer().getPosition(),
+                    "Couldn't lex this symbol because it isn't supported."
+            );
             return null;
         } else {
-            this.setStart(lexicalAnalyzer.getPosition());
-            this.setEnd(lexicalAnalyzer.getPosition());
-            
-            lexicalAnalyzer.next();
+            this.setStart(this.getLexicalAnalyzer().getPosition());
+            this.setEnd(this.getLexicalAnalyzer().getPosition() + 1);
+            this.getLexicalAnalyzer().next();
         }
         return this;
-    }
-    
-    
-    public enum SymbolType
-    {
-        
-        AT_SIGN('@'),
-        
-        COLON(':'),
-        SEMICOLON(';'),
-        
-        OPENING_BRACE('{'),
-        CLOSING_BRACE('}'),
-        
-        OPENING_PARENTHESIS('('),
-        CLOSING_PARENTHESIS(')'),
-        
-        OPENING_BRACKET('['),
-        CLOSING_BRACKET(']'),
-        
-        COMMA(','),
-        PERIOD('.'),
-        
-        LESS_THAN_SIGN('<'),
-        GREATER_THAN_SIGN('>'),
-        
-        VERTICAL_BAR('|'),
-        AMPERSAND('&'),
-        EXCLAMATION_MARK('!'),
-        ASTERISK('*'),
-        EQUAL('='),
-        PERCENT('%'),
-        MINUS('-'),
-        SLASH('/'),
-        PLUS('+');
-    
-        @Getter
-        private final char character;
-        
-        SymbolType(final char character) {
-            this.character = character;
-        }
     }
     
 }

@@ -5,7 +5,7 @@
  */
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer;
 
-import com.arkoisystems.arkoicompiler.stage.errorHandler.AbstractError;
+import com.arkoisystems.arkoicompiler.stage.errorHandler.ArkoiError;
 import com.arkoisystems.arkoicompiler.stage.errorHandler.ErrorHandler;
 import lombok.NonNull;
 
@@ -15,35 +15,41 @@ import java.util.List;
 
 /**
  * The implementation of the {@link ErrorHandler} for the {@link SyntaxAnalyzer} which
- * needs to provide an {@link ErrorHandler}. It will just stores the {@link
- * AbstractError}s until it needs to print them.
+ * needs to provide an {@link ErrorHandler}. It will just stores the {@link ArkoiError}s
+ * until it needs to print them.
  */
 public class SyntaxErrorHandler extends ErrorHandler
 {
     
     /**
-     * The {@link AbstractError} list which is used to store the thrown errors.
+     * The {@link ArkoiError} list which is used to store the thrown errors.
      */
-    private final List<AbstractError> abstractErrors = new ArrayList<>();
+    private final List<ArkoiError> abstractErrors = new ArrayList<>();
     
     
     /**
-     * Adds the given {@link AbstractError} to the {@link SyntaxErrorHandler#abstractErrors}
+     * Adds the given {@link ArkoiError} to the {@link SyntaxErrorHandler#abstractErrors}
      * list for later usage (see {@link SyntaxErrorHandler#printStackTrace(PrintStream)}).
      *
-     * @param abstractError
-     *         the given {@link AbstractError} which should get added to the {@link
+     * @param arkoiError
+     *         the given {@link ArkoiError} which is used added to the {@link
      *         SyntaxErrorHandler#abstractErrors} list.
      */
-    @Override
-    public void addError(@NonNull final AbstractError abstractError) {
-        this.abstractErrors.add(abstractError);
+    public void addError(@NonNull final ArkoiError arkoiError) {
+        this.abstractErrors.add(arkoiError);
     }
     
     
+    /**
+     * Prints all {@link ArkoiError} which occurred during the analysing of the {@link
+     * SyntaxAnalyzer}.
+     *
+     * @param printStream
+     *         the {@link PrintStream} which is used to print all {@link ArkoiError}s.
+     */
     @Override
     public void printStackTrace(@NonNull final PrintStream printStream) {
-        for (final AbstractError abstractError : this.abstractErrors)
+        for (final ArkoiError abstractError : this.abstractErrors)
             printStream.println(abstractError.toString());
     }
     

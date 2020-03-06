@@ -1,0 +1,80 @@
+> **Basic examples to print a greeting using different languages:**
+> 
+> **_Kotlin:_**
+> ```kotlin
+> 01: fun main() = printGreet("Kotlin here.")
+> 02: 
+> 03: fun printGreet(test_argument: String) = println("${greeting()}, $test_argument")
+> 04: 
+> 05: fun greeting() = "Hello World"
+> ```
+> 
+> **_Java:_**
+> ```java
+> 01: package org.arkoisystems.arkoil.samples;
+> 02: 
+> 03: public class Main {
+> 04: 
+> 05:   public static void main(final String[] args) {
+> 06:       this.print_greet("Java here.");
+> 07:   }
+> 08:     
+> 09:   public static void print_greet(final String test_argument) {
+> 10:       System.out.println(greeting() + ", " + test_argument);
+> 11:   }
+> 12:     
+> 13:   public static String greeting() {
+> 14:       return "Hello World";
+> 15:   }
+> 16: 
+> 17: }
+> ```
+> 
+> **_Python:_**
+> ```python
+> 01: if __name__ == "__main__":
+> 02:     main()
+> 03: 
+> 04: fun main():
+> 05:     print_greet("Python here.")
+> 06:     
+> 07: fun print_greet(test_argument):
+> 08:     print("%s, %s" % (greeting(), test_argument))
+> 09:     
+> 10: fun greeting():
+> 11:     return "Hello World"
+> ```
+> 
+> **_C:_**
+> ```c
+> 01: #include <stdio.h>
+> 02: 
+> 03: void print_greet(char* test_argument);
+> 04: 
+> 05: char* greeting();
+> 06: 
+> 07: int main(int argc, char** argv) {
+> 08:     print_greet("C here.\r\n");
+> 09:     return 0;
+> 10: }
+> 11: 
+> 12: void print_greet(char* test_argument) {
+> 13:     printf("%s, %s", greeting(), test_argument);
+> 14: }
+> 15: 
+> 16: char* greeting() {
+> 17:     return "Hello World";
+> 18: }
+> ```
+> 
+> With **_Arkoi:_**
+> ```python
+> 01: fun main<int>() {
+> 02:     this.print_greet("Arkoi here.");
+> 03:     return 0;
+> 04: }
+> 05: 
+> 06: fun print_greet<>(test_argument: string) = println("%s, %s" % [this.greeting(), test_argument]);
+> 07: 
+> 08: fun greeting<>() = "Hello World";
+> ```

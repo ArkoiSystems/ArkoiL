@@ -5,13 +5,12 @@
  */
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.types;
 
-import com.arkoisystems.arkoicompiler.stage.errorHandler.types.SyntaxASTError;
-import com.arkoisystems.arkoicompiler.stage.errorHandler.types.TokenError;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.IdentifierToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.StringToken;
-import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.SymbolToken;
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.SymbolType;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxErrorType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.RootSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.AbstractStatementSyntaxAST;
@@ -31,68 +30,73 @@ public class ImportDefinitionSyntaxAST extends AbstractStatementSyntaxAST
     private IdentifierToken importName;
     
     
-    /**
-     * This constructor will initialize the statement with the AST-Type
-     * "IMPORT_STATEMENT_AST". This will help to debug problems or check the AST for
-     * correct syntax.
-     */
-    public ImportDefinitionSyntaxAST() {
-        super(ASTType.IMPORT_DEFINITION);
+    public ImportDefinitionSyntaxAST(final SyntaxAnalyzer syntaxAnalyzer) {
+        super(syntaxAnalyzer, ASTType.IMPORT_DEFINITION);
     }
     
     
-    /**
-     * This method will parse the "import" statement and checks it for the correct syntax.
-     * This statement can just be used inside a RootAST. This AST will import files into
-     * the next stages (Semantic Analysis etc.).
-     *
-     * @param parentAST
-     *         The parent of the ImportAST which only can be a RootAST.
-     * @param syntaxAnalyzer
-     *         The given SyntaxAnalyzer is used for checking the syntax of the current
-     *         Token list.
-     *
-     * @return It will return null if an error occurred or an AbstractStatementAST if it
-     *         parsed until to the end.
-     */
     @Override
-    public ImportDefinitionSyntaxAST parseAST(final AbstractSyntaxAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
+    public ImportDefinitionSyntaxAST parseAST(final AbstractSyntaxAST parentAST) {
         if (!(parentAST instanceof RootSyntaxAST)) {
-            syntaxAnalyzer.errorHandler().addError(new SyntaxASTError<>(syntaxAnalyzer.getArkoiClass(), parentAST, "Couldn't parse the \"import\" statement because it isn't declared inside the root file."));
+            this.addError(
+                    this.getSyntaxAnalyzer().getArkoiClass(),
+                    parentAST,
+                    SyntaxErrorType.IMPORT_DEFINITION_WRONG_PARENT
+            );
             return null;
         }
-    
-        if (syntaxAnalyzer.matchesCurrentToken(TokenType.IDENTIFIER) == null || !syntaxAnalyzer.currentToken().getTokenContent().equals("import")) {
-            syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the \"import\" statement because the parsing doesn't start with the \"import\" keyword."));
-            return null;
-        } else this.setStart(syntaxAnalyzer.currentToken().getStart());
-    
-        if (syntaxAnalyzer.matchesNextToken(TokenType.STRING_LITERAL) == null) {
-            syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the \"import\" statement because the \"import\" keyword isn't followed by an file path."));
-            return null;
-        } else {
-            this.importFilePath = (StringToken) syntaxAnalyzer.currentToken();
         
-            if (this.importFilePath.getTokenContent().endsWith(".ark"))
-                this.importFilePath.setTokenContent(this.importFilePath.getTokenContent().substring(0, this.importFilePath.getTokenContent().length() - 4));
+        if (this.getSyntaxAnalyzer().matchesCurrentToken(TokenType.IDENTIFIER) == null || !this.getSyntaxAnalyzer().currentToken().getTokenContent().equals("import")) {
+            this.addError(
+                    this.getSyntaxAnalyzer().getArkoiClass(),
+                    this.getSyntaxAnalyzer().currentToken(),
+                    SyntaxErrorType.IMPORT_DEFINITION_WRONG_START
+            );
+            return null;
         }
-    
-        if (syntaxAnalyzer.matchesPeekToken(1, TokenType.IDENTIFIER) != null && syntaxAnalyzer.peekToken(1).getTokenContent().equals("as")) {
-            syntaxAnalyzer.nextToken();
+        this.setStart(this.getSyntaxAnalyzer().currentToken().getStart());
         
-            if (syntaxAnalyzer.matchesNextToken(TokenType.IDENTIFIER) == null) {
-                syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the \"import\" statement because the \"named\" keyword isn't followed by an name identifier."));
+        if (this.getSyntaxAnalyzer().matchesNextToken(TokenType.STRING_LITERAL) == null) {
+            this.addError(
+                    this.getSyntaxAnalyzer().getArkoiClass(),
+                    this.getSyntaxAnalyzer().currentToken(),
+                    SyntaxErrorType.IMPORT_DEFINITION_NO_FILEPATH
+            );
+            return null;
+        }
+        
+        this.importFilePath = (StringToken) this.getSyntaxAnalyzer().currentToken();
+        if (this.importFilePath.getTokenContent().endsWith(".ark"))
+            this.importFilePath.setTokenContent(this.importFilePath.getTokenContent().substring(0, this.importFilePath.getTokenContent().length() - 4));
+        this.getSyntaxAnalyzer().nextToken();
+        
+        if (this.getSyntaxAnalyzer().matchesCurrentToken(TokenType.IDENTIFIER) != null && this.getSyntaxAnalyzer().currentToken().getTokenContent().equals("as")) {
+            if (this.getSyntaxAnalyzer().matchesNextToken(TokenType.IDENTIFIER) == null) {
+                this.addError(
+                        this.getSyntaxAnalyzer().getArkoiClass(),
+                        this.getSyntaxAnalyzer().currentToken(),
+                        SyntaxErrorType.IMPORT_DEFINITION_NOT_FOLLOWED_BY_NAME
+                );
                 return null;
-            } else this.importName = (IdentifierToken) syntaxAnalyzer.currentToken();
+            }
+            
+            this.importName = (IdentifierToken) this.getSyntaxAnalyzer().currentToken();
+            this.getSyntaxAnalyzer().nextToken();
         } else {
-            final String[] splittedPath = this.importFilePath.getTokenContent().split("/");
-            this.importName = new IdentifierToken(splittedPath[splittedPath.length - 1].replace(".ark", ""), -1, -1);
+            final String[] split = this.importFilePath.getTokenContent().split("/");
+            this.importName = new IdentifierToken(null, split[split.length - 1].replace(".ark", ""), -1, -1);
         }
-    
-        if (syntaxAnalyzer.matchesNextToken(SymbolToken.SymbolType.SEMICOLON) == null) {
-            syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the \"import\" statement because it doesn't end with a semicolon."));
+        
+        if (this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.SEMICOLON) == null) {
+            this.addError(
+                    this.getSyntaxAnalyzer().getArkoiClass(),
+                    this.getSyntaxAnalyzer().currentToken(),
+                    SyntaxErrorType.IMPORT_DEFINITION_WRONG_ENDING
+            );
             return null;
-        } else this.setEnd(syntaxAnalyzer.currentToken().getEnd());
+        }
+        
+        this.setEnd(this.getSyntaxAnalyzer().currentToken().getEnd());
         return this;
     }
     

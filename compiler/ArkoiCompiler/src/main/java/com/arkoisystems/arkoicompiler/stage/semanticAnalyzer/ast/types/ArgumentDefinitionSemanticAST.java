@@ -14,23 +14,17 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 public class ArgumentDefinitionSemanticAST extends AbstractSemanticAST<ArgumentDefinitionSyntaxAST>
 {
     
-    private IdentifierToken argumentName;
-    
-    
     private TypeSemanticAST argumentType;
     
     public ArgumentDefinitionSemanticAST(final SemanticAnalyzer semanticAnalyzer, final AbstractSemanticAST<?> lastContainerAST, final ArgumentDefinitionSyntaxAST argumentDefinitionSyntaxAST) {
         super(semanticAnalyzer, lastContainerAST, argumentDefinitionSyntaxAST, ASTType.ARGUMENT_DEFINITION);
-    
-        this.setStart(this.getSyntaxAST().getStart());
-        this.setEnd(this.getSyntaxAST().getEnd());
     }
+    
     
     public IdentifierToken getArgumentName() {
-        if(this.argumentName == null)
-            return (this.argumentName = this.getSyntaxAST().getArgumentName());
-        return this.argumentName;
+        return this.getSyntaxAST().getArgumentName();
     }
+    
     
     public TypeSemanticAST getArgumentType() {
         if(this.argumentType == null)

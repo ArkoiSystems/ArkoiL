@@ -1,6 +1,6 @@
 /*
  * Copyright © 2019-2020 ArkoiSystems (https://www.arkoisystems.com/) All Rights Reserved.
- * Created ArkoiCompiler on February 15, 2020
+ * Created ArkoiCompiler on March 7, 2020
  * Author timo aka. єхcsє#5543
  */
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer;
@@ -11,6 +11,7 @@ import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.LexicalAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.NumberToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.SymbolToken;
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.SymbolType;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.RootSyntaxAST;
@@ -95,8 +96,8 @@ public class SyntaxAnalyzer extends AbstractStage
     public boolean processStage() {
         this.tokens = this.arkoiClass.getLexicalAnalyzer().getTokens();
         this.position = 0;
-        
-        return this.rootSyntaxAST.parseAST(null, this) != null;
+    
+        return this.rootSyntaxAST.parseAST(null) != null && !this.isFailedStage();
     }
     
     
@@ -111,26 +112,16 @@ public class SyntaxAnalyzer extends AbstractStage
         return this.errorHandler;
     }
     
+    public SymbolToken matchesCurrentToken(@NonNull final SymbolType symbolType) {
+        return this.matchesCurrentToken(symbolType, true);
+    }
     
-    /**
-     * Checks if the current {@link AbstractToken} matches with the given {@link
-     * SymbolToken.SymbolType}. First of all it will check if the {@link AbstractToken}
-     * even is an instance of {@link SymbolToken}. If not it will return null or the
-     * {@link SymbolToken} which got checked for the {@link SymbolToken.SymbolType}.
-     *
-     * @param symbolType
-     *         the {@link SymbolToken.SymbolType} which should get used to compare with
-     *         the current {@link AbstractToken} if it's an instance of {@link
-     *         SymbolToken}.
-     *
-     * @return {@code null} if the current {@link AbstractToken} is not an {@link
-     *         SymbolToken} or the {@link SymbolToken.SymbolType} doesn't match.
-     */
-    public SymbolToken matchesCurrentToken(@NonNull final SymbolToken.SymbolType symbolType) {
-        final AbstractToken currentToken = this.currentToken();
+    
+    public SymbolToken matchesCurrentToken(@NonNull final SymbolType symbolType, final boolean skipWhitespaces) {
+        final AbstractToken currentToken = this.currentToken(skipWhitespaces);
         if (!(currentToken instanceof SymbolToken))
             return null;
-    
+        
         final SymbolToken symbolToken = (SymbolToken) currentToken;
         if (symbolToken.getSymbolType() != symbolType)
             return null;
@@ -138,24 +129,16 @@ public class SyntaxAnalyzer extends AbstractStage
     }
     
     
-    /**
-     * Checks if the next {@link AbstractToken} matches with the given {@link
-     * SymbolToken.SymbolType}. First of all it will check if the {@link AbstractToken}
-     * even is an instance of {@link SymbolToken}. If not it will return null or the
-     * {@link SymbolToken} which got checked for the {@link SymbolToken.SymbolType}.
-     *
-     * @param symbolType
-     *         the {@link SymbolToken.SymbolType} which should get used to compare with
-     *         the next {@link AbstractToken} if it's an instance of {@link SymbolToken}.
-     *
-     * @return {@code null} if the next {@link AbstractToken} is not an {@link
-     *         SymbolToken} or the {@link SymbolToken.SymbolType} doesn't match.
-     */
-    public SymbolToken matchesNextToken(@NonNull final SymbolToken.SymbolType symbolType) {
-        final AbstractToken nextToken = this.nextToken();
+    public SymbolToken matchesNextToken(@NonNull final SymbolType symbolType) {
+        return this.matchesNextToken(symbolType, true);
+    }
+    
+    
+    public SymbolToken matchesNextToken(@NonNull final SymbolType symbolType, final boolean skipWhitespaces) {
+        final AbstractToken nextToken = this.nextToken(skipWhitespaces);
         if (!(nextToken instanceof SymbolToken))
             return null;
-    
+        
         final SymbolToken symbolToken = (SymbolToken) nextToken;
         if (symbolToken.getSymbolType() != symbolType)
             return null;
@@ -163,34 +146,19 @@ public class SyntaxAnalyzer extends AbstractStage
     }
     
     
-    /**
-     * Check if the peeked {@link AbstractToken} matches with the given {@link
-     * SymbolToken.SymbolType}. At first it will check if the {@code offset} parameter
-     * equal to 0 because it will then just return the result of {@link
-     * SyntaxAnalyzer#matchesCurrentToken(SymbolToken.SymbolType)}. If not it will check
-     * if the peeked {@link AbstractToken} is an instance of {@link SymbolToken} and
-     * depending of that it will check for the match of the {@link SymbolToken.SymbolType}
-     * or simply just return null.
-     *
-     * @param offset
-     *         the offset which should get added to the current position.
-     * @param symbolType
-     *         the {@link SymbolToken.SymbolType} which should get used to compare the
-     *         peeked {@link AbstractToken}.
-     *
-     * @return {@code null} if the peeked {@link AbstractToken} isn't an instance of
-     *         {@link SymbolToken} or it doesn't match the given {@link
-     *         SymbolToken.SymbolType}. If it does it will just return the peeked {@link
-     *         AbstractToken}.
-     */
-    public SymbolToken matchesPeekToken(final int offset, @NonNull final SymbolToken.SymbolType symbolType) {
-        if (offset == 0)
-            return this.matchesCurrentToken(symbolType);
+    public SymbolToken matchesPeekToken(final int offset, @NonNull final SymbolType symbolType) {
+        return this.matchesPeekToken(offset, symbolType, true);
+    }
     
-        final AbstractToken peekToken = this.peekToken(offset);
+    
+    public SymbolToken matchesPeekToken(final int offset, @NonNull final SymbolType symbolType, final boolean skipWhitespaces) {
+        if (offset == 0)
+            return this.matchesCurrentToken(symbolType, skipWhitespaces);
+        
+        final AbstractToken peekToken = this.peekToken(offset, skipWhitespaces);
         if (!(peekToken instanceof SymbolToken))
             return null;
-    
+        
         final SymbolToken symbolToken = (SymbolToken) peekToken;
         if (symbolToken.getSymbolType() != symbolType)
             return null;
@@ -198,134 +166,149 @@ public class SyntaxAnalyzer extends AbstractStage
     }
     
     
-    /**
-     * Checks if the current {@link AbstractToken} matches with the given {@link
-     * TokenType}. If not it will return null or the {@link NumberToken} which got checked
-     * for the {@link TokenType}.
-     *
-     * @param tokenType
-     *         the {@link TokenType} which should get used to compare with the current
-     *         {@link AbstractToken}.
-     *
-     * @return {@code null} if the current {@link AbstractToken} doesn't match the given
-     *         {@link TokenType}. If it does it will just return the peeked {@link
-     *         AbstractToken}.
-     */
     public AbstractToken matchesCurrentToken(@NonNull final TokenType tokenType) {
-        final AbstractToken currentToken = this.currentToken();
+        return this.matchesCurrentToken(tokenType, true);
+    }
+    
+    
+    public AbstractToken matchesCurrentToken(@NonNull final TokenType tokenType, final boolean skipWhitespaces) {
+        final AbstractToken currentToken = this.currentToken(skipWhitespaces);
         if (currentToken.getTokenType() != tokenType)
             return null;
         return currentToken;
     }
     
     
-    /**
-     * Checks if the next {@link AbstractToken} matches with the given {@link TokenType}.
-     * If not it will return null or the {@link SymbolToken} which got checked for the
-     * {@link SymbolToken.SymbolType}.
-     *
-     * @param tokenType
-     *         the {@link TokenType} which should get used to compare with the next {@link
-     *         AbstractToken}.
-     *
-     * @return {@code null} if the next {@link AbstractToken} doesn't match the given
-     *         {@link TokenType}. If it does it will just return the peeked {@link
-     *         AbstractToken}.
-     */
     public AbstractToken matchesNextToken(@NonNull final TokenType tokenType) {
-        final AbstractToken nextToken = this.nextToken();
+        return this.matchesNextToken(tokenType, true);
+    }
+    
+    
+    public AbstractToken matchesNextToken(@NonNull final TokenType tokenType, final boolean skipWhitespaces) {
+        final AbstractToken nextToken = this.nextToken(skipWhitespaces);
         if (nextToken.getTokenType() != tokenType)
             return null;
         return nextToken;
     }
     
     
-    /**
-     * Check if the peeked {@link AbstractToken} matches with the given {@link TokenType}.
-     * At first it will check if the {@code offset} parameter equal to 0 because it will
-     * then just return the result of {@link SyntaxAnalyzer#matchesCurrentToken(TokenType)}.
-     * If not it will check if the {@link TokenType} matches and depending of that it will
-     * return null or the {@link AbstractToken}.
-     *
-     * @param offset
-     *         the offset which should get added to the current position.
-     * @param tokenType
-     *         the {@link TokenType} which should get used to compare the peeked {@link
-     *         AbstractToken}.
-     *
-     * @return {@code null} if the peeked {@link AbstractToken} doesn't match the given
-     *         {@link TokenType}. If it does it will just return the peeked {@link
-     *         AbstractToken}.
-     */
     public AbstractToken matchesPeekToken(final int offset, @NonNull final TokenType tokenType) {
-        if (offset == 0)
-            return this.matchesCurrentToken(tokenType);
+        return this.matchesPeekToken(offset, tokenType, true);
+    }
     
-        final AbstractToken peekToken = this.peekToken(offset);
+    
+    public AbstractToken matchesPeekToken(final int offset, @NonNull final TokenType tokenType, final boolean skipWhitespaces) {
+        if (offset == 0)
+            return this.matchesCurrentToken(tokenType, skipWhitespaces);
+    
+        final AbstractToken peekToken = this.peekToken(offset, skipWhitespaces);
         if (peekToken.getTokenType() != tokenType)
             return null;
         return peekToken;
     }
     
     
-    /**
-     * Returns the peeked {@link AbstractToken} with the offset declared as a parameter
-     * {@code offset}. If the offset goes out of bounds, it will just return the last
-     * {@link AbstractToken} of the array.
-     *
-     * @param offset
-     *         the offset which should get added to the current position.
-     *
-     * @return an {@link AbstractToken} which is used in the later process.
-     */
     public AbstractToken peekToken(final int offset) {
-        if (this.position + offset >= this.tokens.length)
-            return this.tokens[this.tokens.length - 1];
-        return this.tokens[this.position + offset];
+        return this.peekToken(offset, true);
     }
     
     
-    /**
-     * Returns the current {@link AbstractToken} and returns the last {@link
-     * AbstractToken} of the array if it went out of bounds.
-     *
-     * @return an {@link AbstractToken} which is used in the later process.
-     */
+    public AbstractToken peekToken(final int offset, final boolean skipWhitespaces) {
+        AbstractToken abstractToken = null;
+        for (int index = 0; index < offset; index++)
+            abstractToken = this.nextToken(skipWhitespaces);
+        for (int index = 0; index < offset; index++)
+            this.undoToken(skipWhitespaces);
+        return abstractToken;
+    }
+    
+    
     public AbstractToken currentToken() {
+        return this.currentToken(true);
+    }
+    
+    
+    public AbstractToken currentToken(final boolean skipWhitespaces) {
+        if (skipWhitespaces) {
+            while (this.position < this.tokens.length) {
+                if (this.tokens[this.position].getTokenType() != TokenType.WHITESPACE)
+                    break;
+                this.position++;
+            }
+        }
+        
         if (this.position >= this.tokens.length)
             return this.tokens[this.tokens.length - 1];
         return this.tokens[position];
     }
     
     
-    /**
-     * Returns the next {@link AbstractToken} with an offset. It will return the last
-     * {@link AbstractToken} in the array if it went out of bounds.
-     *
-     * @param offset
-     *         the offset which should get added to the current position.
-     *
-     * @return an {@link AbstractToken} which is used in the later process.
-     */
     public AbstractToken nextToken(final int offset) {
-        this.position += offset;
-        if (this.position >= this.tokens.length)
-            return this.tokens[this.tokens.length - 1];
-        return this.currentToken();
+        return this.nextToken(offset, true);
     }
     
     
-    /**
-     * Returns the next {@link AbstractToken} without any offset. It will return the last
-     * {@link AbstractToken} in the array if it went out of bounds.
-     *
-     * @return an {@link AbstractToken} which is used in the later process.
-     */
+    public AbstractToken nextToken(final int offset, final boolean skipWhitespaces) {
+        AbstractToken abstractToken = null;
+        for (int index = 0; index < offset; index++)
+            abstractToken = this.nextToken(skipWhitespaces);
+        return abstractToken;
+    }
+    
+    
     public AbstractToken nextToken() {
+        return this.nextToken(true);
+    }
+    
+    
+    public AbstractToken nextToken(final boolean skipWhitespaces) {
         this.position++;
+        
+        if (skipWhitespaces) {
+            while (this.position < this.tokens.length) {
+                if (this.tokens[this.position].getTokenType() != TokenType.WHITESPACE)
+                    break;
+                this.position++;
+            }
+        }
+        
         if (this.position >= this.tokens.length)
             return this.tokens[this.tokens.length - 1];
-        return this.currentToken();
+        return this.tokens[this.position];
+    }
+    
+    
+    public AbstractToken undoToken() {
+        return this.undoToken(true);
+    }
+    
+    
+    public AbstractToken undoToken(final boolean skipWhitespaces) {
+        this.position--;
+        
+        if (skipWhitespaces) {
+            while (this.position > 0) {
+                if (this.tokens[this.position].getTokenType() != TokenType.WHITESPACE)
+                    break;
+                this.position--;
+            }
+        }
+        
+        if (this.position < 0)
+            return this.tokens[0];
+        return this.tokens[this.position];
+    }
+    
+    public AbstractToken undoToken(final int offset) {
+        return this.undoToken(offset, true);
+    }
+    
+    
+    public AbstractToken undoToken(final int offset, final boolean skipWhitespaces) {
+        AbstractToken abstractToken = null;
+        for (int index = 0; index < offset; index++)
+            abstractToken = this.undoToken(skipWhitespaces);
+        return abstractToken;
     }
     
 }

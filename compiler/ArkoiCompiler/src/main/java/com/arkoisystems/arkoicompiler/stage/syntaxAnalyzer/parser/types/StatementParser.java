@@ -41,7 +41,7 @@ public class StatementParser extends AbstractParser<AbstractSyntaxAST>
      */
     @Override
     public AbstractSyntaxAST parse(final AbstractSyntaxAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
-        return new AbstractStatementSyntaxAST(null).parseAST(parentAST, syntaxAnalyzer);
+        return new AbstractStatementSyntaxAST(syntaxAnalyzer, null).parseAST(parentAST);
     }
     
     

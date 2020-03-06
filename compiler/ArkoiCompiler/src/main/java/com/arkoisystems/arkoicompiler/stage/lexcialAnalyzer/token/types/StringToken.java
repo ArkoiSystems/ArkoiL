@@ -5,7 +5,6 @@
  */
 package com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types;
 
-import com.arkoisystems.arkoicompiler.stage.errorHandler.types.LexicalError;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.LexicalAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
@@ -15,37 +14,47 @@ import java.util.Arrays;
 public class StringToken extends AbstractToken
 {
     
-    public StringToken() {
-        this.setTokenType(TokenType.STRING_LITERAL);
+    public StringToken(final LexicalAnalyzer lexicalAnalyzer) {
+        super(lexicalAnalyzer, TokenType.STRING_LITERAL);
     }
     
     
     @Override
-    public StringToken lex(final LexicalAnalyzer lexicalAnalyzer) {
-        if(lexicalAnalyzer.currentChar() != '"') {
-            lexicalAnalyzer.errorHandler().addError(new LexicalError(lexicalAnalyzer.getArkoiClass(), lexicalAnalyzer.getPosition(), "Couldn't lex the string because it doesn't start with an \"."));
+    public StringToken parseToken() {
+        if (this.getLexicalAnalyzer().currentChar() != '"') {
+            this.addError(
+                    this.getLexicalAnalyzer().getArkoiClass(),
+                    this.getLexicalAnalyzer().getPosition(),
+                    "Couldn't lex the string because it doesn't start with an \"."
+            );
             return null;
-        } else lexicalAnalyzer.next();
+        } else this.getLexicalAnalyzer().next();
         
-        this.setStart(lexicalAnalyzer.getPosition() - 1);
-        while (lexicalAnalyzer.getPosition() < lexicalAnalyzer.getArkoiClass().getContent().length) {
-            final char currentChar = lexicalAnalyzer.currentChar();
-        
-            if (currentChar == '"') {
-                this.setEnd(lexicalAnalyzer.getPosition());
+        this.setStart(this.getLexicalAnalyzer().getPosition() - 1);
+        char lastChar = ' ';
+        while (this.getLexicalAnalyzer().getPosition() < this.getLexicalAnalyzer().getArkoiClass().getContent().length) {
+            final char currentChar = this.getLexicalAnalyzer().currentChar();
+            if (lastChar != '\\' && currentChar == '"') {
+                this.setEnd(this.getLexicalAnalyzer().getPosition());
                 break;
             } else if (currentChar == 0x0A || currentChar == 0x0D)
                 break;
-            lexicalAnalyzer.next();
+            lastChar = currentChar;
+            this.getLexicalAnalyzer().next();
         }
-    
-        if (lexicalAnalyzer.currentChar() != '"') {
-            lexicalAnalyzer.errorHandler().addError(new LexicalError(lexicalAnalyzer.getArkoiClass(), this.getStart(), lexicalAnalyzer.getPosition(), "The defined string doesn't end with another double quote:"));
+        
+        if (this.getLexicalAnalyzer().currentChar() != '"') {
+            this.addError(
+                    this.getLexicalAnalyzer().getArkoiClass(),
+                    this.getStart(),
+                    this.getLexicalAnalyzer().getPosition(),
+                    "The defined string doesn't end with another double quote:"
+            );
             return null;
         }
-    
-        this.setTokenContent(new String(Arrays.copyOfRange(lexicalAnalyzer.getArkoiClass().getContent(), this.getStart() + 1, this.getEnd())).intern());
-        lexicalAnalyzer.next();
+        
+        this.setTokenContent(new String(Arrays.copyOfRange(this.getLexicalAnalyzer().getArkoiClass().getContent(), this.getStart() + 1, this.getEnd())).intern());
+        this.getLexicalAnalyzer().next();
         return this;
     }
     

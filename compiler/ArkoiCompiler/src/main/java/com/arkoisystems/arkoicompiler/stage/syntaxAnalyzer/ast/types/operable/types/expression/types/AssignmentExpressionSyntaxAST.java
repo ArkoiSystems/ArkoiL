@@ -9,8 +9,10 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.AbstractOperableSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.AbstractExpressionSyntaxAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.operators.AssignmentOperatorType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.io.PrintStream;
 
@@ -18,31 +20,30 @@ public class AssignmentExpressionSyntaxAST extends AbstractExpressionSyntaxAST
 {
     
     @Getter
-    private final AbstractOperableSyntaxAST<?> leftSideOperable;
+    @Setter
+    private AssignmentOperatorType assignmentOperatorType;
     
     
     @Getter
-    private final AssignmentOperator assignmentOperator;
+    @Setter
+    private AbstractOperableSyntaxAST<?> leftSideOperable, rightSideOperable;
     
     
-    @Getter
-    private final AbstractOperableSyntaxAST<?> rightSideOperable;
-    
-    
-    public AssignmentExpressionSyntaxAST(final AbstractOperableSyntaxAST<?> leftSideOperable, final AssignmentOperator assignmentOperator, final AbstractOperableSyntaxAST<?> rightSideOperable) {
-        super(ASTType.ASSIGNMENT_EXPRESSION);
+    public AssignmentExpressionSyntaxAST(final SyntaxAnalyzer syntaxAnalyzer, final AbstractOperableSyntaxAST<?> leftSideOperable, final AssignmentOperatorType assignmentOperatorType, final AbstractOperableSyntaxAST<?> rightSideOperable) {
+        super(syntaxAnalyzer, ASTType.ASSIGNMENT_EXPRESSION);
         
-        this.assignmentOperator = assignmentOperator;
         this.rightSideOperable = rightSideOperable;
         this.leftSideOperable = leftSideOperable;
-    
-        this.setStart(leftSideOperable.getStart());
-        this.setEnd(rightSideOperable.getEnd());
+        
+        this.assignmentOperatorType = assignmentOperatorType;
+        
+        this.setStart(this.leftSideOperable.getStart());
+        this.setEnd(this.rightSideOperable.getEnd());
     }
     
     
     @Override
-    public AssignmentExpressionSyntaxAST parseAST(final AbstractSyntaxAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
+    public AbstractOperableSyntaxAST<?> parseAST(final AbstractSyntaxAST parentAST) {
         return this;
     }
     
@@ -52,23 +53,10 @@ public class AssignmentExpressionSyntaxAST extends AbstractExpressionSyntaxAST
         printStream.println(indents + "├── left:");
         printStream.println(indents + "│   └── " + this.getLeftSideOperable().getClass().getSimpleName());
         this.getLeftSideOperable().printSyntaxAST(printStream, indents + "│        ");
-        printStream.println(indents + "├── operator: " + this.getAssignmentOperator());
+        printStream.println(indents + "├── operator: " + this.getAssignmentOperatorType());
         printStream.println(indents + "└── right:");
         printStream.println(indents + "    └── " + this.getRightSideOperable().getClass().getSimpleName());
         this.getRightSideOperable().printSyntaxAST(printStream, indents + "        ");
-    }
-    
-    
-    public enum AssignmentOperator
-    {
-        
-        ASSIGN,
-        ADD_ASSIGN,
-        SUB_ASSIGN,
-        MUL_ASSIGN,
-        DIV_ASSIGN,
-        MOD_ASSIGN
-        
     }
     
 }

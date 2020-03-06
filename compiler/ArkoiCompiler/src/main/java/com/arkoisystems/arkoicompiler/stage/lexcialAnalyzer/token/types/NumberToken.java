@@ -5,7 +5,6 @@
  */
 package com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types;
 
-import com.arkoisystems.arkoicompiler.stage.errorHandler.types.LexicalError;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.LexicalAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
@@ -19,22 +18,26 @@ import java.util.Arrays;
 public class NumberToken extends AbstractToken
 {
     
-    public NumberToken() {
-        this.setTokenType(TokenType.NUMBER_LITERAL);
+    public NumberToken(final LexicalAnalyzer lexicalAnalyzer) {
+        super(lexicalAnalyzer, TokenType.NUMBER_LITERAL);
     }
     
     
     @Override
-    public NumberToken lex(final LexicalAnalyzer lexicalAnalyzer) {
-        if (!Character.isDigit(lexicalAnalyzer.currentChar()) && lexicalAnalyzer.currentChar() != '.') {
-            lexicalAnalyzer.errorHandler().addError(new LexicalError(lexicalAnalyzer.getArkoiClass(), lexicalAnalyzer.getPosition(), "Couldn't lex the number because it doesn't start with a digit or dot."));
+    public NumberToken parseToken() {
+        if (!Character.isDigit(this.getLexicalAnalyzer().currentChar()) && this.getLexicalAnalyzer().currentChar() != '.') {
+            this.addError(
+                    this.getLexicalAnalyzer().getArkoiClass(),
+                    this.getLexicalAnalyzer().getPosition(),
+                    "Couldn't lex the number because it doesn't start with a digit or dot."
+            );
             return null;
-        } else this.setStart(lexicalAnalyzer.getPosition());
+        } else this.setStart(this.getLexicalAnalyzer().getPosition());
         
-        if (lexicalAnalyzer.currentChar() == '0' && lexicalAnalyzer.peekChar(1) == 'x') {
-            lexicalAnalyzer.next(2);
+        if (this.getLexicalAnalyzer().currentChar() == '0' && this.getLexicalAnalyzer().peekChar(1) == 'x') {
+            this.getLexicalAnalyzer().next(2);
             for (int i = 0; i < 8; i++) {
-                final int currentChar = lexicalAnalyzer.currentChar();
+                final int currentChar = this.getLexicalAnalyzer().currentChar();
                 switch (currentChar) {
                     case 'a':
                     case 'A':
@@ -64,29 +67,29 @@ public class NumberToken extends AbstractToken
                 }
             }
         } else {
-            while (lexicalAnalyzer.getPosition() < lexicalAnalyzer.getArkoiClass().getContent().length) {
-                final int currentChar = lexicalAnalyzer.currentChar();
+            while (this.getLexicalAnalyzer().getPosition() < this.getLexicalAnalyzer().getArkoiClass().getContent().length) {
+                final int currentChar = this.getLexicalAnalyzer().currentChar();
                 if (!Character.isDigit(currentChar))
                     break;
-                lexicalAnalyzer.next();
+                this.getLexicalAnalyzer().next();
             }
             
-            if (lexicalAnalyzer.currentChar() == '.') {
-                lexicalAnalyzer.next();
+            if (this.getLexicalAnalyzer().currentChar() == '.') {
+                this.getLexicalAnalyzer().next();
                 
-                while (lexicalAnalyzer.getPosition() < lexicalAnalyzer.getArkoiClass().getContent().length) {
-                    final int currentChar = lexicalAnalyzer.currentChar();
+                while (this.getLexicalAnalyzer().getPosition() < this.getLexicalAnalyzer().getArkoiClass().getContent().length) {
+                    final int currentChar = this.getLexicalAnalyzer().currentChar();
                     if (!Character.isDigit(currentChar))
                         break;
-                    lexicalAnalyzer.next();
+                    this.getLexicalAnalyzer().next();
                 }
             }
         }
-        this.setEnd(lexicalAnalyzer.getPosition());
+        this.setEnd(this.getLexicalAnalyzer().getPosition());
         
-        this.setTokenContent(new String(Arrays.copyOfRange(lexicalAnalyzer.getArkoiClass().getContent(), this.getStart(), this.getEnd())).intern());
+        this.setTokenContent(new String(Arrays.copyOfRange(this.getLexicalAnalyzer().getArkoiClass().getContent(), this.getStart(), this.getEnd())).intern());
         if (this.getTokenContent().equals(".")) {
-            lexicalAnalyzer.undo();
+            this.getLexicalAnalyzer().undo();
             return null;
         } else return this;
     }

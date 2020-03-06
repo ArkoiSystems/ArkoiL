@@ -1,22 +1,21 @@
 import "./test" as test;
 
-var test_1 = test.test();
-var test_2 = this.greeting(1, 3);
-var test_3 = (++20 + -10 * 5)i * 2f;
+var test_1 = 1;
+
+var test_2 = this.greeting();
+
+var test_3 = (test_1 - (test_1 += 4 + -10) * 5)i * 2f;
 
 # this method gets invoked first
 fun main<int>(args: string[]) {
     var test_1 = "Hello";
     var test_3 = this.test_1;
     var test_6 = 1;
-    var args = "Test";
     
     this.print_greet(test_1);
-    return (20++ + -10 * 5f) * 2 + (test_6 += 1);
+    return (20++ + -10 * 5f) * 2 ** 3 ** 4 + (test_6 += 1);
 }
 
 fun print_greet<>(test_argument: string) = println("%s , %s" % [test_2, test_argument]);
 
 fun greeting<string>() = "Hello World";
-
-fun greeting<string>(test: int, test_2: int) = "Hello World";

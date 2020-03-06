@@ -37,7 +37,7 @@ public class FunctionParser extends AbstractParser<FunctionDefinitionSyntaxAST>
      */
     @Override
     public FunctionDefinitionSyntaxAST parse(final AbstractSyntaxAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
-        return new FunctionDefinitionSyntaxAST().parseAST(parentAST, syntaxAnalyzer);
+        return new FunctionDefinitionSyntaxAST(syntaxAnalyzer).parseAST(parentAST);
     }
     
     

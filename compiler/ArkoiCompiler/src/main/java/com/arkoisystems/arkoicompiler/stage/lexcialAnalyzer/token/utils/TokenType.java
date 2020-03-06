@@ -8,6 +8,7 @@ package com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils;
 public enum TokenType
 {
     
+    WHITESPACE,
     COMMENT,
     SYMBOL,
     

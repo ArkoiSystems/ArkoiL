@@ -5,13 +5,13 @@
  */
 package com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.types;
 
-import com.arkoisystems.arkoicompiler.stage.errorHandler.types.SemanticASTError;
-import com.arkoisystems.arkoicompiler.stage.errorHandler.types.SyntaxASTError;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.SemanticAnalyzer;
+import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.SemanticErrorType;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.AbstractSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.AbstractOperableSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.statements.FunctionDefinitionSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.statements.ImportDefinitionSemanticAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.FunctionInvokeOperableSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.IdentifierInvokeOperableSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTAccess;
@@ -41,20 +41,7 @@ public class IdentifierInvokeOperableSemanticAST extends AbstractOperableSemanti
         if (invokedPostStatement instanceof FunctionInvokeOperableSemanticAST) {
             final FunctionInvokeOperableSemanticAST functionInvokeOperableSemanticAST = (FunctionInvokeOperableSemanticAST) invokedPostStatement;
             return functionInvokeOperableSemanticAST.getOperableObject();
-        } else if (invokedPostStatement instanceof IdentifierInvokeOperableSemanticAST) {
-            final IdentifierInvokeOperableSemanticAST identifierInvokeOperableSemanticAST = (IdentifierInvokeOperableSemanticAST) invokedPostStatement;
-            return identifierInvokeOperableSemanticAST.getOperableObject();
-        } else if (invokedPostStatement instanceof IdentifierCallOperableSemanticAST) {
-            final IdentifierCallOperableSemanticAST identifierCallOperableSemanticAST = (IdentifierCallOperableSemanticAST) invokedPostStatement;
-            return identifierCallOperableSemanticAST.getOperableObject();
-        } else {
-            this.getSemanticAnalyzer().errorHandler().addError(new SemanticASTError<>(
-                    this.getSemanticAnalyzer().getArkoiClass(),
-                    new AbstractSemanticAST[] { invokedPostStatement },
-                    "Couldn't analyze this identifier invoke because the followed statement isn't supported."
-            ));
-            return null;
-        }
+        } else return null;
     }
     
     
@@ -74,7 +61,11 @@ public class IdentifierInvokeOperableSemanticAST extends AbstractOperableSemanti
             if (abstractSemanticAST == null)
                 abstractSemanticAST = this.getSemanticAnalyzer().getRootSemanticAST().findIdentifier(this.getSyntaxAST().getInvokedIdentifier());
             if (abstractSemanticAST == null) {
-                this.getSemanticAnalyzer().errorHandler().addError(new SyntaxASTError<>(this.getSemanticAnalyzer().getArkoiClass(), this.getSyntaxAST(), "Couldn't analyze this identifier invoke because there is no existing identifier with this name."));
+                this.addError(
+                        this.getSemanticAnalyzer().getArkoiClass(),
+                        this.getSyntaxAST(),
+                        SemanticErrorType.IDENTIFIER_INVOKE_NO_SUCH_IDENTIFIER
+                );
                 return null;
             }
             return (this.invokedIdentifier = abstractSemanticAST);
@@ -103,19 +94,28 @@ public class IdentifierInvokeOperableSemanticAST extends AbstractOperableSemanti
             
             if (invokedIdentifier instanceof ImportDefinitionSemanticAST) {
                 final ImportDefinitionSemanticAST importDefinitionSemanticAST = (ImportDefinitionSemanticAST) invokedIdentifier;
-                
+                if (importDefinitionSemanticAST.getImportTargetClass() == null) {
+                    this.addError(
+                            this.getSemanticAnalyzer().getArkoiClass(), this.getSyntaxAST().getInvokePostStatement(), SemanticErrorType.IDENTIFIER_INVOKE_IMPORT_NOT_VALID
+                    );
+                    return null;
+                }
+    
                 if (this.getSyntaxAST().getInvokePostStatement() instanceof FunctionInvokeOperableSyntaxAST) {
                     final FunctionInvokeOperableSyntaxAST functionInvokeOperableSyntaxAST = (FunctionInvokeOperableSyntaxAST) this.getSyntaxAST().getInvokePostStatement();
                     final FunctionInvokeOperableSemanticAST functionInvokeOperableSemanticAST
-                            = new FunctionInvokeOperableSemanticAST(importDefinitionSemanticAST.getImportTargetClass().getSemanticAnalyzer(), this.getLastContainerAST(), functionInvokeOperableSyntaxAST);
-                    
-                    if (functionInvokeOperableSemanticAST.getInvokedFunction() == null)
-                        return null;
-                    if (functionInvokeOperableSyntaxAST.getInvokedExpressions() == null)
-                        return null;
+                            = new FunctionInvokeOperableSemanticAST(importDefinitionSemanticAST.getImportTargetClass().getSemanticAnalyzer(), this, this.getLastContainerAST(), functionInvokeOperableSyntaxAST);
+        
+                    functionInvokeOperableSemanticAST.getInvokedFunction();
+                    functionInvokeOperableSemanticAST.getInvokedExpressions();
+        
+                    if (functionInvokeOperableSemanticAST.isFailed())
+                        this.setFailed(true);
                     this.invokePostStatement = functionInvokeOperableSemanticAST;
                 } else {
-                    this.getSemanticAnalyzer().errorHandler().addError(new SyntaxASTError<>(this.getSemanticAnalyzer().getArkoiClass(), this.getSyntaxAST().getInvokePostStatement(), "Couldn't analyze this AST because it isn't supported by the identifier invoke operable."));
+                    this.addError(
+                            this.getSemanticAnalyzer().getArkoiClass(), this.getSyntaxAST().getInvokePostStatement(), SemanticErrorType.IDENTIFIER_INVOKE_STATEMENT_NOT_SUPPORTED
+                    );
                     return null;
                 }
             }

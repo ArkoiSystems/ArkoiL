@@ -8,7 +8,6 @@ package com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.statemen
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.SemanticAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.AbstractSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.types.expression.types.ExpressionSemanticAST;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types.ExpressionSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.types.ReturnStatementSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 
@@ -25,11 +24,13 @@ public class ReturnStatementSemanticAST extends AbstractSemanticAST<ReturnStatem
     
     public ExpressionSemanticAST getReturnExpression() {
         if(this.returnExpression == null) {
-            final ExpressionSyntaxAST expressionSyntaxAST = this.getSyntaxAST().getReturnExpression();
             this.returnExpression
-                    = new ExpressionSemanticAST(this.getSemanticAnalyzer(), this.getLastContainerAST(), expressionSyntaxAST);
-            if(this.returnExpression.getOperableObject() == null)
-                return null;
+                    = new ExpressionSemanticAST(this.getSemanticAnalyzer(), this.getLastContainerAST(), this.getSyntaxAST().getReturnExpression());
+
+            this.returnExpression.getOperableObject();
+
+            if (this.returnExpression.isFailed())
+                this.setFailed(true);
         }
         return this.returnExpression;
     }

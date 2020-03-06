@@ -5,13 +5,11 @@
  */
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.types;
 
-import com.arkoisystems.arkoicompiler.stage.errorHandler.types.ParserError;
-import com.arkoisystems.arkoicompiler.stage.errorHandler.types.SyntaxASTError;
-import com.arkoisystems.arkoicompiler.stage.errorHandler.types.TokenError;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.IdentifierToken;
-import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.SymbolToken;
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.SymbolType;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxErrorType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.AnnotationSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.BlockSyntaxAST;
@@ -42,92 +40,85 @@ public class VariableDefinitionSyntaxAST extends AbstractStatementSyntaxAST
     private ExpressionSyntaxAST variableExpression;
     
     
-    /**
-     * This constructor will initialize the statement with the AST-Type
-     * "VARIABLE_DEFINITION". This will help to debug problems or check the AST for
-     * correct usage. Also it will pass previous parsed annotations through the
-     * constructor.
-     *
-     * @param annotationSyntaxAST
-     *         The AnnotationAST which should get used.
-     */
-    public VariableDefinitionSyntaxAST(final AnnotationSyntaxAST annotationSyntaxAST) {
-        super(ASTType.VARIABLE_DEFINITION);
+    public VariableDefinitionSyntaxAST(final SyntaxAnalyzer syntaxAnalyzer, final List<AnnotationSyntaxAST> variableAnnotations) {
+        super(syntaxAnalyzer, ASTType.VARIABLE_DEFINITION);
         
-        this.variableAnnotations = annotationSyntaxAST.getAnnotationStorage();
+        this.variableAnnotations = variableAnnotations;
     }
     
     
-    /**
-     * This constructor will initialize the statement with the AST-Type
-     * "VARIABLE_DEFINITION". This will help to debug problems or check the AST for
-     * correct syntax.
-     */
-    public VariableDefinitionSyntaxAST() {
-        super(ASTType.VARIABLE_DEFINITION);
+    public VariableDefinitionSyntaxAST(final SyntaxAnalyzer syntaxAnalyzer) {
+        super(syntaxAnalyzer, ASTType.VARIABLE_DEFINITION);
         
         this.variableAnnotations = new ArrayList<>();
     }
     
     
-    /**
-     * This method will parse the "variable definition" statement and checks it for the
-     * correct syntax. This statement can just be used inside the RootAST or inside a
-     * BlockAST.
-     * <p>
-     * An example for this statement:
-     * <p>
-     * var test_string = "Hello World"
-     * <p>
-     * fun main<int>(args: string[]) { println(this.test_string); return 0; }
-     *
-     * @param parentAST
-     *         The parent of the AST. With it you can check for correct usage of the
-     *         statement.
-     * @param syntaxAnalyzer
-     *         The given SyntaxAnalyzer is used for checking the syntax of the current
-     *         Token list.
-     *
-     * @return It will return null if an error occurred or an VariableDefinitionAST if it
-     *         parsed until to the end.
-     */
     @Override
-    public VariableDefinitionSyntaxAST parseAST(final AbstractSyntaxAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
+    public VariableDefinitionSyntaxAST parseAST(final AbstractSyntaxAST parentAST) {
         if (!(parentAST instanceof RootSyntaxAST) && !(parentAST instanceof BlockSyntaxAST)) {
-            syntaxAnalyzer.errorHandler().addError(new SyntaxASTError<>(syntaxAnalyzer.getArkoiClass(), parentAST, "Couldn't parse the \"variable definition\" statement because it isn't declared inside the root file or in a block."));
+            this.addError(
+                    this.getSyntaxAnalyzer().getArkoiClass(),
+                    this.getSyntaxAnalyzer().currentToken(),
+                    SyntaxErrorType.VARIABLE_DEFINITION_WRONG_PARENT
+            );
             return null;
         }
-    
-        if (syntaxAnalyzer.matchesCurrentToken(TokenType.IDENTIFIER) == null || !syntaxAnalyzer.currentToken().getTokenContent().equals("var")) {
-            syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the \"variable definition\" statement because the parsing doesn't start with the \"var\" keyword."));
-            return null;
-        } else this.setStart(syntaxAnalyzer.currentToken().getStart());
-    
-        if (syntaxAnalyzer.matchesNextToken(TokenType.IDENTIFIER) == null) {
-            syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the \"variable definition\" statement because the \"var\" keyword isn't followed by an variable name."));
-            return null;
-        } else this.variableName = (IdentifierToken) syntaxAnalyzer.currentToken();
         
-        if (syntaxAnalyzer.matchesNextToken(SymbolToken.SymbolType.EQUAL) == null) {
-            syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the \"variable definition\" statement because the variable name isn't followed by an equal sign for deceleration of the following expression."));
-            return null;
-        } else syntaxAnalyzer.nextToken();
-        
-        if (!AbstractExpressionSyntaxAST.EXPRESSION_PARSER.canParse(this, syntaxAnalyzer)) {
-            syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the \"variable definition\" statement because the equal sign is followed by an invalid expression."));
+        if (this.getSyntaxAnalyzer().matchesCurrentToken(TokenType.IDENTIFIER) == null || !this.getSyntaxAnalyzer().currentToken().getTokenContent().equals("var")) {
+            this.addError(
+                    this.getSyntaxAnalyzer().getArkoiClass(),
+                    this.getSyntaxAnalyzer().currentToken(),
+                    SyntaxErrorType.VARIABLE_DEFINITION_WRONG_STAR
+            );
             return null;
         }
-    
-        final ExpressionSyntaxAST expressionAST = AbstractExpressionSyntaxAST.EXPRESSION_PARSER.parse(this, syntaxAnalyzer);
-        if (expressionAST == null) {
-            syntaxAnalyzer.errorHandler().addError(new ParserError<>(AbstractExpressionSyntaxAST.EXPRESSION_PARSER, this.getStart(), syntaxAnalyzer.currentToken().getEnd(), "Couldn't parse the \"variable definition\" statement because an error occurred during the parsing of the expression."));
+        this.setStart(this.getSyntaxAnalyzer().currentToken().getStart());
+        
+        if (this.getSyntaxAnalyzer().matchesNextToken(TokenType.IDENTIFIER) == null) {
+            this.addError(
+                    this.getSyntaxAnalyzer().getArkoiClass(),
+                    this.getSyntaxAnalyzer().currentToken(),
+                    SyntaxErrorType.VARIABLE_DEFINITION_NO_NAME
+            );
             return null;
-        } else this.variableExpression = expressionAST;
-    
-        if (syntaxAnalyzer.matchesNextToken(SymbolToken.SymbolType.SEMICOLON) == null) {
-            syntaxAnalyzer.errorHandler().addError(new TokenError(syntaxAnalyzer.currentToken(), "Couldn't parse the \"variable definition\" statement because it doesn't end with an semicolon."));
+        }
+        this.variableName = (IdentifierToken) this.getSyntaxAnalyzer().currentToken();
+        
+        if (this.getSyntaxAnalyzer().matchesNextToken(SymbolType.EQUAL) == null) {
+            this.addError(
+                    this.getSyntaxAnalyzer().getArkoiClass(),
+                    this.getSyntaxAnalyzer().currentToken(),
+                    SyntaxErrorType.VARIABLE_DEFINITION_NO_EQUAL_SIGN
+            );
             return null;
-        } else this.setEnd(syntaxAnalyzer.currentToken().getEnd());
+        }
+        this.getSyntaxAnalyzer().nextToken();
+        
+        if (!AbstractExpressionSyntaxAST.EXPRESSION_PARSER.canParse(this, this.getSyntaxAnalyzer())) {
+            this.addError(
+                    this.getSyntaxAnalyzer().getArkoiClass(),
+                    this.getSyntaxAnalyzer().currentToken(),
+                    SyntaxErrorType.VARIABLE_DEFINITION_ERROR_DURING_EXPRESSION_PARSING
+            );
+            return null;
+        }
+        
+        final ExpressionSyntaxAST expressionAST = AbstractExpressionSyntaxAST.EXPRESSION_PARSER.parse(this, this.getSyntaxAnalyzer());
+        if (expressionAST == null)
+            return null;
+        this.variableExpression = expressionAST;
+        
+        if (this.getSyntaxAnalyzer().matchesNextToken(SymbolType.SEMICOLON) == null) {
+            this.addError(
+                    this.getSyntaxAnalyzer().getArkoiClass(),
+                    this.getSyntaxAnalyzer().currentToken(),
+                    SyntaxErrorType.VARIABLE_DEFINITION_WRONG_ENDING
+            );
+            return null;
+        }
+        
+        this.setEnd(this.getSyntaxAnalyzer().currentToken().getEnd());
         return this;
     }
     
@@ -135,19 +126,18 @@ public class VariableDefinitionSyntaxAST extends AbstractStatementSyntaxAST
     @Override
     public void printSyntaxAST(final PrintStream printStream, final String indents) {
         printStream.println(indents + "├── annotations: " + (this.getVariableAnnotations().isEmpty() ? "N/A" : ""));
-        printStream.println(indents + "│");
         for (int index = 0; index < this.getVariableAnnotations().size(); index++) {
             final AnnotationSyntaxAST annotationSyntaxAST = this.getVariableAnnotations().get(index);
             if (index == this.getVariableAnnotations().size() - 1) {
-                printStream.println(indents + "│");
-                printStream.println(indents + "└── " + annotationSyntaxAST.getClass().getSimpleName());
-                annotationSyntaxAST.printSyntaxAST(printStream, indents + "    ");
+                printStream.println(indents + "│   └── " + annotationSyntaxAST.getClass().getSimpleName());
+                annotationSyntaxAST.printSyntaxAST(printStream, indents + "│       ");
             } else {
-                printStream.println(indents + "│");
-                printStream.println(indents + "├── " + annotationSyntaxAST.getClass().getSimpleName());
-                annotationSyntaxAST.printSyntaxAST(printStream, indents + "│   ");
+                printStream.println(indents + "│   ├── " + annotationSyntaxAST.getClass().getSimpleName());
+                annotationSyntaxAST.printSyntaxAST(printStream, indents + "│   │   ");
+                printStream.println(indents + "│   │");
             }
         }
+        printStream.println(indents + "│");
         printStream.println(indents + "├── name: " + this.getVariableName().getTokenContent());
         printStream.println(indents + "│");
         printStream.println(indents + "└── expression:");
