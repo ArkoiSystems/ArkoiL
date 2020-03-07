@@ -16,8 +16,10 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.RootSyntaxA
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.AbstractStatementSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import lombok.Getter;
+import lombok.NonNull;
 
 import java.io.PrintStream;
+import java.util.Optional;
 
 public class ImportDefinitionSyntaxAST extends AbstractStatementSyntaxAST
 {
@@ -36,14 +38,14 @@ public class ImportDefinitionSyntaxAST extends AbstractStatementSyntaxAST
     
     
     @Override
-    public ImportDefinitionSyntaxAST parseAST(final AbstractSyntaxAST parentAST) {
+    public Optional<ImportDefinitionSyntaxAST> parseAST(@NonNull final AbstractSyntaxAST parentAST) {
         if (!(parentAST instanceof RootSyntaxAST)) {
             this.addError(
                     this.getSyntaxAnalyzer().getArkoiClass(),
                     parentAST,
                     SyntaxErrorType.IMPORT_DEFINITION_WRONG_PARENT
             );
-            return null;
+            return Optional.empty();
         }
         
         if (this.getSyntaxAnalyzer().matchesCurrentToken(TokenType.IDENTIFIER) == null || !this.getSyntaxAnalyzer().currentToken().getTokenContent().equals("import")) {
@@ -52,7 +54,7 @@ public class ImportDefinitionSyntaxAST extends AbstractStatementSyntaxAST
                     this.getSyntaxAnalyzer().currentToken(),
                     SyntaxErrorType.IMPORT_DEFINITION_WRONG_START
             );
-            return null;
+            return Optional.empty();
         }
         this.setStart(this.getSyntaxAnalyzer().currentToken().getStart());
         
@@ -62,7 +64,7 @@ public class ImportDefinitionSyntaxAST extends AbstractStatementSyntaxAST
                     this.getSyntaxAnalyzer().currentToken(),
                     SyntaxErrorType.IMPORT_DEFINITION_NO_FILEPATH
             );
-            return null;
+            return Optional.empty();
         }
         
         this.importFilePath = (StringToken) this.getSyntaxAnalyzer().currentToken();
@@ -77,7 +79,7 @@ public class ImportDefinitionSyntaxAST extends AbstractStatementSyntaxAST
                         this.getSyntaxAnalyzer().currentToken(),
                         SyntaxErrorType.IMPORT_DEFINITION_NOT_FOLLOWED_BY_NAME
                 );
-                return null;
+                return Optional.empty();
             }
             
             this.importName = (IdentifierToken) this.getSyntaxAnalyzer().currentToken();
@@ -93,16 +95,16 @@ public class ImportDefinitionSyntaxAST extends AbstractStatementSyntaxAST
                     this.getSyntaxAnalyzer().currentToken(),
                     SyntaxErrorType.IMPORT_DEFINITION_WRONG_ENDING
             );
-            return null;
+            return Optional.empty();
         }
         
         this.setEnd(this.getSyntaxAnalyzer().currentToken().getEnd());
-        return this;
+        return Optional.of(this);
     }
     
     
     @Override
-    public void printSyntaxAST(final PrintStream printStream, final String indents) {
+    public void printSyntaxAST(@NonNull final PrintStream printStream, @NonNull final String indents) {
         printStream.println(indents + "├── name: " + this.getImportName().getTokenContent());
         printStream.println(indents + "└── path: " + this.getImportFilePath().getTokenContent());
     }

@@ -16,8 +16,10 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.ty
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.AbstractStatementSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import lombok.Getter;
+import lombok.NonNull;
 
 import java.io.PrintStream;
+import java.util.Optional;
 
 public class ReturnStatementSyntaxAST extends AbstractStatementSyntaxAST
 {
@@ -51,14 +53,14 @@ public class ReturnStatementSyntaxAST extends AbstractStatementSyntaxAST
      *         parsed until to the end.
      */
     @Override
-    public ReturnStatementSyntaxAST parseAST(final AbstractSyntaxAST parentAST) {
+    public Optional<ReturnStatementSyntaxAST> parseAST(@NonNull final AbstractSyntaxAST parentAST) {
         if (!(parentAST instanceof BlockSyntaxAST)) {
             this.addError(
                     this.getSyntaxAnalyzer().getArkoiClass(),
                     this.getSyntaxAnalyzer().currentToken(),
                     SyntaxErrorType.RETURN_STATEMENT_WRONG_PARENT
             );
-            return null;
+            return Optional.empty();
         }
     
         if (this.getSyntaxAnalyzer().matchesCurrentToken(TokenType.IDENTIFIER) == null || !this.getSyntaxAnalyzer().currentToken().getTokenContent().equals("return")) {
@@ -67,7 +69,7 @@ public class ReturnStatementSyntaxAST extends AbstractStatementSyntaxAST
                     this.getSyntaxAnalyzer().currentToken(),
                     SyntaxErrorType.RETURN_STATEMENT_WRONG_START
             );
-            return null;
+            return Optional.empty();
         }
     
         this.setStart(this.getSyntaxAnalyzer().currentToken().getStart());
@@ -79,12 +81,13 @@ public class ReturnStatementSyntaxAST extends AbstractStatementSyntaxAST
                     this.getSyntaxAnalyzer().currentToken(),
                     SyntaxErrorType.RETURN_STATEMENT_NO_VALID_EXPRESSION
             );
-            return null;
+            return Optional.empty();
         }
     
-        this.returnExpression = AbstractExpressionSyntaxAST.EXPRESSION_PARSER.parse(this, this.getSyntaxAnalyzer());
-        if (this.returnExpression == null)
-            return null;
+        final Optional<ExpressionSyntaxAST> optionalExpressionSyntaxAST = AbstractExpressionSyntaxAST.EXPRESSION_PARSER.parse(this, this.getSyntaxAnalyzer());
+        if (optionalExpressionSyntaxAST.isEmpty())
+            return Optional.empty();
+        this.returnExpression = optionalExpressionSyntaxAST.get();
     
         if (this.getSyntaxAnalyzer().matchesNextToken(SymbolType.SEMICOLON) == null) {
             this.addError(
@@ -92,16 +95,16 @@ public class ReturnStatementSyntaxAST extends AbstractStatementSyntaxAST
                     this.getSyntaxAnalyzer().currentToken(),
                     SyntaxErrorType.RETURN_STATEMENT_WRONG_ENDING
             );
-            return null;
+            return Optional.empty();
         }
     
         this.setEnd(this.getSyntaxAnalyzer().currentToken().getEnd());
-        return this;
+        return Optional.of(this);
     }
     
     
     @Override
-    public void printSyntaxAST(final PrintStream printStream, final String indents) {
+    public void printSyntaxAST(@NonNull final PrintStream printStream, @NonNull final String indents) {
         printStream.println(indents + "└── expression:");
         this.getReturnExpression().printSyntaxAST(printStream, indents + "    ");
     }

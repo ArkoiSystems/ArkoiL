@@ -14,6 +14,7 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.ty
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
 
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,6 +26,24 @@ public class CollectionOperableSemanticAST extends AbstractOperableSemanticAST<C
     
     public CollectionOperableSemanticAST(final SemanticAnalyzer semanticAnalyzer, final AbstractSemanticAST<?> lastContainerAST, final CollectionOperableSyntaxAST collectionOperableSyntaxAST) {
         super(semanticAnalyzer, lastContainerAST, collectionOperableSyntaxAST, ASTType.COLLECTION_OPERABLE);
+    }
+    
+    
+    // TODO: Check for null safety.
+    @Override
+    public void printSemanticAST(final PrintStream printStream, final String indents) {
+        printStream.println(indents + "└── expressions: " + (this.getCollectionExpressions().isEmpty() ? "N/A" : ""));
+        for (int index = 0; index < this.getCollectionExpressions().size(); index++) {
+            final ExpressionSemanticAST expressionSemanticAST = this.getCollectionExpressions().get(index);
+            if (index == this.getCollectionExpressions().size() - 1) {
+                printStream.println(indents + "    └── " + expressionSemanticAST.getClass().getSimpleName());
+                expressionSemanticAST.printSemanticAST(printStream, indents + "        ");
+            } else {
+                printStream.println(indents + "    ├── " + expressionSemanticAST.getClass().getSimpleName());
+                expressionSemanticAST.printSemanticAST(printStream, indents + "    │   ");
+                printStream.println(indents + "    │   ");
+            }
+        }
     }
     
     
@@ -45,7 +64,7 @@ public class CollectionOperableSemanticAST extends AbstractOperableSemanticAST<C
                 expressionSemanticAST.getOperableObject();
     
                 if (expressionSemanticAST.isFailed())
-                    this.setFailed(true);
+                    this.failed();
                 this.collectionExpressions.add(expressionSemanticAST);
             }
             return this.isFailed() ? null : this.collectionExpressions;

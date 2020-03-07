@@ -19,10 +19,12 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.ty
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.AbstractStatementSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import lombok.Getter;
+import lombok.NonNull;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class VariableDefinitionSyntaxAST extends AbstractStatementSyntaxAST
 {
@@ -55,14 +57,14 @@ public class VariableDefinitionSyntaxAST extends AbstractStatementSyntaxAST
     
     
     @Override
-    public VariableDefinitionSyntaxAST parseAST(final AbstractSyntaxAST parentAST) {
+    public Optional<VariableDefinitionSyntaxAST> parseAST(@NonNull final AbstractSyntaxAST parentAST) {
         if (!(parentAST instanceof RootSyntaxAST) && !(parentAST instanceof BlockSyntaxAST)) {
             this.addError(
                     this.getSyntaxAnalyzer().getArkoiClass(),
                     this.getSyntaxAnalyzer().currentToken(),
                     SyntaxErrorType.VARIABLE_DEFINITION_WRONG_PARENT
             );
-            return null;
+            return Optional.empty();
         }
         
         if (this.getSyntaxAnalyzer().matchesCurrentToken(TokenType.IDENTIFIER) == null || !this.getSyntaxAnalyzer().currentToken().getTokenContent().equals("var")) {
@@ -71,7 +73,7 @@ public class VariableDefinitionSyntaxAST extends AbstractStatementSyntaxAST
                     this.getSyntaxAnalyzer().currentToken(),
                     SyntaxErrorType.VARIABLE_DEFINITION_WRONG_STAR
             );
-            return null;
+            return Optional.empty();
         }
         this.setStart(this.getSyntaxAnalyzer().currentToken().getStart());
         
@@ -81,7 +83,7 @@ public class VariableDefinitionSyntaxAST extends AbstractStatementSyntaxAST
                     this.getSyntaxAnalyzer().currentToken(),
                     SyntaxErrorType.VARIABLE_DEFINITION_NO_NAME
             );
-            return null;
+            return Optional.empty();
         }
         this.variableName = (IdentifierToken) this.getSyntaxAnalyzer().currentToken();
         
@@ -91,7 +93,7 @@ public class VariableDefinitionSyntaxAST extends AbstractStatementSyntaxAST
                     this.getSyntaxAnalyzer().currentToken(),
                     SyntaxErrorType.VARIABLE_DEFINITION_NO_EQUAL_SIGN
             );
-            return null;
+            return Optional.empty();
         }
         this.getSyntaxAnalyzer().nextToken();
         
@@ -101,13 +103,13 @@ public class VariableDefinitionSyntaxAST extends AbstractStatementSyntaxAST
                     this.getSyntaxAnalyzer().currentToken(),
                     SyntaxErrorType.VARIABLE_DEFINITION_ERROR_DURING_EXPRESSION_PARSING
             );
-            return null;
+            return Optional.empty();
         }
         
-        final ExpressionSyntaxAST expressionAST = AbstractExpressionSyntaxAST.EXPRESSION_PARSER.parse(this, this.getSyntaxAnalyzer());
-        if (expressionAST == null)
-            return null;
-        this.variableExpression = expressionAST;
+        final Optional<ExpressionSyntaxAST> optionalExpressionSyntaxAST = AbstractExpressionSyntaxAST.EXPRESSION_PARSER.parse(this, this.getSyntaxAnalyzer());
+        if (optionalExpressionSyntaxAST.isEmpty())
+            return Optional.empty();
+        this.variableExpression = optionalExpressionSyntaxAST.get();
         
         if (this.getSyntaxAnalyzer().matchesNextToken(SymbolType.SEMICOLON) == null) {
             this.addError(
@@ -115,16 +117,16 @@ public class VariableDefinitionSyntaxAST extends AbstractStatementSyntaxAST
                     this.getSyntaxAnalyzer().currentToken(),
                     SyntaxErrorType.VARIABLE_DEFINITION_WRONG_ENDING
             );
-            return null;
+            return Optional.empty();
         }
         
         this.setEnd(this.getSyntaxAnalyzer().currentToken().getEnd());
-        return this;
+        return Optional.of(this);
     }
     
     
     @Override
-    public void printSyntaxAST(final PrintStream printStream, final String indents) {
+    public void printSyntaxAST(@NonNull final PrintStream printStream, @NonNull final String indents) {
         printStream.println(indents + "├── annotations: " + (this.getVariableAnnotations().isEmpty() ? "N/A" : ""));
         for (int index = 0; index < this.getVariableAnnotations().size(); index++) {
             final AnnotationSyntaxAST annotationSyntaxAST = this.getVariableAnnotations().get(index);

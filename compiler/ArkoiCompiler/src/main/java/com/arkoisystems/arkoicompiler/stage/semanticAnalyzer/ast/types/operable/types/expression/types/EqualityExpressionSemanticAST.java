@@ -13,6 +13,8 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.ty
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
 
+import java.io.PrintStream;
+
 public class EqualityExpressionSemanticAST extends AbstractExpressionSemanticAST<EqualityExpressionSyntaxAST>
 {
     
@@ -21,9 +23,13 @@ public class EqualityExpressionSemanticAST extends AbstractExpressionSemanticAST
     }
     
     
+    // TODO: Check null safety.
+    @Override
+    public void printSemanticAST(final PrintStream printStream, final String indents) { }
+    
+    
     @Override
     public TypeKind getOperableObject() {
-        System.out.println("Equality Expression Semantic AST");
         return null;
     }
     

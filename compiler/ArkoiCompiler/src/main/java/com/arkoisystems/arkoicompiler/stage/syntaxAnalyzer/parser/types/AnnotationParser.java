@@ -12,13 +12,16 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.AnnotationSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.parser.AbstractParser;
+import lombok.NonNull;
+
+import java.util.Optional;
 
 /**
  * A {@link AbstractParser} for the {@link AnnotationSyntaxAST} with which you can easily
  * parse the {@link AnnotationSyntaxAST} or check if the current {@link AbstractToken} is
  * capable to parse the {@link AnnotationSyntaxAST}.
  */
-public class AnnotationParser extends AbstractParser<AbstractSyntaxAST>
+public class AnnotationParser extends AbstractParser
 {
     
     /**
@@ -36,7 +39,7 @@ public class AnnotationParser extends AbstractParser<AbstractSyntaxAST>
      *         AnnotationSyntaxAST} or simply returns the parsed result.
      */
     @Override
-    public AbstractSyntaxAST parse(final AbstractSyntaxAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
+    public Optional<? extends AbstractSyntaxAST> parse(@NonNull final AbstractSyntaxAST parentAST, @NonNull final SyntaxAnalyzer syntaxAnalyzer) {
         return new AnnotationSyntaxAST(syntaxAnalyzer).parseAST(parentAST);
     }
     
@@ -56,7 +59,7 @@ public class AnnotationParser extends AbstractParser<AbstractSyntaxAST>
      *         {@code true} if it is.
      */
     @Override
-    public boolean canParse(final AbstractSyntaxAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
+    public boolean canParse(@NonNull final AbstractSyntaxAST parentAST, @NonNull final SyntaxAnalyzer syntaxAnalyzer) {
         return syntaxAnalyzer.matchesCurrentToken(SymbolType.AT_SIGN) != null;
     }
     

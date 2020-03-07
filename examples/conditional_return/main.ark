@@ -1,11 +1,11 @@
 import "first_class";
-import "second_class" named SecondClass;
+import "second_class" as SecondClass;
 
 fun main<int>(args: string[]) {
-    println():
-        testIt(new FirstClass()),
-        testIt(new SecondClass())),
-        testIt(new Main());
+    #println():
+    #    testIt(new FirstClass()),
+    #    testIt(new SecondClass())),
+    #    testIt(new Main());
 }
 
 fun testIt<string>(object: object) {

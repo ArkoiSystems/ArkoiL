@@ -12,6 +12,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.Arrays;
+import java.util.Optional;
 
 @Getter
 @Setter
@@ -24,14 +25,14 @@ public class NumberToken extends AbstractToken
     
     
     @Override
-    public NumberToken parseToken() {
+    public Optional<NumberToken> parseToken() {
         if (!Character.isDigit(this.getLexicalAnalyzer().currentChar()) && this.getLexicalAnalyzer().currentChar() != '.') {
             this.addError(
                     this.getLexicalAnalyzer().getArkoiClass(),
                     this.getLexicalAnalyzer().getPosition(),
                     "Couldn't lex the number because it doesn't start with a digit or dot."
             );
-            return null;
+            return Optional.empty();
         } else this.setStart(this.getLexicalAnalyzer().getPosition());
         
         if (this.getLexicalAnalyzer().currentChar() == '0' && this.getLexicalAnalyzer().peekChar(1) == 'x') {
@@ -90,8 +91,9 @@ public class NumberToken extends AbstractToken
         this.setTokenContent(new String(Arrays.copyOfRange(this.getLexicalAnalyzer().getArkoiClass().getContent(), this.getStart(), this.getEnd())).intern());
         if (this.getTokenContent().equals(".")) {
             this.getLexicalAnalyzer().undo();
-            return null;
-        } else return this;
+            return Optional.empty();
+        }
+        return Optional.of(this);
     }
     
 }

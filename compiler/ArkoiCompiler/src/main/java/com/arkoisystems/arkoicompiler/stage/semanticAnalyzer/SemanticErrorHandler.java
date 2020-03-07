@@ -27,9 +27,9 @@ public class SemanticErrorHandler extends ErrorHandler
     
     
     @Override
-    public void printStackTrace(final PrintStream printStream) {
+    public void printStackTrace(final PrintStream printStream, boolean testing) {
         for (final ArkoiError arkoiError : this.getArkoiErrors().values())
-            printStream.println(arkoiError.toString());
+            printStream.println(testing ? arkoiError.toString().substring(arkoiError.toString().indexOf(' ') + 1) : arkoiError.toString());
     }
     
 }

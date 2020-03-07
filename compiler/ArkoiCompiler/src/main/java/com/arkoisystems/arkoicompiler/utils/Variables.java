@@ -14,6 +14,6 @@ public class Variables
      * Defines a {@link SimpleDateFormat} for later debugging to see the time in which
      * this error happened.
      */
-    public static SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("HH:mm:ss");
+    public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("HH:mm:ss");
     
 }

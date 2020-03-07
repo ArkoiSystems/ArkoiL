@@ -12,6 +12,8 @@ import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenTyp
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.Optional;
+
 public class SymbolToken extends AbstractToken
 {
     
@@ -20,13 +22,23 @@ public class SymbolToken extends AbstractToken
     private SymbolType symbolType;
     
     
+    public SymbolToken(final LexicalAnalyzer lexicalAnalyzer, final SymbolType symbolType) {
+        super(lexicalAnalyzer, TokenType.SYMBOL);
+        
+        this.symbolType = symbolType;
+        
+        this.setStart(-1);
+        this.setEnd(-1);
+    }
+    
+    
     public SymbolToken(final LexicalAnalyzer lexicalAnalyzer) {
         super(lexicalAnalyzer, TokenType.SYMBOL);
     }
     
     
     @Override
-    public SymbolToken parseToken() {
+    public Optional<SymbolToken> parseToken() {
         final char currentChar = this.getLexicalAnalyzer().currentChar();
         this.setTokenContent(String.valueOf(currentChar));
         
@@ -42,13 +54,13 @@ public class SymbolToken extends AbstractToken
                     this.getLexicalAnalyzer().getPosition(),
                     "Couldn't lex this symbol because it isn't supported."
             );
-            return null;
+            return Optional.empty();
         } else {
             this.setStart(this.getLexicalAnalyzer().getPosition());
             this.setEnd(this.getLexicalAnalyzer().getPosition() + 1);
             this.getLexicalAnalyzer().next();
         }
-        return this;
+        return Optional.of(this);
     }
     
 }

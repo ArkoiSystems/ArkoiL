@@ -12,13 +12,16 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.types.FunctionDefinitionSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.parser.AbstractParser;
+import lombok.NonNull;
+
+import java.util.Optional;
 
 /**
  * A {@link AbstractParser} for the {@link FunctionDefinitionSyntaxAST} with which you can
  * easily parse the {@link FunctionDefinitionSyntaxAST} or check if the current {@link
  * AbstractToken} is capable to parse the {@link FunctionDefinitionSyntaxAST}.
  */
-public class FunctionParser extends AbstractParser<FunctionDefinitionSyntaxAST>
+public class FunctionParser extends AbstractParser
 {
     
     /**
@@ -36,7 +39,7 @@ public class FunctionParser extends AbstractParser<FunctionDefinitionSyntaxAST>
      *         FunctionDefinitionSyntaxAST} or simply returns the parsed result.
      */
     @Override
-    public FunctionDefinitionSyntaxAST parse(final AbstractSyntaxAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
+    public Optional<FunctionDefinitionSyntaxAST> parse(@NonNull final AbstractSyntaxAST parentAST, @NonNull final SyntaxAnalyzer syntaxAnalyzer) {
         return new FunctionDefinitionSyntaxAST(syntaxAnalyzer).parseAST(parentAST);
     }
     
@@ -57,7 +60,7 @@ public class FunctionParser extends AbstractParser<FunctionDefinitionSyntaxAST>
      *         IdentifierToken} which has the content "fun" or {@code true} if it is.
      */
     @Override
-    public boolean canParse(final AbstractSyntaxAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
+    public boolean canParse(@NonNull final AbstractSyntaxAST parentAST, @NonNull final SyntaxAnalyzer syntaxAnalyzer) {
         return syntaxAnalyzer.currentToken().getTokenType() == TokenType.IDENTIFIER && syntaxAnalyzer.currentToken().getTokenContent().equals("fun");
     }
     

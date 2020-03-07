@@ -15,6 +15,9 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.ty
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.AbstractStatementSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.types.ThisStatementSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.parser.AbstractParser;
+import lombok.NonNull;
+
+import java.util.Optional;
 
 /**
  * A {@link AbstractParser} for the {@link AbstractStatementSyntaxAST} with which you can
@@ -22,7 +25,7 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.parser.AbstractParser
  * AbstractToken} and parent {@link AbstractSyntaxAST} are capable to parse a new {@link
  * AbstractStatementSyntaxAST}.
  */
-public class StatementParser extends AbstractParser<AbstractSyntaxAST>
+public class StatementParser extends AbstractParser
 {
     
     /**
@@ -40,7 +43,7 @@ public class StatementParser extends AbstractParser<AbstractSyntaxAST>
      *         AbstractStatementSyntaxAST} or simply returns the parsed result.
      */
     @Override
-    public AbstractSyntaxAST parse(final AbstractSyntaxAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
+    public Optional<? extends AbstractSyntaxAST> parse(@NonNull final AbstractSyntaxAST parentAST, @NonNull final SyntaxAnalyzer syntaxAnalyzer) {
         return new AbstractStatementSyntaxAST(syntaxAnalyzer, null).parseAST(parentAST);
     }
     
@@ -63,11 +66,11 @@ public class StatementParser extends AbstractParser<AbstractSyntaxAST>
      *         AbstractStatementSyntaxAST} or {@code true} if they do.
      */
     @Override
-    public boolean canParse(final AbstractSyntaxAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
+    public boolean canParse(@NonNull final AbstractSyntaxAST parentAST, @NonNull final SyntaxAnalyzer syntaxAnalyzer) {
         final AbstractToken currentToken = syntaxAnalyzer.currentToken();
         if (syntaxAnalyzer.matchesCurrentToken(TokenType.IDENTIFIER) == null)
             return false;
-        
+    
         if (parentAST instanceof ThisStatementSyntaxAST) {
             switch (currentToken.getTokenContent()) {
                 case "var":

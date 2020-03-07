@@ -12,6 +12,7 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxErrorType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.AbstractExpressionSyntaxAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types.ExpressionSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.AbstractStatementSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.types.FunctionDefinitionSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.types.VariableDefinitionSyntaxAST;
@@ -20,11 +21,13 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.BlockType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.parser.AbstractParser;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.parser.types.BlockParser;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.Setter;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Used if you want to create a new {@link BlockSyntaxAST}. But it is recommend to use the
@@ -44,10 +47,10 @@ public class BlockSyntaxAST extends AbstractSyntaxAST
     
     
     /**
-     * This variable is used to get all {@link AbstractParser}s which are supported by
-     * the {@link BlockParser}.
+     * This variable is used to get all {@link AbstractParser}s which are supported by the
+     * {@link BlockParser}.
      */
-    private static AbstractParser<?>[] BLOCK_PARSERS = new AbstractParser<?>[] {
+    private static AbstractParser[] BLOCK_PARSERS = new AbstractParser[] {
             AbstractStatementSyntaxAST.STATEMENT_PARSER,
             BlockSyntaxAST.BLOCK_PARSER,
     };
@@ -98,14 +101,14 @@ public class BlockSyntaxAST extends AbstractSyntaxAST
      *         everything worked correctly.
      */
     @Override
-    public BlockSyntaxAST parseAST(final AbstractSyntaxAST parentAST) {
+    public Optional<BlockSyntaxAST> parseAST(@NonNull final AbstractSyntaxAST parentAST) {
         if (!(parentAST instanceof FunctionDefinitionSyntaxAST) && !(parentAST instanceof VariableDefinitionSyntaxAST) && !(parentAST instanceof BlockSyntaxAST)) {
             this.addError(
                     this.getSyntaxAnalyzer().getArkoiClass(),
                     this.getSyntaxAnalyzer().currentToken(),
                     SyntaxErrorType.BLOCK_WRONG_START
             );
-            return null;
+            return Optional.empty();
         }
         this.setStart(this.getSyntaxAnalyzer().currentToken().getStart());
     
@@ -119,16 +122,17 @@ public class BlockSyntaxAST extends AbstractSyntaxAST
                     break;
                 if (this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.CLOSING_BRACE) != null)
                     break;
-                
-                for (final AbstractParser<?> abstractParser : BLOCK_PARSERS) {
+    
+                for (final AbstractParser abstractParser : BLOCK_PARSERS) {
                     if (!abstractParser.canParse(this, this.getSyntaxAnalyzer()))
                         continue;
-                
-                    final AbstractSyntaxAST abstractSyntaxAST = abstractParser.parse(this, this.getSyntaxAnalyzer());
-                    if (abstractSyntaxAST != null) {
-                        if(abstractSyntaxAST.isFailed())
-                            this.setFailed(true);
-                        
+        
+                    final Optional<? extends AbstractSyntaxAST> optionalAbstractSyntaxAST = abstractParser.parse(this, this.getSyntaxAnalyzer());
+                    if (optionalAbstractSyntaxAST.isPresent()) {
+                        final AbstractSyntaxAST abstractSyntaxAST = optionalAbstractSyntaxAST.get();
+                        if (abstractSyntaxAST.isFailed())
+                            this.failed();
+            
                         if (abstractSyntaxAST instanceof BlockSyntaxAST) {
                             if (this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.CLOSING_BRACE) == null) {
                                 this.addError(
@@ -154,7 +158,7 @@ public class BlockSyntaxAST extends AbstractSyntaxAST
                         this.getSyntaxAnalyzer().nextToken();
                     } else {
                         this.skipToNextValidToken();
-                        this.setFailed(true);
+                        this.failed();
                     }
                     continue main_loop;
                 }
@@ -179,15 +183,13 @@ public class BlockSyntaxAST extends AbstractSyntaxAST
                         this.getSyntaxAnalyzer().currentToken(),
                         SyntaxErrorType.BLOCK_NO_VALID_EXPRESSION
                 );
-                return null;
+                return Optional.empty();
             }
         
-            final AbstractExpressionSyntaxAST abstractExpressionAST = AbstractExpressionSyntaxAST.EXPRESSION_PARSER.parse(this, this.getSyntaxAnalyzer());
-            if (abstractExpressionAST == null) {
-                this.setFailed(true);
-                return null;
-            }
-            this.blockStorage.add(abstractExpressionAST);
+            final Optional<ExpressionSyntaxAST> optionalExpressionSyntaxAST = AbstractExpressionSyntaxAST.EXPRESSION_PARSER.parse(this, this.getSyntaxAnalyzer());
+            if (optionalExpressionSyntaxAST.isEmpty())
+                return Optional.empty();
+            this.blockStorage.add(optionalExpressionSyntaxAST.get());
         
             if (this.getSyntaxAnalyzer().matchesNextToken(SymbolType.SEMICOLON) == null) {
                 this.addError(
@@ -195,7 +197,7 @@ public class BlockSyntaxAST extends AbstractSyntaxAST
                         this.getSyntaxAnalyzer().currentToken(),
                         SyntaxErrorType.BLOCK_INLINED_BLOCK_WRONG_ENDING
                 );
-                return null;
+                return Optional.empty();
             }
         } else {
             this.addError(
@@ -203,16 +205,16 @@ public class BlockSyntaxAST extends AbstractSyntaxAST
                     this.getSyntaxAnalyzer().currentToken(),
                     SyntaxErrorType.BLOCK_INVALID_SEPARATOR
             );
-            return null;
+            return Optional.empty();
         }
     
         this.setEnd(this.getSyntaxAnalyzer().currentToken().getEnd());
-        return this.isFailed() ? null : this;
+        return this.isFailed() ? Optional.empty() : Optional.of(this);
     }
     
     
     @Override
-    public void printSyntaxAST(final PrintStream printStream, final String indents) {
+    public void printSyntaxAST(@NonNull final PrintStream printStream, @NonNull final String indents) {
         printStream.println(indents + "├── type: " + this.getBlockType());
         printStream.println(indents + "└── storage: " + (this.getBlockStorage().isEmpty() ? "N/A" : ""));
         for (int index = 0; index < this.getBlockStorage().size(); index++) {

@@ -18,6 +18,8 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTAccess;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
 
+import java.io.PrintStream;
+
 public class IdentifierInvokeOperableSemanticAST extends AbstractOperableSemanticAST<IdentifierInvokeOperableSyntaxAST, TypeKind>
 {
     
@@ -29,6 +31,18 @@ public class IdentifierInvokeOperableSemanticAST extends AbstractOperableSemanti
     
     public IdentifierInvokeOperableSemanticAST(final SemanticAnalyzer semanticAnalyzer, final AbstractSemanticAST<?> lastContainerAST, final IdentifierInvokeOperableSyntaxAST identifierInvokeOperableSyntaxAST) {
         super(semanticAnalyzer, lastContainerAST, identifierInvokeOperableSyntaxAST, ASTType.IDENTIFIER_INVOKE_OPERABLE);
+    }
+    
+    
+    // TODO: Check for null safety.
+    @Override
+    public void printSemanticAST(final PrintStream printStream, final String indents) {
+        printStream.println(indents + "├── access: " + this.getIdentifierAccess());
+        printStream.println(indents + "├── identifier: ");
+        this.getInvokedIdentifier().printSemanticAST(printStream, indents + "│       ");
+        printStream.println(indents + "└── statement:");
+        printStream.println(indents + "    └── " + this.getInvokePostStatement().getClass().getSimpleName());
+        this.getInvokePostStatement().printSemanticAST(printStream, indents + "        ");
     }
     
     
@@ -110,7 +124,7 @@ public class IdentifierInvokeOperableSemanticAST extends AbstractOperableSemanti
                     functionInvokeOperableSemanticAST.getInvokedExpressions();
         
                     if (functionInvokeOperableSemanticAST.isFailed())
-                        this.setFailed(true);
+                        this.failed();
                     this.invokePostStatement = functionInvokeOperableSemanticAST;
                 } else {
                     this.addError(

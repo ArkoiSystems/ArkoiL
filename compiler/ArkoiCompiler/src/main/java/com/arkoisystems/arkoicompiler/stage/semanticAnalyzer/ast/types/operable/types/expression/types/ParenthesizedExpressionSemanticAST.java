@@ -13,6 +13,8 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.ty
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
 
+import java.io.PrintStream;
+
 public class ParenthesizedExpressionSemanticAST extends AbstractExpressionSemanticAST<ParenthesizedExpressionSyntaxAST>
 {
     
@@ -23,10 +25,17 @@ public class ParenthesizedExpressionSemanticAST extends AbstractExpressionSemant
         super(semanticAnalyzer, lastContainerAST, parenthesizedExpressionSyntaxAST, ASTType.PARENTHESIZED_EXPRESSION);
     }
     
+    // TODO: Check null safety.
+    @Override
+    public void printSemanticAST(final PrintStream printStream, final String indents) {
+        printStream.println(indents + "└── operable:");
+        printStream.println(indents + "    └── " + this.getParenthesizedExpression().getClass().getSimpleName());
+        this.getParenthesizedExpression().printSemanticAST(printStream, indents + "        ");
+    }
     
     @Override
     public TypeKind getOperableObject() {
-        if(this.getParenthesizedExpression() == null)
+        if (this.getParenthesizedExpression() == null)
             return null;
         return this.getParenthesizedExpression().getOperableObject();
     }

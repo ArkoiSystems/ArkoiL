@@ -7,7 +7,6 @@ package com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer;
 
 import com.arkoisystems.arkoicompiler.stage.errorHandler.ArkoiError;
 import com.arkoisystems.arkoicompiler.stage.errorHandler.ErrorHandler;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxErrorHandler;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
@@ -29,7 +28,7 @@ public class LexicalErrorHandler extends ErrorHandler
     
     /**
      * Adds the given {@link ArkoiError} to the {@link LexicalErrorHandler#abstractErrors}
-     * list for later usage (see {@link SyntaxErrorHandler#printStackTrace(PrintStream)}).
+     * list for later usage (see {@link ErrorHandler#printStackTrace(PrintStream, boolean)}).
      *
      * @param arkoiError
      *         the given {@link ArkoiError} which is used added to the {@link
@@ -41,9 +40,9 @@ public class LexicalErrorHandler extends ErrorHandler
     
     
     @Override
-    public void printStackTrace(final PrintStream printStream) {
+    public void printStackTrace(final PrintStream printStream, boolean testing) {
         for (final ArkoiError arkoiError : this.abstractErrors)
-            printStream.println(arkoiError.toString());
+            printStream.println(testing ? arkoiError.toString().substring(arkoiError.toString().indexOf(' ') + 1) : arkoiError.toString());
     }
     
 }

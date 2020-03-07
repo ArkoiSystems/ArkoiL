@@ -28,6 +28,13 @@ public class LexicalAnalyzer extends AbstractStage
 {
     
     /**
+     * This {@link Runnable} defines an error routine, when a token couldn't be parsed.
+     */
+    @Getter
+    private final Runnable errorRoutine;
+    
+    
+    /**
      * This defines the {@link ArkoiClass} in which the {@link LexicalAnalyzer} got
      * created.
      */
@@ -53,8 +60,8 @@ public class LexicalAnalyzer extends AbstractStage
     
     
     /**
-     * The current position in the {@link ArkoiClass#content} array. This position is used
-     * to peek and get tokens (e.g. {@link #next()} or {@link #peekChar(int)}).
+     * The current position in the {@link ArkoiClass#getContent()} array. This position is
+     * used to peek and get tokens (e.g. {@link #next()} or {@link #peekChar(int)}).
      */
     @Getter
     private int position;
@@ -72,15 +79,20 @@ public class LexicalAnalyzer extends AbstractStage
         this.arkoiClass = arkoiClass;
     
         this.errorHandler = new LexicalErrorHandler();
+        this.errorRoutine = () -> {
+            this.failed();
+            this.next();
+        };
     }
     
     
     /**
      * Overwritten method from the {@link AbstractStage} class which will run this stage.
-     * The lexer will go through every position in the {@link ArkoiClass#content} array. It will
-     * skip newlines (and every other "whitespace" character e.g. 0x0c, 0x0a and 0x0d).
-     * Comments are getting lexed but they don't get added to the tokens list because they
-     * are irrelevant for the later process and are just used for the developers.
+     * The lexer will go through every position in the {@link ArkoiClass#getContent()}
+     * array. It will skip newlines (and every other "whitespace" character e.g. 0x0c,
+     * 0x0a and 0x0d). Comments are getting parsed but they don't get added to the tokens
+     * list because they are irrelevant for the later process and are just used for the
+     * developers.
      *
      * @return {@code false} if an error occurred or {@code true} if everything worked
      *         correctly.
@@ -92,44 +104,22 @@ public class LexicalAnalyzer extends AbstractStage
         while (this.position < this.getArkoiClass().getContent().length) {
             final char currentChar = this.currentChar();
             if (Character.isWhitespace(currentChar)) {
-                final WhitespaceToken whitespaceToken = new WhitespaceToken(this).parseToken();
-                if (whitespaceToken != null) {
-                    tokens.add(whitespaceToken);
-                    continue;
-                }
-                continue;
+                new WhitespaceToken(this).parseToken().ifPresentOrElse(tokens::add, this.errorRoutine);
             } else if (currentChar == '#') {
-                final CommentToken commentToken = new CommentToken(this).parseToken();
-                if (commentToken != null)
-                    continue;
+                new CommentToken(this).parseToken();
             } else if (currentChar == '"') {
-                final StringToken stringToken = new StringToken(this).parseToken();
-                if (stringToken != null) {
-                    tokens.add(stringToken);
-                    continue;
-                }
+                new StringToken(this).parseToken().ifPresentOrElse(tokens::add, this.errorRoutine);
             } else if (Character.isDigit(currentChar) || currentChar == '.') {
-                final NumberToken numberToken = new NumberToken(this).parseToken();
-                if (numberToken != null) {
-                    tokens.add(numberToken);
-                    continue;
-                }
-        
-                final SymbolToken symbolToken = new SymbolToken(this).parseToken();
-                if (symbolToken != null) {
-                    tokens.add(symbolToken);
-                    continue;
-                }
+                new NumberToken(this).parseToken().ifPresentOrElse(tokens::add, () ->
+                        new SymbolToken(this).parseToken().ifPresentOrElse(tokens::add, this.errorRoutine)
+                );
             } else if (Character.isJavaIdentifierStart(currentChar)) {
-                final IdentifierToken identifierToken = new IdentifierToken(this).parseToken();
-                if (identifierToken != null) {
-                    tokens.add(identifierToken);
-                    continue;
-                }
+                new IdentifierToken(this).parseToken().ifPresentOrElse(tokens::add, this.errorRoutine);
             } else {
                 switch (currentChar) {
                     case '@':
                     case '^':
+                    case '|':
                     case ':':
                     case ';':
                     case '{':
@@ -149,12 +139,8 @@ public class LexicalAnalyzer extends AbstractStage
                     case '!':
                     case '=':
                     case '&': {
-                        final SymbolToken symbolToken = new SymbolToken(this).parseToken();
-                        if (symbolToken != null) {
-                            tokens.add(symbolToken);
-                            continue;
-                        }
-                        break;
+                        new SymbolToken(this).parseToken().ifPresentOrElse(tokens::add, this.errorRoutine);
+                        continue;
                     }
                     default:
                         this.getErrorHandler().addError(new ArkoiError(
@@ -162,17 +148,15 @@ public class LexicalAnalyzer extends AbstractStage
                                 this.position,
                                 "The defined character is unknown for the lexical analyzer:"
                         ));
+                        this.next();
                         break;
                 }
             }
-    
-            this.setFailedStage(true);
-            this.next();
         }
     
-        tokens.add(new EndOfFileToken(this));
+        new EndOfFileToken(this).parseToken().ifPresent(tokens::add);
         this.tokens = tokens.toArray(new AbstractToken[] { });
-        return !this.isFailedStage();
+        return !this.isFailed();
     }
     
     
@@ -230,7 +214,7 @@ public class LexicalAnalyzer extends AbstractStage
     /**
      * This method will go to the next position and checks if it went out ouf bounds. If
      * it did, it will set the current position {@link #position} to the last possible
-     * position from the {@link #content} array.
+     * position from the {@link ArkoiClass#getContent()} array.
      */
     public void next() {
         this.position++;
@@ -251,7 +235,7 @@ public class LexicalAnalyzer extends AbstractStage
      *         returns the peeked token.
      *
      * @return the peeked token if it didn't went out of bounds. If it did, it will return
-     *         the last possible char in the {@link ArkoiClass#content} array.
+     *         the last possible char in the {@link ArkoiClass#getContent()} array.
      */
     public char peekChar(final int offset) {
         if (this.position + offset >= this.getArkoiClass().getContent().length)
@@ -263,10 +247,11 @@ public class LexicalAnalyzer extends AbstractStage
     /**
      * Returns the current char and checks if the position went out of bounds. If the
      * current {@link #position} went out of bounds, it will simply return the last
-     * possible char of the {@link ArkoiClass#content} array.
+     * possible char of the {@link ArkoiClass#getContent()} array.
      *
      * @return the current token if it didn't went out of bounds. If it did, it will
-     *         return the last possible char in the {@link ArkoiClass#content} array.
+     *         return the last possible char in the {@link ArkoiClass#getContent()}
+     *         array.
      */
     public char currentChar() {
         if (this.position >= this.getArkoiClass().getContent().length)

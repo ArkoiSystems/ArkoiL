@@ -13,11 +13,12 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.*;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.AbstractStatementSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.parser.types.OperableParser;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.Setter;
 
 import java.io.PrintStream;
+import java.util.Optional;
 
 public class AbstractOperableSyntaxAST<O> extends AbstractSyntaxAST
 {
@@ -33,7 +34,7 @@ public class AbstractOperableSyntaxAST<O> extends AbstractSyntaxAST
     
     
     @Override
-    public AbstractOperableSyntaxAST<?> parseAST(final AbstractSyntaxAST parentAST) {
+    public Optional<? extends AbstractOperableSyntaxAST<?>> parseAST(@NonNull final AbstractSyntaxAST parentAST) {
         final AbstractToken currentToken = this.getSyntaxAnalyzer().currentToken();
         switch (currentToken.getTokenType()) {
             case STRING_LITERAL:
@@ -47,7 +48,7 @@ public class AbstractOperableSyntaxAST<O> extends AbstractSyntaxAST
                             currentToken,
                             SyntaxErrorType.OPERABLE_UNSUPPORTED_SYMBOL_TYPE
                     );
-                    return null;
+                    return Optional.empty();
                 }
                 return new CollectionOperableSyntaxAST(this.getSyntaxAnalyzer()).parseAST(parentAST);
             case IDENTIFIER:
@@ -57,30 +58,34 @@ public class AbstractOperableSyntaxAST<O> extends AbstractSyntaxAST
                             currentToken,
                             SyntaxErrorType.OPERABLE_IDENTIFIER_NOT_PARSEABLE
                     );
-                    return null;
+                    return Optional.empty();
                 }
                 
-                final AbstractSyntaxAST abstractSyntaxAST = AbstractStatementSyntaxAST.STATEMENT_PARSER.parse(parentAST, this.getSyntaxAnalyzer());
+                final Optional<? extends AbstractSyntaxAST> optionalAbstractSyntaxAST = AbstractStatementSyntaxAST.STATEMENT_PARSER.parse(parentAST, this.getSyntaxAnalyzer());
+                if (optionalAbstractSyntaxAST.isEmpty())
+                    return Optional.empty();
+                
+                final AbstractSyntaxAST abstractSyntaxAST = optionalAbstractSyntaxAST.get();
                 if (abstractSyntaxAST instanceof IdentifierCallOperableSyntaxAST)
-                    return (IdentifierCallOperableSyntaxAST) abstractSyntaxAST;
+                    return Optional.of((IdentifierCallOperableSyntaxAST) abstractSyntaxAST);
                 else if (abstractSyntaxAST instanceof FunctionInvokeOperableSyntaxAST)
-                    return (FunctionInvokeOperableSyntaxAST) abstractSyntaxAST;
+                    return Optional.of((FunctionInvokeOperableSyntaxAST) abstractSyntaxAST);
                 else if (abstractSyntaxAST instanceof IdentifierInvokeOperableSyntaxAST)
-                    return (IdentifierInvokeOperableSyntaxAST) abstractSyntaxAST;
-                else if (abstractSyntaxAST != null) {
+                    return Optional.of((IdentifierInvokeOperableSyntaxAST) abstractSyntaxAST);
+                else {
                     this.addError(
                             this.getSyntaxAnalyzer().getArkoiClass(),
-                            abstractSyntaxAST,
+                            optionalAbstractSyntaxAST.get(),
                             SyntaxErrorType.OPERABLE_UNSUPPORTED_STATEMENT
                     );
-                    return null;
+                    return Optional.empty();
                 }
         }
-        return null;
+        return Optional.empty();
     }
     
     
     @Override
-    public void printSyntaxAST(final PrintStream printStream, final String indents) { }
+    public void printSyntaxAST(@NonNull final PrintStream printStream, @NonNull final String indents) { }
     
 }

@@ -1,1 +1,94 @@
 Syntax Trees:
+   │
+   ├── RootSyntaxAST
+   │   ├── imports: N/A
+   │   │
+   │   ├── variables: N/A
+   │   │
+   │   └── functions: 
+   │       └── FunctionDefinitionSyntaxAST
+   │           ├── annotations: 
+   │           │   └── AnnotationSyntaxAST
+   │           │       ├── name: native
+   │           │       └── arguments: 
+   │           │           └── default
+   │           │
+   │           ├── name: println
+   │           ├── type: void
+   │           │
+   │           ├── arguments: 
+   │           │   └── ArgumentDefinitionSyntaxAST
+   │           │       ├── name: message
+   │           │       └── type: string
+   │           │
+   │           └── block: 
+   │                ├── type: NATIVE
+   │                └── storage: N/A
+   │
+   ├── RootSyntaxAST
+   │   ├── imports: N/A
+   │   │
+   │   ├── variables: N/A
+   │   │
+   │   └── functions: 
+   │       └── FunctionDefinitionSyntaxAST
+   │           ├── annotations: N/A
+   │           │
+   │           ├── name: test
+   │           ├── type: string
+   │           │
+   │           ├── arguments: N/A
+   │           │
+   │           └── block: 
+   │                ├── type: INLINE
+   │                └── storage: 
+   │                    └── ExpressionSyntaxAST
+   │                        └── operable: Okay
+   │
+   ├── RootSyntaxAST
+   │   ├── imports: N/A
+   │   │
+   │   ├── variables: N/A
+   │   │
+   │   └── functions: 
+   │       └── FunctionDefinitionSyntaxAST
+   │           ├── annotations: N/A
+   │           │
+   │           ├── name: hello
+   │           ├── type: string
+   │           │
+   │           ├── arguments: N/A
+   │           │
+   │           └── block: 
+   │                ├── type: INLINE
+   │                └── storage: 
+   │                    └── ExpressionSyntaxAST
+   │                        └── operable: Hello World!
+   │
+   └── RootSyntaxAST
+       ├── imports: 
+       │   ├── ImportDefinitionSyntaxAST
+       │   │   ├── name: first_class
+       │   │   └── path: first_class
+       │   │   
+       │   └── ImportDefinitionSyntaxAST
+       │       ├── name: SecondClass
+       │       └── path: second_class
+       │
+       ├── variables: N/A
+       │
+       └── functions: 
+           └── FunctionDefinitionSyntaxAST
+               ├── annotations: N/A
+               │
+               ├── name: main
+               ├── type: int
+               │
+               ├── arguments: 
+               │   └── ArgumentDefinitionSyntaxAST
+               │       ├── name: args
+               │       └── type: string[]
+               │
+               └── block: 
+                    ├── type: BLOCK
+                    └── storage: N/A

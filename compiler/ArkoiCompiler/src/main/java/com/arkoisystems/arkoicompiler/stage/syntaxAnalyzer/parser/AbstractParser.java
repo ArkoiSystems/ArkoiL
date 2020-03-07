@@ -10,6 +10,9 @@ import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenTyp
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
 import lombok.Getter;
+import lombok.NonNull;
+
+import java.util.Optional;
 
 /**
  * This class is used to define a {@link AbstractParser} for a specific {@link
@@ -20,7 +23,7 @@ import lombok.Getter;
  * @param <T>
  *         the {@link AbstractSyntaxAST} which should define this class.
  */
-public abstract class AbstractParser<T extends AbstractSyntaxAST>
+public abstract class AbstractParser
 {
     
     /**
@@ -57,7 +60,7 @@ public abstract class AbstractParser<T extends AbstractSyntaxAST>
      * @return {@code null} if an error occurred or the specified {@link
      *         AbstractSyntaxAST}.
      */
-    public abstract T parse(final AbstractSyntaxAST parentAST, final SyntaxAnalyzer syntaxAnalyzer);
+    public abstract Optional<? extends AbstractSyntaxAST> parse(@NonNull final AbstractSyntaxAST parentAST, @NonNull final SyntaxAnalyzer syntaxAnalyzer);
     
     
     /**
@@ -74,6 +77,6 @@ public abstract class AbstractParser<T extends AbstractSyntaxAST>
      * @return {@code false} if it's not capable to parse the current {@link
      *         AbstractToken} or {@code true} if it does.
      */
-    public abstract boolean canParse(final AbstractSyntaxAST parentAST, final SyntaxAnalyzer syntaxAnalyzer);
+    public abstract boolean canParse(@NonNull final AbstractSyntaxAST parentAST, @NonNull final SyntaxAnalyzer syntaxAnalyzer);
     
 }

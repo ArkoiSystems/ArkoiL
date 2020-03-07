@@ -13,13 +13,16 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.ArgumentDefinitionSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.parser.AbstractParser;
+import lombok.NonNull;
+
+import java.util.Optional;
 
 /**
  * A {@link AbstractParser} for the {@link ArgumentDefinitionSyntaxAST} with which you can
  * easily parse the {@link ArgumentDefinitionSyntaxAST} or check if the current {@link
  * AbstractToken} is capable to parse the {@link ArgumentDefinitionSyntaxAST}.
  */
-public class ArgumentDefinitionParser extends AbstractParser<ArgumentDefinitionSyntaxAST>
+public class ArgumentDefinitionParser extends AbstractParser
 {
     
     /**
@@ -37,7 +40,7 @@ public class ArgumentDefinitionParser extends AbstractParser<ArgumentDefinitionS
      *         ArgumentDefinitionSyntaxAST} or simply returns the parsed result.
      */
     @Override
-    public ArgumentDefinitionSyntaxAST parse(final AbstractSyntaxAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
+    public Optional<ArgumentDefinitionSyntaxAST> parse(@NonNull final AbstractSyntaxAST parentAST, @NonNull final SyntaxAnalyzer syntaxAnalyzer) {
         return new ArgumentDefinitionSyntaxAST(syntaxAnalyzer).parseAST(parentAST);
     }
     
@@ -58,7 +61,7 @@ public class ArgumentDefinitionParser extends AbstractParser<ArgumentDefinitionS
      *         IdentifierToken} or {@code true} if it is.
      */
     @Override
-    public boolean canParse(final AbstractSyntaxAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
+    public boolean canParse(@NonNull final AbstractSyntaxAST parentAST, @NonNull final SyntaxAnalyzer syntaxAnalyzer) {
         return syntaxAnalyzer.currentToken().getTokenType() == TokenType.IDENTIFIER && syntaxAnalyzer.matchesPeekToken(1, SymbolType.COLON) != null;
     }
     

@@ -5,6 +5,7 @@
  */
 package com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.types;
 
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.IdentifierToken;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.SemanticAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.SemanticErrorType;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.AbstractSemanticAST;
@@ -19,6 +20,7 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
 import lombok.Getter;
 
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,6 +44,25 @@ public class FunctionInvokeOperableSemanticAST extends AbstractOperableSemanticA
     }
     
     
+    // TODO: Check for null safety.
+    @Override
+    public void printSemanticAST(final PrintStream printStream, final String indents) {
+        printStream.println(indents + "├── access: " + this.getFunctionAccess());
+        printStream.println(indents + "├── identifier: " + this.getInvokedFunction().getFunctionName().getTokenContent());
+        printStream.println(indents + "└── expressions: " + (this.getInvokedExpressions().isEmpty() ? "N/A" : ""));
+        for (int index = 0; index < this.getInvokedExpressions().size(); index++) {
+            final ExpressionSemanticAST expressionSemanticAST = this.getInvokedExpressions().get(index);
+            if (index == this.getInvokedExpressions().size() - 1) {
+                printStream.println(indents + "    └── " + expressionSemanticAST.getClass().getSimpleName());
+                expressionSemanticAST.printSemanticAST(printStream, indents + "        ");
+            } else {
+                printStream.println(indents + "    ├── " + expressionSemanticAST.getClass().getSimpleName());
+                expressionSemanticAST.printSemanticAST(printStream, indents + "    │   ");
+            }
+        }
+    }
+    
+    
     @Override
     public TypeKind getOperableObject() {
         if (this.getInvokedFunction() == null)
@@ -61,12 +82,12 @@ public class FunctionInvokeOperableSemanticAST extends AbstractOperableSemanticA
         if (this.invokedFunction == null) {
             final String functionDescription = this.getFunctionDescription();
             if (functionDescription == null) {
-                this.setFailed(true);
+                this.failed();
                 return null;
             }
     
             if (this.getFunctionAccess() == null) {
-                this.setFailed(true);
+                this.failed();
                 return null;
             }
     
@@ -99,7 +120,7 @@ public class FunctionInvokeOperableSemanticAST extends AbstractOperableSemanticA
                 expressionSemanticAST.getOperableObject();
     
                 if (expressionSemanticAST.isFailed())
-                    this.setFailed(true);
+                    this.failed();
                 this.invokedExpressions.add(expressionSemanticAST);
             }
         }

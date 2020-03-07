@@ -10,6 +10,7 @@ import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
 
 import java.util.Arrays;
+import java.util.Optional;
 
 public class IdentifierToken extends AbstractToken
 {
@@ -29,7 +30,7 @@ public class IdentifierToken extends AbstractToken
     
     
     @Override
-    public IdentifierToken parseToken() {
+    public Optional<IdentifierToken> parseToken() {
         final char currentChar = this.getLexicalAnalyzer().currentChar();
         if (!Character.isJavaIdentifierStart(currentChar)) {
             this.addError(
@@ -37,7 +38,7 @@ public class IdentifierToken extends AbstractToken
                     this.getLexicalAnalyzer().getPosition(),
                     "Couldn't lex the Identifier because it doesn't start with an alphabetic char."
             );
-            return null;
+            return Optional.empty();
         } else this.getLexicalAnalyzer().next();
         
         this.setStart(this.getLexicalAnalyzer().getPosition() - 1);
@@ -49,7 +50,7 @@ public class IdentifierToken extends AbstractToken
         }
         
         this.setTokenContent(new String(Arrays.copyOfRange(this.getLexicalAnalyzer().getArkoiClass().getContent(), this.getStart(), this.getEnd())).intern());
-        return this;
+        return Optional.of(this);
     }
     
 }

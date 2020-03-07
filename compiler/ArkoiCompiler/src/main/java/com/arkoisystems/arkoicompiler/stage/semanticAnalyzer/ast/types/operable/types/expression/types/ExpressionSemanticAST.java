@@ -16,6 +16,9 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.ty
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
 
+import java.io.PrintStream;
+import java.util.Objects;
+
 public class ExpressionSemanticAST extends AbstractExpressionSemanticAST<ExpressionSyntaxAST>
 {
     
@@ -27,6 +30,13 @@ public class ExpressionSemanticAST extends AbstractExpressionSemanticAST<Express
     
     public ExpressionSemanticAST(final SemanticAnalyzer semanticAnalyzer, final AbstractSemanticAST<?> lastContainerAST, final ExpressionSyntaxAST expressionSyntaxAST) {
         super(semanticAnalyzer, lastContainerAST, expressionSyntaxAST, ASTType.BASIC_EXPRESSION);
+    }
+    
+    
+    // TODO: Check null safety.
+    @Override
+    public void printSemanticAST(final PrintStream printStream, final String indents) {
+        Objects.requireNonNull(this.getExpressionOperable()).printSemanticAST(printStream, indents);
     }
     
     
@@ -54,7 +64,7 @@ public class ExpressionSemanticAST extends AbstractExpressionSemanticAST<Express
             }
             
             if(this.expressionOperable == null)
-                this.setFailed(true);
+                this.failed();
             return this.expressionType;
         }
         return this.expressionType;

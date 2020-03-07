@@ -13,13 +13,16 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.AbstractOperableSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.AbstractStatementSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.parser.AbstractParser;
+import lombok.NonNull;
+
+import java.util.Optional;
 
 /**
  * A {@link AbstractParser} for the {@link AbstractOperableSyntaxAST} with which you can
  * easily parse the {@link AbstractOperableSyntaxAST} or check if the current {@link
  * AbstractToken} and is capable to parse a new {@link AbstractStatementSyntaxAST}.
  */
-public class OperableParser extends AbstractParser<AbstractOperableSyntaxAST<?>>
+public class OperableParser extends AbstractParser
 {
     
     /**
@@ -37,7 +40,7 @@ public class OperableParser extends AbstractParser<AbstractOperableSyntaxAST<?>>
      *         AbstractOperableSyntaxAST} or simply returns the parsed result.
      */
     @Override
-    public AbstractOperableSyntaxAST<?> parse(final AbstractSyntaxAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
+    public Optional<? extends AbstractOperableSyntaxAST<?>> parse(@NonNull final AbstractSyntaxAST parentAST, @NonNull final SyntaxAnalyzer syntaxAnalyzer) {
         return new AbstractOperableSyntaxAST<>(syntaxAnalyzer, null).parseAST(parentAST);
     }
     
@@ -57,7 +60,7 @@ public class OperableParser extends AbstractParser<AbstractOperableSyntaxAST<?>>
      *         parse a new {@link AbstractOperableSyntaxAST} or {@code true} if it is.
      */
     @Override
-    public boolean canParse(final AbstractSyntaxAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
+    public boolean canParse(@NonNull final AbstractSyntaxAST parentAST, @NonNull final SyntaxAnalyzer syntaxAnalyzer) {
         switch (syntaxAnalyzer.currentToken().getTokenType()) {
             case STRING_LITERAL:
             case NUMBER_LITERAL:

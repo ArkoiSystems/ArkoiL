@@ -15,9 +15,11 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTAccess;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.Setter;
 
 import java.io.PrintStream;
+import java.util.Optional;
 
 public class IdentifierCallOperableSyntaxAST extends AbstractOperableSyntaxAST<TypeKind>
 {
@@ -51,25 +53,25 @@ public class IdentifierCallOperableSyntaxAST extends AbstractOperableSyntaxAST<T
      *         if it parsed until to the end.
      */
     @Override
-    public IdentifierCallOperableSyntaxAST parseAST(final AbstractSyntaxAST parentAST) {
+    public Optional<IdentifierCallOperableSyntaxAST> parseAST(@NonNull final AbstractSyntaxAST parentAST) {
         if (this.getSyntaxAnalyzer().matchesCurrentToken(TokenType.IDENTIFIER) == null) {
             this.addError(
                     this.getSyntaxAnalyzer().getArkoiClass(),
                     this.getSyntaxAnalyzer().currentToken(),
                     SyntaxErrorType.IDENTIFIER_CALL_NO_IDENTIFIER
             );
-            return null;
+            return Optional.empty();
         }
         
         this.calledIdentifier = (IdentifierToken) this.getSyntaxAnalyzer().currentToken();
         this.setStart(this.getCalledIdentifier().getStart());
         this.setEnd(this.getCalledIdentifier().getEnd());
-        return this;
+        return Optional.of(this);
     }
     
     
     @Override
-    public void printSyntaxAST(final PrintStream printStream, final String indents) {
+    public void printSyntaxAST(@NonNull final PrintStream printStream, @NonNull final String indents) {
         printStream.println(indents + "├── access: " + this.getIdentifierAccess());
         printStream.println(indents + "└── identifier: " + this.getCalledIdentifier().getTokenContent());
     }

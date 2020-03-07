@@ -10,6 +10,7 @@ import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
 
 import java.util.Arrays;
+import java.util.Optional;
 
 public class WhitespaceToken extends AbstractToken
 {
@@ -20,12 +21,12 @@ public class WhitespaceToken extends AbstractToken
     
     
     @Override
-    public WhitespaceToken parseToken() {
+    public Optional<WhitespaceToken> parseToken() {
         this.setStart(this.getLexicalAnalyzer().getPosition());
         this.setEnd(this.getLexicalAnalyzer().getPosition() + 1);
         this.setTokenContent(new String(Arrays.copyOfRange(this.getLexicalAnalyzer().getArkoiClass().getContent(), this.getStart(), this.getEnd())).intern());
         this.getLexicalAnalyzer().next();
-        return this;
+        return Optional.of(this);
     }
     
 }

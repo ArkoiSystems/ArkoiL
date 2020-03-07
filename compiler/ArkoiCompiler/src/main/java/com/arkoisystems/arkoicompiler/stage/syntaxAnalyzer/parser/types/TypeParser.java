@@ -12,13 +12,16 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.TypeSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.parser.AbstractParser;
+import lombok.NonNull;
+
+import java.util.Optional;
 
 /**
  * A {@link AbstractParser} for the {@link TypeSyntaxAST} with which you can easily parse
  * the {@link TypeSyntaxAST} or check if the current {@link AbstractToken} is capable to
  * parse the {@link TypeSyntaxAST}.
  */
-public class TypeParser extends AbstractParser<TypeSyntaxAST>
+public class TypeParser extends AbstractParser
 {
     
     /**
@@ -36,7 +39,7 @@ public class TypeParser extends AbstractParser<TypeSyntaxAST>
      *         TypeSyntaxAST} or simply returns the parsed result.
      */
     @Override
-    public TypeSyntaxAST parse(final AbstractSyntaxAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
+    public Optional<TypeSyntaxAST> parse(@NonNull final AbstractSyntaxAST parentAST, @NonNull final SyntaxAnalyzer syntaxAnalyzer) {
         return new TypeSyntaxAST(syntaxAnalyzer).parseAST(parentAST);
     }
     
@@ -56,7 +59,7 @@ public class TypeParser extends AbstractParser<TypeSyntaxAST>
      *         IdentifierToken} or {@code true} if it is.
      */
     @Override
-    public boolean canParse(final AbstractSyntaxAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
+    public boolean canParse(@NonNull final AbstractSyntaxAST parentAST, @NonNull final SyntaxAnalyzer syntaxAnalyzer) {
         return syntaxAnalyzer.currentToken().getTokenType() == TokenType.IDENTIFIER;
     }
     

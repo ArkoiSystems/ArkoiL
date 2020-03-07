@@ -5,20 +5,21 @@
  */
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression;
 
-import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.IdentifierToken;
-import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.SymbolToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.SymbolType;
-import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.AbstractOperableSyntaxAST;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.operators.*;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.operators.AssignmentOperatorType;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.operators.BinaryOperatorType;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.operators.PrefixOperatorType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types.*;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.parser.types.ExpressionParser;
+import lombok.NonNull;
 
 import java.io.PrintStream;
+import java.util.Optional;
 
 /*
     Operator Precedence:
@@ -67,252 +68,237 @@ public class AbstractExpressionSyntaxAST extends AbstractOperableSyntaxAST<TypeK
      *         parsed until to the end.
      */
     @Override
-    public AbstractOperableSyntaxAST<?> parseAST(final AbstractSyntaxAST parentAST) {
-        final AbstractOperableSyntaxAST<?> abstractOperableSyntaxAST = this.parseAssignment(this);
-        if (abstractOperableSyntaxAST == null)
-            return null;
-        return new ExpressionSyntaxAST(this.getSyntaxAnalyzer(), abstractOperableSyntaxAST);
+    public Optional<? extends AbstractOperableSyntaxAST<?>> parseAST(@NonNull final AbstractSyntaxAST parentAST) {
+        final Optional<? extends AbstractOperableSyntaxAST<?>> optionalAbstractOperableSyntaxAST = this.parseAssignment(this);
+        if (optionalAbstractOperableSyntaxAST.isEmpty())
+            return Optional.empty();
+        return this.isFailed() ? Optional.empty() : Optional.of(new ExpressionSyntaxAST(this.getSyntaxAnalyzer(), optionalAbstractOperableSyntaxAST.get()));
     }
     
-    private AbstractOperableSyntaxAST<?> parseAssignment(final AbstractSyntaxAST parentAST) {
-        AbstractOperableSyntaxAST<?> leftSideAST = this.parseAdditive(parentAST);
-        if (leftSideAST == null)
-            return null;
+    public Optional<? extends AbstractOperableSyntaxAST<?>> parseAssignment(final AbstractSyntaxAST parentAST) {
+        Optional<? extends AbstractOperableSyntaxAST<?>> optionalLeftSideAST = this.parseAdditive(parentAST);
+        if (optionalLeftSideAST.isEmpty())
+            return Optional.empty();
         
         while (true) {
             if (this.getSyntaxAnalyzer().matchesPeekToken(1, SymbolType.PLUS) != null) {
-                this.getSyntaxAnalyzer().nextToken();
-                if (this.getSyntaxAnalyzer().matchesPeekToken(1, SymbolType.EQUAL, false) == null) {
-                    this.addError(
-                            this.getSyntaxAnalyzer().getArkoiClass(),
-                            this.getSyntaxAnalyzer().currentToken(),
-                            "Couldn't parse the add assignment expression because there is a whitespace between the operators."
-                    );
-                    return null;
-                } else this.getSyntaxAnalyzer().nextToken(2);
+                //                this.getSyntaxAnalyzer().nextToken();
+                //                if (this.getSyntaxAnalyzer().matchesPeekToken(1, SymbolType.EQUAL, false) == null) {
+                //                    this.addError(
+                //                            this.getSyntaxAnalyzer().getArkoiClass(),
+                //                            this.getSyntaxAnalyzer().currentToken().getStart(),
+                //                            this.getSyntaxAnalyzer().nextToken().getEnd(),
+                //                            SyntaxErrorType.EXPRESSION_ADD_ASSIGNMENT_SEPARATED
+                //                    );
+                //                    this.getSyntaxAnalyzer().nextToken();
+                //                } else this.getSyntaxAnalyzer().nextToken(2);
+                //
+                //                final AbstractOperableSyntaxAST<?> rightSideAST = this.parseAdditive(parentAST);
+                //                if (rightSideAST == null)
+                //                    return null;
+                //
+                if(optionalLeftSideAST.isEmpty())
+                    return Optional.empty();
                 
-                final AbstractOperableSyntaxAST<?> rightSideAST = this.parseAdditive(parentAST);
-                if (rightSideAST == null)
-                    return null;
-                
-                leftSideAST = new AssignmentExpressionSyntaxAST(this.getSyntaxAnalyzer(), leftSideAST, AssignmentOperatorType.ADD_ASSIGN, rightSideAST);
+                optionalLeftSideAST = new AssignmentExpressionSyntaxAST(this.getSyntaxAnalyzer(), optionalLeftSideAST.get(), AssignmentOperatorType.ADD_ASSIGN).parseAST(parentAST);
             } else if (this.getSyntaxAnalyzer().matchesPeekToken(1, SymbolType.MINUS) != null) {
-                this.getSyntaxAnalyzer().nextToken();
-                if (this.getSyntaxAnalyzer().matchesPeekToken(1, SymbolType.EQUAL, false) == null) {
-                    this.addError(
-                            this.getSyntaxAnalyzer().getArkoiClass(),
-                            this.getSyntaxAnalyzer().currentToken(),
-                            "Couldn't parse the sub assignment expression because there is a whitespace between the operators."
-                    );
-                    return null;
-                } else this.getSyntaxAnalyzer().nextToken(2);
-                
-                final AbstractOperableSyntaxAST<?> rightSideAST = this.parseAdditive(parentAST);
-                if (rightSideAST == null)
-                    return null;
-                
-                leftSideAST = new AssignmentExpressionSyntaxAST(this.getSyntaxAnalyzer(), leftSideAST, AssignmentOperatorType.SUB_ASSIGN, rightSideAST);
-            } else return leftSideAST;
+                //                this.getSyntaxAnalyzer().nextToken();
+                //                if (this.getSyntaxAnalyzer().matchesPeekToken(1, SymbolType.EQUAL, false) == null) {
+                //                    this.addError(
+                //                            this.getSyntaxAnalyzer().getArkoiClass(),
+                //                            this.getSyntaxAnalyzer().currentToken().getStart(),
+                //                            this.getSyntaxAnalyzer().nextToken().getEnd(),
+                //                            SyntaxErrorType.EXPRESSION_SUB_ASSIGNMENT_SEPARATED
+                //                    );
+                //                    this.getSyntaxAnalyzer().nextToken();
+                //                } else this.getSyntaxAnalyzer().nextToken(2);
+                //
+                //                final AbstractOperableSyntaxAST<?> rightSideAST = this.parseAdditive(parentAST);
+                //                if (rightSideAST == null)
+                //                    return null;
+                //
+                if(optionalLeftSideAST.isEmpty())
+                    return Optional.empty();
+    
+                optionalLeftSideAST = new AssignmentExpressionSyntaxAST(this.getSyntaxAnalyzer(), optionalLeftSideAST.get(), AssignmentOperatorType.SUB_ASSIGN).parseAST(parentAST);
+            } else return optionalLeftSideAST;
         }
     }
     
-    private AbstractOperableSyntaxAST<?> parseAdditive(final AbstractSyntaxAST parentAST) {
-        AbstractOperableSyntaxAST<?> leftSideAST = this.parseMultiplicative(parentAST);
-        if (leftSideAST == null)
-            return null;
+    private Optional<? extends AbstractOperableSyntaxAST<?>> parseAdditive(final AbstractSyntaxAST parentAST) {
+        Optional<? extends AbstractOperableSyntaxAST<?>> optionalLeftSideAST = this.parseMultiplicative(parentAST);
+        if (optionalLeftSideAST.isEmpty())
+            return Optional.empty();
         
         while (true) {
             if (this.getSyntaxAnalyzer().matchesPeekToken(1, SymbolType.PLUS) != null &&
                     this.getSyntaxAnalyzer().matchesPeekToken(2, SymbolType.EQUAL) == null) {
-                this.getSyntaxAnalyzer().nextToken(2);
-                
-                final AbstractOperableSyntaxAST<?> rightSideAST = this.parseMultiplicative(parentAST);
-                if (rightSideAST == null)
-                    return null;
-                
-                leftSideAST = new BinaryExpressionSyntaxAST(this.getSyntaxAnalyzer(), leftSideAST, BinaryOperatorType.ADDITION, rightSideAST);
+                //                this.getSyntaxAnalyzer().nextToken(2);
+                //
+                //                final AbstractOperableSyntaxAST<?> rightSideAST = this.parseMultiplicative(parentAST);
+                //                if (rightSideAST == null)
+                //                    return null;
+                //
+                if(optionalLeftSideAST.isEmpty())
+                    return Optional.empty();
+    
+                optionalLeftSideAST = new BinaryExpressionSyntaxAST(this.getSyntaxAnalyzer(), optionalLeftSideAST.get(), BinaryOperatorType.ADDITION).parseAST(parentAST);
             } else if (this.getSyntaxAnalyzer().matchesPeekToken(1, SymbolType.MINUS) != null &&
                     this.getSyntaxAnalyzer().matchesPeekToken(2, SymbolType.EQUAL) == null) {
-                this.getSyntaxAnalyzer().nextToken(2);
-                
-                final AbstractOperableSyntaxAST<?> rightSideAST = this.parseMultiplicative(parentAST);
-                if (rightSideAST == null)
-                    return null;
-                
-                leftSideAST = new BinaryExpressionSyntaxAST(this.getSyntaxAnalyzer(), leftSideAST, BinaryOperatorType.SUBTRACTION, rightSideAST);
-            } else return leftSideAST;
+                //                this.getSyntaxAnalyzer().nextToken(2);
+                //
+                //                final AbstractOperableSyntaxAST<?> rightSideAST = this.parseMultiplicative(parentAST);
+                //                if (rightSideAST == null)
+                //                    return null;
+                //
+                if(optionalLeftSideAST.isEmpty())
+                    return Optional.empty();
+    
+                optionalLeftSideAST = new BinaryExpressionSyntaxAST(this.getSyntaxAnalyzer(), optionalLeftSideAST.get(), BinaryOperatorType.SUBTRACTION).parseAST(parentAST);
+            } else return optionalLeftSideAST;
         }
     }
     
-    private AbstractOperableSyntaxAST<?> parseMultiplicative(final AbstractSyntaxAST parentAST) {
-        AbstractOperableSyntaxAST<?> leftSideAST = this.parseExponential(parentAST);
-        if (leftSideAST == null)
-            return null;
+    private Optional<? extends AbstractOperableSyntaxAST<?>> parseMultiplicative(final AbstractSyntaxAST parentAST) {
+        Optional<? extends AbstractOperableSyntaxAST<?>> optionalLeftSideAST = this.parseExponential(parentAST);
+        if (optionalLeftSideAST.isEmpty())
+            return Optional.empty();
         
         while (true) {
             if (this.getSyntaxAnalyzer().matchesPeekToken(1, SymbolType.ASTERISK) != null &&
                     this.getSyntaxAnalyzer().matchesPeekToken(2, SymbolType.EQUAL) == null &&
                     this.getSyntaxAnalyzer().matchesPeekToken(2, SymbolType.ASTERISK) == null) {
-                this.getSyntaxAnalyzer().nextToken(2);
-                
-                final AbstractOperableSyntaxAST<?> rightSideAST = this.parseExponential(parentAST);
-                if (rightSideAST == null)
-                    return null;
-                
-                leftSideAST = new BinaryExpressionSyntaxAST(this.getSyntaxAnalyzer(), leftSideAST, BinaryOperatorType.MULTIPLICATION, rightSideAST);
+                //                this.getSyntaxAnalyzer().nextToken(2);
+                //
+                //                final AbstractOperableSyntaxAST<?> rightSideAST = this.parseExponential(parentAST);
+                //                if (rightSideAST == null)
+                //                    return null;
+                //
+                if(optionalLeftSideAST.isEmpty())
+                    return Optional.empty();
+    
+                optionalLeftSideAST = new BinaryExpressionSyntaxAST(this.getSyntaxAnalyzer(), optionalLeftSideAST.get(), BinaryOperatorType.MULTIPLICATION).parseAST(parentAST);
             } else if (this.getSyntaxAnalyzer().matchesPeekToken(1, SymbolType.SLASH) != null &&
                     this.getSyntaxAnalyzer().matchesPeekToken(2, SymbolType.EQUAL) == null) {
-                this.getSyntaxAnalyzer().nextToken(2);
-                
-                final AbstractOperableSyntaxAST<?> rightSideAST = this.parseExponential(parentAST);
-                if (rightSideAST == null)
-                    return null;
-                
-                leftSideAST = new BinaryExpressionSyntaxAST(this.getSyntaxAnalyzer(), leftSideAST, BinaryOperatorType.DIVISION, rightSideAST);
+                //                this.getSyntaxAnalyzer().nextToken(2);
+                //
+                //                final AbstractOperableSyntaxAST<?> rightSideAST = this.parseExponential(parentAST);
+                //                if (rightSideAST == null)
+                //                    return null;
+                //
+                if(optionalLeftSideAST.isEmpty())
+                    return Optional.empty();
+    
+                optionalLeftSideAST = new BinaryExpressionSyntaxAST(this.getSyntaxAnalyzer(), optionalLeftSideAST.get(), BinaryOperatorType.DIVISION).parseAST(parentAST);
             } else if (this.getSyntaxAnalyzer().matchesPeekToken(1, SymbolType.PERCENT) != null &&
                     this.getSyntaxAnalyzer().matchesPeekToken(2, SymbolType.EQUAL) == null) {
-                this.getSyntaxAnalyzer().nextToken(2);
-                
-                final AbstractOperableSyntaxAST<?> rightSideAST = this.parseExponential(parentAST);
-                if (rightSideAST == null)
-                    return null;
-                
-                leftSideAST = new BinaryExpressionSyntaxAST(this.getSyntaxAnalyzer(), leftSideAST, BinaryOperatorType.MODULO, rightSideAST);
-            } else return leftSideAST;
+                //                this.getSyntaxAnalyzer().nextToken(2);
+                //
+                //                final AbstractOperableSyntaxAST<?> rightSideAST = this.parseExponential(parentAST);
+                //                if (rightSideAST == null)
+                //                    return null;
+                //
+                if(optionalLeftSideAST.isEmpty())
+                    return Optional.empty();
+    
+                optionalLeftSideAST = new BinaryExpressionSyntaxAST(this.getSyntaxAnalyzer(), optionalLeftSideAST.get(), BinaryOperatorType.MODULO).parseAST(parentAST);
+            } else return optionalLeftSideAST;
         }
     }
     
-    private AbstractOperableSyntaxAST<?> parseExponential(final AbstractSyntaxAST parentAST) {
-        AbstractOperableSyntaxAST<?> leftSideAST = this.parseOperable(parentAST);
-        if (leftSideAST == null)
-            return null;
+    private Optional<? extends AbstractOperableSyntaxAST<?>> parseExponential(final AbstractSyntaxAST parentAST) {
+        Optional<? extends AbstractOperableSyntaxAST<?>> optionalLeftSideAST = this.parseOperable(parentAST);
+        if (optionalLeftSideAST.isEmpty())
+            return Optional.empty();
         
         while (true) {
             if (this.getSyntaxAnalyzer().matchesPeekToken(1, SymbolType.ASTERISK) != null &&
                     this.getSyntaxAnalyzer().matchesPeekToken(2, SymbolType.ASTERISK) != null) {
-                this.getSyntaxAnalyzer().nextToken();
-                if (this.getSyntaxAnalyzer().matchesPeekToken(1, SymbolType.ASTERISK, false) == null) {
-                    this.addError(
-                            this.getSyntaxAnalyzer().getArkoiClass(),
-                            this.getSyntaxAnalyzer().currentToken(),
-                            "Couldn't parse the exponential expression because there is a whitespace between the operators."
-                    );
-                    return null;
-                } else this.getSyntaxAnalyzer().nextToken(2);
-                
-                final AbstractOperableSyntaxAST<?> rightSideAST = this.parseOperable(parentAST);
-                if (rightSideAST == null)
-                    return null;
-                
-                leftSideAST = new BinaryExpressionSyntaxAST(this.getSyntaxAnalyzer(), leftSideAST, BinaryOperatorType.EXPONENTIAL, rightSideAST);
-            } else return leftSideAST;
+                //                this.getSyntaxAnalyzer().nextToken();
+                //                if (this.getSyntaxAnalyzer().matchesPeekToken(1, SymbolType.ASTERISK, false) == null) {
+                //                    this.addError(
+                //                            this.getSyntaxAnalyzer().getArkoiClass(),
+                //                            this.getSyntaxAnalyzer().currentToken().getStart(),
+                //                            this.getSyntaxAnalyzer().nextToken().getEnd(),
+                //                            SyntaxErrorType.EXPRESSION_EXPONENTIAL_OPERABLE_SEPARATED
+                //                    );
+                //                    this.getSyntaxAnalyzer().nextToken();
+                //                } else this.getSyntaxAnalyzer().nextToken(2);
+                //
+                //                final Optional<? extends AbstractOperableSyntaxAST<?>> optionalRightSideAST = this.parseOperable(parentAST);
+                //                if (optionalRightSideAST.isEmpty())
+                //                    return Optional.empty();
+                //
+                if(optionalLeftSideAST.isEmpty())
+                    return Optional.empty();
+    
+                optionalLeftSideAST = new BinaryExpressionSyntaxAST(this.getSyntaxAnalyzer(), optionalLeftSideAST.get(), BinaryOperatorType.EXPONENTIAL).parseAST(parentAST);
+            } else return optionalLeftSideAST;
         }
     }
     
-    private AbstractOperableSyntaxAST<?> parseOperable(final AbstractSyntaxAST parentAST) {
-        AbstractOperableSyntaxAST<?> abstractOperableSyntaxAST = null;
+    public Optional<? extends AbstractOperableSyntaxAST<?>> parseOperable(final AbstractSyntaxAST parentAST) {
+        Optional<? extends AbstractOperableSyntaxAST<?>> abstractOperableSyntaxAST = Optional.empty();
         if (this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.MINUS) != null &&
-                this.getSyntaxAnalyzer().matchesPeekToken(1, SymbolType.MINUS, false) != null) {
-            final int start = this.getSyntaxAnalyzer().currentToken().getStart();
-            this.getSyntaxAnalyzer().nextToken(2);
-            
-            final AbstractOperableSyntaxAST<?> rightSideAST = this.parseOperable(parentAST);
-            if (rightSideAST == null)
-                return null;
-            abstractOperableSyntaxAST = new PrefixExpressionSyntaxAST(this.getSyntaxAnalyzer(), start, rightSideAST, PrefixOperatorType.PREFIX_SUB);
-        } else if (this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.PLUS) != null &&
-                this.getSyntaxAnalyzer().matchesPeekToken(1, SymbolType.PLUS, false) != null) {
-            final int start = this.getSyntaxAnalyzer().currentToken().getStart();
-            this.getSyntaxAnalyzer().nextToken(2);
-            
-            final AbstractOperableSyntaxAST<?> rightSideAST = this.parseOperable(parentAST);
-            if (rightSideAST == null)
-                return null;
-            abstractOperableSyntaxAST = new PrefixExpressionSyntaxAST(this.getSyntaxAnalyzer(), start, rightSideAST, PrefixOperatorType.PREFIX_ADD);
-        } else if (this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.MINUS) != null) {
-            final int start = this.getSyntaxAnalyzer().currentToken().getStart();
-            this.getSyntaxAnalyzer().nextToken();
-            
-            final AbstractOperableSyntaxAST<?> rightSideAST = this.parseOperable(parentAST);
-            if (rightSideAST == null)
-                return null;
-            abstractOperableSyntaxAST = new PrefixExpressionSyntaxAST(this.getSyntaxAnalyzer(), start, rightSideAST, PrefixOperatorType.NEGATE);
-        } else if (this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.PLUS) != null) {
-            final int start = this.getSyntaxAnalyzer().currentToken().getStart();
-            this.getSyntaxAnalyzer().nextToken();
-            
-            final AbstractOperableSyntaxAST<?> rightSideAST = this.parseOperable(parentAST);
-            if (rightSideAST == null)
-                return null;
-            abstractOperableSyntaxAST = new PrefixExpressionSyntaxAST(this.getSyntaxAnalyzer(), start, rightSideAST, PrefixOperatorType.AFFIRM);
-        } else if (this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.OPENING_PARENTHESIS) != null) {
-            final SymbolToken openingParenthesis = (SymbolToken) this.getSyntaxAnalyzer().currentToken();
-            
-            this.getSyntaxAnalyzer().nextToken();
-            final AbstractOperableSyntaxAST<?> parenthesizedOperable = this.parseAssignment(parentAST);
-            if (parenthesizedOperable == null)
-                return null;
-            final ExpressionSyntaxAST expressionSyntaxAST = new ExpressionSyntaxAST(this.getSyntaxAnalyzer(), parenthesizedOperable);
-            
-            if (this.getSyntaxAnalyzer().matchesPeekToken(1, SymbolType.CLOSING_PARENTHESIS) == null) {
-                this.addError(
-                        this.getSyntaxAnalyzer().getArkoiClass(),
-                        this.getSyntaxAnalyzer().currentToken(),
-                        "Couldn't parse the parenthesized expression because it doesn't end with a closing parenthesis."
-                );
-                return null;
-            }
-            abstractOperableSyntaxAST = new ParenthesizedExpressionSyntaxAST(this.getSyntaxAnalyzer(), openingParenthesis, expressionSyntaxAST, (SymbolToken) this.getSyntaxAnalyzer().nextToken());
-        }
+                this.getSyntaxAnalyzer().matchesPeekToken(1, SymbolType.MINUS) != null)
+            abstractOperableSyntaxAST = new PrefixExpressionSyntaxAST(this.getSyntaxAnalyzer(), PrefixOperatorType.PREFIX_SUB).parseAST(parentAST);
+        else if (this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.PLUS) != null &&
+                this.getSyntaxAnalyzer().matchesPeekToken(1, SymbolType.PLUS) != null)
+            abstractOperableSyntaxAST = new PrefixExpressionSyntaxAST(this.getSyntaxAnalyzer(), PrefixOperatorType.PREFIX_ADD).parseAST(parentAST);
+        else if (this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.MINUS) != null)
+            abstractOperableSyntaxAST = new PrefixExpressionSyntaxAST(this.getSyntaxAnalyzer(), PrefixOperatorType.NEGATE).parseAST(parentAST);
+        else if (this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.PLUS) != null)
+            abstractOperableSyntaxAST = new PrefixExpressionSyntaxAST(this.getSyntaxAnalyzer(), PrefixOperatorType.AFFIRM).parseAST(parentAST);
+        else if (this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.OPENING_PARENTHESIS) != null)
+            abstractOperableSyntaxAST = new ParenthesizedExpressionSyntaxAST(this.getSyntaxAnalyzer()).parseOperable(parentAST);
         
-        if (abstractOperableSyntaxAST == null)
+        if (abstractOperableSyntaxAST.isEmpty())
             abstractOperableSyntaxAST = new AbstractOperableSyntaxAST<>(this.getSyntaxAnalyzer(), null).parseAST(parentAST);
-        if (abstractOperableSyntaxAST == null)
-            return null;
+        if (abstractOperableSyntaxAST.isEmpty())
+            return Optional.empty();
         
-        if (this.getSyntaxAnalyzer().matchesPeekToken(1, SymbolType.MINUS) != null) {
-            this.getSyntaxAnalyzer().nextToken(1);
-            if (this.getSyntaxAnalyzer().matchesPeekToken(1, SymbolType.MINUS, false) != null) {
-                this.getSyntaxAnalyzer().nextToken();
-                return new PostfixExpressionSyntaxAST(this.getSyntaxAnalyzer(), abstractOperableSyntaxAST, PostfixOperatorType.POSTFIX_SUB, this.getSyntaxAnalyzer().currentToken().getEnd());
-            } else this.getSyntaxAnalyzer().undoToken();
-        } else if (this.getSyntaxAnalyzer().matchesPeekToken(1, SymbolType.PLUS) != null) {
-            this.getSyntaxAnalyzer().nextToken(1);
-            if (this.getSyntaxAnalyzer().matchesPeekToken(1, SymbolType.PLUS, false) != null) {
-                this.getSyntaxAnalyzer().nextToken();
-                return new PostfixExpressionSyntaxAST(this.getSyntaxAnalyzer(), abstractOperableSyntaxAST, PostfixOperatorType.POSTFIX_ADD, this.getSyntaxAnalyzer().currentToken().getEnd());
-            } else this.getSyntaxAnalyzer().undoToken();
-        } else if (this.getSyntaxAnalyzer().matchesPeekToken(1, TokenType.IDENTIFIER, false) != null) {
-            final IdentifierToken identifierToken = (IdentifierToken) this.getSyntaxAnalyzer().nextToken(false);
-            switch (identifierToken.getTokenContent()) {
-                case "i":
-                case "I":
-                    return new CastExpressionSyntaxAST(this.getSyntaxAnalyzer(), abstractOperableSyntaxAST, CastOperatorType.INTEGER, this.getSyntaxAnalyzer().currentToken().getEnd());
-                case "d":
-                case "D":
-                    return new CastExpressionSyntaxAST(this.getSyntaxAnalyzer(), abstractOperableSyntaxAST, CastOperatorType.DOUBLE, this.getSyntaxAnalyzer().currentToken().getEnd());
-                case "f":
-                case "F":
-                    return new CastExpressionSyntaxAST(this.getSyntaxAnalyzer(), abstractOperableSyntaxAST, CastOperatorType.FLOAT, this.getSyntaxAnalyzer().currentToken().getEnd());
-                case "b":
-                case "B":
-                    return new CastExpressionSyntaxAST(this.getSyntaxAnalyzer(), abstractOperableSyntaxAST, CastOperatorType.BYTE, this.getSyntaxAnalyzer().currentToken().getEnd());
-                case "s":
-                case "S":
-                    return new CastExpressionSyntaxAST(this.getSyntaxAnalyzer(), abstractOperableSyntaxAST, CastOperatorType.SHORT, this.getSyntaxAnalyzer().currentToken().getEnd());
-                default:
-                    this.addError(
-                            this.getSyntaxAnalyzer().getArkoiClass(),
-                            identifierToken,
-                            "Couldn't parse the cast expression because it contains a unsupported identifier."
-                    );
-                    return null;
-            }
-        }
+        //        if (this.getSyntaxAnalyzer().matchesPeekToken(1, SymbolType.MINUS) != null) {
+        //            this.getSyntaxAnalyzer().nextToken(1);
+        //            if (this.getSyntaxAnalyzer().matchesPeekToken(1, SymbolType.MINUS, false) != null) {
+        //                this.getSyntaxAnalyzer().nextToken();
+        //                return new PostfixExpressionSyntaxAST(this.getSyntaxAnalyzer(), abstractOperableSyntaxAST, PostfixOperatorType.POSTFIX_SUB, this.getSyntaxAnalyzer().currentToken().getEnd());
+        //            } else this.getSyntaxAnalyzer().undoToken();
+        //        } else if (this.getSyntaxAnalyzer().matchesPeekToken(1, SymbolType.PLUS) != null) {
+        //            this.getSyntaxAnalyzer().nextToken(1);
+        //            if (this.getSyntaxAnalyzer().matchesPeekToken(1, SymbolType.PLUS, false) != null) {
+        //                this.getSyntaxAnalyzer().nextToken();
+        //                return new PostfixExpressionSyntaxAST(this.getSyntaxAnalyzer(), abstractOperableSyntaxAST, PostfixOperatorType.POSTFIX_ADD, this.getSyntaxAnalyzer().currentToken().getEnd());
+        //            } else this.getSyntaxAnalyzer().undoToken();
+        //        } else if (this.getSyntaxAnalyzer().matchesPeekToken(1, TokenType.IDENTIFIER, false) != null) {
+        //            final IdentifierToken identifierToken = (IdentifierToken) this.getSyntaxAnalyzer().nextToken(false);
+        //            switch (identifierToken.getTokenContent()) {
+        //                case "i":
+        //                case "I":
+        //                    return new CastExpressionSyntaxAST(this.getSyntaxAnalyzer(), abstractOperableSyntaxAST, CastOperatorType.INTEGER, this.getSyntaxAnalyzer().currentToken().getEnd());
+        //                case "d":
+        //                case "D":
+        //                    return new CastExpressionSyntaxAST(this.getSyntaxAnalyzer(), abstractOperableSyntaxAST, CastOperatorType.DOUBLE, this.getSyntaxAnalyzer().currentToken().getEnd());
+        //                case "f":
+        //                case "F":
+        //                    return new CastExpressionSyntaxAST(this.getSyntaxAnalyzer(), abstractOperableSyntaxAST, CastOperatorType.FLOAT, this.getSyntaxAnalyzer().currentToken().getEnd());
+        //                case "b":
+        //                case "B":
+        //                    return new CastExpressionSyntaxAST(this.getSyntaxAnalyzer(), abstractOperableSyntaxAST, CastOperatorType.BYTE, this.getSyntaxAnalyzer().currentToken().getEnd());
+        //                case "s":
+        //                case "S":
+        //                    return new CastExpressionSyntaxAST(this.getSyntaxAnalyzer(), abstractOperableSyntaxAST, CastOperatorType.SHORT, this.getSyntaxAnalyzer().currentToken().getEnd());
+        //                default:
+        //                    this.addError(
+        //                            this.getSyntaxAnalyzer().getArkoiClass(),
+        //                            identifierToken,
+        //                            SyntaxErrorType.EXPRESSION_CAST_WRONG_IDENTIFIER
+        //                    );
+        //            }
+        //        }
         return abstractOperableSyntaxAST;
     }
     
     @Override
-    public void printSyntaxAST(final PrintStream printStream, final String indents) { }
+    public void printSyntaxAST(@NonNull final PrintStream printStream, @NonNull final String indents) { }
     
 }

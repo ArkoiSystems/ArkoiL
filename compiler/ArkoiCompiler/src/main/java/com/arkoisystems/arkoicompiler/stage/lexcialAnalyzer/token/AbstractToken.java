@@ -13,7 +13,10 @@ import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.Whitespa
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxErrorType;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.Setter;
+
+import java.util.Optional;
 
 public abstract class AbstractToken
 {
@@ -70,15 +73,7 @@ public abstract class AbstractToken
     }
     
     
-    /**
-     * Parses a new {@link AbstractToken} with the given {@link LexicalAnalyzer} which is
-     * used to call methods like {@link LexicalAnalyzer#next(int)} or {@link
-     * LexicalAnalyzer#peekChar(int)}.
-     *
-     * @return {@code null} if an error occurred or itself/some other token if it parsed
-     *         successfully.
-     */
-    public abstract AbstractToken parseToken();
+    public abstract Optional<? extends AbstractToken> parseToken();
     
     
     /**
@@ -122,7 +117,7 @@ public abstract class AbstractToken
      * @param arguments
      *         the arguments list for the error message from the {@link SyntaxErrorType}.
      */
-    public void addError(final ArkoiClass arkoiClass, final int start, final int end, final String message, final Object... arguments) {
+    public void addError(@NonNull final ArkoiClass arkoiClass, final int start, final int end, @NonNull final String message, final Object... arguments) {
         this.getLexicalAnalyzer().getErrorHandler().addError(new ArkoiError(
                 arkoiClass,
                 start,
