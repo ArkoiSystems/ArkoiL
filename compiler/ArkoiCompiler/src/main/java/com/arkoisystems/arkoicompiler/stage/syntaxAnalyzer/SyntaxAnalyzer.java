@@ -9,7 +9,6 @@ import com.arkoisystems.arkoicompiler.ArkoiClass;
 import com.arkoisystems.arkoicompiler.stage.AbstractStage;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.LexicalAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken;
-import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.NumberToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.SymbolToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.SymbolType;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
@@ -96,8 +95,8 @@ public class SyntaxAnalyzer extends AbstractStage
     public boolean processStage() {
         this.tokens = this.arkoiClass.getLexicalAnalyzer().getTokens();
         this.position = 0;
-    
-        return this.rootSyntaxAST.parseAST(null) != null && !this.isFailedStage();
+        
+        return this.rootSyntaxAST.parseAST(null) != null && !this.isFailed();
     }
     
     

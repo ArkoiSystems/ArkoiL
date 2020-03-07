@@ -17,11 +17,13 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.BlockType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.Setter;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class FunctionDefinitionSyntaxAST extends AbstractStatementSyntaxAST
 {
@@ -65,14 +67,14 @@ public class FunctionDefinitionSyntaxAST extends AbstractStatementSyntaxAST
     
     
     @Override
-    public FunctionDefinitionSyntaxAST parseAST(final AbstractSyntaxAST parentAST) {
+    public Optional<FunctionDefinitionSyntaxAST> parseAST(@NonNull final AbstractSyntaxAST parentAST) {
         if (!(parentAST instanceof RootSyntaxAST)) {
             this.addError(
                     this.getSyntaxAnalyzer().getArkoiClass(),
                     this.getSyntaxAnalyzer().currentToken(),
                     SyntaxErrorType.FUNCTION_DEFINITION_WRONG_PARENT
             );
-            return null;
+            return Optional.empty();
         }
         
         if (this.getSyntaxAnalyzer().matchesCurrentToken(TokenType.IDENTIFIER) == null || !this.getSyntaxAnalyzer().currentToken().getTokenContent().equals("fun")) {
@@ -81,7 +83,7 @@ public class FunctionDefinitionSyntaxAST extends AbstractStatementSyntaxAST
                     this.getSyntaxAnalyzer().currentToken(),
                     SyntaxErrorType.FUNCTION_DEFINITION_WRONG_START
             );
-            return null;
+            return Optional.empty();
         }
         this.setStart(this.getSyntaxAnalyzer().currentToken().getStart());
         
@@ -91,7 +93,7 @@ public class FunctionDefinitionSyntaxAST extends AbstractStatementSyntaxAST
                     this.getSyntaxAnalyzer().currentToken(),
                     SyntaxErrorType.FUNCTION_DEFINITION_NO_NAME
             );
-            return null;
+            return Optional.empty();
         }
         this.functionName = (IdentifierToken) this.getSyntaxAnalyzer().currentToken();
         
@@ -101,19 +103,19 @@ public class FunctionDefinitionSyntaxAST extends AbstractStatementSyntaxAST
                     this.getSyntaxAnalyzer().currentToken(),
                     SyntaxErrorType.FUNCTION_DEFINITION_WRONG_RETURN_TYPE_START
             );
-            return null;
+            return Optional.empty();
         }
         this.getSyntaxAnalyzer().nextToken();
         
         if (TypeSyntaxAST.TYPE_PARSER.canParse(this, this.getSyntaxAnalyzer())) {
-            final TypeSyntaxAST typeSyntaxAST = TypeSyntaxAST.TYPE_PARSER.parse(this, this.getSyntaxAnalyzer());
-            if (typeSyntaxAST == null)
-                return null;
+            final Optional<TypeSyntaxAST> optionalTypeSyntaxAST = TypeSyntaxAST.TYPE_PARSER.parse(this, this.getSyntaxAnalyzer());
+            if (optionalTypeSyntaxAST.isEmpty())
+                return Optional.empty();
             
-            this.functionReturnType = typeSyntaxAST;
+            this.functionReturnType = optionalTypeSyntaxAST.get();
             this.getSyntaxAnalyzer().nextToken();
-        }
-        this.functionReturnType = new TypeSyntaxAST(this.getSyntaxAnalyzer(), TypeKind.VOID, false);
+        } else
+            this.functionReturnType = new TypeSyntaxAST(this.getSyntaxAnalyzer(), TypeKind.VOID, false);
         
         if (this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.GREATER_THAN_SIGN) == null) {
             this.addError(
@@ -121,7 +123,7 @@ public class FunctionDefinitionSyntaxAST extends AbstractStatementSyntaxAST
                     this.getSyntaxAnalyzer().currentToken(),
                     SyntaxErrorType.FUNCTION_DEFINITION_WRONG_RETURN_TYPE_ENDING
             );
-            return null;
+            return Optional.empty();
         }
         
         if (this.getSyntaxAnalyzer().matchesNextToken(SymbolType.OPENING_PARENTHESIS) == null) {
@@ -130,12 +132,13 @@ public class FunctionDefinitionSyntaxAST extends AbstractStatementSyntaxAST
                     this.getSyntaxAnalyzer().currentToken(),
                     SyntaxErrorType.FUNCTION_DEFINITION_WRONG_ARGUMENTS_START
             );
-            return null;
+            return Optional.empty();
         }
         
-        this.functionArguments = ArgumentDefinitionSyntaxAST.parseArguments(this, this.getSyntaxAnalyzer());
-        if (this.functionArguments == null)
-            return null;
+        final Optional<List<ArgumentDefinitionSyntaxAST>> arguments = ArgumentDefinitionSyntaxAST.parseArguments(this, this.getSyntaxAnalyzer());
+        if (arguments.isEmpty())
+            return Optional.empty();
+        this.functionArguments = arguments.get();
         
         if (this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.CLOSING_PARENTHESIS) == null) {
             this.addError(
@@ -143,8 +146,9 @@ public class FunctionDefinitionSyntaxAST extends AbstractStatementSyntaxAST
                     this.getSyntaxAnalyzer().currentToken(),
                     SyntaxErrorType.FUNCTION_DEFINITION_WRONG_ARGUMENTS_ENDING
             );
-            return null;
-        } else this.getSyntaxAnalyzer().nextToken();
+            return Optional.empty();
+        }
+        this.getSyntaxAnalyzer().nextToken();
         
         if (this.hasAnnotation("native")) {
             if (this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.SEMICOLON) == null) {
@@ -153,12 +157,12 @@ public class FunctionDefinitionSyntaxAST extends AbstractStatementSyntaxAST
                         this.getSyntaxAnalyzer().currentToken(),
                         SyntaxErrorType.FUNCTION_DEFINITION_WRONG_NATIVE_ENDING
                 );
-                return null;
+                return Optional.empty();
             }
             
             this.functionBlock = new BlockSyntaxAST(this.getSyntaxAnalyzer());
             this.functionBlock.setBlockType(BlockType.NATIVE);
-            return this;
+            return Optional.of(this);
         }
         
         if (this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.OPENING_BRACE) == null && this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.EQUAL) == null) {
@@ -167,7 +171,7 @@ public class FunctionDefinitionSyntaxAST extends AbstractStatementSyntaxAST
                     this.getSyntaxAnalyzer().currentToken(),
                     SyntaxErrorType.FUNCTION_DEFINITION_WRONG_BLOCK_START
             );
-            return null;
+            return Optional.empty();
         }
         
         if (!BlockSyntaxAST.BLOCK_PARSER.canParse(this, this.getSyntaxAnalyzer())) {
@@ -176,12 +180,13 @@ public class FunctionDefinitionSyntaxAST extends AbstractStatementSyntaxAST
                     this.getSyntaxAnalyzer().currentToken(),
                     SyntaxErrorType.FUNCTION_DEFINITION_NO_VALID_BLOCK
             );
-            return null;
+            return Optional.empty();
         }
         
-        this.functionBlock = BlockSyntaxAST.BLOCK_PARSER.parse(this, this.getSyntaxAnalyzer());
-        if (this.functionBlock == null)
-            return null;
+        final Optional<BlockSyntaxAST> optionalBlockSyntaxAST = BlockSyntaxAST.BLOCK_PARSER.parse(this, this.getSyntaxAnalyzer());
+        if (optionalBlockSyntaxAST.isEmpty())
+            return Optional.empty();
+        this.functionBlock = optionalBlockSyntaxAST.get();
         
         if (this.functionBlock.getBlockType() == BlockType.INLINE && this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.SEMICOLON) == null) {
             this.addError(
@@ -189,23 +194,23 @@ public class FunctionDefinitionSyntaxAST extends AbstractStatementSyntaxAST
                     this.getSyntaxAnalyzer().currentToken(),
                     SyntaxErrorType.FUNCTION_DEFINITION_WRONG_INLINED_BLOCK_ENDING
             );
-            return null;
+            return Optional.empty();
         } else if (this.functionBlock.getBlockType() == BlockType.BLOCK && this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.CLOSING_BRACE) == null) {
             this.addError(
                     this.getSyntaxAnalyzer().getArkoiClass(),
                     this.getSyntaxAnalyzer().currentToken(),
                     SyntaxErrorType.FUNCTION_DEFINITION_WRONG_BLOCK_ENDING
             );
-            return null;
+            return Optional.empty();
         }
         
         this.setEnd(this.getSyntaxAnalyzer().currentToken().getEnd());
-        return this;
+        return Optional.of(this);
     }
     
     
     @Override
-    public void printSyntaxAST(final PrintStream printStream, final String indents) {
+    public void printSyntaxAST(@NonNull final PrintStream printStream, @NonNull final String indents) {
         printStream.println(indents + "├── annotations: " + (this.getFunctionAnnotations().isEmpty() ? "N/A" : ""));
         for (int index = 0; index < this.getFunctionAnnotations().size(); index++) {
             final AnnotationSyntaxAST abstractSyntaxAST = this.getFunctionAnnotations().get(index);

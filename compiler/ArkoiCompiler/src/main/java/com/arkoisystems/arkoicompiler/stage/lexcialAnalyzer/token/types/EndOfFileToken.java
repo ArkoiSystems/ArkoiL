@@ -9,22 +9,23 @@ import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.LexicalAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
 
+import java.util.Optional;
+
 public class EndOfFileToken extends AbstractToken
 {
     
     public EndOfFileToken(final LexicalAnalyzer lexicalAnalyzer) {
         super(lexicalAnalyzer, TokenType.END_OF_FILE);
-        
-        this.setTokenContent("EOF");
-        
-        this.setStart(0);
-        this.setEnd(lexicalAnalyzer.getArkoiClass().getContent().length);
     }
     
     
     @Override
-    public EndOfFileToken parseToken() {
-        return this;
+    public Optional<EndOfFileToken> parseToken() {
+        this.setTokenContent("EOF");
+    
+        this.setStart(0);
+        this.setEnd(this.getLexicalAnalyzer().getArkoiClass().getContent().length);
+        return Optional.of(this);
     }
     
 }

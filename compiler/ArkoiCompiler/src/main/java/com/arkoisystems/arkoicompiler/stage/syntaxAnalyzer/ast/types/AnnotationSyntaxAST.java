@@ -9,6 +9,7 @@ import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.Identifi
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.SymbolType;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxErrorType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.AbstractStatementSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.types.FunctionDefinitionSyntaxAST;
@@ -16,10 +17,12 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.t
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.parser.types.AnnotationParser;
 import lombok.Getter;
+import lombok.NonNull;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class AnnotationSyntaxAST extends AbstractSyntaxAST
 {
@@ -84,35 +87,36 @@ public class AnnotationSyntaxAST extends AbstractSyntaxAST
      *         until to the end.
      */
     @Override
-    public AbstractSyntaxAST parseAST(final AbstractSyntaxAST parentAST) {
+    public Optional<? extends AbstractSyntaxAST> parseAST(@NonNull final AbstractSyntaxAST parentAST) {
         if (!(parentAST instanceof RootSyntaxAST)) {
             this.addError(
                     this.getSyntaxAnalyzer().getArkoiClass(),
                     this.getSyntaxAnalyzer().currentToken(),
-                    "Couldn't parse the Annotation because it isn't declared inside the root file."
+                    SyntaxErrorType.ANNOTATION_WRONG_PARENT
             );
-            return null;
+            return Optional.empty();
         }
     
         if (this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.AT_SIGN) == null) {
             this.addError(
                     this.getSyntaxAnalyzer().getArkoiClass(),
                     this.getSyntaxAnalyzer().currentToken(),
-                    "Couldn't parse the Annotation because the parsing doesn't start with an at sign aka. \"@\"."
+                    SyntaxErrorType.ANNOTATION_WRONG_START
             );
-            return null;
-        } else this.setStart(this.getSyntaxAnalyzer().currentToken().getStart());
+            return Optional.empty();
+        }
+        this.setStart(this.getSyntaxAnalyzer().currentToken().getStart());
     
         if (this.getSyntaxAnalyzer().matchesNextToken(TokenType.IDENTIFIER) == null) {
             this.addError(
                     this.getSyntaxAnalyzer().getArkoiClass(),
                     this.getSyntaxAnalyzer().currentToken(),
-                    "Couldn't parse the Annotation because the at sign isn't followed by an name for the annotation."
+                    SyntaxErrorType.ANNOTATION_NO_NAME
             );
-            return null;
-        } else
-            this.annotationName = (IdentifierToken) this.getSyntaxAnalyzer().currentToken();
-        
+            return Optional.empty();
+        }
+        this.annotationName = (IdentifierToken) this.getSyntaxAnalyzer().currentToken();
+    
         if (this.getSyntaxAnalyzer().matchesPeekToken(1, SymbolType.OPENING_BRACKET) != null) {
             this.getSyntaxAnalyzer().nextToken(2);
         
@@ -124,9 +128,9 @@ public class AnnotationSyntaxAST extends AbstractSyntaxAST
                     this.addError(
                             this.getSyntaxAnalyzer().getArkoiClass(),
                             this.getSyntaxAnalyzer().currentToken(),
-                            "Couldn't parse the Annotation because you can't define a non IdentifierToken inside the arguments section beside a comma after an argument if it should get followed by an extra one."
+                            SyntaxErrorType.ANNOTATION_NO_COMMA_SEPARATION
                     );
-                    return null;
+                    return Optional.empty();
                 } else {
                     this.annotationArguments.add((IdentifierToken) this.getSyntaxAnalyzer().currentToken());
                     this.getSyntaxAnalyzer().nextToken();
@@ -140,9 +144,9 @@ public class AnnotationSyntaxAST extends AbstractSyntaxAST
                     this.addError(
                             this.getSyntaxAnalyzer().getArkoiClass(),
                             this.getSyntaxAnalyzer().currentToken(),
-                            "Couldn't parse the Annotation because you can't declare something else then a closing bracket and a comma after an argument."
+                            SyntaxErrorType.ANNOTATION_UNSUPPORTED_TOKEN_INSIDE
                     );
-                    return null;
+                    return Optional.empty();
                 }
             }
         
@@ -150,9 +154,9 @@ public class AnnotationSyntaxAST extends AbstractSyntaxAST
                 this.addError(
                         this.getSyntaxAnalyzer().getArkoiClass(),
                         this.getSyntaxAnalyzer().currentToken(),
-                        "Couldn't parse the Annotation because the arguments section doesn't end with a closing bracket."
+                        SyntaxErrorType.ANNOTATION_WRONG_ENDING
                 );
-                return null;
+                return Optional.empty();
             }
         }
     
@@ -166,18 +170,18 @@ public class AnnotationSyntaxAST extends AbstractSyntaxAST
             this.addError(
                     this.getSyntaxAnalyzer().getArkoiClass(),
                     this.getSyntaxAnalyzer().currentToken(),
-                    "Couldn't parse the Annotation because an there is no parsable statement after it."
+                    SyntaxErrorType.ANNOTATION_NO_PARSEABLE_STATEMENT
             );
-            return null;
+            return Optional.empty();
         }
         
         if (!this.getSyntaxAnalyzer().currentToken().getTokenContent().equals("fun") && !this.getSyntaxAnalyzer().currentToken().getTokenContent().equals("var")) {
             this.addError(
                     this.getSyntaxAnalyzer().getArkoiClass(),
                     this.getSyntaxAnalyzer().currentToken(),
-                    "Couldn't parse the Annotation because it isn't followed by an function or variable definition."
+                    SyntaxErrorType.ANNOTATION_NO_VARIABLE_OR_FUNCTION
             );
-            return null;
+            return Optional.empty();
         } else if (this.getSyntaxAnalyzer().currentToken().getTokenContent().equals("fun")) {
             return new FunctionDefinitionSyntaxAST(this.getSyntaxAnalyzer(), this.getAnnotationStorage()).parseAST(parentAST);
         } else {
@@ -187,7 +191,7 @@ public class AnnotationSyntaxAST extends AbstractSyntaxAST
     
     
     @Override
-    public void printSyntaxAST(final PrintStream printStream, final String indents) {
+    public void printSyntaxAST(@NonNull final PrintStream printStream, @NonNull final String indents) {
         printStream.println(indents + "├── name: " + this.getAnnotationName().getTokenContent());
         printStream.println(indents + "└── arguments: " + (this.getAnnotationArguments().isEmpty() ? "N/A" : ""));
         for (final IdentifierToken identifierToken : this.getAnnotationArguments())

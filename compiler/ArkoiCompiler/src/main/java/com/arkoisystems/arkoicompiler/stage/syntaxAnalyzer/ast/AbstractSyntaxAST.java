@@ -9,18 +9,20 @@ import com.arkoisystems.arkoicompiler.ArkoiClass;
 import com.arkoisystems.arkoicompiler.ArkoiCompiler;
 import com.arkoisystems.arkoicompiler.stage.errorHandler.ArkoiError;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken;
-import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.EndOfFileToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.SymbolType;
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxErrorType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.RootSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.Setter;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * This class is used if you want to create an AST. With the {@link
@@ -64,7 +66,6 @@ public abstract class AbstractSyntaxAST
      * AbstractSyntaxAST} or not.
      */
     @Getter
-    @Setter
     private boolean failed;
     
     /**
@@ -79,7 +80,7 @@ public abstract class AbstractSyntaxAST
      *         the {@link ASTType} which is used used to identify this specific {@link
      *         AbstractSyntaxAST}.
      */
-    public AbstractSyntaxAST(final SyntaxAnalyzer syntaxAnalyzer, final ASTType astType) {
+    public AbstractSyntaxAST(@NonNull final SyntaxAnalyzer syntaxAnalyzer, final ASTType astType) {
         this.syntaxAnalyzer = syntaxAnalyzer;
         this.astType = astType;
     }
@@ -100,7 +101,7 @@ public abstract class AbstractSyntaxAST
      * @return {@code null} if an error occurred or the parsed {@link AbstractSyntaxAST}
      *         if everything worked correctly.
      */
-    public abstract AbstractSyntaxAST parseAST(final AbstractSyntaxAST parentAST);
+    public abstract Optional<? extends AbstractSyntaxAST> parseAST(@NonNull final AbstractSyntaxAST parentAST);
     
     
     /**
@@ -114,29 +115,26 @@ public abstract class AbstractSyntaxAST
      * @param indents
      *         the {@code indents} which will make the AST look like a Tree.
      */
-    public abstract void printSyntaxAST(final PrintStream printStream, final String indents);
+    public abstract void printSyntaxAST(@NonNull final PrintStream printStream, @NonNull final String indents);
     
     
     protected void skipToNextValidToken() {
-        int openingBraces = 0;
+        int openBraces = 0;
         while (this.getSyntaxAnalyzer().getPosition() < this.getSyntaxAnalyzer().getTokens().length) {
-            if (this.getSyntaxAnalyzer().currentToken() instanceof EndOfFileToken)
+            if (this.getSyntaxAnalyzer().currentToken().getTokenType() == TokenType.END_OF_FILE)
                 break;
             if (this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.OPENING_BRACE) != null)
-                openingBraces++;
+                openBraces++;
             else if (this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.CLOSING_BRACE) != null) {
-                openingBraces--;
-                if (openingBraces > 0)
-                    continue;
-                this.getSyntaxAnalyzer().nextToken();
-                break;
-            } else if (openingBraces == 0 && this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.SEMICOLON) != null) {
-                this.getSyntaxAnalyzer().nextToken();
-                break;
+                openBraces--;
+                if (openBraces <= 0) {
+                    this.getSyntaxAnalyzer().nextToken();
+                    break;
+                }
             }
             this.getSyntaxAnalyzer().nextToken();
         }
-        this.setFailed(true);
+        this.failed();
     }
     
     
@@ -155,14 +153,14 @@ public abstract class AbstractSyntaxAST
      * @param arguments
      *         the arguments list for the error message from the {@link SyntaxErrorType}.
      */
-    public void addError(final ArkoiClass arkoiClass, final AbstractSyntaxAST[] abstractSyntaxASTs, final String message, final Object... arguments) {
+    public void addError(@NonNull final ArkoiClass arkoiClass, @NonNull final AbstractSyntaxAST[] abstractSyntaxASTs, @NonNull final String message, final Object... arguments) {
         this.getSyntaxAnalyzer().getErrorHandler().addError(new ArkoiError(
                 arkoiClass,
                 abstractSyntaxASTs,
                 message,
                 arguments
         ));
-        this.setFailed(true);
+        this.failed();
     }
     
     
@@ -180,14 +178,14 @@ public abstract class AbstractSyntaxAST
      * @param arguments
      *         the arguments list for the error message from the {@link SyntaxErrorType}.
      */
-    public void addError(final ArkoiClass arkoiClass, final AbstractSyntaxAST abstractSyntaxAST, final String message, final Object... arguments) {
+    public void addError(@NonNull final ArkoiClass arkoiClass, @NonNull final AbstractSyntaxAST abstractSyntaxAST, @NonNull final String message, final Object... arguments) {
         this.getSyntaxAnalyzer().getErrorHandler().addError(new ArkoiError(
                 arkoiClass,
                 abstractSyntaxAST,
                 message,
                 arguments
         ));
-        this.setFailed(true);
+        this.failed();
     }
     
     
@@ -207,7 +205,7 @@ public abstract class AbstractSyntaxAST
      * @param arguments
      *         the arguments list for the error message from the {@link SyntaxErrorType}.
      */
-    public void addError(final ArkoiClass arkoiClass, final int start, final int end, final String message, final Object... arguments) {
+    public void addError(@NonNull final ArkoiClass arkoiClass, final int start, final int end, @NonNull final String message, final Object... arguments) {
         this.getSyntaxAnalyzer().getErrorHandler().addError(new ArkoiError(
                 arkoiClass,
                 start,
@@ -215,7 +213,7 @@ public abstract class AbstractSyntaxAST
                 message,
                 arguments
         ));
-        this.setFailed(true);
+        this.failed();
     }
     
     
@@ -233,14 +231,19 @@ public abstract class AbstractSyntaxAST
      * @param arguments
      *         the arguments list for the error message from the {@link SyntaxErrorType}.
      */
-    public void addError(final ArkoiClass arkoiClass, final AbstractToken abstractToken, final String message, final Object... arguments) {
+    public void addError(@NonNull final ArkoiClass arkoiClass, @NonNull final AbstractToken abstractToken, @NonNull final String message, final Object... arguments) {
         this.getSyntaxAnalyzer().getErrorHandler().addError(new ArkoiError(
                 arkoiClass,
                 abstractToken,
                 message,
                 arguments
         ));
-        this.setFailed(true);
+        this.failed();
+    }
+    
+    
+    public void failed() {
+        this.failed = true;
     }
     
     

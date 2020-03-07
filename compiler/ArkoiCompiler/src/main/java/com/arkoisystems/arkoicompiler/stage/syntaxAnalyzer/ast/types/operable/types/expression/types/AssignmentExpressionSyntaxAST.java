@@ -12,6 +12,7 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.ty
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.operators.AssignmentOperatorType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.Setter;
 
 import java.io.PrintStream;
@@ -29,27 +30,18 @@ public class AssignmentExpressionSyntaxAST extends AbstractExpressionSyntaxAST
     private AbstractOperableSyntaxAST<?> leftSideOperable, rightSideOperable;
     
     
-    public AssignmentExpressionSyntaxAST(final SyntaxAnalyzer syntaxAnalyzer, final AbstractOperableSyntaxAST<?> leftSideOperable, final AssignmentOperatorType assignmentOperatorType, final AbstractOperableSyntaxAST<?> rightSideOperable) {
+    public AssignmentExpressionSyntaxAST(final SyntaxAnalyzer syntaxAnalyzer, final AbstractOperableSyntaxAST<?> leftSideOperable, final AssignmentOperatorType assignmentOperatorType) {
         super(syntaxAnalyzer, ASTType.ASSIGNMENT_EXPRESSION);
         
-        this.rightSideOperable = rightSideOperable;
         this.leftSideOperable = leftSideOperable;
-        
         this.assignmentOperatorType = assignmentOperatorType;
         
         this.setStart(this.leftSideOperable.getStart());
-        this.setEnd(this.rightSideOperable.getEnd());
     }
     
     
     @Override
-    public AbstractOperableSyntaxAST<?> parseAST(final AbstractSyntaxAST parentAST) {
-        return this;
-    }
-    
-    
-    @Override
-    public void printSyntaxAST(final PrintStream printStream, final String indents) {
+    public void printSyntaxAST(@NonNull final PrintStream printStream, @NonNull final String indents) {
         printStream.println(indents + "├── left:");
         printStream.println(indents + "│   └── " + this.getLeftSideOperable().getClass().getSimpleName());
         this.getLeftSideOperable().printSyntaxAST(printStream, indents + "│        ");

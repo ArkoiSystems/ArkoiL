@@ -130,7 +130,7 @@ public class ArkoiError
     
     
     private String createError() {
-        final StringBuilder stringBuilder = new StringBuilder("[" + Variables.DATE_FORMAT.format(new Date()) + "/INFO] " + String.format(this.getMessage(), this.getArguments()) + "\r\n");
+        final StringBuilder stringBuilder = new StringBuilder("[" + Variables.DATE_FORMAT.format(new Date()) + "/INFO] " + String.format(this.getMessage(), this.getArguments()) + "\n");
         for (int index = 0; index < this.positions.length; index++) {
             final int[] position = this.positions[index];
             if (position.length != 2)
@@ -153,12 +153,12 @@ public class ArkoiError
             final String realLine = new String(Arrays.copyOfRange(this.getArkoiClass().getContent(), startPosition, endPosition));
             final String line = realLine.replace("\n", "");
             
-            stringBuilder.append(line).append("\r\n");
+            stringBuilder.append(line).append("\n");
             stringBuilder.append(" ".repeat(Math.max(0, 5 + (position[0] - startPosition))));
             stringBuilder.append("^".repeat(Math.max(1, (position[1] - position[0]) - (realLine.length() - line.length()))));
             
             if (index != this.positions.length - 1)
-                stringBuilder.append("\r\n");
+                stringBuilder.append("\n");
         }
         return stringBuilder.toString();
     }

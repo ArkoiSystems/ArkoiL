@@ -18,8 +18,10 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.ty
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.AbstractStatementSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTAccess;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
+import lombok.NonNull;
 
 import java.io.PrintStream;
+import java.util.Optional;
 
 public class ThisStatementSyntaxAST extends AbstractStatementSyntaxAST
 {
@@ -30,14 +32,14 @@ public class ThisStatementSyntaxAST extends AbstractStatementSyntaxAST
     
     
     @Override
-    public AbstractSyntaxAST parseAST(final AbstractSyntaxAST parentAST) {
+    public Optional<AbstractSyntaxAST> parseAST(@NonNull final AbstractSyntaxAST parentAST) {
         if (!(parentAST instanceof BlockSyntaxAST) && !(parentAST instanceof AbstractExpressionSyntaxAST)) {
             this.addError(
                     this.getSyntaxAnalyzer().getArkoiClass(),
                     this.getSyntaxAnalyzer().currentToken(),
                     SyntaxErrorType.THIS_STATEMENT_WRONG_PARENT
             );
-            return null;
+            return Optional.empty();
         }
         
         if (this.getSyntaxAnalyzer().matchesCurrentToken(TokenType.IDENTIFIER) == null || !this.getSyntaxAnalyzer().currentToken().getTokenContent().equals("this")) {
@@ -46,7 +48,7 @@ public class ThisStatementSyntaxAST extends AbstractStatementSyntaxAST
                     this.getSyntaxAnalyzer().currentToken(),
                     SyntaxErrorType.THIS_STATEMENT_WRONG_START
             );
-            return null;
+            return Optional.empty();
         }
         this.setStart(this.getSyntaxAnalyzer().currentToken().getStart());
         
@@ -56,7 +58,7 @@ public class ThisStatementSyntaxAST extends AbstractStatementSyntaxAST
                     this.getSyntaxAnalyzer().currentToken(),
                     SyntaxErrorType.THIS_STATEMENT_NO_SEPARATOR
             );
-            return null;
+            return Optional.empty();
         }
         
         this.setEnd(this.getSyntaxAnalyzer().currentToken().getEnd());
@@ -69,13 +71,14 @@ public class ThisStatementSyntaxAST extends AbstractStatementSyntaxAST
                     this.getSyntaxAnalyzer().currentToken(),
                     SyntaxErrorType.THIS_STATEMENT_NO_VALID_STATEMENT
             );
-            return null;
+            return Optional.empty();
         }
         
-        final AbstractSyntaxAST abstractSyntaxAST = AbstractStatementSyntaxAST.STATEMENT_PARSER.parse(parentAST, this.getSyntaxAnalyzer());
-        if (abstractSyntaxAST == null)
-            return null;
+        final Optional<? extends AbstractSyntaxAST> optionalAbstractSyntaxAST = AbstractStatementSyntaxAST.STATEMENT_PARSER.parse(parentAST, this.getSyntaxAnalyzer());
+        if (optionalAbstractSyntaxAST.isEmpty())
+            return Optional.empty();
         
+        final AbstractSyntaxAST abstractSyntaxAST = optionalAbstractSyntaxAST.get();
         if (abstractSyntaxAST instanceof IdentifierInvokeOperableSyntaxAST) {
             final IdentifierInvokeOperableSyntaxAST identifierInvokeOperableAST = (IdentifierInvokeOperableSyntaxAST) abstractSyntaxAST;
             identifierInvokeOperableAST.setIdentifierAccess(ASTAccess.THIS_ACCESS);
@@ -86,11 +89,11 @@ public class ThisStatementSyntaxAST extends AbstractStatementSyntaxAST
             final IdentifierCallOperableSyntaxAST identifierCallOperableAST = (IdentifierCallOperableSyntaxAST) abstractSyntaxAST;
             identifierCallOperableAST.setIdentifierAccess(ASTAccess.THIS_ACCESS);
         }
-        return abstractSyntaxAST;
+        return Optional.of(abstractSyntaxAST);
     }
     
     
     @Override
-    public void printSyntaxAST(final PrintStream printStream, final String indents) { }
+    public void printSyntaxAST(@NonNull final PrintStream printStream, @NonNull final String indents) { }
     
 }

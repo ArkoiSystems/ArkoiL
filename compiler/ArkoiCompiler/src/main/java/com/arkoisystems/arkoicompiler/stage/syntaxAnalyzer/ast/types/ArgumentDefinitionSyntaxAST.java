@@ -14,10 +14,12 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.parser.types.ArgumentDefinitionParser;
 import lombok.Getter;
+import lombok.NonNull;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class ArgumentDefinitionSyntaxAST extends AbstractSyntaxAST
 {
@@ -64,14 +66,14 @@ public class ArgumentDefinitionSyntaxAST extends AbstractSyntaxAST
     
     
     @Override
-    public ArgumentDefinitionSyntaxAST parseAST(final AbstractSyntaxAST parentAST) {
+    public Optional<ArgumentDefinitionSyntaxAST> parseAST(@NonNull final AbstractSyntaxAST parentAST) {
         if (this.getSyntaxAnalyzer().matchesCurrentToken(TokenType.IDENTIFIER) == null) {
             this.addError(
                     this.getSyntaxAnalyzer().getArkoiClass(),
                     this.getSyntaxAnalyzer().currentToken(),
                     SyntaxErrorType.ARGUMENT_WRONG_START
             );
-            return null;
+            return Optional.empty();
         }
         
         this.argumentName = (IdentifierToken) this.getSyntaxAnalyzer().currentToken();
@@ -83,8 +85,9 @@ public class ArgumentDefinitionSyntaxAST extends AbstractSyntaxAST
                     this.getSyntaxAnalyzer().currentToken(),
                     SyntaxErrorType.ARGUMENT_NO_SEPARATOR
             );
-            return null;
+            return Optional.empty();
         }
+        
         this.getSyntaxAnalyzer().nextToken();
         
         if (!TypeSyntaxAST.TYPE_PARSER.canParse(parentAST, this.getSyntaxAnalyzer())) {
@@ -93,19 +96,21 @@ public class ArgumentDefinitionSyntaxAST extends AbstractSyntaxAST
                     this.getSyntaxAnalyzer().currentToken(),
                     SyntaxErrorType.ARGUMENT_NO_VALID_TYPE
             );
-            return null;
+            return Optional.empty();
         }
-        this.argumentType = TypeSyntaxAST.TYPE_PARSER.parse(this, this.getSyntaxAnalyzer());
-        if (this.argumentType == null)
-            return null;
+        
+        final Optional<TypeSyntaxAST> optionalTypeSyntaxAST = TypeSyntaxAST.TYPE_PARSER.parse(this, this.getSyntaxAnalyzer());
+        if (optionalTypeSyntaxAST.isEmpty())
+            return Optional.empty();
+        this.argumentType = optionalTypeSyntaxAST.get();
         
         this.setEnd(this.getSyntaxAnalyzer().currentToken().getEnd());
-        return this;
+        return Optional.of(this);
     }
     
     
     @Override
-    public void printSyntaxAST(final PrintStream printStream, final String indents) {
+    public void printSyntaxAST(@NonNull final PrintStream printStream, @NonNull final String indents) {
         printStream.println(indents + "├── name: " + this.getArgumentName().getTokenContent());
         printStream.println(indents + "└── type: " + this.getArgumentType().getTypeKind().getName() + (this.getArgumentType().isArray() ? "[]" : ""));
     }
@@ -128,26 +133,26 @@ public class ArgumentDefinitionSyntaxAST extends AbstractSyntaxAST
      * @return It will return null if an error occurred or the given "argumentsASTs" list
      *         if it parsed until to the end.
      */
-    public static List<ArgumentDefinitionSyntaxAST> parseArguments(final AbstractSyntaxAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
+    public static Optional<List<ArgumentDefinitionSyntaxAST>> parseArguments(final AbstractSyntaxAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
         final List<ArgumentDefinitionSyntaxAST> argumentASTs = new ArrayList<>();
         if (syntaxAnalyzer.matchesCurrentToken(SymbolType.OPENING_PARENTHESIS) == null) {
             parentAST.addError(
                     syntaxAnalyzer.getArkoiClass(),
                     syntaxAnalyzer.currentToken(),
-                    "Couldn't parse the arguments because parsing doesn't start with an opening parenthesis."
+                    SyntaxErrorType.ARGUMENTS_WRONG_START
             );
-            return null;
+            return Optional.empty();
         } else syntaxAnalyzer.nextToken();
     
         while (syntaxAnalyzer.getPosition() < syntaxAnalyzer.getTokens().length) {
             if (!ArgumentDefinitionSyntaxAST.ARGUMENT_DEFINITION_PARSER.canParse(parentAST, syntaxAnalyzer))
                 break;
-        
-            final ArgumentDefinitionSyntaxAST argumentDefinitionSyntaxAST = ArgumentDefinitionSyntaxAST.ARGUMENT_DEFINITION_PARSER.parse(parentAST, syntaxAnalyzer);
-            if (argumentDefinitionSyntaxAST == null)
-                return null;
-             else argumentASTs.add(argumentDefinitionSyntaxAST);
-        
+    
+            final Optional<ArgumentDefinitionSyntaxAST> optionalArgumentDefinitionSyntaxAST = ArgumentDefinitionSyntaxAST.ARGUMENT_DEFINITION_PARSER.parse(parentAST, syntaxAnalyzer);
+            if (optionalArgumentDefinitionSyntaxAST.isEmpty())
+                return Optional.empty();
+            else argumentASTs.add(optionalArgumentDefinitionSyntaxAST.get());
+    
             if (syntaxAnalyzer.matchesNextToken(SymbolType.COMMA) == null)
                 break;
             else syntaxAnalyzer.nextToken();
@@ -157,11 +162,11 @@ public class ArgumentDefinitionSyntaxAST extends AbstractSyntaxAST
             parentAST.addError(
                     syntaxAnalyzer.getArkoiClass(),
                     syntaxAnalyzer.currentToken(),
-                    "Couldn't parse the arguments because the parsing doesn't end with a closing parenthesis."
+                    SyntaxErrorType.ARGUMENTS_WRONG_ENDING
             );
-            return null;
+            return Optional.empty();
         }
-        return argumentASTs;
+        return Optional.of(argumentASTs);
     }
     
 }

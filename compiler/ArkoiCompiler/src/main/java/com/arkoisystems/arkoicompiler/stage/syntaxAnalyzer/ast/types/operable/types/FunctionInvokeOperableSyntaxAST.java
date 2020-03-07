@@ -20,11 +20,13 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTAccess;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.Setter;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class FunctionInvokeOperableSyntaxAST extends AbstractOperableSyntaxAST<TypeKind>
 {
@@ -65,14 +67,14 @@ public class FunctionInvokeOperableSyntaxAST extends AbstractOperableSyntaxAST<T
     
     
     @Override
-    public FunctionInvokeOperableSyntaxAST parseAST(final AbstractSyntaxAST parentAST) {
+    public Optional<FunctionInvokeOperableSyntaxAST> parseAST(@NonNull final AbstractSyntaxAST parentAST) {
         if (!(parentAST instanceof BlockSyntaxAST) && !(parentAST instanceof AbstractExpressionSyntaxAST) && !(parentAST instanceof IdentifierInvokeOperableSyntaxAST)) {
             this.addError(
                     this.getSyntaxAnalyzer().getArkoiClass(),
                     this.getSyntaxAnalyzer().currentToken(),
                     SyntaxErrorType.FUNCTION_INVOKE_WRONG_PARENT
             );
-            return null;
+            return Optional.empty();
         }
         
         if (this.getSyntaxAnalyzer().matchesCurrentToken(TokenType.IDENTIFIER) == null) {
@@ -81,7 +83,7 @@ public class FunctionInvokeOperableSyntaxAST extends AbstractOperableSyntaxAST<T
                     this.getSyntaxAnalyzer().currentToken(),
                     SyntaxErrorType.FUNCTION_INVOKE_WRONG_START
             );
-            return null;
+            return Optional.empty();
         }
         
         this.invokedFunctionName = (IdentifierToken) this.getSyntaxAnalyzer().currentToken();
@@ -93,7 +95,7 @@ public class FunctionInvokeOperableSyntaxAST extends AbstractOperableSyntaxAST<T
                     this.getSyntaxAnalyzer().currentToken(),
                     SyntaxErrorType.FUNCTION_INVOKE_WRONG_ARGUMENTS_START
             );
-            return null;
+            return Optional.empty();
         }
         this.getSyntaxAnalyzer().nextToken();
         
@@ -107,13 +109,13 @@ public class FunctionInvokeOperableSyntaxAST extends AbstractOperableSyntaxAST<T
                         this.getSyntaxAnalyzer().currentToken(),
                         SyntaxErrorType.FUNCTION_INVOKE_ARGUMENT_NOT_PARSEABLE
                 );
-                return null;
+                return Optional.empty();
             }
             
-            final ExpressionSyntaxAST expressionSyntaxAST = AbstractExpressionSyntaxAST.EXPRESSION_PARSER.parse(this, this.getSyntaxAnalyzer());
-            if (expressionSyntaxAST == null)
-                return null;
-            this.invokedExpressions.add(expressionSyntaxAST);
+            final Optional<ExpressionSyntaxAST> optionalExpressionSyntaxAST = AbstractExpressionSyntaxAST.EXPRESSION_PARSER.parse(this, this.getSyntaxAnalyzer());
+            if (optionalExpressionSyntaxAST.isEmpty())
+                return Optional.empty();
+            this.invokedExpressions.add(optionalExpressionSyntaxAST.get());
             
             if (this.getSyntaxAnalyzer().matchesNextToken(SymbolType.CLOSING_PARENTHESIS) != null)
                 break;
@@ -123,7 +125,7 @@ public class FunctionInvokeOperableSyntaxAST extends AbstractOperableSyntaxAST<T
                         this.getSyntaxAnalyzer().currentToken(),
                         SyntaxErrorType.FUNCTION_INVOKE_NO_SEPARATOR
                 );
-                return null;
+                return Optional.empty();
             } else this.getSyntaxAnalyzer().nextToken();
         }
         
@@ -133,7 +135,7 @@ public class FunctionInvokeOperableSyntaxAST extends AbstractOperableSyntaxAST<T
                     this.getSyntaxAnalyzer().currentToken(),
                     SyntaxErrorType.FUNCTION_INVOKE_WRONG_ARGUMENTS_ENDING
             );
-            return null;
+            return Optional.empty();
         }
         
         if (this.invocationType.equals(FunctionInvocation.BLOCK_INVOCATION) && this.getSyntaxAnalyzer().matchesNextToken(SymbolType.SEMICOLON) == null) {
@@ -142,16 +144,16 @@ public class FunctionInvokeOperableSyntaxAST extends AbstractOperableSyntaxAST<T
                     this.getSyntaxAnalyzer().currentToken(),
                     SyntaxErrorType.FUNCTION_INVOKE_WRONG_ENDING
             );
-            return null;
+            return Optional.empty();
         }
         
         this.setEnd(this.getSyntaxAnalyzer().currentToken().getEnd());
-        return this;
+        return Optional.of(this);
     }
     
     
     @Override
-    public void printSyntaxAST(final PrintStream printStream, final String indents) {
+    public void printSyntaxAST(@NonNull final PrintStream printStream, @NonNull final String indents) {
         printStream.println(indents + "├── access: " + this.getFunctionAccess());
         printStream.println(indents + "├── identifier: " + this.getInvokedFunctionName().getTokenContent());
         printStream.println(indents + "└── expressions: " + (this.getInvokedExpressions().isEmpty() ? "N/A" : ""));

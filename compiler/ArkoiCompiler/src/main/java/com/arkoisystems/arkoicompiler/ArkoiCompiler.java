@@ -83,6 +83,18 @@ public class ArkoiCompiler
     
     
     /**
+     * Adds the declared {@link ArkoiClass} to the map. This will be needed for compiling
+     * every class or to do some other things with the classes.
+     *
+     * @param arkoiClass
+     *         the {@link ArkoiClass} which should get added to the map.
+     */
+    public void addClass(@NonNull final ArkoiClass arkoiClass) {
+        this.getArkoiClasses().put(arkoiClass.getFilePath(), arkoiClass);
+    }
+    
+    
+    /**
      * Prints a StackTrace of the current errors and writes it to the given {@link
      * PrintStream}. This method is used if an error occurred or something went wrong.
      *
@@ -92,11 +104,11 @@ public class ArkoiCompiler
     public void printStackTrace(@NonNull final PrintStream errorStream) {
         for (final Map.Entry<String, ArkoiClass> classEntry : this.getArkoiClasses().entrySet()) {
             if (classEntry.getValue().getLexicalAnalyzer() != null)
-                classEntry.getValue().getLexicalAnalyzer().getErrorHandler().printStackTrace(errorStream);
+                classEntry.getValue().getLexicalAnalyzer().getErrorHandler().printStackTrace(errorStream, false);
             if (classEntry.getValue().getSyntaxAnalyzer() != null)
-                classEntry.getValue().getSyntaxAnalyzer().getErrorHandler().printStackTrace(errorStream);
+                classEntry.getValue().getSyntaxAnalyzer().getErrorHandler().printStackTrace(errorStream, false);
             if (classEntry.getValue().getSemanticAnalyzer() != null)
-                classEntry.getValue().getSemanticAnalyzer().getErrorHandler().printStackTrace(errorStream);
+                classEntry.getValue().getSemanticAnalyzer().getErrorHandler().printStackTrace(errorStream, false);
         }
     }
     
@@ -191,7 +203,7 @@ public class ArkoiCompiler
      * @param printStream
      *         the {@link PrintStream} in which all data should get written in.
      */
-    public void printSyntaxTree(final PrintStream printStream) {
+    public void printSyntaxTree(@NonNull final PrintStream printStream) {
         final List<RootSyntaxAST> roots = new ArrayList<>();
         for (final ArkoiClass arkoiClass : this.getArkoiClasses().values()) {
             if (arkoiClass.getSyntaxAnalyzer() != null)
@@ -212,6 +224,5 @@ public class ArkoiCompiler
             }
         }
     }
-    
     
 }

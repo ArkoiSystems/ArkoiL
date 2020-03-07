@@ -11,7 +11,6 @@ import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.AbstractSemanti
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.AbstractOperableSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.types.NumberOperableSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.types.expression.AbstractExpressionSemanticAST;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.AbstractOperableSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.NumberOperableSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.operators.CastOperatorType;
@@ -20,6 +19,8 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.ty
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
 import lombok.Setter;
+
+import java.io.PrintStream;
 
 @Setter
 public class CastExpressionSemanticAST extends AbstractExpressionSemanticAST<CastExpressionSyntaxAST>
@@ -34,15 +35,26 @@ public class CastExpressionSemanticAST extends AbstractExpressionSemanticAST<Cas
         super(semanticAnalyzer, lastContainerAST, castExpressionSyntaxAST, ASTType.CAST_EXPRESSION);
     }
     
+    
+    // TODO: Check null safety.
+    @Override
+    public void printSemanticAST(final PrintStream printStream, final String indents) {
+        printStream.println(indents + "├── left:");
+        printStream.println(indents + "│   └── " + this.getLeftSideOperable().getClass().getSimpleName());
+        this.getLeftSideOperable().printSemanticAST(printStream, indents + "│       ");
+        printStream.println(indents + "└── operator: " + this.getCastOperatorType());
+    }
+    
+    
     @Override
     public TypeKind getOperableObject() {
         if (this.expressionType == null) {
-            if (this.getCastOperator() == null)
+            if (this.getCastOperatorType() == null)
                 return null;
             if (this.getLeftSideOperable() == null)
                 return null;
             
-            final TypeKind typeKind = TypeKind.getTypeKind(this.getCastOperator());
+            final TypeKind typeKind = TypeKind.getTypeKind(this.getCastOperatorType());
             if(this.getLeftSideOperable() instanceof NumberOperableSemanticAST) {
                 final NumberOperableSemanticAST numberOperableSemanticAST = (NumberOperableSemanticAST) this.getLeftSideOperable();
                 numberOperableSemanticAST.setOperableType(typeKind);
@@ -59,9 +71,11 @@ public class CastExpressionSemanticAST extends AbstractExpressionSemanticAST<Cas
         return this.leftSideOperable;
     }
     
-    public CastOperatorType getCastOperator() {
+    
+    public CastOperatorType getCastOperatorType() {
         return this.getSyntaxAST().getCastOperatorType();
     }
+    
     
     private AbstractOperableSemanticAST<?, ?> analyzeOperable(final AbstractOperableSyntaxAST<?> abstractOperableSyntaxAST) {
         if (abstractOperableSyntaxAST instanceof ParenthesizedExpressionSyntaxAST) {

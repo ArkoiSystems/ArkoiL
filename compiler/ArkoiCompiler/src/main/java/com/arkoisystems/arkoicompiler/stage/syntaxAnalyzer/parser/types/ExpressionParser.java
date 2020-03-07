@@ -16,13 +16,16 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.ty
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types.ExpressionSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.AbstractStatementSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.parser.AbstractParser;
+import lombok.NonNull;
+
+import java.util.Optional;
 
 /**
  * A {@link AbstractParser} for the {@link ExpressionSyntaxAST} with which you can easily
  * parse the {@link ExpressionSyntaxAST} or check if the current {@link AbstractToken} is
  * capable to parse the {@link ExpressionSyntaxAST}.
  */
-public class ExpressionParser extends AbstractParser<ExpressionSyntaxAST>
+public class ExpressionParser extends AbstractParser
 {
     
     /**
@@ -41,20 +44,21 @@ public class ExpressionParser extends AbstractParser<ExpressionSyntaxAST>
      *         TypeSyntaxAST} or simply returns the parsed result.
      */
     @Override
-    public ExpressionSyntaxAST parse(final AbstractSyntaxAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
-        final AbstractOperableSyntaxAST<?> abstractOperableSyntaxAST = new AbstractExpressionSyntaxAST(syntaxAnalyzer, null).parseAST(parentAST);
-        if (abstractOperableSyntaxAST == null)
-            return null;
+    public Optional<ExpressionSyntaxAST> parse(@NonNull final AbstractSyntaxAST parentAST, @NonNull final SyntaxAnalyzer syntaxAnalyzer) {
+        final Optional<? extends AbstractOperableSyntaxAST<?>> optionalAbstractOperableSyntaxAST = new AbstractExpressionSyntaxAST(syntaxAnalyzer, null).parseAST(parentAST);
+        if (optionalAbstractOperableSyntaxAST.isEmpty())
+            return Optional.empty();
         
+        final AbstractOperableSyntaxAST<?> abstractOperableSyntaxAST = optionalAbstractOperableSyntaxAST.get();
         if (!(abstractOperableSyntaxAST instanceof ExpressionSyntaxAST)) {
             abstractOperableSyntaxAST.addError(
                     syntaxAnalyzer.getArkoiClass(),
                     abstractOperableSyntaxAST,
                     "Couldn't parse the expression because the result isn't an ExpressionAST."
             );
-            return null;
+            return Optional.empty();
         }
-        return (ExpressionSyntaxAST) abstractOperableSyntaxAST;
+        return Optional.of((ExpressionSyntaxAST) abstractOperableSyntaxAST);
     }
     
     
@@ -73,7 +77,7 @@ public class ExpressionParser extends AbstractParser<ExpressionSyntaxAST>
      *         or {@code true} if it is.
      */
     @Override
-    public boolean canParse(final AbstractSyntaxAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
+    public boolean canParse(@NonNull final AbstractSyntaxAST parentAST, @NonNull final SyntaxAnalyzer syntaxAnalyzer) {
         switch (syntaxAnalyzer.currentToken().getTokenType()) {
             case STRING_LITERAL:
             case NUMBER_LITERAL:

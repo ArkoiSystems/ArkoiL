@@ -10,12 +10,18 @@ import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.AbstractSemanti
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 
+import java.io.PrintStream;
+
 public class AbstractOperableSemanticAST<T1 extends AbstractSyntaxAST, O> extends AbstractSemanticAST<T1>
 {
     
     public AbstractOperableSemanticAST(final SemanticAnalyzer semanticAnalyzer, final AbstractSemanticAST<?> lastContainerAST, final T1 syntaxAST, final ASTType astType) {
         super(semanticAnalyzer, lastContainerAST, syntaxAST, astType);
     }
+    
+    
+    @Override
+    public void printSemanticAST(PrintStream printStream, String indents) { }
     
     
     public O getOperableObject() {

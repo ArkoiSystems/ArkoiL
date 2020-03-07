@@ -16,8 +16,10 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.parser.types.TypeParser;
 import lombok.Getter;
+import lombok.NonNull;
 
 import java.io.PrintStream;
+import java.util.Optional;
 
 /**
  * Used if you want to create a new {@link TypeSyntaxAST}. But it is recommend to use the
@@ -103,25 +105,26 @@ public class TypeSyntaxAST extends AbstractSyntaxAST
      *         everything worked correctly.
      */
     @Override
-    public TypeSyntaxAST parseAST(final AbstractSyntaxAST parentAST) {
+    public Optional<TypeSyntaxAST> parseAST(@NonNull final AbstractSyntaxAST parentAST) {
         if (this.getSyntaxAnalyzer().matchesCurrentToken(TokenType.IDENTIFIER) == null) {
             this.addError(
                     this.getSyntaxAnalyzer().getArkoiClass(),
                     this.getSyntaxAnalyzer().currentToken(),
                     SyntaxErrorType.TYPE_DOES_NOT_START_WITH_IDENTIFIER
             );
-            return null;
-        } else
-            this.typeKind = TypeKind.getTypeKind(this.getSyntaxAnalyzer().currentToken());
+            return Optional.empty();
+        }
         
+        this.typeKind = TypeKind.getTypeKind(this.getSyntaxAnalyzer().currentToken());
         if (this.typeKind == null) {
             this.addError(
                     this.getSyntaxAnalyzer().getArkoiClass(),
                     this.getSyntaxAnalyzer().currentToken(),
                     SyntaxErrorType.TYPE_NOT_A_VALID_TYPE
             );
-            return null;
+            return Optional.empty();
         }
+        
         this.setStart(this.getSyntaxAnalyzer().currentToken().getStart());
         
         // This will check if the next two Tokens are an opening and closing bracket aka. "[]". If it is, then skip these two Tokens and set the "isArray" boolean to true.
@@ -129,8 +132,9 @@ public class TypeSyntaxAST extends AbstractSyntaxAST
             this.getSyntaxAnalyzer().nextToken(2);
             this.isArray = true;
         }
+    
         this.setEnd(this.getSyntaxAnalyzer().currentToken().getEnd());
-        return this;
+        return Optional.of(this);
     }
     
     
@@ -143,6 +147,6 @@ public class TypeSyntaxAST extends AbstractSyntaxAST
      *         the {@code indents} which is used used when printing a new line.
      */
     @Override
-    public void printSyntaxAST(final PrintStream printStream, final String indents) { }
+    public void printSyntaxAST(@NonNull final PrintStream printStream, @NonNull final String indents) { }
     
 }

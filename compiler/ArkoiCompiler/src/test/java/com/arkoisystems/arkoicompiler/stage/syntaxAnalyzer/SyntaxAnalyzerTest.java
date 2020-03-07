@@ -10,21 +10,29 @@ import com.arkoisystems.arkoicompiler.ArkoiCompiler;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.LexicalAnalyzer;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 class SyntaxAnalyzerTest
 {
     
     @Test
     public void parseVariable() throws Exception {
+        final ArkoiCompiler arkoiCompiler = new ArkoiCompiler("");
         final ArkoiClass arkoiClass = new ArkoiClass(
                 new ArkoiCompiler(""), "",
-                "var test = 0;".getBytes());
+                "var test = 0;".getBytes()
+        );
+        arkoiCompiler.addClass(arkoiClass);
+    
         final LexicalAnalyzer lexicalAnalyzer = arkoiClass.getLexicalAnalyzer();
-        assertTrue(lexicalAnalyzer.processStage());
+        assertTrue(lexicalAnalyzer.processStage(), this.getStackTrace(arkoiCompiler));
+    
         final SyntaxAnalyzer syntaxAnalyzer = arkoiClass.getSyntaxAnalyzer();
-        assertTrue(syntaxAnalyzer.processStage());
+        assertTrue(syntaxAnalyzer.processStage(), this.getStackTrace(arkoiCompiler));
+    
         assertEquals("" +
                 "├── imports: N/A\n" +
                 "│\n" +
@@ -37,19 +45,25 @@ class SyntaxAnalyzerTest
                 "│       └── expression:\n" +
                 "│           └── operable: 0\n" +
                 "│\n" +
-                "└── functions: N/A\n", syntaxAnalyzer.getRootSyntaxAST().toString());
+                "└── functions: N/A\n",
+                syntaxAnalyzer.getRootSyntaxAST().toString()
+        );
     }
     
     
     @Test
     public void parseFloatingVariable() throws Exception {
-        final ArkoiClass arkoiClass = new ArkoiClass(
-                new ArkoiCompiler(""), "",
-                "var test = 2.0;".getBytes());
+        final ArkoiCompiler arkoiCompiler = new ArkoiCompiler("");
+        final ArkoiClass arkoiClass = new ArkoiClass(arkoiCompiler, "",
+                "var test = 2.0;".getBytes()
+        );
+        arkoiCompiler.addClass(arkoiClass);
         final LexicalAnalyzer lexicalAnalyzer = arkoiClass.getLexicalAnalyzer();
-        assertTrue(lexicalAnalyzer.processStage());
+        assertTrue(lexicalAnalyzer.processStage(), this.getStackTrace(arkoiCompiler));
+    
         final SyntaxAnalyzer syntaxAnalyzer = arkoiClass.getSyntaxAnalyzer();
-        assertTrue(syntaxAnalyzer.processStage());
+        assertTrue(syntaxAnalyzer.processStage(), this.getStackTrace(arkoiCompiler));
+    
         assertEquals("" +
                 "├── imports: N/A\n" +
                 "│\n" +
@@ -62,19 +76,26 @@ class SyntaxAnalyzerTest
                 "│       └── expression:\n" +
                 "│           └── operable: 2.0\n" +
                 "│\n" +
-                "└── functions: N/A\n", syntaxAnalyzer.getRootSyntaxAST().toString());
+                "└── functions: N/A\n",
+                syntaxAnalyzer.getRootSyntaxAST().toString()
+        );
     }
     
     
     @Test
     public void parseStringVariable() throws Exception {
-        final ArkoiClass arkoiClass = new ArkoiClass(
-                new ArkoiCompiler(""), "",
-                "var test = \"Hello World :) \\\" okay?\";".getBytes());
+        final ArkoiCompiler arkoiCompiler = new ArkoiCompiler("");
+        final ArkoiClass arkoiClass = new ArkoiClass(arkoiCompiler, "",
+                "var test = \"Hello World :) \\\" okay?\";".getBytes()
+        );
+        arkoiCompiler.addClass(arkoiClass);
+    
         final LexicalAnalyzer lexicalAnalyzer = arkoiClass.getLexicalAnalyzer();
-        assertTrue(lexicalAnalyzer.processStage());
+        assertTrue(lexicalAnalyzer.processStage(), this.getStackTrace(arkoiCompiler));
+    
         final SyntaxAnalyzer syntaxAnalyzer = arkoiClass.getSyntaxAnalyzer();
-        assertTrue(syntaxAnalyzer.processStage());
+        assertTrue(syntaxAnalyzer.processStage(), this.getStackTrace(arkoiCompiler));
+    
         assertEquals("" +
                 "├── imports: N/A\n" +
                 "│\n" +
@@ -87,21 +108,26 @@ class SyntaxAnalyzerTest
                 "│       └── expression:\n" +
                 "│           └── operable: Hello World :) \\\" okay?\n" +
                 "│\n" +
-                "└── functions: N/A\n", syntaxAnalyzer.getRootSyntaxAST().toString());
+                "└── functions: N/A\n", syntaxAnalyzer.getRootSyntaxAST().toString()
+        );
     }
     
     
     @Test
     public void parseAnnotationVariable() throws Exception {
-        final ArkoiClass arkoiClass = new ArkoiClass(
-                new ArkoiCompiler(""), "",
+        final ArkoiCompiler arkoiCompiler = new ArkoiCompiler("");
+        final ArkoiClass arkoiClass = new ArkoiClass(arkoiCompiler, "",
                 ("@Test[okay]\n" +
                         "@World[Hello]\n" +
-                        "var test = \"Hello World :) \\\" okay?\";").getBytes());
+                        "var test = \"Hello World :) \\\" okay?\";").getBytes()
+        );
+        arkoiCompiler.addClass(arkoiClass);
         final LexicalAnalyzer lexicalAnalyzer = arkoiClass.getLexicalAnalyzer();
-        assertTrue(lexicalAnalyzer.processStage());
+        assertTrue(lexicalAnalyzer.processStage(), this.getStackTrace(arkoiCompiler));
+    
         final SyntaxAnalyzer syntaxAnalyzer = arkoiClass.getSyntaxAnalyzer();
-        assertTrue(syntaxAnalyzer.processStage());
+        assertTrue(syntaxAnalyzer.processStage(), this.getStackTrace(arkoiCompiler));
+    
         assertEquals("" +
                 "├── imports: N/A\n" +
                 "│\n" +
@@ -123,19 +149,26 @@ class SyntaxAnalyzerTest
                 "│       └── expression:\n" +
                 "│           └── operable: Hello World :) \\\" okay?\n" +
                 "│\n" +
-                "└── functions: N/A\n", syntaxAnalyzer.getRootSyntaxAST().toString());
+                "└── functions: N/A\n",
+                syntaxAnalyzer.getRootSyntaxAST().toString()
+        );
     }
     
     
     @Test
     public void parseImport() throws Exception {
-        final ArkoiClass arkoiClass = new ArkoiClass(
-                new ArkoiCompiler(""), "",
-                "import \"System\" as system;".getBytes());
+        final ArkoiCompiler arkoiCompiler = new ArkoiCompiler("");
+        final ArkoiClass arkoiClass = new ArkoiClass(arkoiCompiler, "",
+                "import \"System\" as system;".getBytes()
+        );
+        arkoiCompiler.addClass(arkoiClass);
+    
         final LexicalAnalyzer lexicalAnalyzer = arkoiClass.getLexicalAnalyzer();
-        assertTrue(lexicalAnalyzer.processStage());
+        assertTrue(lexicalAnalyzer.processStage(), this.getStackTrace(arkoiCompiler));
+    
         final SyntaxAnalyzer syntaxAnalyzer = arkoiClass.getSyntaxAnalyzer();
-        assertTrue(syntaxAnalyzer.processStage());
+        assertTrue(syntaxAnalyzer.processStage(), this.getStackTrace(arkoiCompiler));
+    
         assertEquals("" +
                 "├── imports: \n" +
                 "│   └── ImportDefinitionSyntaxAST\n" +
@@ -144,19 +177,57 @@ class SyntaxAnalyzerTest
                 "│\n" +
                 "├── variables: N/A\n" +
                 "│\n" +
-                "└── functions: N/A\n", syntaxAnalyzer.getRootSyntaxAST().toString());
+                "└── functions: N/A\n",
+                syntaxAnalyzer.getRootSyntaxAST().toString()
+        );
+    }
+    
+    
+    @Test
+    public void parseMultipleErrorExpression() throws Exception {
+        final ArkoiCompiler arkoiCompiler = new ArkoiCompiler("");
+        final ArkoiClass arkoiClass = new ArkoiClass(arkoiCompiler, "",
+                "var test = (20++ + -10 * 5f * 2 * * 3 * * 4 + (test_6 + = 1);".getBytes()
+        );
+        arkoiCompiler.addClass(arkoiClass);
+        
+        final LexicalAnalyzer lexicalAnalyzer = arkoiClass.getLexicalAnalyzer();
+        assertTrue(lexicalAnalyzer.processStage(), this.getStackTrace(arkoiCompiler));
+        
+        final SyntaxAnalyzer syntaxAnalyzer = arkoiClass.getSyntaxAnalyzer();
+        assertFalse(syntaxAnalyzer.processStage(), this.getStackTrace(arkoiCompiler));
+        
+        assertEquals("" +
+                SyntaxErrorType.EXPRESSION_EXPONENTIAL_OPERABLE_SEPARATED + "\n" +
+                " >>> var test = (20++ + -10 * 5f * 2 * * 3 * * 4 + (test_6 + = 1);\n" +
+                "                                     ^^^\n" +
+                SyntaxErrorType.EXPRESSION_EXPONENTIAL_OPERABLE_SEPARATED + "\n" +
+                " >>> var test = (20++ + -10 * 5f * 2 * * 3 * * 4 + (test_6 + = 1);\n" +
+                "                                           ^^^\n" +
+                SyntaxErrorType.EXPRESSION_ADD_ASSIGNMENT_SEPARATED + "\n" +
+                " >>> var test = (20++ + -10 * 5f * 2 * * 3 * * 4 + (test_6 + = 1);\n" +
+                "                                                           ^^^\n" +
+                SyntaxErrorType.EXPRESSION_PARENTHESIZED_WRONG_ENDING + "\n" +
+                " >>> var test = (20++ + -10 * 5f * 2 * * 3 * * 4 + (test_6 + = 1);\n" +
+                "                                                                ^\n",
+                this.getStackTrace(syntaxAnalyzer)
+        );
     }
     
     
     @Test
     public void parseMathematicalExpression() throws Exception {
-        final ArkoiClass arkoiClass = new ArkoiClass(
-                new ArkoiCompiler(""), "",
+        final ArkoiCompiler arkoiCompiler = new ArkoiCompiler("");
+        final ArkoiClass arkoiClass = new ArkoiClass(arkoiCompiler, "",
                 "var test = (20++ + -10 * 5f) * 2 ** 3 ** 4 + (test_6 += 1);".getBytes());
+        arkoiCompiler.addClass(arkoiClass);
+        
         final LexicalAnalyzer lexicalAnalyzer = arkoiClass.getLexicalAnalyzer();
-        assertTrue(lexicalAnalyzer.processStage());
+        assertTrue(lexicalAnalyzer.processStage(), this.getStackTrace(arkoiCompiler));
+        
         final SyntaxAnalyzer syntaxAnalyzer = arkoiClass.getSyntaxAnalyzer();
-        assertTrue(syntaxAnalyzer.processStage());
+        assertTrue(syntaxAnalyzer.processStage(), this.getStackTrace(arkoiCompiler));
+        
         assertEquals("" +
                 "├── imports: N/A\n" +
                 "│\n" +
@@ -225,14 +296,16 @@ class SyntaxAnalyzerTest
                 "│                               └── NumberOperableSyntaxAST\n" +
                 "│                                   └── operable: 1\n" +
                 "│\n" +
-                "└── functions: N/A\n", syntaxAnalyzer.getRootSyntaxAST().toString());
+                "└── functions: N/A\n",
+                syntaxAnalyzer.getRootSyntaxAST().toString()
+        );
     }
     
     
     @Test
     public void parseFullClass() throws Exception {
-        final ArkoiClass arkoiClass = new ArkoiClass(
-                new ArkoiCompiler(""), "",
+        final ArkoiCompiler arkoiCompiler = new ArkoiCompiler("");
+        final ArkoiClass arkoiClass = new ArkoiClass(arkoiCompiler, "",
                 ("import \"./test\" as test;\n" +
                         "\n" +
                         "var test_1 = 1;\n" +
@@ -244,11 +317,16 @@ class SyntaxAnalyzerTest
                         "\n" +
                         "fun print_greet<>(test_argument: string) = println(\"%s , %s\" % [test_2, test_argument]);\n" +
                         "\n" +
-                        "fun greeting<string>() = \"Hello World\";\n").getBytes());
+                        "fun greeting<string>() = \"Hello World\";\n").getBytes()
+        );
+        arkoiCompiler.addClass(arkoiClass);
+    
         final LexicalAnalyzer lexicalAnalyzer = arkoiClass.getLexicalAnalyzer();
-        assertTrue(lexicalAnalyzer.processStage());
+        assertTrue(lexicalAnalyzer.processStage(), this.getStackTrace(arkoiCompiler));
+    
         final SyntaxAnalyzer syntaxAnalyzer = arkoiClass.getSyntaxAnalyzer();
-        assertTrue(syntaxAnalyzer.processStage());
+        assertTrue(syntaxAnalyzer.processStage(), this.getStackTrace(arkoiCompiler));
+    
         assertEquals("" +
                 "├── imports: \n" +
                 "│   └── ImportDefinitionSyntaxAST\n" +
@@ -269,7 +347,7 @@ class SyntaxAnalyzerTest
                 "    │   ├── annotations: N/A\n" +
                 "    │   │\n" +
                 "    │   ├── name: main\n" +
-                "    │   ├── type: void\n" +
+                "    │   ├── type: int\n" +
                 "    │   │\n" +
                 "    │   ├── arguments: \n" +
                 "    │   │   └── ArgumentDefinitionSyntaxAST\n" +
@@ -322,7 +400,7 @@ class SyntaxAnalyzerTest
                 "        ├── annotations: N/A\n" +
                 "        │\n" +
                 "        ├── name: greeting\n" +
-                "        ├── type: void\n" +
+                "        ├── type: string\n" +
                 "        │\n" +
                 "        ├── arguments: N/A\n" +
                 "        │\n" +
@@ -330,7 +408,25 @@ class SyntaxAnalyzerTest
                 "             ├── type: INLINE\n" +
                 "             └── storage: \n" +
                 "                 └── ExpressionSyntaxAST\n" +
-                "                     └── operable: Hello World\n", syntaxAnalyzer.getRootSyntaxAST().toString());
+                "                     └── operable: Hello World\n",
+                syntaxAnalyzer.getRootSyntaxAST().toString()
+        );
+    }
+    
+    
+    private String getStackTrace(final SyntaxAnalyzer syntaxAnalyzer) {
+        final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        final PrintStream printStream = new PrintStream(byteArrayOutputStream);
+        syntaxAnalyzer.getErrorHandler().printStackTrace(printStream, true);
+        return byteArrayOutputStream.toString();
+    }
+    
+    
+    private String getStackTrace(final ArkoiCompiler arkoiCompiler) {
+        final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        final PrintStream printStream = new PrintStream(byteArrayOutputStream);
+        arkoiCompiler.printStackTrace(printStream);
+        return byteArrayOutputStream.toString();
     }
     
 }

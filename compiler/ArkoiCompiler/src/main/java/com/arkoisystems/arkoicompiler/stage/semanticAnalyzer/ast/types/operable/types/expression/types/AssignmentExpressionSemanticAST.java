@@ -22,6 +22,8 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.ty
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
 
+import java.io.PrintStream;
+
 public class AssignmentExpressionSemanticAST extends AbstractExpressionSemanticAST<AssignmentExpressionSyntaxAST>
 {
     
@@ -36,18 +38,32 @@ public class AssignmentExpressionSemanticAST extends AbstractExpressionSemanticA
     }
     
     
+    // TODO: Check null safety.
+    @Override
+    public void printSemanticAST(final PrintStream printStream, final String indents) {
+        printStream.println(indents + "├── left:");
+        printStream.println(indents + "│   └── " + this.getLeftSideOperable().getClass().getSimpleName());
+        this.getLeftSideOperable().printSemanticAST(printStream, indents + "│        ");
+        printStream.println(indents + "├── operator: " + this.getAssignmentOperatorType());
+        printStream.println(indents + "└── right:");
+        printStream.println(indents + "    └── " + this.getRightSideOperable().getClass().getSimpleName());
+        this.getRightSideOperable().printSemanticAST(printStream, indents + "        ");
+    }
+    
+    
     @Override
     public TypeKind getOperableObject() {
         if (this.expressionType == null) {
-            if (this.getAssignmentOperator() == null)
+            if (this.getAssignmentOperatorType() == null)
                 return null;
-            if (this.getLeftSideOperable() == null)
+            if (this.getLeftSideOperable() == null) {
+                this.getRightSideOperable();
                 return null;
-            if (this.getRightSideOperable() == null)
+            } else if(this.getRightSideOperable() == null)
                 return null;
             
             final TypeKind typeKind;
-            switch (this.getAssignmentOperator()) {
+            switch (this.getAssignmentOperatorType()) {
                 case ASSIGN:
                     typeKind = this.assign(this.getLeftSideOperable(), this.getRightSideOperable());
                     break;
@@ -83,7 +99,7 @@ public class AssignmentExpressionSemanticAST extends AbstractExpressionSemanticA
     }
     
     
-    public AssignmentOperatorType getAssignmentOperator() {
+    public AssignmentOperatorType getAssignmentOperatorType() {
         return this.getSyntaxAST().getAssignmentOperatorType();
     }
     
@@ -312,7 +328,7 @@ public class AssignmentExpressionSemanticAST extends AbstractExpressionSemanticA
                     rightSideOperable,
                     SemanticErrorType.ASSIGN_MUL_ASSIGNMENT_OPERABLE_NOT_SUPPORTED
             );
-            this.setFailed(true);
+            this.failed();
             return null;
         }
         final TypeKind leftTypeKind = TypeKind.getTypeKind(leftAssignedOperable), rightTypeKind = TypeKind.getTypeKind(rightExpressionOperable);
@@ -379,7 +395,7 @@ public class AssignmentExpressionSemanticAST extends AbstractExpressionSemanticA
                     rightSideOperable,
                     SemanticErrorType.ASSIGN_MOD_ASSIGNMENT_OPERABLE_NOT_SUPPORTED
             );
-            this.setFailed(true);
+            this.failed();
             return null;
         }
         final TypeKind leftTypeKind = TypeKind.getTypeKind(leftAssignedOperable), rightTypeKind = TypeKind.getTypeKind(rightExpressionOperable);

@@ -12,8 +12,10 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxErrorType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.AbstractOperableSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
+import lombok.NonNull;
 
 import java.io.PrintStream;
+import java.util.Optional;
 
 public class NumberOperableSyntaxAST extends AbstractOperableSyntaxAST<NumberToken>
 {
@@ -24,25 +26,25 @@ public class NumberOperableSyntaxAST extends AbstractOperableSyntaxAST<NumberTok
     
     
     @Override
-    public NumberOperableSyntaxAST parseAST(final AbstractSyntaxAST parentAST) {
+    public Optional<NumberOperableSyntaxAST> parseAST(@NonNull final AbstractSyntaxAST parentAST) {
         if (this.getSyntaxAnalyzer().matchesCurrentToken(TokenType.NUMBER_LITERAL) == null) {
             this.addError(
                     this.getSyntaxAnalyzer().getArkoiClass(),
                     this.getSyntaxAnalyzer().currentToken(),
                     SyntaxErrorType.NUMBER_OPERABLE_NO_NUMBER
             );
-            return null;
+            return Optional.empty();
         }
         
         this.setOperableObject((NumberToken) this.getSyntaxAnalyzer().currentToken());
         this.setStart(this.getOperableObject().getStart());
         this.setEnd(this.getOperableObject().getEnd());
-        return this;
+        return Optional.of(this);
     }
     
     
     @Override
-    public void printSyntaxAST(final PrintStream printStream, final String indents) {
+    public void printSyntaxAST(@NonNull final PrintStream printStream, @NonNull final String indents) {
         printStream.println(indents + "└── operable: " + this.getOperableObject().getTokenContent());
     }
     

@@ -20,6 +20,7 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.t
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import lombok.Getter;
 
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -119,12 +120,12 @@ public class RootSemanticAST extends AbstractSemanticAST<RootSyntaxAST>
                         );
                     } else
                         names.put(importName.getTokenContent(), importDefinitionSemanticAST);
-                } else this.setFailed(true);
+                } else this.failed();
     
                 importDefinitionSemanticAST.getImportTargetClass();
     
                 if (importDefinitionSemanticAST.isFailed())
-                    this.setFailed(true);
+                    this.failed();
                 this.importStorage.add(importDefinitionSemanticAST);
             } else if (abstractSyntaxAST instanceof VariableDefinitionSyntaxAST) {
                 final VariableDefinitionSyntaxAST variableDefinitionSyntaxAST = (VariableDefinitionSyntaxAST) abstractSyntaxAST;
@@ -148,12 +149,12 @@ public class RootSemanticAST extends AbstractSemanticAST<RootSyntaxAST>
                         );
                     } else
                         names.put(variableName.getTokenContent(), variableDefinitionSemanticAST);
-                } else this.setFailed(true);
+                } else this.failed();
     
                 variableDefinitionSemanticAST.getVariableExpression();
     
                 if (variableDefinitionSemanticAST.isFailed())
-                    this.setFailed(true);
+                    this.failed();
                 this.variableStorage.add(variableDefinitionSemanticAST);
             }
         }
@@ -174,14 +175,60 @@ public class RootSemanticAST extends AbstractSemanticAST<RootSyntaxAST>
                             SemanticErrorType.FUNCTION_DESC_ALREADY_EXISTS
                     );
                 } else names.put(functionDescription, functionDefinitionSemanticAST);
-            } else this.setFailed(true);
+            } else this.failed();
     
             functionDefinitionSemanticAST.getFunctionBlock();
     
             if (functionDefinitionSemanticAST.isFailed())
-                this.setFailed(true);
+                this.failed();
         }
         return this;
+    }
+    
+    
+    // TODO: Check for null safety.
+    @Override
+    public void printSemanticAST(final PrintStream printStream, final String indents) {
+        printStream.println(indents + "├── imports: " + (this.getImportStorage().isEmpty() ? "N/A" : ""));
+        for (int index = 0; index < this.getImportStorage().size(); index++) {
+            final AbstractSemanticAST<?> abstractSemanticAST = this.getImportStorage().get(index);
+            if (index == this.getImportStorage().size() - 1) {
+                printStream.println(indents + "│   └── " + abstractSemanticAST.getClass().getSimpleName());
+                abstractSemanticAST.printSemanticAST(printStream, indents + "│       ");
+            } else {
+                printStream.println(indents + "│   ├── " + abstractSemanticAST.getClass().getSimpleName());
+                abstractSemanticAST.printSemanticAST(printStream, indents + "│   │   ");
+                printStream.println(indents + "│   │   ");
+            }
+        }
+    
+        printStream.println(indents + "│");
+        printStream.println(indents + "├── variables: " + (this.getVariableStorage().isEmpty() ? "N/A" : ""));
+        for (int index = 0; index < this.getVariableStorage().size(); index++) {
+            final AbstractSemanticAST<?> abstractSemanticAST = this.getVariableStorage().get(index);
+            if (index == this.getVariableStorage().size() - 1) {
+                printStream.println(indents + "│   └── " + abstractSemanticAST.getClass().getSimpleName());
+                abstractSemanticAST.printSemanticAST(printStream, indents + "│       ");
+            } else {
+                printStream.println(indents + "│   ├── " + abstractSemanticAST.getClass().getSimpleName());
+                abstractSemanticAST.printSemanticAST(printStream, indents + "│   │   ");
+                printStream.println(indents + "│   │   ");
+            }
+        }
+    
+        printStream.println(indents + "│");
+        printStream.println(indents + "└── functions: " + (this.getFunctionStorage().isEmpty() ? "N/A" : ""));
+        for (int index = 0; index < this.getFunctionStorage().size(); index++) {
+            final AbstractSemanticAST<?> abstractSemanticAST = this.getFunctionStorage().get(index);
+            if (index == this.getFunctionStorage().size() - 1) {
+                printStream.println(indents + "    └── " + abstractSemanticAST.getClass().getSimpleName());
+                abstractSemanticAST.printSemanticAST(printStream, indents + "        ");
+            } else {
+                printStream.println(indents + "    ├── " + abstractSemanticAST.getClass().getSimpleName());
+                abstractSemanticAST.printSemanticAST(printStream, indents + "    │   ");
+                printStream.println(indents + "    │   ");
+            }
+        }
     }
     
     

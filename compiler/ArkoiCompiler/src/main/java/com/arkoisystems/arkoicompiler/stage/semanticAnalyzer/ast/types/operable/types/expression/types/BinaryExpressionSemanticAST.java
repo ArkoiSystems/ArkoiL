@@ -11,13 +11,14 @@ import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.AbstractSemanti
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.AbstractOperableSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.types.*;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.types.expression.AbstractExpressionSemanticAST;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.AbstractOperableSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.*;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.operators.BinaryOperatorType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types.*;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
+
+import java.io.PrintStream;
 
 public class BinaryExpressionSemanticAST extends AbstractExpressionSemanticAST<BinaryExpressionSyntaxAST>
 {
@@ -33,18 +34,32 @@ public class BinaryExpressionSemanticAST extends AbstractExpressionSemanticAST<B
     }
     
     
+    // TODO: Check null safety.
+    @Override
+    public void printSemanticAST(final PrintStream printStream, final String indents) {
+        printStream.println(indents + "├── left:");
+        printStream.println(indents + "│   └── " + this.getLeftSideOperable().getClass().getSimpleName());
+        this.getLeftSideOperable().printSemanticAST(printStream, indents + "│        ");
+        printStream.println(indents + "├── operator: " + this.getBinaryOperatorType());
+        printStream.println(indents + "└── right:");
+        printStream.println(indents + "    └── " + this.getRightSideOperable().getClass().getSimpleName());
+        this.getRightSideOperable().printSemanticAST(printStream, indents + "        ");
+    }
+    
+    
     @Override
     public TypeKind getOperableObject() {
         if (this.expressionType == null) {
-            if (this.getBinaryOperator() == null)
+            if (this.getBinaryOperatorType() == null)
                 return null;
-            if (this.getLeftSideOperable() == null)
+            if (this.getLeftSideOperable() == null) {
+                this.getRightSideOperable();
                 return null;
-            if (this.getRightSideOperable() == null)
+            } else if(this.getRightSideOperable() == null)
                 return null;
             
             final TypeKind typeKind;
-            switch (this.getBinaryOperator()) {
+            switch (this.getBinaryOperatorType()) {
                 case ADDITION:
                     typeKind = this.binAdd(this.getLeftSideOperable(), this.getRightSideOperable());
                     break;
@@ -84,7 +99,7 @@ public class BinaryExpressionSemanticAST extends AbstractExpressionSemanticAST<B
     }
     
     
-    public BinaryOperatorType getBinaryOperator() {
+    public BinaryOperatorType getBinaryOperatorType() {
         return this.getSyntaxAST().getBinaryOperatorType();
     }
     

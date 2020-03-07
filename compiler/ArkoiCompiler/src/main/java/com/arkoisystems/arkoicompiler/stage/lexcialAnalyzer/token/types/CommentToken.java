@@ -10,6 +10,7 @@ import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
 
 import java.util.Arrays;
+import java.util.Optional;
 
 public class CommentToken extends AbstractToken
 {
@@ -20,14 +21,14 @@ public class CommentToken extends AbstractToken
     
     
     @Override
-    public CommentToken parseToken() {
+    public Optional<CommentToken> parseToken() {
         if (this.getLexicalAnalyzer().currentChar() != '#') {
             this.addError(
                     this.getLexicalAnalyzer().getArkoiClass(),
                     this.getLexicalAnalyzer().getPosition(),
                     "Couldn't lex this comment because it doesn't start with an \"#\"."
             );
-            return null;
+            return Optional.empty();
         }
         
         this.setStart(this.getLexicalAnalyzer().getPosition());
@@ -41,7 +42,7 @@ public class CommentToken extends AbstractToken
         this.setEnd(this.getLexicalAnalyzer().getPosition());
         
         this.setTokenContent(new String(Arrays.copyOfRange(this.getLexicalAnalyzer().getArkoiClass().getContent(), this.getStart(), this.getEnd())).intern());
-        return this;
+        return Optional.of(this);
     }
     
 }

@@ -13,6 +13,7 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.ty
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.operators.BinaryOperatorType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.Setter;
 
 import java.io.PrintStream;
@@ -31,27 +32,16 @@ public class BinaryExpressionSyntaxAST extends AbstractExpressionSyntaxAST
     private AbstractOperableSyntaxAST<?> leftSideOperable, rightSideOperable;
     
     
-    public BinaryExpressionSyntaxAST(final SyntaxAnalyzer syntaxAnalyzer, final AbstractOperableSyntaxAST<?> leftSideOperable, final BinaryOperatorType binaryOperatorType, final AbstractOperableSyntaxAST<?> rightSideOperable) {
+    public BinaryExpressionSyntaxAST(final SyntaxAnalyzer syntaxAnalyzer, final AbstractOperableSyntaxAST<?> leftSideOperable, final BinaryOperatorType binaryOperatorType) {
         super(syntaxAnalyzer, ASTType.BINARY_EXPRESSION);
         
-        this.rightSideOperable = rightSideOperable;
-        this.leftSideOperable = leftSideOperable;
-        
         this.binaryOperatorType = binaryOperatorType;
-        
-        this.setStart(this.leftSideOperable.getStart());
-        this.setEnd(this.rightSideOperable.getEnd());
+        this.setStart((this.leftSideOperable = leftSideOperable).getStart());
     }
     
     
     @Override
-    public AbstractOperableSyntaxAST<?> parseAST(final AbstractSyntaxAST parentAST) {
-        return null;
-    }
-    
-    
-    @Override
-    public void printSyntaxAST(final PrintStream printStream, final String indents) {
+    public void printSyntaxAST(@NonNull final PrintStream printStream, @NonNull final String indents) {
         printStream.println(indents + "├── left:");
         printStream.println(indents + "│   └── " + this.getLeftSideOperable().getClass().getSimpleName());
         this.getLeftSideOperable().printSyntaxAST(printStream, indents + "│        ");

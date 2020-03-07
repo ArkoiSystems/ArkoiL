@@ -21,6 +21,8 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.ty
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
 
+import java.io.PrintStream;
+
 public class PrefixExpressionSemanticAST extends AbstractExpressionSemanticAST<PrefixExpressionSyntaxAST>
 {
     
@@ -34,17 +36,25 @@ public class PrefixExpressionSemanticAST extends AbstractExpressionSemanticAST<P
         super(semanticAnalyzer, lastContainerAST, prefixExpressionSyntaxAST, ASTType.PREFIX_EXPRESSION);
     }
     
+    // TODO: Check null safety.
+    @Override
+    public void printSemanticAST(final PrintStream printStream, final String indents) {
+        printStream.println(indents + "├── operator: " + this.getPrefixOperatorType());
+        printStream.println(indents + "└── right:");
+        printStream.println(indents + "    └── " + this.getRightSideOperable().getClass().getSimpleName());
+        this.getRightSideOperable().printSemanticAST(printStream, indents + "        ");
+    }
     
     @Override
     public TypeKind getOperableObject() {
         if (this.expressionType == null) {
-            if (this.getRightSideOperable() == null)
+            if (this.getPrefixOperatorType() == null)
                 return null;
-            if (this.getPrefixUnaryOperator() == null)
+            if (this.getRightSideOperable() == null)
                 return null;
             
             final TypeKind typeKind;
-            switch (this.getPrefixUnaryOperator()) {
+            switch (this.getPrefixOperatorType()) {
                 case AFFIRM:
                     typeKind = this.prefixAffirm(this.getRightSideOperable());
                     break;
@@ -67,7 +77,7 @@ public class PrefixExpressionSemanticAST extends AbstractExpressionSemanticAST<P
     }
     
     
-    public PrefixOperatorType getPrefixUnaryOperator() {
+    public PrefixOperatorType getPrefixOperatorType() {
         return this.getSyntaxAST().getPrefixOperatorType();
     }
     

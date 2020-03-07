@@ -16,6 +16,7 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import lombok.SneakyThrows;
 
 import java.io.File;
+import java.io.PrintStream;
 
 public class ImportDefinitionSemanticAST extends AbstractSemanticAST<ImportDefinitionSyntaxAST>
 {
@@ -25,6 +26,14 @@ public class ImportDefinitionSemanticAST extends AbstractSemanticAST<ImportDefin
     
     public ImportDefinitionSemanticAST(final SemanticAnalyzer semanticAnalyzer, final AbstractSemanticAST<?> lastContainerAST, final ImportDefinitionSyntaxAST importDefinitionSyntaxAST) {
         super(semanticAnalyzer, lastContainerAST, importDefinitionSyntaxAST, ASTType.IMPORT_DEFINITION);
+    }
+    
+    
+    // TODO: Check for null safety.
+    @Override
+    public void printSemanticAST(final PrintStream printStream, final String indents) {
+        printStream.println(indents + "├── name: " + this.getImportName().getTokenContent());
+        printStream.println(indents + "└── path: " + this.getImportTargetClass().getFilePath());
     }
     
     

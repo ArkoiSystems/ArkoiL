@@ -6,10 +6,10 @@
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement;
 
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken;
-import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.IdentifierToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.SymbolType;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxErrorType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.FunctionInvokeOperableSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.IdentifierCallOperableSyntaxAST;
@@ -19,8 +19,10 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.ty
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.types.*;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.parser.types.StatementParser;
+import lombok.NonNull;
 
 import java.io.PrintStream;
+import java.util.Optional;
 
 public class AbstractStatementSyntaxAST extends AbstractSyntaxAST
 {
@@ -34,15 +36,15 @@ public class AbstractStatementSyntaxAST extends AbstractSyntaxAST
     
     
     @Override
-    public AbstractSyntaxAST parseAST(final AbstractSyntaxAST parentAST) {
+    public Optional<? extends AbstractSyntaxAST> parseAST(@NonNull final AbstractSyntaxAST parentAST) {
         final AbstractToken currentToken = this.getSyntaxAnalyzer().currentToken();
         if (this.getSyntaxAnalyzer().matchesCurrentToken(TokenType.IDENTIFIER) == null) {
             this.addError(
                     this.getSyntaxAnalyzer().getArkoiClass(),
                     currentToken,
-                    "Couldn't parse the statement because it doesn't start with an IdentifierToken."
+                    SyntaxErrorType.STATEMENT_WRONG_START
             );
-            return null;
+            return Optional.empty();
         }
         
         if (parentAST instanceof ThisStatementSyntaxAST) {
@@ -55,9 +57,9 @@ public class AbstractStatementSyntaxAST extends AbstractSyntaxAST
                     this.addError(
                             this.getSyntaxAnalyzer().getArkoiClass(),
                             this.getSyntaxAnalyzer().currentToken(),
-                            "Couldn't parse the statement because you can't use it with the \"this\" keyword. The \"this\" keyword can just be followed by a function or variable."
+                            SyntaxErrorType.STATEMENT_WRONG_THIS_STATEMENT_USAGE
                     );
-                    return null;
+                    return Optional.empty();
                 default:
                     if (this.getSyntaxAnalyzer().matchesPeekToken(1, SymbolType.OPENING_PARENTHESIS) != null)
                         return new FunctionInvokeOperableSyntaxAST(this.getSyntaxAnalyzer()).parseAST(parentAST);
@@ -71,7 +73,7 @@ public class AbstractStatementSyntaxAST extends AbstractSyntaxAST
                 case "fun":
                 case "import":
                 case "return":
-                    return null;
+                    return Optional.empty();
                 case "this":
                     return new ThisStatementSyntaxAST(this.getSyntaxAnalyzer()).parseAST(parentAST);
                 default:
@@ -88,7 +90,7 @@ public class AbstractStatementSyntaxAST extends AbstractSyntaxAST
                 case "import":
                 case "return":
                 case "this":
-                    return null;
+                    return Optional.empty();
                 default:
                     if (this.getSyntaxAnalyzer().matchesPeekToken(1, SymbolType.OPENING_PARENTHESIS) != null)
                         return new FunctionInvokeOperableSyntaxAST(this.getSyntaxAnalyzer(), FunctionInvocation.EXPRESSION_INVOCATION).parseAST(parentAST);
@@ -120,6 +122,6 @@ public class AbstractStatementSyntaxAST extends AbstractSyntaxAST
     
     
     @Override
-    public void printSyntaxAST(final PrintStream printStream, final String indents) { }
+    public void printSyntaxAST(@NonNull final PrintStream printStream, @NonNull final String indents) { }
     
 }

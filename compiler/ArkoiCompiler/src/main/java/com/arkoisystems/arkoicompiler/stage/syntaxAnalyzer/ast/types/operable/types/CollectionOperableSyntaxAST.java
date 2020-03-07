@@ -14,10 +14,12 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.ty
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types.ExpressionSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import lombok.Getter;
+import lombok.NonNull;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class CollectionOperableSyntaxAST extends AbstractOperableSyntaxAST<AbstractExpressionSyntaxAST[]>
 {
@@ -34,14 +36,14 @@ public class CollectionOperableSyntaxAST extends AbstractOperableSyntaxAST<Abstr
     
     
     @Override
-    public AbstractOperableSyntaxAST<?> parseAST(final AbstractSyntaxAST parentAST) {
+    public Optional<CollectionOperableSyntaxAST> parseAST(@NonNull final AbstractSyntaxAST parentAST) {
         if (this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.OPENING_BRACKET) == null) {
             this.addError(
                     this.getSyntaxAnalyzer().getArkoiClass(),
                     this.getSyntaxAnalyzer().currentToken(),
                     SyntaxErrorType.COLLECTION_OPERABLE_WRONG_START
             );
-            return null;
+            return Optional.empty();
         }
         
         this.setStart(this.getSyntaxAnalyzer().currentToken().getStart());
@@ -57,13 +59,13 @@ public class CollectionOperableSyntaxAST extends AbstractOperableSyntaxAST<Abstr
                         this.getSyntaxAnalyzer().currentToken(),
                         SyntaxErrorType.COLLECTION_OPERABLE_INVALID_EXPRESSION
                 );
-                return null;
+                return Optional.empty();
             }
             
-            final ExpressionSyntaxAST abstractExpressionAST = AbstractExpressionSyntaxAST.EXPRESSION_PARSER.parse(this, this.getSyntaxAnalyzer());
-            if (abstractExpressionAST == null)
-                return null;
-            this.collectionExpressions.add(abstractExpressionAST);
+            final Optional<ExpressionSyntaxAST> optionalExpressionSyntaxAST = AbstractExpressionSyntaxAST.EXPRESSION_PARSER.parse(this, this.getSyntaxAnalyzer());
+            if (optionalExpressionSyntaxAST.isEmpty())
+                return Optional.empty();
+            this.collectionExpressions.add(optionalExpressionSyntaxAST.get());
             
             if (this.getSyntaxAnalyzer().matchesNextToken(SymbolType.COMMA) != null)
                 this.getSyntaxAnalyzer().nextToken();
@@ -75,16 +77,16 @@ public class CollectionOperableSyntaxAST extends AbstractOperableSyntaxAST<Abstr
                     this.getSyntaxAnalyzer().currentToken(),
                     SyntaxErrorType.COLLECTION_OPERABLE_WRONG_ENDING
             );
-            return null;
+            return Optional.empty();
         }
         
         this.setEnd(this.getSyntaxAnalyzer().currentToken().getEnd());
-        return this;
+        return Optional.of(this);
     }
     
     
     @Override
-    public void printSyntaxAST(final PrintStream printStream, final String indents) {
+    public void printSyntaxAST(@NonNull final PrintStream printStream, @NonNull final String indents) {
         printStream.println(indents + "└── expressions: " + (this.getCollectionExpressions().isEmpty() ? "N/A" : ""));
         for (int index = 0; index < this.getCollectionExpressions().size(); index++) {
             final ExpressionSyntaxAST abstractSyntaxAST = this.getCollectionExpressions().get(index);

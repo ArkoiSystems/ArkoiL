@@ -17,9 +17,11 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTAccess;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.Setter;
 
 import java.io.PrintStream;
+import java.util.Optional;
 
 public class IdentifierInvokeOperableSyntaxAST extends AbstractOperableSyntaxAST<TypeKind>
 {
@@ -45,14 +47,14 @@ public class IdentifierInvokeOperableSyntaxAST extends AbstractOperableSyntaxAST
     
     
     @Override
-    public IdentifierInvokeOperableSyntaxAST parseAST(final AbstractSyntaxAST parentAST) {
+    public Optional<IdentifierInvokeOperableSyntaxAST> parseAST(@NonNull final AbstractSyntaxAST parentAST) {
         if (this.getSyntaxAnalyzer().matchesCurrentToken(TokenType.IDENTIFIER) == null) {
             this.addError(
                     this.getSyntaxAnalyzer().getArkoiClass(),
                     this.getSyntaxAnalyzer().currentToken(),
                     SyntaxErrorType.IDENTIFIER_INVOKE_WRONG_START
             );
-            return null;
+            return Optional.empty();
         }
         
         this.invokedIdentifier = (IdentifierToken) this.getSyntaxAnalyzer().currentToken();
@@ -64,7 +66,7 @@ public class IdentifierInvokeOperableSyntaxAST extends AbstractOperableSyntaxAST
                     this.getSyntaxAnalyzer().currentToken(),
                     SyntaxErrorType.IDENTIFIER_INVOKE_NO_SEPARATOR
             );
-            return null;
+            return Optional.empty();
         }
         
         this.setEnd(this.getSyntaxAnalyzer().currentToken().getEnd());
@@ -76,20 +78,19 @@ public class IdentifierInvokeOperableSyntaxAST extends AbstractOperableSyntaxAST
                     this.getSyntaxAnalyzer().currentToken(),
                     SyntaxErrorType.IDENTIFIER_INVOKE_NO_VALID_STATEMENT
             );
-            return null;
+            return Optional.empty();
         }
         
-        final AbstractSyntaxAST abstractSyntaxAST = AbstractStatementSyntaxAST.STATEMENT_PARSER.parse(this, this.getSyntaxAnalyzer());
-        if (abstractSyntaxAST == null)
-            return null;
-        
-        this.invokePostStatement = abstractSyntaxAST;
-        return this;
+        final Optional< ? extends AbstractSyntaxAST> optionalAbstractSyntaxAST = AbstractStatementSyntaxAST.STATEMENT_PARSER.parse(this, this.getSyntaxAnalyzer());
+        if (optionalAbstractSyntaxAST.isEmpty())
+            return Optional.empty();
+        this.invokePostStatement = optionalAbstractSyntaxAST.get();
+        return Optional.of(this);
     }
     
     
     @Override
-    public void printSyntaxAST(final PrintStream printStream, final String indents) {
+    public void printSyntaxAST(@NonNull final PrintStream printStream, @NonNull final String indents) {
         printStream.println(indents + "├── access: " + this.getIdentifierAccess());
         printStream.println(indents + "├── identifier: " + this.getInvokedIdentifier().getTokenContent());
         printStream.println(indents + "└── statement:");

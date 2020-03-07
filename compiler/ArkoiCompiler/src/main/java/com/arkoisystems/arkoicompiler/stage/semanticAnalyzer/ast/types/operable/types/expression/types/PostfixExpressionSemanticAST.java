@@ -13,7 +13,6 @@ import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.types.IdentifierInvokeOperableSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.types.NumberOperableSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.types.expression.AbstractExpressionSemanticAST;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.AbstractOperableSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.IdentifierCallOperableSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.IdentifierInvokeOperableSyntaxAST;
@@ -23,6 +22,8 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.ty
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types.PostfixExpressionSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
+
+import java.io.PrintStream;
 
 public class PostfixExpressionSemanticAST extends AbstractExpressionSemanticAST<PostfixExpressionSyntaxAST>
 {
@@ -38,16 +39,26 @@ public class PostfixExpressionSemanticAST extends AbstractExpressionSemanticAST<
     }
     
     
+    // TODO: Check null safety.
+    @Override
+    public void printSemanticAST(final PrintStream printStream, final String indents) {
+        printStream.println(indents + "├── left:");
+        printStream.println(indents + "│   └── " + this.getLeftSideOperable().getClass().getSimpleName());
+        this.getLeftSideOperable().printSemanticAST(printStream, indents + "│       ");
+        printStream.println(indents + "└── operator: " + this.getPostfixOperatorType());
+    }
+    
+    
     @Override
     public TypeKind getOperableObject() {
         if (this.expressionType == null) {
-            if (this.getPostfixUnaryOperator() == null)
+            if (this.getPostfixOperatorType() == null)
                 return null;
             if (this.getLeftSideOperable() == null)
                 return null;
             
             final TypeKind typeKind;
-            switch (this.getPostfixUnaryOperator()) {
+            switch (this.getPostfixOperatorType()) {
                 case POSTFIX_ADD:
                     typeKind = this.postfixAdd(this.getLeftSideOperable());
                     break;
@@ -71,7 +82,7 @@ public class PostfixExpressionSemanticAST extends AbstractExpressionSemanticAST<
     }
     
     
-    public PostfixOperatorType getPostfixUnaryOperator() {
+    public PostfixOperatorType getPostfixOperatorType() {
         return this.getSyntaxAST().getPostfixOperatorType();
     }
     
@@ -129,7 +140,7 @@ public class PostfixExpressionSemanticAST extends AbstractExpressionSemanticAST<
                     abstractOperableSemanticAST,
                     SemanticErrorType.POSTFIX_ADD_OPERABLE_NOT_SUPPORTED
             );
-            this.setFailed(true);
+            this.failed();
             return null;
         }
         return TypeKind.getTypeKind(leftExpressionOperable);

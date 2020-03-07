@@ -10,6 +10,7 @@ import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
 
 import java.util.Arrays;
+import java.util.Optional;
 
 public class StringToken extends AbstractToken
 {
@@ -20,22 +21,24 @@ public class StringToken extends AbstractToken
     
     
     @Override
-    public StringToken parseToken() {
+    public Optional<StringToken> parseToken() {
         if (this.getLexicalAnalyzer().currentChar() != '"') {
             this.addError(
                     this.getLexicalAnalyzer().getArkoiClass(),
                     this.getLexicalAnalyzer().getPosition(),
                     "Couldn't lex the string because it doesn't start with an \"."
             );
-            return null;
-        } else this.getLexicalAnalyzer().next();
+            return Optional.empty();
+        }
         
+        this.getLexicalAnalyzer().next();
         this.setStart(this.getLexicalAnalyzer().getPosition() - 1);
+        
         char lastChar = ' ';
         while (this.getLexicalAnalyzer().getPosition() < this.getLexicalAnalyzer().getArkoiClass().getContent().length) {
             final char currentChar = this.getLexicalAnalyzer().currentChar();
             if (lastChar != '\\' && currentChar == '"') {
-                this.setEnd(this.getLexicalAnalyzer().getPosition());
+                this.setEnd(this.getLexicalAnalyzer().getPosition() + 1);
                 break;
             } else if (currentChar == 0x0A || currentChar == 0x0D)
                 break;
@@ -50,12 +53,12 @@ public class StringToken extends AbstractToken
                     this.getLexicalAnalyzer().getPosition(),
                     "The defined string doesn't end with another double quote:"
             );
-            return null;
+            return Optional.empty();
         }
         
-        this.setTokenContent(new String(Arrays.copyOfRange(this.getLexicalAnalyzer().getArkoiClass().getContent(), this.getStart() + 1, this.getEnd())).intern());
+        this.setTokenContent(new String(Arrays.copyOfRange(this.getLexicalAnalyzer().getArkoiClass().getContent(), this.getStart() + 1, this.getEnd() - 1)).intern());
         this.getLexicalAnalyzer().next();
-        return this;
+        return Optional.of(this);
     }
     
 }

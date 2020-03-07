@@ -29,7 +29,7 @@ public class SyntaxErrorHandler extends ErrorHandler
     
     /**
      * Adds the given {@link ArkoiError} to the {@link SyntaxErrorHandler#abstractErrors}
-     * list for later usage (see {@link SyntaxErrorHandler#printStackTrace(PrintStream)}).
+     * list for later usage (see {@link ErrorHandler#printStackTrace(PrintStream, boolean)}).
      *
      * @param arkoiError
      *         the given {@link ArkoiError} which is used added to the {@link
@@ -46,11 +46,14 @@ public class SyntaxErrorHandler extends ErrorHandler
      *
      * @param printStream
      *         the {@link PrintStream} which is used to print all {@link ArkoiError}s.
+     * @param testing
+     *         the flag if the output should be converted to a testable stack trace
+     *         (removing the date etc).
      */
     @Override
-    public void printStackTrace(@NonNull final PrintStream printStream) {
-        for (final ArkoiError abstractError : this.abstractErrors)
-            printStream.println(abstractError.toString());
+    public void printStackTrace(@NonNull final PrintStream printStream, boolean testing) {
+        for (final ArkoiError arkoiError : this.abstractErrors)
+            printStream.println(testing ? arkoiError.toString().substring(arkoiError.toString().indexOf(' ') + 1) : arkoiError.toString());
     }
     
 }

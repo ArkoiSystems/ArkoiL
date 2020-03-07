@@ -21,8 +21,7 @@ public abstract class AbstractStage
      * Defines a flag if the stage failed to run or not.
      */
     @Getter
-    @Setter
-    private boolean failedStage = false;
+    private boolean failed = false;
     
     
     /**
@@ -42,5 +41,10 @@ public abstract class AbstractStage
      * @return the flag if an error occurred or not.
      */
     public abstract boolean processStage();
+    
+    
+    public void failed() {
+        this.failed = true;
+    }
     
 }

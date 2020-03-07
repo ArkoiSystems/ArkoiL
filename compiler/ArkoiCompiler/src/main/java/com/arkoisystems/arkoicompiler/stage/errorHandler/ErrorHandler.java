@@ -6,12 +6,11 @@
 package com.arkoisystems.arkoicompiler.stage.errorHandler;
 
 import java.io.PrintStream;
-import java.text.SimpleDateFormat;
 
 /**
  * This class contains some important methods which are needed for a {@link ErrorHandler}.
- * Such a Handler is capable to print the stack trace ({@link ErrorHandler#printStackTrace(PrintStream)})
- * or to add errors ({@link ErrorHandler#addError(ArkoiError)}).
+ * Such a Handler is capable to print the stack trace ({@link ErrorHandler#printStackTrace(PrintStream,
+ * boolean)}) or to add errors ({@link ErrorHandler#addError(ArkoiError)}).
  */
 public abstract class ErrorHandler
 {
@@ -30,7 +29,10 @@ public abstract class ErrorHandler
      *
      * @param printStream
      *         the {@link PrintStream} which is used used for this method.
+     * @param testing
+     *         the flag if the output should be converted to a testable stack trace
+     *         (removing the date etc).
      */
-    public abstract void printStackTrace(final PrintStream printStream);
+    public abstract void printStackTrace(final PrintStream printStream, final boolean testing);
     
 }
