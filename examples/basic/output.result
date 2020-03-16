@@ -1,0 +1,280 @@
+Syntax Trees:
+   │
+   ├── RootSyntaxAST
+   │   ├── imports: N/A
+   │   │
+   │   ├── variables: N/A
+   │   │
+   │   └── functions: 
+   │       └── FunctionDefinitionSyntaxAST
+   │           ├── annotations: 
+   │           │   └── AnnotationSyntaxAST
+   │           │       ├── name: native
+   │           │       └── arguments: 
+   │           │           └── default
+   │           │
+   │           ├── name: println
+   │           ├── type: void
+   │           │
+   │           ├── arguments: 
+   │           │   └── ArgumentDefinitionSyntaxAST
+   │           │       ├── name: message
+   │           │       └── type: string
+   │           │
+   │           └── block: 
+   │                ├── type: NATIVE
+   │                └── storage: N/A
+   │
+   ├── RootSyntaxAST
+   │   ├── imports: N/A
+   │   │
+   │   ├── variables: N/A
+   │   │
+   │   └── functions: 
+   │       └── FunctionDefinitionSyntaxAST
+   │           ├── annotations: N/A
+   │           │
+   │           ├── name: test
+   │           ├── type: string
+   │           │
+   │           ├── arguments: N/A
+   │           │
+   │           └── block: 
+   │                ├── type: INLINE
+   │                └── storage: 
+   │                    └── ExpressionSyntaxAST
+   │                        └── operable:  ehehe 
+   │
+   └── RootSyntaxAST
+       ├── imports: 
+       │   └── ImportDefinitionSyntaxAST
+       │       ├── name: test
+       │       └── path: ./test
+       │
+       ├── variables: 
+       │   ├── VariableDefinitionSyntaxAST
+       │   │   ├── annotations: N/A
+       │   │   │
+       │   │   ├── name: test_1
+       │   │   │
+       │   │   └── expression:
+       │   │       └── operable: 1
+       │   │   
+       │   ├── VariableDefinitionSyntaxAST
+       │   │   ├── annotations: N/A
+       │   │   │
+       │   │   ├── name: test_2
+       │   │   │
+       │   │   └── expression:
+       │   │       ├── access: THIS_ACCESS
+       │   │       ├── identifier: greeting
+       │   │       └── expressions: N/A
+       │   │   
+       │   └── VariableDefinitionSyntaxAST
+       │       ├── annotations: N/A
+       │       │
+       │       ├── name: test_3
+       │       │
+       │       └── expression:
+       │           ├── left:
+       │           │   └── CastExpressionSyntaxAST
+       │           │        ├── left:
+       │           │        │   └── ParenthesizedExpressionSyntaxAST
+       │           │        │       └── operable:
+       │           │        │           └── ExpressionSyntaxAST
+       │           │        │               ├── left:
+       │           │        │               │   └── IdentifierCallOperableSyntaxAST
+       │           │        │               │        ├── access: GLOBAL_ACCESS
+       │           │        │               │        └── identifier: test_1
+       │           │        │               ├── operator: SUBTRACTION
+       │           │        │               └── right:
+       │           │        │                   └── BinaryExpressionSyntaxAST
+       │           │        │                       ├── left:
+       │           │        │                       │   └── ParenthesizedExpressionSyntaxAST
+       │           │        │                       │        └── operable:
+       │           │        │                       │            └── ExpressionSyntaxAST
+       │           │        │                       │                ├── left:
+       │           │        │                       │                │   └── IdentifierCallOperableSyntaxAST
+       │           │        │                       │                │        ├── access: GLOBAL_ACCESS
+       │           │        │                       │                │        └── identifier: test_1
+       │           │        │                       │                ├── operator: ADD_ASSIGN
+       │           │        │                       │                └── right:
+       │           │        │                       │                    └── BinaryExpressionSyntaxAST
+       │           │        │                       │                        ├── left:
+       │           │        │                       │                        │   └── NumberOperableSyntaxAST
+       │           │        │                       │                        │        └── operable: 4
+       │           │        │                       │                        ├── operator: ADDITION
+       │           │        │                       │                        └── right:
+       │           │        │                       │                            └── PrefixExpressionSyntaxAST
+       │           │        │                       │                                ├── operator: NEGATE
+       │           │        │                       │                                └── right:
+       │           │        │                       │                                    └── NumberOperableSyntaxAST
+       │           │        │                       │                                        └── operable: 10
+       │           │        │                       ├── operator: MULTIPLICATION
+       │           │        │                       └── right:
+       │           │        │                           └── NumberOperableSyntaxAST
+       │           │        │                               └── operable: 5
+       │           │        └── operator: INTEGER
+       │           ├── operator: MULTIPLICATION
+       │           └── right:
+       │               └── CastExpressionSyntaxAST
+       │                   ├── left:
+       │                   │   └── NumberOperableSyntaxAST
+       │                   │       └── operable: 2
+       │                   └── operator: FLOAT
+       │
+       └── functions: 
+           ├── FunctionDefinitionSyntaxAST
+           │   ├── annotations: N/A
+           │   │
+           │   ├── name: main
+           │   ├── type: int
+           │   │
+           │   ├── arguments: 
+           │   │   └── ArgumentDefinitionSyntaxAST
+           │   │       ├── name: args
+           │   │       └── type: string[]
+           │   │
+           │   └── block: 
+           │        ├── type: BLOCK
+           │        └── storage: 
+           │            ├── VariableDefinitionSyntaxAST
+           │            │   ├── annotations: N/A
+           │            │   │
+           │            │   ├── name: test_1
+           │            │   │
+           │            │   └── expression:
+           │            │       └── operable: Hello
+           │            │   
+           │            ├── VariableDefinitionSyntaxAST
+           │            │   ├── annotations: N/A
+           │            │   │
+           │            │   ├── name: test_3
+           │            │   │
+           │            │   └── expression:
+           │            │       ├── access: THIS_ACCESS
+           │            │       └── identifier: test_1
+           │            │   
+           │            ├── VariableDefinitionSyntaxAST
+           │            │   ├── annotations: N/A
+           │            │   │
+           │            │   ├── name: test_6
+           │            │   │
+           │            │   └── expression:
+           │            │       └── operable: 1
+           │            │   
+           │            ├── FunctionInvokeOperableSyntaxAST
+           │            │   ├── access: THIS_ACCESS
+           │            │   ├── identifier: print_greet
+           │            │   └── expressions: 
+           │            │       └── IdentifierCallOperableSyntaxAST
+           │            │           ├── access: GLOBAL_ACCESS
+           │            │           └── identifier: test_1
+           │            │   
+           │            └── ReturnStatementSyntaxAST
+           │                └── expression:
+           │                    ├── left:
+           │                    │   └── BinaryExpressionSyntaxAST
+           │                    │        ├── left:
+           │                    │        │   └── ParenthesizedExpressionSyntaxAST
+           │                    │        │        └── operable:
+           │                    │        │            └── ExpressionSyntaxAST
+           │                    │        │                ├── left:
+           │                    │        │                │   └── PostfixExpressionSyntaxAST
+           │                    │        │                │        ├── left:
+           │                    │        │                │        │   └── NumberOperableSyntaxAST
+           │                    │        │                │        │       └── operable: 20
+           │                    │        │                │        └── operator: POSTFIX_ADD
+           │                    │        │                ├── operator: ADDITION
+           │                    │        │                └── right:
+           │                    │        │                    └── BinaryExpressionSyntaxAST
+           │                    │        │                        ├── left:
+           │                    │        │                        │   └── PrefixExpressionSyntaxAST
+           │                    │        │                        │        ├── operator: NEGATE
+           │                    │        │                        │        └── right:
+           │                    │        │                        │            └── NumberOperableSyntaxAST
+           │                    │        │                        │                └── operable: 10
+           │                    │        │                        ├── operator: MULTIPLICATION
+           │                    │        │                        └── right:
+           │                    │        │                            └── CastExpressionSyntaxAST
+           │                    │        │                                ├── left:
+           │                    │        │                                │   └── NumberOperableSyntaxAST
+           │                    │        │                                │       └── operable: 5
+           │                    │        │                                └── operator: FLOAT
+           │                    │        ├── operator: MULTIPLICATION
+           │                    │        └── right:
+           │                    │            └── BinaryExpressionSyntaxAST
+           │                    │                ├── left:
+           │                    │                │   └── NumberOperableSyntaxAST
+           │                    │                │        └── operable: 2
+           │                    │                ├── operator: EXPONENTIAL
+           │                    │                └── right:
+           │                    │                    └── BinaryExpressionSyntaxAST
+           │                    │                        ├── left:
+           │                    │                        │   └── NumberOperableSyntaxAST
+           │                    │                        │        └── operable: 3
+           │                    │                        ├── operator: EXPONENTIAL
+           │                    │                        └── right:
+           │                    │                            └── NumberOperableSyntaxAST
+           │                    │                                └── operable: 4
+           │                    ├── operator: ADDITION
+           │                    └── right:
+           │                        └── ParenthesizedExpressionSyntaxAST
+           │                            └── operable:
+           │                                └── ExpressionSyntaxAST
+           │                                    ├── left:
+           │                                    │   └── IdentifierCallOperableSyntaxAST
+           │                                    │        ├── access: GLOBAL_ACCESS
+           │                                    │        └── identifier: test_6
+           │                                    ├── operator: ADD_ASSIGN
+           │                                    └── right:
+           │                                        └── NumberOperableSyntaxAST
+           │                                            └── operable: 1
+           │   
+           ├── FunctionDefinitionSyntaxAST
+           │   ├── annotations: N/A
+           │   │
+           │   ├── name: print_greet
+           │   ├── type: void
+           │   │
+           │   ├── arguments: 
+           │   │   └── ArgumentDefinitionSyntaxAST
+           │   │       ├── name: test_argument
+           │   │       └── type: string
+           │   │
+           │   └── block: 
+           │        ├── type: INLINE
+           │        └── storage: 
+           │            └── ExpressionSyntaxAST
+           │                ├── access: GLOBAL_ACCESS
+           │                ├── identifier: println
+           │                └── expressions: 
+           │                    └── BinaryExpressionSyntaxAST
+           │                        ├── left:
+           │                        │   └── StringOperableSyntaxAST
+           │                        │        └── operable: %s , %s
+           │                        ├── operator: MODULO
+           │                        └── right:
+           │                            └── CollectionOperableSyntaxAST
+           │                                └── expressions: 
+           │                                    ├── IdentifierCallOperableSyntaxAST
+           │                                    │   ├── access: GLOBAL_ACCESS
+           │                                    │   └── identifier: test_2
+           │                                    │   
+           │                                    └── IdentifierCallOperableSyntaxAST
+           │                                        ├── access: GLOBAL_ACCESS
+           │                                        └── identifier: test_argument
+           │   
+           └── FunctionDefinitionSyntaxAST
+               ├── annotations: N/A
+               │
+               ├── name: greeting
+               ├── type: string
+               │
+               ├── arguments: N/A
+               │
+               └── block: 
+                    ├── type: INLINE
+                    └── storage: 
+                        └── ExpressionSyntaxAST
+                            └── operable: Hello World

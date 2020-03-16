@@ -1,0 +1,158 @@
+{
+    parserClass = 'com.arkoisystems.lang.arkoi.ArkoiParser'
+
+    extends = 'com.intellij.extapi.psi.ASTWrapperPsiElement'
+
+    psiClassPrefix = 'Arkoi'
+    psiImplClassSuffix = 'Impl'
+    psiPackage = 'com.arkoisystems.lang.arkoi.psi'
+    psiImplPackage = 'com.arkoisystems.lang.arkoi.psi.impl'
+
+    elementTypeHolderClass = 'com.arkoisystems.lang.arkoi.ArkoiTokenTypes'
+    elementTypeClass = 'com.arkoisystems.lang.arkoi.psi.ArkoiElementType'
+    tokenTypeClass = 'com.arkoisystems.lang.arkoi.psi.ArkoiTokenType'
+
+    psiImplUtilClass = 'com.arkoisystems.lang.arkoi.psi.impl.ArkoiPsiImplUtil'
+
+    tokens = [
+        WHITE_SPACE = 'regexp:[ \n\r\t\f]'
+
+        L_BRACKET = '['
+        R_BRACKET = ']'
+
+        L_PARENTHESIS = '('
+        R_PARENTHESIS = ')'
+
+        L_BRACE = '{'
+        R_BRACE = '}'
+
+        LESS_THAN = '<'
+        GREATER_THAN = '>'
+
+        EQUALS = '='
+        SEMICOLON = ';'
+        DOT = '.'
+        COMMA = ','
+        COLON = ':'
+
+        ADD_ASSIGN = '+='
+        SUB_ASSIGN = '-='
+        MUL_ASSIGN = '*='
+        DIV_ASSIGN = '/='
+        MOD_ASSIGN = '%='
+        EXP_ASSIGN = '**='
+
+        DOUBLE_PLUS = '++'
+        DOUBLE_MINUS = '--'
+        DOUBLE_ASTERISK = '**'
+
+        PLUS = '+'
+        MINUS = '-'
+        ASTERISK = '*'
+        SLASH = '/'
+        PERCENT = '%'
+
+        NUMBER_LITERAL = 'regexp:\d+(\.\d*)?'
+        STRING_LITERAL = 'regexp:"([^"\\]|\\.)*"'
+        IDENTIFIER = 'regexp:[a-zA-Z_@$][a-zA-Z0-9_@$]*'
+
+        COMMENT = 'regexp:#.*'
+    ]
+
+    name(".*expression") = 'expression'
+}
+
+root ::= (COMMENT | root_statement)*
+
+
+// STATEMENT
+private root_statement ::= (variable_declaration | function_declaration | import_declaration)
+
+private block_statement ::= ((function_invoke SEMICOLON) | (variable_invoke SEMICOLON) | variable_declaration | return_declaration)
+
+
+import_declaration ::= import STRING_LITERAL (as IDENTIFIER) SEMICOLON { pin = 1 }
+
+variable_declaration ::= var IDENTIFIER EQUALS expression SEMICOLON { pin = 1 }
+
+function_declaration ::= fun IDENTIFIER LESS_THAN primitives? GREATER_THAN L_PARENTHESIS argument_list? R_PARENTHESIS block_declaration { pin = 1 }
+
+return_declaration ::= return expression? SEMICOLON { pin = 1 }
+
+function_invoke ::= (this DOT)? IDENTIFIER L_PARENTHESIS expression_list? R_PARENTHESIS function_invoke? { pin = 3 }
+
+variable_invoke ::= (this DOT)? IDENTIFIER variable_invoke?
+
+
+// BLOCK
+private block_declaration ::= brace_block | inlined_block
+
+
+brace_block ::= L_BRACE block_statement* R_BRACE { pin = 1}
+
+inlined_block ::= EQUALS expression SEMICOLON { pin = 1 }
+
+
+// EXPRESSION
+expression ::= assignment_expression
+
+assignment_expression ::= binary_additive_expression (add_assign_expression
+                                                    | sub_assign_expression
+                                                    | mul_assign_expression
+                                                    | div_assign_expression
+                                                    | mod_assign_expression
+                                                    | exp_assign_expression)?
+
+private add_assign_expression ::= ADD_ASSIGN assignment_expression { pin = 1 }
+private sub_assign_expression ::= SUB_ASSIGN assignment_expression { pin = 1 }
+private mul_assign_expression ::= MUL_ASSIGN assignment_expression { pin = 1 }
+private div_assign_expression ::= DIV_ASSIGN assignment_expression { pin = 1 }
+private mod_assign_expression ::= MOD_ASSIGN assignment_expression { pin = 1 }
+private exp_assign_expression ::= EXP_ASSIGN assignment_expression { pin = 1 }
+
+binary_additive_expression ::= binary_multiplicative_expression (binary_add_expression
+                                                               | binary_sub_expression)?
+
+private binary_add_expression ::= PLUS binary_additive_expression { pin = 1 }
+private binary_sub_expression ::= MINUS binary_additive_expression { pin = 1 }
+
+
+binary_multiplicative_expression ::= collection_expression (binary_mul_expression
+                                                        | binary_div_expression
+                                                        | binary_mod_expression
+                                                        | binary_exp_expression)?
+
+private binary_mul_expression ::= ASTERISK binary_multiplicative_expression { pin = 1 }
+private binary_div_expression ::= SLASH binary_multiplicative_expression { pin = 1 }
+private binary_mod_expression ::= PERCENT binary_multiplicative_expression { pin = 1 }
+private binary_exp_expression ::= DOUBLE_ASTERISK binary_multiplicative_expression { pin = 1 }
+
+collection_expression ::= collection_expression_part | operable_expression
+private collection_expression_part ::= L_BRACKET expression_list R_BRACKET { pin = 1 }
+
+operable_expression ::= prefix_expression? (parenthesized_expression_part | operable) postfix_expression? cast_expression?
+
+private parenthesized_expression_part ::= L_PARENTHESIS expression_list R_PARENTHESIS { pin = 1 }
+
+prefix_expression ::= DOUBLE_PLUS | DOUBLE_MINUS | PLUS | MINUS
+
+postfix_expression ::= DOUBLE_PLUS | DOUBLE_MINUS
+
+cast_expression ::= 'f' | 'F' | 'd' | 'D' | 'i' | 'I' | 'c' | 'C'
+
+
+// GENERAL
+literals ::= NUMBER_LITERAL | STRING_LITERAL
+
+
+operable ::= literals | function_invoke | variable_invoke
+
+
+primitives ::= (int | boolean | short | byte | char | string | long) (L_BRACKET R_BRACKET)?
+
+
+private argument_list ::= IDENTIFIER COLON primitives argument_list_part? { pin = 2 }
+private argument_list_part ::= COMMA argument_list { pin = 1 }
+
+private expression_list ::= expression expression_list_part?
+private expression_list_part ::= COMMA expression_list { pin = 1 }

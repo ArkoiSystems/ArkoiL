@@ -1,0 +1,29 @@
+<idea-plugin url="https://lang.arkoisystems.com/">
+  <change-notes>
+    &lt;ol type="1"&gt;
+        &lt;li&gt;Initialized the project and added standard features.&lt;/li&gt;
+    &lt;/ul&gt;
+    </change-notes>
+  <idea-version since-build="193.6494" until-build="193.*"/>
+  <id>com.arkoisystems.ArkoiIntegration</id>
+  <name>ArkoiIntegration</name>
+  <version>1.0.0</version>
+  <vendor email="support@arkoisystems.com" url="http://www.arkoisystems.com">ArkoiSystems</vendor>
+  <description>
+    This plugin integrates the Arkoi Language into the Jetbrains Product. It contains a SyntaxHighlighter, AutoCompletion
+    and everything else you need.
+    </description>
+  <depends>com.intellij.modules.platform</depends>
+  <extensions defaultExtensionNs="com.intellij">
+    <fileType name="Arkoi" language="Arkoi" implementationClass="com.arkoisystems.lang.arkoi.ArkoiFileType" extensions="ark" fieldName="INSTANCE"/>
+    <lang.parserDefinition language="Arkoi" implementationClass="com.arkoisystems.lang.arkoi.psi.ArkoiParserDefinition"/>
+    <lang.syntaxHighlighterFactory language="Arkoi" implementationClass="com.arkoisystems.lang.arkoi.highlight.ArkoiSyntaxHighlighterFactory"/>
+    <colorSettingsPage implementation="com.arkoisystems.lang.arkoi.highlight.ArkoiColorSettingsPage"/>
+    <internalFileTemplate name="Arkoi File"/>
+  </extensions>
+  <actions>
+    <action id="Arkoi.CreateNewFile" class="com.arkoisystems.lang.arkoi.actions.CreateArkoiFileAction" text="Create Arkoi File" description="Creates a new Arkoi File">
+      <add-to-group group-id="NewGroup" anchor="before" relative-to-action="NewFromTemplate"/>
+    </action>
+  </actions>
+</idea-plugin>
