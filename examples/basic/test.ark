@@ -1,1 +1,2 @@
-fun test<string>() = " ehehe ";
+# Hello World
+fun test<string>() = j
