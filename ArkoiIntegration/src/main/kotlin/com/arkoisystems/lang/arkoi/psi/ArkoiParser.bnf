@@ -62,13 +62,14 @@
     name(".*expression") = 'expression'
 }
 
-root ::= (COMMENT | root_statement)*
+root ::= (line_comment | root_statement)*
 
+line_comment ::= COMMENT
 
 // STATEMENT
 private root_statement ::= (variable_declaration | function_declaration | import_declaration)
 
-private block_statement ::= ((function_invoke SEMICOLON) | (variable_invoke SEMICOLON) | variable_declaration | return_declaration)
+private block_statement ::= ((function_call SEMICOLON) | (variable_call SEMICOLON) | variable_declaration | return_declaration)
 
 
 import_declaration ::= import STRING_LITERAL (as IDENTIFIER) SEMICOLON { pin = 1 }
@@ -79,13 +80,13 @@ function_declaration ::= fun IDENTIFIER LESS_THAN primitives? GREATER_THAN L_PAR
 
 return_declaration ::= return expression? SEMICOLON { pin = 1 }
 
-function_invoke ::= (this DOT)? IDENTIFIER L_PARENTHESIS expression_list? R_PARENTHESIS function_invoke? { pin = 3 }
+function_call ::= (this DOT)? IDENTIFIER L_PARENTHESIS expression_list? R_PARENTHESIS function_call? { pin = 3 }
 
-variable_invoke ::= (this DOT)? IDENTIFIER variable_invoke?
+variable_call ::= (this DOT)? IDENTIFIER variable_call?
 
 
 // BLOCK
-private block_declaration ::= brace_block | inlined_block
+block_declaration ::= brace_block | inlined_block
 
 
 brace_block ::= L_BRACE block_statement* R_BRACE { pin = 1}
@@ -145,14 +146,14 @@ cast_expression ::= 'f' | 'F' | 'd' | 'D' | 'i' | 'I' | 'c' | 'C'
 literals ::= NUMBER_LITERAL | STRING_LITERAL
 
 
-operable ::= literals | function_invoke | variable_invoke
+operable ::= literals | function_call | variable_call
 
 
 primitives ::= (int | boolean | short | byte | char | string | long) (L_BRACKET R_BRACKET)?
 
 
-private argument_list ::= IDENTIFIER COLON primitives argument_list_part? { pin = 2 }
+argument_list ::= IDENTIFIER COLON primitives argument_list_part? { pin = 2 }
 private argument_list_part ::= COMMA argument_list { pin = 1 }
 
-private expression_list ::= expression expression_list_part?
+expression_list ::= expression expression_list_part?
 private expression_list_part ::= COMMA expression_list { pin = 1 }

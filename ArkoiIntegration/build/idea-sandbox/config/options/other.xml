@@ -3,6 +3,7 @@
     <option name="fontFace" value="Fira Code Retina" />
   </component>
   <component name="PropertiesComponent">
+    <property name="ColorChooser.RecentColors" value="112-198-46-255" />
     <property name="Default.SavedEditorTheme" value="_@user_Default" />
     <property name="FileTemplates.SelectedTemplate" value="Gradle Build Script with wrapper" />
     <property name="SettingsSearchHistory" value="Scroll wheel" />
@@ -16,7 +17,7 @@
     <property name="packagesearch.endpoint.url.fulltext" value="https://package-search.services.jetbrains.com/api/search/idea/fulltext" />
     <property name="packagesearch.endpoint.url.suggest" value="https://package-search.services.jetbrains.com/api/search/idea/suggest" />
     <property name="packagesearch.status.updated.ts" value="1583877855300" />
-    <property name="selected.color.option.type" value="ARKOI_SEMICOLON" />
+    <property name="selected.color.option.type" value="ARKOI_STRING" />
     <property name="tasks.pass.word.conversion.enforced" value="true" />
   </component>
   <component name="PsiViewerSettings">

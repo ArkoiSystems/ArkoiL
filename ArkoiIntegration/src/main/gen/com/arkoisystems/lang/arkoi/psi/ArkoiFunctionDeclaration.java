@@ -8,12 +8,15 @@ import com.intellij.psi.PsiElement;
 public interface ArkoiFunctionDeclaration extends PsiElement {
 
   @Nullable
-  ArkoiBraceBlock getBraceBlock();
+  ArkoiArgumentList getArgumentList();
 
   @Nullable
-  ArkoiInlinedBlock getInlinedBlock();
+  ArkoiBlockDeclaration getBlockDeclaration();
 
-  @NotNull
-  List<ArkoiPrimitives> getPrimitivesList();
+  @Nullable
+  ArkoiPrimitives getPrimitives();
+
+  @Nullable
+  PsiElement getIdentifier();
 
 }

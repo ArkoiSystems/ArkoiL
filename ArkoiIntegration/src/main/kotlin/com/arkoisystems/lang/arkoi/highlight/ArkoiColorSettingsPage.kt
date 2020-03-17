@@ -1,7 +1,20 @@
 /*
  * Copyright © 2019-2020 ArkoiSystems (https://www.arkoisystems.com/) All Rights Reserved.
- * Created ArkoiIntegration on March 15, 2020
- * Author timo aka. єхcsє#5543
+ * Created ArkoiIntegration on March 17, 2020
+ * Author єхcsє#5543 aka timo
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ *
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package com.arkoisystems.lang.arkoi.highlight
 
@@ -23,6 +36,13 @@ class ArkoiColorSettingsPage : ColorSettingsPage {
 
         ArkoiBundle.message("arkoi.colorSettings.lineComment.displayName") to ArkoiSyntaxHighlighter.lineComment,
 
+        ArkoiBundle.message("arkoi.colorSettings.functionCall") to ArkoiSyntaxHighlighter.functionCall,
+        ArkoiBundle.message("arkoi.colorSettings.functionParameter") to ArkoiSyntaxHighlighter.functionParameter,
+        ArkoiBundle.message("arkoi.colorSettings.functionDeclaration") to ArkoiSyntaxHighlighter.functionDeclaration,
+
+        ArkoiBundle.message("arkoi.colorSettings.globalVariable") to ArkoiSyntaxHighlighter.globalVariable,
+        ArkoiBundle.message("arkoi.colorSettings.localVariable") to ArkoiSyntaxHighlighter.localVariable,
+
         ArkoiBundle.message("arkoi.colorSettings.badCharacter.displayName") to ArkoiSyntaxHighlighter.badCharacter,
         ArkoiBundle.message("arkoi.colorSettings.keyword.displayName") to ArkoiSyntaxHighlighter.keyword,
         ArkoiBundle.message("arkoi.colorSettings.identifier.displayName") to ArkoiSyntaxHighlighter.identifier,
@@ -32,7 +52,12 @@ class ArkoiColorSettingsPage : ColorSettingsPage {
     ).map { AttributesDescriptor(it.key, it.value) }.toTypedArray()
 
     private val additionalTags = mutableMapOf(
-        "badCharacter" to ArkoiSyntaxHighlighter.badCharacter
+        "badCharacter" to ArkoiSyntaxHighlighter.badCharacter,
+        "functionCall" to ArkoiSyntaxHighlighter.functionCall,
+        "functionParameter" to ArkoiSyntaxHighlighter.functionParameter,
+        "functionDeclaration" to ArkoiSyntaxHighlighter.functionDeclaration,
+        "localVariable" to ArkoiSyntaxHighlighter.localVariable,
+        "globalVariable" to ArkoiSyntaxHighlighter.globalVariable
     )
 
     override fun getIcon() = ArkoiIcons.ARKOI_FILE
@@ -43,25 +68,27 @@ class ArkoiColorSettingsPage : ColorSettingsPage {
 
     override fun getDemoText() = """
         import "./test" as test;
-        <badCharacter>*</badCharacter><badCharacter>-</badCharacter> <badCharacter>ß</badCharacter> <badCharacter>22</badCharacter>
-        var test_1 = 1;
-        var test_2 = this.greeting();
+        <badCharacter>/</badCharacter><badCharacter>/</badCharacter><badCharacter>/</badCharacter>
+        
+        var <globalVariable>test_1</globalVariable> = 1;
+        
+        var <globalVariable>test_2</globalVariable> = this.<functionCall>greeting</functionCall>();
 
-        var test_3 = (test_1 - (test_1 += 4 + -10) * 5)i * 2f;
+        var <globalVariable>test_3</globalVariable> = (test_1 - (test_1 += 4 + -10) * 5)i * 2f;
 
         # this method gets invoked first
-        fun main<int>(args: string[]) {
-            var test_1 = "Hello";
-            var test_3 = this.test_1;
-            var test_6 = 1;
+        fun <functionDeclaration>main</functionDeclaration><int>(<functionParameter>args</functionParameter>: string[]) {
+            var <localVariable>test_1</localVariable> = "Hello";
+            var <localVariable>test_3</localVariable> = this.test_1;
+            var <localVariable>test_6</localVariable> = 1;
             
-            this.print_greet(test_1);
+            this.<functionCall>print_greet</functionCall>(test_1);
             return (20++ + -10 * 5f) * 2 ** 3 ** 4 + (test_6 += 1);
         }
 
-        fun print_greet<>(test_argument: string) = println("%s , %s" % [test_2, test_argument]);
+        fun <functionDeclaration>print_greet</functionDeclaration><>(<functionParameter>test_argument</functionParameter>: string) = <functionCall>println</functionCall>("%s , %s" % [test_2, test_argument]);
 
-        fun greeting<string>() = "Hello World";
+        fun <functionDeclaration>greeting</functionDeclaration><string>() = "Hello World";
     """.trimIndent()
 
     override fun getAttributeDescriptors() = descriptors

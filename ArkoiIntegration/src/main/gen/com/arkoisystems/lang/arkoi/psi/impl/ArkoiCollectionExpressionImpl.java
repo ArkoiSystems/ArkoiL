@@ -27,9 +27,9 @@ public class ArkoiCollectionExpressionImpl extends ASTWrapperPsiElement implemen
   }
 
   @Override
-  @NotNull
-  public List<ArkoiExpression> getExpressionList() {
-    return PsiTreeUtil.getChildrenOfTypeAsList(this, ArkoiExpression.class);
+  @Nullable
+  public ArkoiExpressionList getExpressionList() {
+    return findChildByClass(ArkoiExpressionList.class);
   }
 
   @Override

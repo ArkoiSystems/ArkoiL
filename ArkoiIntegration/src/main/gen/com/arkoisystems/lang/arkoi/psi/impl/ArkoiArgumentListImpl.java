@@ -11,14 +11,14 @@ import static com.arkoisystems.lang.arkoi.ArkoiTokenTypes.*;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import com.arkoisystems.lang.arkoi.psi.*;
 
-public class ArkoiVariableInvokeImpl extends ASTWrapperPsiElement implements ArkoiVariableInvoke {
+public class ArkoiArgumentListImpl extends ASTWrapperPsiElement implements ArkoiArgumentList {
 
-  public ArkoiVariableInvokeImpl(@NotNull ASTNode node) {
+  public ArkoiArgumentListImpl(@NotNull ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull ArkoiVisitor visitor) {
-    visitor.visitVariableInvoke(this);
+    visitor.visitArgumentList(this);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {
@@ -28,8 +28,14 @@ public class ArkoiVariableInvokeImpl extends ASTWrapperPsiElement implements Ark
 
   @Override
   @Nullable
-  public ArkoiVariableInvoke getVariableInvoke() {
-    return findChildByClass(ArkoiVariableInvoke.class);
+  public ArkoiArgumentList getArgumentList() {
+    return findChildByClass(ArkoiArgumentList.class);
+  }
+
+  @Override
+  @Nullable
+  public ArkoiPrimitives getPrimitives() {
+    return findChildByClass(ArkoiPrimitives.class);
   }
 
   @Override

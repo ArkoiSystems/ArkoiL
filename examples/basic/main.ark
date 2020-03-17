@@ -19,3 +19,5 @@ fun main<int>(args: string[]) {
 fun print_greet<>(test_argument: string) = println("%s , %s" % [test_2, test_argument]);
 
 fun greeting<string>() = "Hello World";
+
+fun greeting<>() = "";

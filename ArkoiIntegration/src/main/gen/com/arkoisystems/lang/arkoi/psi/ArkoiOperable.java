@@ -8,12 +8,12 @@ import com.intellij.psi.PsiElement;
 public interface ArkoiOperable extends PsiElement {
 
   @Nullable
-  ArkoiFunctionInvoke getFunctionInvoke();
+  ArkoiFunctionCall getFunctionCall();
 
   @Nullable
   ArkoiLiterals getLiterals();
 
   @Nullable
-  ArkoiVariableInvoke getVariableInvoke();
+  ArkoiVariableCall getVariableCall();
 
 }

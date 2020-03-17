@@ -7,6 +7,10 @@ import com.intellij.psi.PsiElement;
 
 public class ArkoiVisitor extends PsiElementVisitor {
 
+  public void visitArgumentList(@NotNull ArkoiArgumentList o) {
+    visitPsiElement(o);
+  }
+
   public void visitAssignmentExpression(@NotNull ArkoiAssignmentExpression o) {
     visitPsiElement(o);
   }
@@ -16,6 +20,10 @@ public class ArkoiVisitor extends PsiElementVisitor {
   }
 
   public void visitBinaryMultiplicativeExpression(@NotNull ArkoiBinaryMultiplicativeExpression o) {
+    visitPsiElement(o);
+  }
+
+  public void visitBlockDeclaration(@NotNull ArkoiBlockDeclaration o) {
     visitPsiElement(o);
   }
 
@@ -35,11 +43,15 @@ public class ArkoiVisitor extends PsiElementVisitor {
     visitPsiElement(o);
   }
 
-  public void visitFunctionDeclaration(@NotNull ArkoiFunctionDeclaration o) {
+  public void visitExpressionList(@NotNull ArkoiExpressionList o) {
     visitPsiElement(o);
   }
 
-  public void visitFunctionInvoke(@NotNull ArkoiFunctionInvoke o) {
+  public void visitFunctionCall(@NotNull ArkoiFunctionCall o) {
+    visitPsiElement(o);
+  }
+
+  public void visitFunctionDeclaration(@NotNull ArkoiFunctionDeclaration o) {
     visitPsiElement(o);
   }
 
@@ -48,6 +60,10 @@ public class ArkoiVisitor extends PsiElementVisitor {
   }
 
   public void visitInlinedBlock(@NotNull ArkoiInlinedBlock o) {
+    visitPsiElement(o);
+  }
+
+  public void visitLineComment(@NotNull ArkoiLineComment o) {
     visitPsiElement(o);
   }
 
@@ -79,11 +95,11 @@ public class ArkoiVisitor extends PsiElementVisitor {
     visitPsiElement(o);
   }
 
-  public void visitVariableDeclaration(@NotNull ArkoiVariableDeclaration o) {
+  public void visitVariableCall(@NotNull ArkoiVariableCall o) {
     visitPsiElement(o);
   }
 
-  public void visitVariableInvoke(@NotNull ArkoiVariableInvoke o) {
+  public void visitVariableDeclaration(@NotNull ArkoiVariableDeclaration o) {
     visitPsiElement(o);
   }
 

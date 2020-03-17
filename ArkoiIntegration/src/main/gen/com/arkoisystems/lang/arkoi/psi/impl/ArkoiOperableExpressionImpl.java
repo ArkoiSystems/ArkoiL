@@ -33,9 +33,9 @@ public class ArkoiOperableExpressionImpl extends ASTWrapperPsiElement implements
   }
 
   @Override
-  @NotNull
-  public List<ArkoiExpression> getExpressionList() {
-    return PsiTreeUtil.getChildrenOfTypeAsList(this, ArkoiExpression.class);
+  @Nullable
+  public ArkoiExpressionList getExpressionList() {
+    return findChildByClass(ArkoiExpressionList.class);
   }
 
   @Override
