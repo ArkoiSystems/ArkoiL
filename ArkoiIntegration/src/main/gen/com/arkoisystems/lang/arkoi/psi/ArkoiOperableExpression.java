@@ -10,8 +10,8 @@ public interface ArkoiOperableExpression extends PsiElement {
   @Nullable
   ArkoiCastExpression getCastExpression();
 
-  @NotNull
-  List<ArkoiExpression> getExpressionList();
+  @Nullable
+  ArkoiExpressionList getExpressionList();
 
   @Nullable
   ArkoiOperable getOperable();

@@ -1,4 +1,4 @@
-<idea-plugin url="https://lang.arkoisystems.com/">
+<idea-plugin url="https://plugins.jetbrains.com/plugin/13924-arkoiintegration">
   <change-notes>
     &lt;ol type="1"&gt;
         &lt;li&gt;Initialized the project and added standard features.&lt;/li&gt;
@@ -18,6 +18,9 @@
     <fileType name="Arkoi" language="Arkoi" implementationClass="com.arkoisystems.lang.arkoi.ArkoiFileType" extensions="ark" fieldName="INSTANCE"/>
     <lang.parserDefinition language="Arkoi" implementationClass="com.arkoisystems.lang.arkoi.psi.ArkoiParserDefinition"/>
     <lang.syntaxHighlighterFactory language="Arkoi" implementationClass="com.arkoisystems.lang.arkoi.highlight.ArkoiSyntaxHighlighterFactory"/>
+    <lang.braceMatcher language="Arkoi" implementationClass="com.arkoisystems.lang.arkoi.ide.ArkoiBraceMatcher"/>
+    <lang.foldingBuilder language="Arkoi" implementationClass="com.arkoisystems.lang.arkoi.folding.ArkoiFoldingBuilder"/>
+    <annotator language="Arkoi" implementationClass="com.arkoisystems.lang.arkoi.ide.annotator.ArkoiAnnotator"/>
     <colorSettingsPage implementation="com.arkoisystems.lang.arkoi.highlight.ArkoiColorSettingsPage"/>
     <internalFileTemplate name="Arkoi File"/>
   </extensions>

@@ -28,20 +28,26 @@ public class ArkoiFunctionDeclarationImpl extends ASTWrapperPsiElement implement
 
   @Override
   @Nullable
-  public ArkoiBraceBlock getBraceBlock() {
-    return findChildByClass(ArkoiBraceBlock.class);
+  public ArkoiArgumentList getArgumentList() {
+    return findChildByClass(ArkoiArgumentList.class);
   }
 
   @Override
   @Nullable
-  public ArkoiInlinedBlock getInlinedBlock() {
-    return findChildByClass(ArkoiInlinedBlock.class);
+  public ArkoiBlockDeclaration getBlockDeclaration() {
+    return findChildByClass(ArkoiBlockDeclaration.class);
   }
 
   @Override
-  @NotNull
-  public List<ArkoiPrimitives> getPrimitivesList() {
-    return PsiTreeUtil.getChildrenOfTypeAsList(this, ArkoiPrimitives.class);
+  @Nullable
+  public ArkoiPrimitives getPrimitives() {
+    return findChildByClass(ArkoiPrimitives.class);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getIdentifier() {
+    return findChildByType(IDENTIFIER);
   }
 
 }

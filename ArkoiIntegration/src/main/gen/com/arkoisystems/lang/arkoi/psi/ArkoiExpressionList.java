@@ -5,12 +5,12 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface ArkoiVariableInvoke extends PsiElement {
-
-  @Nullable
-  ArkoiVariableInvoke getVariableInvoke();
+public interface ArkoiExpressionList extends PsiElement {
 
   @NotNull
-  PsiElement getIdentifier();
+  ArkoiExpression getExpression();
+
+  @Nullable
+  ArkoiExpressionList getExpressionList();
 
 }

@@ -51,11 +51,11 @@ public class ArkoiParser implements PsiParser, LightPsiParser {
 
   /* ********************************************************** */
   // IDENTIFIER COLON primitives argument_list_part?
-  static boolean argument_list(PsiBuilder b, int l) {
+  public static boolean argument_list(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "argument_list")) return false;
     if (!nextTokenIs(b, IDENTIFIER)) return false;
     boolean r, p;
-    Marker m = enter_section_(b, l, _NONE_);
+    Marker m = enter_section_(b, l, _NONE_, ARGUMENT_LIST, null);
     r = consumeTokens(b, 2, IDENTIFIER, COLON);
     p = r; // pin = 2
     r = r && report_error_(b, primitives(b, l + 1));
@@ -288,17 +288,19 @@ public class ArkoiParser implements PsiParser, LightPsiParser {
 
   /* ********************************************************** */
   // brace_block | inlined_block
-  static boolean block_declaration(PsiBuilder b, int l) {
+  public static boolean block_declaration(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "block_declaration")) return false;
-    if (!nextTokenIs(b, "", EQUALS, L_BRACE)) return false;
+    if (!nextTokenIs(b, "<block declaration>", EQUALS, L_BRACE)) return false;
     boolean r;
+    Marker m = enter_section_(b, l, _NONE_, BLOCK_DECLARATION, "<block declaration>");
     r = brace_block(b, l + 1);
     if (!r) r = inlined_block(b, l + 1);
+    exit_section_(b, l, m, r, false, null);
     return r;
   }
 
   /* ********************************************************** */
-  // (function_invoke SEMICOLON) | (variable_invoke SEMICOLON) | variable_declaration | return_declaration
+  // (function_call SEMICOLON) | (variable_call SEMICOLON) | variable_declaration | return_declaration
   static boolean block_statement(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "block_statement")) return false;
     boolean r;
@@ -311,23 +313,23 @@ public class ArkoiParser implements PsiParser, LightPsiParser {
     return r;
   }
 
-  // function_invoke SEMICOLON
+  // function_call SEMICOLON
   private static boolean block_statement_0(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "block_statement_0")) return false;
     boolean r;
     Marker m = enter_section_(b);
-    r = function_invoke(b, l + 1);
+    r = function_call(b, l + 1);
     r = r && consumeToken(b, SEMICOLON);
     exit_section_(b, m, null, r);
     return r;
   }
 
-  // variable_invoke SEMICOLON
+  // variable_call SEMICOLON
   private static boolean block_statement_1(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "block_statement_1")) return false;
     boolean r;
     Marker m = enter_section_(b);
-    r = variable_invoke(b, l + 1);
+    r = variable_call(b, l + 1);
     r = r && consumeToken(b, SEMICOLON);
     exit_section_(b, m, null, r);
     return r;
@@ -445,13 +447,13 @@ public class ArkoiParser implements PsiParser, LightPsiParser {
 
   /* ********************************************************** */
   // expression expression_list_part?
-  static boolean expression_list(PsiBuilder b, int l) {
+  public static boolean expression_list(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "expression_list")) return false;
     boolean r;
-    Marker m = enter_section_(b);
+    Marker m = enter_section_(b, l, _NONE_, EXPRESSION_LIST, "<expression list>");
     r = expression(b, l + 1);
     r = r && expression_list_1(b, l + 1);
-    exit_section_(b, m, null, r);
+    exit_section_(b, l, m, r, false, null);
     return r;
   }
 
@@ -474,6 +476,54 @@ public class ArkoiParser implements PsiParser, LightPsiParser {
     r = r && expression_list(b, l + 1);
     exit_section_(b, l, m, r, p, null);
     return r || p;
+  }
+
+  /* ********************************************************** */
+  // (this DOT)? IDENTIFIER L_PARENTHESIS expression_list? R_PARENTHESIS function_call?
+  public static boolean function_call(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "function_call")) return false;
+    if (!nextTokenIs(b, "<function call>", IDENTIFIER, THIS)) return false;
+    boolean r, p;
+    Marker m = enter_section_(b, l, _NONE_, FUNCTION_CALL, "<function call>");
+    r = function_call_0(b, l + 1);
+    r = r && consumeTokens(b, 2, IDENTIFIER, L_PARENTHESIS);
+    p = r; // pin = 3
+    r = r && report_error_(b, function_call_3(b, l + 1));
+    r = p && report_error_(b, consumeToken(b, R_PARENTHESIS)) && r;
+    r = p && function_call_5(b, l + 1) && r;
+    exit_section_(b, l, m, r, p, null);
+    return r || p;
+  }
+
+  // (this DOT)?
+  private static boolean function_call_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "function_call_0")) return false;
+    function_call_0_0(b, l + 1);
+    return true;
+  }
+
+  // this DOT
+  private static boolean function_call_0_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "function_call_0_0")) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = consumeTokens(b, 0, THIS, DOT);
+    exit_section_(b, m, null, r);
+    return r;
+  }
+
+  // expression_list?
+  private static boolean function_call_3(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "function_call_3")) return false;
+    expression_list(b, l + 1);
+    return true;
+  }
+
+  // function_call?
+  private static boolean function_call_5(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "function_call_5")) return false;
+    function_call(b, l + 1);
+    return true;
   }
 
   /* ********************************************************** */
@@ -505,54 +555,6 @@ public class ArkoiParser implements PsiParser, LightPsiParser {
   private static boolean function_declaration_6(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "function_declaration_6")) return false;
     argument_list(b, l + 1);
-    return true;
-  }
-
-  /* ********************************************************** */
-  // (this DOT)? IDENTIFIER L_PARENTHESIS expression_list? R_PARENTHESIS function_invoke?
-  public static boolean function_invoke(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "function_invoke")) return false;
-    if (!nextTokenIs(b, "<function invoke>", IDENTIFIER, THIS)) return false;
-    boolean r, p;
-    Marker m = enter_section_(b, l, _NONE_, FUNCTION_INVOKE, "<function invoke>");
-    r = function_invoke_0(b, l + 1);
-    r = r && consumeTokens(b, 2, IDENTIFIER, L_PARENTHESIS);
-    p = r; // pin = 3
-    r = r && report_error_(b, function_invoke_3(b, l + 1));
-    r = p && report_error_(b, consumeToken(b, R_PARENTHESIS)) && r;
-    r = p && function_invoke_5(b, l + 1) && r;
-    exit_section_(b, l, m, r, p, null);
-    return r || p;
-  }
-
-  // (this DOT)?
-  private static boolean function_invoke_0(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "function_invoke_0")) return false;
-    function_invoke_0_0(b, l + 1);
-    return true;
-  }
-
-  // this DOT
-  private static boolean function_invoke_0_0(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "function_invoke_0_0")) return false;
-    boolean r;
-    Marker m = enter_section_(b);
-    r = consumeTokens(b, 0, THIS, DOT);
-    exit_section_(b, m, null, r);
-    return r;
-  }
-
-  // expression_list?
-  private static boolean function_invoke_3(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "function_invoke_3")) return false;
-    expression_list(b, l + 1);
-    return true;
-  }
-
-  // function_invoke?
-  private static boolean function_invoke_5(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "function_invoke_5")) return false;
-    function_invoke(b, l + 1);
     return true;
   }
 
@@ -597,6 +599,18 @@ public class ArkoiParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
+  // COMMENT
+  public static boolean line_comment(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "line_comment")) return false;
+    if (!nextTokenIs(b, COMMENT)) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = consumeToken(b, COMMENT);
+    exit_section_(b, m, LINE_COMMENT, r);
+    return r;
+  }
+
+  /* ********************************************************** */
   // NUMBER_LITERAL | STRING_LITERAL
   public static boolean literals(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "literals")) return false;
@@ -638,14 +652,14 @@ public class ArkoiParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // literals | function_invoke | variable_invoke
+  // literals | function_call | variable_call
   public static boolean operable(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "operable")) return false;
     boolean r;
     Marker m = enter_section_(b, l, _NONE_, OPERABLE, "<operable>");
     r = literals(b, l + 1);
-    if (!r) r = function_invoke(b, l + 1);
-    if (!r) r = variable_invoke(b, l + 1);
+    if (!r) r = function_call(b, l + 1);
+    if (!r) r = variable_call(b, l + 1);
     exit_section_(b, l, m, r, false, null);
     return r;
   }
@@ -802,7 +816,7 @@ public class ArkoiParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // (COMMENT | root_statement)*
+  // (line_comment | root_statement)*
   static boolean root(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "root")) return false;
     while (true) {
@@ -813,11 +827,11 @@ public class ArkoiParser implements PsiParser, LightPsiParser {
     return true;
   }
 
-  // COMMENT | root_statement
+  // line_comment | root_statement
   private static boolean root_0(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "root_0")) return false;
     boolean r;
-    r = consumeToken(b, COMMENT);
+    r = line_comment(b, l + 1);
     if (!r) r = root_statement(b, l + 1);
     return r;
   }
@@ -848,6 +862,44 @@ public class ArkoiParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
+  // (this DOT)? IDENTIFIER variable_call?
+  public static boolean variable_call(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "variable_call")) return false;
+    if (!nextTokenIs(b, "<variable call>", IDENTIFIER, THIS)) return false;
+    boolean r;
+    Marker m = enter_section_(b, l, _NONE_, VARIABLE_CALL, "<variable call>");
+    r = variable_call_0(b, l + 1);
+    r = r && consumeToken(b, IDENTIFIER);
+    r = r && variable_call_2(b, l + 1);
+    exit_section_(b, l, m, r, false, null);
+    return r;
+  }
+
+  // (this DOT)?
+  private static boolean variable_call_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "variable_call_0")) return false;
+    variable_call_0_0(b, l + 1);
+    return true;
+  }
+
+  // this DOT
+  private static boolean variable_call_0_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "variable_call_0_0")) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = consumeTokens(b, 0, THIS, DOT);
+    exit_section_(b, m, null, r);
+    return r;
+  }
+
+  // variable_call?
+  private static boolean variable_call_2(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "variable_call_2")) return false;
+    variable_call(b, l + 1);
+    return true;
+  }
+
+  /* ********************************************************** */
   // var IDENTIFIER EQUALS expression SEMICOLON
   public static boolean variable_declaration(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "variable_declaration")) return false;
@@ -860,44 +912,6 @@ public class ArkoiParser implements PsiParser, LightPsiParser {
     r = p && consumeToken(b, SEMICOLON) && r;
     exit_section_(b, l, m, r, p, null);
     return r || p;
-  }
-
-  /* ********************************************************** */
-  // (this DOT)? IDENTIFIER variable_invoke?
-  public static boolean variable_invoke(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "variable_invoke")) return false;
-    if (!nextTokenIs(b, "<variable invoke>", IDENTIFIER, THIS)) return false;
-    boolean r;
-    Marker m = enter_section_(b, l, _NONE_, VARIABLE_INVOKE, "<variable invoke>");
-    r = variable_invoke_0(b, l + 1);
-    r = r && consumeToken(b, IDENTIFIER);
-    r = r && variable_invoke_2(b, l + 1);
-    exit_section_(b, l, m, r, false, null);
-    return r;
-  }
-
-  // (this DOT)?
-  private static boolean variable_invoke_0(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "variable_invoke_0")) return false;
-    variable_invoke_0_0(b, l + 1);
-    return true;
-  }
-
-  // this DOT
-  private static boolean variable_invoke_0_0(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "variable_invoke_0_0")) return false;
-    boolean r;
-    Marker m = enter_section_(b);
-    r = consumeTokens(b, 0, THIS, DOT);
-    exit_section_(b, m, null, r);
-    return r;
-  }
-
-  // variable_invoke?
-  private static boolean variable_invoke_2(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "variable_invoke_2")) return false;
-    variable_invoke(b, l + 1);
-    return true;
   }
 
 }

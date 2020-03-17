@@ -11,14 +11,14 @@ import static com.arkoisystems.lang.arkoi.ArkoiTokenTypes.*;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import com.arkoisystems.lang.arkoi.psi.*;
 
-public class ArkoiFunctionInvokeImpl extends ASTWrapperPsiElement implements ArkoiFunctionInvoke {
+public class ArkoiFunctionCallImpl extends ASTWrapperPsiElement implements ArkoiFunctionCall {
 
-  public ArkoiFunctionInvokeImpl(@NotNull ASTNode node) {
+  public ArkoiFunctionCallImpl(@NotNull ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull ArkoiVisitor visitor) {
-    visitor.visitFunctionInvoke(this);
+    visitor.visitFunctionCall(this);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {
@@ -27,15 +27,15 @@ public class ArkoiFunctionInvokeImpl extends ASTWrapperPsiElement implements Ark
   }
 
   @Override
-  @NotNull
-  public List<ArkoiExpression> getExpressionList() {
-    return PsiTreeUtil.getChildrenOfTypeAsList(this, ArkoiExpression.class);
+  @Nullable
+  public ArkoiExpressionList getExpressionList() {
+    return findChildByClass(ArkoiExpressionList.class);
   }
 
   @Override
   @Nullable
-  public ArkoiFunctionInvoke getFunctionInvoke() {
-    return findChildByClass(ArkoiFunctionInvoke.class);
+  public ArkoiFunctionCall getFunctionCall() {
+    return findChildByClass(ArkoiFunctionCall.class);
   }
 
   @Override

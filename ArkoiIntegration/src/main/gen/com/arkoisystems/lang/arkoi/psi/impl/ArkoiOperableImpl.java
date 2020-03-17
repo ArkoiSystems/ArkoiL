@@ -28,8 +28,8 @@ public class ArkoiOperableImpl extends ASTWrapperPsiElement implements ArkoiOper
 
   @Override
   @Nullable
-  public ArkoiFunctionInvoke getFunctionInvoke() {
-    return findChildByClass(ArkoiFunctionInvoke.class);
+  public ArkoiFunctionCall getFunctionCall() {
+    return findChildByClass(ArkoiFunctionCall.class);
   }
 
   @Override
@@ -40,8 +40,8 @@ public class ArkoiOperableImpl extends ASTWrapperPsiElement implements ArkoiOper
 
   @Override
   @Nullable
-  public ArkoiVariableInvoke getVariableInvoke() {
-    return findChildByClass(ArkoiVariableInvoke.class);
+  public ArkoiVariableCall getVariableCall() {
+    return findChildByClass(ArkoiVariableCall.class);
   }
 
 }

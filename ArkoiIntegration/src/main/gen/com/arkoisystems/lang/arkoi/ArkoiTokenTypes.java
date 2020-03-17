@@ -10,17 +10,21 @@ import com.arkoisystems.lang.arkoi.psi.impl.*;
 
 public interface ArkoiTokenTypes {
 
+  IElementType ARGUMENT_LIST = new ArkoiElementType("ARGUMENT_LIST");
   IElementType ASSIGNMENT_EXPRESSION = new ArkoiElementType("ASSIGNMENT_EXPRESSION");
   IElementType BINARY_ADDITIVE_EXPRESSION = new ArkoiElementType("BINARY_ADDITIVE_EXPRESSION");
   IElementType BINARY_MULTIPLICATIVE_EXPRESSION = new ArkoiElementType("BINARY_MULTIPLICATIVE_EXPRESSION");
+  IElementType BLOCK_DECLARATION = new ArkoiElementType("BLOCK_DECLARATION");
   IElementType BRACE_BLOCK = new ArkoiElementType("BRACE_BLOCK");
   IElementType CAST_EXPRESSION = new ArkoiElementType("CAST_EXPRESSION");
   IElementType COLLECTION_EXPRESSION = new ArkoiElementType("COLLECTION_EXPRESSION");
   IElementType EXPRESSION = new ArkoiElementType("EXPRESSION");
+  IElementType EXPRESSION_LIST = new ArkoiElementType("EXPRESSION_LIST");
+  IElementType FUNCTION_CALL = new ArkoiElementType("FUNCTION_CALL");
   IElementType FUNCTION_DECLARATION = new ArkoiElementType("FUNCTION_DECLARATION");
-  IElementType FUNCTION_INVOKE = new ArkoiElementType("FUNCTION_INVOKE");
   IElementType IMPORT_DECLARATION = new ArkoiElementType("IMPORT_DECLARATION");
   IElementType INLINED_BLOCK = new ArkoiElementType("INLINED_BLOCK");
+  IElementType LINE_COMMENT = new ArkoiElementType("LINE_COMMENT");
   IElementType LITERALS = new ArkoiElementType("LITERALS");
   IElementType OPERABLE = new ArkoiElementType("OPERABLE");
   IElementType OPERABLE_EXPRESSION = new ArkoiElementType("OPERABLE_EXPRESSION");
@@ -28,8 +32,8 @@ public interface ArkoiTokenTypes {
   IElementType PREFIX_EXPRESSION = new ArkoiElementType("PREFIX_EXPRESSION");
   IElementType PRIMITIVES = new ArkoiElementType("PRIMITIVES");
   IElementType RETURN_DECLARATION = new ArkoiElementType("RETURN_DECLARATION");
+  IElementType VARIABLE_CALL = new ArkoiElementType("VARIABLE_CALL");
   IElementType VARIABLE_DECLARATION = new ArkoiElementType("VARIABLE_DECLARATION");
-  IElementType VARIABLE_INVOKE = new ArkoiElementType("VARIABLE_INVOKE");
 
   IElementType ADD_ASSIGN = new ArkoiTokenType("+=");
   IElementType AS = new ArkoiTokenType("as");
@@ -79,7 +83,10 @@ public interface ArkoiTokenTypes {
   class Factory {
     public static PsiElement createElement(ASTNode node) {
       IElementType type = node.getElementType();
-      if (type == ASSIGNMENT_EXPRESSION) {
+      if (type == ARGUMENT_LIST) {
+        return new ArkoiArgumentListImpl(node);
+      }
+      else if (type == ASSIGNMENT_EXPRESSION) {
         return new ArkoiAssignmentExpressionImpl(node);
       }
       else if (type == BINARY_ADDITIVE_EXPRESSION) {
@@ -87,6 +94,9 @@ public interface ArkoiTokenTypes {
       }
       else if (type == BINARY_MULTIPLICATIVE_EXPRESSION) {
         return new ArkoiBinaryMultiplicativeExpressionImpl(node);
+      }
+      else if (type == BLOCK_DECLARATION) {
+        return new ArkoiBlockDeclarationImpl(node);
       }
       else if (type == BRACE_BLOCK) {
         return new ArkoiBraceBlockImpl(node);
@@ -100,17 +110,23 @@ public interface ArkoiTokenTypes {
       else if (type == EXPRESSION) {
         return new ArkoiExpressionImpl(node);
       }
+      else if (type == EXPRESSION_LIST) {
+        return new ArkoiExpressionListImpl(node);
+      }
+      else if (type == FUNCTION_CALL) {
+        return new ArkoiFunctionCallImpl(node);
+      }
       else if (type == FUNCTION_DECLARATION) {
         return new ArkoiFunctionDeclarationImpl(node);
-      }
-      else if (type == FUNCTION_INVOKE) {
-        return new ArkoiFunctionInvokeImpl(node);
       }
       else if (type == IMPORT_DECLARATION) {
         return new ArkoiImportDeclarationImpl(node);
       }
       else if (type == INLINED_BLOCK) {
         return new ArkoiInlinedBlockImpl(node);
+      }
+      else if (type == LINE_COMMENT) {
+        return new ArkoiLineCommentImpl(node);
       }
       else if (type == LITERALS) {
         return new ArkoiLiteralsImpl(node);
@@ -133,11 +149,11 @@ public interface ArkoiTokenTypes {
       else if (type == RETURN_DECLARATION) {
         return new ArkoiReturnDeclarationImpl(node);
       }
+      else if (type == VARIABLE_CALL) {
+        return new ArkoiVariableCallImpl(node);
+      }
       else if (type == VARIABLE_DECLARATION) {
         return new ArkoiVariableDeclarationImpl(node);
-      }
-      else if (type == VARIABLE_INVOKE) {
-        return new ArkoiVariableInvokeImpl(node);
       }
       throw new AssertionError("Unknown element type: " + type);
     }
