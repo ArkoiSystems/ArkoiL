@@ -28,7 +28,7 @@ WHITE_SPACE=\s+
 WHITE_SPACE=[ \n\r\t\f]
 NUMBER_LITERAL=[0-9]+(\.[0-9]*)?
 STRING_LITERAL=\"([^\"\\]|\\.)*\"
-IDENTIFIER=[a-zA-Z_@$][a-zA-Z0-9_@$]*
+IDENTIFIER=[a-zA-Z_$][a-zA-Z0-9_$]*
 COMMENT=#.*
 
 %%
@@ -48,6 +48,7 @@ COMMENT=#.*
   "."                   { return DOT; }
   ","                   { return COMMA; }
   ":"                   { return COLON; }
+  "@"                   { return AT; }
   "+="                  { return ADD_ASSIGN; }
   "-="                  { return SUB_ASSIGN; }
   "*="                  { return MUL_ASSIGN; }

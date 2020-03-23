@@ -38,7 +38,7 @@ public class NumberOperableSemanticAST extends AbstractOperableSemanticAST<Numbe
     @Override
     public TypeKind getOperableObject() {
         if (this.operableType == null) {
-            final NumberToken numberToken = this.getSyntaxAST().getOperableObject();
+            final NumberToken numberToken = this.getSyntaxAST().getNumberToken();
             if(numberToken.getTokenContent().contains("."))
                 return (this.operableType = TypeKind.FLOAT);
             return (this.operableType = TypeKind.INTEGER);

@@ -18,57 +18,46 @@
  */
 package com.arkoisystems.lang.arkoi.ide.annotator
 
+import com.arkoisystems.arkoicompiler.ArkoiClass
+import com.arkoisystems.arkoicompiler.ArkoiCompiler
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.types.FunctionDefinitionSyntaxAST
 import com.arkoisystems.lang.arkoi.ArkoiTokenTypes
-import com.arkoisystems.lang.arkoi.highlight.ArkoiSyntaxHighlighter
-import com.arkoisystems.lang.arkoi.psi.*
+import com.arkoisystems.lang.arkoi.psi.ArkoiFile
+import com.arkoisystems.lang.arkoi.psi.ArkoiFunctionDeclaration
 import com.intellij.lang.annotation.AnnotationHolder
 import com.intellij.lang.annotation.Annotator
-import com.intellij.openapi.editor.DefaultLanguageHighlighterColors
 import com.intellij.psi.PsiElement
 import com.intellij.psi.tree.TokenSet
-import com.intellij.psi.util.PsiTreeUtil
+import com.jetbrains.rd.util.string.print
 
 class ArkoiAnnotator : Annotator {
 
     override fun annotate(element: PsiElement, holder: AnnotationHolder) {
-        when (element) {
-            is ArkoiFunctionCall -> {
-                element.node.findChildByType(ArkoiTokenTypes.IDENTIFIER)?.apply {
-                    holder.createInfoAnnotation(this, null).textAttributes = ArkoiSyntaxHighlighter.functionCall
-                }
-            }
+        if (element !is ArkoiFile)
+            return
+        val arkoiCompiler = ArkoiCompiler(element.project.basePath!!)
+        val arkoiClass = ArkoiClass(arkoiCompiler, element.project.basePath!!, ByteArray(0))
+        arkoiClass.lexicalAnalyzer
+        arkoiClass.syntaxAnalyzer.rootSyntaxAST.functionStorage.addAll(generateFunctions(arkoiClass, element))
 
-//            is ArkoiVariableCall -> {
-//                val isLocal = element.node.findChildByType(ArkoiTokenTypes.THIS)
-//                element.node.findChildByType(ArkoiTokenTypes.IDENTIFIER)?.apply {
-//                    holder.createInfoAnnotation(this, null).textAttributes =
-//                        if (isLocal == null) DefaultLanguageHighlighterColors.GLOBAL_VARIABLE else DefaultLanguageHighlighterColors.LOCAL_VARIABLE
-//                }
-//            }
+        if(!arkoiClass.semanticAnalyzer.processStage()) arkoiCompiler.printStackTrace(System.out)
+        else arkoiClass.syntaxAnalyzer.rootSyntaxAST.printSyntaxAST(System.out, "")
+    }
 
-            is ArkoiVariableDeclaration -> {
-                val blockDeclaration = PsiTreeUtil.getParentOfType(element, ArkoiBraceBlock::class.java, ArkoiInlinedBlock::class.java)
-                element.node.findChildByType(ArkoiTokenTypes.IDENTIFIER)?.apply {
-                    holder.createInfoAnnotation(this, null).textAttributes =
-                        if (blockDeclaration == null) ArkoiSyntaxHighlighter.globalVariable else ArkoiSyntaxHighlighter.localVariable
-                }
-            }
-
-            is ArkoiFunctionDeclaration -> {
-                element.node.findChildByType(ArkoiTokenTypes.IDENTIFIER)?.apply {
-                    holder.createInfoAnnotation(this, null).textAttributes = ArkoiSyntaxHighlighter.functionDeclaration
-                }
-
-                element.node.findChildByType(ArkoiTokenTypes.ARGUMENT_LIST)?.apply {
-                    this.getChildren(TokenSet.forAllMatching {
-                        it == ArkoiTokenTypes.IDENTIFIER
-                    }).forEach {
-                        it ?: return@forEach
-                        holder.createInfoAnnotation(it, null).textAttributes = ArkoiSyntaxHighlighter.functionParameter
-                    }
-                }
-            }
+    private fun generateFunctions(arkoiClass: ArkoiClass, arkoiFile: ArkoiFile): Collection<FunctionDefinitionSyntaxAST> {
+        val functionDefinitions = mutableListOf<FunctionDefinitionSyntaxAST>()
+        arkoiFile.node.getChildren(TokenSet.forAllMatching {
+            it == ArkoiTokenTypes.FUNCTION_DECLARATION
+        }).map { it.psi as ArkoiFunctionDeclaration }.forEach {
+            val functionDefinitionSyntaxAST = FunctionDefinitionSyntaxAST(arkoiClass.syntaxAnalyzer)
+            functionDefinitionSyntaxAST.functionName = it.functionName
+            functionDefinitionSyntaxAST.functionReturnType = it.getFunctionReturnType(arkoiClass.syntaxAnalyzer)
+            functionDefinitionSyntaxAST.functionBlock = it.getFunctionBlock(arkoiClass.syntaxAnalyzer)
+            functionDefinitionSyntaxAST.functionArguments = it.getFunctionParameters(arkoiClass.syntaxAnalyzer)
+            functionDefinitionSyntaxAST.functionAnnotations =  it.getFunctionAnnotations(arkoiClass.syntaxAnalyzer)
+            functionDefinitions.add(functionDefinitionSyntaxAST)
         }
+        return functionDefinitions
     }
 
 }

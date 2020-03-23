@@ -10,6 +10,12 @@ import com.intellij.psi.util.PsiTreeUtil;
 import static com.arkoisystems.lang.arkoi.ArkoiTokenTypes.*;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import com.arkoisystems.lang.arkoi.psi.*;
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.IdentifierToken;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.BlockSyntaxAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.TypeSyntaxAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.AnnotationSyntaxAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.ParameterSyntaxAST;
 
 public class ArkoiFunctionDeclarationImpl extends ASTWrapperPsiElement implements ArkoiFunctionDeclaration {
 
@@ -27,15 +33,27 @@ public class ArkoiFunctionDeclarationImpl extends ASTWrapperPsiElement implement
   }
 
   @Override
-  @Nullable
-  public ArkoiArgumentList getArgumentList() {
-    return findChildByClass(ArkoiArgumentList.class);
+  @NotNull
+  public List<ArkoiAnnotationCall> getAnnotationCallList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, ArkoiAnnotationCall.class);
   }
 
   @Override
   @Nullable
   public ArkoiBlockDeclaration getBlockDeclaration() {
     return findChildByClass(ArkoiBlockDeclaration.class);
+  }
+
+  @Override
+  @NotNull
+  public List<ArkoiCommentDeclaration> getCommentDeclarationList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, ArkoiCommentDeclaration.class);
+  }
+
+  @Override
+  @Nullable
+  public ArkoiParameterList getParameterList() {
+    return findChildByClass(ArkoiParameterList.class);
   }
 
   @Override
@@ -48,6 +66,36 @@ public class ArkoiFunctionDeclarationImpl extends ASTWrapperPsiElement implement
   @Nullable
   public PsiElement getIdentifier() {
     return findChildByType(IDENTIFIER);
+  }
+
+  @Override
+  @Nullable
+  public IdentifierToken getFunctionName() {
+    return ArkoiPsiImplUtil.getFunctionName(this);
+  }
+
+  @Override
+  @Nullable
+  public TypeSyntaxAST getFunctionReturnType(@NotNull SyntaxAnalyzer syntaxAnalyzer) {
+    return ArkoiPsiImplUtil.getFunctionReturnType(this, syntaxAnalyzer);
+  }
+
+  @Override
+  @Nullable
+  public BlockSyntaxAST getFunctionBlock(@NotNull SyntaxAnalyzer syntaxAnalyzer) {
+    return ArkoiPsiImplUtil.getFunctionBlock(this, syntaxAnalyzer);
+  }
+
+  @Override
+  @NotNull
+  public List<ParameterSyntaxAST> getFunctionParameters(@NotNull SyntaxAnalyzer syntaxAnalyzer) {
+    return ArkoiPsiImplUtil.getFunctionParameters(this, syntaxAnalyzer);
+  }
+
+  @Override
+  @NotNull
+  public List<AnnotationSyntaxAST> getFunctionAnnotations(@NotNull SyntaxAnalyzer syntaxAnalyzer) {
+    return ArkoiPsiImplUtil.getFunctionAnnotations(this, syntaxAnalyzer);
   }
 
 }

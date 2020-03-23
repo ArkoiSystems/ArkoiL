@@ -7,13 +7,7 @@ import com.intellij.psi.PsiElement;
 
 public interface ArkoiArgumentList extends PsiElement {
 
-  @Nullable
-  ArkoiArgumentList getArgumentList();
-
-  @Nullable
-  ArkoiPrimitives getPrimitives();
-
   @NotNull
-  PsiElement getIdentifier();
+  List<ArkoiArgumentListPart> getArgumentListPartList();
 
 }

@@ -57,7 +57,7 @@ public class ImportDefinitionSyntaxAST extends AbstractStatementSyntaxAST
             return Optional.empty();
         }
         this.setStart(this.getSyntaxAnalyzer().currentToken().getStart());
-        
+    
         if (this.getSyntaxAnalyzer().matchesNextToken(TokenType.STRING_LITERAL) == null) {
             this.addError(
                     this.getSyntaxAnalyzer().getArkoiClass(),
@@ -71,7 +71,7 @@ public class ImportDefinitionSyntaxAST extends AbstractStatementSyntaxAST
         if (this.importFilePath.getTokenContent().endsWith(".ark"))
             this.importFilePath.setTokenContent(this.importFilePath.getTokenContent().substring(0, this.importFilePath.getTokenContent().length() - 4));
         this.getSyntaxAnalyzer().nextToken();
-        
+    
         if (this.getSyntaxAnalyzer().matchesCurrentToken(TokenType.IDENTIFIER) != null && this.getSyntaxAnalyzer().currentToken().getTokenContent().equals("as")) {
             if (this.getSyntaxAnalyzer().matchesNextToken(TokenType.IDENTIFIER) == null) {
                 this.addError(
@@ -86,7 +86,10 @@ public class ImportDefinitionSyntaxAST extends AbstractStatementSyntaxAST
             this.getSyntaxAnalyzer().nextToken();
         } else {
             final String[] split = this.importFilePath.getTokenContent().split("/");
-            this.importName = new IdentifierToken(null, split[split.length - 1].replace(".ark", ""), -1, -1);
+            this.importName = IdentifierToken
+                    .builder()
+                    .content(split[split.length - 1].replace(".ark", ""))
+                    .build();
         }
         
         if (this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.SEMICOLON) == null) {

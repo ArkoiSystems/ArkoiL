@@ -27,21 +27,9 @@ public class ArkoiArgumentListImpl extends ASTWrapperPsiElement implements Arkoi
   }
 
   @Override
-  @Nullable
-  public ArkoiArgumentList getArgumentList() {
-    return findChildByClass(ArkoiArgumentList.class);
-  }
-
-  @Override
-  @Nullable
-  public ArkoiPrimitives getPrimitives() {
-    return findChildByClass(ArkoiPrimitives.class);
-  }
-
-  @Override
   @NotNull
-  public PsiElement getIdentifier() {
-    return findNotNullChildByType(IDENTIFIER);
+  public List<ArkoiArgumentListPart> getArgumentListPartList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, ArkoiArgumentListPart.class);
   }
 
 }

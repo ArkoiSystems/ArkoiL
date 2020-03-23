@@ -27,9 +27,9 @@ public class ArkoiBinaryAdditiveExpressionImpl extends ASTWrapperPsiElement impl
   }
 
   @Override
-  @Nullable
-  public ArkoiBinaryAdditiveExpression getBinaryAdditiveExpression() {
-    return findChildByClass(ArkoiBinaryAdditiveExpression.class);
+  @NotNull
+  public List<ArkoiBinaryAdditiveExpressionPart> getBinaryAdditiveExpressionPartList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, ArkoiBinaryAdditiveExpressionPart.class);
   }
 
   @Override

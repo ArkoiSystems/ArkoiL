@@ -34,14 +34,14 @@ public class ArkoiOperableExpressionImpl extends ASTWrapperPsiElement implements
 
   @Override
   @Nullable
-  public ArkoiExpressionList getExpressionList() {
-    return findChildByClass(ArkoiExpressionList.class);
+  public ArkoiOperable getOperable() {
+    return findChildByClass(ArkoiOperable.class);
   }
 
   @Override
   @Nullable
-  public ArkoiOperable getOperable() {
-    return findChildByClass(ArkoiOperable.class);
+  public ArkoiParenthesizedExpression getParenthesizedExpression() {
+    return findChildByClass(ArkoiParenthesizedExpression.class);
   }
 
   @Override

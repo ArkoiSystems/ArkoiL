@@ -28,14 +28,8 @@ public class ArkoiExpressionListImpl extends ASTWrapperPsiElement implements Ark
 
   @Override
   @NotNull
-  public ArkoiExpression getExpression() {
-    return findNotNullChildByClass(ArkoiExpression.class);
-  }
-
-  @Override
-  @Nullable
-  public ArkoiExpressionList getExpressionList() {
-    return findChildByClass(ArkoiExpressionList.class);
+  public List<ArkoiExpression> getExpressionList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, ArkoiExpression.class);
   }
 
 }

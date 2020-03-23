@@ -5,7 +5,9 @@
  */
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types;
 
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.LexicalAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken;
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.IdentifierToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.SymbolType;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.SemanticAnalyzer;
@@ -15,8 +17,7 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.parser.types.TypeParser;
-import lombok.Getter;
-import lombok.NonNull;
+import lombok.*;
 
 import java.io.PrintStream;
 import java.util.Optional;
@@ -41,6 +42,7 @@ public class TypeSyntaxAST extends AbstractSyntaxAST
      * for later usage in the {@link SemanticAnalyzer}.
      */
     @Getter
+    @Setter(AccessLevel.PROTECTED)
     private TypeKind typeKind;
     
     
@@ -49,29 +51,8 @@ public class TypeSyntaxAST extends AbstractSyntaxAST
      * when generating pseudo code etc.
      */
     @Getter
+    @Setter(AccessLevel.PROTECTED)
     private boolean isArray;
-    
-    
-    /**
-     * Constructs a new {@link TypeSyntaxAST} with the defined parameters. This
-     * constructor is just used for in-build creation and not for parsing. So you can
-     * create a {@link TypeSyntaxAST} without the need to parse it.
-     *
-     * @param syntaxAnalyzer
-     *         the {@link SyntaxAnalyzer} which is used to check for correct syntax with
-     *         methods like {@link SyntaxAnalyzer#matchesNextToken(SymbolType)} or {@link
-     *         * SyntaxAnalyzer#nextToken()}.
-     * @param typeKind
-     *         the {@link TypeKind} which is used for later usage.
-     * @param isArray
-     *         defines if the {@link TypeSyntaxAST} should be an array or not.
-     */
-    public TypeSyntaxAST(final SyntaxAnalyzer syntaxAnalyzer, final TypeKind typeKind, final boolean isArray) {
-        super(syntaxAnalyzer, ASTType.TYPE);
-        
-        this.typeKind = typeKind;
-        this.isArray = isArray;
-    }
     
     
     /**
@@ -85,7 +66,7 @@ public class TypeSyntaxAST extends AbstractSyntaxAST
      *         methods like {@link SyntaxAnalyzer#matchesNextToken(SymbolType)} or {@link
      *         * SyntaxAnalyzer#nextToken()}.
      */
-    public TypeSyntaxAST(final SyntaxAnalyzer syntaxAnalyzer) {
+    protected TypeSyntaxAST(final SyntaxAnalyzer syntaxAnalyzer) {
         super(syntaxAnalyzer, ASTType.TYPE);
     }
     
@@ -148,5 +129,75 @@ public class TypeSyntaxAST extends AbstractSyntaxAST
      */
     @Override
     public void printSyntaxAST(@NonNull final PrintStream printStream, @NonNull final String indents) { }
+    
+    
+    public static TypeSyntaxASTBuilder builder(final SyntaxAnalyzer syntaxAnalyzer) {
+        return new TypeSyntaxASTBuilder(syntaxAnalyzer);
+    }
+    
+    
+    public static TypeSyntaxASTBuilder builder() {
+        return new TypeSyntaxASTBuilder();
+    }
+    
+    
+    public static class TypeSyntaxASTBuilder {
+        
+        private final SyntaxAnalyzer syntaxAnalyzer;
+    
+        
+        private TypeKind typeKind;
+        
+        
+        private boolean isArray;
+        
+        
+        private int start, end;
+        
+        
+        public TypeSyntaxASTBuilder(SyntaxAnalyzer syntaxAnalyzer) {
+            this.syntaxAnalyzer = syntaxAnalyzer;
+        }
+    
+        
+        public TypeSyntaxASTBuilder() {
+            this.syntaxAnalyzer = null;
+        }
+        
+        
+        public TypeSyntaxASTBuilder array(final boolean isArray) {
+            this.isArray = isArray;
+            return this;
+        }
+    
+    
+        public TypeSyntaxASTBuilder typeKind(final TypeKind typeKind) {
+            this.typeKind = typeKind;
+            return this;
+        }
+    
+    
+        public TypeSyntaxASTBuilder start(final int start) {
+            this.start = start;
+            return this;
+        }
+    
+    
+        public TypeSyntaxASTBuilder end(final int end) {
+            this.end = end;
+            return this;
+        }
+        
+        
+        public TypeSyntaxAST build() {
+            final TypeSyntaxAST typeSyntaxAST = new TypeSyntaxAST(this.syntaxAnalyzer);
+            typeSyntaxAST.setTypeKind(this.typeKind);
+            typeSyntaxAST.setArray(this.isArray);
+            typeSyntaxAST.setStart(this.start);
+            typeSyntaxAST.setEnd(this.end);
+            return typeSyntaxAST;
+        }
+    
+    }
     
 }

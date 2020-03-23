@@ -7,7 +7,27 @@ import com.intellij.psi.PsiElement;
 
 public class ArkoiVisitor extends PsiElementVisitor {
 
+  public void visitAddAssignExpression(@NotNull ArkoiAddAssignExpression o) {
+    visitPsiElement(o);
+  }
+
+  public void visitAnnotationCall(@NotNull ArkoiAnnotationCall o) {
+    visitPsiElement(o);
+  }
+
   public void visitArgumentList(@NotNull ArkoiArgumentList o) {
+    visitPsiElement(o);
+  }
+
+  public void visitArgumentListPart(@NotNull ArkoiArgumentListPart o) {
+    visitPsiElement(o);
+  }
+
+  public void visitAssignExpression(@NotNull ArkoiAssignExpression o) {
+    visitPsiElement(o);
+  }
+
+  public void visitAssignExpressionPart(@NotNull ArkoiAssignExpressionPart o) {
     visitPsiElement(o);
   }
 
@@ -15,11 +35,39 @@ public class ArkoiVisitor extends PsiElementVisitor {
     visitPsiElement(o);
   }
 
+  public void visitBinaryAddExpression(@NotNull ArkoiBinaryAddExpression o) {
+    visitPsiElement(o);
+  }
+
   public void visitBinaryAdditiveExpression(@NotNull ArkoiBinaryAdditiveExpression o) {
     visitPsiElement(o);
   }
 
+  public void visitBinaryAdditiveExpressionPart(@NotNull ArkoiBinaryAdditiveExpressionPart o) {
+    visitPsiElement(o);
+  }
+
+  public void visitBinaryDivExpression(@NotNull ArkoiBinaryDivExpression o) {
+    visitPsiElement(o);
+  }
+
+  public void visitBinaryModExpression(@NotNull ArkoiBinaryModExpression o) {
+    visitPsiElement(o);
+  }
+
+  public void visitBinaryMulExpression(@NotNull ArkoiBinaryMulExpression o) {
+    visitPsiElement(o);
+  }
+
   public void visitBinaryMultiplicativeExpression(@NotNull ArkoiBinaryMultiplicativeExpression o) {
+    visitPsiElement(o);
+  }
+
+  public void visitBinaryMultiplicativeExpressionPart(@NotNull ArkoiBinaryMultiplicativeExpressionPart o) {
+    visitPsiElement(o);
+  }
+
+  public void visitBinarySubExpression(@NotNull ArkoiBinarySubExpression o) {
     visitPsiElement(o);
   }
 
@@ -35,7 +83,27 @@ public class ArkoiVisitor extends PsiElementVisitor {
     visitPsiElement(o);
   }
 
-  public void visitCollectionExpression(@NotNull ArkoiCollectionExpression o) {
+  public void visitCollection(@NotNull ArkoiCollection o) {
+    visitPsiElement(o);
+  }
+
+  public void visitCommentDeclaration(@NotNull ArkoiCommentDeclaration o) {
+    visitPsiElement(o);
+  }
+
+  public void visitDivAssignExpression(@NotNull ArkoiDivAssignExpression o) {
+    visitPsiElement(o);
+  }
+
+  public void visitExpAssignExpression(@NotNull ArkoiExpAssignExpression o) {
+    visitPsiElement(o);
+  }
+
+  public void visitExponentialExpression(@NotNull ArkoiExponentialExpression o) {
+    visitPsiElement(o);
+  }
+
+  public void visitExponentialExpressionPart(@NotNull ArkoiExponentialExpressionPart o) {
     visitPsiElement(o);
   }
 
@@ -47,11 +115,19 @@ public class ArkoiVisitor extends PsiElementVisitor {
     visitPsiElement(o);
   }
 
-  public void visitFunctionCall(@NotNull ArkoiFunctionCall o) {
+  public void visitFunctionCallPart(@NotNull ArkoiFunctionCallPart o) {
     visitPsiElement(o);
   }
 
   public void visitFunctionDeclaration(@NotNull ArkoiFunctionDeclaration o) {
+    visitPsiElement(o);
+  }
+
+  public void visitIdentifierCall(@NotNull ArkoiIdentifierCall o) {
+    visitPsiElement(o);
+  }
+
+  public void visitIdentifierCallPart(@NotNull ArkoiIdentifierCallPart o) {
     visitPsiElement(o);
   }
 
@@ -71,11 +147,31 @@ public class ArkoiVisitor extends PsiElementVisitor {
     visitPsiElement(o);
   }
 
+  public void visitModAssignExpression(@NotNull ArkoiModAssignExpression o) {
+    visitPsiElement(o);
+  }
+
+  public void visitMulAssignExpression(@NotNull ArkoiMulAssignExpression o) {
+    visitPsiElement(o);
+  }
+
   public void visitOperable(@NotNull ArkoiOperable o) {
     visitPsiElement(o);
   }
 
   public void visitOperableExpression(@NotNull ArkoiOperableExpression o) {
+    visitPsiElement(o);
+  }
+
+  public void visitParameterList(@NotNull ArkoiParameterList o) {
+    visitPsiElement(o);
+  }
+
+  public void visitParameterListPart(@NotNull ArkoiParameterListPart o) {
+    visitPsiElement(o);
+  }
+
+  public void visitParenthesizedExpression(@NotNull ArkoiParenthesizedExpression o) {
     visitPsiElement(o);
   }
 
@@ -95,7 +191,7 @@ public class ArkoiVisitor extends PsiElementVisitor {
     visitPsiElement(o);
   }
 
-  public void visitVariableCall(@NotNull ArkoiVariableCall o) {
+  public void visitSubAssignExpression(@NotNull ArkoiSubAssignExpression o) {
     visitPsiElement(o);
   }
 

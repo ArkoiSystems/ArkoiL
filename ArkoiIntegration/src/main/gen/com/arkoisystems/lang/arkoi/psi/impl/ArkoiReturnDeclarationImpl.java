@@ -10,6 +10,8 @@ import com.intellij.psi.util.PsiTreeUtil;
 import static com.arkoisystems.lang.arkoi.ArkoiTokenTypes.*;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import com.arkoisystems.lang.arkoi.psi.*;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.types.ReturnStatementSyntaxAST;
 
 public class ArkoiReturnDeclarationImpl extends ASTWrapperPsiElement implements ArkoiReturnDeclaration {
 
@@ -30,6 +32,12 @@ public class ArkoiReturnDeclarationImpl extends ASTWrapperPsiElement implements 
   @Nullable
   public ArkoiExpression getExpression() {
     return findChildByClass(ArkoiExpression.class);
+  }
+
+  @Override
+  @NotNull
+  public ReturnStatementSyntaxAST getReturnDeclaration(@NotNull SyntaxAnalyzer syntaxAnalyzer) {
+    return ArkoiPsiImplUtil.getReturnDeclaration(this, syntaxAnalyzer);
   }
 
 }

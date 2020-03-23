@@ -104,17 +104,17 @@ public class LexicalAnalyzer extends AbstractStage
         while (this.position < this.getArkoiClass().getContent().length) {
             final char currentChar = this.currentChar();
             if (Character.isWhitespace(currentChar)) {
-                new WhitespaceToken(this).parseToken().ifPresentOrElse(tokens::add, this.errorRoutine);
+                WhitespaceToken.builder(this).build().parseToken().ifPresentOrElse(tokens::add, this.errorRoutine);
             } else if (currentChar == '#') {
-                new CommentToken(this).parseToken();
+                CommentToken.builder(this).build().parseToken();
             } else if (currentChar == '"') {
-                new StringToken(this).parseToken().ifPresentOrElse(tokens::add, this.errorRoutine);
+                StringToken.builder(this).build().parseToken().ifPresentOrElse(tokens::add, this.errorRoutine);
             } else if (Character.isDigit(currentChar) || currentChar == '.') {
-                new NumberToken(this).parseToken().ifPresentOrElse(tokens::add, () ->
-                        new SymbolToken(this).parseToken().ifPresentOrElse(tokens::add, this.errorRoutine)
+                NumberToken.builder(this).build().parseToken().ifPresentOrElse(tokens::add, () ->
+                        SymbolToken.builder(this).build().parseToken().ifPresentOrElse(tokens::add, this.errorRoutine)
                 );
             } else if (Character.isJavaIdentifierStart(currentChar)) {
-                new IdentifierToken(this).parseToken().ifPresentOrElse(tokens::add, this.errorRoutine);
+                IdentifierToken.builder(this).build().parseToken().ifPresentOrElse(tokens::add, this.errorRoutine);
             } else {
                 switch (currentChar) {
                     case '@':
@@ -139,7 +139,7 @@ public class LexicalAnalyzer extends AbstractStage
                     case '!':
                     case '=':
                     case '&': {
-                        new SymbolToken(this).parseToken().ifPresentOrElse(tokens::add, this.errorRoutine);
+                        SymbolToken.builder(this).build().parseToken().ifPresentOrElse(tokens::add, this.errorRoutine);
                         continue;
                     }
                     default:
@@ -155,7 +155,7 @@ public class LexicalAnalyzer extends AbstractStage
             }
         }
     
-        new EndOfFileToken(this).parseToken().ifPresent(tokens::add);
+        EndOfFileToken.builder(this).build().parseToken().ifPresent(tokens::add);
         this.tokens = tokens.toArray(new AbstractToken[] { });
         return !this.isFailed();
     }

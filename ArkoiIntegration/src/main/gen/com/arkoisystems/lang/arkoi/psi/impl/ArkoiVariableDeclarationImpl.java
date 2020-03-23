@@ -27,9 +27,21 @@ public class ArkoiVariableDeclarationImpl extends ASTWrapperPsiElement implement
   }
 
   @Override
+  @NotNull
+  public List<ArkoiAnnotationCall> getAnnotationCallList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, ArkoiAnnotationCall.class);
+  }
+
+  @Override
+  @NotNull
+  public List<ArkoiCommentDeclaration> getCommentDeclarationList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, ArkoiCommentDeclaration.class);
+  }
+
+  @Override
   @Nullable
-  public ArkoiExpression getExpression() {
-    return findChildByClass(ArkoiExpression.class);
+  public ArkoiInlinedBlock getInlinedBlock() {
+    return findChildByClass(ArkoiInlinedBlock.class);
   }
 
   @Override

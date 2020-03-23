@@ -16,8 +16,10 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.t
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.types.VariableDefinitionSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.parser.types.AnnotationParser;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NonNull;
+import lombok.Setter;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
@@ -31,25 +33,18 @@ public class AnnotationSyntaxAST extends AbstractSyntaxAST
     
     
     @Getter
-    private final List<AnnotationSyntaxAST> annotationStorage;
+    @Setter(AccessLevel.PROTECTED)
+    private List<AnnotationSyntaxAST> annotationStorage;
     
     
     @Getter
+    @Setter(AccessLevel.PROTECTED)
     private IdentifierToken annotationName;
     
     
     @Getter
+    @Setter(AccessLevel.PROTECTED)
     private List<IdentifierToken> annotationArguments;
-    
-    
-    public AnnotationSyntaxAST(final SyntaxAnalyzer syntaxAnalyzer, final List<AnnotationSyntaxAST> annotationStorage) {
-        super(syntaxAnalyzer, ASTType.ANNOTATION);
-        
-        this.annotationStorage = annotationStorage;
-        
-        this.annotationArguments = new ArrayList<>();
-        this.annotationStorage.add(this);
-    }
     
     
     /**
@@ -58,12 +53,8 @@ public class AnnotationSyntaxAST extends AbstractSyntaxAST
      * variables through the constructor, but initializes default variables like the
      * AnnotationStorage.
      */
-    public AnnotationSyntaxAST(final SyntaxAnalyzer syntaxAnalyzer) {
+    protected AnnotationSyntaxAST(final SyntaxAnalyzer syntaxAnalyzer) {
         super(syntaxAnalyzer, ASTType.ANNOTATION);
-        
-        this.annotationArguments = new ArrayList<>();
-        this.annotationStorage = new ArrayList<>();
-        this.annotationStorage.add(this);
     }
     
     
@@ -163,8 +154,14 @@ public class AnnotationSyntaxAST extends AbstractSyntaxAST
         this.setEnd(this.getSyntaxAnalyzer().currentToken().getEnd());
         this.getSyntaxAnalyzer().nextToken();
     
-        if (ANNOTATION_PARSER.canParse(parentAST, this.getSyntaxAnalyzer()))
-            return new AnnotationSyntaxAST(this.getSyntaxAnalyzer(), this.annotationStorage).parseAST(parentAST);
+        if (ANNOTATION_PARSER.canParse(parentAST, this.getSyntaxAnalyzer())) {
+            this.annotationStorage.add(this);
+            return AnnotationSyntaxAST
+                    .builder(this.getSyntaxAnalyzer())
+                    .annotations(this.annotationStorage)
+                    .build()
+                    .parseAST(parentAST);
+        }
     
         if (!AbstractStatementSyntaxAST.STATEMENT_PARSER.canParse(parentAST, this.getSyntaxAnalyzer())) {
             this.addError(
@@ -196,6 +193,89 @@ public class AnnotationSyntaxAST extends AbstractSyntaxAST
         printStream.println(indents + "└── arguments: " + (this.getAnnotationArguments().isEmpty() ? "N/A" : ""));
         for (final IdentifierToken identifierToken : this.getAnnotationArguments())
             printStream.println(indents + "    └── " + identifierToken.getTokenContent());
+    }
+    
+    
+    public static AnnotationSyntaxASTBuilder builder(final SyntaxAnalyzer syntaxAnalyzer) {
+        return new AnnotationSyntaxASTBuilder(syntaxAnalyzer);
+    }
+    
+    
+    public static AnnotationSyntaxASTBuilder builder() {
+        return new AnnotationSyntaxASTBuilder();
+    }
+    
+    
+    public static class AnnotationSyntaxASTBuilder {
+        
+        private final SyntaxAnalyzer syntaxAnalyzer;
+        
+        
+        private List<AnnotationSyntaxAST> annotationStorage;
+    
+    
+        private List<IdentifierToken> annotationArguments;
+        
+    
+        private IdentifierToken annotationName;
+        
+        
+        private int start, end;
+        
+        
+        public AnnotationSyntaxASTBuilder(final SyntaxAnalyzer syntaxAnalyzer) {
+            this.syntaxAnalyzer = syntaxAnalyzer;
+            
+            this.annotationArguments = new ArrayList<>();
+            this.annotationStorage = new ArrayList<>();
+        }
+        
+        
+        public AnnotationSyntaxASTBuilder() {
+            this.syntaxAnalyzer = null;
+        }
+        
+        
+        public AnnotationSyntaxASTBuilder annotations(List<AnnotationSyntaxAST> annotationStorage) {
+            this.annotationStorage = annotationStorage;
+            return this;
+        }
+        
+        
+        public AnnotationSyntaxASTBuilder arguments(List<IdentifierToken> annotationArguments) {
+            this.annotationArguments = annotationArguments;
+            return this;
+        }
+    
+    
+        public AnnotationSyntaxASTBuilder name(IdentifierToken annotationName) {
+            this.annotationName = annotationName;
+            return this;
+        }
+        
+        
+        public AnnotationSyntaxASTBuilder start(final int start) {
+            this.start = start;
+            return this;
+        }
+        
+        
+        public AnnotationSyntaxASTBuilder end(final int end) {
+            this.end = end;
+            return this;
+        }
+        
+        
+        public AnnotationSyntaxAST build() {
+            final AnnotationSyntaxAST annotationSyntaxAST = new AnnotationSyntaxAST(this.syntaxAnalyzer);
+            annotationSyntaxAST.setAnnotationArguments(this.annotationArguments);
+            annotationSyntaxAST.setAnnotationStorage(this.annotationStorage);
+            annotationSyntaxAST.setAnnotationName(this.annotationName);
+            annotationSyntaxAST.setStart(this.start);
+            annotationSyntaxAST.setEnd(this.end);
+            return annotationSyntaxAST;
+        }
+        
     }
     
 }

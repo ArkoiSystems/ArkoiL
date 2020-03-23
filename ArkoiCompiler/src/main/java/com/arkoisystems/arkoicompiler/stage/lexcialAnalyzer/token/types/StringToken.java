@@ -15,7 +15,7 @@ import java.util.Optional;
 public class StringToken extends AbstractToken
 {
     
-    public StringToken(final LexicalAnalyzer lexicalAnalyzer) {
+    protected StringToken(final LexicalAnalyzer lexicalAnalyzer) {
         super(lexicalAnalyzer, TokenType.STRING_LITERAL);
     }
     
@@ -55,10 +55,71 @@ public class StringToken extends AbstractToken
             );
             return Optional.empty();
         }
-        
+    
         this.setTokenContent(new String(Arrays.copyOfRange(this.getLexicalAnalyzer().getArkoiClass().getContent(), this.getStart() + 1, this.getEnd() - 1)).intern());
         this.getLexicalAnalyzer().next();
         return Optional.of(this);
+    }
+    
+    
+    public static StringTokenBuilder builder(final LexicalAnalyzer lexicalAnalyzer) {
+        return new StringTokenBuilder(lexicalAnalyzer);
+    }
+    
+    
+    public static StringTokenBuilder builder() {
+        return new StringTokenBuilder();
+    }
+    
+    
+    public static class StringTokenBuilder
+    {
+        
+        private final LexicalAnalyzer lexicalAnalyzer;
+        
+        
+        private String tokenContent;
+        
+        
+        private int start, end;
+        
+        
+        public StringTokenBuilder(final LexicalAnalyzer lexicalAnalyzer) {
+            this.lexicalAnalyzer = lexicalAnalyzer;
+        }
+        
+        
+        public StringTokenBuilder() {
+            this.lexicalAnalyzer = null;
+        }
+        
+        
+        public StringTokenBuilder content(final String tokenContent) {
+            this.tokenContent = tokenContent;
+            return this;
+        }
+        
+        
+        public StringTokenBuilder start(final int start) {
+            this.start = start;
+            return this;
+        }
+        
+        
+        public StringTokenBuilder end(final int end) {
+            this.end = end;
+            return this;
+        }
+        
+        
+        public StringToken build() {
+            final StringToken stringToken = new StringToken(this.lexicalAnalyzer);
+            stringToken.setTokenContent(this.tokenContent);
+            stringToken.setStart(this.start);
+            stringToken.setEnd(this.end);
+            return stringToken;
+        }
+        
     }
     
 }

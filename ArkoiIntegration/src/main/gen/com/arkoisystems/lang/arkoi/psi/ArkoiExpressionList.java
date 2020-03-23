@@ -8,9 +8,6 @@ import com.intellij.psi.PsiElement;
 public interface ArkoiExpressionList extends PsiElement {
 
   @NotNull
-  ArkoiExpression getExpression();
-
-  @Nullable
-  ArkoiExpressionList getExpressionList();
+  List<ArkoiExpression> getExpressionList();
 
 }

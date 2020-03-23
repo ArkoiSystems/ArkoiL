@@ -14,12 +14,10 @@ import lombok.Setter;
 import java.util.Arrays;
 import java.util.Optional;
 
-@Getter
-@Setter
 public class NumberToken extends AbstractToken
 {
     
-    public NumberToken(final LexicalAnalyzer lexicalAnalyzer) {
+    protected NumberToken(final LexicalAnalyzer lexicalAnalyzer) {
         super(lexicalAnalyzer, TokenType.NUMBER_LITERAL);
     }
     
@@ -94,6 +92,66 @@ public class NumberToken extends AbstractToken
             return Optional.empty();
         }
         return Optional.of(this);
+    }
+    
+    
+    public static NumberTokenBuilder builder(final LexicalAnalyzer lexicalAnalyzer) {
+        return new NumberTokenBuilder(lexicalAnalyzer);
+    }
+    
+    
+    public static NumberTokenBuilder builder() {
+        return new NumberTokenBuilder();
+    }
+    
+    
+    public static class NumberTokenBuilder {
+        
+        private final LexicalAnalyzer lexicalAnalyzer;
+        
+        
+        private String tokenContent;
+        
+        
+        private int start, end;
+        
+        
+        public NumberTokenBuilder(final LexicalAnalyzer lexicalAnalyzer) {
+            this.lexicalAnalyzer = lexicalAnalyzer;
+        }
+        
+        
+        public NumberTokenBuilder() {
+            this.lexicalAnalyzer = null;
+        }
+        
+        
+        public NumberTokenBuilder content(final String tokenContent) {
+            this.tokenContent = tokenContent;
+            return this;
+        }
+        
+        
+        public NumberTokenBuilder start(final int start) {
+            this.start = start;
+            return this;
+        }
+        
+        
+        public NumberTokenBuilder end(final int end) {
+            this.end = end;
+            return this;
+        }
+        
+        
+        public NumberToken build() {
+            final NumberToken numberToken = new NumberToken(this.lexicalAnalyzer);
+            numberToken.setTokenContent(this.tokenContent);
+            numberToken.setStart(this.start);
+            numberToken.setEnd(this.end);
+            return numberToken;
+        }
+        
     }
     
 }

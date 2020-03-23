@@ -16,8 +16,8 @@
     <property name="lastTip" value="1" />
     <property name="packagesearch.endpoint.url.fulltext" value="https://package-search.services.jetbrains.com/api/search/idea/fulltext" />
     <property name="packagesearch.endpoint.url.suggest" value="https://package-search.services.jetbrains.com/api/search/idea/suggest" />
-    <property name="packagesearch.status.updated.ts" value="1583877855300" />
-    <property name="selected.color.option.type" value="ARKOI_STRING" />
+    <property name="packagesearch.status.updated.ts" value="1584484593371" />
+    <property name="selected.color.option.type" value="ARKOI_VALID_STRING_ESCAPE" />
     <property name="tasks.pass.word.conversion.enforced" value="true" />
   </component>
   <component name="PsiViewerSettings">

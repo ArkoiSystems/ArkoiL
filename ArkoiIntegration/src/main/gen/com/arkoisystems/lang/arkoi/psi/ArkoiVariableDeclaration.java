@@ -7,10 +7,20 @@ import com.intellij.psi.PsiElement;
 
 public interface ArkoiVariableDeclaration extends PsiElement {
 
+  @NotNull
+  List<ArkoiAnnotationCall> getAnnotationCallList();
+
+  @NotNull
+  List<ArkoiCommentDeclaration> getCommentDeclarationList();
+
   @Nullable
-  ArkoiExpression getExpression();
+  ArkoiInlinedBlock getInlinedBlock();
 
   @Nullable
   PsiElement getIdentifier();
+
+  //WARNING: getName(...) is skipped
+  //matching getName(ArkoiVariableDeclaration, ...)
+  //methods are not found in ArkoiPsiImplUtil
 
 }

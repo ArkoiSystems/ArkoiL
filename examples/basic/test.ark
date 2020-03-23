@@ -1,2 +1,2 @@
 # Hello World
-fun test<string>() = j
+fun test<string>() = "Hello World"

@@ -41,7 +41,10 @@ public class BlockParser extends AbstractParser
      */
     @Override
     public Optional<BlockSyntaxAST> parse(@NonNull final AbstractSyntaxAST parentAST, @NonNull final SyntaxAnalyzer syntaxAnalyzer) {
-        return new BlockSyntaxAST(syntaxAnalyzer).parseAST(parentAST);
+        return BlockSyntaxAST
+                .builder(syntaxAnalyzer)
+                .build()
+                .parseAST(parentAST);
     }
     
     

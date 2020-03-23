@@ -8,7 +8,7 @@ package com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.SemanticAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.SemanticErrorType;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.AbstractSemanticAST;
-import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.ArgumentDefinitionSemanticAST;
+import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.ParameterSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.AbstractOperableSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.statements.FunctionDefinitionSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.statements.VariableDefinitionSemanticAST;
@@ -50,13 +50,13 @@ public class IdentifierCallOperableSemanticAST extends AbstractOperableSemanticA
             if (variableDefinitionSemanticAST.getVariableExpression() == null)
                 return null;
             return variableDefinitionSemanticAST.getVariableExpression().getOperableObject();
-        } else if (foundIdentifier instanceof ArgumentDefinitionSemanticAST) {
-            final ArgumentDefinitionSemanticAST argumentDefinitionSemanticAST = (ArgumentDefinitionSemanticAST) foundIdentifier;
-            if (argumentDefinitionSemanticAST.getArgumentName() == null)
+        } else if (foundIdentifier instanceof ParameterSemanticAST) {
+            final ParameterSemanticAST parameterSemanticAST = (ParameterSemanticAST) foundIdentifier;
+            if (parameterSemanticAST.getParameterName() == null)
                 return null;
-            if(argumentDefinitionSemanticAST.getArgumentType() == null)
+            if(parameterSemanticAST.getParameterType() == null)
                 return null;
-            return argumentDefinitionSemanticAST.getArgumentType().getTypeKind();
+            return parameterSemanticAST.getParameterType().getTypeKind();
         } else {
             this.addError(
                     this.getSemanticAnalyzer().getArkoiClass(),

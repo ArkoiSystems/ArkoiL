@@ -27,9 +27,9 @@ public class ArkoiAssignmentExpressionImpl extends ASTWrapperPsiElement implemen
   }
 
   @Override
-  @Nullable
-  public ArkoiAssignmentExpression getAssignmentExpression() {
-    return findChildByClass(ArkoiAssignmentExpression.class);
+  @NotNull
+  public List<ArkoiAssignExpressionPart> getAssignExpressionPartList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, ArkoiAssignExpressionPart.class);
   }
 
   @Override

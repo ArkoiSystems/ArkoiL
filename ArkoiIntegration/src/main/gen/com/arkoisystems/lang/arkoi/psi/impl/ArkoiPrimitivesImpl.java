@@ -10,6 +10,8 @@ import com.intellij.psi.util.PsiTreeUtil;
 import static com.arkoisystems.lang.arkoi.ArkoiTokenTypes.*;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import com.arkoisystems.lang.arkoi.psi.*;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.TypeSyntaxAST;
 
 public class ArkoiPrimitivesImpl extends ASTWrapperPsiElement implements ArkoiPrimitives {
 
@@ -24,6 +26,12 @@ public class ArkoiPrimitivesImpl extends ASTWrapperPsiElement implements ArkoiPr
   public void accept(@NotNull PsiElementVisitor visitor) {
     if (visitor instanceof ArkoiVisitor) accept((ArkoiVisitor)visitor);
     else super.accept(visitor);
+  }
+
+  @Override
+  @NotNull
+  public TypeSyntaxAST getPrimitiveReturnType(@NotNull SyntaxAnalyzer syntaxAnalyzer) {
+    return ArkoiPsiImplUtil.getPrimitiveReturnType(this, syntaxAnalyzer);
   }
 
 }

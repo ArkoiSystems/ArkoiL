@@ -15,7 +15,7 @@ import java.util.Optional;
 public class WhitespaceToken extends AbstractToken
 {
     
-    public WhitespaceToken(final LexicalAnalyzer lexicalAnalyzer) {
+    protected WhitespaceToken(final LexicalAnalyzer lexicalAnalyzer) {
         super(lexicalAnalyzer, TokenType.WHITESPACE);
     }
     
@@ -27,6 +27,66 @@ public class WhitespaceToken extends AbstractToken
         this.setTokenContent(new String(Arrays.copyOfRange(this.getLexicalAnalyzer().getArkoiClass().getContent(), this.getStart(), this.getEnd())).intern());
         this.getLexicalAnalyzer().next();
         return Optional.of(this);
+    }
+    
+    
+    public static WhitespaceTokenBuilder builder(final LexicalAnalyzer lexicalAnalyzer) {
+        return new WhitespaceTokenBuilder(lexicalAnalyzer);
+    }
+    
+    
+    public static WhitespaceTokenBuilder builder() {
+        return new WhitespaceTokenBuilder();
+    }
+    
+    
+    public static class WhitespaceTokenBuilder {
+        
+        private final LexicalAnalyzer lexicalAnalyzer;
+        
+        
+        private String tokenContent;
+        
+        
+        private int start, end;
+        
+        
+        public WhitespaceTokenBuilder(final LexicalAnalyzer lexicalAnalyzer) {
+            this.lexicalAnalyzer = lexicalAnalyzer;
+        }
+        
+        
+        public WhitespaceTokenBuilder() {
+            this.lexicalAnalyzer = null;
+        }
+        
+        
+        public WhitespaceTokenBuilder content(final String tokenContent) {
+            this.tokenContent = tokenContent;
+            return this;
+        }
+        
+        
+        public WhitespaceTokenBuilder start(final int start) {
+            this.start = start;
+            return this;
+        }
+        
+        
+        public WhitespaceTokenBuilder end(final int end) {
+            this.end = end;
+            return this;
+        }
+        
+        
+        public WhitespaceToken build() {
+            final WhitespaceToken whitespaceToken = new WhitespaceToken(this.lexicalAnalyzer);
+            whitespaceToken.setTokenContent(this.tokenContent);
+            whitespaceToken.setStart(this.start);
+            whitespaceToken.setEnd(this.end);
+            return whitespaceToken;
+        }
+        
     }
     
 }
