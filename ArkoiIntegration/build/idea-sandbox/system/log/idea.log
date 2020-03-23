@@ -19153,3 +19153,4 @@ kotlin.NotImplementedError: An operation is not implemented.
 2020-03-24 00:43:55,385 [   7056]   INFO - .script.IdeScriptEngineManager - javax.script.ScriptEngineManager initialized in 154 ms 
 2020-03-24 00:43:56,244 [   7915]   INFO - tellij.ide.SystemHealthMonitor - restored ignored PIPE handler 
 2020-03-24 00:43:59,274 [  10945]   INFO - ge.ExternalProjectsDataStorage - Load external projects data in 2 millis (read time: 2) 
+2020-03-24 00:46:49,690 [ 181361]   INFO - j.compiler.server.BuildManager - Clearing project build data because the project does not exist or was not opened for more than 30 days: /home/timo/dev/ArkoiL/ArkoiIntegration/build/idea-sandbox/system/compile-server/basic_ffa3e464 
