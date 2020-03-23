@@ -9,6 +9,7 @@ import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.LexicalAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.SymbolType;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -18,11 +19,11 @@ public class SymbolToken extends AbstractToken
 {
     
     @Getter
-    @Setter
+    @Setter(AccessLevel.PROTECTED)
     private SymbolType symbolType;
     
     
-    public SymbolToken(final LexicalAnalyzer lexicalAnalyzer) {
+    protected SymbolToken(final LexicalAnalyzer lexicalAnalyzer) {
         super(lexicalAnalyzer, TokenType.SYMBOL);
     }
     
@@ -51,6 +52,75 @@ public class SymbolToken extends AbstractToken
             this.getLexicalAnalyzer().next();
         }
         return Optional.of(this);
+    }
+    
+    
+    public static SymbolTokenBuilder builder(final LexicalAnalyzer lexicalAnalyzer) {
+        return new SymbolTokenBuilder(lexicalAnalyzer);
+    }
+    
+    
+    public static SymbolTokenBuilder builder() {
+        return new SymbolTokenBuilder();
+    }
+    
+    
+    public static class SymbolTokenBuilder {
+        
+        private final LexicalAnalyzer lexicalAnalyzer;
+        
+        
+        private SymbolType symbolType;
+        
+        
+        private String tokenContent;
+        
+        
+        private int start, end;
+        
+        
+        public SymbolTokenBuilder(final LexicalAnalyzer lexicalAnalyzer) {
+            this.lexicalAnalyzer = lexicalAnalyzer;
+        }
+        
+        
+        public SymbolTokenBuilder() {
+            this.lexicalAnalyzer = null;
+        }
+        
+        
+        public SymbolTokenBuilder type(final SymbolType symbolType) {
+            this.symbolType = symbolType;
+            return this;
+        }
+        
+        public SymbolTokenBuilder content(final String tokenContent) {
+            this.tokenContent = tokenContent;
+            return this;
+        }
+        
+        
+        public SymbolTokenBuilder start(final int start) {
+            this.start = start;
+            return this;
+        }
+        
+        
+        public SymbolTokenBuilder end(final int end) {
+            this.end = end;
+            return this;
+        }
+        
+        
+        public SymbolToken build() {
+            final SymbolToken symbolToken = new SymbolToken(this.lexicalAnalyzer);
+            symbolToken.setTokenContent(this.tokenContent);
+            symbolToken.setSymbolType(this.symbolType);
+            symbolToken.setStart(this.start);
+            symbolToken.setEnd(this.end);
+            return symbolToken;
+        }
+        
     }
     
 }

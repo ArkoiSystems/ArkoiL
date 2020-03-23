@@ -109,7 +109,10 @@ public class AbstractStatementSyntaxAST extends AbstractSyntaxAST
                 case "fun":
                     return new FunctionDefinitionSyntaxAST(this.getSyntaxAnalyzer()).parseAST(parentAST);
                 case "return":
-                    return new ReturnStatementSyntaxAST(this.getSyntaxAnalyzer()).parseAST(parentAST);
+                    return ReturnStatementSyntaxAST
+                            .builder(this.getSyntaxAnalyzer())
+                            .build()
+                            .parseAST(parentAST);
                 default:
                     if (this.getSyntaxAnalyzer().matchesPeekToken(1, SymbolType.OPENING_PARENTHESIS) != null)
                         return new FunctionInvokeOperableSyntaxAST(this.getSyntaxAnalyzer()).parseAST(parentAST);

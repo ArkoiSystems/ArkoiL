@@ -11,10 +11,10 @@ public interface ArkoiOperableExpression extends PsiElement {
   ArkoiCastExpression getCastExpression();
 
   @Nullable
-  ArkoiExpressionList getExpressionList();
+  ArkoiOperable getOperable();
 
   @Nullable
-  ArkoiOperable getOperable();
+  ArkoiParenthesizedExpression getParenthesizedExpression();
 
   @Nullable
   ArkoiPostfixExpression getPostfixExpression();

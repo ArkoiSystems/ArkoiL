@@ -38,9 +38,15 @@ public class AbstractOperableSyntaxAST<O> extends AbstractSyntaxAST
         final AbstractToken currentToken = this.getSyntaxAnalyzer().currentToken();
         switch (currentToken.getTokenType()) {
             case STRING_LITERAL:
-                return new StringOperableSyntaxAST(this.getSyntaxAnalyzer()).parseAST(parentAST);
+                return StringOperableSyntaxAST
+                        .builder(this.getSyntaxAnalyzer())
+                        .build()
+                        .parseAST(parentAST);
             case NUMBER_LITERAL:
-                return new NumberOperableSyntaxAST(this.getSyntaxAnalyzer()).parseAST(parentAST);
+                return NumberOperableSyntaxAST
+                        .builder(this.getSyntaxAnalyzer())
+                        .build()
+                        .parseAST(parentAST);
             case SYMBOL:
                 if (this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.OPENING_BRACKET) == null) {
                     this.addError(
@@ -50,7 +56,10 @@ public class AbstractOperableSyntaxAST<O> extends AbstractSyntaxAST
                     );
                     return Optional.empty();
                 }
-                return new CollectionOperableSyntaxAST(this.getSyntaxAnalyzer()).parseAST(parentAST);
+                return CollectionOperableSyntaxAST
+                        .builder(this.getSyntaxAnalyzer())
+                        .build()
+                        .parseAST(parentAST);
             case IDENTIFIER:
                 if (!AbstractStatementSyntaxAST.STATEMENT_PARSER.canParse(parentAST, this.getSyntaxAnalyzer())) {
                     this.addError(

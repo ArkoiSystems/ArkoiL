@@ -1,20 +1,7 @@
 /*
  * Copyright © 2019-2020 ArkoiSystems (https://www.arkoisystems.com/) All Rights Reserved.
- * Created ArkoiIntegration on March 17, 2020
- * Author єхcsє#5543 aka timo
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- *
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *       http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Created ArkoiIntegration on March 15, 2020
+ * Author timo aka. єхcsє#5543
  */
 package com.arkoisystems.lang.arkoi.highlight
 
@@ -43,12 +30,14 @@ class ArkoiColorSettingsPage : ColorSettingsPage {
         ArkoiBundle.message("arkoi.colorSettings.globalVariable") to ArkoiSyntaxHighlighter.globalVariable,
         ArkoiBundle.message("arkoi.colorSettings.localVariable") to ArkoiSyntaxHighlighter.localVariable,
 
+        ArkoiBundle.message("arkoi.colorSettings.string.displayName") to ArkoiSyntaxHighlighter.string,
+        ArkoiBundle.message("arkoi.colorSettings.validStringEscape.displayName") to ArkoiSyntaxHighlighter.validStringEscape,
+
         ArkoiBundle.message("arkoi.colorSettings.badCharacter.displayName") to ArkoiSyntaxHighlighter.badCharacter,
         ArkoiBundle.message("arkoi.colorSettings.keyword.displayName") to ArkoiSyntaxHighlighter.keyword,
         ArkoiBundle.message("arkoi.colorSettings.identifier.displayName") to ArkoiSyntaxHighlighter.identifier,
         ArkoiBundle.message("arkoi.colorSettings.number.displayName") to ArkoiSyntaxHighlighter.number,
-        ArkoiBundle.message("arkoi.colorSettings.primitive.displayName") to ArkoiSyntaxHighlighter.primitives,
-        ArkoiBundle.message("arkoi.colorSettings.string.displayName") to ArkoiSyntaxHighlighter.string
+        ArkoiBundle.message("arkoi.colorSettings.primitive.displayName") to ArkoiSyntaxHighlighter.primitives
     ).map { AttributesDescriptor(it.key, it.value) }.toTypedArray()
 
     private val additionalTags = mutableMapOf(
@@ -57,7 +46,8 @@ class ArkoiColorSettingsPage : ColorSettingsPage {
         "functionParameter" to ArkoiSyntaxHighlighter.functionParameter,
         "functionDeclaration" to ArkoiSyntaxHighlighter.functionDeclaration,
         "localVariable" to ArkoiSyntaxHighlighter.localVariable,
-        "globalVariable" to ArkoiSyntaxHighlighter.globalVariable
+        "globalVariable" to ArkoiSyntaxHighlighter.globalVariable,
+        "validStringEscape" to ArkoiSyntaxHighlighter.validStringEscape
     )
 
     override fun getIcon() = ArkoiIcons.ARKOI_FILE
@@ -78,7 +68,7 @@ class ArkoiColorSettingsPage : ColorSettingsPage {
 
         # this method gets invoked first
         fun <functionDeclaration>main</functionDeclaration><int>(<functionParameter>args</functionParameter>: string[]) {
-            var <localVariable>test_1</localVariable> = "Hello";
+            var <localVariable>test_1</localVariable> = "Hello <validStringEscape>\n</validStringEscape>World<validStringEscape>\"</validStringEscape>";
             var <localVariable>test_3</localVariable> = this.test_1;
             var <localVariable>test_6</localVariable> = 1;
             

@@ -7,10 +7,10 @@ import com.intellij.psi.PsiElement;
 
 public interface ArkoiBinaryMultiplicativeExpression extends PsiElement {
 
-  @Nullable
-  ArkoiBinaryMultiplicativeExpression getBinaryMultiplicativeExpression();
+  @NotNull
+  List<ArkoiBinaryMultiplicativeExpressionPart> getBinaryMultiplicativeExpressionPartList();
 
   @NotNull
-  ArkoiCollectionExpression getCollectionExpression();
+  ArkoiExponentialExpression getExponentialExpression();
 
 }

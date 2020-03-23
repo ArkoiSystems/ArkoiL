@@ -8,13 +8,10 @@ import com.intellij.psi.PsiElement;
 public interface ArkoiBraceBlock extends PsiElement {
 
   @NotNull
-  List<ArkoiFunctionCall> getFunctionCallList();
+  List<ArkoiIdentifierCall> getIdentifierCallList();
 
   @NotNull
   List<ArkoiReturnDeclaration> getReturnDeclarationList();
-
-  @NotNull
-  List<ArkoiVariableCall> getVariableCallList();
 
   @NotNull
   List<ArkoiVariableDeclaration> getVariableDeclarationList();

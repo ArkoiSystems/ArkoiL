@@ -33,13 +33,13 @@ public class StringOperableSemanticAST extends AbstractOperableSemanticAST<Strin
     
     @Override
     public StringToken getOperableObject() {
-        if(this.getSyntaxAST().getOperableObject() == null) {
+        if(this.getSyntaxAST().getStringToken() == null) {
             this.addError(
                     this.getSemanticAnalyzer().getArkoiClass(), this.getSyntaxAST(), SemanticErrorType.STRING_NO_OPERABLE
             );
             return null;
         }
-        return this.getSyntaxAST().getOperableObject();
+        return this.getSyntaxAST().getStringToken();
     }
     
 }

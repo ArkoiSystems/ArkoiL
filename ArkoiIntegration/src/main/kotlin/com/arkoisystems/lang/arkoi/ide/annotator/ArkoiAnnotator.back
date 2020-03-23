@@ -1,0 +1,180 @@
+/*
+ * Copyright © 2019-2020 ArkoiSystems (https://www.arkoisystems.com/) All Rights Reserved.
+ * Created ArkoiIntegration on March 17, 2020
+ * Author єхcsє#5543 aka timo
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ *
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.arkoisystems.lang.arkoi.ide.annotator
+
+import com.arkoisystems.lang.arkoi.ArkoiTokenTypes
+import com.arkoisystems.lang.arkoi.highlight.ArkoiSyntaxHighlighter
+import com.arkoisystems.lang.arkoi.psi.*
+import com.intellij.lang.annotation.AnnotationHolder
+import com.intellij.lang.annotation.Annotator
+import com.intellij.openapi.util.TextRange
+import com.intellij.psi.PsiElement
+import com.intellij.psi.tree.TokenSet
+import com.intellij.psi.util.PsiTreeUtil
+
+class ArkoiAnnotator : Annotator {
+
+    override fun annotate(element: PsiElement, holder: AnnotationHolder) {
+        when (element) {
+//            is ArkoiFunctionCall -> {
+//                val arkoiFile = element.arkoiFile
+//                arkoiFile?.apply {
+//                    val reference: PsiElement? = element.declare {
+//                        if (element.isFunctionCallFileLocal) {
+//                            PsiTreeUtil.getParentOfType(element, ArkoiFile::class.java)?.apply {
+//                                this.node.getChildren(TokenSet.forAllMatching {
+//                                    it == ArkoiTokenTypes.FUNCTION_DECLARATION
+//                                }).filterNotNull().map { it.psi as ArkoiFunctionDeclaration }.forEach {
+//                                    if (it.functionName != element.calledFunction?.text)
+//                                        return@forEach
+//                                    return@declare it
+//                                }
+//                            }
+//                        }
+//                        null
+//                    }
+//
+//                    if (reference == null) {
+//                        holder.createErrorAnnotation(
+//                            element.calledFunction!!,
+//                            ArkoiBundle.message("arkoi.annotator.unresolvedReference", element.calledFunction!!.text)
+//                        )
+//                    } else {
+//                        element.node.findChildByType(ArkoiTokenTypes.IDENTIFIER)?.apply {
+//                            holder.createInfoAnnotation(this, null).textAttributes = ArkoiSyntaxHighlighter.functionCall
+//                        }
+//                    }
+//                }
+//
+//                if (arkoiFile == null)
+//                    holder.createErrorAnnotation(element, ArkoiBundle.message("arkoi.annotator.unresolvedFile"))
+//            }
+
+//            is ArkoiVariableCall -> {
+//                val reference: PsiElement? = element.declare {
+//                    if (element.isVariableCallBlockLocal) {
+//                        PsiTreeUtil.getParentOfType(element, ArkoiFunctionDeclaration::class.java)?.apply {
+//                            this.parameterList?.apply {
+//                                this.node.getChildren(TokenSet.forAllMatching {
+//                                    it == ArkoiTokenTypes.IDENTIFIER
+//                                }).filterNotNull().forEach {
+//                                    if (it.text != element.calledVariable?.text)
+//                                        return@forEach
+//                                    return@declare it.psi
+//                                }
+//                            }
+//
+//                            this.blockDeclaration?.apply blockDeclaration@{
+//                                if (this.inlinedBlock != null)
+//                                    return@blockDeclaration
+//                                this.braceBlock!!.node.getChildren(TokenSet.forAllMatching {
+//                                    it == ArkoiTokenTypes.VARIABLE_DECLARATION
+//                                }).map { it.psi as ArkoiVariableDeclaration }.forEach {
+//                                    if (it.variableName != element.calledVariable?.text)
+//                                        return@forEach
+//                                    return@declare it
+//                                }
+//                            }
+//                        }
+//                    }
+//
+//                    if (element.isVariableCallFileLocal) {
+//                        PsiTreeUtil.getParentOfType(element, ArkoiFile::class.java)?.apply arkoiFile@{
+//                            this.node.getChildren(TokenSet.forAllMatching {
+//                                it == ArkoiTokenTypes.VARIABLE_DECLARATION
+//                            }).map { it.psi as ArkoiVariableDeclaration }.forEach {
+//                                if (it.variableName != element.calledVariable?.text)
+//                                    return@forEach
+//                                return@declare it
+//                            }
+//                        }
+//                    }
+//
+//                    PsiTreeUtil.getParentOfType(element, ArkoiFile::class.java)?.apply {
+//                        PsiTreeUtil.getChildrenOfType(this, ArkoiImportDeclaration::class.java)?.filterNotNull()
+//                            ?.forEach {
+//                                if (it.importName != element.calledVariable?.text)
+//                                    return@forEach
+//                                return@declare it
+//                            }
+//                    }
+//                    null
+//                }
+//
+//                if (reference == null) {
+//                    holder.createErrorAnnotation(
+//                        element,
+//                        ArkoiBundle.message(
+//                            "arkoi.annotator.unresolvedReference",
+//                            element.calledVariable!!.text
+//                        )
+//                    )
+//                }
+//            }
+
+            is ArkoiVariableDeclaration -> {
+                val blockDeclaration =
+                    PsiTreeUtil.getParentOfType(element, ArkoiBraceBlock::class.java, ArkoiInlinedBlock::class.java)
+                element.identifier?.apply {
+                    holder.createInfoAnnotation(this, null).textAttributes =
+                        if (blockDeclaration == null) ArkoiSyntaxHighlighter.globalVariable else ArkoiSyntaxHighlighter.localVariable
+                }
+            }
+
+            is ArkoiFunctionDeclaration -> {
+                element.identifier?.apply {
+                    holder.createInfoAnnotation(this, null).textAttributes =
+                        ArkoiSyntaxHighlighter.functionDeclaration
+                }
+
+                element.parameterList?.apply {
+                    this.node.getChildren(TokenSet.forAllMatching {
+                        it == ArkoiTokenTypes.IDENTIFIER
+                    }).filterNotNull().forEach {
+                        holder.createInfoAnnotation(it, null).textAttributes =
+                            ArkoiSyntaxHighlighter.functionParameter
+                    }
+                }
+            }
+
+            is ArkoiLiterals -> {
+                if (element.stringLiteral != null) {
+                    val stringLiteral = element.stringLiteral ?: return
+                    val text = stringLiteral.text ?: return
+                    var currentIndex = -1
+                    while (true) {
+                        currentIndex = text.indexOf("\\", currentIndex)
+                        val startIndex = currentIndex
+                        if (currentIndex == -1)
+                            break
+                        currentIndex++
+                        val textRange = TextRange(startIndex, currentIndex + 1).shiftRight(stringLiteral.textRange.startOffset)
+                        holder.createInfoAnnotation(textRange, null).textAttributes =
+                            ArkoiSyntaxHighlighter.validStringEscape
+                    }
+                }
+            }
+        }
+    }
+
+}
+
+fun <T> T.declare(function: () -> T): T {
+    return function.invoke()
+}

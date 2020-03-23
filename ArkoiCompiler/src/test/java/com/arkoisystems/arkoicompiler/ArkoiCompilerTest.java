@@ -19,19 +19,19 @@ public class ArkoiCompilerTest
     
     @Test
     public void basicTest() throws Exception {
-        this.runTest("../../examples/basic/");
+        this.runTest("../examples/basic/");
     }
     
     
     @Test
     public void conditionalReturnTest() throws Exception {
-        this.runTest("../../examples/conditional_return/");
+        this.runTest("../examples/conditional_return/");
     }
     
     
     @Test
     public void conditionalVariableDefinitionTest() throws Exception {
-        this.runTest("../../examples/conditional_variable_definition/");
+        this.runTest("../examples/conditional_variable_definition/");
     }
     
     
@@ -44,7 +44,7 @@ public class ArkoiCompilerTest
                 if (file.getName().endsWith(".ark"))
                     arkoiCompiler.addFile(file);
         }
-    
+        
         try (final PrintStream printStream = new PrintStream(new File(inputDirectory + "output.result"))) {
             assertTrue(arkoiCompiler.compile(), "\n" + this.getStackTraceAndPrintTree(arkoiCompiler, printStream));
         } catch (final Exception ex) {

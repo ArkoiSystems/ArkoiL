@@ -35,18 +35,22 @@ public class FunctionDefinitionSyntaxAST extends AbstractStatementSyntaxAST
     
     
     @Getter
+    @Setter
     private IdentifierToken functionName;
     
     
     @Getter
+    @Setter
     private TypeSyntaxAST functionReturnType;
     
     
     @Getter
-    private List<ArgumentDefinitionSyntaxAST> functionArguments;
+    @Setter
+    private List<ParameterSyntaxAST> functionArguments;
     
     
     @Getter
+    @Setter
     private BlockSyntaxAST functionBlock;
     
     
@@ -106,16 +110,19 @@ public class FunctionDefinitionSyntaxAST extends AbstractStatementSyntaxAST
             return Optional.empty();
         }
         this.getSyntaxAnalyzer().nextToken();
-        
+    
         if (TypeSyntaxAST.TYPE_PARSER.canParse(this, this.getSyntaxAnalyzer())) {
             final Optional<TypeSyntaxAST> optionalTypeSyntaxAST = TypeSyntaxAST.TYPE_PARSER.parse(this, this.getSyntaxAnalyzer());
             if (optionalTypeSyntaxAST.isEmpty())
                 return Optional.empty();
-            
+        
             this.functionReturnType = optionalTypeSyntaxAST.get();
             this.getSyntaxAnalyzer().nextToken();
-        } else
-            this.functionReturnType = new TypeSyntaxAST(this.getSyntaxAnalyzer(), TypeKind.VOID, false);
+        } else this.functionReturnType = TypeSyntaxAST
+                .builder(this.getSyntaxAnalyzer())
+                .typeKind(TypeKind.VOID)
+                .array(false)
+                .build();
         
         if (this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.GREATER_THAN_SIGN) == null) {
             this.addError(
@@ -135,7 +142,7 @@ public class FunctionDefinitionSyntaxAST extends AbstractStatementSyntaxAST
             return Optional.empty();
         }
         
-        final Optional<List<ArgumentDefinitionSyntaxAST>> arguments = ArgumentDefinitionSyntaxAST.parseArguments(this, this.getSyntaxAnalyzer());
+        final Optional<List<ParameterSyntaxAST>> arguments = ParameterSyntaxAST.parseParameters(this, this.getSyntaxAnalyzer());
         if (arguments.isEmpty())
             return Optional.empty();
         this.functionArguments = arguments.get();
@@ -160,8 +167,10 @@ public class FunctionDefinitionSyntaxAST extends AbstractStatementSyntaxAST
                 return Optional.empty();
             }
             
-            this.functionBlock = new BlockSyntaxAST(this.getSyntaxAnalyzer());
-            this.functionBlock.setBlockType(BlockType.NATIVE);
+            this.functionBlock = BlockSyntaxAST
+                    .builder(this.getSyntaxAnalyzer())
+                    .type(BlockType.NATIVE)
+                    .build();
             return Optional.of(this);
         }
         
@@ -229,7 +238,7 @@ public class FunctionDefinitionSyntaxAST extends AbstractStatementSyntaxAST
         printStream.println(indents + "│");
         printStream.println(indents + "├── arguments: " + (this.getFunctionArguments().isEmpty() ? "N/A" : ""));
         for (int index = 0; index < this.getFunctionArguments().size(); index++) {
-            final ArgumentDefinitionSyntaxAST abstractSyntaxAST = this.getFunctionArguments().get(index);
+            final ParameterSyntaxAST abstractSyntaxAST = this.getFunctionArguments().get(index);
             if (index == this.getFunctionArguments().size() - 1) {
                 printStream.println(indents + "│   └── " + abstractSyntaxAST.getClass().getSimpleName());
                 abstractSyntaxAST.printSyntaxAST(printStream, indents + "│       ");

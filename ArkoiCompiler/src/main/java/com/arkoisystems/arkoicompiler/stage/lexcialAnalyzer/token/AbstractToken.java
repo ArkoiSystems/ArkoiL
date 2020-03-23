@@ -8,13 +8,12 @@ package com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token;
 import com.arkoisystems.arkoicompiler.ArkoiClass;
 import com.arkoisystems.arkoicompiler.stage.errorHandler.ArkoiError;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.LexicalAnalyzer;
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.CommentToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.NumberToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.WhitespaceToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxErrorType;
-import lombok.Getter;
-import lombok.NonNull;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.Optional;
 
@@ -34,7 +33,6 @@ public abstract class AbstractToken
      * helps when debugging with the {@link #toString()} method.
      */
     @Getter
-    @Setter
     private TokenType tokenType;
     
     
@@ -52,7 +50,7 @@ public abstract class AbstractToken
      * later debugging or syntax highlighting because we now the exact location.
      */
     @Getter
-    @Setter
+    @Setter(AccessLevel.PROTECTED)
     private int start, end;
     
     

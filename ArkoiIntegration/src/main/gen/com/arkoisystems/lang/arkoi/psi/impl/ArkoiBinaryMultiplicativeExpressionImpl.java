@@ -27,15 +27,15 @@ public class ArkoiBinaryMultiplicativeExpressionImpl extends ASTWrapperPsiElemen
   }
 
   @Override
-  @Nullable
-  public ArkoiBinaryMultiplicativeExpression getBinaryMultiplicativeExpression() {
-    return findChildByClass(ArkoiBinaryMultiplicativeExpression.class);
+  @NotNull
+  public List<ArkoiBinaryMultiplicativeExpressionPart> getBinaryMultiplicativeExpressionPartList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, ArkoiBinaryMultiplicativeExpressionPart.class);
   }
 
   @Override
   @NotNull
-  public ArkoiCollectionExpression getCollectionExpression() {
-    return findNotNullChildByClass(ArkoiCollectionExpression.class);
+  public ArkoiExponentialExpression getExponentialExpression() {
+    return findNotNullChildByClass(ArkoiExponentialExpression.class);
   }
 
 }

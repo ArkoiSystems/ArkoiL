@@ -12,6 +12,7 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.Ab
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.AbstractExpressionSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types.utils.AssignmentOperatorType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
@@ -23,24 +24,31 @@ public class AssignmentExpressionSyntaxAST extends AbstractExpressionSyntaxAST
 {
     
     @Getter
-    private final AbstractOperableSyntaxAST<?> leftSideOperable;
+    @Setter(AccessLevel.PROTECTED)
+    private AbstractOperableSyntaxAST<?> leftSideOperable;
     
     
     @Getter
-    private final AssignmentOperatorType assignmentOperatorType;
+    @Setter(AccessLevel.PROTECTED)
+    private AssignmentOperatorType assignmentOperatorType;
     
     
     @Getter
-    @Setter
+    @Setter(AccessLevel.PROTECTED)
     private AbstractOperableSyntaxAST<?> rightSideOperable;
+    
+    
+    protected AssignmentExpressionSyntaxAST(@NonNull final SyntaxAnalyzer syntaxAnalyzer) {
+        super(syntaxAnalyzer, ASTType.ASSIGNMENT_EXPRESSION);
+    }
     
     
     public AssignmentExpressionSyntaxAST(@NonNull final SyntaxAnalyzer syntaxAnalyzer, @NonNull final AbstractOperableSyntaxAST<?> leftSideOperable, @NonNull final AssignmentOperatorType assignmentOperatorType) {
         super(syntaxAnalyzer, ASTType.ASSIGNMENT_EXPRESSION);
-    
+        
         this.assignmentOperatorType = assignmentOperatorType;
         this.leftSideOperable = leftSideOperable;
-    
+        
         this.setStart(this.leftSideOperable.getStart());
     }
     
@@ -148,6 +156,87 @@ public class AssignmentExpressionSyntaxAST extends AbstractExpressionSyntaxAST
         printStream.println(indents + "└── right:");
         printStream.println(indents + "    └── " + this.getRightSideOperable().getClass().getSimpleName());
         this.getRightSideOperable().printSyntaxAST(printStream, indents + "        ");
+    }
+    
+    
+    public static AssignmentExpressionSyntaxASTBuilder builder(final SyntaxAnalyzer syntaxAnalyzer) {
+        return new AssignmentExpressionSyntaxASTBuilder(syntaxAnalyzer);
+    }
+    
+    
+    public static AssignmentExpressionSyntaxASTBuilder builder() {
+        return new AssignmentExpressionSyntaxASTBuilder();
+    }
+    
+    
+    public static class AssignmentExpressionSyntaxASTBuilder
+    {
+        
+        private final SyntaxAnalyzer syntaxAnalyzer;
+        
+        
+        private AbstractOperableSyntaxAST<?> leftSideOperable;
+        
+        
+        private AssignmentOperatorType assignmentOperatorType;
+        
+        
+        private AbstractOperableSyntaxAST<?> rightSideOperable;
+        
+        
+        private int start, end;
+        
+        
+        public AssignmentExpressionSyntaxASTBuilder(SyntaxAnalyzer syntaxAnalyzer) {
+            this.syntaxAnalyzer = syntaxAnalyzer;
+        }
+        
+        
+        public AssignmentExpressionSyntaxASTBuilder() {
+            this.syntaxAnalyzer = null;
+        }
+        
+        
+        public AssignmentExpressionSyntaxASTBuilder left(final AbstractOperableSyntaxAST<?> leftSideOperable) {
+            this.leftSideOperable = leftSideOperable;
+            return this;
+        }
+        
+        
+        public AssignmentExpressionSyntaxASTBuilder operator(final AssignmentOperatorType assignmentOperatorType) {
+            this.assignmentOperatorType = assignmentOperatorType;
+            return this;
+        }
+        
+        
+        public AssignmentExpressionSyntaxASTBuilder right(final AbstractOperableSyntaxAST<?> rightSideOperable) {
+            this.rightSideOperable = rightSideOperable;
+            return this;
+        }
+        
+        
+        public AssignmentExpressionSyntaxASTBuilder start(final int start) {
+            this.start = start;
+            return this;
+        }
+        
+        
+        public AssignmentExpressionSyntaxASTBuilder end(final int end) {
+            this.end = end;
+            return this;
+        }
+        
+        
+        public AssignmentExpressionSyntaxAST build() {
+            final AssignmentExpressionSyntaxAST assignmentExpressionSyntaxAST = new AssignmentExpressionSyntaxAST(this.syntaxAnalyzer);
+            assignmentExpressionSyntaxAST.setAssignmentOperatorType(this.assignmentOperatorType);
+            assignmentExpressionSyntaxAST.setRightSideOperable(this.rightSideOperable);
+            assignmentExpressionSyntaxAST.setLeftSideOperable(this.leftSideOperable);
+            assignmentExpressionSyntaxAST.setStart(this.start);
+            assignmentExpressionSyntaxAST.setEnd(this.end);
+            return assignmentExpressionSyntaxAST;
+        }
+        
     }
     
 }

@@ -1,31 +1,6 @@
 Syntax Trees:
    │
    ├── RootSyntaxAST
-   │   ├── imports: N/A
-   │   │
-   │   ├── variables: N/A
-   │   │
-   │   └── functions: 
-   │       └── FunctionDefinitionSyntaxAST
-   │           ├── annotations: 
-   │           │   └── AnnotationSyntaxAST
-   │           │       ├── name: native
-   │           │       └── arguments: 
-   │           │           └── default
-   │           │
-   │           ├── name: println
-   │           ├── type: void
-   │           │
-   │           ├── arguments: 
-   │           │   └── ArgumentDefinitionSyntaxAST
-   │           │       ├── name: message
-   │           │       └── type: string
-   │           │
-   │           └── block: 
-   │                ├── type: NATIVE
-   │                └── storage: N/A
-   │
-   ├── RootSyntaxAST
    │   ├── imports: 
    │   │   ├── ImportDefinitionSyntaxAST
    │   │   │   ├── name: FirstClass
@@ -45,13 +20,20 @@ Syntax Trees:
    │           ├── type: int
    │           │
    │           ├── arguments: 
-   │           │   └── ArgumentDefinitionSyntaxAST
+   │           │   └── ParameterSyntaxAST
    │           │       ├── name: args
    │           │       └── type: string[]
    │           │
    │           └── block: 
    │                ├── type: BLOCK
    │                └── storage: N/A
+   │
+   ├── RootSyntaxAST
+   │   ├── imports: N/A
+   │   │
+   │   ├── variables: N/A
+   │   │
+   │   └── functions: N/A
    │
    ├── RootSyntaxAST
    │   ├── imports: N/A

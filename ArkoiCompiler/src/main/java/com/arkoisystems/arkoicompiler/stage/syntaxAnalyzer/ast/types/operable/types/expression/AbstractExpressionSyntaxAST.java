@@ -10,11 +10,11 @@ import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenTyp
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.AbstractOperableSyntaxAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types.*;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types.utils.AssignmentOperatorType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types.utils.BinaryOperatorType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types.utils.PostfixOperatorType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types.utils.PrefixOperatorType;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types.*;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.parser.types.ExpressionParser;
@@ -179,7 +179,7 @@ public class AbstractExpressionSyntaxAST extends AbstractOperableSyntaxAST<TypeK
     
     public Optional<? extends AbstractOperableSyntaxAST<?>> parseOperable(final AbstractSyntaxAST parentAST) {
         Optional<? extends AbstractOperableSyntaxAST<?>> abstractOperableSyntaxAST = Optional.empty();
-        
+    
         if (this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.MINUS) != null &&
                 this.getSyntaxAnalyzer().matchesPeekToken(1, SymbolType.MINUS) != null)
             abstractOperableSyntaxAST = new PrefixExpressionSyntaxAST(this.getSyntaxAnalyzer(), PrefixOperatorType.PREFIX_SUB).parseAST(parentAST);
@@ -190,21 +190,29 @@ public class AbstractExpressionSyntaxAST extends AbstractOperableSyntaxAST<TypeK
             abstractOperableSyntaxAST = new PrefixExpressionSyntaxAST(this.getSyntaxAnalyzer(), PrefixOperatorType.NEGATE).parseAST(parentAST);
         else if (this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.PLUS) != null)
             abstractOperableSyntaxAST = new PrefixExpressionSyntaxAST(this.getSyntaxAnalyzer(), PrefixOperatorType.AFFIRM).parseAST(parentAST);
-        else if (this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.OPENING_PARENTHESIS) != null)
-            abstractOperableSyntaxAST = new ParenthesizedExpressionSyntaxAST(this.getSyntaxAnalyzer()).parseAST(parentAST);
+    
+        if (this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.OPENING_PARENTHESIS) != null) {
+            abstractOperableSyntaxAST = ParenthesizedExpressionSyntaxAST
+                    .builder(this.getSyntaxAnalyzer())
+                    .build()
+                    .parseAST(parentAST);
+            this.getSyntaxAnalyzer().nextToken(); // TODO: Check if I need to remove this
+        }
     
         if (abstractOperableSyntaxAST.isEmpty())
             abstractOperableSyntaxAST = new AbstractOperableSyntaxAST<>(this.getSyntaxAnalyzer(), null).parseAST(parentAST);
         if (abstractOperableSyntaxAST.isEmpty())
             return Optional.empty();
-        
+    
         if (this.getSyntaxAnalyzer().matchesPeekToken(1, SymbolType.MINUS) != null &&
                 this.getSyntaxAnalyzer().matchesPeekToken(2, SymbolType.MINUS) != null) {
-            return new PostfixExpressionSyntaxAST(this.getSyntaxAnalyzer(), abstractOperableSyntaxAST.get(), PostfixOperatorType.POSTFIX_SUB).parseAST(parentAST);
+            abstractOperableSyntaxAST = new PostfixExpressionSyntaxAST(this.getSyntaxAnalyzer(), abstractOperableSyntaxAST.get(), PostfixOperatorType.POSTFIX_SUB).parseAST(parentAST);
         } else if (this.getSyntaxAnalyzer().matchesPeekToken(1, SymbolType.PLUS) != null &&
                 this.getSyntaxAnalyzer().matchesPeekToken(2, SymbolType.PLUS) != null) {
-            return new PostfixExpressionSyntaxAST(this.getSyntaxAnalyzer(), abstractOperableSyntaxAST.get(), PostfixOperatorType.POSTFIX_ADD).parseAST(parentAST);
-        } else if (this.getSyntaxAnalyzer().matchesPeekToken(1, TokenType.IDENTIFIER, false) != null)
+            abstractOperableSyntaxAST = new PostfixExpressionSyntaxAST(this.getSyntaxAnalyzer(), abstractOperableSyntaxAST.get(), PostfixOperatorType.POSTFIX_ADD).parseAST(parentAST);
+        } // TODO: Check if I need to change this
+    
+        if (this.getSyntaxAnalyzer().matchesPeekToken(1, TokenType.IDENTIFIER, false) != null)
             return new CastExpressionSyntaxAST(this.getSyntaxAnalyzer(), abstractOperableSyntaxAST.get()).parseAST(parentAST);
         return abstractOperableSyntaxAST;
     }

@@ -33,7 +33,8 @@ public enum TypeKind
     DOUBLE("double", true, 2),
     SHORT("short", true, 0.5),
     BOOLEAN("boolean", false, 0),
-    VOID("void", false, 0);
+    VOID("void", false, 0),
+    UNDEFINED("undefined", false, 0);
     
     
     /**

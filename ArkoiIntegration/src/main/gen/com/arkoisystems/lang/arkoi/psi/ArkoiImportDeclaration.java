@@ -13,4 +13,8 @@ public interface ArkoiImportDeclaration extends PsiElement {
   @Nullable
   PsiElement getStringLiteral();
 
+  //WARNING: getName(...) is skipped
+  //matching getName(ArkoiImportDeclaration, ...)
+  //methods are not found in ArkoiPsiImplUtil
+
 }

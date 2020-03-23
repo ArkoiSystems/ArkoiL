@@ -5,6 +5,7 @@
  */
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types;
 
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.SymbolToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.SymbolType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxErrorType;
@@ -12,26 +13,29 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.AbstractOperableSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.AbstractExpressionSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types.ExpressionSyntaxAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types.ParenthesizedExpressionSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NonNull;
+import lombok.Setter;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class CollectionOperableSyntaxAST extends AbstractOperableSyntaxAST<AbstractExpressionSyntaxAST[]>
+public class CollectionOperableSyntaxAST extends AbstractOperableSyntaxAST<TypeKind>
 {
     
     @Getter
-    private final List<ExpressionSyntaxAST> collectionExpressions;
+    @Setter(AccessLevel.PROTECTED)
+    private List<ExpressionSyntaxAST> collectionExpressions;
     
     
-    public CollectionOperableSyntaxAST(final SyntaxAnalyzer syntaxAnalyzer) {
+    protected CollectionOperableSyntaxAST(final SyntaxAnalyzer syntaxAnalyzer) {
         super(syntaxAnalyzer, ASTType.COLLECTION_OPERABLE);
-        
-        this.collectionExpressions = new ArrayList<>();
     }
     
     
@@ -99,6 +103,70 @@ public class CollectionOperableSyntaxAST extends AbstractOperableSyntaxAST<Abstr
                 printStream.println(indents + "    │   ");
             }
         }
+    }
+    
+    
+    public static CollectionOperableSyntaxASTBuilder builder(final SyntaxAnalyzer syntaxAnalyzer) {
+        return new CollectionOperableSyntaxASTBuilder(syntaxAnalyzer);
+    }
+    
+    
+    public static CollectionOperableSyntaxASTBuilder builder() {
+        return new CollectionOperableSyntaxASTBuilder();
+    }
+    
+    
+    public static class CollectionOperableSyntaxASTBuilder {
+        
+        private final SyntaxAnalyzer syntaxAnalyzer;
+    
+    
+        private List<ExpressionSyntaxAST> collectionExpressions;
+        
+        
+        private int start, end;
+        
+        
+        public CollectionOperableSyntaxASTBuilder(SyntaxAnalyzer syntaxAnalyzer) {
+            this.syntaxAnalyzer = syntaxAnalyzer;
+            
+            this.collectionExpressions = new ArrayList<>();
+        }
+        
+        
+        public CollectionOperableSyntaxASTBuilder() {
+            this.syntaxAnalyzer = null;
+            
+            this.collectionExpressions = new ArrayList<>();
+        }
+        
+        
+        public CollectionOperableSyntaxASTBuilder expressions(final List<ExpressionSyntaxAST> collectionExpressions) {
+            this.collectionExpressions = collectionExpressions;
+            return this;
+        }
+        
+        
+        public CollectionOperableSyntaxASTBuilder start(final int start) {
+            this.start = start;
+            return this;
+        }
+        
+        
+        public CollectionOperableSyntaxASTBuilder end(final int end) {
+            this.end = end;
+            return this;
+        }
+        
+        
+        public CollectionOperableSyntaxAST build() {
+            final CollectionOperableSyntaxAST collectionOperableSyntaxAST = new CollectionOperableSyntaxAST(this.syntaxAnalyzer);
+            collectionOperableSyntaxAST.setCollectionExpressions(this.collectionExpressions);
+            collectionOperableSyntaxAST.setStart(this.start);
+            collectionOperableSyntaxAST.setEnd(this.end);
+            return collectionOperableSyntaxAST;
+        }
+        
     }
     
 }

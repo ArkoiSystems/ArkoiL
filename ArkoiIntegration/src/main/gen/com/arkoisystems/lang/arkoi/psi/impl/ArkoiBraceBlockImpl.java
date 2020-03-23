@@ -28,20 +28,14 @@ public class ArkoiBraceBlockImpl extends ASTWrapperPsiElement implements ArkoiBr
 
   @Override
   @NotNull
-  public List<ArkoiFunctionCall> getFunctionCallList() {
-    return PsiTreeUtil.getChildrenOfTypeAsList(this, ArkoiFunctionCall.class);
+  public List<ArkoiIdentifierCall> getIdentifierCallList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, ArkoiIdentifierCall.class);
   }
 
   @Override
   @NotNull
   public List<ArkoiReturnDeclaration> getReturnDeclarationList() {
     return PsiTreeUtil.getChildrenOfTypeAsList(this, ArkoiReturnDeclaration.class);
-  }
-
-  @Override
-  @NotNull
-  public List<ArkoiVariableCall> getVariableCallList() {
-    return PsiTreeUtil.getChildrenOfTypeAsList(this, ArkoiVariableCall.class);
   }
 
   @Override

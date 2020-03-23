@@ -20,6 +20,7 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.BlockType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.parser.AbstractParser;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.parser.types.BlockParser;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
@@ -60,6 +61,7 @@ public class BlockSyntaxAST extends AbstractSyntaxAST
      * Defines the type of the {@link BlockSyntaxAST}. It can be an inlined block or just
      * a block. An example for this is:
      */
+    @Setter(AccessLevel.PROTECTED)
     private BlockType blockType;
     
     
@@ -67,7 +69,8 @@ public class BlockSyntaxAST extends AbstractSyntaxAST
      * Declares the {@link List} for every {@link AbstractSyntaxAST} which got parsed
      * inside the block.
      */
-    private final List<AbstractSyntaxAST> blockStorage;
+    @Setter(AccessLevel.PROTECTED)
+    private List<AbstractSyntaxAST> blockStorage;
     
     
     /**
@@ -77,12 +80,10 @@ public class BlockSyntaxAST extends AbstractSyntaxAST
      * @param syntaxAnalyzer
      *         the {@link SyntaxAnalyzer} which is used to check for correct syntax with
      *         methods like {@link SyntaxAnalyzer#matchesNextToken(SymbolType)} or {@link
-     *         * SyntaxAnalyzer#nextToken()}.
+     *         SyntaxAnalyzer#nextToken()}.
      */
-    public BlockSyntaxAST(final SyntaxAnalyzer syntaxAnalyzer) {
+    protected BlockSyntaxAST(final SyntaxAnalyzer syntaxAnalyzer) {
         super(syntaxAnalyzer, ASTType.BLOCK);
-        
-        this.blockStorage = new ArrayList<>();
     }
     
     /**
@@ -228,6 +229,79 @@ public class BlockSyntaxAST extends AbstractSyntaxAST
                 printStream.println(indents + "    │   ");
             }
         }
+    }
+    
+    
+    public static BlockSyntaxASTBuilder builder(final SyntaxAnalyzer syntaxAnalyzer) {
+        return new BlockSyntaxASTBuilder(syntaxAnalyzer);
+    }
+    
+    
+    public static BlockSyntaxASTBuilder builder() {
+        return new BlockSyntaxASTBuilder();
+    }
+    
+    
+    public static class BlockSyntaxASTBuilder
+    {
+        
+        private final SyntaxAnalyzer syntaxAnalyzer;
+        
+        
+        private List<AbstractSyntaxAST> blockStorage;
+        
+        
+        private BlockType blockType;
+        
+        
+        private int start, end;
+        
+        
+        public BlockSyntaxASTBuilder(final SyntaxAnalyzer syntaxAnalyzer) {
+            this.syntaxAnalyzer = syntaxAnalyzer;
+            
+            this.blockStorage = new ArrayList<>();
+        }
+        
+        
+        public BlockSyntaxASTBuilder() {
+            this.syntaxAnalyzer = null;
+        }
+        
+        
+        public BlockSyntaxASTBuilder type(final BlockType blockType) {
+            this.blockType = blockType;
+            return this;
+        }
+        
+        
+        public BlockSyntaxASTBuilder storage(final List<AbstractSyntaxAST> blockStorage) {
+            this.blockStorage = blockStorage;
+            return this;
+        }
+        
+        
+        public BlockSyntaxASTBuilder start(final int start) {
+            this.start = start;
+            return this;
+        }
+        
+        
+        public BlockSyntaxASTBuilder end(final int end) {
+            this.end = end;
+            return this;
+        }
+        
+        
+        public BlockSyntaxAST build() {
+            final BlockSyntaxAST blockSyntaxAST = new BlockSyntaxAST(this.syntaxAnalyzer);
+            blockSyntaxAST.setBlockStorage(this.blockStorage);
+            blockSyntaxAST.setBlockType(this.blockType);
+            blockSyntaxAST.setStart(this.start);
+            blockSyntaxAST.setEnd(this.end);
+            return blockSyntaxAST;
+        }
+        
     }
     
 }

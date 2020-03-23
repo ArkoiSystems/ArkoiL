@@ -15,7 +15,7 @@ import java.util.Optional;
 public class CommentToken extends AbstractToken
 {
     
-    public CommentToken(final LexicalAnalyzer lexicalAnalyzer) {
+    protected CommentToken(final LexicalAnalyzer lexicalAnalyzer) {
         super(lexicalAnalyzer, TokenType.COMMENT);
     }
     
@@ -43,6 +43,66 @@ public class CommentToken extends AbstractToken
         
         this.setTokenContent(new String(Arrays.copyOfRange(this.getLexicalAnalyzer().getArkoiClass().getContent(), this.getStart(), this.getEnd())).intern());
         return Optional.of(this);
+    }
+    
+    
+    public static CommentTokenBuilder builder(final LexicalAnalyzer lexicalAnalyzer) {
+        return new CommentTokenBuilder(lexicalAnalyzer);
+    }
+    
+    
+    public static CommentTokenBuilder builder() {
+        return new CommentTokenBuilder();
+    }
+    
+    
+    public static class CommentTokenBuilder {
+        
+        private final LexicalAnalyzer lexicalAnalyzer;
+        
+        
+        private String tokenContent;
+        
+        
+        private int start, end;
+        
+        
+        public CommentTokenBuilder(final LexicalAnalyzer lexicalAnalyzer) {
+            this.lexicalAnalyzer = lexicalAnalyzer;
+        }
+        
+        
+        public CommentTokenBuilder() {
+            this.lexicalAnalyzer = null;
+        }
+        
+        
+        public CommentTokenBuilder content(final String tokenContent) {
+            this.tokenContent = tokenContent;
+            return this;
+        }
+        
+        
+        public CommentTokenBuilder start(final int start) {
+            this.start = start;
+            return this;
+        }
+        
+        
+        public CommentTokenBuilder end(final int end) {
+            this.end = end;
+            return this;
+        }
+        
+        
+        public CommentToken build() {
+            final CommentToken commentToken = new CommentToken(this.lexicalAnalyzer);
+            commentToken.setTokenContent(this.tokenContent);
+            commentToken.setStart(this.start);
+            commentToken.setEnd(this.end);
+            return commentToken;
+        }
+        
     }
     
 }

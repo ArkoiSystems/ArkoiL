@@ -15,16 +15,7 @@ import java.util.Optional;
 public class IdentifierToken extends AbstractToken
 {
     
-    public IdentifierToken(final LexicalAnalyzer lexicalAnalyzer, final String content, final int start, final int end) {
-        super(lexicalAnalyzer, TokenType.IDENTIFIER);
-        
-        this.setTokenContent(content);
-        this.setStart(start);
-        this.setEnd(end);
-    }
-    
-    
-    public IdentifierToken(final LexicalAnalyzer lexicalAnalyzer) {
+    protected IdentifierToken(final LexicalAnalyzer lexicalAnalyzer) {
         super(lexicalAnalyzer, TokenType.IDENTIFIER);
     }
     
@@ -51,6 +42,65 @@ public class IdentifierToken extends AbstractToken
         
         this.setTokenContent(new String(Arrays.copyOfRange(this.getLexicalAnalyzer().getArkoiClass().getContent(), this.getStart(), this.getEnd())).intern());
         return Optional.of(this);
+    }
+    
+    
+    public static IdentifierTokenBuilder builder(final LexicalAnalyzer lexicalAnalyzer) {
+        return new IdentifierTokenBuilder(lexicalAnalyzer);
+    }
+    
+    
+    public static IdentifierTokenBuilder builder() {
+        return new IdentifierTokenBuilder();
+    }
+    
+    
+    public static class IdentifierTokenBuilder {
+        
+        private final LexicalAnalyzer lexicalAnalyzer;
+    
+        
+        private String tokenContent;
+        
+        
+        private int start, end;
+        
+        
+        public IdentifierTokenBuilder(final LexicalAnalyzer lexicalAnalyzer) {
+            this.lexicalAnalyzer = lexicalAnalyzer;
+        }
+    
+        public IdentifierTokenBuilder() {
+            this.lexicalAnalyzer = null;
+        }
+        
+        
+        public IdentifierTokenBuilder content(final String tokenContent) {
+            this.tokenContent = tokenContent;
+            return this;
+        }
+        
+        
+        public IdentifierTokenBuilder start(final int start) {
+            this.start = start;
+            return this;
+        }
+        
+        
+        public IdentifierTokenBuilder end(final int end) {
+            this.end = end;
+            return this;
+        }
+        
+        
+        public IdentifierToken build() {
+            final IdentifierToken identifierToken = new IdentifierToken(this.lexicalAnalyzer);
+            identifierToken.setTokenContent(this.tokenContent);
+            identifierToken.setStart(this.start);
+            identifierToken.setEnd(this.end);
+            return identifierToken;
+        }
+    
     }
     
 }

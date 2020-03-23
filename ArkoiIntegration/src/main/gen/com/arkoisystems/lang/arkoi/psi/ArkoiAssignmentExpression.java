@@ -7,8 +7,8 @@ import com.intellij.psi.PsiElement;
 
 public interface ArkoiAssignmentExpression extends PsiElement {
 
-  @Nullable
-  ArkoiAssignmentExpression getAssignmentExpression();
+  @NotNull
+  List<ArkoiAssignExpressionPart> getAssignExpressionPartList();
 
   @NotNull
   ArkoiBinaryAdditiveExpression getBinaryAdditiveExpression();

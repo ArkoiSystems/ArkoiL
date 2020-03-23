@@ -14,7 +14,7 @@ import java.util.Optional;
 public class EndOfFileToken extends AbstractToken
 {
     
-    public EndOfFileToken(final LexicalAnalyzer lexicalAnalyzer) {
+    protected EndOfFileToken(final LexicalAnalyzer lexicalAnalyzer) {
         super(lexicalAnalyzer, TokenType.END_OF_FILE);
     }
     
@@ -26,6 +26,66 @@ public class EndOfFileToken extends AbstractToken
         this.setStart(0);
         this.setEnd(this.getLexicalAnalyzer().getArkoiClass().getContent().length);
         return Optional.of(this);
+    }
+    
+    
+    public static EndOfFileTokenBuilder builder(final LexicalAnalyzer lexicalAnalyzer) {
+        return new EndOfFileTokenBuilder(lexicalAnalyzer);
+    }
+    
+    
+    public static EndOfFileTokenBuilder builder() {
+        return new EndOfFileTokenBuilder();
+    }
+    
+    
+    public static class EndOfFileTokenBuilder {
+        
+        private final LexicalAnalyzer lexicalAnalyzer;
+        
+        
+        private String tokenContent;
+        
+        
+        private int start, end;
+        
+        
+        public EndOfFileTokenBuilder(final LexicalAnalyzer lexicalAnalyzer) {
+            this.lexicalAnalyzer = lexicalAnalyzer;
+        }
+        
+        
+        public EndOfFileTokenBuilder() {
+            this.lexicalAnalyzer = null;
+        }
+        
+        
+        public EndOfFileTokenBuilder content(final String tokenContent) {
+            this.tokenContent = tokenContent;
+            return this;
+        }
+        
+        
+        public EndOfFileTokenBuilder start(final int start) {
+            this.start = start;
+            return this;
+        }
+        
+        
+        public EndOfFileTokenBuilder end(final int end) {
+            this.end = end;
+            return this;
+        }
+        
+        
+        public EndOfFileToken build() {
+            final EndOfFileToken endOfFileToken = new EndOfFileToken(this.lexicalAnalyzer);
+            endOfFileToken.setTokenContent(this.tokenContent);
+            endOfFileToken.setStart(this.start);
+            endOfFileToken.setEnd(this.end);
+            return endOfFileToken;
+        }
+        
     }
     
 }

@@ -40,7 +40,10 @@ public class AnnotationParser extends AbstractParser
      */
     @Override
     public Optional<? extends AbstractSyntaxAST> parse(@NonNull final AbstractSyntaxAST parentAST, @NonNull final SyntaxAnalyzer syntaxAnalyzer) {
-        return new AnnotationSyntaxAST(syntaxAnalyzer).parseAST(parentAST);
+        return AnnotationSyntaxAST
+                .builder(syntaxAnalyzer)
+                .build()
+                .parseAST(parentAST);
     }
     
     

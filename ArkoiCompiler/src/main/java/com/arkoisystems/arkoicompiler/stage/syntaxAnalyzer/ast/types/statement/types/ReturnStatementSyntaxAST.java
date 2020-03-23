@@ -15,8 +15,10 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.ty
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types.ExpressionSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.AbstractStatementSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NonNull;
+import lombok.Setter;
 
 import java.io.PrintStream;
 import java.util.Optional;
@@ -25,6 +27,7 @@ public class ReturnStatementSyntaxAST extends AbstractStatementSyntaxAST
 {
     
     @Getter
+    @Setter(value = AccessLevel.PROTECTED)
     private ExpressionSyntaxAST returnExpression;
     
     
@@ -32,7 +35,7 @@ public class ReturnStatementSyntaxAST extends AbstractStatementSyntaxAST
      * This constructor is used to initialize the AST-Type "RETURN_STATEMENT_AST" for this
      * class. This will help to debug problems or check the AST for correct Syntax.
      */
-    public ReturnStatementSyntaxAST(final SyntaxAnalyzer syntaxAnalyzer) {
+    protected ReturnStatementSyntaxAST(final SyntaxAnalyzer syntaxAnalyzer) {
         super(syntaxAnalyzer, ASTType.RETURN_STATEMENT);
     }
     
@@ -107,6 +110,57 @@ public class ReturnStatementSyntaxAST extends AbstractStatementSyntaxAST
     public void printSyntaxAST(@NonNull final PrintStream printStream, @NonNull final String indents) {
         printStream.println(indents + "└── expression:");
         this.getReturnExpression().printSyntaxAST(printStream, indents + "    ");
+    }
+    
+    
+    public static ReturnStatementSyntaxASTBuilder builder(final SyntaxAnalyzer syntaxAnalyzer) {
+        return new ReturnStatementSyntaxASTBuilder(syntaxAnalyzer);
+    }
+    
+    
+    public static class ReturnStatementSyntaxASTBuilder {
+        
+        
+        private final SyntaxAnalyzer syntaxAnalyzer;
+        
+        
+        private ExpressionSyntaxAST expressionSyntaxAST;
+        
+        
+        private int start, end;
+        
+        
+        public ReturnStatementSyntaxASTBuilder(final SyntaxAnalyzer syntaxAnalyzer) {
+            this.syntaxAnalyzer = syntaxAnalyzer;
+        }
+        
+        
+        public ReturnStatementSyntaxASTBuilder expression(final ExpressionSyntaxAST expressionSyntaxAST) {
+            this.expressionSyntaxAST = expressionSyntaxAST;
+            return this;
+        }
+        
+        
+        public ReturnStatementSyntaxASTBuilder start(final int start) {
+            this.start = start;
+            return this;
+        }
+    
+        
+        public ReturnStatementSyntaxASTBuilder end(final int end) {
+            this.end = end;
+            return this;
+        }
+        
+        
+        public ReturnStatementSyntaxAST build() {
+            final ReturnStatementSyntaxAST returnStatementSyntaxAST = new ReturnStatementSyntaxAST(this.syntaxAnalyzer);
+            returnStatementSyntaxAST.setReturnExpression(this.expressionSyntaxAST);
+            returnStatementSyntaxAST.setStart(this.start);
+            returnStatementSyntaxAST.setEnd(this.end);
+            return returnStatementSyntaxAST;
+        }
+    
     }
     
 }

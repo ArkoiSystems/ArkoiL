@@ -34,6 +34,7 @@
         DOT = '.'
         COMMA = ','
         COLON = ':'
+        AT = '@'
 
         ADD_ASSIGN = '+='
         SUB_ASSIGN = '-='
@@ -54,7 +55,7 @@
 
         NUMBER_LITERAL = 'regexp:\d+(\.\d*)?'
         STRING_LITERAL = 'regexp:"([^"\\]|\\.)*"'
-        IDENTIFIER = 'regexp:[a-zA-Z_@$][a-zA-Z0-9_@$]*'
+        IDENTIFIER = 'regexp:[a-zA-Z_$][a-zA-Z0-9_$]*'
 
         COMMENT = 'regexp:#.*'
     ]
@@ -62,28 +63,68 @@
     name(".*expression") = 'expression'
 }
 
-root ::= (line_comment | root_statement)*
+root ::= (comment_declaration | class_statement)*
+
+// COMMENTS
+
+comment_declaration ::= line_comment
 
 line_comment ::= COMMENT
 
 // STATEMENT
-private root_statement ::= (variable_declaration | function_declaration | import_declaration)
 
-private block_statement ::= ((function_call SEMICOLON) | (variable_call SEMICOLON) | variable_declaration | return_declaration)
+private class_statement ::= (variable_declaration | function_declaration | import_declaration)
+
+private block_statement ::= (identifier_call | variable_declaration | return_declaration)
 
 
-import_declaration ::= import STRING_LITERAL (as IDENTIFIER) SEMICOLON { pin = 1 }
+import_declaration ::= import STRING_LITERAL (as IDENTIFIER) {
+    pin = 1
+    methods = [getName]
+}
 
-variable_declaration ::= var IDENTIFIER EQUALS expression SEMICOLON { pin = 1 }
+variable_declaration ::= (annotation_call | comment_declaration)* var IDENTIFIER inlined_block {
+    pin = 2
+    methods = [getName]
+}
 
-function_declaration ::= fun IDENTIFIER LESS_THAN primitives? GREATER_THAN L_PARENTHESIS argument_list? R_PARENTHESIS block_declaration { pin = 1 }
+function_declaration ::= (annotation_call | comment_declaration)* fun IDENTIFIER LESS_THAN primitives? GREATER_THAN L_PARENTHESIS parameter_list? R_PARENTHESIS block_declaration {
+    pin = 2
+    methods = [
+        getFunctionName
+        getFunctionReturnType
+        getFunctionBlock
+        getFunctionParameters
+        getFunctionAnnotations
+    ]
+}
 
-return_declaration ::= return expression? SEMICOLON { pin = 1 }
+return_declaration ::= return expression? {
+    pin = 1
+    methods = [
+        getReturnDeclaration
+    ]
+}
 
-function_call ::= (this DOT)? IDENTIFIER L_PARENTHESIS expression_list? R_PARENTHESIS function_call? { pin = 3 }
+identifier_call ::= (this DOT)? identifier_call_part (DOT identifier_call_part)*
 
-variable_call ::= (this DOT)? IDENTIFIER variable_call?
+identifier_call_part ::= IDENTIFIER function_call_part?  {
+    methods = [
+        getName
+    ]
+}
 
+function_call_part ::= L_PARENTHESIS expression_list? R_PARENTHESIS { pin = 1 }
+
+// ANNOTATIONS
+
+annotation_call ::= AT identifier_call (L_BRACKET argument_list R_BRACKET)? {
+    pin = 1
+    methods = [
+        getAnnotationName
+        getAnnotationArguments
+    ]
+}
 
 // BLOCK
 block_declaration ::= brace_block | inlined_block
@@ -91,49 +132,59 @@ block_declaration ::= brace_block | inlined_block
 
 brace_block ::= L_BRACE block_statement* R_BRACE { pin = 1}
 
-inlined_block ::= EQUALS expression SEMICOLON { pin = 1 }
+inlined_block ::= EQUALS expression { pin = 1 }
 
 
 // EXPRESSION
-expression ::= assignment_expression
+expression ::= assignment_expression {
+    methods = [
+        getExpression
+    ]
+}
 
-assignment_expression ::= binary_additive_expression (add_assign_expression
-                                                    | sub_assign_expression
-                                                    | mul_assign_expression
-                                                    | div_assign_expression
-                                                    | mod_assign_expression
-                                                    | exp_assign_expression)?
+assignment_expression ::= binary_additive_expression assign_expression_part*
 
-private add_assign_expression ::= ADD_ASSIGN assignment_expression { pin = 1 }
-private sub_assign_expression ::= SUB_ASSIGN assignment_expression { pin = 1 }
-private mul_assign_expression ::= MUL_ASSIGN assignment_expression { pin = 1 }
-private div_assign_expression ::= DIV_ASSIGN assignment_expression { pin = 1 }
-private mod_assign_expression ::= MOD_ASSIGN assignment_expression { pin = 1 }
-private exp_assign_expression ::= EXP_ASSIGN assignment_expression { pin = 1 }
+assign_expression_part ::= assign_expression
+                         | add_assign_expression
+                         | sub_assign_expression
+                         | mul_assign_expression
+                         | div_assign_expression
+                         | mod_assign_expression
+                         | exp_assign_expression
 
-binary_additive_expression ::= binary_multiplicative_expression (binary_add_expression
-                                                               | binary_sub_expression)?
+assign_expression ::= EQUALS assignment_expression { pin = 1 }
+add_assign_expression ::= ADD_ASSIGN assignment_expression { pin = 1 }
+sub_assign_expression ::= SUB_ASSIGN assignment_expression { pin = 1 }
+mul_assign_expression ::= MUL_ASSIGN assignment_expression { pin = 1 }
+div_assign_expression ::= DIV_ASSIGN assignment_expression { pin = 1 }
+mod_assign_expression ::= MOD_ASSIGN assignment_expression { pin = 1 }
+exp_assign_expression ::= EXP_ASSIGN assignment_expression { pin = 1 }
 
-private binary_add_expression ::= PLUS binary_additive_expression { pin = 1 }
-private binary_sub_expression ::= MINUS binary_additive_expression { pin = 1 }
+binary_additive_expression ::= binary_multiplicative_expression binary_additive_expression_part*
 
+binary_additive_expression_part ::= binary_add_expression
+                       | binary_sub_expression
 
-binary_multiplicative_expression ::= collection_expression (binary_mul_expression
-                                                        | binary_div_expression
-                                                        | binary_mod_expression
-                                                        | binary_exp_expression)?
+binary_add_expression ::= PLUS binary_additive_expression { pin = 1 }
+binary_sub_expression ::= MINUS binary_additive_expression { pin = 1 }
 
-private binary_mul_expression ::= ASTERISK binary_multiplicative_expression { pin = 1 }
-private binary_div_expression ::= SLASH binary_multiplicative_expression { pin = 1 }
-private binary_mod_expression ::= PERCENT binary_multiplicative_expression { pin = 1 }
-private binary_exp_expression ::= DOUBLE_ASTERISK binary_multiplicative_expression { pin = 1 }
+binary_multiplicative_expression ::= exponential_expression binary_multiplicative_expression_part*
 
-collection_expression ::= collection_expression_part | operable_expression
-private collection_expression_part ::= L_BRACKET expression_list R_BRACKET { pin = 1 }
+binary_multiplicative_expression_part ::= binary_mul_expression
+                             | binary_div_expression
+                             | binary_mod_expression
 
-operable_expression ::= prefix_expression? (parenthesized_expression_part | operable) postfix_expression? cast_expression?
+binary_mul_expression ::= ASTERISK binary_multiplicative_expression { pin = 1 }
+binary_div_expression ::= SLASH binary_multiplicative_expression { pin = 1 }
+binary_mod_expression ::= PERCENT binary_multiplicative_expression { pin = 1 }
 
-private parenthesized_expression_part ::= L_PARENTHESIS expression_list R_PARENTHESIS { pin = 1 }
+exponential_expression ::= operable_expression exponential_expression_part*
+
+exponential_expression_part ::= DOUBLE_ASTERISK exponential_expression
+
+operable_expression ::= prefix_expression? (parenthesized_expression | operable) postfix_expression? cast_expression?
+
+parenthesized_expression ::= L_PARENTHESIS expression R_PARENTHESIS { pin = 1 }
 
 prefix_expression ::= DOUBLE_PLUS | DOUBLE_MINUS | PLUS | MINUS
 
@@ -141,19 +192,31 @@ postfix_expression ::= DOUBLE_PLUS | DOUBLE_MINUS
 
 cast_expression ::= 'f' | 'F' | 'd' | 'D' | 'i' | 'I' | 'c' | 'C'
 
-
 // GENERAL
 literals ::= NUMBER_LITERAL | STRING_LITERAL
 
 
-operable ::= literals | function_call | variable_call
+operable ::= collection | literals | identifier_call
 
 
-primitives ::= (int | boolean | short | byte | char | string | long) (L_BRACKET R_BRACKET)?
+collection ::= L_BRACKET expression_list R_BRACKET { pin = 1 }
 
 
-argument_list ::= IDENTIFIER COLON primitives argument_list_part? { pin = 2 }
-private argument_list_part ::= COMMA argument_list { pin = 1 }
+primitives ::= (int | boolean | short | byte | char | string | long) (L_BRACKET R_BRACKET)? {
+    methods = [
+        getPrimitiveReturnType
+    ]
+}
 
-expression_list ::= expression expression_list_part?
-private expression_list_part ::= COMMA expression_list { pin = 1 }
+argument_list ::= argument_list_part (COMMA argument_list_part)*
+argument_list_part ::= IDENTIFIER EQUALS expression { pin = 2 }
+
+parameter_list ::= parameter_list_part (COMMA parameter_list_part)*
+parameter_list_part ::= IDENTIFIER COLON primitives {
+    pin = 2
+    methods = [
+        getParameterName
+    ]
+}
+
+expression_list ::= expression (COMMA expression)*
