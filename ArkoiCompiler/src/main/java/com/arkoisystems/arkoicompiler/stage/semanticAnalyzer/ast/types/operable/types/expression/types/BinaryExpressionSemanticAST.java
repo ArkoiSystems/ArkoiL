@@ -12,11 +12,15 @@ import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.types.*;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.types.expression.AbstractExpressionSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.AbstractOperableSyntaxAST;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.*;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types.utils.BinaryOperatorType;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.CollectionOperableSyntaxAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.IdentifierCallOperableSyntaxAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.NumberOperableSyntaxAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.StringOperableSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types.*;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types.utils.BinaryOperatorType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.PrintStream;
 
@@ -36,7 +40,7 @@ public class BinaryExpressionSemanticAST extends AbstractExpressionSemanticAST<B
     
     // TODO: Check null safety.
     @Override
-    public void printSemanticAST(final PrintStream printStream, final String indents) {
+    public void printSemanticAST(@NotNull final PrintStream printStream, @NotNull final String indents) {
         printStream.println(indents + "├── left:");
         printStream.println(indents + "│   └── " + this.getLeftSideOperable().getClass().getSimpleName());
         this.getLeftSideOperable().printSemanticAST(printStream, indents + "│        ");
@@ -55,7 +59,7 @@ public class BinaryExpressionSemanticAST extends AbstractExpressionSemanticAST<B
             if (this.getLeftSideOperable() == null) {
                 this.getRightSideOperable();
                 return null;
-            } else if(this.getRightSideOperable() == null)
+            } else if (this.getRightSideOperable() == null)
                 return null;
             
             final TypeKind typeKind;
@@ -164,7 +168,7 @@ public class BinaryExpressionSemanticAST extends AbstractExpressionSemanticAST<B
             final PostfixExpressionSyntaxAST postfixExpressionSyntaxAST = (PostfixExpressionSyntaxAST) abstractOperableSyntaxAST;
             final PostfixExpressionSemanticAST postfixExpressionSemanticAST
                     = new PostfixExpressionSemanticAST(this.getSemanticAnalyzer(), this.getLastContainerAST(), postfixExpressionSyntaxAST);
-    
+
             if (postfixExpressionSemanticAST.getOperableObject() == null)
                 return null;
             return postfixExpressionSemanticAST;
@@ -172,23 +176,23 @@ public class BinaryExpressionSemanticAST extends AbstractExpressionSemanticAST<B
             final IdentifierInvokeOperableSyntaxAST identifierInvokeOperableSyntaxAST = (IdentifierInvokeOperableSyntaxAST) abstractOperableSyntaxAST;
             final IdentifierInvokeOperableSemanticAST identifierInvokeOperableSemanticAST
                     = new IdentifierInvokeOperableSemanticAST(this.getSemanticAnalyzer(), this.getLastContainerAST(), identifierInvokeOperableSyntaxAST);
-    
+
             if (identifierInvokeOperableSemanticAST.getOperableObject() == null)
                 return null;
             return identifierInvokeOperableSemanticAST;
-        }  else if (abstractOperableSyntaxAST instanceof IdentifierCallOperableSyntaxAST) {
+        } else if (abstractOperableSyntaxAST instanceof IdentifierCallOperableSyntaxAST) {
             final IdentifierCallOperableSyntaxAST identifierCallOperableSyntaxAST = (IdentifierCallOperableSyntaxAST) abstractOperableSyntaxAST;
             final IdentifierCallOperableSemanticAST identifierCallOperableSemanticAST
                     = new IdentifierCallOperableSemanticAST(this.getSemanticAnalyzer(), this.getLastContainerAST(), identifierCallOperableSyntaxAST);
-    
+
             if (identifierCallOperableSemanticAST.getOperableObject() == null)
                 return null;
             return identifierCallOperableSemanticAST;
-        }  else if (abstractOperableSyntaxAST instanceof FunctionInvokeOperableSyntaxAST) {
+        } else if (abstractOperableSyntaxAST instanceof FunctionInvokeOperableSyntaxAST) {
             final FunctionInvokeOperableSyntaxAST functionInvokeOperableSyntaxAST = (FunctionInvokeOperableSyntaxAST) abstractOperableSyntaxAST;
             final FunctionInvokeOperableSemanticAST functionInvokeOperableSemanticAST
                     = new FunctionInvokeOperableSemanticAST(this.getSemanticAnalyzer(), this, this.getLastContainerAST(), functionInvokeOperableSyntaxAST);
-    
+
             if (functionInvokeOperableSemanticAST.getOperableObject() == null)
                 return null;
             return functionInvokeOperableSemanticAST;
@@ -196,11 +200,11 @@ public class BinaryExpressionSemanticAST extends AbstractExpressionSemanticAST<B
             final CastExpressionSyntaxAST castExpressionSyntaxAST = (CastExpressionSyntaxAST) abstractOperableSyntaxAST;
             final CastExpressionSemanticAST castExpressionSemanticAST
                     = new CastExpressionSemanticAST(this.getSemanticAnalyzer(), this.getLastContainerAST(), castExpressionSyntaxAST);
-    
+
             if (castExpressionSemanticAST.getOperableObject() == null)
                 return null;
             return castExpressionSemanticAST;
-        }  else {
+        } else {
             this.addError(
                     this.getSemanticAnalyzer().getArkoiClass(),
                     abstractOperableSyntaxAST,
@@ -310,12 +314,12 @@ public class BinaryExpressionSemanticAST extends AbstractExpressionSemanticAST<B
     @Override
     public TypeKind binMod(final AbstractOperableSemanticAST<?, ?> leftSideOperable, final AbstractOperableSemanticAST<?, ?> rightSideOperable) {
         final AbstractOperableSemanticAST<?, ?> leftExpressionOperable;
-        if(leftSideOperable instanceof StringOperableSemanticAST)
+        if (leftSideOperable instanceof StringOperableSemanticAST)
             leftExpressionOperable = leftSideOperable;
         else leftExpressionOperable = this.analyzeNumericOperable(leftSideOperable);
         
         final AbstractOperableSemanticAST<?, ?> rightExpressionOperable;
-        if(rightSideOperable instanceof CollectionOperableSemanticAST)
+        if (rightSideOperable instanceof CollectionOperableSemanticAST)
             rightExpressionOperable = rightSideOperable;
         else rightExpressionOperable = this.analyzeNumericOperable(rightSideOperable);
         
@@ -474,7 +478,7 @@ public class BinaryExpressionSemanticAST extends AbstractExpressionSemanticAST<B
             final CastExpressionSemanticAST castExpressionSemanticAST = (CastExpressionSemanticAST) abstractOperableSemanticAST;
             if (castExpressionSemanticAST.getOperableObject() == null)
                 return null;
-    
+
             switch (castExpressionSemanticAST.getOperableObject()) {
                 case BYTE:
                 case FLOAT:

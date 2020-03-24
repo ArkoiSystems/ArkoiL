@@ -8,20 +8,26 @@ package com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.LexicalAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.Optional;
 
 public class StringToken extends AbstractToken
 {
     
-    protected StringToken(final LexicalAnalyzer lexicalAnalyzer) {
-        super(lexicalAnalyzer, TokenType.STRING_LITERAL);
+    protected StringToken(@Nullable final LexicalAnalyzer lexicalAnalyzer, final boolean crashOnAccess) {
+        super(lexicalAnalyzer, TokenType.STRING_LITERAL, crashOnAccess);
     }
     
     
+    @NotNull
     @Override
     public Optional<StringToken> parseToken() {
+        Objects.requireNonNull(this.getLexicalAnalyzer());
+        
         if (this.getLexicalAnalyzer().currentChar() != '"') {
             this.addError(
                     this.getLexicalAnalyzer().getArkoiClass(),
@@ -55,14 +61,14 @@ public class StringToken extends AbstractToken
             );
             return Optional.empty();
         }
-    
+        
         this.setTokenContent(new String(Arrays.copyOfRange(this.getLexicalAnalyzer().getArkoiClass().getContent(), this.getStart() + 1, this.getEnd() - 1)).intern());
         this.getLexicalAnalyzer().next();
         return Optional.of(this);
     }
     
     
-    public static StringTokenBuilder builder(final LexicalAnalyzer lexicalAnalyzer) {
+    public static StringTokenBuilder builder(@NotNull final LexicalAnalyzer lexicalAnalyzer) {
         return new StringTokenBuilder(lexicalAnalyzer);
     }
     
@@ -75,16 +81,21 @@ public class StringToken extends AbstractToken
     public static class StringTokenBuilder
     {
         
+        @Nullable
         private final LexicalAnalyzer lexicalAnalyzer;
         
         
+        private boolean crashOnAccess;
+        
+        
+        @Nullable
         private String tokenContent;
         
         
         private int start, end;
         
         
-        public StringTokenBuilder(final LexicalAnalyzer lexicalAnalyzer) {
+        public StringTokenBuilder(@NotNull final LexicalAnalyzer lexicalAnalyzer) {
             this.lexicalAnalyzer = lexicalAnalyzer;
         }
         
@@ -94,7 +105,7 @@ public class StringToken extends AbstractToken
         }
         
         
-        public StringTokenBuilder content(final String tokenContent) {
+        public StringTokenBuilder content(@NotNull final String tokenContent) {
             this.tokenContent = tokenContent;
             return this;
         }
@@ -112,9 +123,16 @@ public class StringToken extends AbstractToken
         }
         
         
+        public StringTokenBuilder crash() {
+            this.crashOnAccess = true;
+            return this;
+        }
+        
+        
         public StringToken build() {
-            final StringToken stringToken = new StringToken(this.lexicalAnalyzer);
-            stringToken.setTokenContent(this.tokenContent);
+            final StringToken stringToken = new StringToken(this.lexicalAnalyzer, this.crashOnAccess);
+            if (this.tokenContent != null)
+                stringToken.setTokenContent(this.tokenContent);
             stringToken.setStart(this.start);
             stringToken.setEnd(this.end);
             return stringToken;

@@ -18,12 +18,16 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.ty
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types.ExpressionSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.AbstractStatementSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
+import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.NonNull;
+import lombok.Setter;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 public class VariableDefinitionSyntaxAST extends AbstractStatementSyntaxAST
@@ -31,33 +35,43 @@ public class VariableDefinitionSyntaxAST extends AbstractStatementSyntaxAST
     
     
     @Getter
-    private final List<AnnotationSyntaxAST> variableAnnotations;
+    @Setter(AccessLevel.PROTECTED)
+    @NotNull
+    private List<AnnotationSyntaxAST> variableAnnotations = new ArrayList<>();
     
     
     @Getter
-    private IdentifierToken variableName;
+    @Setter(AccessLevel.PROTECTED)
+    @NotNull
+    private IdentifierToken variableName = IdentifierToken
+            .builder()
+            .content("Undefined identifier for \"variableName\"")
+            .crash()
+            .build();
     
     
     @Getter
+    @Setter(AccessLevel.PROTECTED)
+    @NotNull
     private ExpressionSyntaxAST variableExpression;
     
     
-    public VariableDefinitionSyntaxAST(final SyntaxAnalyzer syntaxAnalyzer, final List<AnnotationSyntaxAST> variableAnnotations) {
+    public VariableDefinitionSyntaxAST(@Nullable final SyntaxAnalyzer syntaxAnalyzer, @NotNull final List<AnnotationSyntaxAST> variableAnnotations) {
         super(syntaxAnalyzer, ASTType.VARIABLE_DEFINITION);
         
         this.variableAnnotations = variableAnnotations;
     }
     
     
-    public VariableDefinitionSyntaxAST(final SyntaxAnalyzer syntaxAnalyzer) {
+    public VariableDefinitionSyntaxAST(@Nullable final SyntaxAnalyzer syntaxAnalyzer) {
         super(syntaxAnalyzer, ASTType.VARIABLE_DEFINITION);
-        
-        this.variableAnnotations = new ArrayList<>();
     }
     
     
     @Override
-    public Optional<VariableDefinitionSyntaxAST> parseAST(@NonNull final AbstractSyntaxAST parentAST) {
+    public Optional<VariableDefinitionSyntaxAST> parseAST(@NotNull final AbstractSyntaxAST parentAST) {
+        Objects.requireNonNull(this.getSyntaxAnalyzer());
+        
         if (!(parentAST instanceof RootSyntaxAST) && !(parentAST instanceof BlockSyntaxAST)) {
             this.addError(
                     this.getSyntaxAnalyzer().getArkoiClass(),
@@ -126,7 +140,7 @@ public class VariableDefinitionSyntaxAST extends AbstractStatementSyntaxAST
     
     
     @Override
-    public void printSyntaxAST(@NonNull final PrintStream printStream, @NonNull final String indents) {
+    public void printSyntaxAST(@NotNull final PrintStream printStream, @NotNull final String indents) {
         printStream.println(indents + "├── annotations: " + (this.getVariableAnnotations().isEmpty() ? "N/A" : ""));
         for (int index = 0; index < this.getVariableAnnotations().size(); index++) {
             final AnnotationSyntaxAST annotationSyntaxAST = this.getVariableAnnotations().get(index);

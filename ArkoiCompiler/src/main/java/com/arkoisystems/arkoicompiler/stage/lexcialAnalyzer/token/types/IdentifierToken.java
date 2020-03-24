@@ -8,20 +8,27 @@ package com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.LexicalAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
+import lombok.NonNull;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.Optional;
 
 public class IdentifierToken extends AbstractToken
 {
     
-    protected IdentifierToken(final LexicalAnalyzer lexicalAnalyzer) {
-        super(lexicalAnalyzer, TokenType.IDENTIFIER);
+    protected IdentifierToken(@Nullable final LexicalAnalyzer lexicalAnalyzer, final boolean crashOnAccess) {
+        super(lexicalAnalyzer, TokenType.IDENTIFIER, crashOnAccess);
     }
     
     
+    @NotNull
     @Override
     public Optional<IdentifierToken> parseToken() {
+        Objects.requireNonNull(this.getLexicalAnalyzer());
+        
         final char currentChar = this.getLexicalAnalyzer().currentChar();
         if (!Character.isJavaIdentifierStart(currentChar)) {
             this.addError(
@@ -45,7 +52,7 @@ public class IdentifierToken extends AbstractToken
     }
     
     
-    public static IdentifierTokenBuilder builder(final LexicalAnalyzer lexicalAnalyzer) {
+    public static IdentifierTokenBuilder builder(@NotNull final LexicalAnalyzer lexicalAnalyzer) {
         return new IdentifierTokenBuilder(lexicalAnalyzer);
     }
     
@@ -55,27 +62,33 @@ public class IdentifierToken extends AbstractToken
     }
     
     
-    public static class IdentifierTokenBuilder {
+    public static class IdentifierTokenBuilder
+    {
         
+        @Nullable
         private final LexicalAnalyzer lexicalAnalyzer;
-    
         
+        
+        private boolean crashOnAccess;
+        
+        
+        @Nullable
         private String tokenContent;
         
         
         private int start, end;
         
         
-        public IdentifierTokenBuilder(final LexicalAnalyzer lexicalAnalyzer) {
+        public IdentifierTokenBuilder(@NotNull final LexicalAnalyzer lexicalAnalyzer) {
             this.lexicalAnalyzer = lexicalAnalyzer;
         }
-    
+        
         public IdentifierTokenBuilder() {
             this.lexicalAnalyzer = null;
         }
         
         
-        public IdentifierTokenBuilder content(final String tokenContent) {
+        public IdentifierTokenBuilder content(@NonNull final String tokenContent) {
             this.tokenContent = tokenContent;
             return this;
         }
@@ -93,14 +106,21 @@ public class IdentifierToken extends AbstractToken
         }
         
         
+        public IdentifierTokenBuilder crash() {
+            this.crashOnAccess = true;
+            return this;
+        }
+        
+        
         public IdentifierToken build() {
-            final IdentifierToken identifierToken = new IdentifierToken(this.lexicalAnalyzer);
-            identifierToken.setTokenContent(this.tokenContent);
+            final IdentifierToken identifierToken = new IdentifierToken(this.lexicalAnalyzer, this.crashOnAccess);
+            if (this.tokenContent != null)
+                identifierToken.setTokenContent(this.tokenContent);
             identifierToken.setStart(this.start);
             identifierToken.setEnd(this.end);
             return identifierToken;
         }
-    
+        
     }
     
 }

@@ -39,6 +39,9 @@ public enum ASTType
     NUMBER_OPERABLE,
     STRING_OPERABLE,
     
+    OPERABLE,
+    STATEMENT,
+    
     ANNOTATION,
     BLOCK,
     ROOT,

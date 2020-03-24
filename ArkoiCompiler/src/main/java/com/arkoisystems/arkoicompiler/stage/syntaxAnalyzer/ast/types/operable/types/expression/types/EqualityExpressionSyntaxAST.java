@@ -11,9 +11,10 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.Ab
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.AbstractExpressionSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types.utils.EqualityOperatorType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
+import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.NonNull;
 import lombok.Setter;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.PrintStream;
 import java.util.Optional;
@@ -22,21 +23,26 @@ public class EqualityExpressionSyntaxAST extends AbstractExpressionSyntaxAST
 {
     
     @Getter
-    private final AbstractOperableSyntaxAST<?> leftSideOperable;
+    @Setter(AccessLevel.PROTECTED)
+    @NotNull
+    private AbstractOperableSyntaxAST<?> leftSideOperable;
     
     
     @Getter
-    private final EqualityOperatorType equalityOperatorType;
+    @Setter(AccessLevel.PROTECTED)
+    @NotNull
+    private EqualityOperatorType equalityOperatorType;
     
     
     @Getter
-    @Setter
+    @Setter(AccessLevel.PROTECTED)
+    @NotNull
     private AbstractOperableSyntaxAST<?> rightSideOperable;
     
     
-    public EqualityExpressionSyntaxAST(@NonNull final SyntaxAnalyzer syntaxAnalyzer, final AbstractOperableSyntaxAST<?> leftSideOperable, final EqualityOperatorType equalityOperatorType) {
+    public EqualityExpressionSyntaxAST(@NotNull final SyntaxAnalyzer syntaxAnalyzer, @NotNull final AbstractOperableSyntaxAST<?> leftSideOperable, @NotNull final EqualityOperatorType equalityOperatorType) {
         super(syntaxAnalyzer, ASTType.EQUALITY_EXPRESSION);
-    
+        
         this.equalityOperatorType = equalityOperatorType;
         this.leftSideOperable = leftSideOperable;
         
@@ -45,13 +51,13 @@ public class EqualityExpressionSyntaxAST extends AbstractExpressionSyntaxAST
     
     
     @Override
-    public Optional<? extends AbstractOperableSyntaxAST<?>> parseAST(@NonNull final AbstractSyntaxAST parentAST) {
+    public Optional<? extends AbstractOperableSyntaxAST<?>> parseAST(@NotNull final AbstractSyntaxAST parentAST) {
         return Optional.empty();
     }
     
     
     @Override
-    public void printSyntaxAST(@NonNull final PrintStream printStream, @NonNull final String indents) {
+    public void printSyntaxAST(@NotNull final PrintStream printStream, @NotNull final String indents) {
         printStream.println(indents + "├── left:");
         printStream.println(indents + "│   └── " + this.getLeftSideOperable().getClass().getSimpleName());
         this.getLeftSideOperable().printSyntaxAST(printStream, indents + "│       ");

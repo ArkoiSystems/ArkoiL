@@ -14,7 +14,7 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.TypeSyntaxA
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types.ExpressionSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.AbstractStatementSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.parser.AbstractParser;
-import lombok.NonNull;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 
@@ -41,8 +41,9 @@ public class ExpressionParser extends AbstractParser
      * @return {@code null} if an error occurred during the parsing of the {@link
      *         TypeSyntaxAST} or simply returns the parsed result.
      */
+    @NotNull
     @Override
-    public Optional<ExpressionSyntaxAST> parse(@NonNull final AbstractSyntaxAST parentAST, @NonNull final SyntaxAnalyzer syntaxAnalyzer) {
+    public Optional<ExpressionSyntaxAST> parse(@NotNull final AbstractSyntaxAST parentAST, @NotNull final SyntaxAnalyzer syntaxAnalyzer) {
         final Optional<ExpressionSyntaxAST> optionalExpressionSyntaxAST = ExpressionSyntaxAST
                 .builder(syntaxAnalyzer)
                 .build()
@@ -64,11 +65,12 @@ public class ExpressionParser extends AbstractParser
      *         the {@link SyntaxAnalyzer} which is used to call methods like {@link
      *         SyntaxAnalyzer#matchesCurrentToken(TokenType)} etc.
      *
-     * @return {@code false} if the current {@link AbstractToken}s type isn't supported
-     *         or {@code true} if it is.
+     * @return {@code false} if the current {@link AbstractToken}s type isn't supported or
+     *         {@code true} if it is.
      */
+    @NotNull
     @Override
-    public boolean canParse(@NonNull final AbstractSyntaxAST parentAST, @NonNull final SyntaxAnalyzer syntaxAnalyzer) {
+    public boolean canParse(@NotNull final AbstractSyntaxAST parentAST, @NotNull final SyntaxAnalyzer syntaxAnalyzer) {
         switch (syntaxAnalyzer.currentToken().getTokenType()) {
             case STRING_LITERAL:
             case NUMBER_LITERAL:

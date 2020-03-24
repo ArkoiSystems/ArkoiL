@@ -8,22 +8,26 @@ package com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.LexicalAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
-import lombok.Getter;
-import lombok.Setter;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.Optional;
 
 public class NumberToken extends AbstractToken
 {
     
-    protected NumberToken(final LexicalAnalyzer lexicalAnalyzer) {
-        super(lexicalAnalyzer, TokenType.NUMBER_LITERAL);
+    protected NumberToken(@Nullable final LexicalAnalyzer lexicalAnalyzer, final boolean crashOnAccess) {
+        super(lexicalAnalyzer, TokenType.NUMBER_LITERAL, crashOnAccess);
     }
     
     
+    @NotNull
     @Override
     public Optional<NumberToken> parseToken() {
+        Objects.requireNonNull(this.getLexicalAnalyzer());
+        
         if (!Character.isDigit(this.getLexicalAnalyzer().currentChar()) && this.getLexicalAnalyzer().currentChar() != '.') {
             this.addError(
                     this.getLexicalAnalyzer().getArkoiClass(),
@@ -95,7 +99,7 @@ public class NumberToken extends AbstractToken
     }
     
     
-    public static NumberTokenBuilder builder(final LexicalAnalyzer lexicalAnalyzer) {
+    public static NumberTokenBuilder builder(@NotNull final LexicalAnalyzer lexicalAnalyzer) {
         return new NumberTokenBuilder(lexicalAnalyzer);
     }
     
@@ -105,18 +109,24 @@ public class NumberToken extends AbstractToken
     }
     
     
-    public static class NumberTokenBuilder {
+    public static class NumberTokenBuilder
+    {
         
+        @Nullable
         private final LexicalAnalyzer lexicalAnalyzer;
         
         
+        private boolean crashOnAccess;
+        
+        
+        @Nullable
         private String tokenContent;
         
         
         private int start, end;
         
         
-        public NumberTokenBuilder(final LexicalAnalyzer lexicalAnalyzer) {
+        public NumberTokenBuilder(@NotNull final LexicalAnalyzer lexicalAnalyzer) {
             this.lexicalAnalyzer = lexicalAnalyzer;
         }
         
@@ -126,7 +136,7 @@ public class NumberToken extends AbstractToken
         }
         
         
-        public NumberTokenBuilder content(final String tokenContent) {
+        public NumberTokenBuilder content(@NotNull final String tokenContent) {
             this.tokenContent = tokenContent;
             return this;
         }
@@ -144,9 +154,16 @@ public class NumberToken extends AbstractToken
         }
         
         
+        public NumberTokenBuilder crash() {
+            this.crashOnAccess = true;
+            return this;
+        }
+        
+        
         public NumberToken build() {
-            final NumberToken numberToken = new NumberToken(this.lexicalAnalyzer);
-            numberToken.setTokenContent(this.tokenContent);
+            final NumberToken numberToken = new NumberToken(this.lexicalAnalyzer, this.crashOnAccess);
+            if (this.tokenContent != null)
+                numberToken.setTokenContent(this.tokenContent);
             numberToken.setStart(this.start);
             numberToken.setEnd(this.end);
             return numberToken;

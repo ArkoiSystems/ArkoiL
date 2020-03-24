@@ -12,6 +12,7 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.ty
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types.ParenthesizedExpressionSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.PrintStream;
 
@@ -27,7 +28,7 @@ public class ParenthesizedExpressionSemanticAST extends AbstractExpressionSemant
     
     // TODO: Check null safety.
     @Override
-    public void printSemanticAST(final PrintStream printStream, final String indents) {
+    public void printSemanticAST(@NotNull final PrintStream printStream, @NotNull final String indents) {
         printStream.println(indents + "└── operable:");
         printStream.println(indents + "    └── " + this.getParenthesizedExpression().getClass().getSimpleName());
         this.getParenthesizedExpression().printSemanticAST(printStream, indents + "        ");
@@ -42,11 +43,11 @@ public class ParenthesizedExpressionSemanticAST extends AbstractExpressionSemant
     
     
     public AbstractExpressionSemanticAST<?> getParenthesizedExpression() {
-        if(this.parenthesizedExpression == null) {
+        if (this.parenthesizedExpression == null) {
             final ExpressionSyntaxAST expressionSyntaxAST = this.getSyntaxAST().getExpressionSyntaxAST();
             this.parenthesizedExpression
                     = new ExpressionSemanticAST(this.getSemanticAnalyzer(), this.getLastContainerAST(), expressionSyntaxAST);
-            if(this.parenthesizedExpression.getOperableObject() == null)
+            if (this.parenthesizedExpression.getOperableObject() == null)
                 return null;
         }
         return this.parenthesizedExpression;

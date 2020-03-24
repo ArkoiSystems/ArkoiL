@@ -8,18 +8,18 @@ package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.t
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.SymbolType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.TypeSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.AbstractOperableSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.AbstractExpressionSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types.utils.BinaryOperatorType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
 import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.NonNull;
 import lombok.Setter;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.PrintStream;
+import java.util.Objects;
 import java.util.Optional;
 
 @Getter
@@ -28,25 +28,28 @@ public class BinaryExpressionSyntaxAST extends AbstractExpressionSyntaxAST
     
     @Getter
     @Setter(AccessLevel.PROTECTED)
+    @NotNull
     private AbstractOperableSyntaxAST<?> leftSideOperable;
     
     
     @Getter
     @Setter(AccessLevel.PROTECTED)
+    @NotNull
     private BinaryOperatorType binaryOperatorType;
     
     
     @Getter
     @Setter(AccessLevel.PROTECTED)
+    @NotNull
     private AbstractOperableSyntaxAST<?> rightSideOperable;
     
     
-    protected BinaryExpressionSyntaxAST(@NonNull final SyntaxAnalyzer syntaxAnalyzer) {
+    protected BinaryExpressionSyntaxAST(@Nullable final SyntaxAnalyzer syntaxAnalyzer) {
         super(syntaxAnalyzer, ASTType.BINARY_EXPRESSION);
     }
     
     
-    public BinaryExpressionSyntaxAST(@NonNull final SyntaxAnalyzer syntaxAnalyzer, @NonNull final AbstractOperableSyntaxAST<?> leftSideOperable, @NonNull final BinaryOperatorType binaryOperatorType) {
+    public BinaryExpressionSyntaxAST(@Nullable final SyntaxAnalyzer syntaxAnalyzer, @NotNull final AbstractOperableSyntaxAST<?> leftSideOperable, @NotNull final BinaryOperatorType binaryOperatorType) {
         super(syntaxAnalyzer, ASTType.BINARY_EXPRESSION);
         
         this.binaryOperatorType = binaryOperatorType;
@@ -57,7 +60,9 @@ public class BinaryExpressionSyntaxAST extends AbstractExpressionSyntaxAST
     
     
     @Override
-    public Optional<? extends AbstractOperableSyntaxAST<?>> parseAST(@NonNull final AbstractSyntaxAST parentAST) {
+    public Optional<? extends AbstractOperableSyntaxAST<?>> parseAST(@NotNull final AbstractSyntaxAST parentAST) {
+        Objects.requireNonNull(this.getSyntaxAnalyzer());
+        
         if (this.getBinaryOperatorType() == BinaryOperatorType.ADDITION) {
             if (this.getSyntaxAnalyzer().matchesPeekToken(1, SymbolType.PLUS) == null) {
                 this.addError(
@@ -120,8 +125,8 @@ public class BinaryExpressionSyntaxAST extends AbstractExpressionSyntaxAST
             }
         }
         this.getSyntaxAnalyzer().nextToken();
-    
-        if(this.getBinaryOperatorType() == BinaryOperatorType.EXPONENTIAL) {
+        
+        if (this.getBinaryOperatorType() == BinaryOperatorType.EXPONENTIAL) {
             if (this.getSyntaxAnalyzer().matchesPeekToken(1, SymbolType.ASTERISK, false) == null) {
                 this.addError(
                         this.getSyntaxAnalyzer().getArkoiClass(),
@@ -155,7 +160,7 @@ public class BinaryExpressionSyntaxAST extends AbstractExpressionSyntaxAST
     
     
     @Override
-    public void printSyntaxAST(@NonNull final PrintStream printStream, @NonNull final String indents) {
+    public void printSyntaxAST(@NotNull final PrintStream printStream, @NotNull final String indents) {
         printStream.println(indents + "├── left:");
         printStream.println(indents + "│   └── " + this.getLeftSideOperable().getClass().getSimpleName());
         this.getLeftSideOperable().printSyntaxAST(printStream, indents + "│        ");
@@ -166,7 +171,7 @@ public class BinaryExpressionSyntaxAST extends AbstractExpressionSyntaxAST
     }
     
     
-    public static BinaryExpressionSyntaxASTBuilder builder(final SyntaxAnalyzer syntaxAnalyzer) {
+    public static BinaryExpressionSyntaxASTBuilder builder(@NotNull final SyntaxAnalyzer syntaxAnalyzer) {
         return new BinaryExpressionSyntaxASTBuilder(syntaxAnalyzer);
     }
     
@@ -176,24 +181,29 @@ public class BinaryExpressionSyntaxAST extends AbstractExpressionSyntaxAST
     }
     
     
-    public static class BinaryExpressionSyntaxASTBuilder {
+    public static class BinaryExpressionSyntaxASTBuilder
+    {
         
+        @Nullable
         private final SyntaxAnalyzer syntaxAnalyzer;
-    
-    
+        
+        
+        @Nullable
         private AbstractOperableSyntaxAST<?> leftSideOperable;
-    
-    
+        
+        
+        @Nullable
         private BinaryOperatorType binaryOperatorType;
-    
-    
+        
+        
+        @Nullable
         private AbstractOperableSyntaxAST<?> rightSideOperable;
         
         
         private int start, end;
         
         
-        public BinaryExpressionSyntaxASTBuilder(SyntaxAnalyzer syntaxAnalyzer) {
+        public BinaryExpressionSyntaxASTBuilder(@NotNull final SyntaxAnalyzer syntaxAnalyzer) {
             this.syntaxAnalyzer = syntaxAnalyzer;
         }
         
@@ -203,19 +213,19 @@ public class BinaryExpressionSyntaxAST extends AbstractExpressionSyntaxAST
         }
         
         
-        public BinaryExpressionSyntaxASTBuilder left(final AbstractOperableSyntaxAST<?> leftSideOperable) {
+        public BinaryExpressionSyntaxASTBuilder left(@NotNull final AbstractOperableSyntaxAST<?> leftSideOperable) {
             this.leftSideOperable = leftSideOperable;
             return this;
         }
-    
-    
-        public BinaryExpressionSyntaxASTBuilder operator(final BinaryOperatorType binaryOperatorType) {
+        
+        
+        public BinaryExpressionSyntaxASTBuilder operator(@NotNull final BinaryOperatorType binaryOperatorType) {
             this.binaryOperatorType = binaryOperatorType;
             return this;
         }
         
         
-        public BinaryExpressionSyntaxASTBuilder right(final AbstractOperableSyntaxAST<?> rightSideOperable) {
+        public BinaryExpressionSyntaxASTBuilder right(@NotNull final AbstractOperableSyntaxAST<?> rightSideOperable) {
             this.rightSideOperable = rightSideOperable;
             return this;
         }
@@ -235,9 +245,12 @@ public class BinaryExpressionSyntaxAST extends AbstractExpressionSyntaxAST
         
         public BinaryExpressionSyntaxAST build() {
             final BinaryExpressionSyntaxAST binaryExpressionSyntaxAST = new BinaryExpressionSyntaxAST(this.syntaxAnalyzer);
-            binaryExpressionSyntaxAST.setBinaryOperatorType(this.binaryOperatorType);
-            binaryExpressionSyntaxAST.setRightSideOperable(this.rightSideOperable);
-            binaryExpressionSyntaxAST.setLeftSideOperable(this.leftSideOperable);
+            if (this.binaryOperatorType != null)
+                binaryExpressionSyntaxAST.setBinaryOperatorType(this.binaryOperatorType);
+            if (this.rightSideOperable != null)
+                binaryExpressionSyntaxAST.setRightSideOperable(this.rightSideOperable);
+            if (this.leftSideOperable != null)
+                binaryExpressionSyntaxAST.setLeftSideOperable(this.leftSideOperable);
             binaryExpressionSyntaxAST.setStart(this.start);
             binaryExpressionSyntaxAST.setEnd(this.end);
             return binaryExpressionSyntaxAST;

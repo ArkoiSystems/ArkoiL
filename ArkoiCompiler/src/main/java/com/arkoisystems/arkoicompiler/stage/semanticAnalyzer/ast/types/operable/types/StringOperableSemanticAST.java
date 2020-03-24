@@ -10,9 +10,9 @@ import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.SemanticAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.SemanticErrorType;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.AbstractSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.AbstractOperableSemanticAST;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.StringOperableSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.PrintStream;
 
@@ -26,14 +26,14 @@ public class StringOperableSemanticAST extends AbstractOperableSemanticAST<Strin
     
     // TODO: Check for null safety.
     @Override
-    public void printSemanticAST(final PrintStream printStream, final String indents) {
+    public void printSemanticAST(@NotNull final PrintStream printStream, @NotNull final String indents) {
         printStream.println(indents + "└── operable: " + this.getOperableObject().getTokenContent());
     }
     
     
     @Override
     public StringToken getOperableObject() {
-        if(this.getSyntaxAST().getStringToken() == null) {
+        if (this.getSyntaxAST().getStringToken() == null) {
             this.addError(
                     this.getSemanticAnalyzer().getArkoiClass(), this.getSyntaxAST(), SemanticErrorType.STRING_NO_OPERABLE
             );

@@ -12,6 +12,7 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.RootSyntaxA
 import com.arkoisystems.arkoicompiler.utils.FileUtils;
 import lombok.Getter;
 import lombok.NonNull;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
@@ -36,7 +37,8 @@ public class ArkoiCompiler
      * inside it.
      */
     @Getter
-    private final HashMap<String, ArkoiClass> arkoiClasses;
+    @NonNull
+    private final HashMap<String, ArkoiClass> arkoiClasses = new HashMap<>();
     
     
     /**
@@ -44,6 +46,7 @@ public class ArkoiCompiler
      * workstation of the compiler.
      */
     @Getter
+    @NonNull
     private final String workingDirectory;
     
     
@@ -59,10 +62,9 @@ public class ArkoiCompiler
      * @throws IOException
      *         if something with the natives went wrong.
      */
-    public ArkoiCompiler(@NonNull final String workingDirectory) throws IOException {
+    public ArkoiCompiler(@NotNull final String workingDirectory) throws IOException {
         this.workingDirectory = workingDirectory;
-        this.arkoiClasses = new HashMap<>();
-    
+        
         this.addNativeFiles();
     }
     
@@ -77,7 +79,7 @@ public class ArkoiCompiler
      * @throws IOException
      *         if something went wrong during the reading of all bytes inside the file.
      */
-    public void addFile(@NonNull final File file) throws IOException {
+    public void addFile(@NotNull final File file) throws IOException {
         this.getArkoiClasses().put(file.getCanonicalPath(), new ArkoiClass(this, file.getCanonicalPath(), Files.readAllBytes(file.toPath())));
     }
     
@@ -89,7 +91,7 @@ public class ArkoiCompiler
      * @param arkoiClass
      *         the {@link ArkoiClass} which should get added to the map.
      */
-    public void addClass(@NonNull final ArkoiClass arkoiClass) {
+    public void addClass(@NotNull final ArkoiClass arkoiClass) {
         this.getArkoiClasses().put(arkoiClass.getFilePath(), arkoiClass);
     }
     
@@ -101,7 +103,7 @@ public class ArkoiCompiler
      * @param errorStream
      *         the {@link PrintStream} which is used to print the StackTrace.
      */
-    public void printStackTrace(@NonNull final PrintStream errorStream) {
+    public void printStackTrace(@NotNull final PrintStream errorStream) {
         for (final Map.Entry<String, ArkoiClass> classEntry : this.getArkoiClasses().entrySet()) {
             if (classEntry.getValue().getLexicalAnalyzer() != null)
                 classEntry.getValue().getLexicalAnalyzer().getErrorHandler().printStackTrace(errorStream, false);
@@ -129,14 +131,14 @@ public class ArkoiCompiler
                     return false;
             }
             System.out.printf("The lexical analysis took %sms for all classes (%s in total)\n", (System.nanoTime() - lexicalStart) / 1_000_000D, this.arkoiClasses.size());
-        
+            
             final long syntaxStart = System.nanoTime();
             for (final ArkoiClass arkoiClass : this.getArkoiClasses().values()) {
                 if (!arkoiClass.getSyntaxAnalyzer().processStage())
                     return false;
             }
             System.out.printf("The syntax analysis took %sms for all classes (%s in total)\n", (System.nanoTime() - syntaxStart) / 1_000_000D, this.getArkoiClasses().size());
-        
+            
             final long semanticStart = System.nanoTime();
             for (final ArkoiClass arkoiClass : this.getArkoiClasses().values()) {
                 if (!arkoiClass.getSemanticAnalyzer().processStage())
@@ -181,11 +183,11 @@ public class ArkoiCompiler
      * @return the found {@link FunctionDefinitionSemanticAST} or null if there doesn't
      *         exists any native functions with the same description.
      */
-    public FunctionDefinitionSemanticAST findNativeSemanticFunction(@NonNull final String functionDescription) {
+    public FunctionDefinitionSemanticAST findNativeSemanticFunction(@NotNull final String functionDescription) {
         for (final ArkoiClass arkoiClass : this.getArkoiClasses().values()) {
             if (!arkoiClass.isNativeClass())
                 continue;
-    
+            
             for (final FunctionDefinitionSemanticAST functionDefinitionSemanticAST : arkoiClass.getSemanticAnalyzer().getRootSemanticAST().getFunctionStorage()) {
                 if (functionDefinitionSemanticAST.getFunctionDescription().equals(functionDescription) && functionDefinitionSemanticAST.getSyntaxAST().hasAnnotation("native"))
                     return functionDefinitionSemanticAST;
@@ -203,7 +205,7 @@ public class ArkoiCompiler
      * @param printStream
      *         the {@link PrintStream} in which all data should get written in.
      */
-    public void printSyntaxTree(@NonNull final PrintStream printStream) {
+    public void printSyntaxTree(@NotNull final PrintStream printStream) {
         final List<RootSyntaxAST> roots = new ArrayList<>();
         for (final ArkoiClass arkoiClass : this.getArkoiClasses().values()) {
             if (arkoiClass.getSyntaxAnalyzer() != null)

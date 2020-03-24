@@ -13,12 +13,13 @@ import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.types.expression.AbstractExpressionSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.AbstractOperableSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.NumberOperableSyntaxAST;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types.utils.CastOperatorType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types.CastExpressionSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types.ParenthesizedExpressionSyntaxAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types.utils.CastOperatorType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
 import lombok.Setter;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.PrintStream;
 
@@ -38,7 +39,7 @@ public class CastExpressionSemanticAST extends AbstractExpressionSemanticAST<Cas
     
     // TODO: Check null safety.
     @Override
-    public void printSemanticAST(final PrintStream printStream, final String indents) {
+    public void printSemanticAST(@NotNull final PrintStream printStream, @NotNull final String indents) {
         printStream.println(indents + "├── left:");
         printStream.println(indents + "│   └── " + this.getLeftSideOperable().getClass().getSimpleName());
         this.getLeftSideOperable().printSemanticAST(printStream, indents + "│       ");
@@ -55,7 +56,7 @@ public class CastExpressionSemanticAST extends AbstractExpressionSemanticAST<Cas
                 return null;
             
             final TypeKind typeKind = TypeKind.getTypeKind(this.getCastOperatorType());
-            if(this.getLeftSideOperable() instanceof NumberOperableSemanticAST) {
+            if (this.getLeftSideOperable() instanceof NumberOperableSemanticAST) {
                 final NumberOperableSemanticAST numberOperableSemanticAST = (NumberOperableSemanticAST) this.getLeftSideOperable();
                 numberOperableSemanticAST.setOperableType(typeKind);
             }

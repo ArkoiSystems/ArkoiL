@@ -33,7 +33,7 @@ public class SemanticErrorType
     public static final String BINARY_MULTIPLICATION_OPERABLE_NOT_SUPPORTED = "The operable isn't supported by the binary multiplication operator:";
     public static final String BINARY_DIVISION_OPERABLE_NOT_SUPPORTED = "The operable isn't supported by the binary division operator:";
     public static final String BINARY_MODULO_OPERABLE_NOT_SUPPORTED = "The operable isn't supported by the binary modular operator:";
-    public static final String BINARY_EXPONENTIAL_NOT_SUPPORTED =  "The operable isn't supported by the binary exponential operator:";
+    public static final String BINARY_EXPONENTIAL_NOT_SUPPORTED = "The operable isn't supported by the binary exponential operator:";
     public static final String BINARY_EXPONENTIAL_OPERABLE_NOT_SUPPORTED = "The operable isn't supported by the binary division operator:";
     
     public static final String ASSIGN_ASSIGNMENT_NOT_SUPPORTED = "Assignment isn't supported by these operable.";

@@ -5,7 +5,7 @@
  */
 package com.arkoisystems.arkoicompiler.utils;
 
-import lombok.NonNull;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -29,7 +29,7 @@ public class FileUtils
      *
      * @return a list of all files without the directories.
      */
-    public static List<File> getAllFiles(@NonNull final File directory) {
+    public static List<File> getAllFiles(@NotNull final File directory) {
         if (!directory.isDirectory())
             throw new NullPointerException("Couldn't get all files out of this directory, because it isn't a directory.");
         

@@ -16,10 +16,11 @@ import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.types.expression.AbstractExpressionSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.AbstractOperableSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.NumberOperableSyntaxAST;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types.utils.PrefixOperatorType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types.PrefixExpressionSyntaxAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types.utils.PrefixOperatorType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.PrintStream;
 
@@ -38,7 +39,7 @@ public class PrefixExpressionSemanticAST extends AbstractExpressionSemanticAST<P
     
     // TODO: Check null safety.
     @Override
-    public void printSemanticAST(final PrintStream printStream, final String indents) {
+    public void printSemanticAST(@NotNull final PrintStream printStream, @NotNull final String indents) {
         printStream.println(indents + "├── operator: " + this.getPrefixOperatorType());
         printStream.println(indents + "└── right:");
         printStream.println(indents + "    └── " + this.getRightSideOperable().getClass().getSimpleName());
@@ -94,7 +95,7 @@ public class PrefixExpressionSemanticAST extends AbstractExpressionSemanticAST<P
             final NumberOperableSyntaxAST numberOperableSyntaxAST = (NumberOperableSyntaxAST) abstractOperableSyntaxAST;
             final NumberOperableSemanticAST numberOperableSemanticAST
                     = new NumberOperableSemanticAST(this.getSemanticAnalyzer(), this.getLastContainerAST(), numberOperableSyntaxAST);
-        
+
             if (numberOperableSemanticAST.getOperableObject() == null)
                 return null;
             return numberOperableSemanticAST;
@@ -102,7 +103,7 @@ public class PrefixExpressionSemanticAST extends AbstractExpressionSemanticAST<P
             final PrefixExpressionSyntaxAST prefixExpressionSyntaxAST = (PrefixExpressionSyntaxAST) abstractOperableSyntaxAST;
             final PrefixExpressionSemanticAST prefixExpressionSemanticAST
                     = new PrefixExpressionSemanticAST(this.getSemanticAnalyzer(), this.getLastContainerAST(), prefixExpressionSyntaxAST);
-        
+
             if (prefixExpressionSemanticAST.getOperableObject() == null)
                 return null;
             return prefixExpressionSemanticAST;
@@ -242,7 +243,7 @@ public class PrefixExpressionSemanticAST extends AbstractExpressionSemanticAST<P
             final PrefixExpressionSemanticAST prefixExpressionSemanticAST = (PrefixExpressionSemanticAST) abstractOperableSemanticAST;
             if (prefixExpressionSemanticAST.getOperableObject() == null)
                 return null;
-    
+
             switch (prefixExpressionSemanticAST.getOperableObject()) {
                 case BYTE:
                 case FLOAT:

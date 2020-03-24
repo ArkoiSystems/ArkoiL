@@ -15,7 +15,9 @@ import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.SymbolTy
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.SneakyThrows;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,7 +33,11 @@ public class LexicalAnalyzer extends AbstractStage
      * This {@link Runnable} defines an error routine, when a token couldn't be parsed.
      */
     @Getter
-    private final Runnable errorRoutine;
+    @NotNull
+    private final Runnable errorRoutine = () -> {
+        this.failed();
+        this.next();
+    };
     
     
     /**
@@ -39,6 +45,7 @@ public class LexicalAnalyzer extends AbstractStage
      * created.
      */
     @Getter
+    @NonNull
     private final ArkoiClass arkoiClass;
     
     
@@ -47,7 +54,8 @@ public class LexicalAnalyzer extends AbstractStage
      * the input content.
      */
     @Getter
-    private final LexicalErrorHandler errorHandler;
+    @NotNull
+    private final LexicalErrorHandler errorHandler = new LexicalErrorHandler();
     
     
     /**
@@ -56,7 +64,8 @@ public class LexicalAnalyzer extends AbstractStage
      * SyntaxAnalyzer#matchesNextToken(SymbolType)}.
      */
     @Getter
-    private AbstractToken[] tokens;
+    @NotNull
+    private AbstractToken[] tokens = new AbstractToken[0];
     
     
     /**
@@ -75,14 +84,8 @@ public class LexicalAnalyzer extends AbstractStage
      *         the {@link ArkoiClass} in which the {@link LexicalAnalyzer} gets
      *         constructed.
      */
-    public LexicalAnalyzer(final ArkoiClass arkoiClass) {
+    public LexicalAnalyzer(@NotNull final ArkoiClass arkoiClass) {
         this.arkoiClass = arkoiClass;
-    
-        this.errorHandler = new LexicalErrorHandler();
-        this.errorRoutine = () -> {
-            this.failed();
-            this.next();
-        };
     }
     
     
@@ -167,6 +170,7 @@ public class LexicalAnalyzer extends AbstractStage
      *
      * @return the {@link LexicalErrorHandler} which got created in the constructor.
      */
+    @NotNull
     @Override
     public LexicalErrorHandler errorHandler() {
         return this.errorHandler;
@@ -184,6 +188,7 @@ public class LexicalAnalyzer extends AbstractStage
      *
      * @return an array full of {@link TokenType}s.
      */
+    @NotNull
     public TokenType[] getTokenTypes(final boolean whitespaces) {
         final List<TokenType> tokenTypes = new ArrayList<>();
         for (final AbstractToken abstractToken : this.getTokens()) {
@@ -231,9 +236,9 @@ public class LexicalAnalyzer extends AbstractStage
      * #position}.
      *
      * @param offset
-     *         the offset which is used added to the current position {@link
-     *         #position}. Keep in mind, that it won't change the position and just
-     *         returns the peeked token.
+     *         the offset which is used added to the current position {@link #position}.
+     *         Keep in mind, that it won't change the position and just returns the peeked
+     *         token.
      *
      * @return the peeked token if it didn't went out of bounds. If it did, it will return
      *         the last possible char in the {@link ArkoiClass#getContent()} array.

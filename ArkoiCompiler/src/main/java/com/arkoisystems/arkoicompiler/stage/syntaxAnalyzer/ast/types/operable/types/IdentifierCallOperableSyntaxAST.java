@@ -11,32 +11,44 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxErrorType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.AbstractOperableSyntaxAST;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTAccess;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
+import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.NonNull;
 import lombok.Setter;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.PrintStream;
+import java.util.Objects;
 import java.util.Optional;
 
 public class IdentifierCallOperableSyntaxAST extends AbstractOperableSyntaxAST<TypeKind>
 {
     
     @Getter
-    @Setter
-    private ASTAccess identifierAccess;
+    @Setter(AccessLevel.PROTECTED)
+    private boolean fileLocal;
     
     
     @Getter
-    private IdentifierToken calledIdentifier;
+    @Setter(AccessLevel.PROTECTED)
+    @NotNull
+    private IdentifierToken calledIdentifier = IdentifierToken
+            .builder()
+            .content("Unresolved identifier for \"calledIdentifier\"")
+            .crash()
+            .build();
     
     
-    public IdentifierCallOperableSyntaxAST(final SyntaxAnalyzer syntaxAnalyzer) {
+    @Getter
+    @Setter(AccessLevel.PROTECTED)
+    @Nullable
+    private FunctionCallPartSyntaxAST calledFunctionPart;
+    
+    
+    public IdentifierCallOperableSyntaxAST(@Nullable final SyntaxAnalyzer syntaxAnalyzer) {
         super(syntaxAnalyzer, ASTType.IDENTIFIER_CALL_OPERABLE);
-        
-        this.identifierAccess = ASTAccess.GLOBAL_ACCESS;
     }
     
     
@@ -53,7 +65,9 @@ public class IdentifierCallOperableSyntaxAST extends AbstractOperableSyntaxAST<T
      *         if it parsed until to the end.
      */
     @Override
-    public Optional<IdentifierCallOperableSyntaxAST> parseAST(@NonNull final AbstractSyntaxAST parentAST) {
+    public Optional<IdentifierCallOperableSyntaxAST> parseAST(@NotNull final AbstractSyntaxAST parentAST) {
+        Objects.requireNonNull(this.getSyntaxAnalyzer());
+        
         if (this.getSyntaxAnalyzer().matchesCurrentToken(TokenType.IDENTIFIER) == null) {
             this.addError(
                     this.getSyntaxAnalyzer().getArkoiClass(),
@@ -64,15 +78,15 @@ public class IdentifierCallOperableSyntaxAST extends AbstractOperableSyntaxAST<T
         }
         
         this.calledIdentifier = (IdentifierToken) this.getSyntaxAnalyzer().currentToken();
-        this.setStart(this.getCalledIdentifier().getStart());
-        this.setEnd(this.getCalledIdentifier().getEnd());
+        this.setStart(this.calledIdentifier.getStart());
+        this.setEnd(this.calledIdentifier.getEnd());
         return Optional.of(this);
     }
     
     
     @Override
-    public void printSyntaxAST(@NonNull final PrintStream printStream, @NonNull final String indents) {
-        printStream.println(indents + "├── access: " + this.getIdentifierAccess());
+    public void printSyntaxAST(@NotNull final PrintStream printStream, @NotNull final String indents) {
+        printStream.println(indents + "├── fileLocal: " + this.isFileLocal());
         printStream.println(indents + "└── identifier: " + this.getCalledIdentifier().getTokenContent());
     }
     

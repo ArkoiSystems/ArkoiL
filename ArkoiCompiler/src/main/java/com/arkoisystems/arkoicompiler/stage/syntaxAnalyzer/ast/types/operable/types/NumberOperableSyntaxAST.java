@@ -6,7 +6,6 @@
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types;
 
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.NumberToken;
-import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.StringToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxErrorType;
@@ -16,10 +15,12 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
 import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.NonNull;
 import lombok.Setter;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.PrintStream;
+import java.util.Objects;
 import java.util.Optional;
 
 public class NumberOperableSyntaxAST extends AbstractOperableSyntaxAST<TypeKind>
@@ -27,16 +28,23 @@ public class NumberOperableSyntaxAST extends AbstractOperableSyntaxAST<TypeKind>
     
     @Getter
     @Setter(AccessLevel.PROTECTED)
-    private NumberToken numberToken;
+    @NotNull
+    private NumberToken numberToken = NumberToken
+            .builder()
+            .content("Undefined number for \"numberToken\"")
+            .crash()
+            .build();
     
     
-    protected NumberOperableSyntaxAST(final SyntaxAnalyzer syntaxAnalyzer) {
+    protected NumberOperableSyntaxAST(@Nullable final SyntaxAnalyzer syntaxAnalyzer) {
         super(syntaxAnalyzer, ASTType.NUMBER_OPERABLE);
     }
     
     
     @Override
-    public Optional<NumberOperableSyntaxAST> parseAST(@NonNull final AbstractSyntaxAST parentAST) {
+    public Optional<NumberOperableSyntaxAST> parseAST(@NotNull final AbstractSyntaxAST parentAST) {
+        Objects.requireNonNull(this.getSyntaxAnalyzer());
+        
         if (this.getSyntaxAnalyzer().matchesCurrentToken(TokenType.NUMBER_LITERAL) == null) {
             this.addError(
                     this.getSyntaxAnalyzer().getArkoiClass(),
@@ -54,12 +62,12 @@ public class NumberOperableSyntaxAST extends AbstractOperableSyntaxAST<TypeKind>
     
     
     @Override
-    public void printSyntaxAST(@NonNull final PrintStream printStream, @NonNull final String indents) {
+    public void printSyntaxAST(@NotNull final PrintStream printStream, @NotNull final String indents) {
         printStream.println(indents + "└── operable: " + this.getNumberToken().getTokenContent());
     }
     
     
-    public static NumberOperableSyntaxASTBuilder builder(final SyntaxAnalyzer syntaxAnalyzer) {
+    public static NumberOperableSyntaxASTBuilder builder(@NotNull final SyntaxAnalyzer syntaxAnalyzer) {
         return new NumberOperableSyntaxASTBuilder(syntaxAnalyzer);
     }
     
@@ -69,18 +77,21 @@ public class NumberOperableSyntaxAST extends AbstractOperableSyntaxAST<TypeKind>
     }
     
     
-    public static class NumberOperableSyntaxASTBuilder {
+    public static class NumberOperableSyntaxASTBuilder
+    {
         
+        @Nullable
         private final SyntaxAnalyzer syntaxAnalyzer;
         
         
+        @Nullable
         private NumberToken numberToken;
         
         
         private int start, end;
         
         
-        public NumberOperableSyntaxASTBuilder(SyntaxAnalyzer syntaxAnalyzer) {
+        public NumberOperableSyntaxASTBuilder(@NotNull final SyntaxAnalyzer syntaxAnalyzer) {
             this.syntaxAnalyzer = syntaxAnalyzer;
         }
         
@@ -90,7 +101,7 @@ public class NumberOperableSyntaxAST extends AbstractOperableSyntaxAST<TypeKind>
         }
         
         
-        public NumberOperableSyntaxASTBuilder literal(final NumberToken numberToken) {
+        public NumberOperableSyntaxASTBuilder literal(@NotNull final NumberToken numberToken) {
             this.numberToken = numberToken;
             return this;
         }
@@ -110,7 +121,8 @@ public class NumberOperableSyntaxAST extends AbstractOperableSyntaxAST<TypeKind>
         
         public NumberOperableSyntaxAST build() {
             final NumberOperableSyntaxAST numberOperableSyntaxAST = new NumberOperableSyntaxAST(this.syntaxAnalyzer);
-            numberOperableSyntaxAST.setNumberToken(this.numberToken);
+            if (this.numberToken != null)
+                numberOperableSyntaxAST.setNumberToken(this.numberToken);
             numberOperableSyntaxAST.setStart(this.start);
             numberOperableSyntaxAST.setEnd(this.end);
             return numberOperableSyntaxAST;

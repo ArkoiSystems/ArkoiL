@@ -10,6 +10,7 @@ import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.AbstractSemanti
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.TypeSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.PrintStream;
 
@@ -22,7 +23,7 @@ public class TypeSemanticAST extends AbstractSemanticAST<TypeSyntaxAST>
     
     
     @Override
-    public void printSemanticAST(final PrintStream printStream, final String indents) { }
+    public void printSemanticAST(@NotNull final PrintStream printStream, @NotNull final String indents) { }
     
     
     public boolean isArray() {

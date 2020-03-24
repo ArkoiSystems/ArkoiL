@@ -15,30 +15,46 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.RootSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.AbstractStatementSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
+import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.NonNull;
+import lombok.Setter;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.PrintStream;
+import java.util.Objects;
 import java.util.Optional;
 
 public class ImportDefinitionSyntaxAST extends AbstractStatementSyntaxAST
 {
     
     @Getter
-    private StringToken importFilePath;
+    @Setter(AccessLevel.PROTECTED)
+    private StringToken importFilePath = StringToken
+            .builder()
+            .content("Undefined string for \"importFilePath\"")
+            .crash()
+            .build();
     
     
     @Getter
-    private IdentifierToken importName;
+    @Setter(AccessLevel.PROTECTED)
+    private IdentifierToken importName = IdentifierToken
+            .builder()
+            .content("Undefined identifier for \"importName\"")
+            .crash()
+            .build();
     
     
-    public ImportDefinitionSyntaxAST(final SyntaxAnalyzer syntaxAnalyzer) {
+    public ImportDefinitionSyntaxAST(@Nullable final SyntaxAnalyzer syntaxAnalyzer) {
         super(syntaxAnalyzer, ASTType.IMPORT_DEFINITION);
     }
     
     
     @Override
-    public Optional<ImportDefinitionSyntaxAST> parseAST(@NonNull final AbstractSyntaxAST parentAST) {
+    public Optional<ImportDefinitionSyntaxAST> parseAST(@NotNull final AbstractSyntaxAST parentAST) {
+        Objects.requireNonNull(this.getSyntaxAnalyzer());
+        
         if (!(parentAST instanceof RootSyntaxAST)) {
             this.addError(
                     this.getSyntaxAnalyzer().getArkoiClass(),
@@ -57,7 +73,7 @@ public class ImportDefinitionSyntaxAST extends AbstractStatementSyntaxAST
             return Optional.empty();
         }
         this.setStart(this.getSyntaxAnalyzer().currentToken().getStart());
-    
+        
         if (this.getSyntaxAnalyzer().matchesNextToken(TokenType.STRING_LITERAL) == null) {
             this.addError(
                     this.getSyntaxAnalyzer().getArkoiClass(),
@@ -71,7 +87,7 @@ public class ImportDefinitionSyntaxAST extends AbstractStatementSyntaxAST
         if (this.importFilePath.getTokenContent().endsWith(".ark"))
             this.importFilePath.setTokenContent(this.importFilePath.getTokenContent().substring(0, this.importFilePath.getTokenContent().length() - 4));
         this.getSyntaxAnalyzer().nextToken();
-    
+        
         if (this.getSyntaxAnalyzer().matchesCurrentToken(TokenType.IDENTIFIER) != null && this.getSyntaxAnalyzer().currentToken().getTokenContent().equals("as")) {
             if (this.getSyntaxAnalyzer().matchesNextToken(TokenType.IDENTIFIER) == null) {
                 this.addError(
@@ -107,7 +123,7 @@ public class ImportDefinitionSyntaxAST extends AbstractStatementSyntaxAST
     
     
     @Override
-    public void printSyntaxAST(@NonNull final PrintStream printStream, @NonNull final String indents) {
+    public void printSyntaxAST(@NotNull final PrintStream printStream, @NotNull final String indents) {
         printStream.println(indents + "├── name: " + this.getImportName().getTokenContent());
         printStream.println(indents + "└── path: " + this.getImportFilePath().getTokenContent());
     }

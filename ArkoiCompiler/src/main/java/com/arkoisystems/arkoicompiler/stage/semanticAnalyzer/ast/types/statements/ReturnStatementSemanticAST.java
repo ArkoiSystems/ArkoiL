@@ -10,6 +10,7 @@ import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.AbstractSemanti
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.types.expression.types.ExpressionSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.types.ReturnStatementSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.PrintStream;
 
@@ -26,14 +27,14 @@ public class ReturnStatementSemanticAST extends AbstractSemanticAST<ReturnStatem
     
     // TODO: Check for null safety.
     @Override
-    public void printSemanticAST(final PrintStream printStream, final String indents) {
+    public void printSemanticAST(@NotNull final PrintStream printStream, @NotNull final String indents) {
         printStream.println(indents + "└── expression:");
         this.getReturnExpression().printSemanticAST(printStream, indents + "    ");
     }
     
     
     public ExpressionSemanticAST getReturnExpression() {
-        if(this.returnExpression == null) {
+        if (this.returnExpression == null) {
             this.returnExpression
                     = new ExpressionSemanticAST(this.getSemanticAnalyzer(), this.getLastContainerAST(), this.getSyntaxAST().getReturnExpression());
 

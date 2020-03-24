@@ -12,7 +12,10 @@ import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenTyp
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
+import java.util.Objects;
 import java.util.Optional;
 
 public class SymbolToken extends AbstractToken
@@ -20,26 +23,31 @@ public class SymbolToken extends AbstractToken
     
     @Getter
     @Setter(AccessLevel.PROTECTED)
+    @NotNull
     private SymbolType symbolType;
     
     
-    protected SymbolToken(final LexicalAnalyzer lexicalAnalyzer) {
-        super(lexicalAnalyzer, TokenType.SYMBOL);
+    protected SymbolToken(@Nullable final LexicalAnalyzer lexicalAnalyzer, final boolean crashOnAccess) {
+        super(lexicalAnalyzer, TokenType.SYMBOL, crashOnAccess);
     }
     
     
+    @NotNull
     @Override
     public Optional<SymbolToken> parseToken() {
+        Objects.requireNonNull(this.getLexicalAnalyzer());
+        
         final char currentChar = this.getLexicalAnalyzer().currentChar();
         this.setTokenContent(String.valueOf(currentChar));
         
-        for (final SymbolType symbolType : SymbolType.values())
-            if (symbolType.getCharacter() == currentChar) {
-                this.setSymbolType(symbolType);
+        SymbolType symbolType = null;
+        for (final SymbolType type : SymbolType.values())
+            if (type.getCharacter() == currentChar) {
+                symbolType = type;
                 break;
             }
         
-        if (this.getSymbolType() == null) {
+        if (symbolType == null) {
             this.addError(
                     this.getLexicalAnalyzer().getArkoiClass(),
                     this.getLexicalAnalyzer().getPosition(),
@@ -47,6 +55,7 @@ public class SymbolToken extends AbstractToken
             );
             return Optional.empty();
         } else {
+            this.symbolType = symbolType;
             this.setStart(this.getLexicalAnalyzer().getPosition());
             this.setEnd(this.getLexicalAnalyzer().getPosition() + 1);
             this.getLexicalAnalyzer().next();
@@ -55,7 +64,7 @@ public class SymbolToken extends AbstractToken
     }
     
     
-    public static SymbolTokenBuilder builder(final LexicalAnalyzer lexicalAnalyzer) {
+    public static SymbolTokenBuilder builder(@NotNull final LexicalAnalyzer lexicalAnalyzer) {
         return new SymbolTokenBuilder(lexicalAnalyzer);
     }
     
@@ -65,21 +74,28 @@ public class SymbolToken extends AbstractToken
     }
     
     
-    public static class SymbolTokenBuilder {
+    public static class SymbolTokenBuilder
+    {
         
+        @Nullable
         private final LexicalAnalyzer lexicalAnalyzer;
         
         
+        private boolean crashOnAccess;
+        
+        
+        @Nullable
         private SymbolType symbolType;
         
         
+        @Nullable
         private String tokenContent;
         
         
         private int start, end;
         
         
-        public SymbolTokenBuilder(final LexicalAnalyzer lexicalAnalyzer) {
+        public SymbolTokenBuilder(@NotNull final LexicalAnalyzer lexicalAnalyzer) {
             this.lexicalAnalyzer = lexicalAnalyzer;
         }
         
@@ -89,12 +105,13 @@ public class SymbolToken extends AbstractToken
         }
         
         
-        public SymbolTokenBuilder type(final SymbolType symbolType) {
+        public SymbolTokenBuilder type(@NotNull final SymbolType symbolType) {
             this.symbolType = symbolType;
             return this;
         }
         
-        public SymbolTokenBuilder content(final String tokenContent) {
+        
+        public SymbolTokenBuilder content(@NotNull final String tokenContent) {
             this.tokenContent = tokenContent;
             return this;
         }
@@ -112,10 +129,18 @@ public class SymbolToken extends AbstractToken
         }
         
         
+        public SymbolTokenBuilder crash() {
+            this.crashOnAccess = true;
+            return this;
+        }
+        
+        
         public SymbolToken build() {
-            final SymbolToken symbolToken = new SymbolToken(this.lexicalAnalyzer);
-            symbolToken.setTokenContent(this.tokenContent);
-            symbolToken.setSymbolType(this.symbolType);
+            final SymbolToken symbolToken = new SymbolToken(this.lexicalAnalyzer, this.crashOnAccess);
+            if (this.tokenContent != null)
+                symbolToken.setTokenContent(this.tokenContent);
+            if (this.symbolType != null)
+                symbolToken.setSymbolType(this.symbolType);
             symbolToken.setStart(this.start);
             symbolToken.setEnd(this.end);
             return symbolToken;

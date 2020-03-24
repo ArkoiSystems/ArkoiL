@@ -10,7 +10,7 @@ import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenTyp
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
 import lombok.Getter;
-import lombok.NonNull;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 
@@ -19,9 +19,6 @@ import java.util.Optional;
  * AbstractSyntaxAST}. So you can easily create an AST without any problems. Also this
  * class is capable to test the current {@link AbstractToken} if it could be parsed by
  * this AST.
- *
- * @param <T>
- *         the {@link AbstractSyntaxAST} which should define this class.
  */
 public abstract class AbstractParser
 {
@@ -31,6 +28,7 @@ public abstract class AbstractParser
      * the class parameter.
      */
     @Getter
+    @NotNull
     private final String parameterName;
     
     
@@ -60,7 +58,8 @@ public abstract class AbstractParser
      * @return {@code null} if an error occurred or the specified {@link
      *         AbstractSyntaxAST}.
      */
-    public abstract Optional<? extends AbstractSyntaxAST> parse(@NonNull final AbstractSyntaxAST parentAST, @NonNull final SyntaxAnalyzer syntaxAnalyzer);
+    @NotNull
+    public abstract Optional<? extends AbstractSyntaxAST> parse(@NotNull final AbstractSyntaxAST parentAST, @NotNull final SyntaxAnalyzer syntaxAnalyzer);
     
     
     /**
@@ -77,6 +76,6 @@ public abstract class AbstractParser
      * @return {@code false} if it's not capable to parse the current {@link
      *         AbstractToken} or {@code true} if it does.
      */
-    public abstract boolean canParse(@NonNull final AbstractSyntaxAST parentAST, @NonNull final SyntaxAnalyzer syntaxAnalyzer);
+    public abstract boolean canParse(@NotNull final AbstractSyntaxAST parentAST, @NotNull final SyntaxAnalyzer syntaxAnalyzer);
     
 }

@@ -11,6 +11,7 @@ import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.AbstractSemanti
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
 import com.arkoisystems.arkoicompiler.utils.Variables;
 import lombok.Getter;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 import java.util.Date;
@@ -19,26 +20,31 @@ public class ArkoiError
 {
     
     @Getter
+    @NotNull
     private final ArkoiClass arkoiClass;
     
     
     @Getter
+    @NotNull
     private final Object[] arguments;
     
     
     @Getter
+    @NotNull
     private final int[][] positions;
     
     
     @Getter
+    @NotNull
     private final String errorString;
     
     
     @Getter
+    @NotNull
     private final String message;
     
     
-    public ArkoiError(final ArkoiClass arkoiClass, final AbstractSemanticAST<?>[] semanticASTs, final String message, final Object... arguments) {
+    public ArkoiError(@NotNull final ArkoiClass arkoiClass, @NotNull final AbstractSemanticAST<?>[] semanticASTs, @NotNull final String message, @NotNull final Object... arguments) {
         this.arkoiClass = arkoiClass;
         this.arguments = arguments;
         this.message = message;
@@ -50,7 +56,7 @@ public class ArkoiError
     }
     
     
-    public ArkoiError(final ArkoiClass arkoiClass, final AbstractSemanticAST<?> semanticAST, final String message, final Object... arguments) {
+    public ArkoiError(@NotNull final ArkoiClass arkoiClass, @NotNull final AbstractSemanticAST<?> semanticAST, @NotNull final String message, @NotNull final Object... arguments) {
         this.arkoiClass = arkoiClass;
         this.arguments = arguments;
         this.message = message;
@@ -61,7 +67,7 @@ public class ArkoiError
     }
     
     
-    public ArkoiError(final ArkoiClass arkoiClass, final AbstractSyntaxAST[] syntaxASTs, final String message, final Object... arguments) {
+    public ArkoiError(@NotNull final ArkoiClass arkoiClass, @NotNull final AbstractSyntaxAST[] syntaxASTs, @NotNull final String message, @NotNull final Object... arguments) {
         this.arkoiClass = arkoiClass;
         this.arguments = arguments;
         this.message = message;
@@ -73,7 +79,7 @@ public class ArkoiError
     }
     
     
-    public ArkoiError(final ArkoiClass arkoiClass, final AbstractSyntaxAST syntaxAST, final String message, final Object... arguments) {
+    public ArkoiError(@NotNull final ArkoiClass arkoiClass, @NotNull final AbstractSyntaxAST syntaxAST, @NotNull final String message, @NotNull final Object... arguments) {
         this.arkoiClass = arkoiClass;
         this.arguments = arguments;
         this.message = message;
@@ -84,7 +90,7 @@ public class ArkoiError
     }
     
     
-    public ArkoiError(final ArkoiClass arkoiClass, final AbstractToken[] abstractTokens, final String message, final Object... arguments) {
+    public ArkoiError(@NotNull final ArkoiClass arkoiClass, @NotNull final AbstractToken[] abstractTokens, @NotNull final String message, @NotNull final Object... arguments) {
         this.arkoiClass = arkoiClass;
         this.arguments = arguments;
         this.message = message;
@@ -96,7 +102,7 @@ public class ArkoiError
     }
     
     
-    public ArkoiError(final ArkoiClass arkoiClass, final AbstractToken abstractToken, final String message, final Object... arguments) {
+    public ArkoiError(@NotNull final ArkoiClass arkoiClass, final AbstractToken abstractToken, @NotNull final String message, @NotNull final Object... arguments) {
         this.arkoiClass = arkoiClass;
         this.arguments = arguments;
         this.message = message;
@@ -107,7 +113,7 @@ public class ArkoiError
     }
     
     
-    public ArkoiError(final ArkoiClass arkoiClass, final int position, final String message, final Object... arguments) {
+    public ArkoiError(@NotNull final ArkoiClass arkoiClass, final int position, @NotNull final String message, @NotNull final Object... arguments) {
         this.arkoiClass = arkoiClass;
         this.arguments = arguments;
         this.message = message;
@@ -118,7 +124,7 @@ public class ArkoiError
     }
     
     
-    public ArkoiError(final ArkoiClass arkoiClass, final int start, final int end, final String message, final Object... arguments) {
+    public ArkoiError(@NotNull final ArkoiClass arkoiClass, final int start, final int end, @NotNull final String message, @NotNull final Object... arguments) {
         this.arkoiClass = arkoiClass;
         this.arguments = arguments;
         this.message = message;

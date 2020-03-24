@@ -15,7 +15,8 @@ import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenTyp
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.RootSyntaxAST;
 import lombok.Getter;
-import lombok.NonNull;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -32,6 +33,7 @@ public class SyntaxAnalyzer extends AbstractStage
      * created.
      */
     @Getter
+    @NotNull
     private final ArkoiClass arkoiClass;
     
     
@@ -40,7 +42,16 @@ public class SyntaxAnalyzer extends AbstractStage
      * process of parsing the {@link AbstractSyntaxAST}s.
      */
     @Getter
-    private final SyntaxErrorHandler errorHandler;
+    @NotNull
+    private final SyntaxErrorHandler errorHandler = new SyntaxErrorHandler();
+    
+    
+    /**
+     * The {@link RootSyntaxAST} which is getting parsed directly at the beginning.
+     */
+    @Getter
+    @NotNull
+    private final RootSyntaxAST rootSyntaxAST = new RootSyntaxAST(this);
     
     
     /**
@@ -48,7 +59,8 @@ public class SyntaxAnalyzer extends AbstractStage
      * without needing to use a {@link List} or something else.
      */
     @Getter
-    private AbstractToken[] tokens;
+    @NotNull
+    private AbstractToken[] tokens = new AbstractToken[0];
     
     
     /**
@@ -60,13 +72,6 @@ public class SyntaxAnalyzer extends AbstractStage
     
     
     /**
-     * The {@link RootSyntaxAST} which is getting parsed directly at the beginning.
-     */
-    @Getter
-    private RootSyntaxAST rootSyntaxAST;
-    
-    
-    /**
      * Constructs a new {@link SyntaxAnalyzer} with the given parameters. It will set the
      * {@link ArkoiClass} it got created in and also the {@link SyntaxErrorHandler} and
      * {@link RootSyntaxAST} are getting created.
@@ -74,11 +79,8 @@ public class SyntaxAnalyzer extends AbstractStage
      * @param arkoiClass
      *         the {@link ArkoiClass} in which the {@link SyntaxAnalyzer} got created.
      */
-    public SyntaxAnalyzer(@NonNull final ArkoiClass arkoiClass) {
+    public SyntaxAnalyzer(@NotNull final ArkoiClass arkoiClass) {
         this.arkoiClass = arkoiClass;
-        
-        this.errorHandler = new SyntaxErrorHandler();
-        this.rootSyntaxAST = new RootSyntaxAST(this);
     }
     
     
@@ -106,17 +108,21 @@ public class SyntaxAnalyzer extends AbstractStage
      *
      * @return the {@link SyntaxErrorHandler} which got created in the constructor.
      */
+    @NotNull
     @Override
     public SyntaxErrorHandler errorHandler() {
         return this.errorHandler;
     }
     
-    public SymbolToken matchesCurrentToken(@NonNull final SymbolType symbolType) {
+    
+    @Nullable
+    public SymbolToken matchesCurrentToken(@NotNull final SymbolType symbolType) {
         return this.matchesCurrentToken(symbolType, true);
     }
     
     
-    public SymbolToken matchesCurrentToken(@NonNull final SymbolType symbolType, final boolean skipWhitespaces) {
+    @Nullable
+    public SymbolToken matchesCurrentToken(@NotNull final SymbolType symbolType, final boolean skipWhitespaces) {
         final AbstractToken currentToken = this.currentToken(skipWhitespaces);
         if (!(currentToken instanceof SymbolToken))
             return null;
@@ -128,12 +134,14 @@ public class SyntaxAnalyzer extends AbstractStage
     }
     
     
-    public SymbolToken matchesNextToken(@NonNull final SymbolType symbolType) {
+    @Nullable
+    public SymbolToken matchesNextToken(@NotNull final SymbolType symbolType) {
         return this.matchesNextToken(symbolType, true);
     }
     
     
-    public SymbolToken matchesNextToken(@NonNull final SymbolType symbolType, final boolean skipWhitespaces) {
+    @Nullable
+    public SymbolToken matchesNextToken(@NotNull final SymbolType symbolType, final boolean skipWhitespaces) {
         final AbstractToken nextToken = this.nextToken(skipWhitespaces);
         if (!(nextToken instanceof SymbolToken))
             return null;
@@ -145,12 +153,14 @@ public class SyntaxAnalyzer extends AbstractStage
     }
     
     
-    public SymbolToken matchesPeekToken(final int offset, @NonNull final SymbolType symbolType) {
+    @Nullable
+    public SymbolToken matchesPeekToken(final int offset, @NotNull final SymbolType symbolType) {
         return this.matchesPeekToken(offset, symbolType, true);
     }
     
     
-    public SymbolToken matchesPeekToken(final int offset, @NonNull final SymbolType symbolType, final boolean skipWhitespaces) {
+    @Nullable
+    public SymbolToken matchesPeekToken(final int offset, @NotNull final SymbolType symbolType, final boolean skipWhitespaces) {
         if (offset == 0)
             return this.matchesCurrentToken(symbolType, skipWhitespaces);
         
@@ -165,12 +175,14 @@ public class SyntaxAnalyzer extends AbstractStage
     }
     
     
-    public AbstractToken matchesCurrentToken(@NonNull final TokenType tokenType) {
+    @Nullable
+    public AbstractToken matchesCurrentToken(@NotNull final TokenType tokenType) {
         return this.matchesCurrentToken(tokenType, true);
     }
     
     
-    public AbstractToken matchesCurrentToken(@NonNull final TokenType tokenType, final boolean skipWhitespaces) {
+    @Nullable
+    public AbstractToken matchesCurrentToken(@NotNull final TokenType tokenType, final boolean skipWhitespaces) {
         final AbstractToken currentToken = this.currentToken(skipWhitespaces);
         if (currentToken.getTokenType() != tokenType)
             return null;
@@ -178,12 +190,14 @@ public class SyntaxAnalyzer extends AbstractStage
     }
     
     
-    public AbstractToken matchesNextToken(@NonNull final TokenType tokenType) {
+    @Nullable
+    public AbstractToken matchesNextToken(@NotNull final TokenType tokenType) {
         return this.matchesNextToken(tokenType, true);
     }
     
     
-    public AbstractToken matchesNextToken(@NonNull final TokenType tokenType, final boolean skipWhitespaces) {
+    @Nullable
+    public AbstractToken matchesNextToken(@NotNull final TokenType tokenType, final boolean skipWhitespaces) {
         final AbstractToken nextToken = this.nextToken(skipWhitespaces);
         if (nextToken.getTokenType() != tokenType)
             return null;
@@ -191,27 +205,31 @@ public class SyntaxAnalyzer extends AbstractStage
     }
     
     
-    public AbstractToken matchesPeekToken(final int offset, @NonNull final TokenType tokenType) {
+    @Nullable
+    public AbstractToken matchesPeekToken(final int offset, @NotNull final TokenType tokenType) {
         return this.matchesPeekToken(offset, tokenType, true);
     }
     
     
-    public AbstractToken matchesPeekToken(final int offset, @NonNull final TokenType tokenType, final boolean skipWhitespaces) {
+    @Nullable
+    public AbstractToken matchesPeekToken(final int offset, @NotNull final TokenType tokenType, final boolean skipWhitespaces) {
         if (offset == 0)
             return this.matchesCurrentToken(tokenType, skipWhitespaces);
-    
+        
         final AbstractToken peekToken = this.peekToken(offset, skipWhitespaces);
-        if (peekToken.getTokenType() != tokenType)
+        if (peekToken == null || peekToken.getTokenType() != tokenType)
             return null;
         return peekToken;
     }
     
     
+    @Nullable
     public AbstractToken peekToken(final int offset) {
         return this.peekToken(offset, true);
     }
     
     
+    @Nullable
     public AbstractToken peekToken(final int offset, final boolean skipWhitespaces) {
         AbstractToken abstractToken = this.nextToken(offset, skipWhitespaces);
         this.undoToken(offset, skipWhitespaces);
@@ -219,11 +237,13 @@ public class SyntaxAnalyzer extends AbstractStage
     }
     
     
+    @NotNull
     public AbstractToken currentToken() {
         return this.currentToken(true);
     }
     
     
+    @NotNull
     public AbstractToken currentToken(final boolean skipWhitespaces) {
         if (skipWhitespaces) {
             while (this.position < this.tokens.length) {
@@ -239,11 +259,13 @@ public class SyntaxAnalyzer extends AbstractStage
     }
     
     
+    @Nullable
     public AbstractToken nextToken(final int offset) {
         return this.nextToken(offset, true);
     }
     
     
+    @Nullable
     public AbstractToken nextToken(final int offset, final boolean skipWhitespaces) {
         AbstractToken abstractToken = null;
         for (int index = 0; index < offset; index++)
@@ -252,11 +274,13 @@ public class SyntaxAnalyzer extends AbstractStage
     }
     
     
+    @NotNull
     public AbstractToken nextToken() {
         return this.nextToken(true);
     }
     
     
+    @NotNull
     public AbstractToken nextToken(final boolean skipWhitespaces) {
         this.position++;
         
@@ -274,11 +298,13 @@ public class SyntaxAnalyzer extends AbstractStage
     }
     
     
+    @NotNull
     public AbstractToken undoToken() {
         return this.undoToken(true);
     }
     
     
+    @NotNull
     public AbstractToken undoToken(final boolean skipWhitespaces) {
         this.position--;
         
@@ -295,11 +321,14 @@ public class SyntaxAnalyzer extends AbstractStage
         return this.tokens[this.position];
     }
     
+    
+    @Nullable
     public AbstractToken undoToken(final int offset) {
         return this.undoToken(offset, true);
     }
     
     
+    @Nullable
     public AbstractToken undoToken(final int offset, final boolean skipWhitespaces) {
         AbstractToken abstractToken = null;
         for (int index = 0; index < offset; index++)

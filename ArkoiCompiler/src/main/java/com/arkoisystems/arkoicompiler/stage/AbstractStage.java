@@ -7,7 +7,7 @@ package com.arkoisystems.arkoicompiler.stage;
 
 import com.arkoisystems.arkoicompiler.stage.errorHandler.ErrorHandler;
 import lombok.Getter;
-import lombok.Setter;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * The abstract version of a stage which has some pre-defined methods to overwrite. Every
@@ -30,6 +30,7 @@ public abstract class AbstractStage
      *
      * @return the {@link ErrorHandler} of the current stage.
      */
+    @NotNull
     public abstract ErrorHandler errorHandler();
     
     

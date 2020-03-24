@@ -15,10 +15,10 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxErrorType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.RootSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
-import lombok.Builder;
 import lombok.Getter;
-import lombok.NonNull;
 import lombok.Setter;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
@@ -41,6 +41,7 @@ public abstract class AbstractSyntaxAST
      * SyntaxAnalyzer#nextToken()}.
      */
     @Getter
+    @Nullable
     private final SyntaxAnalyzer syntaxAnalyzer;
     
     
@@ -50,6 +51,7 @@ public abstract class AbstractSyntaxAST
      * {@link AbstractSyntaxAST#toString()} method.
      */
     @Getter
+    @NotNull
     private final ASTType astType;
     
     
@@ -81,7 +83,7 @@ public abstract class AbstractSyntaxAST
      *         the {@link ASTType} which is used used to identify this specific {@link
      *         AbstractSyntaxAST}.
      */
-    public AbstractSyntaxAST(@NonNull final SyntaxAnalyzer syntaxAnalyzer, final ASTType astType) {
+    public AbstractSyntaxAST(@Nullable final SyntaxAnalyzer syntaxAnalyzer, @NotNull final ASTType astType) {
         this.syntaxAnalyzer = syntaxAnalyzer;
         this.astType = astType;
     }
@@ -102,7 +104,7 @@ public abstract class AbstractSyntaxAST
      * @return {@code null} if an error occurred or the parsed {@link AbstractSyntaxAST}
      *         if everything worked correctly.
      */
-    public abstract Optional<? extends AbstractSyntaxAST> parseAST(@NonNull final AbstractSyntaxAST parentAST);
+    public abstract Optional<? extends AbstractSyntaxAST> parseAST(@NotNull final AbstractSyntaxAST parentAST);
     
     
     /**
@@ -116,10 +118,13 @@ public abstract class AbstractSyntaxAST
      * @param indents
      *         the {@code indents} which will make the AST look like a Tree.
      */
-    public abstract void printSyntaxAST(@NonNull final PrintStream printStream, @NonNull final String indents);
+    public abstract void printSyntaxAST(@NotNull final PrintStream printStream, @NotNull final String indents);
     
     
     protected void skipToNextValidToken() {
+        this.failed();
+        Objects.requireNonNull(this.getSyntaxAnalyzer());
+        
         int openBraces = 0;
         while (this.getSyntaxAnalyzer().getPosition() < this.getSyntaxAnalyzer().getTokens().length) {
             if (this.getSyntaxAnalyzer().currentToken().getTokenType() == TokenType.END_OF_FILE)
@@ -135,7 +140,6 @@ public abstract class AbstractSyntaxAST
             }
             this.getSyntaxAnalyzer().nextToken();
         }
-        this.failed();
     }
     
     
@@ -154,14 +158,15 @@ public abstract class AbstractSyntaxAST
      * @param arguments
      *         the arguments list for the error message from the {@link SyntaxErrorType}.
      */
-    public void addError(@NonNull final ArkoiClass arkoiClass, @NonNull final AbstractSyntaxAST[] abstractSyntaxASTs, @NonNull final String message, final Object... arguments) {
-        this.getSyntaxAnalyzer().getErrorHandler().addError(new ArkoiError(
+    public void addError(@NotNull final ArkoiClass arkoiClass, @NotNull final AbstractSyntaxAST[] abstractSyntaxASTs, @NotNull final String message, final Object... arguments) {
+        this.failed();
+        
+        Objects.requireNonNull(this.getSyntaxAnalyzer()).getErrorHandler().addError(new ArkoiError(
                 arkoiClass,
                 abstractSyntaxASTs,
                 message,
                 arguments
         ));
-        this.failed();
     }
     
     
@@ -179,14 +184,15 @@ public abstract class AbstractSyntaxAST
      * @param arguments
      *         the arguments list for the error message from the {@link SyntaxErrorType}.
      */
-    public void addError(@NonNull final ArkoiClass arkoiClass, @NonNull final AbstractSyntaxAST abstractSyntaxAST, @NonNull final String message, final Object... arguments) {
-        this.getSyntaxAnalyzer().getErrorHandler().addError(new ArkoiError(
+    public void addError(@NotNull final ArkoiClass arkoiClass, @NotNull final AbstractSyntaxAST abstractSyntaxAST, @NotNull final String message, final Object... arguments) {
+        this.failed();
+        
+        Objects.requireNonNull(this.getSyntaxAnalyzer()).getErrorHandler().addError(new ArkoiError(
                 arkoiClass,
                 abstractSyntaxAST,
                 message,
                 arguments
         ));
-        this.failed();
     }
     
     
@@ -206,15 +212,16 @@ public abstract class AbstractSyntaxAST
      * @param arguments
      *         the arguments list for the error message from the {@link SyntaxErrorType}.
      */
-    public void addError(@NonNull final ArkoiClass arkoiClass, final int start, final int end, @NonNull final String message, final Object... arguments) {
-        this.getSyntaxAnalyzer().getErrorHandler().addError(new ArkoiError(
+    public void addError(@NotNull final ArkoiClass arkoiClass, final int start, final int end, @NotNull final String message, final Object... arguments) {
+        this.failed();
+        
+        Objects.requireNonNull(this.getSyntaxAnalyzer()).getErrorHandler().addError(new ArkoiError(
                 arkoiClass,
                 start,
                 end,
                 message,
                 arguments
         ));
-        this.failed();
     }
     
     
@@ -232,14 +239,15 @@ public abstract class AbstractSyntaxAST
      * @param arguments
      *         the arguments list for the error message from the {@link SyntaxErrorType}.
      */
-    public void addError(@NonNull final ArkoiClass arkoiClass, @NonNull final AbstractToken abstractToken, @NonNull final String message, final Object... arguments) {
-        this.getSyntaxAnalyzer().getErrorHandler().addError(new ArkoiError(
+    public void addError(@NotNull final ArkoiClass arkoiClass, @NotNull final AbstractToken abstractToken, @NotNull final String message, final Object... arguments) {
+        this.failed();
+        
+        Objects.requireNonNull(this.getSyntaxAnalyzer()).getErrorHandler().addError(new ArkoiError(
                 arkoiClass,
                 abstractToken,
                 message,
                 arguments
         ));
-        this.failed();
     }
     
     

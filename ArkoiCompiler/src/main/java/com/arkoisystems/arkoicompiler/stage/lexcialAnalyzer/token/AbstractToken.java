@@ -6,15 +6,19 @@
 package com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token;
 
 import com.arkoisystems.arkoicompiler.ArkoiClass;
+import com.arkoisystems.arkoicompiler.exceptions.CrashOnAccessException;
 import com.arkoisystems.arkoicompiler.stage.errorHandler.ArkoiError;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.LexicalAnalyzer;
-import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.CommentToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.NumberToken;
-import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.WhitespaceToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxErrorType;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.Setter;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
+import java.util.Objects;
 import java.util.Optional;
 
 public abstract class AbstractToken
@@ -25,14 +29,23 @@ public abstract class AbstractToken
      * LexicalAnalyzer#next(int)} or {@link LexicalAnalyzer#peekChar(int)}.
      */
     @Getter
+    @Nullable
     private final LexicalAnalyzer lexicalAnalyzer;
+    
+    
+    /**
+     * Defines a flag if the class should throw an error, if it get accessed.
+     */
+    @Getter
+    private final boolean crashOnAccess;
     
     
     /**
      * The {@link TokenType} is used to differentiate {@link AbstractToken}s. Also it
      * helps when debugging with the {@link #toString()} method.
      */
-    @Getter
+    @Setter(AccessLevel.PROTECTED)
+    @NotNull
     private TokenType tokenType;
     
     
@@ -40,8 +53,8 @@ public abstract class AbstractToken
      * The token content which got lexed. Used for later code generation or casting if
      * it's a {@link NumberToken}.
      */
-    @Getter
     @Setter
+    @NotNull
     private String tokenContent;
     
     
@@ -49,7 +62,6 @@ public abstract class AbstractToken
      * The starting and ending position of this {@link AbstractToken}. This will help for
      * later debugging or syntax highlighting because we now the exact location.
      */
-    @Getter
     @Setter(AccessLevel.PROTECTED)
     private int start, end;
     
@@ -65,12 +77,14 @@ public abstract class AbstractToken
      * @param tokenType
      *         the {@link TokenType} which is used for later debugging etc.
      */
-    public AbstractToken(final LexicalAnalyzer lexicalAnalyzer, final TokenType tokenType) {
+    public AbstractToken(@Nullable final LexicalAnalyzer lexicalAnalyzer, @NotNull final TokenType tokenType, final boolean crashOnAccess) {
         this.lexicalAnalyzer = lexicalAnalyzer;
+        this.crashOnAccess = crashOnAccess;
         this.tokenType = tokenType;
     }
     
     
+    @NotNull
     public abstract Optional<? extends AbstractToken> parseToken();
     
     
@@ -89,8 +103,8 @@ public abstract class AbstractToken
      * @param arguments
      *         the arguments list for the error message from the {@link SyntaxErrorType}.
      */
-    public void addError(final ArkoiClass arkoiClass, final int position, final String message, final Object... arguments) {
-        this.getLexicalAnalyzer().getErrorHandler().addError(new ArkoiError(
+    public void addError(@NotNull final ArkoiClass arkoiClass, final int position, @NotNull final String message, final Object... arguments) {
+        Objects.requireNonNull(this.getLexicalAnalyzer()).getErrorHandler().addError(new ArkoiError(
                 arkoiClass,
                 position,
                 message,
@@ -115,8 +129,8 @@ public abstract class AbstractToken
      * @param arguments
      *         the arguments list for the error message from the {@link SyntaxErrorType}.
      */
-    public void addError(@NonNull final ArkoiClass arkoiClass, final int start, final int end, @NonNull final String message, final Object... arguments) {
-        this.getLexicalAnalyzer().getErrorHandler().addError(new ArkoiError(
+    public void addError(@NotNull final ArkoiClass arkoiClass, final int start, final int end, @NotNull final String message, final Object... arguments) {
+        Objects.requireNonNull(this.getLexicalAnalyzer()).getErrorHandler().addError(new ArkoiError(
                 arkoiClass,
                 start,
                 end,
@@ -126,9 +140,31 @@ public abstract class AbstractToken
     }
     
     
-    @Override
-    public String toString() {
-        return this.getTokenType() + " -> " + this.getTokenContent();
+    public String getTokenContent() {
+        if (this.crashOnAccess)
+            throw new CrashOnAccessException(this.getClass().getSimpleName() + ": " + this.tokenContent + ", " + this.tokenType + "," + this.start + ", " + this.end);
+        return this.tokenContent;
+    }
+    
+    
+    public TokenType getTokenType() {
+        if (this.crashOnAccess)
+            throw new CrashOnAccessException(this.getClass().getSimpleName() + ": " + this.tokenContent + ", " + this.tokenType + "," + this.start + ", " + this.end);
+        return this.tokenType;
+    }
+    
+    
+    public int getStart() {
+        if (this.crashOnAccess)
+            throw new CrashOnAccessException(this.getClass().getSimpleName() + ": " + this.tokenContent + ", " + this.tokenType + "," + this.start + ", " + this.end);
+        return this.start;
+    }
+    
+    
+    public int getEnd() {
+        if (this.crashOnAccess)
+            throw new CrashOnAccessException(this.getClass().getSimpleName() + ": " + this.tokenContent + ", " + this.tokenType + "," + this.start + ", " + this.end);
+        return this.end;
     }
     
 }

@@ -13,7 +13,7 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.BlockSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.parser.AbstractParser;
-import lombok.NonNull;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 
@@ -39,8 +39,9 @@ public class BlockParser extends AbstractParser
      * @return {@code null} if an error occurred during the parsing of the {@link
      *         BlockSyntaxAST} or simply returns the parsed result.
      */
+    @NotNull
     @Override
-    public Optional<BlockSyntaxAST> parse(@NonNull final AbstractSyntaxAST parentAST, @NonNull final SyntaxAnalyzer syntaxAnalyzer) {
+    public Optional<BlockSyntaxAST> parse(@NotNull final AbstractSyntaxAST parentAST, @NotNull final SyntaxAnalyzer syntaxAnalyzer) {
         return BlockSyntaxAST
                 .builder(syntaxAnalyzer)
                 .build()
@@ -62,8 +63,9 @@ public class BlockParser extends AbstractParser
      * @return {@code false} if the current {@link AbstractToken} isn't an {@link
      *         IdentifierToken} or {@code true} if it is.
      */
+    @NotNull
     @Override
-    public boolean canParse(@NonNull final AbstractSyntaxAST parentAST, @NonNull final SyntaxAnalyzer syntaxAnalyzer) {
+    public boolean canParse(@NotNull final AbstractSyntaxAST parentAST, @NotNull final SyntaxAnalyzer syntaxAnalyzer) {
         return syntaxAnalyzer.matchesCurrentToken(SymbolType.OPENING_BRACE) != null || syntaxAnalyzer.matchesCurrentToken(SymbolType.EQUAL) != null;
     }
     

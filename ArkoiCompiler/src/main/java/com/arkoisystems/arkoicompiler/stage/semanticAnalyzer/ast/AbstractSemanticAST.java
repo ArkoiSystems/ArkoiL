@@ -11,34 +11,41 @@ import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.SemanticAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import lombok.Getter;
-import lombok.NonNull;
 import lombok.Setter;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.util.HashSet;
 import java.util.Objects;
+import java.util.Optional;
 
 public abstract class AbstractSemanticAST<T extends AbstractSyntaxAST>
 {
     
     @Getter
+    @NotNull
     private final AbstractSemanticAST<?> lastContainerAST;
     
     
     @Getter
-    private final HashSet<String> errorList;
+    @NotNull
+    private final HashSet<String> errorList = new HashSet<>();
     
     
     @Getter
+    @Nullable
     private final SemanticAnalyzer semanticAnalyzer;
     
     
     @Getter
+    @NotNull
     private final T syntaxAST;
     
     
     @Getter
+    @NotNull
     private final ASTType astType;
     
     
@@ -51,80 +58,83 @@ public abstract class AbstractSemanticAST<T extends AbstractSyntaxAST>
     private int start, end;
     
     
-    public AbstractSemanticAST(final SemanticAnalyzer semanticAnalyzer, final AbstractSemanticAST<?> lastContainerAST, final T syntaxAST, final ASTType astType) {
+    public AbstractSemanticAST(@Nullable final SemanticAnalyzer semanticAnalyzer, @NotNull final AbstractSemanticAST<?> lastContainerAST, @NotNull final T syntaxAST, @NotNull final ASTType astType) {
         this.lastContainerAST = lastContainerAST;
         this.semanticAnalyzer = semanticAnalyzer;
         this.syntaxAST = syntaxAST;
         this.astType = astType;
-        
-        this.errorList = new HashSet<>();
         
         this.start = syntaxAST.getStart();
         this.end = syntaxAST.getEnd();
     }
     
     
-    public AbstractSemanticAST<?> initialize() {
-        return null;
+    @NotNull
+    public Optional<AbstractSemanticAST<?>> initialize() {
+        return Optional.empty();
     }
     
     
-    public abstract void printSemanticAST(final PrintStream printStream, final String indents);
+    public abstract void printSemanticAST(@NotNull final PrintStream printStream, @NotNull final String indents);
     
     
-    public void addError(@NonNull final ArkoiClass arkoiClass, @NonNull final AbstractSyntaxAST[] abstractSyntaxASTs, @NonNull final String message, final Object... arguments) {
+    public void addError(@NotNull final ArkoiClass arkoiClass, @NotNull final AbstractSyntaxAST[] abstractSyntaxASTs, @NotNull final String message, final Object... arguments) {
+        this.failed();
+        
         if (!this.getErrorList().contains(message)) {
             this.getErrorList().add(message);
-            this.getSemanticAnalyzer().getErrorHandler().addError(new ArkoiError(
+            Objects.requireNonNull(this.getSemanticAnalyzer()).getErrorHandler().addError(new ArkoiError(
                     arkoiClass,
                     abstractSyntaxASTs,
                     message,
                     arguments
             ));
         }
-        this.failed();
     }
     
     
-    public void addError(@NonNull final ArkoiClass arkoiClass, @NonNull final AbstractSyntaxAST abstractSyntaxAST, @NonNull final String message, final Object... arguments) {
+    public void addError(@NotNull final ArkoiClass arkoiClass, @NotNull final AbstractSyntaxAST abstractSyntaxAST, @NotNull final String message, final Object... arguments) {
+        this.failed();
+        
         if (!this.getErrorList().contains(message)) {
             this.getErrorList().add(message);
-            this.getSemanticAnalyzer().getErrorHandler().addError(new ArkoiError(
+            Objects.requireNonNull(this.getSemanticAnalyzer()).getErrorHandler().addError(new ArkoiError(
                     arkoiClass,
                     abstractSyntaxAST,
                     message,
                     arguments
             ));
         }
-        this.failed();
     }
     
     
-    public void addError(@NonNull final ArkoiClass arkoiClass, @NonNull final AbstractSemanticAST<?>[] abstractSemanticASTS, @NonNull final String message, final Object... arguments) {
+    public void addError(@NotNull final ArkoiClass arkoiClass, @NotNull final AbstractSemanticAST<?>[] abstractSemanticASTS, @NotNull final String message, final Object... arguments) {
+        this.failed();
+        
         if (!this.getErrorList().contains(message)) {
             this.getErrorList().add(message);
-            this.getSemanticAnalyzer().getErrorHandler().addError(new ArkoiError(
+            Objects.requireNonNull(this.getSemanticAnalyzer()).getErrorHandler().addError(new ArkoiError(
                     arkoiClass,
                     abstractSemanticASTS,
                     message,
                     arguments
             ));
         }
-        this.failed();
     }
     
     
-    public void addError(@NonNull final ArkoiClass arkoiClass, @NonNull final AbstractSemanticAST<?> abstractSemanticAST, @NonNull final String message, final Object... arguments) {
+    public void addError(@NotNull final ArkoiClass arkoiClass, @NotNull final AbstractSemanticAST<?> abstractSemanticAST, @NotNull final String message, final Object... arguments) {
+        this.failed();
+        
         if (!this.getErrorList().contains(message)) {
             this.getErrorList().add(message);
-            this.getSemanticAnalyzer().getErrorHandler().addError(new ArkoiError(
+            Objects.requireNonNull(this.getSemanticAnalyzer()).getErrorHandler().addError(new ArkoiError(
                     arkoiClass,
                     abstractSemanticAST,
                     message,
                     arguments
             ));
         }
-        this.failed();
     }
     
     
