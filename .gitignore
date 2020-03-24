@@ -1,1 +1,7 @@
 backups/
+
+ArkoiCompiler/build/
+ArkoiCompiler/out/
+
+ArkoiIntegration/build/
+ArkoiIntegration/out/

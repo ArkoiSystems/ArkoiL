@@ -60,7 +60,7 @@
         COMMENT = 'regexp:#.*'
     ]
 
-    name(".*expression") = 'expression'
+    name(".*expression.*") = 'expression'
 }
 
 root ::= (comment_declaration | class_statement)*
@@ -106,7 +106,9 @@ return_declaration ::= return expression? {
     ]
 }
 
-identifier_call ::= (this DOT)? identifier_call_part (DOT identifier_call_part)*
+identifier_call ::= (this DOT)? identifier_call_part (DOT identifier_call_part)* {
+    pin = 1
+}
 
 identifier_call_part ::= IDENTIFIER function_call_part?  {
     methods = [
