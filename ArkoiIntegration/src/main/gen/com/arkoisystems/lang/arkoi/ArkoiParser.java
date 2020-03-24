@@ -157,7 +157,7 @@ public class ArkoiParser implements PsiParser, LightPsiParser {
   public static boolean assign_expression_part(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "assign_expression_part")) return false;
     boolean r;
-    Marker m = enter_section_(b, l, _NONE_, ASSIGN_EXPRESSION_PART, "<assign expression part>");
+    Marker m = enter_section_(b, l, _NONE_, ASSIGN_EXPRESSION_PART, "<expression>");
     r = assign_expression(b, l + 1);
     if (!r) r = add_assign_expression(b, l + 1);
     if (!r) r = sub_assign_expression(b, l + 1);
@@ -234,9 +234,9 @@ public class ArkoiParser implements PsiParser, LightPsiParser {
   //                        | binary_sub_expression
   public static boolean binary_additive_expression_part(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "binary_additive_expression_part")) return false;
-    if (!nextTokenIs(b, "<binary additive expression part>", MINUS, PLUS)) return false;
+    if (!nextTokenIs(b, "<expression>", MINUS, PLUS)) return false;
     boolean r;
-    Marker m = enter_section_(b, l, _NONE_, BINARY_ADDITIVE_EXPRESSION_PART, "<binary additive expression part>");
+    Marker m = enter_section_(b, l, _NONE_, BINARY_ADDITIVE_EXPRESSION_PART, "<expression>");
     r = binary_add_expression(b, l + 1);
     if (!r) r = binary_sub_expression(b, l + 1);
     exit_section_(b, l, m, r, false, null);
@@ -315,7 +315,7 @@ public class ArkoiParser implements PsiParser, LightPsiParser {
   public static boolean binary_multiplicative_expression_part(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "binary_multiplicative_expression_part")) return false;
     boolean r;
-    Marker m = enter_section_(b, l, _NONE_, BINARY_MULTIPLICATIVE_EXPRESSION_PART, "<binary multiplicative expression part>");
+    Marker m = enter_section_(b, l, _NONE_, BINARY_MULTIPLICATIVE_EXPRESSION_PART, "<expression>");
     r = binary_mul_expression(b, l + 1);
     if (!r) r = binary_div_expression(b, l + 1);
     if (!r) r = binary_mod_expression(b, l + 1);
@@ -498,12 +498,12 @@ public class ArkoiParser implements PsiParser, LightPsiParser {
   // DOUBLE_ASTERISK exponential_expression
   public static boolean exponential_expression_part(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "exponential_expression_part")) return false;
-    if (!nextTokenIs(b, DOUBLE_ASTERISK)) return false;
+    if (!nextTokenIs(b, "<expression>", DOUBLE_ASTERISK)) return false;
     boolean r;
-    Marker m = enter_section_(b);
+    Marker m = enter_section_(b, l, _NONE_, EXPONENTIAL_EXPRESSION_PART, "<expression>");
     r = consumeToken(b, DOUBLE_ASTERISK);
     r = r && exponential_expression(b, l + 1);
-    exit_section_(b, m, EXPONENTIAL_EXPRESSION_PART, r);
+    exit_section_(b, l, m, r, false, null);
     return r;
   }
 
@@ -523,7 +523,7 @@ public class ArkoiParser implements PsiParser, LightPsiParser {
   public static boolean expression_list(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "expression_list")) return false;
     boolean r;
-    Marker m = enter_section_(b, l, _NONE_, EXPRESSION_LIST, "<expression list>");
+    Marker m = enter_section_(b, l, _NONE_, EXPRESSION_LIST, "<expression>");
     r = expression(b, l + 1);
     r = r && expression_list_1(b, l + 1);
     exit_section_(b, l, m, r, false, null);
