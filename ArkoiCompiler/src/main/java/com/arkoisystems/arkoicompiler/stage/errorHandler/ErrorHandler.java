@@ -5,6 +5,8 @@
  */
 package com.arkoisystems.arkoicompiler.stage.errorHandler;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.PrintStream;
 
 /**
@@ -21,7 +23,7 @@ public abstract class ErrorHandler
      * @param arkoiError
      *         the {@link ArkoiError} which is used added to the Handler.
      */
-    public abstract void addError(final ArkoiError arkoiError);
+    public abstract void addError(@NotNull final ArkoiError arkoiError);
     
     
     /**
@@ -33,6 +35,6 @@ public abstract class ErrorHandler
      *         the flag if the output should be converted to a testable stack trace
      *         (removing the date etc).
      */
-    public abstract void printStackTrace(final PrintStream printStream, final boolean testing);
+    public abstract void printStackTrace(@NotNull final PrintStream printStream, final boolean testing);
     
 }

@@ -5,6 +5,7 @@
  */
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils;
 
+import com.arkoisystems.arkoicompiler.exceptions.CrashOnAccessException;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.SemanticAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.AbstractOperableSemanticAST;
@@ -25,29 +26,33 @@ import lombok.Getter;
 public enum TypeKind
 {
     
-    STRING("string", false, 0),
-    INTEGER("int", true, 1),
-    FLOAT("float", true, 2),
-    BYTE("byte", true, 0.5),
-    COLLECTION("[]", false, 0),
-    DOUBLE("double", true, 2),
-    SHORT("short", true, 0.5),
-    BOOLEAN("boolean", false, 0),
-    VOID("void", false, 0),
-    UNDEFINED("undefined", false, 0);
+    STRING("string", false, 0, false),
+    INTEGER("int", true, 1, false),
+    FLOAT("float", true, 2, false),
+    BYTE("byte", true, 0.5, false),
+    COLLECTION("[]", false, 0, false),
+    DOUBLE("double", true, 2, false),
+    SHORT("short", true, 0.5, false),
+    BOOLEAN("boolean", false, 0, false),
+    VOID("void", false, 0, false),
+    UNDEFINED("undefined", false, 0, true);
     
+    
+    /**
+     * Defines a flag if the class should throw an error, if it get accessed.
+     */
+    @Getter
+    private final boolean crashOnAccess;
     
     /**
      * The name of the enum entry e.g. "double" or "short"
      */
-    @Getter
     private final String name;
     
     
     /**
      * Defines whether the entry is numeric or not.
      */
-    @Getter
     private final boolean isNumeric;
     
     
@@ -55,26 +60,35 @@ public enum TypeKind
      * Defines the precision of the entry so that a double has a higher precision than a
      * float.
      */
-    @Getter
     private final double precision;
     
     
-    /**
-     * Constructs a new enum entry with the given parameters. It will define the name, if
-     * it's numeric and the precision of it.
-     *
-     * @param name
-     *         the name which is used used for this entry.
-     * @param isNumeric
-     *         defines whether the entry is numeric or not.
-     * @param precision
-     *         the precision of an entry so a {@link #DOUBLE} will have a higher precision
-     *         than a {@link #FLOAT}.
-     */
-    TypeKind(final String name, final boolean isNumeric, final double precision) {
+    TypeKind(final String name, final boolean isNumeric, final double precision, final boolean crashOnAccess) {
+        this.crashOnAccess = crashOnAccess;
         this.isNumeric = isNumeric;
         this.precision = precision;
         this.name = name;
+    }
+    
+    
+    public double getPrecision() {
+        if (this.crashOnAccess)
+            throw new CrashOnAccessException(this.getClass().getSimpleName() + ": " + this.precision + ", " + this.isNumeric + "," + this.name);
+        return this.precision;
+    }
+    
+    
+    public boolean isNumeric() {
+        if (this.crashOnAccess)
+            throw new CrashOnAccessException(this.getClass().getSimpleName() + ": " + this.precision + ", " + this.isNumeric + "," + this.name);
+        return this.isNumeric;
+    }
+    
+    
+    public String getName() {
+        if (this.crashOnAccess)
+            throw new CrashOnAccessException(this.getClass().getSimpleName() + ": " + this.precision + ", " + this.isNumeric + "," + this.name);
+        return this.name;
     }
     
     

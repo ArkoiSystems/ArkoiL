@@ -13,6 +13,7 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.ty
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
 import lombok.Setter;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.PrintStream;
 
@@ -30,7 +31,7 @@ public class NumberOperableSemanticAST extends AbstractOperableSemanticAST<Numbe
     
     // TODO: Check for null safety.
     @Override
-    public void printSemanticAST(final PrintStream printStream, final String indents) {
+    public void printSemanticAST(@NotNull final PrintStream printStream, @NotNull final String indents) {
         printStream.println(indents + "└── type: " + this.getOperableObject().getName());
     }
     
@@ -39,7 +40,7 @@ public class NumberOperableSemanticAST extends AbstractOperableSemanticAST<Numbe
     public TypeKind getOperableObject() {
         if (this.operableType == null) {
             final NumberToken numberToken = this.getSyntaxAST().getNumberToken();
-            if(numberToken.getTokenContent().contains("."))
+            if (numberToken.getTokenContent().contains("."))
                 return (this.operableType = TypeKind.FLOAT);
             return (this.operableType = TypeKind.INTEGER);
         } else return this.operableType;

@@ -10,6 +10,7 @@ import com.arkoisystems.arkoicompiler.ArkoiCompiler;
 import com.arkoisystems.arkoicompiler.utils.FileUtils;
 import lombok.SneakyThrows;
 import org.apache.commons.cli.*;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.PrintStream;
@@ -30,7 +31,7 @@ public class Bootstrap
      *         the arguments which are given from the Java program.
      */
     @SneakyThrows
-    public static void main(final String[] args) {
+    public static void main(@NotNull final String[] args) {
         final Options options = new Options();
         {
             final Option inputDirectory = new Option("ip", "inputPath", true, "target source directory or file");

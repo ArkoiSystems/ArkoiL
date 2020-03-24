@@ -10,6 +10,7 @@ import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.SemanticAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.AbstractSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.AnnotationSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.PrintStream;
 import java.util.List;
@@ -24,7 +25,7 @@ public class AnnotationSemanticAST extends AbstractSemanticAST<AnnotationSyntaxA
     
     // TODO: Check for null safety.
     @Override
-    public void printSemanticAST(final PrintStream printStream, final String indents) {
+    public void printSemanticAST(@NotNull final PrintStream printStream, @NotNull final String indents) {
         printStream.println(indents + "├── name: " + this.getAnnotationName().getTokenContent());
         printStream.println(indents + "└── arguments: " + (this.getAnnotationArguments().isEmpty() ? "N/A" : ""));
         for (final IdentifierToken identifierToken : this.getAnnotationArguments())

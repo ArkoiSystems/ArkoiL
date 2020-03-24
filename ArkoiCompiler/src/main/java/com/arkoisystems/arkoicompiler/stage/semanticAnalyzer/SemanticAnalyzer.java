@@ -8,9 +8,9 @@ package com.arkoisystems.arkoicompiler.stage.semanticAnalyzer;
 import com.arkoisystems.arkoicompiler.ArkoiClass;
 import com.arkoisystems.arkoicompiler.stage.AbstractStage;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.RootSemanticAST;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.RootSyntaxAST;
 import lombok.Getter;
 import lombok.SneakyThrows;
+import org.jetbrains.annotations.NotNull;
 
 public class SemanticAnalyzer extends AbstractStage
 {
@@ -25,8 +25,8 @@ public class SemanticAnalyzer extends AbstractStage
     
     @Getter
     private final RootSemanticAST rootSemanticAST;
-
-
+    
+    
     public SemanticAnalyzer(final ArkoiClass arkoiClass) {
         this.arkoiClass = arkoiClass;
         
@@ -43,6 +43,7 @@ public class SemanticAnalyzer extends AbstractStage
     }
     
     
+    @NotNull
     @Override
     public SemanticErrorHandler errorHandler() {
         return this.errorHandler;

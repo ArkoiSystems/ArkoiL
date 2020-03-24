@@ -10,10 +10,10 @@ import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.Identifi
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.SemanticAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.SemanticErrorType;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.AbstractSemanticAST;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.types.ImportDefinitionSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import lombok.SneakyThrows;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.PrintStream;
@@ -31,7 +31,7 @@ public class ImportDefinitionSemanticAST extends AbstractSemanticAST<ImportDefin
     
     // TODO: Check for null safety.
     @Override
-    public void printSemanticAST(final PrintStream printStream, final String indents) {
+    public void printSemanticAST(@NotNull final PrintStream printStream, @NotNull final String indents) {
         printStream.println(indents + "├── name: " + this.getImportName().getTokenContent());
         printStream.println(indents + "└── path: " + this.getImportTargetClass().getFilePath());
     }
@@ -42,7 +42,7 @@ public class ImportDefinitionSemanticAST extends AbstractSemanticAST<ImportDefin
         if (this.importTargetClass == null) {
             final String filePath = new File(this.getSemanticAnalyzer().getArkoiClass().getArkoiCompiler().getWorkingDirectory() + File.separator +
                     this.getSyntaxAST().getImportFilePath().getTokenContent() + ".ark").getCanonicalPath();
-    
+
             this.importTargetClass = this.getSemanticAnalyzer().getArkoiClass().getArkoiCompiler().getArkoiClasses().get(filePath);
             if (this.importTargetClass == null) {
                 this.addError(

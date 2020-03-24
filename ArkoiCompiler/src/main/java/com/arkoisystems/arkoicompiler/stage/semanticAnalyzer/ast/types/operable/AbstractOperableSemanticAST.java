@@ -9,6 +9,7 @@ import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.SemanticAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.AbstractSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.PrintStream;
 
@@ -21,7 +22,7 @@ public class AbstractOperableSemanticAST<T1 extends AbstractSyntaxAST, O> extend
     
     
     @Override
-    public void printSemanticAST(PrintStream printStream, String indents) { }
+    public void printSemanticAST(@NotNull PrintStream printStream, @NotNull String indents) { }
     
     
     public O getOperableObject() {

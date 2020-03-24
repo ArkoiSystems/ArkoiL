@@ -7,7 +7,8 @@ package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer;
 
 import com.arkoisystems.arkoicompiler.stage.errorHandler.ArkoiError;
 import com.arkoisystems.arkoicompiler.stage.errorHandler.ErrorHandler;
-import lombok.NonNull;
+import lombok.Getter;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
@@ -24,18 +25,21 @@ public class SyntaxErrorHandler extends ErrorHandler
     /**
      * The {@link ArkoiError} list which is used to store the thrown errors.
      */
+    @Getter
+    @NotNull
     private final List<ArkoiError> abstractErrors = new ArrayList<>();
     
     
     /**
      * Adds the given {@link ArkoiError} to the {@link SyntaxErrorHandler#abstractErrors}
-     * list for later usage (see {@link ErrorHandler#printStackTrace(PrintStream, boolean)}).
+     * list for later usage (see {@link ErrorHandler#printStackTrace(PrintStream,
+     * boolean)}).
      *
      * @param arkoiError
      *         the given {@link ArkoiError} which is used added to the {@link
      *         SyntaxErrorHandler#abstractErrors} list.
      */
-    public void addError(@NonNull final ArkoiError arkoiError) {
+    public void addError(@NotNull final ArkoiError arkoiError) {
         this.abstractErrors.add(arkoiError);
     }
     
@@ -51,7 +55,7 @@ public class SyntaxErrorHandler extends ErrorHandler
      *         (removing the date etc).
      */
     @Override
-    public void printStackTrace(@NonNull final PrintStream printStream, boolean testing) {
+    public void printStackTrace(@NotNull final PrintStream printStream, boolean testing) {
         for (final ArkoiError arkoiError : this.abstractErrors)
             printStream.println(testing ? arkoiError.toString().substring(arkoiError.toString().indexOf(' ') + 1) : arkoiError.toString());
     }

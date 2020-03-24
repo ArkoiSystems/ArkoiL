@@ -10,6 +10,7 @@ import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.SemanticAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.AbstractSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.ParameterSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.PrintStream;
 
@@ -25,7 +26,7 @@ public class ParameterSemanticAST extends AbstractSemanticAST<ParameterSyntaxAST
     
     // TODO: Check for null safety.
     @Override
-    public void printSemanticAST(final PrintStream printStream, final String indents) {
+    public void printSemanticAST(@NotNull final PrintStream printStream, @NotNull final String indents) {
         printStream.println(indents + "├── name: " + this.getParameterName().getTokenContent());
         printStream.println(indents + "└── type: " + this.getParameterType().getTypeKind().getName() + (this.getParameterType().isArray() ? "[]" : ""));
     }
@@ -37,7 +38,7 @@ public class ParameterSemanticAST extends AbstractSemanticAST<ParameterSyntaxAST
     
     
     public TypeSemanticAST getParameterType() {
-        if(this.parameterType == null)
+        if (this.parameterType == null)
             return (this.parameterType = new TypeSemanticAST(this.getSemanticAnalyzer(), this.getLastContainerAST(), this.getSyntaxAST().getParameterType()));
         return this.parameterType;
     }

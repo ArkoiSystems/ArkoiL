@@ -13,6 +13,7 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.ty
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types.ExpressionSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
@@ -31,7 +32,7 @@ public class CollectionOperableSemanticAST extends AbstractOperableSemanticAST<C
     
     // TODO: Check for null safety.
     @Override
-    public void printSemanticAST(final PrintStream printStream, final String indents) {
+    public void printSemanticAST(@NotNull final PrintStream printStream, @NotNull final String indents) {
         printStream.println(indents + "└── expressions: " + (this.getCollectionExpressions().isEmpty() ? "N/A" : ""));
         for (int index = 0; index < this.getCollectionExpressions().size(); index++) {
             final ExpressionSemanticAST expressionSemanticAST = this.getCollectionExpressions().get(index);
@@ -49,7 +50,7 @@ public class CollectionOperableSemanticAST extends AbstractOperableSemanticAST<C
     
     @Override
     public TypeKind getOperableObject() {
-        if(this.getCollectionExpressions() == null)
+        if (this.getCollectionExpressions() == null)
             return null;
         return TypeKind.COLLECTION;
     }
@@ -62,7 +63,7 @@ public class CollectionOperableSemanticAST extends AbstractOperableSemanticAST<C
             for (final ExpressionSyntaxAST expressionSyntaxAST : this.getSyntaxAST().getCollectionExpressions()) {
                 final ExpressionSemanticAST expressionSemanticAST = new ExpressionSemanticAST(this.getSemanticAnalyzer(), this.getLastContainerAST(), expressionSyntaxAST);
                 expressionSemanticAST.getOperableObject();
-    
+                
                 if (expressionSemanticAST.isFailed())
                     this.failed();
                 this.collectionExpressions.add(expressionSemanticAST);

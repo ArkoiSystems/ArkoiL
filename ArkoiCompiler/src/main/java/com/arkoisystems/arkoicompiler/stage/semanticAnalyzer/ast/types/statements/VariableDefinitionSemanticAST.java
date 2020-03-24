@@ -14,6 +14,7 @@ import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.AnnotationSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.types.VariableDefinitionSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
@@ -36,7 +37,7 @@ public class VariableDefinitionSemanticAST extends AbstractSemanticAST<VariableD
     
     // TODO: Check for null safety.
     @Override
-    public void printSemanticAST(final PrintStream printStream, final String indents) {
+    public void printSemanticAST(@NotNull final PrintStream printStream, @NotNull final String indents) {
         printStream.println(indents + "├── annotations: " + (this.getVariableAnnotations().isEmpty() ? "N/A" : ""));
         for (int index = 0; index < this.getVariableAnnotations().size(); index++) {
             final AbstractSemanticAST<?> abstractSemanticAST = this.getVariableAnnotations().get(index);
@@ -65,7 +66,7 @@ public class VariableDefinitionSemanticAST extends AbstractSemanticAST<VariableD
             for (final AnnotationSyntaxAST annotationSyntaxAST : this.getSyntaxAST().getVariableAnnotations()) {
                 final AnnotationSemanticAST annotationSemanticAST
                         = new AnnotationSemanticAST(this.getSemanticAnalyzer(), this, annotationSyntaxAST);
-    
+
                 final IdentifierToken annotationName = annotationSemanticAST.getAnnotationName();
                 if (annotationName != null) {
                     if (names.containsKey(annotationName.getTokenContent())) {
@@ -82,9 +83,9 @@ public class VariableDefinitionSemanticAST extends AbstractSemanticAST<VariableD
                     } else
                         names.put(annotationName.getTokenContent(), annotationSemanticAST);
                 } else this.failed();
-    
+
                 annotationSemanticAST.getAnnotationArguments();
-    
+
                 if (annotationSemanticAST.isFailed())
                     this.failed();
                 this.variableAnnotations.add(annotationSemanticAST);
@@ -103,9 +104,9 @@ public class VariableDefinitionSemanticAST extends AbstractSemanticAST<VariableD
         if (this.variableExpression == null) {
             this.variableExpression
                     = new ExpressionSemanticAST(this.getSemanticAnalyzer(), this, this.getSyntaxAST().getVariableExpression());
-    
+
             this.variableExpression.getOperableObject();
-    
+
             if (this.variableExpression.isFailed())
                 this.failed();
         }

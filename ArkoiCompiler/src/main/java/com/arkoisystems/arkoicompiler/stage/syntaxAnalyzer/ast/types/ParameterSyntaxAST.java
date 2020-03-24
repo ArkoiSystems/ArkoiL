@@ -15,12 +15,14 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.parser.types.ParameterParser;
 import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.NonNull;
 import lombok.Setter;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 public class ParameterSyntaxAST extends AbstractSyntaxAST
@@ -36,27 +38,32 @@ public class ParameterSyntaxAST extends AbstractSyntaxAST
     /**
      * Defines the argument name with an {@link IdentifierToken} which is used to check
      * semantic errors in later stages. E.g. if the stage wants to check if a function
-     * already has an {@link ParameterSyntaxAST} with the same name as the
-     * other.
+     * already has an {@link ParameterSyntaxAST} with the same name as the other.
      */
     @Getter
     @Setter(AccessLevel.PROTECTED)
-    private IdentifierToken parameterName;
+    @NotNull
+    private IdentifierToken parameterName = IdentifierToken
+            .builder()
+            .content("Undefined identifier for \"parameterName\"")
+            .crash()
+            .build();
     
     
     /**
-     * Defines the {@link TypeSyntaxAST} of this {@link ParameterSyntaxAST}
-     * which is useful for checking the semantic in later stages.
+     * Defines the {@link TypeSyntaxAST} of this {@link ParameterSyntaxAST} which is
+     * useful for checking the semantic in later stages.
      */
     @Getter
     @Setter(AccessLevel.PROTECTED)
+    @NotNull
     private TypeSyntaxAST parameterType;
     
     
     /**
-     * Constructs a new {@link ParameterSyntaxAST} with the {@link
-     * SyntaxAnalyzer} as a parameter which is used to check for correct syntax with
-     * methods like {@link SyntaxAnalyzer#matchesNextToken(SymbolType)} * or {@link
+     * Constructs a new {@link ParameterSyntaxAST} with the {@link SyntaxAnalyzer} as a
+     * parameter which is used to check for correct syntax with methods like {@link
+     * SyntaxAnalyzer#matchesNextToken(SymbolType)} * or {@link
      * SyntaxAnalyzer#nextToken()}.
      *
      * @param syntaxAnalyzer
@@ -64,13 +71,15 @@ public class ParameterSyntaxAST extends AbstractSyntaxAST
      *         methods like {@link SyntaxAnalyzer#matchesNextToken(SymbolType)} or {@link
      *         * SyntaxAnalyzer#nextToken()}.
      */
-    protected ParameterSyntaxAST(final SyntaxAnalyzer syntaxAnalyzer) {
+    protected ParameterSyntaxAST(@Nullable final SyntaxAnalyzer syntaxAnalyzer) {
         super(syntaxAnalyzer, ASTType.PARAMETER_DEFINITION);
     }
     
     
     @Override
-    public Optional<ParameterSyntaxAST> parseAST(@NonNull final AbstractSyntaxAST parentAST) {
+    public Optional<ParameterSyntaxAST> parseAST(@NotNull final AbstractSyntaxAST parentAST) {
+        Objects.requireNonNull(this.getSyntaxAnalyzer());
+        
         if (this.getSyntaxAnalyzer().matchesCurrentToken(TokenType.IDENTIFIER) == null) {
             this.addError(
                     this.getSyntaxAnalyzer().getArkoiClass(),
@@ -114,7 +123,7 @@ public class ParameterSyntaxAST extends AbstractSyntaxAST
     
     
     @Override
-    public void printSyntaxAST(@NonNull final PrintStream printStream, @NonNull final String indents) {
+    public void printSyntaxAST(@NotNull final PrintStream printStream, @NotNull final String indents) {
         printStream.println(indents + "├── name: " + this.getParameterName().getTokenContent());
         printStream.println(indents + "└── type: " + this.getParameterType().getTypeKind().getName() + (this.getParameterType().isArray() ? "[]" : ""));
     }
@@ -147,21 +156,21 @@ public class ParameterSyntaxAST extends AbstractSyntaxAST
             );
             return Optional.empty();
         } else syntaxAnalyzer.nextToken();
-    
+        
         while (syntaxAnalyzer.getPosition() < syntaxAnalyzer.getTokens().length) {
             if (!ParameterSyntaxAST.PARAMETER_DEFINITION_PARSER.canParse(parentAST, syntaxAnalyzer))
                 break;
-        
+            
             final Optional<ParameterSyntaxAST> optionalParameterDefinitionSyntaxAST = ParameterSyntaxAST.PARAMETER_DEFINITION_PARSER.parse(parentAST, syntaxAnalyzer);
             if (optionalParameterDefinitionSyntaxAST.isEmpty())
                 return Optional.empty();
             else parameters.add(optionalParameterDefinitionSyntaxAST.get());
-        
+            
             if (syntaxAnalyzer.matchesNextToken(SymbolType.COMMA) == null)
                 break;
             else syntaxAnalyzer.nextToken();
         }
-    
+        
         if (syntaxAnalyzer.matchesCurrentToken(SymbolType.CLOSING_PARENTHESIS) == null) {
             parentAST.addError(
                     syntaxAnalyzer.getArkoiClass(),
@@ -174,7 +183,7 @@ public class ParameterSyntaxAST extends AbstractSyntaxAST
     }
     
     
-    public static ParameterSyntaxASTBuilder builder(final SyntaxAnalyzer syntaxAnalyzer) {
+    public static ParameterSyntaxASTBuilder builder(@NotNull final SyntaxAnalyzer syntaxAnalyzer) {
         return new ParameterSyntaxASTBuilder(syntaxAnalyzer);
     }
     
@@ -187,19 +196,22 @@ public class ParameterSyntaxAST extends AbstractSyntaxAST
     public static class ParameterSyntaxASTBuilder
     {
         
+        @Nullable
         private final SyntaxAnalyzer syntaxAnalyzer;
         
         
+        @Nullable
         private IdentifierToken argumentName;
         
         
+        @Nullable
         private TypeSyntaxAST argumentType;
         
         
         private int start, end;
         
         
-        public ParameterSyntaxASTBuilder(SyntaxAnalyzer syntaxAnalyzer) {
+        public ParameterSyntaxASTBuilder(@NotNull final SyntaxAnalyzer syntaxAnalyzer) {
             this.syntaxAnalyzer = syntaxAnalyzer;
         }
         
@@ -209,13 +221,13 @@ public class ParameterSyntaxAST extends AbstractSyntaxAST
         }
         
         
-        public ParameterSyntaxASTBuilder name(final IdentifierToken argumentName) {
+        public ParameterSyntaxASTBuilder name(@NotNull final IdentifierToken argumentName) {
             this.argumentName = argumentName;
             return this;
         }
         
         
-        public ParameterSyntaxASTBuilder type(final TypeSyntaxAST argumentType) {
+        public ParameterSyntaxASTBuilder type(@NotNull final TypeSyntaxAST argumentType) {
             this.argumentType = argumentType;
             return this;
         }
@@ -235,8 +247,10 @@ public class ParameterSyntaxAST extends AbstractSyntaxAST
         
         public ParameterSyntaxAST build() {
             final ParameterSyntaxAST parameterSyntaxAST = new ParameterSyntaxAST(this.syntaxAnalyzer);
-            parameterSyntaxAST.setParameterType(this.argumentType);
-            parameterSyntaxAST.setParameterName(this.argumentName);
+            if (this.argumentType != null)
+                parameterSyntaxAST.setParameterType(this.argumentType);
+            if (this.argumentName != null)
+                parameterSyntaxAST.setParameterName(this.argumentName);
             parameterSyntaxAST.setStart(this.start);
             parameterSyntaxAST.setEnd(this.end);
             return parameterSyntaxAST;

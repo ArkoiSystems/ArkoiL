@@ -10,31 +10,40 @@ import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.SymbolTy
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxErrorType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.*;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.CollectionOperableSyntaxAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.IdentifierCallOperableSyntaxAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.NumberOperableSyntaxAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.StringOperableSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.AbstractStatementSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
+import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.NonNull;
 import lombok.Setter;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.PrintStream;
+import java.util.Objects;
 import java.util.Optional;
 
 public class AbstractOperableSyntaxAST<O> extends AbstractSyntaxAST
 {
     
     @Getter
-    @Setter
+    @Setter(AccessLevel.PROTECTED)
+    @NotNull
     private O operableObject;
     
     
-    public AbstractOperableSyntaxAST(final SyntaxAnalyzer syntaxAnalyzer, final ASTType astType) {
+    public AbstractOperableSyntaxAST(@Nullable final SyntaxAnalyzer syntaxAnalyzer, @NotNull final ASTType astType) {
         super(syntaxAnalyzer, astType);
     }
     
     
     @Override
-    public Optional<? extends AbstractOperableSyntaxAST<?>> parseAST(@NonNull final AbstractSyntaxAST parentAST) {
+    public Optional<? extends AbstractOperableSyntaxAST<?>> parseAST(@NotNull final AbstractSyntaxAST parentAST) {
+        Objects.requireNonNull(this.getSyntaxAnalyzer());
+        
         final AbstractToken currentToken = this.getSyntaxAnalyzer().currentToken();
         switch (currentToken.getTokenType()) {
             case STRING_LITERAL:
@@ -95,6 +104,6 @@ public class AbstractOperableSyntaxAST<O> extends AbstractSyntaxAST
     
     
     @Override
-    public void printSyntaxAST(@NonNull final PrintStream printStream, @NonNull final String indents) { }
+    public void printSyntaxAST(@NotNull final PrintStream printStream, @NotNull final String indents) { }
     
 }

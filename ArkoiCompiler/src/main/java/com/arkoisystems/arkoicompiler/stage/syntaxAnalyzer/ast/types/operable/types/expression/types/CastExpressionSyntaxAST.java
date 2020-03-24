@@ -14,11 +14,13 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.Ab
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.AbstractExpressionSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types.utils.CastOperatorType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
+import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.NonNull;
 import lombok.Setter;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.PrintStream;
+import java.util.Objects;
 import java.util.Optional;
 
 public class CastExpressionSyntaxAST extends AbstractExpressionSyntaxAST
@@ -26,24 +28,30 @@ public class CastExpressionSyntaxAST extends AbstractExpressionSyntaxAST
     
     
     @Getter
-    @Setter
+    @Setter(AccessLevel.PROTECTED)
+    @NotNull
     private CastOperatorType castOperatorType;
     
     
     @Getter
-    private final AbstractOperableSyntaxAST<?> leftSideOperable;
+    @Setter(AccessLevel.PROTECTED)
+    @NotNull
+    private AbstractOperableSyntaxAST<?> leftSideOperable;
     
     
-    public CastExpressionSyntaxAST(@NonNull final SyntaxAnalyzer syntaxAnalyzer, @NonNull final AbstractOperableSyntaxAST<?> leftSideOperable) {
+    public CastExpressionSyntaxAST(@NotNull final SyntaxAnalyzer syntaxAnalyzer, @NotNull final AbstractOperableSyntaxAST<?> leftSideOperable) {
         super(syntaxAnalyzer, ASTType.CAST_EXPRESSION);
         
         this.leftSideOperable = leftSideOperable;
+        
         this.setStart(this.leftSideOperable.getStart());
     }
     
     
     @Override
-    public Optional<? extends AbstractOperableSyntaxAST<?>> parseAST(@NonNull final AbstractSyntaxAST parentAST) {
+    public Optional<? extends AbstractOperableSyntaxAST<?>> parseAST(@NotNull final AbstractSyntaxAST parentAST) {
+        Objects.requireNonNull(this.getSyntaxAnalyzer());
+        
         if (this.getSyntaxAnalyzer().matchesPeekToken(1, TokenType.IDENTIFIER, false) == null) {
             this.addError(
                     this.getSyntaxAnalyzer().getArkoiClass(),
@@ -89,7 +97,7 @@ public class CastExpressionSyntaxAST extends AbstractExpressionSyntaxAST
     
     
     @Override
-    public void printSyntaxAST(@NonNull final PrintStream printStream, @NonNull final String indents) {
+    public void printSyntaxAST(@NotNull final PrintStream printStream, @NotNull final String indents) {
         printStream.println(indents + "├── left:");
         printStream.println(indents + "│   └── " + this.getLeftSideOperable().getClass().getSimpleName());
         this.getLeftSideOperable().printSyntaxAST(printStream, indents + "│       ");

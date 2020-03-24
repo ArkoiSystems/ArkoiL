@@ -32,18 +32,18 @@ class SemanticAnalyzerTest
         assertTrue(semanticAnalyzer.processStage(), "\n" + this.getStackTrace(arkoiCompiler));
         
         assertEquals("" +
-                "├── imports: N/A\n" +
-                "│\n" +
-                "├── variables: \n" +
-                "│   └── VariableDefinitionSemanticAST\n" +
-                "│       ├── annotations: N/A\n" +
-                "│       │\n" +
-                "│       ├── name: test\n" +
-                "│       │\n" +
-                "│       └── expression:\n" +
-                "│           └── type: int\n" +
-                "│\n" +
-                "└── functions: N/A\n",
+                        "├── imports: N/A\n" +
+                        "│\n" +
+                        "├── variables: \n" +
+                        "│   └── VariableDefinitionSemanticAST\n" +
+                        "│       ├── annotations: N/A\n" +
+                        "│       │\n" +
+                        "│       ├── name: test\n" +
+                        "│       │\n" +
+                        "│       └── expression:\n" +
+                        "│           └── type: int\n" +
+                        "│\n" +
+                        "└── functions: N/A\n",
                 semanticAnalyzer.getRootSemanticAST().toString()
         );
     }
@@ -67,9 +67,9 @@ class SemanticAnalyzerTest
         assertFalse(semanticAnalyzer.processStage(), "\n" + this.getStackTrace(arkoiCompiler));
         
         assertEquals("" +
-                SemanticErrorType.BINARY_ADDITION_OPERABLE_NOT_SUPPORTED + "\n" +
-                " >>> var test = \"Hello World\" + 5;\n" +
-                "                ^^^^^^^^^^^^^\n",
+                        SemanticErrorType.BINARY_ADDITION_OPERABLE_NOT_SUPPORTED + "\n" +
+                        " >>> var test = \"Hello World\" + 5;\n" +
+                        "                ^^^^^^^^^^^^^\n",
                 this.getStackTrace(semanticAnalyzer)
         );
     }
@@ -94,12 +94,12 @@ class SemanticAnalyzerTest
         assertFalse(semanticAnalyzer.processStage(), "\n" + this.getStackTrace(arkoiCompiler));
         
         assertEquals("" +
-                SemanticErrorType.BINARY_MULTIPLICATION_OPERABLE_NOT_SUPPORTED + "\n" +
-                " >>> var test = (20++ + -10-- * 5f) * 2 ** 3 ** 4 + (test_6 * 2 += 1);\n" +
-                "                                                     ^^^^^^\n" +
-                SemanticErrorType.PREFIX_OPERABLE_NOT_SUPPORTED + "\n" +
-                " >>> var test = (20++ + -10-- * 5f) * 2 ** 3 ** 4 + (test_6 * 2 += 1);\n" +
-                "                         ^^^^\n",
+                        SemanticErrorType.BINARY_MULTIPLICATION_OPERABLE_NOT_SUPPORTED + "\n" +
+                        " >>> var test = (20++ + -10-- * 5f) * 2 ** 3 ** 4 + (test_6 * 2 += 1);\n" +
+                        "                                                     ^^^^^^\n" +
+                        SemanticErrorType.PREFIX_OPERABLE_NOT_SUPPORTED + "\n" +
+                        " >>> var test = (20++ + -10-- * 5f) * 2 ** 3 ** 4 + (test_6 * 2 += 1);\n" +
+                        "                         ^^^^\n",
                 this.getStackTrace(semanticAnalyzer)
         );
     }

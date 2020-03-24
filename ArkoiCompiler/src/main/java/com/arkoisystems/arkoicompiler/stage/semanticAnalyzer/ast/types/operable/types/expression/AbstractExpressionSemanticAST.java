@@ -260,7 +260,7 @@ public class AbstractExpressionSemanticAST<T extends AbstractSyntaxAST> extends 
     public TypeKind prefixSub(final AbstractOperableSemanticAST<?, ?> abstractOperableSemanticAST) {
         this.addError(
                 this.getSemanticAnalyzer().getArkoiClass(),
-               abstractOperableSemanticAST,
+                abstractOperableSemanticAST,
                 SemanticErrorType.PREFIX_SUB_NOT_SUPPORTED
         );
         return null;

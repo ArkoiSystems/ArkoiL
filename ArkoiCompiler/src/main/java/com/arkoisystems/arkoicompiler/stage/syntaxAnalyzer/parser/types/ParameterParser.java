@@ -13,22 +13,22 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.ParameterSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.parser.AbstractParser;
-import lombok.NonNull;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 
 /**
- * A {@link AbstractParser} for the {@link ParameterSyntaxAST} with which you can
- * easily parse the {@link ParameterSyntaxAST} or check if the current {@link
- * AbstractToken} is capable to parse the {@link ParameterSyntaxAST}.
+ * A {@link AbstractParser} for the {@link ParameterSyntaxAST} with which you can easily
+ * parse the {@link ParameterSyntaxAST} or check if the current {@link AbstractToken} is
+ * capable to parse the {@link ParameterSyntaxAST}.
  */
 public class ParameterParser extends AbstractParser
 {
     
     /**
-     * Parses a new {@link ParameterSyntaxAST} with the given {@link
-     * AbstractSyntaxAST} as the parent and the {@link SyntaxAnalyzer} as a useful class
-     * to check the syntax of the AST.
+     * Parses a new {@link ParameterSyntaxAST} with the given {@link AbstractSyntaxAST} as
+     * the parent and the {@link SyntaxAnalyzer} as a useful class to check the syntax of
+     * the AST.
      *
      * @param parentAST
      *         the {@link AbstractSyntaxAST} in which this AST is getting parsed.
@@ -39,8 +39,9 @@ public class ParameterParser extends AbstractParser
      * @return {@code null} if an error occurred during the parsing of the {@link
      *         ParameterSyntaxAST} or simply returns the parsed result.
      */
+    @NotNull
     @Override
-    public Optional<ParameterSyntaxAST> parse(@NonNull final AbstractSyntaxAST parentAST, @NonNull final SyntaxAnalyzer syntaxAnalyzer) {
+    public Optional<ParameterSyntaxAST> parse(@NotNull final AbstractSyntaxAST parentAST, @NotNull final SyntaxAnalyzer syntaxAnalyzer) {
         return ParameterSyntaxAST
                 .builder(syntaxAnalyzer)
                 .build()
@@ -63,8 +64,9 @@ public class ParameterParser extends AbstractParser
      * @return {@code false} if the current {@link AbstractToken} isn't an {@link
      *         IdentifierToken} or {@code true} if it is.
      */
+    @NotNull
     @Override
-    public boolean canParse(@NonNull final AbstractSyntaxAST parentAST, @NonNull final SyntaxAnalyzer syntaxAnalyzer) {
+    public boolean canParse(@NotNull final AbstractSyntaxAST parentAST, @NotNull final SyntaxAnalyzer syntaxAnalyzer) {
         return syntaxAnalyzer.currentToken().getTokenType() == TokenType.IDENTIFIER && syntaxAnalyzer.matchesPeekToken(1, SymbolType.COLON) != null;
     }
     

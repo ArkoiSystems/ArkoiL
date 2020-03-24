@@ -20,15 +20,12 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.t
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.BlockType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.parser.AbstractParser;
-import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.NonNull;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * Used if you want to create a new {@link RootSyntaxAST}. It doesn't has an {@link
@@ -53,7 +50,8 @@ public class RootSyntaxAST extends AbstractSyntaxAST
      * parsed. This variable is used frequently within the {@link SemanticAnalyzer}.
      */
     @Getter
-    private final List<ImportDefinitionSyntaxAST> importStorage;
+    @NotNull
+    private final List<ImportDefinitionSyntaxAST> importStorage = new ArrayList<>();
     
     
     /**
@@ -61,7 +59,8 @@ public class RootSyntaxAST extends AbstractSyntaxAST
      * parsed. This variable is used frequently within the {@link SemanticAnalyzer}.
      */
     @Getter
-    private final List<VariableDefinitionSyntaxAST> variableStorage;
+    @NotNull
+    private final List<VariableDefinitionSyntaxAST> variableStorage = new ArrayList<>();
     
     
     /**
@@ -69,7 +68,8 @@ public class RootSyntaxAST extends AbstractSyntaxAST
      * parsed. This variable is used frequently within the {@link SemanticAnalyzer}.
      */
     @Getter
-    private final List<FunctionDefinitionSyntaxAST> functionStorage;
+    @NotNull
+    private final List<FunctionDefinitionSyntaxAST> functionStorage = new ArrayList<>();
     
     
     /**
@@ -77,7 +77,8 @@ public class RootSyntaxAST extends AbstractSyntaxAST
      * inside here. Also they are sorted, so you can check the order of variables or
      * imports.
      */
-    private final List<AbstractSyntaxAST> sortedStorage;
+    @NotNull
+    private final List<AbstractSyntaxAST> sortedStorage = new ArrayList<>();
     
     
     /**
@@ -85,22 +86,16 @@ public class RootSyntaxAST extends AbstractSyntaxAST
      * SyntaxAnalyzer} is used to check syntax and also to get the {@link ArkoiClass} or
      * {@link ArkoiCompiler}.
      *
-     *
      * @param syntaxAnalyzer
      *         the {@link SyntaxAnalyzer} which is used to check for correct syntax with
-     *         methods like {@link SyntaxAnalyzer#matchesNextToken(SymbolType)}
-     *         or {@link SyntaxAnalyzer#nextToken()}.
+     *         methods like {@link SyntaxAnalyzer#matchesNextToken(SymbolType)} or {@link
+     *         SyntaxAnalyzer#nextToken()}.
      */
-    public RootSyntaxAST(final SyntaxAnalyzer syntaxAnalyzer) {
+    public RootSyntaxAST(@NotNull final SyntaxAnalyzer syntaxAnalyzer) {
         super(syntaxAnalyzer, ASTType.ROOT);
         
         this.setEnd(syntaxAnalyzer.getArkoiClass().getContent().length);
         this.setStart(0);
-        
-        this.variableStorage = new ArrayList<>();
-        this.functionStorage = new ArrayList<>();
-        this.sortedStorage = new ArrayList<>();
-        this.importStorage = new ArrayList<>();
     }
     
     
@@ -118,26 +113,29 @@ public class RootSyntaxAST extends AbstractSyntaxAST
      * @param parentAST
      *         the parent {@link AbstractSyntaxAST} which is used used to check if the
      *         {@link AbstractSyntaxAST} can be created inside it.
+     *
      * @return {@code null} if an error occurred or the {@link RootSyntaxAST} if
      *         everything worked correctly.
      */
     @Override
-    public Optional<RootSyntaxAST> parseAST(final AbstractSyntaxAST parentAST) {
+    public Optional<RootSyntaxAST> parseAST(@Nullable final AbstractSyntaxAST parentAST) {
+        Objects.requireNonNull(this.getSyntaxAnalyzer());
+        
         main_loop:
         while (this.getSyntaxAnalyzer().getPosition() < this.getSyntaxAnalyzer().getTokens().length) {
             if (this.getSyntaxAnalyzer().currentToken() instanceof EndOfFileToken)
                 break;
-        
+            
             for (final AbstractParser abstractParser : ROOT_PARSERS) {
                 if (!abstractParser.canParse(this, this.getSyntaxAnalyzer()))
                     continue;
-            
+                
                 final Optional<? extends AbstractSyntaxAST> optionalAbstractSyntaxAST = abstractParser.parse(this, this.getSyntaxAnalyzer());
                 if (optionalAbstractSyntaxAST.isPresent()) {
                     final AbstractSyntaxAST abstractSyntaxAST = optionalAbstractSyntaxAST.get();
                     if (abstractSyntaxAST.isFailed())
                         this.failed();
-                
+                    
                     if (abstractSyntaxAST instanceof FunctionDefinitionSyntaxAST) {
                         final FunctionDefinitionSyntaxAST functionDefinitionAST = (FunctionDefinitionSyntaxAST) abstractSyntaxAST;
                         if (functionDefinitionAST.getFunctionBlock().getBlockType() == BlockType.INLINE && this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.SEMICOLON) == null) {
@@ -169,13 +167,13 @@ public class RootSyntaxAST extends AbstractSyntaxAST
                             this.skipToNextValidToken();
                             continue main_loop;
                         }
-                    
+                        
                         if (abstractSyntaxAST instanceof VariableDefinitionSyntaxAST)
                             this.variableStorage.add((VariableDefinitionSyntaxAST) abstractSyntaxAST);
                         else if (abstractSyntaxAST instanceof ImportDefinitionSyntaxAST)
                             this.importStorage.add((ImportDefinitionSyntaxAST) abstractSyntaxAST);
                     }
-                
+                    
                     this.sortedStorage.add(abstractSyntaxAST);
                     this.getSyntaxAnalyzer().nextToken();
                 } else {
@@ -184,7 +182,7 @@ public class RootSyntaxAST extends AbstractSyntaxAST
                 }
                 continue main_loop;
             }
-        
+            
             this.addError(
                     this.getSyntaxAnalyzer().getArkoiClass(),
                     this.getSyntaxAnalyzer().currentToken(),
@@ -208,8 +206,8 @@ public class RootSyntaxAST extends AbstractSyntaxAST
      *         the indents which the Tree should add before printing a new line.
      */
     @Override
-    public void printSyntaxAST(@NonNull final PrintStream printStream,
-            @NonNull final String indents) {
+    public void printSyntaxAST(@NotNull final PrintStream printStream,
+            @NotNull final String indents) {
         printStream.println(indents + "├── imports: " + (this.getImportStorage().isEmpty() ? "N/A" : ""));
         for (int index = 0; index < this.getImportStorage().size(); index++) {
             final AbstractSyntaxAST abstractSyntaxAST = this.getImportStorage().get(index);
@@ -222,7 +220,7 @@ public class RootSyntaxAST extends AbstractSyntaxAST
                 printStream.println(indents + "│   │   ");
             }
         }
-    
+        
         printStream.println(indents + "│");
         printStream.println(indents + "├── variables: " + (this.getVariableStorage().isEmpty() ? "N/A" : ""));
         for (int index = 0; index < this.getVariableStorage().size(); index++) {
@@ -236,7 +234,7 @@ public class RootSyntaxAST extends AbstractSyntaxAST
                 printStream.println(indents + "│   │   ");
             }
         }
-    
+        
         printStream.println(indents + "│");
         printStream.println(indents + "└── functions: " + (this.getFunctionStorage().isEmpty() ? "N/A" : ""));
         for (int index = 0; index < this.getFunctionStorage().size(); index++) {

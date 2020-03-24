@@ -10,7 +10,7 @@ import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.SemanticAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
 import lombok.Getter;
-import lombok.NonNull;
+import org.jetbrains.annotations.NotNull;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -94,7 +94,7 @@ public class ArkoiClass
      * @param nativeClass
      *         the flag if the {@link ArkoiClass} should be a native class or not.
      */
-    public ArkoiClass(@NonNull final ArkoiCompiler arkoiCompiler, @NonNull final String filePath, @NonNull final byte[] content, final boolean nativeClass) {
+    public ArkoiClass(@NotNull final ArkoiCompiler arkoiCompiler, @NotNull final String filePath, @NotNull final byte[] content, final boolean nativeClass) {
         this.arkoiCompiler = arkoiCompiler;
         this.nativeClass = nativeClass;
         this.filePath = filePath;
@@ -106,8 +106,8 @@ public class ArkoiClass
     /**
      * This will construct a new {@link ArkoiClass} with the given parameters. It will set
      * the native flag to false, so if you want to create a native {@link ArkoiClass} you
-     * should use the other constructor ({@link ArkoiClass#ArkoiClass(ArkoiCompiler, String,
-     * byte[], boolean)}).
+     * should use the other constructor ({@link ArkoiClass#ArkoiClass(ArkoiCompiler,
+     * String, byte[], boolean)}).
      *
      * @param arkoiCompiler
      *         the {@link ArkoiCompiler} which is used used to compile the given
@@ -119,7 +119,7 @@ public class ArkoiClass
      *         passed to the {@link LexicalAnalyzer} where it will produce a {@link
      *         java.util.List} with all tokens.
      */
-    public ArkoiClass(@NonNull final ArkoiCompiler arkoiCompiler, @NonNull final String filePath, @NonNull final byte[] content) {
+    public ArkoiClass(@NotNull final ArkoiCompiler arkoiCompiler, @NotNull final String filePath, @NotNull final byte[] content) {
         this.arkoiCompiler = arkoiCompiler;
         this.filePath = filePath;
         
@@ -165,21 +165,21 @@ public class ArkoiClass
     
     
     public LexicalAnalyzer getLexicalAnalyzer() {
-        if(this.lexicalAnalyzer == null)
+        if (this.lexicalAnalyzer == null)
             this.initializeLexical();
         return this.lexicalAnalyzer;
     }
     
     
     public SyntaxAnalyzer getSyntaxAnalyzer() {
-        if(this.syntaxAnalyzer == null)
+        if (this.syntaxAnalyzer == null)
             this.initializeSyntax();
         return this.syntaxAnalyzer;
     }
     
     
     public SemanticAnalyzer getSemanticAnalyzer() {
-        if(this.semanticAnalyzer == null)
+        if (this.semanticAnalyzer == null)
             this.initializeSemantic();
         return this.semanticAnalyzer;
     }

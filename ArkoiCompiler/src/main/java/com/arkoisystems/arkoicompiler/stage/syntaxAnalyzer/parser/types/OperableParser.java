@@ -12,8 +12,9 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.AbstractOperableSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.AbstractStatementSyntaxAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.parser.AbstractParser;
-import lombok.NonNull;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 
@@ -39,16 +40,17 @@ public class OperableParser extends AbstractParser
      * @return {@code null} if an error occurred during the parsing of the {@link
      *         AbstractOperableSyntaxAST} or simply returns the parsed result.
      */
+    @NotNull
     @Override
-    public Optional<? extends AbstractOperableSyntaxAST<?>> parse(@NonNull final AbstractSyntaxAST parentAST, @NonNull final SyntaxAnalyzer syntaxAnalyzer) {
-        return new AbstractOperableSyntaxAST<>(syntaxAnalyzer, null).parseAST(parentAST);
+    public Optional<? extends AbstractOperableSyntaxAST<?>> parse(@NotNull final AbstractSyntaxAST parentAST, @NotNull final SyntaxAnalyzer syntaxAnalyzer) {
+        return new AbstractOperableSyntaxAST<>(syntaxAnalyzer, ASTType.OPERABLE).parseAST(parentAST);
     }
     
     
     /**
      * Tests if the current {@link AbstractToken} is capable to parse a new {@link
-     * AbstractOperableSyntaxAST}. Depending on the current {@link AbstractToken}s type
-     * it will return {@code true} if it's would work or {@code false} if it wouldn't.
+     * AbstractOperableSyntaxAST}. Depending on the current {@link AbstractToken}s type it
+     * will return {@code true} if it's would work or {@code false} if it wouldn't.
      *
      * @param parentAST
      *         the {@link AbstractSyntaxAST} in which this AST is getting parsed.
@@ -59,8 +61,9 @@ public class OperableParser extends AbstractParser
      * @return {@code false} if the current {@link AbstractToken}s type isn't capable to
      *         parse a new {@link AbstractOperableSyntaxAST} or {@code true} if it is.
      */
+    @NotNull
     @Override
-    public boolean canParse(@NonNull final AbstractSyntaxAST parentAST, @NonNull final SyntaxAnalyzer syntaxAnalyzer) {
+    public boolean canParse(@NotNull final AbstractSyntaxAST parentAST, @NotNull final SyntaxAnalyzer syntaxAnalyzer) {
         switch (syntaxAnalyzer.currentToken().getTokenType()) {
             case STRING_LITERAL:
             case NUMBER_LITERAL:

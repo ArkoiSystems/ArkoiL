@@ -8,7 +8,6 @@ package com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer;
 import com.arkoisystems.arkoicompiler.ArkoiClass;
 import com.arkoisystems.arkoicompiler.ArkoiCompiler;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
-import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.SemanticAnalyzer;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayOutputStream;

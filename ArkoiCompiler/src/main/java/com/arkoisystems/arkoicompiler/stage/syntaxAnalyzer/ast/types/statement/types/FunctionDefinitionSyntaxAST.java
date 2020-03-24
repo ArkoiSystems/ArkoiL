@@ -16,13 +16,16 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.A
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.BlockType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
+import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.NonNull;
 import lombok.Setter;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 public class FunctionDefinitionSyntaxAST extends AbstractStatementSyntaxAST
@@ -30,48 +33,54 @@ public class FunctionDefinitionSyntaxAST extends AbstractStatementSyntaxAST
     
     
     @Getter
-    @Setter
-    private List<AnnotationSyntaxAST> functionAnnotations;
+    @Setter(AccessLevel.PROTECTED)
+    @NotNull
+    private List<AnnotationSyntaxAST> functionAnnotations = new ArrayList<>();
     
     
     @Getter
-    @Setter
-    private IdentifierToken functionName;
+    @Setter(AccessLevel.PROTECTED)
+    @NotNull
+    private IdentifierToken functionName = IdentifierToken
+            .builder()
+            .content("Undefined identifier for \"functionName\"")
+            .build();
     
     
     @Getter
-    @Setter
+    @Setter(AccessLevel.PROTECTED)
+    @NotNull
     private TypeSyntaxAST functionReturnType;
     
     
     @Getter
-    @Setter
-    private List<ParameterSyntaxAST> functionArguments;
+    @Setter(AccessLevel.PROTECTED)
+    @NotNull
+    private List<ParameterSyntaxAST> functionArguments = new ArrayList<>();
     
     
     @Getter
-    @Setter
+    @Setter(AccessLevel.PROTECTED)
+    @NotNull
     private BlockSyntaxAST functionBlock;
     
     
-    public FunctionDefinitionSyntaxAST(final SyntaxAnalyzer syntaxAnalyzer, final List<AnnotationSyntaxAST> functionAnnotations) {
+    public FunctionDefinitionSyntaxAST(@Nullable final SyntaxAnalyzer syntaxAnalyzer, @NotNull final List<AnnotationSyntaxAST> functionAnnotations) {
         super(syntaxAnalyzer, ASTType.FUNCTION_DEFINITION);
         
         this.functionAnnotations = functionAnnotations;
-        this.functionArguments = new ArrayList<>();
     }
     
     
-    public FunctionDefinitionSyntaxAST(final SyntaxAnalyzer syntaxAnalyzer) {
+    public FunctionDefinitionSyntaxAST(@Nullable final SyntaxAnalyzer syntaxAnalyzer) {
         super(syntaxAnalyzer, ASTType.FUNCTION_DEFINITION);
-        
-        this.functionAnnotations = new ArrayList<>();
-        this.functionArguments = new ArrayList<>();
     }
     
     
     @Override
-    public Optional<FunctionDefinitionSyntaxAST> parseAST(@NonNull final AbstractSyntaxAST parentAST) {
+    public Optional<FunctionDefinitionSyntaxAST> parseAST(@NotNull final AbstractSyntaxAST parentAST) {
+        Objects.requireNonNull(this.getSyntaxAnalyzer());
+        
         if (!(parentAST instanceof RootSyntaxAST)) {
             this.addError(
                     this.getSyntaxAnalyzer().getArkoiClass(),
@@ -110,12 +119,12 @@ public class FunctionDefinitionSyntaxAST extends AbstractStatementSyntaxAST
             return Optional.empty();
         }
         this.getSyntaxAnalyzer().nextToken();
-    
+        
         if (TypeSyntaxAST.TYPE_PARSER.canParse(this, this.getSyntaxAnalyzer())) {
             final Optional<TypeSyntaxAST> optionalTypeSyntaxAST = TypeSyntaxAST.TYPE_PARSER.parse(this, this.getSyntaxAnalyzer());
             if (optionalTypeSyntaxAST.isEmpty())
                 return Optional.empty();
-        
+            
             this.functionReturnType = optionalTypeSyntaxAST.get();
             this.getSyntaxAnalyzer().nextToken();
         } else this.functionReturnType = TypeSyntaxAST
@@ -219,7 +228,7 @@ public class FunctionDefinitionSyntaxAST extends AbstractStatementSyntaxAST
     
     
     @Override
-    public void printSyntaxAST(@NonNull final PrintStream printStream, @NonNull final String indents) {
+    public void printSyntaxAST(@NotNull final PrintStream printStream, @NotNull final String indents) {
         printStream.println(indents + "├── annotations: " + (this.getFunctionAnnotations().isEmpty() ? "N/A" : ""));
         for (int index = 0; index < this.getFunctionAnnotations().size(); index++) {
             final AnnotationSyntaxAST abstractSyntaxAST = this.getFunctionAnnotations().get(index);
@@ -254,7 +263,7 @@ public class FunctionDefinitionSyntaxAST extends AbstractStatementSyntaxAST
     }
     
     
-    public boolean hasAnnotation(final String annotationName) {
+    public boolean hasAnnotation(@NotNull final String annotationName) {
         for (final AnnotationSyntaxAST annotationSyntaxAST : this.functionAnnotations)
             if (annotationSyntaxAST.getAnnotationName().getTokenContent().equals(annotationName))
                 return true;

@@ -11,12 +11,12 @@ import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.AbstractSemanti
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.AbstractOperableSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.statements.FunctionDefinitionSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.statements.ImportDefinitionSemanticAST;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.FunctionInvokeOperableSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.IdentifierInvokeOperableSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTAccess;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.PrintStream;
 
@@ -36,7 +36,7 @@ public class IdentifierInvokeOperableSemanticAST extends AbstractOperableSemanti
     
     // TODO: Check for null safety.
     @Override
-    public void printSemanticAST(final PrintStream printStream, final String indents) {
+    public void printSemanticAST(@NotNull final PrintStream printStream, @NotNull final String indents) {
         printStream.println(indents + "├── access: " + this.getIdentifierAccess());
         printStream.println(indents + "├── identifier: ");
         this.getInvokedIdentifier().printSemanticAST(printStream, indents + "│       ");
@@ -114,15 +114,15 @@ public class IdentifierInvokeOperableSemanticAST extends AbstractOperableSemanti
                     );
                     return null;
                 }
-    
+
                 if (this.getSyntaxAST().getInvokePostStatement() instanceof FunctionInvokeOperableSyntaxAST) {
                     final FunctionInvokeOperableSyntaxAST functionInvokeOperableSyntaxAST = (FunctionInvokeOperableSyntaxAST) this.getSyntaxAST().getInvokePostStatement();
                     final FunctionInvokeOperableSemanticAST functionInvokeOperableSemanticAST
                             = new FunctionInvokeOperableSemanticAST(importDefinitionSemanticAST.getImportTargetClass().getSemanticAnalyzer(), this, this.getLastContainerAST(), functionInvokeOperableSyntaxAST);
-        
+
                     functionInvokeOperableSemanticAST.getInvokedFunction();
                     functionInvokeOperableSemanticAST.getInvokedExpressions();
-        
+
                     if (functionInvokeOperableSemanticAST.isFailed())
                         this.failed();
                     this.invokePostStatement = functionInvokeOperableSemanticAST;

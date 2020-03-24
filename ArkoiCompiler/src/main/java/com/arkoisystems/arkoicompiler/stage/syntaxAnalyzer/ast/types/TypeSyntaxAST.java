@@ -5,9 +5,7 @@
  */
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types;
 
-import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.LexicalAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken;
-import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.IdentifierToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.SymbolType;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.SemanticAnalyzer;
@@ -17,9 +15,14 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.parser.types.TypeParser;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.Setter;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.PrintStream;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -43,7 +46,8 @@ public class TypeSyntaxAST extends AbstractSyntaxAST
      */
     @Getter
     @Setter(AccessLevel.PROTECTED)
-    private TypeKind typeKind;
+    @NotNull
+    private TypeKind typeKind = TypeKind.UNDEFINED;
     
     
     /**
@@ -66,7 +70,7 @@ public class TypeSyntaxAST extends AbstractSyntaxAST
      *         methods like {@link SyntaxAnalyzer#matchesNextToken(SymbolType)} or {@link
      *         * SyntaxAnalyzer#nextToken()}.
      */
-    protected TypeSyntaxAST(final SyntaxAnalyzer syntaxAnalyzer) {
+    protected TypeSyntaxAST(@Nullable final SyntaxAnalyzer syntaxAnalyzer) {
         super(syntaxAnalyzer, ASTType.TYPE);
     }
     
@@ -86,7 +90,9 @@ public class TypeSyntaxAST extends AbstractSyntaxAST
      *         everything worked correctly.
      */
     @Override
-    public Optional<TypeSyntaxAST> parseAST(@NonNull final AbstractSyntaxAST parentAST) {
+    public Optional<TypeSyntaxAST> parseAST(@NotNull final AbstractSyntaxAST parentAST) {
+        Objects.requireNonNull(this.getSyntaxAnalyzer());
+        
         if (this.getSyntaxAnalyzer().matchesCurrentToken(TokenType.IDENTIFIER) == null) {
             this.addError(
                     this.getSyntaxAnalyzer().getArkoiClass(),
@@ -96,8 +102,8 @@ public class TypeSyntaxAST extends AbstractSyntaxAST
             return Optional.empty();
         }
         
-        this.typeKind = TypeKind.getTypeKind(this.getSyntaxAnalyzer().currentToken());
-        if (this.typeKind == null) {
+        final TypeKind typeKind = TypeKind.getTypeKind(this.getSyntaxAnalyzer().currentToken());
+        if (typeKind == null) {
             this.addError(
                     this.getSyntaxAnalyzer().getArkoiClass(),
                     this.getSyntaxAnalyzer().currentToken(),
@@ -105,6 +111,7 @@ public class TypeSyntaxAST extends AbstractSyntaxAST
             );
             return Optional.empty();
         }
+        this.typeKind = typeKind;
         
         this.setStart(this.getSyntaxAnalyzer().currentToken().getStart());
         
@@ -113,7 +120,7 @@ public class TypeSyntaxAST extends AbstractSyntaxAST
             this.getSyntaxAnalyzer().nextToken(2);
             this.isArray = true;
         }
-    
+        
         this.setEnd(this.getSyntaxAnalyzer().currentToken().getEnd());
         return Optional.of(this);
     }
@@ -128,10 +135,10 @@ public class TypeSyntaxAST extends AbstractSyntaxAST
      *         the {@code indents} which is used used when printing a new line.
      */
     @Override
-    public void printSyntaxAST(@NonNull final PrintStream printStream, @NonNull final String indents) { }
+    public void printSyntaxAST(@NotNull final PrintStream printStream, @NotNull final String indents) { }
     
     
-    public static TypeSyntaxASTBuilder builder(final SyntaxAnalyzer syntaxAnalyzer) {
+    public static TypeSyntaxASTBuilder builder(@NotNull final SyntaxAnalyzer syntaxAnalyzer) {
         return new TypeSyntaxASTBuilder(syntaxAnalyzer);
     }
     
@@ -141,11 +148,14 @@ public class TypeSyntaxAST extends AbstractSyntaxAST
     }
     
     
-    public static class TypeSyntaxASTBuilder {
+    public static class TypeSyntaxASTBuilder
+    {
         
+        @Nullable
         private final SyntaxAnalyzer syntaxAnalyzer;
-    
         
+        
+        @Nullable
         private TypeKind typeKind;
         
         
@@ -155,10 +165,10 @@ public class TypeSyntaxAST extends AbstractSyntaxAST
         private int start, end;
         
         
-        public TypeSyntaxASTBuilder(SyntaxAnalyzer syntaxAnalyzer) {
+        public TypeSyntaxASTBuilder(@NotNull final SyntaxAnalyzer syntaxAnalyzer) {
             this.syntaxAnalyzer = syntaxAnalyzer;
         }
-    
+        
         
         public TypeSyntaxASTBuilder() {
             this.syntaxAnalyzer = null;
@@ -169,20 +179,20 @@ public class TypeSyntaxAST extends AbstractSyntaxAST
             this.isArray = isArray;
             return this;
         }
-    
-    
-        public TypeSyntaxASTBuilder typeKind(final TypeKind typeKind) {
+        
+        
+        public TypeSyntaxASTBuilder typeKind(@NotNull final TypeKind typeKind) {
             this.typeKind = typeKind;
             return this;
         }
-    
-    
+        
+        
         public TypeSyntaxASTBuilder start(final int start) {
             this.start = start;
             return this;
         }
-    
-    
+        
+        
         public TypeSyntaxASTBuilder end(final int end) {
             this.end = end;
             return this;
@@ -191,13 +201,14 @@ public class TypeSyntaxAST extends AbstractSyntaxAST
         
         public TypeSyntaxAST build() {
             final TypeSyntaxAST typeSyntaxAST = new TypeSyntaxAST(this.syntaxAnalyzer);
-            typeSyntaxAST.setTypeKind(this.typeKind);
+            if (this.typeKind != null)
+                typeSyntaxAST.setTypeKind(this.typeKind);
             typeSyntaxAST.setArray(this.isArray);
             typeSyntaxAST.setStart(this.start);
             typeSyntaxAST.setEnd(this.end);
             return typeSyntaxAST;
         }
-    
+        
     }
     
 }

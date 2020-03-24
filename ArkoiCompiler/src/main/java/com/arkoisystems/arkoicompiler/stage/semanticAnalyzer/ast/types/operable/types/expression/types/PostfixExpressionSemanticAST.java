@@ -22,6 +22,7 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.ty
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types.utils.PostfixOperatorType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.PrintStream;
 
@@ -41,7 +42,7 @@ public class PostfixExpressionSemanticAST extends AbstractExpressionSemanticAST<
     
     // TODO: Check null safety.
     @Override
-    public void printSemanticAST(final PrintStream printStream, final String indents) {
+    public void printSemanticAST(@NotNull final PrintStream printStream, @NotNull final String indents) {
         printStream.println(indents + "├── left:");
         printStream.println(indents + "│   └── " + this.getLeftSideOperable().getClass().getSimpleName());
         this.getLeftSideOperable().printSemanticAST(printStream, indents + "│       ");
@@ -108,7 +109,7 @@ public class PostfixExpressionSemanticAST extends AbstractExpressionSemanticAST<
             final IdentifierCallOperableSyntaxAST identifierCallOperableSyntaxAST = (IdentifierCallOperableSyntaxAST) abstractOperableSyntaxAST;
             final IdentifierCallOperableSemanticAST identifierCallOperableSemanticAST
                     = new IdentifierCallOperableSemanticAST(this.getSemanticAnalyzer(), this.getLastContainerAST(), identifierCallOperableSyntaxAST);
-    
+
             if (identifierCallOperableSemanticAST.getOperableObject() == null)
                 return null;
             return identifierCallOperableSemanticAST;
@@ -116,7 +117,7 @@ public class PostfixExpressionSemanticAST extends AbstractExpressionSemanticAST<
             final IdentifierInvokeOperableSyntaxAST identifierInvokeOperableSyntaxAST = (IdentifierInvokeOperableSyntaxAST) abstractOperableSyntaxAST;
             final IdentifierInvokeOperableSemanticAST identifierInvokeOperableSemanticAST
                     = new IdentifierInvokeOperableSemanticAST(this.getSemanticAnalyzer(), this.getLastContainerAST(), identifierInvokeOperableSyntaxAST);
-    
+
             if (identifierInvokeOperableSemanticAST.getOperableObject() == null)
                 return null;
             return identifierInvokeOperableSemanticAST;
@@ -134,7 +135,7 @@ public class PostfixExpressionSemanticAST extends AbstractExpressionSemanticAST<
     @Override
     public TypeKind postfixAdd(final AbstractOperableSemanticAST<?, ?> abstractOperableSemanticAST) {
         final AbstractOperableSemanticAST<?, ?> leftExpressionOperable = this.analyzeNumericOperable(abstractOperableSemanticAST);
-        if(leftExpressionOperable == null) {
+        if (leftExpressionOperable == null) {
             this.addError(
                     this.getSemanticAnalyzer().getArkoiClass(),
                     abstractOperableSemanticAST,
@@ -150,7 +151,7 @@ public class PostfixExpressionSemanticAST extends AbstractExpressionSemanticAST<
     @Override
     public TypeKind postfixSub(final AbstractOperableSemanticAST<?, ?> abstractOperableSemanticAST) {
         final AbstractOperableSemanticAST<?, ?> leftExpressionOperable = this.analyzeNumericOperable(abstractOperableSemanticAST);
-        if(leftExpressionOperable == null) {
+        if (leftExpressionOperable == null) {
             this.addError(
                     this.getSemanticAnalyzer().getArkoiClass(),
                     abstractOperableSemanticAST,

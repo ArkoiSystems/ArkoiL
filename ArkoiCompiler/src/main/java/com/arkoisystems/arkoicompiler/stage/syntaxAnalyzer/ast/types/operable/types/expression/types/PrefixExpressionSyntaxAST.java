@@ -12,26 +12,31 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.Ab
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.AbstractExpressionSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types.utils.PrefixOperatorType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
+import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.NonNull;
 import lombok.Setter;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.PrintStream;
+import java.util.Objects;
 import java.util.Optional;
 
 public class PrefixExpressionSyntaxAST extends AbstractExpressionSyntaxAST
 {
     
     @Getter
-    private final PrefixOperatorType prefixOperatorType;
+    @Setter(AccessLevel.PROTECTED)
+    @NotNull
+    private PrefixOperatorType prefixOperatorType;
     
     
     @Getter
-    @Setter
+    @Setter(AccessLevel.PROTECTED)
+    @NotNull
     private AbstractOperableSyntaxAST<?> rightSideOperable;
     
     
-    public PrefixExpressionSyntaxAST(@NonNull final SyntaxAnalyzer syntaxAnalyzer, @NonNull final PrefixOperatorType prefixOperatorType) {
+    public PrefixExpressionSyntaxAST(@NotNull final SyntaxAnalyzer syntaxAnalyzer, @NotNull final PrefixOperatorType prefixOperatorType) {
         super(syntaxAnalyzer, ASTType.PREFIX_EXPRESSION);
         
         this.prefixOperatorType = prefixOperatorType;
@@ -39,8 +44,10 @@ public class PrefixExpressionSyntaxAST extends AbstractExpressionSyntaxAST
     
     
     @Override
-    public Optional<? extends AbstractOperableSyntaxAST<?>> parseAST(@NonNull final AbstractSyntaxAST parentAST) {
-        if(this.getPrefixOperatorType() == PrefixOperatorType.PREFIX_SUB || this.getPrefixOperatorType() == PrefixOperatorType.NEGATE) {
+    public Optional<? extends AbstractOperableSyntaxAST<?>> parseAST(@NotNull final AbstractSyntaxAST parentAST) {
+        Objects.requireNonNull(this.getSyntaxAnalyzer());
+        
+        if (this.getPrefixOperatorType() == PrefixOperatorType.PREFIX_SUB || this.getPrefixOperatorType() == PrefixOperatorType.NEGATE) {
             if (this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.MINUS) == null) {
                 this.addError(
                         this.getSyntaxAnalyzer().getArkoiClass(),
@@ -50,7 +57,7 @@ public class PrefixExpressionSyntaxAST extends AbstractExpressionSyntaxAST
                 );
                 return Optional.empty();
             }
-        } else if(this.getPrefixOperatorType() == PrefixOperatorType.PREFIX_ADD || this.getPrefixOperatorType() == PrefixOperatorType.AFFIRM) {
+        } else if (this.getPrefixOperatorType() == PrefixOperatorType.PREFIX_ADD || this.getPrefixOperatorType() == PrefixOperatorType.AFFIRM) {
             if (this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.PLUS) == null) {
                 this.addError(
                         this.getSyntaxAnalyzer().getArkoiClass(),
@@ -63,7 +70,7 @@ public class PrefixExpressionSyntaxAST extends AbstractExpressionSyntaxAST
         }
         this.setStart(this.getSyntaxAnalyzer().currentToken().getStart());
         
-        if(this.getPrefixOperatorType() == PrefixOperatorType.PREFIX_SUB) {
+        if (this.getPrefixOperatorType() == PrefixOperatorType.PREFIX_SUB) {
             if (this.getSyntaxAnalyzer().matchesPeekToken(1, SymbolType.MINUS, false) == null) {
                 this.addError(
                         this.getSyntaxAnalyzer().getArkoiClass(),
@@ -74,7 +81,7 @@ public class PrefixExpressionSyntaxAST extends AbstractExpressionSyntaxAST
                 return Optional.empty();
             }
             this.getSyntaxAnalyzer().nextToken(2);
-        } else if(this.getPrefixOperatorType() == PrefixOperatorType.PREFIX_ADD) {
+        } else if (this.getPrefixOperatorType() == PrefixOperatorType.PREFIX_ADD) {
             if (this.getSyntaxAnalyzer().matchesPeekToken(1, SymbolType.PLUS, false) == null) {
                 this.addError(
                         this.getSyntaxAnalyzer().getArkoiClass(),
@@ -97,7 +104,7 @@ public class PrefixExpressionSyntaxAST extends AbstractExpressionSyntaxAST
     
     
     @Override
-    public void printSyntaxAST(@NonNull final PrintStream printStream, @NonNull final String indents) {
+    public void printSyntaxAST(@NotNull final PrintStream printStream, @NotNull final String indents) {
         printStream.println(indents + "├── operator: " + this.getPrefixOperatorType());
         printStream.println(indents + "└── right:");
         printStream.println(indents + "    └── " + this.getRightSideOperable().getClass().getSimpleName());

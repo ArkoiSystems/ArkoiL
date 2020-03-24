@@ -22,6 +22,7 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.t
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.types.VariableDefinitionSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.BlockType;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
@@ -41,7 +42,7 @@ public class BlockSemanticAST extends AbstractSemanticAST<BlockSyntaxAST>
     
     // TODO: Check for null safety.
     @Override
-    public void printSemanticAST(final PrintStream printStream, final String indents) {
+    public void printSemanticAST(@NotNull final PrintStream printStream, @NotNull final String indents) {
         final List<AbstractSemanticAST<?>> blockStorage = this.getBlockStorage(new HashMap<>());
         printStream.println(indents + "├── type: " + this.getBlockType());
         printStream.println(indents + "└── storage: " + (blockStorage.isEmpty() ? "N/A" : ""));
@@ -67,10 +68,10 @@ public class BlockSemanticAST extends AbstractSemanticAST<BlockSyntaxAST>
     public List<AbstractSemanticAST<?>> getBlockStorage(final HashMap<String, AbstractSemanticAST<?>> names) {
         if (this.blockStorage == null) {
             this.blockStorage = new ArrayList<>();
-    
+
             if (this.getBlockType() == null)
                 this.failed();
-    
+
             for (final AbstractSyntaxAST abstractSyntaxAST : this.getSyntaxAST().getBlockStorage()) {
                 if (this.getBlockType() == BlockType.INLINE) {
                     if (!(abstractSyntaxAST instanceof ExpressionSyntaxAST)) {
@@ -81,13 +82,13 @@ public class BlockSemanticAST extends AbstractSemanticAST<BlockSyntaxAST>
                         );
                         continue;
                     }
-            
+
                     final ExpressionSyntaxAST expressionSyntaxAST = (ExpressionSyntaxAST) abstractSyntaxAST;
                     final ExpressionSemanticAST expressionSemanticAST
                             = new ExpressionSemanticAST(this.getSemanticAnalyzer(), this.getLastContainerAST(), expressionSyntaxAST);
-            
+
                     expressionSemanticAST.getOperableObject();
-            
+
                     if (expressionSemanticAST.isFailed())
                         this.failed();
                     this.blockStorage.add(expressionSemanticAST);
@@ -97,19 +98,19 @@ public class BlockSemanticAST extends AbstractSemanticAST<BlockSyntaxAST>
                         final BlockSemanticAST blockSemanticAST
                                 = new BlockSemanticAST(this.getSemanticAnalyzer(), this.getLastContainerAST(), blockSyntaxAST);
                         this.blockStorage.add(blockSemanticAST);
-    
+
                         blockSemanticAST.getBlockType();
                         blockSemanticAST.getBlockStorage(names);
-    
+
                         if (blockSemanticAST.isFailed())
                             this.failed();
                     } else if (abstractSyntaxAST instanceof VariableDefinitionSyntaxAST) {
                         final VariableDefinitionSyntaxAST variableDefinitionSyntaxAST = (VariableDefinitionSyntaxAST) abstractSyntaxAST;
                         final VariableDefinitionSemanticAST variableDefinitionSemanticAST
                                 = new VariableDefinitionSemanticAST(this.getSemanticAnalyzer(), this.getLastContainerAST(), variableDefinitionSyntaxAST);
-    
+
                         variableDefinitionSemanticAST.getVariableAnnotations();
-    
+
                         final IdentifierToken variableName = variableDefinitionSemanticAST.getVariableName();
                         if (variableName != null) {
                             if (names.containsKey(variableName.getTokenContent())) {
@@ -127,9 +128,9 @@ public class BlockSemanticAST extends AbstractSemanticAST<BlockSyntaxAST>
                             } else
                                 names.put(variableName.getTokenContent(), variableDefinitionSemanticAST);
                         } else this.failed();
-    
+
                         variableDefinitionSemanticAST.getVariableExpression();
-    
+
                         if (variableDefinitionSemanticAST.isFailed())
                             this.failed();
                         this.blockStorage.add(variableDefinitionSemanticAST);
@@ -137,11 +138,11 @@ public class BlockSemanticAST extends AbstractSemanticAST<BlockSyntaxAST>
                         final FunctionInvokeOperableSyntaxAST functionInvokeOperableSyntaxAST = (FunctionInvokeOperableSyntaxAST) abstractSyntaxAST;
                         final FunctionInvokeOperableSemanticAST functionInvokeOperableSemanticAST
                                 = new FunctionInvokeOperableSemanticAST(this.getSemanticAnalyzer(), this, this.getLastContainerAST(), functionInvokeOperableSyntaxAST);
-    
+
                         functionInvokeOperableSemanticAST.getInvokedFunction();
                         functionInvokeOperableSemanticAST.getInvokedExpressions();
                         functionInvokeOperableSemanticAST.getOperableObject();
-    
+
                         if (functionInvokeOperableSemanticAST.isFailed())
                             this.failed();
                         this.blockStorage.add(functionInvokeOperableSemanticAST);
@@ -149,10 +150,10 @@ public class BlockSemanticAST extends AbstractSemanticAST<BlockSyntaxAST>
                         final ReturnStatementSyntaxAST returnStatementSyntaxAST = (ReturnStatementSyntaxAST) abstractSyntaxAST;
                         final ReturnStatementSemanticAST returnStatementSemanticAST
                                 = new ReturnStatementSemanticAST(this.getSemanticAnalyzer(), this.getLastContainerAST(), returnStatementSyntaxAST);
-    
+
                         // TODO: Check if the function has a return type of void and if doesn't has a expression.
                         returnStatementSemanticAST.getReturnExpression();
-    
+
                         if (returnStatementSemanticAST.isFailed())
                             this.failed();
                         this.blockStorage.add(returnStatementSemanticAST);
@@ -173,7 +174,7 @@ public class BlockSemanticAST extends AbstractSemanticAST<BlockSyntaxAST>
     public AbstractSemanticAST<?> findIdentifier(final IdentifierToken identifierToken) {
         if (this.getBlockStorage(new HashMap<>()) == null)
             return null;
-    
+
         for (final AbstractSemanticAST<?> abstractSemanticAST : this.getBlockStorage(new HashMap<>())) {
             if (abstractSemanticAST instanceof BlockSemanticAST) {
                 final BlockSemanticAST blockSemanticAST = (BlockSemanticAST) abstractSemanticAST;
@@ -185,7 +186,7 @@ public class BlockSemanticAST extends AbstractSemanticAST<BlockSyntaxAST>
                 final IdentifierToken variableName = variableDefinitionSemanticAST.getVariableName();
                 if (variableName == null)
                     continue;
-                if(variableName.getTokenContent().equals(identifierToken.getTokenContent()))
+                if (variableName.getTokenContent().equals(identifierToken.getTokenContent()))
                     return variableDefinitionSemanticAST;
             }
         }

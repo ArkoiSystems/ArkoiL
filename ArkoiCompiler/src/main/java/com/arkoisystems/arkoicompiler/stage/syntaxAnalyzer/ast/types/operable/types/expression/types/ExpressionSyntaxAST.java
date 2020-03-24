@@ -7,15 +7,14 @@ package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.t
 
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.TypeSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.AbstractOperableSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.AbstractExpressionSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
 import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.NonNull;
 import lombok.Setter;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.PrintStream;
 import java.util.Optional;
@@ -25,16 +24,17 @@ public class ExpressionSyntaxAST extends AbstractExpressionSyntaxAST
     
     @Getter
     @Setter(AccessLevel.PROTECTED)
+    @NotNull
     private AbstractOperableSyntaxAST<?> expressionOperable;
     
     
-    protected ExpressionSyntaxAST(@NonNull final SyntaxAnalyzer syntaxAnalyzer) {
+    protected ExpressionSyntaxAST(@Nullable final SyntaxAnalyzer syntaxAnalyzer) {
         super(syntaxAnalyzer, ASTType.EXPRESSION);
     }
     
     
     @Override
-    public Optional<ExpressionSyntaxAST> parseAST(@NonNull final AbstractSyntaxAST parentAST) {
+    public Optional<ExpressionSyntaxAST> parseAST(@NotNull final AbstractSyntaxAST parentAST) {
         final Optional<? extends AbstractOperableSyntaxAST<?>> optionalAbstractOperableSyntaxAST = this.parseAssignment(this);
         if (optionalAbstractOperableSyntaxAST.isEmpty())
             return Optional.empty();
@@ -44,12 +44,12 @@ public class ExpressionSyntaxAST extends AbstractExpressionSyntaxAST
     
     
     @Override
-    public void printSyntaxAST(@NonNull final PrintStream printStream, @NonNull final String indents) {
+    public void printSyntaxAST(@NotNull final PrintStream printStream, @NotNull final String indents) {
         this.getExpressionOperable().printSyntaxAST(printStream, indents);
     }
     
     
-    public static ExpressionSyntaxASTBuilder builder(final SyntaxAnalyzer syntaxAnalyzer) {
+    public static ExpressionSyntaxASTBuilder builder(@NotNull final SyntaxAnalyzer syntaxAnalyzer) {
         return new ExpressionSyntaxASTBuilder(syntaxAnalyzer);
     }
     
@@ -59,18 +59,21 @@ public class ExpressionSyntaxAST extends AbstractExpressionSyntaxAST
     }
     
     
-    public static class ExpressionSyntaxASTBuilder {
+    public static class ExpressionSyntaxASTBuilder
+    {
         
+        @Nullable
         private final SyntaxAnalyzer syntaxAnalyzer;
         
         
+        @Nullable
         private AbstractOperableSyntaxAST<?> expressionOperable;
         
         
         private int start, end;
         
         
-        public ExpressionSyntaxASTBuilder(SyntaxAnalyzer syntaxAnalyzer) {
+        public ExpressionSyntaxASTBuilder(@NotNull final SyntaxAnalyzer syntaxAnalyzer) {
             this.syntaxAnalyzer = syntaxAnalyzer;
         }
         
@@ -80,7 +83,7 @@ public class ExpressionSyntaxAST extends AbstractExpressionSyntaxAST
         }
         
         
-        public ExpressionSyntaxASTBuilder operable(final AbstractOperableSyntaxAST<?> expressionOperable) {
+        public ExpressionSyntaxASTBuilder operable(@NotNull final AbstractOperableSyntaxAST<?> expressionOperable) {
             this.expressionOperable = expressionOperable;
             return this;
         }
@@ -100,7 +103,8 @@ public class ExpressionSyntaxAST extends AbstractExpressionSyntaxAST
         
         public ExpressionSyntaxAST build() {
             final ExpressionSyntaxAST typeSyntaxAST = new ExpressionSyntaxAST(this.syntaxAnalyzer);
-            typeSyntaxAST.setExpressionOperable(this.expressionOperable);
+            if (this.expressionOperable != null)
+                typeSyntaxAST.setExpressionOperable(this.expressionOperable);
             typeSyntaxAST.setStart(this.start);
             typeSyntaxAST.setEnd(this.end);
             return typeSyntaxAST;

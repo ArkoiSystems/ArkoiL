@@ -5,7 +5,6 @@
  */
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types;
 
-import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.SymbolToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.SymbolType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxErrorType;
@@ -13,17 +12,18 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.AbstractOperableSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.AbstractExpressionSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types.ExpressionSyntaxAST;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types.ParenthesizedExpressionSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
 import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.NonNull;
 import lombok.Setter;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 public class CollectionOperableSyntaxAST extends AbstractOperableSyntaxAST<TypeKind>
@@ -31,7 +31,8 @@ public class CollectionOperableSyntaxAST extends AbstractOperableSyntaxAST<TypeK
     
     @Getter
     @Setter(AccessLevel.PROTECTED)
-    private List<ExpressionSyntaxAST> collectionExpressions;
+    @NotNull
+    private List<ExpressionSyntaxAST> collectionExpressions = new ArrayList<>();
     
     
     protected CollectionOperableSyntaxAST(final SyntaxAnalyzer syntaxAnalyzer) {
@@ -40,7 +41,9 @@ public class CollectionOperableSyntaxAST extends AbstractOperableSyntaxAST<TypeK
     
     
     @Override
-    public Optional<CollectionOperableSyntaxAST> parseAST(@NonNull final AbstractSyntaxAST parentAST) {
+    public Optional<CollectionOperableSyntaxAST> parseAST(@NotNull final AbstractSyntaxAST parentAST) {
+        Objects.requireNonNull(this.getSyntaxAnalyzer());
+        
         if (this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.OPENING_BRACKET) == null) {
             this.addError(
                     this.getSyntaxAnalyzer().getArkoiClass(),
@@ -90,7 +93,7 @@ public class CollectionOperableSyntaxAST extends AbstractOperableSyntaxAST<TypeK
     
     
     @Override
-    public void printSyntaxAST(@NonNull final PrintStream printStream, @NonNull final String indents) {
+    public void printSyntaxAST(@NotNull final PrintStream printStream, @NotNull final String indents) {
         printStream.println(indents + "└── expressions: " + (this.getCollectionExpressions().isEmpty() ? "N/A" : ""));
         for (int index = 0; index < this.getCollectionExpressions().size(); index++) {
             final ExpressionSyntaxAST abstractSyntaxAST = this.getCollectionExpressions().get(index);
@@ -106,7 +109,7 @@ public class CollectionOperableSyntaxAST extends AbstractOperableSyntaxAST<TypeK
     }
     
     
-    public static CollectionOperableSyntaxASTBuilder builder(final SyntaxAnalyzer syntaxAnalyzer) {
+    public static CollectionOperableSyntaxASTBuilder builder(@NotNull final SyntaxAnalyzer syntaxAnalyzer) {
         return new CollectionOperableSyntaxASTBuilder(syntaxAnalyzer);
     }
     
@@ -116,32 +119,31 @@ public class CollectionOperableSyntaxAST extends AbstractOperableSyntaxAST<TypeK
     }
     
     
-    public static class CollectionOperableSyntaxASTBuilder {
+    public static class CollectionOperableSyntaxASTBuilder
+    {
         
+        @Nullable
         private final SyntaxAnalyzer syntaxAnalyzer;
-    
-    
+        
+        
+        @Nullable
         private List<ExpressionSyntaxAST> collectionExpressions;
         
         
         private int start, end;
         
         
-        public CollectionOperableSyntaxASTBuilder(SyntaxAnalyzer syntaxAnalyzer) {
+        public CollectionOperableSyntaxASTBuilder(@NotNull final SyntaxAnalyzer syntaxAnalyzer) {
             this.syntaxAnalyzer = syntaxAnalyzer;
-            
-            this.collectionExpressions = new ArrayList<>();
         }
         
         
         public CollectionOperableSyntaxASTBuilder() {
             this.syntaxAnalyzer = null;
-            
-            this.collectionExpressions = new ArrayList<>();
         }
         
         
-        public CollectionOperableSyntaxASTBuilder expressions(final List<ExpressionSyntaxAST> collectionExpressions) {
+        public CollectionOperableSyntaxASTBuilder expressions(@NotNull final List<ExpressionSyntaxAST> collectionExpressions) {
             this.collectionExpressions = collectionExpressions;
             return this;
         }
@@ -161,7 +163,8 @@ public class CollectionOperableSyntaxAST extends AbstractOperableSyntaxAST<TypeK
         
         public CollectionOperableSyntaxAST build() {
             final CollectionOperableSyntaxAST collectionOperableSyntaxAST = new CollectionOperableSyntaxAST(this.syntaxAnalyzer);
-            collectionOperableSyntaxAST.setCollectionExpressions(this.collectionExpressions);
+            if (this.collectionExpressions != null)
+                collectionOperableSyntaxAST.setCollectionExpressions(this.collectionExpressions);
             collectionOperableSyntaxAST.setStart(this.start);
             collectionOperableSyntaxAST.setEnd(this.end);
             return collectionOperableSyntaxAST;

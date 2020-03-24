@@ -22,12 +22,14 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.parser.AbstractParser
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.parser.types.BlockParser;
 import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.NonNull;
 import lombok.Setter;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -35,8 +37,6 @@ import java.util.Optional;
  * {@link BlockSyntaxAST#BLOCK_PARSER} to parse a new {@link BlockSyntaxAST} because with
  * it you can check if the current {@link AbstractToken} is capable to parse this AST.
  */
-@Getter
-@Setter
 public class BlockSyntaxAST extends AbstractSyntaxAST
 {
     
@@ -61,6 +61,7 @@ public class BlockSyntaxAST extends AbstractSyntaxAST
      * Defines the type of the {@link BlockSyntaxAST}. It can be an inlined block or just
      * a block. An example for this is:
      */
+    @Getter
     @Setter(AccessLevel.PROTECTED)
     private BlockType blockType;
     
@@ -69,8 +70,10 @@ public class BlockSyntaxAST extends AbstractSyntaxAST
      * Declares the {@link List} for every {@link AbstractSyntaxAST} which got parsed
      * inside the block.
      */
+    @Getter
     @Setter(AccessLevel.PROTECTED)
-    private List<AbstractSyntaxAST> blockStorage;
+    @NotNull
+    private List<AbstractSyntaxAST> blockStorage = new ArrayList<>();
     
     
     /**
@@ -102,7 +105,9 @@ public class BlockSyntaxAST extends AbstractSyntaxAST
      *         everything worked correctly.
      */
     @Override
-    public Optional<BlockSyntaxAST> parseAST(@NonNull final AbstractSyntaxAST parentAST) {
+    public Optional<BlockSyntaxAST> parseAST(@NotNull final AbstractSyntaxAST parentAST) {
+        Objects.requireNonNull(this.getSyntaxAnalyzer());
+        
         if (!(parentAST instanceof FunctionDefinitionSyntaxAST) && !(parentAST instanceof VariableDefinitionSyntaxAST) && !(parentAST instanceof BlockSyntaxAST)) {
             this.addError(
                     this.getSyntaxAnalyzer().getArkoiClass(),
@@ -112,28 +117,28 @@ public class BlockSyntaxAST extends AbstractSyntaxAST
             return Optional.empty();
         }
         this.setStart(this.getSyntaxAnalyzer().currentToken().getStart());
-    
+        
         if (this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.OPENING_BRACE) != null) {
             this.blockType = BlockType.BLOCK;
             this.getSyntaxAnalyzer().nextToken(); // Because it would parse a second block if we wouldn't do this.
-        
+            
             main_loop:
             while (this.getSyntaxAnalyzer().getPosition() < this.getSyntaxAnalyzer().getTokens().length) {
                 if (this.getSyntaxAnalyzer().currentToken() instanceof EndOfFileToken)
                     break;
                 if (this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.CLOSING_BRACE) != null)
                     break;
-    
+                
                 for (final AbstractParser abstractParser : BLOCK_PARSERS) {
                     if (!abstractParser.canParse(this, this.getSyntaxAnalyzer()))
                         continue;
-        
+                    
                     final Optional<? extends AbstractSyntaxAST> optionalAbstractSyntaxAST = abstractParser.parse(this, this.getSyntaxAnalyzer());
                     if (optionalAbstractSyntaxAST.isPresent()) {
                         final AbstractSyntaxAST abstractSyntaxAST = optionalAbstractSyntaxAST.get();
                         if (abstractSyntaxAST.isFailed())
                             this.failed();
-            
+                        
                         if (abstractSyntaxAST instanceof BlockSyntaxAST) {
                             if (this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.CLOSING_BRACE) == null) {
                                 this.addError(
@@ -163,10 +168,10 @@ public class BlockSyntaxAST extends AbstractSyntaxAST
                     }
                     continue main_loop;
                 }
-    
+                
                 if (this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.CLOSING_BRACE) != null)
                     break;
-            
+                
                 this.addError(
                         this.getSyntaxAnalyzer().getArkoiClass(),
                         this.getSyntaxAnalyzer().currentToken(),
@@ -177,7 +182,7 @@ public class BlockSyntaxAST extends AbstractSyntaxAST
         } else if (this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.EQUAL) != null) {
             this.blockType = BlockType.INLINE;
             this.getSyntaxAnalyzer().nextToken(); // Because it would try to parse the equal sign as expression.
-        
+            
             if (!AbstractExpressionSyntaxAST.EXPRESSION_PARSER.canParse(this, this.getSyntaxAnalyzer())) {
                 this.addError(
                         this.getSyntaxAnalyzer().getArkoiClass(),
@@ -186,12 +191,12 @@ public class BlockSyntaxAST extends AbstractSyntaxAST
                 );
                 return Optional.empty();
             }
-        
+            
             final Optional<ExpressionSyntaxAST> optionalExpressionSyntaxAST = AbstractExpressionSyntaxAST.EXPRESSION_PARSER.parse(this, this.getSyntaxAnalyzer());
             if (optionalExpressionSyntaxAST.isEmpty())
                 return Optional.empty();
             this.blockStorage.add(optionalExpressionSyntaxAST.get());
-        
+            
             if (this.getSyntaxAnalyzer().matchesNextToken(SymbolType.SEMICOLON) == null) {
                 this.addError(
                         this.getSyntaxAnalyzer().getArkoiClass(),
@@ -208,14 +213,14 @@ public class BlockSyntaxAST extends AbstractSyntaxAST
             );
             return Optional.empty();
         }
-    
+        
         this.setEnd(this.getSyntaxAnalyzer().currentToken().getEnd());
         return this.isFailed() ? Optional.empty() : Optional.of(this);
     }
     
     
     @Override
-    public void printSyntaxAST(@NonNull final PrintStream printStream, @NonNull final String indents) {
+    public void printSyntaxAST(@NotNull final PrintStream printStream, @NotNull final String indents) {
         printStream.println(indents + "├── type: " + this.getBlockType());
         printStream.println(indents + "└── storage: " + (this.getBlockStorage().isEmpty() ? "N/A" : ""));
         for (int index = 0; index < this.getBlockStorage().size(); index++) {
@@ -232,7 +237,7 @@ public class BlockSyntaxAST extends AbstractSyntaxAST
     }
     
     
-    public static BlockSyntaxASTBuilder builder(final SyntaxAnalyzer syntaxAnalyzer) {
+    public static BlockSyntaxASTBuilder builder(@NotNull final SyntaxAnalyzer syntaxAnalyzer) {
         return new BlockSyntaxASTBuilder(syntaxAnalyzer);
     }
     
@@ -245,22 +250,23 @@ public class BlockSyntaxAST extends AbstractSyntaxAST
     public static class BlockSyntaxASTBuilder
     {
         
+        @Nullable
         private final SyntaxAnalyzer syntaxAnalyzer;
         
         
+        @Nullable
         private List<AbstractSyntaxAST> blockStorage;
         
         
+        @Nullable
         private BlockType blockType;
         
         
         private int start, end;
         
         
-        public BlockSyntaxASTBuilder(final SyntaxAnalyzer syntaxAnalyzer) {
+        public BlockSyntaxASTBuilder(@NotNull final SyntaxAnalyzer syntaxAnalyzer) {
             this.syntaxAnalyzer = syntaxAnalyzer;
-            
-            this.blockStorage = new ArrayList<>();
         }
         
         
@@ -269,14 +275,14 @@ public class BlockSyntaxAST extends AbstractSyntaxAST
         }
         
         
-        public BlockSyntaxASTBuilder type(final BlockType blockType) {
-            this.blockType = blockType;
+        public BlockSyntaxASTBuilder storage(@NotNull final List<AbstractSyntaxAST> blockStorage) {
+            this.blockStorage = blockStorage;
             return this;
         }
         
         
-        public BlockSyntaxASTBuilder storage(final List<AbstractSyntaxAST> blockStorage) {
-            this.blockStorage = blockStorage;
+        public BlockSyntaxASTBuilder type(@NotNull final BlockType blockType) {
+            this.blockType = blockType;
             return this;
         }
         
@@ -295,7 +301,8 @@ public class BlockSyntaxAST extends AbstractSyntaxAST
         
         public BlockSyntaxAST build() {
             final BlockSyntaxAST blockSyntaxAST = new BlockSyntaxAST(this.syntaxAnalyzer);
-            blockSyntaxAST.setBlockStorage(this.blockStorage);
+            if (this.blockStorage != null)
+                blockSyntaxAST.setBlockStorage(this.blockStorage);
             blockSyntaxAST.setBlockType(this.blockType);
             blockSyntaxAST.setStart(this.start);
             blockSyntaxAST.setEnd(this.end);

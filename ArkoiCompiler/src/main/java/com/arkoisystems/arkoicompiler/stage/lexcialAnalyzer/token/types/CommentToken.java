@@ -8,20 +8,26 @@ package com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.LexicalAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.Optional;
 
 public class CommentToken extends AbstractToken
 {
     
-    protected CommentToken(final LexicalAnalyzer lexicalAnalyzer) {
-        super(lexicalAnalyzer, TokenType.COMMENT);
+    protected CommentToken(@Nullable final LexicalAnalyzer lexicalAnalyzer, final boolean crashOnAccess) {
+        super(lexicalAnalyzer, TokenType.COMMENT, crashOnAccess);
     }
     
     
+    @NotNull
     @Override
     public Optional<CommentToken> parseToken() {
+        Objects.requireNonNull(this.getLexicalAnalyzer());
+        
         if (this.getLexicalAnalyzer().currentChar() != '#') {
             this.addError(
                     this.getLexicalAnalyzer().getArkoiClass(),
@@ -46,7 +52,7 @@ public class CommentToken extends AbstractToken
     }
     
     
-    public static CommentTokenBuilder builder(final LexicalAnalyzer lexicalAnalyzer) {
+    public static CommentTokenBuilder builder(@NotNull final LexicalAnalyzer lexicalAnalyzer) {
         return new CommentTokenBuilder(lexicalAnalyzer);
     }
     
@@ -56,18 +62,24 @@ public class CommentToken extends AbstractToken
     }
     
     
-    public static class CommentTokenBuilder {
+    public static class CommentTokenBuilder
+    {
         
+        @Nullable
         private final LexicalAnalyzer lexicalAnalyzer;
         
         
+        private boolean crashOnAccess;
+        
+        
+        @Nullable
         private String tokenContent;
         
         
         private int start, end;
         
         
-        public CommentTokenBuilder(final LexicalAnalyzer lexicalAnalyzer) {
+        public CommentTokenBuilder(@NotNull final LexicalAnalyzer lexicalAnalyzer) {
             this.lexicalAnalyzer = lexicalAnalyzer;
         }
         
@@ -77,7 +89,7 @@ public class CommentToken extends AbstractToken
         }
         
         
-        public CommentTokenBuilder content(final String tokenContent) {
+        public CommentTokenBuilder content(@NotNull final String tokenContent) {
             this.tokenContent = tokenContent;
             return this;
         }
@@ -95,9 +107,16 @@ public class CommentToken extends AbstractToken
         }
         
         
+        public CommentTokenBuilder crash() {
+            this.crashOnAccess = true;
+            return this;
+        }
+        
+        
         public CommentToken build() {
-            final CommentToken commentToken = new CommentToken(this.lexicalAnalyzer);
-            commentToken.setTokenContent(this.tokenContent);
+            final CommentToken commentToken = new CommentToken(this.lexicalAnalyzer, this.crashOnAccess);
+            if (this.tokenContent != null)
+                commentToken.setTokenContent(this.tokenContent);
             commentToken.setStart(this.start);
             commentToken.setEnd(this.end);
             return commentToken;

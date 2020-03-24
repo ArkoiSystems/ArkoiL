@@ -12,7 +12,7 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.AnnotationSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.parser.AbstractParser;
-import lombok.NonNull;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 
@@ -38,8 +38,9 @@ public class AnnotationParser extends AbstractParser
      * @return {@code null} if an error occurred during the parsing of the {@link
      *         AnnotationSyntaxAST} or simply returns the parsed result.
      */
+    @NotNull
     @Override
-    public Optional<? extends AbstractSyntaxAST> parse(@NonNull final AbstractSyntaxAST parentAST, @NonNull final SyntaxAnalyzer syntaxAnalyzer) {
+    public Optional<? extends AbstractSyntaxAST> parse(@NotNull final AbstractSyntaxAST parentAST, @NotNull final SyntaxAnalyzer syntaxAnalyzer) {
         return AnnotationSyntaxAST
                 .builder(syntaxAnalyzer)
                 .build()
@@ -61,8 +62,9 @@ public class AnnotationParser extends AbstractParser
      * @return {@code false} if the current {@link AbstractToken} isn't an at sign or
      *         {@code true} if it is.
      */
+    @NotNull
     @Override
-    public boolean canParse(@NonNull final AbstractSyntaxAST parentAST, @NonNull final SyntaxAnalyzer syntaxAnalyzer) {
+    public boolean canParse(@NotNull final AbstractSyntaxAST parentAST, @NotNull final SyntaxAnalyzer syntaxAnalyzer) {
         return syntaxAnalyzer.matchesCurrentToken(SymbolType.AT_SIGN) != null;
     }
     
