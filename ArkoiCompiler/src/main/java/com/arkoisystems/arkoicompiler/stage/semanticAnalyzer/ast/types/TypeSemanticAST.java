@@ -11,13 +11,14 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.TypeSyntaxA
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.PrintStream;
 
 public class TypeSemanticAST extends AbstractSemanticAST<TypeSyntaxAST>
 {
     
-    public TypeSemanticAST(final SemanticAnalyzer semanticAnalyzer, final AbstractSemanticAST<?> lastContainerAST, final TypeSyntaxAST typeSyntaxAST) {
+    public TypeSemanticAST(@Nullable final SemanticAnalyzer semanticAnalyzer, @Nullable final AbstractSemanticAST<?> lastContainerAST, @NotNull final TypeSyntaxAST typeSyntaxAST) {
         super(semanticAnalyzer, lastContainerAST, typeSyntaxAST, ASTType.TYPE);
     }
     
@@ -31,6 +32,7 @@ public class TypeSemanticAST extends AbstractSemanticAST<TypeSyntaxAST>
     }
     
     
+    @NotNull
     public TypeKind getTypeKind() {
         return this.getSyntaxAST().getTypeKind();
     }

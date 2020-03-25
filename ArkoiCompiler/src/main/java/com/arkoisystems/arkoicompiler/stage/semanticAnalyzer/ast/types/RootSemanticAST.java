@@ -20,11 +20,10 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.t
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 /**
  * Used if you want to create a new {@link RootSemanticAST}. Usually you don't create an
@@ -40,7 +39,7 @@ public class RootSemanticAST extends AbstractSemanticAST<RootSyntaxAST>
      * when the {@link #initialize()} method was executed.
      */
     @Getter
-    private final List<ImportDefinitionSemanticAST> importStorage;
+    private final List<ImportDefinitionSemanticAST> importStorage = new ArrayList<>();
     
     
     /**
@@ -48,7 +47,7 @@ public class RootSemanticAST extends AbstractSemanticAST<RootSyntaxAST>
      * when the {@link #initialize()} method was executed.
      */
     @Getter
-    private final List<VariableDefinitionSemanticAST> variableStorage;
+    private final List<VariableDefinitionSemanticAST> variableStorage = new ArrayList<>();
     
     
     /**
@@ -56,7 +55,7 @@ public class RootSemanticAST extends AbstractSemanticAST<RootSyntaxAST>
      * when the {@link RootSemanticAST} was constructed.
      */
     @Getter
-    private final List<FunctionDefinitionSemanticAST> functionStorage;
+    private final List<FunctionDefinitionSemanticAST> functionStorage = new ArrayList<>();
     
     
     /**
@@ -70,13 +69,9 @@ public class RootSemanticAST extends AbstractSemanticAST<RootSyntaxAST>
      * @param rootSyntaxAST
      *         the {@link RootSyntaxAST} which is used checked for semantic errors.
      */
-    public RootSemanticAST(final SemanticAnalyzer semanticAnalyzer, final RootSyntaxAST rootSyntaxAST) {
+    public RootSemanticAST(@Nullable final SemanticAnalyzer semanticAnalyzer, @NotNull final RootSyntaxAST rootSyntaxAST) {
         super(semanticAnalyzer, null, rootSyntaxAST, ASTType.ROOT);
-        
-        this.functionStorage = new ArrayList<>();
-        this.variableStorage = new ArrayList<>();
-        this.importStorage = new ArrayList<>();
-        
+    
         for (final FunctionDefinitionSyntaxAST functionDefinitionSyntaxAST : rootSyntaxAST.getFunctionStorage()) {
             final FunctionDefinitionSemanticAST functionDefinitionSemanticAST
                     = new FunctionDefinitionSemanticAST(semanticAnalyzer, this, functionDefinitionSyntaxAST);
@@ -97,35 +92,35 @@ public class RootSemanticAST extends AbstractSemanticAST<RootSyntaxAST>
     @NotNull
     @Override
     public Optional<AbstractSemanticAST<?>> initialize() {
+        Objects.requireNonNull(this.getSemanticAnalyzer());
+    
         final HashMap<String, AbstractSemanticAST<?>> names = new HashMap<>();
         for (final AbstractSyntaxAST abstractSyntaxAST : this.getSyntaxAST().getSortedStorage()) {
             if (abstractSyntaxAST instanceof FunctionDefinitionSyntaxAST)
                 continue;
-            
+        
             if (abstractSyntaxAST instanceof ImportDefinitionSyntaxAST) {
                 final ImportDefinitionSyntaxAST importDefinitionSyntaxAST = (ImportDefinitionSyntaxAST) abstractSyntaxAST;
                 final ImportDefinitionSemanticAST importDefinitionSemanticAST
                         = new ImportDefinitionSemanticAST(this.getSemanticAnalyzer(), this, importDefinitionSyntaxAST);
-
+            
                 final IdentifierToken importName = importDefinitionSemanticAST.getImportName();
-                if (importName != null) {
-                    if (names.containsKey(importName.getTokenContent())) {
-                        final AbstractSemanticAST<?> alreadyExistAST = names.get(importName.getTokenContent());
-                        this.addError(
-                                this.getSemanticAnalyzer().getArkoiClass(),
-                                new AbstractSemanticAST[] {
-                                        alreadyExistAST,
-                                        importDefinitionSemanticAST
-                                },
-                                SemanticErrorType.IMPORT_NAME_ALREADY_TAKEN,
-                                (alreadyExistAST instanceof ImportDefinitionSemanticAST) ? "an import" : "a variable"
-                        );
-                    } else
-                        names.put(importName.getTokenContent(), importDefinitionSemanticAST);
-                } else this.failed();
-
+                if (names.containsKey(importName.getTokenContent())) {
+                    final AbstractSemanticAST<?> alreadyExistAST = names.get(importName.getTokenContent());
+                    this.addError(
+                            this.getSemanticAnalyzer().getArkoiClass(),
+                            new AbstractSemanticAST[] {
+                                    alreadyExistAST,
+                                    importDefinitionSemanticAST
+                            },
+                            SemanticErrorType.IMPORT_NAME_ALREADY_TAKEN,
+                            (alreadyExistAST instanceof ImportDefinitionSemanticAST) ? "an import" : "a variable"
+                    );
+                } else
+                    names.put(importName.getTokenContent(), importDefinitionSemanticAST);
+            
                 importDefinitionSemanticAST.getImportTargetClass();
-
+            
                 if (importDefinitionSemanticAST.isFailed())
                     this.failed();
                 this.importStorage.add(importDefinitionSemanticAST);
@@ -133,28 +128,26 @@ public class RootSemanticAST extends AbstractSemanticAST<RootSyntaxAST>
                 final VariableDefinitionSyntaxAST variableDefinitionSyntaxAST = (VariableDefinitionSyntaxAST) abstractSyntaxAST;
                 final VariableDefinitionSemanticAST variableDefinitionSemanticAST
                         = new VariableDefinitionSemanticAST(this.getSemanticAnalyzer(), this, variableDefinitionSyntaxAST);
-
+            
                 variableDefinitionSemanticAST.getVariableAnnotations();
-
+            
                 final IdentifierToken variableName = variableDefinitionSemanticAST.getVariableName();
-                if (variableName != null) {
-                    if (names.containsKey(variableName.getTokenContent())) {
-                        final AbstractSemanticAST<?> alreadyExistAST = names.get(variableName.getTokenContent());
-                        this.addError(
-                                this.getSemanticAnalyzer().getArkoiClass(),
-                                new AbstractSemanticAST[] {
-                                        alreadyExistAST,
-                                        variableDefinitionSemanticAST
-                                },
-                                SemanticErrorType.VARIABLE_NAME_ALREADY_TAKEN,
-                                (alreadyExistAST instanceof ImportDefinitionSemanticAST) ? "an import" : "a variable"
-                        );
-                    } else
-                        names.put(variableName.getTokenContent(), variableDefinitionSemanticAST);
-                } else this.failed();
-
+                if (names.containsKey(variableName.getTokenContent())) {
+                    final AbstractSemanticAST<?> alreadyExistAST = names.get(variableName.getTokenContent());
+                    this.addError(
+                            this.getSemanticAnalyzer().getArkoiClass(),
+                            new AbstractSemanticAST[] {
+                                    alreadyExistAST,
+                                    variableDefinitionSemanticAST
+                            },
+                            SemanticErrorType.VARIABLE_NAME_ALREADY_TAKEN,
+                            (alreadyExistAST instanceof ImportDefinitionSemanticAST) ? "an import" : "a variable"
+                    );
+                } else
+                    names.put(variableName.getTokenContent(), variableDefinitionSemanticAST);
+            
                 variableDefinitionSemanticAST.getVariableExpression();
-
+            
                 if (variableDefinitionSemanticAST.isFailed())
                     this.failed();
                 this.variableStorage.add(variableDefinitionSemanticAST);
@@ -163,32 +156,29 @@ public class RootSemanticAST extends AbstractSemanticAST<RootSyntaxAST>
         
         for (final FunctionDefinitionSemanticAST functionDefinitionSemanticAST : this.getFunctionStorage()) {
             functionDefinitionSemanticAST.getFunctionAnnotations();
-
+    
             final String functionDescription = functionDefinitionSemanticAST.getFunctionDescription();
-            if (functionDescription != null) {
-                if (names.containsKey(functionDescription)) {
-                    final AbstractSemanticAST<?> alreadyExistAST = names.get(functionDescription);
-                    this.addError(
-                            this.getSemanticAnalyzer().getArkoiClass(),
-                            new AbstractSemanticAST[] {
-                                    alreadyExistAST,
-                                    functionDefinitionSemanticAST
-                            },
-                            SemanticErrorType.FUNCTION_DESC_ALREADY_EXISTS
-                    );
-                } else names.put(functionDescription, functionDefinitionSemanticAST);
-            } else this.failed();
-
+            if (names.containsKey(functionDescription)) {
+                final AbstractSemanticAST<?> alreadyExistAST = names.get(functionDescription);
+                this.addError(
+                        this.getSemanticAnalyzer().getArkoiClass(),
+                        new AbstractSemanticAST[] {
+                                alreadyExistAST,
+                                functionDefinitionSemanticAST
+                        },
+                        SemanticErrorType.FUNCTION_DESC_ALREADY_EXISTS
+                );
+            } else names.put(functionDescription, functionDefinitionSemanticAST);
+    
             functionDefinitionSemanticAST.getFunctionBlock();
-
+    
             if (functionDefinitionSemanticAST.isFailed())
                 this.failed();
         }
-        return this;
+        return Optional.of(this);
     }
     
     
-    // TODO: Check for null safety.
     @Override
     public void printSemanticAST(@NotNull final PrintStream printStream, @NotNull final String indents) {
         printStream.println(indents + "├── imports: " + (this.getImportStorage().isEmpty() ? "N/A" : ""));
@@ -247,6 +237,7 @@ public class RootSemanticAST extends AbstractSemanticAST<RootSyntaxAST>
      * @return {@code null} if it found nothing, or the found {@link
      *         AbstractSemanticAST}.
      */
+    @Nullable
     public AbstractSemanticAST<?> findIdentifier(final IdentifierToken identifierToken) {
         for (final ImportDefinitionSemanticAST importDefinitionSemanticAST : this.getImportStorage()) {
             if (importDefinitionSemanticAST.getImportName().getTokenContent().equals(identifierToken.getTokenContent()))
@@ -274,11 +265,10 @@ public class RootSemanticAST extends AbstractSemanticAST<RootSyntaxAST>
      * @return {@code null} if it found nothing, or the found {@link
      *         FunctionDefinitionSemanticAST}.
      */
+    @Nullable
     public FunctionDefinitionSemanticAST findFunction(final String functionDescription) {
         for (final FunctionDefinitionSemanticAST functionDefinitionSemanticAST : this.getFunctionStorage()) {
             final String functionDefinitionDescription = functionDefinitionSemanticAST.getFunctionDescription();
-            if (functionDefinitionDescription == null)
-                return null;
             if (functionDefinitionDescription.equals(functionDescription))
                 return functionDefinitionSemanticAST;
         }

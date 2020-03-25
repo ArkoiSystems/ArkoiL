@@ -10,22 +10,24 @@ import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.AbstractSemanti
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.types.expression.types.ExpressionSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.types.ReturnStatementSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
+import lombok.NonNull;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.PrintStream;
 
 public class ReturnStatementSemanticAST extends AbstractSemanticAST<ReturnStatementSyntaxAST>
 {
     
+    @Nullable
     private ExpressionSemanticAST returnExpression;
     
     
-    public ReturnStatementSemanticAST(final SemanticAnalyzer semanticAnalyzer, final AbstractSemanticAST<?> lastContainerAST, final ReturnStatementSyntaxAST returnStatementSyntaxAST) {
+    public ReturnStatementSemanticAST(@Nullable final SemanticAnalyzer semanticAnalyzer, @Nullable final AbstractSemanticAST<?> lastContainerAST, @NonNull final ReturnStatementSyntaxAST returnStatementSyntaxAST) {
         super(semanticAnalyzer, lastContainerAST, returnStatementSyntaxAST, ASTType.RETURN_STATEMENT);
     }
     
     
-    // TODO: Check for null safety.
     @Override
     public void printSemanticAST(@NotNull final PrintStream printStream, @NotNull final String indents) {
         printStream.println(indents + "└── expression:");
@@ -33,13 +35,13 @@ public class ReturnStatementSemanticAST extends AbstractSemanticAST<ReturnStatem
     }
     
     
+    @NonNull
     public ExpressionSemanticAST getReturnExpression() {
         if (this.returnExpression == null) {
             this.returnExpression
                     = new ExpressionSemanticAST(this.getSemanticAnalyzer(), this.getLastContainerAST(), this.getSyntaxAST().getReturnExpression());
 
-            this.returnExpression.getOperableObject();
-
+            this.returnExpression.getTypeKind();
             if (this.returnExpression.isFailed())
                 this.failed();
         }

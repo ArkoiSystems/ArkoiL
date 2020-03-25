@@ -13,50 +13,49 @@ import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.statements.FunctionDefinitionSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.statements.VariableDefinitionSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.IdentifierCallOperableSyntaxAST;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTAccess;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
+import lombok.NonNull;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.PrintStream;
+import java.util.Objects;
 
-public class IdentifierCallOperableSemanticAST extends AbstractOperableSemanticAST<IdentifierCallOperableSyntaxAST, TypeKind>
+public class IdentifierCallOperableSemanticAST extends AbstractOperableSemanticAST<IdentifierCallOperableSyntaxAST>
 {
     
+    @Nullable
     private AbstractSemanticAST<?> foundIdentifier;
     
     
-    public IdentifierCallOperableSemanticAST(final SemanticAnalyzer semanticAnalyzer, final AbstractSemanticAST<?> lastContainerAST, final IdentifierCallOperableSyntaxAST identifierCallOperableSyntaxAST) {
+    public IdentifierCallOperableSemanticAST(@Nullable final SemanticAnalyzer semanticAnalyzer, @Nullable final AbstractSemanticAST<?> lastContainerAST, @NonNull final IdentifierCallOperableSyntaxAST identifierCallOperableSyntaxAST) {
         super(semanticAnalyzer, lastContainerAST, identifierCallOperableSyntaxAST, ASTType.IDENTIFIER_CALL_OPERABLE);
     }
     
     
-    // TODO: Check for null safety.
     @Override
     public void printSemanticAST(@NotNull final PrintStream printStream, @NotNull final String indents) {
-        printStream.println(indents + "├── access: " + this.getIdentifierAccess());
+        printStream.println(indents + "├── fileLocal: " + this.isFileLocal());
         printStream.println(indents + "└── identifier: ");
-        this.getFoundIdentifier().printSemanticAST(printStream, indents + "        ");
+        Objects.requireNonNull(this.getFoundIdentifier()).printSemanticAST(printStream, indents + "        ");
     }
     
     
+    @Nullable
     @Override
-    public TypeKind getOperableObject() {
+    public TypeKind getTypeKind() {
+        Objects.requireNonNull(this.getSemanticAnalyzer());
         if (this.getFoundIdentifier() == null)
             return null;
         
         final AbstractSemanticAST<?> foundIdentifier = this.getFoundIdentifier();
         if (foundIdentifier instanceof VariableDefinitionSemanticAST) {
             final VariableDefinitionSemanticAST variableDefinitionSemanticAST = (VariableDefinitionSemanticAST) foundIdentifier;
-            if (variableDefinitionSemanticAST.getVariableExpression() == null)
-                return null;
-            return variableDefinitionSemanticAST.getVariableExpression().getOperableObject();
+            return variableDefinitionSemanticAST.getVariableExpression().getTypeKind();
         } else if (foundIdentifier instanceof ParameterSemanticAST) {
             final ParameterSemanticAST parameterSemanticAST = (ParameterSemanticAST) foundIdentifier;
-            if (parameterSemanticAST.getParameterName() == null)
-                return null;
-            if (parameterSemanticAST.getParameterType() == null)
-                return null;
+            parameterSemanticAST.getParameterName();
             return parameterSemanticAST.getParameterType().getTypeKind();
         } else {
             this.addError(
@@ -69,15 +68,18 @@ public class IdentifierCallOperableSemanticAST extends AbstractOperableSemanticA
     }
     
     
-    public ASTAccess getIdentifierAccess() {
-        return this.getSyntaxAST().getIdentifierAccess();
+    public boolean isFileLocal() {
+        return this.getSyntaxAST().isFileLocal();
     }
     
     
+    @Nullable
     public AbstractSemanticAST<?> getFoundIdentifier() {
+        Objects.requireNonNull(this.getSemanticAnalyzer());
+        
         if (this.foundIdentifier == null) {
             AbstractSemanticAST<?> abstractSemanticAST = null;
-            if (this.getIdentifierAccess() != ASTAccess.THIS_ACCESS && this.getLastContainerAST() instanceof FunctionDefinitionSemanticAST) {
+            if (this.isFileLocal() && this.getLastContainerAST() instanceof FunctionDefinitionSemanticAST) {
                 final FunctionDefinitionSemanticAST functionDefinitionSemanticAST = (FunctionDefinitionSemanticAST) this.getLastContainerAST();
                 abstractSemanticAST = functionDefinitionSemanticAST.findIdentifier(this.getSyntaxAST().getCalledIdentifier());
             }

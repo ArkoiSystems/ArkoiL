@@ -110,8 +110,7 @@ public class TypeSyntaxAST extends AbstractSyntaxAST
                     SyntaxErrorType.TYPE_NOT_A_VALID_TYPE
             );
             return Optional.empty();
-        }
-        this.typeKind = typeKind;
+        } else this.typeKind = typeKind;
         
         this.setStart(this.getSyntaxAnalyzer().currentToken().getStart());
         

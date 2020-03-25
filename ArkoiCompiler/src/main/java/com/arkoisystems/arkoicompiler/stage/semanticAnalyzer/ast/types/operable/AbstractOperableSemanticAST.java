@@ -9,14 +9,16 @@ import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.SemanticAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.AbstractSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.PrintStream;
 
-public class AbstractOperableSemanticAST<T1 extends AbstractSyntaxAST, O> extends AbstractSemanticAST<T1>
+public class AbstractOperableSemanticAST<T1 extends AbstractSyntaxAST> extends AbstractSemanticAST<T1>
 {
     
-    public AbstractOperableSemanticAST(final SemanticAnalyzer semanticAnalyzer, final AbstractSemanticAST<?> lastContainerAST, final T1 syntaxAST, final ASTType astType) {
+    public AbstractOperableSemanticAST(@Nullable final SemanticAnalyzer semanticAnalyzer, @Nullable final AbstractSemanticAST<?> lastContainerAST, @NotNull final T1 syntaxAST, @NotNull final ASTType astType) {
         super(semanticAnalyzer, lastContainerAST, syntaxAST, astType);
     }
     
@@ -25,7 +27,8 @@ public class AbstractOperableSemanticAST<T1 extends AbstractSyntaxAST, O> extend
     public void printSemanticAST(@NotNull PrintStream printStream, @NotNull String indents) { }
     
     
-    public O getOperableObject() {
+    @Nullable
+    public TypeKind getTypeKind() {
         return null;
     }
     

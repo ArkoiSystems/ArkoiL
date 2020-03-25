@@ -25,7 +25,7 @@ public abstract class AbstractSemanticAST<T extends AbstractSyntaxAST>
 {
     
     @Getter
-    @NotNull
+    @Nullable
     private final AbstractSemanticAST<?> lastContainerAST;
     
     
@@ -58,7 +58,7 @@ public abstract class AbstractSemanticAST<T extends AbstractSyntaxAST>
     private int start, end;
     
     
-    public AbstractSemanticAST(@Nullable final SemanticAnalyzer semanticAnalyzer, @NotNull final AbstractSemanticAST<?> lastContainerAST, @NotNull final T syntaxAST, @NotNull final ASTType astType) {
+    public AbstractSemanticAST(@Nullable final SemanticAnalyzer semanticAnalyzer, @Nullable final AbstractSemanticAST<?> lastContainerAST, @NotNull final T syntaxAST, @NotNull final ASTType astType) {
         this.lastContainerAST = lastContainerAST;
         this.semanticAnalyzer = semanticAnalyzer;
         this.syntaxAST = syntaxAST;
@@ -78,7 +78,7 @@ public abstract class AbstractSemanticAST<T extends AbstractSyntaxAST>
     public abstract void printSemanticAST(@NotNull final PrintStream printStream, @NotNull final String indents);
     
     
-    public void addError(@NotNull final ArkoiClass arkoiClass, @NotNull final AbstractSyntaxAST[] abstractSyntaxASTs, @NotNull final String message, final Object... arguments) {
+    public void addError(@NotNull final ArkoiClass arkoiClass, @NotNull final AbstractSyntaxAST[] abstractSyntaxASTs, @NotNull final String message, @NotNull final Object... arguments) {
         this.failed();
         
         if (!this.getErrorList().contains(message)) {
@@ -93,7 +93,7 @@ public abstract class AbstractSemanticAST<T extends AbstractSyntaxAST>
     }
     
     
-    public void addError(@NotNull final ArkoiClass arkoiClass, @NotNull final AbstractSyntaxAST abstractSyntaxAST, @NotNull final String message, final Object... arguments) {
+    public void addError(@NotNull final ArkoiClass arkoiClass, @NotNull final AbstractSyntaxAST abstractSyntaxAST, @NotNull final String message, @NotNull final Object... arguments) {
         this.failed();
         
         if (!this.getErrorList().contains(message)) {
@@ -108,7 +108,7 @@ public abstract class AbstractSemanticAST<T extends AbstractSyntaxAST>
     }
     
     
-    public void addError(@NotNull final ArkoiClass arkoiClass, @NotNull final AbstractSemanticAST<?>[] abstractSemanticASTS, @NotNull final String message, final Object... arguments) {
+    public void addError(@NotNull final ArkoiClass arkoiClass, @NotNull final AbstractSemanticAST<?>[] abstractSemanticASTS, @NotNull final String message, @NotNull final Object... arguments) {
         this.failed();
         
         if (!this.getErrorList().contains(message)) {
@@ -123,7 +123,7 @@ public abstract class AbstractSemanticAST<T extends AbstractSyntaxAST>
     }
     
     
-    public void addError(@NotNull final ArkoiClass arkoiClass, @NotNull final AbstractSemanticAST<?> abstractSemanticAST, @NotNull final String message, final Object... arguments) {
+    public void addError(@NotNull final ArkoiClass arkoiClass, @NotNull final AbstractSemanticAST<?> abstractSemanticAST, @NotNull final String message, @NotNull final Object... arguments) {
         this.failed();
         
         if (!this.getErrorList().contains(message)) {

@@ -12,16 +12,24 @@ import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
+import lombok.NonNull;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-public class AbstractExpressionSemanticAST<T extends AbstractSyntaxAST> extends AbstractOperableSemanticAST<T, TypeKind>
+import java.util.Objects;
+
+public class AbstractExpressionSemanticAST<T extends AbstractSyntaxAST> extends AbstractOperableSemanticAST<T>
 {
     
-    public AbstractExpressionSemanticAST(final SemanticAnalyzer semanticAnalyzer, final AbstractSemanticAST<?> lastContainerAST, final T syntaxAST, final ASTType astType) {
+    public AbstractExpressionSemanticAST(@Nullable final SemanticAnalyzer semanticAnalyzer, @Nullable final AbstractSemanticAST<?> lastContainerAST, @NotNull final T syntaxAST, @NonNull final ASTType astType) {
         super(semanticAnalyzer, lastContainerAST, syntaxAST, astType);
     }
     
     
-    public TypeKind binAdd(final AbstractOperableSemanticAST<?, ?> leftSideOperable, final AbstractOperableSemanticAST<?, ?> rightSideOperable) {
+    @Nullable
+    public TypeKind binAdd(@NotNull final AbstractOperableSemanticAST<?> leftSideOperable, @NotNull final AbstractOperableSemanticAST<?> rightSideOperable) {
+        Objects.requireNonNull(this.getSemanticAnalyzer());
+        
         this.addError(
                 this.getSemanticAnalyzer().getArkoiClass(),
                 new AbstractSemanticAST[] {
@@ -34,7 +42,10 @@ public class AbstractExpressionSemanticAST<T extends AbstractSyntaxAST> extends 
     }
     
     
-    public TypeKind binSub(final AbstractOperableSemanticAST<?, ?> leftSideOperable, final AbstractOperableSemanticAST<?, ?> rightSideOperable) {
+    @Nullable
+    public TypeKind binSub(@NotNull final AbstractOperableSemanticAST<?> leftSideOperable, @NotNull final AbstractOperableSemanticAST<?> rightSideOperable) {
+        Objects.requireNonNull(this.getSemanticAnalyzer());
+        
         this.addError(
                 this.getSemanticAnalyzer().getArkoiClass(),
                 new AbstractSemanticAST[] {
@@ -47,7 +58,10 @@ public class AbstractExpressionSemanticAST<T extends AbstractSyntaxAST> extends 
     }
     
     
-    public TypeKind binMul(final AbstractOperableSemanticAST<?, ?> leftSideOperable, final AbstractOperableSemanticAST<?, ?> rightSideOperable) {
+    @Nullable
+    public TypeKind binMul(@NotNull final AbstractOperableSemanticAST<?> leftSideOperable, @NotNull final AbstractOperableSemanticAST<?> rightSideOperable) {
+        Objects.requireNonNull(this.getSemanticAnalyzer());
+        
         this.addError(
                 this.getSemanticAnalyzer().getArkoiClass(),
                 new AbstractSemanticAST[] {
@@ -60,7 +74,10 @@ public class AbstractExpressionSemanticAST<T extends AbstractSyntaxAST> extends 
     }
     
     
-    public TypeKind binDiv(final AbstractOperableSemanticAST<?, ?> leftSideOperable, final AbstractOperableSemanticAST<?, ?> rightSideOperable) {
+    @Nullable
+    public TypeKind binDiv(@NotNull final AbstractOperableSemanticAST<?> leftSideOperable, @NotNull final AbstractOperableSemanticAST<?> rightSideOperable) {
+        Objects.requireNonNull(this.getSemanticAnalyzer());
+        
         this.addError(
                 this.getSemanticAnalyzer().getArkoiClass(),
                 new AbstractSemanticAST[] {
@@ -73,7 +90,10 @@ public class AbstractExpressionSemanticAST<T extends AbstractSyntaxAST> extends 
     }
     
     
-    public TypeKind binMod(final AbstractOperableSemanticAST<?, ?> leftSideOperable, final AbstractOperableSemanticAST<?, ?> rightSideOperable) {
+    @Nullable
+    public TypeKind binMod(@NotNull final AbstractOperableSemanticAST<?> leftSideOperable, @NotNull final AbstractOperableSemanticAST<?> rightSideOperable) {
+        Objects.requireNonNull(this.getSemanticAnalyzer());
+        
         this.addError(
                 this.getSemanticAnalyzer().getArkoiClass(),
                 new AbstractSemanticAST[] {
@@ -86,7 +106,10 @@ public class AbstractExpressionSemanticAST<T extends AbstractSyntaxAST> extends 
     }
     
     
-    public TypeKind binExp(final AbstractOperableSemanticAST<?, ?> leftSideOperable, final AbstractOperableSemanticAST<?, ?> rightSideOperable) {
+    @Nullable
+    public TypeKind binExp(@NotNull final AbstractOperableSemanticAST<?> leftSideOperable, @NotNull final AbstractOperableSemanticAST<?> rightSideOperable) {
+        Objects.requireNonNull(this.getSemanticAnalyzer());
+    
         this.addError(
                 this.getSemanticAnalyzer().getArkoiClass(),
                 new AbstractSemanticAST[] {
@@ -99,7 +122,10 @@ public class AbstractExpressionSemanticAST<T extends AbstractSyntaxAST> extends 
     }
     
     
-    public TypeKind assign(final AbstractOperableSemanticAST<?, ?> leftSideOperable, final AbstractOperableSemanticAST<?, ?> rightSideOperable) {
+    @Nullable
+    public TypeKind assign(@NotNull final AbstractOperableSemanticAST<?> leftSideOperable, @NotNull final AbstractOperableSemanticAST<?> rightSideOperable) {
+        Objects.requireNonNull(this.getSemanticAnalyzer());
+    
         this.addError(
                 this.getSemanticAnalyzer().getArkoiClass(),
                 new AbstractSemanticAST[] {
@@ -112,7 +138,10 @@ public class AbstractExpressionSemanticAST<T extends AbstractSyntaxAST> extends 
     }
     
     
-    public TypeKind addAssign(final AbstractOperableSemanticAST<?, ?> leftSideOperable, final AbstractOperableSemanticAST<?, ?> rightSideOperable) {
+    @Nullable
+    public TypeKind addAssign(@NotNull final AbstractOperableSemanticAST<?> leftSideOperable, @NotNull final AbstractOperableSemanticAST<?> rightSideOperable) {
+        Objects.requireNonNull(this.getSemanticAnalyzer());
+    
         this.addError(
                 this.getSemanticAnalyzer().getArkoiClass(),
                 new AbstractSemanticAST[] {
@@ -125,7 +154,10 @@ public class AbstractExpressionSemanticAST<T extends AbstractSyntaxAST> extends 
     }
     
     
-    public TypeKind subAssign(final AbstractOperableSemanticAST<?, ?> leftSideOperable, final AbstractOperableSemanticAST<?, ?> rightSideOperable) {
+    @Nullable
+    public TypeKind subAssign(@NotNull final AbstractOperableSemanticAST<?> leftSideOperable, @NotNull final AbstractOperableSemanticAST<?> rightSideOperable) {
+        Objects.requireNonNull(this.getSemanticAnalyzer());
+    
         this.addError(
                 this.getSemanticAnalyzer().getArkoiClass(),
                 new AbstractSemanticAST[] {
@@ -138,7 +170,10 @@ public class AbstractExpressionSemanticAST<T extends AbstractSyntaxAST> extends 
     }
     
     
-    public TypeKind mulAssign(final AbstractOperableSemanticAST<?, ?> leftSideOperable, final AbstractOperableSemanticAST<?, ?> rightSideOperable) {
+    @Nullable
+    public TypeKind mulAssign(@NotNull final AbstractOperableSemanticAST<?> leftSideOperable, @NotNull final AbstractOperableSemanticAST<?> rightSideOperable) {
+        Objects.requireNonNull(this.getSemanticAnalyzer());
+    
         this.addError(
                 this.getSemanticAnalyzer().getArkoiClass(),
                 new AbstractSemanticAST[] {
@@ -151,7 +186,10 @@ public class AbstractExpressionSemanticAST<T extends AbstractSyntaxAST> extends 
     }
     
     
-    public TypeKind divAssign(final AbstractOperableSemanticAST<?, ?> leftSideOperable, final AbstractOperableSemanticAST<?, ?> rightSideOperable) {
+    @Nullable
+    public TypeKind divAssign(@NotNull final AbstractOperableSemanticAST<?> leftSideOperable, @NotNull final AbstractOperableSemanticAST<?> rightSideOperable) {
+        Objects.requireNonNull(this.getSemanticAnalyzer());
+    
         this.addError(
                 this.getSemanticAnalyzer().getArkoiClass(),
                 new AbstractSemanticAST[] {
@@ -164,7 +202,10 @@ public class AbstractExpressionSemanticAST<T extends AbstractSyntaxAST> extends 
     }
     
     
-    public TypeKind modAssign(final AbstractOperableSemanticAST<?, ?> leftSideOperable, final AbstractOperableSemanticAST<?, ?> rightSideOperable) {
+    @Nullable
+    public TypeKind modAssign(@NotNull final AbstractOperableSemanticAST<?> leftSideOperable, @NotNull final AbstractOperableSemanticAST<?> rightSideOperable) {
+        Objects.requireNonNull(this.getSemanticAnalyzer());
+    
         this.addError(
                 this.getSemanticAnalyzer().getArkoiClass(),
                 new AbstractSemanticAST[] {
@@ -177,7 +218,10 @@ public class AbstractExpressionSemanticAST<T extends AbstractSyntaxAST> extends 
     }
     
     
-    public TypeKind equal(final AbstractOperableSemanticAST<?, ?> leftSideOperable, final AbstractOperableSemanticAST<?, ?> rightSideOperable) {
+    @Nullable
+    public TypeKind equal(@NotNull final AbstractOperableSemanticAST<?> leftSideOperable, @NotNull final AbstractOperableSemanticAST<?> rightSideOperable) {
+        Objects.requireNonNull(this.getSemanticAnalyzer());
+    
         this.addError(
                 this.getSemanticAnalyzer().getArkoiClass(),
                 new AbstractSemanticAST[] {
@@ -190,7 +234,10 @@ public class AbstractExpressionSemanticAST<T extends AbstractSyntaxAST> extends 
     }
     
     
-    public TypeKind notEqual(final AbstractOperableSemanticAST<?, ?> leftSideOperable, final AbstractOperableSemanticAST<?, ?> rightSideOperable) {
+    @Nullable
+    public TypeKind notEqual(@NotNull final AbstractOperableSemanticAST<?> leftSideOperable, @NotNull final AbstractOperableSemanticAST<?> rightSideOperable) {
+        Objects.requireNonNull(this.getSemanticAnalyzer());
+    
         this.addError(
                 this.getSemanticAnalyzer().getArkoiClass(),
                 new AbstractSemanticAST[] {
@@ -203,7 +250,10 @@ public class AbstractExpressionSemanticAST<T extends AbstractSyntaxAST> extends 
     }
     
     
-    public TypeKind logicalOr(final AbstractOperableSemanticAST<?, ?> leftSideOperable, final AbstractOperableSemanticAST<?, ?> rightSideOperable) {
+    @Nullable
+    public TypeKind logicalOr(@NotNull final AbstractOperableSemanticAST<?> leftSideOperable, @NotNull final AbstractOperableSemanticAST<?> rightSideOperable) {
+        Objects.requireNonNull(this.getSemanticAnalyzer());
+    
         this.addError(
                 this.getSemanticAnalyzer().getArkoiClass(),
                 new AbstractSemanticAST[] {
@@ -216,7 +266,10 @@ public class AbstractExpressionSemanticAST<T extends AbstractSyntaxAST> extends 
     }
     
     
-    public TypeKind logicalAnd(final AbstractOperableSemanticAST<?, ?> leftSideOperable, final AbstractOperableSemanticAST<?, ?> rightSideOperable) {
+    @Nullable
+    public TypeKind logicalAnd(@NotNull final AbstractOperableSemanticAST<?> leftSideOperable, @NotNull final AbstractOperableSemanticAST<?> rightSideOperable) {
+        Objects.requireNonNull(this.getSemanticAnalyzer());
+    
         this.addError(
                 this.getSemanticAnalyzer().getArkoiClass(),
                 new AbstractSemanticAST[] {
@@ -229,7 +282,10 @@ public class AbstractExpressionSemanticAST<T extends AbstractSyntaxAST> extends 
     }
     
     
-    public TypeKind postfixAdd(final AbstractOperableSemanticAST<?, ?> abstractOperableSemanticAST) {
+    @Nullable
+    public TypeKind postfixAdd(@NotNull final AbstractOperableSemanticAST<?> abstractOperableSemanticAST) {
+        Objects.requireNonNull(this.getSemanticAnalyzer());
+    
         this.addError(
                 this.getSemanticAnalyzer().getArkoiClass(),
                 abstractOperableSemanticAST,
@@ -239,7 +295,10 @@ public class AbstractExpressionSemanticAST<T extends AbstractSyntaxAST> extends 
     }
     
     
-    public TypeKind postfixSub(final AbstractOperableSemanticAST<?, ?> abstractOperableSemanticAST) {
+    @Nullable
+    public TypeKind postfixSub(@NotNull final AbstractOperableSemanticAST<?> abstractOperableSemanticAST) {
+        Objects.requireNonNull(this.getSemanticAnalyzer());
+    
         this.addError(
                 this.getSemanticAnalyzer().getArkoiClass(),
                 abstractOperableSemanticAST,
@@ -249,15 +308,23 @@ public class AbstractExpressionSemanticAST<T extends AbstractSyntaxAST> extends 
     }
     
     
-    public TypeKind prefixAdd(final AbstractOperableSemanticAST<?, ?> abstractOperableSemanticAST) {
+    @Nullable
+    public TypeKind prefixAdd(@NotNull final AbstractOperableSemanticAST<?> abstractOperableSemanticAST) {
+        Objects.requireNonNull(this.getSemanticAnalyzer());
+    
         this.addError(
-                this.getSemanticAnalyzer().getArkoiClass(), abstractOperableSemanticAST, SemanticErrorType.PREFIX_ADD_NOT_SUPPORTED
+                this.getSemanticAnalyzer().getArkoiClass(),
+                abstractOperableSemanticAST,
+                SemanticErrorType.PREFIX_ADD_NOT_SUPPORTED
         );
         return null;
     }
     
     
-    public TypeKind prefixSub(final AbstractOperableSemanticAST<?, ?> abstractOperableSemanticAST) {
+    @Nullable
+    public TypeKind prefixSub(@NotNull final AbstractOperableSemanticAST<?> abstractOperableSemanticAST) {
+        Objects.requireNonNull(this.getSemanticAnalyzer());
+    
         this.addError(
                 this.getSemanticAnalyzer().getArkoiClass(),
                 abstractOperableSemanticAST,
@@ -267,7 +334,10 @@ public class AbstractExpressionSemanticAST<T extends AbstractSyntaxAST> extends 
     }
     
     
-    public TypeKind prefixNegate(final AbstractOperableSemanticAST<?, ?> abstractOperableSemanticAST) {
+    @Nullable
+    public TypeKind prefixNegate(@NotNull final AbstractOperableSemanticAST<?> abstractOperableSemanticAST) {
+        Objects.requireNonNull(this.getSemanticAnalyzer());
+    
         this.addError(
                 this.getSemanticAnalyzer().getArkoiClass(),
                 abstractOperableSemanticAST,
@@ -277,15 +347,23 @@ public class AbstractExpressionSemanticAST<T extends AbstractSyntaxAST> extends 
     }
     
     
-    public TypeKind prefixAffirm(final AbstractOperableSemanticAST<?, ?> abstractOperableSemanticAST) {
+    @Nullable
+    public TypeKind prefixAffirm(@NotNull final AbstractOperableSemanticAST<?> abstractOperableSemanticAST) {
+        Objects.requireNonNull(this.getSemanticAnalyzer());
+    
         this.addError(
-                this.getSemanticAnalyzer().getArkoiClass(), abstractOperableSemanticAST, SemanticErrorType.PREFIX_AFFIRM_NOT_SUPPORTED
+                this.getSemanticAnalyzer().getArkoiClass(),
+                abstractOperableSemanticAST, 
+                SemanticErrorType.PREFIX_AFFIRM_NOT_SUPPORTED
         );
         return null;
     }
     
     
-    public TypeKind relationalLessThan(final AbstractOperableSemanticAST<?, ?> leftSideOperable, final AbstractOperableSemanticAST<?, ?> rightSideOperable) {
+    @Nullable
+    public TypeKind relationalLessThan(@NotNull final AbstractOperableSemanticAST<?> leftSideOperable, @NotNull final AbstractOperableSemanticAST<?> rightSideOperable) {
+        Objects.requireNonNull(this.getSemanticAnalyzer());
+    
         this.addError(
                 this.getSemanticAnalyzer().getArkoiClass(),
                 new AbstractSemanticAST[] {
@@ -298,7 +376,10 @@ public class AbstractExpressionSemanticAST<T extends AbstractSyntaxAST> extends 
     }
     
     
-    public TypeKind relationalGreaterThan(final AbstractOperableSemanticAST<?, ?> leftSideOperable, final AbstractOperableSemanticAST<?, ?> rightSideOperable) {
+    @Nullable
+    public TypeKind relationalGreaterThan(@NotNull final AbstractOperableSemanticAST<?> leftSideOperable, @NotNull final AbstractOperableSemanticAST<?> rightSideOperable) {
+        Objects.requireNonNull(this.getSemanticAnalyzer());
+    
         this.addError(
                 this.getSemanticAnalyzer().getArkoiClass(),
                 new AbstractSemanticAST[] {
@@ -311,7 +392,10 @@ public class AbstractExpressionSemanticAST<T extends AbstractSyntaxAST> extends 
     }
     
     
-    public TypeKind relationalLessEqualThan(final AbstractOperableSemanticAST<?, ?> leftSideOperable, final AbstractOperableSemanticAST<?, ?> rightSideOperable) {
+    @Nullable
+    public TypeKind relationalLessEqualThan(@NotNull final AbstractOperableSemanticAST<?> leftSideOperable, @NotNull final AbstractOperableSemanticAST<?> rightSideOperable) {
+        Objects.requireNonNull(this.getSemanticAnalyzer());
+    
         this.addError(
                 this.getSemanticAnalyzer().getArkoiClass(),
                 new AbstractSemanticAST[] {
@@ -324,7 +408,10 @@ public class AbstractExpressionSemanticAST<T extends AbstractSyntaxAST> extends 
     }
     
     
-    public TypeKind relationalGreaterEqualThan(final AbstractOperableSemanticAST<?, ?> leftSideOperable, final AbstractOperableSemanticAST<?, ?> rightSideOperable) {
+    @Nullable
+    public TypeKind relationalGreaterEqualThan(@NotNull final AbstractOperableSemanticAST<?> leftSideOperable, @NotNull final AbstractOperableSemanticAST<?> rightSideOperable) {
+        Objects.requireNonNull(this.getSemanticAnalyzer());
+    
         this.addError(
                 this.getSemanticAnalyzer().getArkoiClass(),
                 new AbstractSemanticAST[] {
@@ -337,7 +424,10 @@ public class AbstractExpressionSemanticAST<T extends AbstractSyntaxAST> extends 
     }
     
     
-    public TypeKind relationalIs(final AbstractOperableSemanticAST<?, ?> leftSideOperable, final AbstractOperableSemanticAST<?, ?> rightSideOperable) {
+    @Nullable
+    public TypeKind relationalIs(@NotNull final AbstractOperableSemanticAST<?> leftSideOperable, @NotNull final AbstractOperableSemanticAST<?> rightSideOperable) {
+        Objects.requireNonNull(this.getSemanticAnalyzer());
+    
         this.addError(
                 this.getSemanticAnalyzer().getArkoiClass(),
                 new AbstractSemanticAST[] {

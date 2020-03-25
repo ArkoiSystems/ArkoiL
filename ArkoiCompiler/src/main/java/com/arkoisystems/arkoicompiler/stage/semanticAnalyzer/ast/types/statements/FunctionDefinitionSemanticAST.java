@@ -18,35 +18,41 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.ParameterSy
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.TypeSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.types.FunctionDefinitionSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
+import lombok.NonNull;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 
 public class FunctionDefinitionSemanticAST extends AbstractSemanticAST<FunctionDefinitionSyntaxAST>
 {
     
     
+    @Nullable
     private List<AnnotationSemanticAST> functionAnnotations;
     
     
+    @Nullable
     private List<ParameterSemanticAST> functionArguments;
     
     
+    @Nullable
     private BlockSemanticAST functionBlock;
     
     
+    @Nullable
     private String functionDescription;
     
     
-    public FunctionDefinitionSemanticAST(final SemanticAnalyzer semanticAnalyzer, final AbstractSemanticAST<?> lastContainerAST, final FunctionDefinitionSyntaxAST functionDefinitionSyntaxAST) {
+    public FunctionDefinitionSemanticAST(@Nullable final SemanticAnalyzer semanticAnalyzer, @Nullable final AbstractSemanticAST<?> lastContainerAST, @NonNull final FunctionDefinitionSyntaxAST functionDefinitionSyntaxAST) {
         super(semanticAnalyzer, lastContainerAST, functionDefinitionSyntaxAST, ASTType.FUNCTION_DEFINITION);
     }
     
     
-    // TODO: Check for null safety.
     @Override
     public void printSemanticAST(@NotNull final PrintStream printStream, @NotNull final String indents) {
         printStream.println(indents + "├── annotations: " + (this.getFunctionAnnotations().isEmpty() ? "N/A" : ""));
@@ -84,28 +90,28 @@ public class FunctionDefinitionSemanticAST extends AbstractSemanticAST<FunctionD
     
     
     public List<AnnotationSemanticAST> getFunctionAnnotations() {
+        Objects.requireNonNull(this.getSemanticAnalyzer());
+    
         if (this.functionAnnotations == null) {
             this.functionAnnotations = new ArrayList<>();
-            
+        
             final HashMap<String, AbstractSemanticAST<?>> names = new HashMap<>();
             for (final AnnotationSyntaxAST annotationSyntaxAST : this.getSyntaxAST().getFunctionAnnotations()) {
                 final AnnotationSemanticAST annotationSemanticAST
                         = new AnnotationSemanticAST(this.getSemanticAnalyzer(), this, annotationSyntaxAST);
-                
+            
                 final IdentifierToken annotationName = annotationSemanticAST.getAnnotationName();
-                if (annotationName != null) {
-                    if (names.containsKey(annotationName.getTokenContent())) {
-                        final AbstractSemanticAST<?> alreadyExistAST = names.get(annotationName.getTokenContent());
-                        this.addError(
-                                this.getSemanticAnalyzer().getArkoiClass(), new AbstractSemanticAST[] {
-                                        this,
-                                        alreadyExistAST
-                                }, SemanticErrorType.FUNCTION_ANNOTATION_SAME_NAME
-                        );
-                    } else
-                        names.put(annotationName.getTokenContent(), annotationSemanticAST);
-                } else this.failed();
-                
+                if (names.containsKey(annotationName.getTokenContent())) {
+                    final AbstractSemanticAST<?> alreadyExistAST = names.get(annotationName.getTokenContent());
+                    this.addError(
+                            this.getSemanticAnalyzer().getArkoiClass(), new AbstractSemanticAST[] {
+                                    this,
+                                    alreadyExistAST
+                            }, SemanticErrorType.FUNCTION_ANNOTATION_SAME_NAME
+                    );
+                } else
+                    names.put(annotationName.getTokenContent(), annotationSemanticAST);
+            
                 if (annotationSemanticAST.isFailed())
                     this.failed();
                 this.functionAnnotations.add(annotationSemanticAST);
@@ -116,17 +122,22 @@ public class FunctionDefinitionSemanticAST extends AbstractSemanticAST<FunctionD
     }
     
     
+    @NotNull
     public TypeSyntaxAST getFunctionReturnType() {
         return this.getSyntaxAST().getFunctionReturnType();
     }
     
     
+    @NotNull
     public IdentifierToken getFunctionName() {
         return this.getSyntaxAST().getFunctionName();
     }
     
     
+    @NotNull
     public List<ParameterSemanticAST> getFunctionArguments() {
+        Objects.requireNonNull(this.getSemanticAnalyzer());
+        
         if (this.functionArguments == null) {
             this.functionArguments = new ArrayList<>();
             
@@ -136,18 +147,16 @@ public class FunctionDefinitionSemanticAST extends AbstractSemanticAST<FunctionD
                         = new ParameterSemanticAST(this.getSemanticAnalyzer(), this, parameterSyntaxAST);
                 
                 final IdentifierToken argumentName = parameterSemanticAST.getParameterName();
-                if (argumentName != null) {
-                    if (names.containsKey(argumentName.getTokenContent())) {
-                        final AbstractSemanticAST<?> alreadyExistAST = names.get(argumentName.getTokenContent());
-                        this.addError(
-                                this.getSemanticAnalyzer().getArkoiClass(), new AbstractSemanticAST[] {
-                                        alreadyExistAST,
-                                        parameterSemanticAST
-                                }, SemanticErrorType.FUNCTION_ARGUMENT_SAME_NAME
-                        );
-                    } else
-                        names.put(argumentName.getTokenContent(), parameterSemanticAST);
-                } else this.failed();
+                if (names.containsKey(argumentName.getTokenContent())) {
+                    final AbstractSemanticAST<?> alreadyExistAST = names.get(argumentName.getTokenContent());
+                    this.addError(
+                            this.getSemanticAnalyzer().getArkoiClass(), new AbstractSemanticAST[] {
+                                    alreadyExistAST,
+                                    parameterSemanticAST
+                            }, SemanticErrorType.FUNCTION_ARGUMENT_SAME_NAME
+                    );
+                } else
+                    names.put(argumentName.getTokenContent(), parameterSemanticAST);
                 
                 if (parameterSemanticAST.isFailed())
                     this.failed();
@@ -158,12 +167,10 @@ public class FunctionDefinitionSemanticAST extends AbstractSemanticAST<FunctionD
     }
     
     
+    @NotNull
     public String getFunctionDescription() {
         if (this.functionDescription == null) {
             final StringBuilder descriptionBuilder = new StringBuilder(this.getFunctionName().getTokenContent());
-            if (this.getFunctionArguments() == null)
-                return null;
-            
             for (final ParameterSemanticAST parameterSemanticAST : this.getFunctionArguments())
                 descriptionBuilder.append(parameterSemanticAST.getParameterType().getTypeKind());
             return (this.functionDescription = descriptionBuilder.toString());
@@ -172,6 +179,7 @@ public class FunctionDefinitionSemanticAST extends AbstractSemanticAST<FunctionD
     }
     
     
+    @NotNull
     public BlockSemanticAST getFunctionBlock() {
         if (this.functionBlock == null) {
             final BlockSyntaxAST blockSyntaxAST = this.getSyntaxAST().getFunctionBlock();
@@ -192,10 +200,8 @@ public class FunctionDefinitionSemanticAST extends AbstractSemanticAST<FunctionD
     }
     
     
+    @Nullable
     public AbstractSemanticAST<?> findIdentifier(final IdentifierToken identifierToken) {
-        if (this.getFunctionBlock() == null)
-            return null;
-        
         final AbstractSemanticAST<?> abstractSemanticAST = this.getFunctionBlock().findIdentifier(identifierToken);
         if (abstractSemanticAST == null) {
             for (final ParameterSemanticAST parameterSemanticAST : this.getFunctionArguments())

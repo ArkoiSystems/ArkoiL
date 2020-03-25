@@ -12,38 +12,37 @@ import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.NumberOperableSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
-import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.PrintStream;
 
-public class NumberOperableSemanticAST extends AbstractOperableSemanticAST<NumberOperableSyntaxAST, TypeKind>
+public class NumberOperableSemanticAST extends AbstractOperableSemanticAST<NumberOperableSyntaxAST>
 {
     
-    @Setter
-    private TypeKind operableType;
-    
-    
-    public NumberOperableSemanticAST(final SemanticAnalyzer semanticAnalyzer, final AbstractSemanticAST<?> lastContainerAST, final NumberOperableSyntaxAST numberOperableSyntaxAST) {
+    public NumberOperableSemanticAST(@Nullable final SemanticAnalyzer semanticAnalyzer, @Nullable final AbstractSemanticAST<?> lastContainerAST, @NotNull final NumberOperableSyntaxAST numberOperableSyntaxAST) {
         super(semanticAnalyzer, lastContainerAST, numberOperableSyntaxAST, ASTType.NUMBER_OPERABLE);
     }
     
     
-    // TODO: Check for null safety.
     @Override
     public void printSemanticAST(@NotNull final PrintStream printStream, @NotNull final String indents) {
-        printStream.println(indents + "└── type: " + this.getOperableObject().getName());
+        printStream.println(indents + "├── operable: " + this.getNumber().getTokenContent());
+        printStream.println(indents + "└── type: " + this.getTypeKind().getName());
     }
     
+    @NotNull
+    public NumberToken getNumber() {
+        return this.getSyntaxAST().getNumberToken();
+    }
     
+    @NotNull
     @Override
-    public TypeKind getOperableObject() {
-        if (this.operableType == null) {
-            final NumberToken numberToken = this.getSyntaxAST().getNumberToken();
-            if (numberToken.getTokenContent().contains("."))
-                return (this.operableType = TypeKind.FLOAT);
-            return (this.operableType = TypeKind.INTEGER);
-        } else return this.operableType;
+    public TypeKind getTypeKind() {
+        final NumberToken numberToken = this.getSyntaxAST().getNumberToken();
+        if (numberToken.getTokenContent().contains("."))
+            return TypeKind.FLOAT;
+        return TypeKind.INTEGER;
     }
     
 }
