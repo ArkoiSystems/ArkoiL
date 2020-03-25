@@ -9,12 +9,14 @@ import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.SemanticAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.SemanticErrorType;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.AbstractSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.AbstractOperableSemanticAST;
-import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.types.*;
+import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.types.CollectionOperableSemanticAST;
+import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.types.IdentifierCallOperableSemanticAST;
+import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.types.NumberOperableSemanticAST;
+import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.types.StringOperableSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.types.expression.AbstractExpressionSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.statements.VariableDefinitionSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.AbstractOperableSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.IdentifierCallOperableSyntaxAST;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.IdentifierInvokeOperableSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.NumberOperableSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.StringOperableSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types.*;
@@ -22,26 +24,32 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.ty
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.PrintStream;
+import java.util.Objects;
 
 public class AssignmentExpressionSemanticAST extends AbstractExpressionSemanticAST<AssignmentExpressionSyntaxAST>
 {
     
-    private AbstractOperableSemanticAST<?, ?> leftSideOperable, rightSideOperable;
+    @Nullable
+    private AbstractOperableSemanticAST<?> leftSideOperable, rightSideOperable;
     
     
+    @Nullable
     private TypeKind expressionType;
     
     
-    public AssignmentExpressionSemanticAST(final SemanticAnalyzer semanticAnalyzer, final AbstractSemanticAST<?> lastContainerAST, final AssignmentExpressionSyntaxAST assignmentExpressionSyntaxAST) {
+    public AssignmentExpressionSemanticAST(@Nullable final SemanticAnalyzer semanticAnalyzer, @Nullable final AbstractSemanticAST<?> lastContainerAST, @NotNull final AssignmentExpressionSyntaxAST assignmentExpressionSyntaxAST) {
         super(semanticAnalyzer, lastContainerAST, assignmentExpressionSyntaxAST, ASTType.ASSIGNMENT_EXPRESSION);
     }
     
     
-    // TODO: Check null safety.
     @Override
     public void printSemanticAST(@NotNull final PrintStream printStream, @NotNull final String indents) {
+        Objects.requireNonNull(this.getLeftSideOperable());
+        Objects.requireNonNull(this.getRightSideOperable());
+    
         printStream.println(indents + "├── left:");
         printStream.println(indents + "│   └── " + this.getLeftSideOperable().getClass().getSimpleName());
         this.getLeftSideOperable().printSemanticAST(printStream, indents + "│        ");
@@ -52,11 +60,10 @@ public class AssignmentExpressionSemanticAST extends AbstractExpressionSemanticA
     }
     
     
+    @Nullable
     @Override
-    public TypeKind getOperableObject() {
+    public TypeKind getTypeKind() {
         if (this.expressionType == null) {
-            if (this.getAssignmentOperatorType() == null)
-                return null;
             if (this.getLeftSideOperable() == null) {
                 this.getRightSideOperable();
                 return null;
@@ -93,56 +100,52 @@ public class AssignmentExpressionSemanticAST extends AbstractExpressionSemanticA
     }
     
     
-    public AbstractOperableSemanticAST<?, ?> getLeftSideOperable() {
+    @Nullable
+    public AbstractOperableSemanticAST<?> getLeftSideOperable() {
         if (this.leftSideOperable == null)
             return (this.leftSideOperable = this.analyzeOperable(this.getSyntaxAST().getLeftSideOperable()));
         return this.leftSideOperable;
     }
     
     
+    @NotNull
     public AssignmentOperatorType getAssignmentOperatorType() {
         return this.getSyntaxAST().getAssignmentOperatorType();
     }
     
     
-    public AbstractOperableSemanticAST<?, ?> getRightSideOperable() {
+    @Nullable
+    public AbstractOperableSemanticAST<?> getRightSideOperable() {
         if (this.rightSideOperable == null)
             return (this.rightSideOperable = this.analyzeOperable(this.getSyntaxAST().getRightSideOperable()));
         return this.rightSideOperable;
     }
     
     
-    private AbstractOperableSemanticAST<?, ?> analyzeOperable(final AbstractOperableSyntaxAST<?> abstractOperableSyntaxAST) {
+    @Nullable
+    private AbstractOperableSemanticAST<?> analyzeOperable(@NotNull final AbstractOperableSyntaxAST<?> abstractOperableSyntaxAST) {
+        Objects.requireNonNull(this.getSemanticAnalyzer());
+        
         if (abstractOperableSyntaxAST instanceof ParenthesizedExpressionSyntaxAST) {
             final ParenthesizedExpressionSyntaxAST parenthesizedExpressionSyntaxAST = (ParenthesizedExpressionSyntaxAST) abstractOperableSyntaxAST;
             final ParenthesizedExpressionSemanticAST parenthesizedExpressionSemanticAST
                     = new ParenthesizedExpressionSemanticAST(this.getSemanticAnalyzer(), this.getLastContainerAST(), parenthesizedExpressionSyntaxAST);
             
-            if (parenthesizedExpressionSemanticAST.getOperableObject() == null)
+            if (parenthesizedExpressionSemanticAST.getTypeKind() == null)
                 return null;
             return parenthesizedExpressionSemanticAST;
         } else if (abstractOperableSyntaxAST instanceof NumberOperableSyntaxAST) {
             final NumberOperableSyntaxAST numberOperableSyntaxAST = (NumberOperableSyntaxAST) abstractOperableSyntaxAST;
-            final NumberOperableSemanticAST numberOperableSemanticAST
-                    = new NumberOperableSemanticAST(this.getSemanticAnalyzer(), this.getLastContainerAST(), numberOperableSyntaxAST);
-            
-            if (numberOperableSemanticAST.getOperableObject() == null)
-                return null;
-            return numberOperableSemanticAST;
+            return new NumberOperableSemanticAST(this.getSemanticAnalyzer(), this.getLastContainerAST(), numberOperableSyntaxAST);
         } else if (abstractOperableSyntaxAST instanceof StringOperableSyntaxAST) {
             final StringOperableSyntaxAST stringOperableSyntaxAST = (StringOperableSyntaxAST) abstractOperableSyntaxAST;
-            final StringOperableSemanticAST stringOperableSemanticAST
-                    = new StringOperableSemanticAST(this.getSemanticAnalyzer(), this.getLastContainerAST(), stringOperableSyntaxAST);
-            
-            if (stringOperableSemanticAST.getOperableObject() == null)
-                return null;
-            return stringOperableSemanticAST;
+            return new StringOperableSemanticAST(this.getSemanticAnalyzer(), this.getLastContainerAST(), stringOperableSyntaxAST);
         } else if (abstractOperableSyntaxAST instanceof BinaryExpressionSyntaxAST) {
             final BinaryExpressionSyntaxAST binaryExpressionSyntaxAST = (BinaryExpressionSyntaxAST) abstractOperableSyntaxAST;
             final BinaryExpressionSemanticAST binaryExpressionSemanticAST
                     = new BinaryExpressionSemanticAST(this.getSemanticAnalyzer(), this.getLastContainerAST(), binaryExpressionSyntaxAST);
             
-            if (binaryExpressionSemanticAST.getOperableObject() == null)
+            if (binaryExpressionSemanticAST.getTypeKind() == null)
                 return null;
             return binaryExpressionSemanticAST;
         } else if (abstractOperableSyntaxAST instanceof PrefixExpressionSyntaxAST) {
@@ -150,7 +153,7 @@ public class AssignmentExpressionSemanticAST extends AbstractExpressionSemanticA
             final PrefixExpressionSemanticAST prefixExpressionSemanticAST
                     = new PrefixExpressionSemanticAST(this.getSemanticAnalyzer(), this.getLastContainerAST(), prefixExpressionSyntaxAST);
             
-            if (prefixExpressionSemanticAST.getOperableObject() == null)
+            if (prefixExpressionSemanticAST.getTypeKind() == null)
                 return null;
             return prefixExpressionSemanticAST;
         } else if (abstractOperableSyntaxAST instanceof EqualityExpressionSyntaxAST) {
@@ -158,7 +161,7 @@ public class AssignmentExpressionSemanticAST extends AbstractExpressionSemanticA
             final EqualityExpressionSemanticAST equalityExpressionSemanticAST
                     = new EqualityExpressionSemanticAST(this.getSemanticAnalyzer(), this.getLastContainerAST(), equalityExpressionSyntaxAST);
             
-            if (equalityExpressionSemanticAST.getOperableObject() == null)
+            if (equalityExpressionSemanticAST.getTypeKind() == null)
                 return null;
             return equalityExpressionSemanticAST;
         } else if (abstractOperableSyntaxAST instanceof LogicalExpressionSyntaxAST) {
@@ -166,7 +169,7 @@ public class AssignmentExpressionSemanticAST extends AbstractExpressionSemanticA
             final LogicalExpressionSemanticAST logicalExpressionSemanticAST
                     = new LogicalExpressionSemanticAST(this.getSemanticAnalyzer(), this.getLastContainerAST(), logicalExpressionSyntaxAST);
             
-            if (logicalExpressionSemanticAST.getOperableObject() == null)
+            if (logicalExpressionSemanticAST.getTypeKind() == null)
                 return null;
             return logicalExpressionSemanticAST;
         } else if (abstractOperableSyntaxAST instanceof PostfixExpressionSyntaxAST) {
@@ -174,7 +177,7 @@ public class AssignmentExpressionSemanticAST extends AbstractExpressionSemanticA
             final PostfixExpressionSemanticAST postfixExpressionSemanticAST
                     = new PostfixExpressionSemanticAST(this.getSemanticAnalyzer(), this.getLastContainerAST(), postfixExpressionSyntaxAST);
             
-            if (postfixExpressionSemanticAST.getOperableObject() == null)
+            if (postfixExpressionSemanticAST.getTypeKind() == null)
                 return null;
             return postfixExpressionSemanticAST;
         } else if (abstractOperableSyntaxAST instanceof RelationalExpressionSyntaxAST) {
@@ -182,25 +185,17 @@ public class AssignmentExpressionSemanticAST extends AbstractExpressionSemanticA
             final RelationalExpressionSemanticAST relationalExpressionSemanticAST
                     = new RelationalExpressionSemanticAST(this.getSemanticAnalyzer(), this.getLastContainerAST(), relationalExpressionSyntaxAST);
             
-            if (relationalExpressionSemanticAST.getOperableObject() == null)
+            if (relationalExpressionSemanticAST.getTypeKind() == null)
                 return null;
             return relationalExpressionSemanticAST;
         } else if (abstractOperableSyntaxAST instanceof IdentifierCallOperableSyntaxAST) {
             final IdentifierCallOperableSyntaxAST identifierCallOperableSyntaxAST = (IdentifierCallOperableSyntaxAST) abstractOperableSyntaxAST;
             final IdentifierCallOperableSemanticAST identifierCallOperableSemanticAST
                     = new IdentifierCallOperableSemanticAST(this.getSemanticAnalyzer(), this.getLastContainerAST(), identifierCallOperableSyntaxAST);
-
-            if (identifierCallOperableSemanticAST.getOperableObject() == null)
+            
+            if (identifierCallOperableSemanticAST.getTypeKind() == null)
                 return null;
             return identifierCallOperableSemanticAST;
-        } else if (abstractOperableSyntaxAST instanceof IdentifierInvokeOperableSyntaxAST) {
-            final IdentifierInvokeOperableSyntaxAST identifierInvokeOperableSyntaxAST = (IdentifierInvokeOperableSyntaxAST) abstractOperableSyntaxAST;
-            final IdentifierInvokeOperableSemanticAST identifierInvokeOperableSemanticAST
-                    = new IdentifierInvokeOperableSemanticAST(this.getSemanticAnalyzer(), this.getLastContainerAST(), identifierInvokeOperableSyntaxAST);
-
-            if (identifierInvokeOperableSemanticAST.getOperableObject() == null)
-                return null;
-            return identifierInvokeOperableSemanticAST;
         } else {
             this.addError(
                     this.getSemanticAnalyzer().getArkoiClass(),
@@ -212,9 +207,12 @@ public class AssignmentExpressionSemanticAST extends AbstractExpressionSemanticA
     }
     
     
+    @Nullable
     @Override
-    public TypeKind assign(final AbstractOperableSemanticAST<?, ?> leftSideOperable, final AbstractOperableSemanticAST<?, ?> rightSideOperable) {
-        final AbstractOperableSemanticAST<?, ?> leftAssignedOperable = this.analyzeAssignedOperable(leftSideOperable);
+    public TypeKind assign(@NotNull final AbstractOperableSemanticAST<?> leftSideOperable, @NotNull final AbstractOperableSemanticAST<?> rightSideOperable) {
+        Objects.requireNonNull(this.getSemanticAnalyzer());
+        
+        final AbstractOperableSemanticAST<?> leftAssignedOperable = this.analyzeAssignedOperable(leftSideOperable);
         if (leftAssignedOperable == null) {
             this.addError(
                     this.getSemanticAnalyzer().getArkoiClass(),
@@ -223,7 +221,7 @@ public class AssignmentExpressionSemanticAST extends AbstractExpressionSemanticA
             );
             return null;
         }
-        final AbstractOperableSemanticAST<?, ?> rightExpressionOperable = this.analyzeExpressionOperable(rightSideOperable);
+        final AbstractOperableSemanticAST<?> rightExpressionOperable = this.analyzeExpressionOperable(rightSideOperable);
         if (rightExpressionOperable == null) {
             this.addError(
                     this.getSemanticAnalyzer().getArkoiClass(),
@@ -245,9 +243,12 @@ public class AssignmentExpressionSemanticAST extends AbstractExpressionSemanticA
     }
     
     
+    @Nullable
     @Override
-    public TypeKind addAssign(final AbstractOperableSemanticAST<?, ?> leftSideOperable, final AbstractOperableSemanticAST<?, ?> rightSideOperable) {
-        final AbstractOperableSemanticAST<?, ?> leftAssignedOperable = this.analyzeAssignedOperable(leftSideOperable);
+    public TypeKind addAssign(@NotNull final AbstractOperableSemanticAST<?> leftSideOperable, @NotNull final AbstractOperableSemanticAST<?> rightSideOperable) {
+        Objects.requireNonNull(this.getSemanticAnalyzer());
+        
+        final AbstractOperableSemanticAST<?> leftAssignedOperable = this.analyzeAssignedOperable(leftSideOperable);
         if (leftAssignedOperable == null) {
             this.addError(
                     this.getSemanticAnalyzer().getArkoiClass(),
@@ -256,7 +257,7 @@ public class AssignmentExpressionSemanticAST extends AbstractExpressionSemanticA
             );
             return null;
         }
-        final AbstractOperableSemanticAST<?, ?> rightExpressionOperable = this.analyzeExpressionOperable(rightSideOperable);
+        final AbstractOperableSemanticAST<?> rightExpressionOperable = this.analyzeExpressionOperable(rightSideOperable);
         if (rightExpressionOperable == null) {
             this.addError(
                     this.getSemanticAnalyzer().getArkoiClass(),
@@ -278,9 +279,12 @@ public class AssignmentExpressionSemanticAST extends AbstractExpressionSemanticA
     }
     
     
+    @Nullable
     @Override
-    public TypeKind subAssign(final AbstractOperableSemanticAST<?, ?> leftSideOperable, final AbstractOperableSemanticAST<?, ?> rightSideOperable) {
-        final AbstractOperableSemanticAST<?, ?> leftAssignedOperable = this.analyzeAssignedOperable(leftSideOperable);
+    public TypeKind subAssign(@NotNull final AbstractOperableSemanticAST<?> leftSideOperable, @NotNull final AbstractOperableSemanticAST<?> rightSideOperable) {
+        Objects.requireNonNull(this.getSemanticAnalyzer());
+        
+        final AbstractOperableSemanticAST<?> leftAssignedOperable = this.analyzeAssignedOperable(leftSideOperable);
         if (leftAssignedOperable == null) {
             this.addError(
                     this.getSemanticAnalyzer().getArkoiClass(),
@@ -289,7 +293,7 @@ public class AssignmentExpressionSemanticAST extends AbstractExpressionSemanticA
             );
             return null;
         }
-        final AbstractOperableSemanticAST<?, ?> rightExpressionOperable = this.analyzeExpressionOperable(rightSideOperable);
+        final AbstractOperableSemanticAST<?> rightExpressionOperable = this.analyzeExpressionOperable(rightSideOperable);
         if (rightExpressionOperable == null) {
             this.addError(
                     this.getSemanticAnalyzer().getArkoiClass(),
@@ -311,9 +315,12 @@ public class AssignmentExpressionSemanticAST extends AbstractExpressionSemanticA
     }
     
     
+    @Nullable
     @Override
-    public TypeKind mulAssign(final AbstractOperableSemanticAST<?, ?> leftSideOperable, final AbstractOperableSemanticAST<?, ?> rightSideOperable) {
-        final AbstractOperableSemanticAST<?, ?> leftAssignedOperable = this.analyzeAssignedOperable(leftSideOperable);
+    public TypeKind mulAssign(@NotNull final AbstractOperableSemanticAST<?> leftSideOperable, @NotNull final AbstractOperableSemanticAST<?> rightSideOperable) {
+        Objects.requireNonNull(this.getSemanticAnalyzer());
+        
+        final AbstractOperableSemanticAST<?> leftAssignedOperable = this.analyzeAssignedOperable(leftSideOperable);
         if (leftAssignedOperable == null) {
             this.addError(
                     this.getSemanticAnalyzer().getArkoiClass(),
@@ -322,7 +329,7 @@ public class AssignmentExpressionSemanticAST extends AbstractExpressionSemanticA
             );
             return null;
         }
-        final AbstractOperableSemanticAST<?, ?> rightExpressionOperable = this.analyzeExpressionOperable(rightSideOperable);
+        final AbstractOperableSemanticAST<?> rightExpressionOperable = this.analyzeExpressionOperable(rightSideOperable);
         if (rightExpressionOperable == null) {
             this.addError(
                     this.getSemanticAnalyzer().getArkoiClass(),
@@ -345,9 +352,12 @@ public class AssignmentExpressionSemanticAST extends AbstractExpressionSemanticA
     }
     
     
+    @Nullable
     @Override
-    public TypeKind divAssign(final AbstractOperableSemanticAST<?, ?> leftSideOperable, final AbstractOperableSemanticAST<?, ?> rightSideOperable) {
-        final AbstractOperableSemanticAST<?, ?> leftAssignedOperable = this.analyzeAssignedOperable(leftSideOperable);
+    public TypeKind divAssign(@NotNull final AbstractOperableSemanticAST<?> leftSideOperable, @NotNull final AbstractOperableSemanticAST<?> rightSideOperable) {
+        Objects.requireNonNull(this.getSemanticAnalyzer());
+        
+        final AbstractOperableSemanticAST<?> leftAssignedOperable = this.analyzeAssignedOperable(leftSideOperable);
         if (leftAssignedOperable == null) {
             this.addError(
                     this.getSemanticAnalyzer().getArkoiClass(),
@@ -356,7 +366,7 @@ public class AssignmentExpressionSemanticAST extends AbstractExpressionSemanticA
             );
             return null;
         }
-        final AbstractOperableSemanticAST<?, ?> rightExpressionOperable = this.analyzeExpressionOperable(rightSideOperable);
+        final AbstractOperableSemanticAST<?> rightExpressionOperable = this.analyzeExpressionOperable(rightSideOperable);
         if (rightExpressionOperable == null) {
             this.addError(
                     this.getSemanticAnalyzer().getArkoiClass(),
@@ -378,9 +388,12 @@ public class AssignmentExpressionSemanticAST extends AbstractExpressionSemanticA
     }
     
     
+    @Nullable
     @Override
-    public TypeKind modAssign(final AbstractOperableSemanticAST<?, ?> leftSideOperable, final AbstractOperableSemanticAST<?, ?> rightSideOperable) {
-        final AbstractOperableSemanticAST<?, ?> leftAssignedOperable = this.analyzeAssignedOperable(leftSideOperable);
+    public TypeKind modAssign(@NotNull final AbstractOperableSemanticAST<?> leftSideOperable, @NotNull final AbstractOperableSemanticAST<?> rightSideOperable) {
+        Objects.requireNonNull(this.getSemanticAnalyzer());
+        
+        final AbstractOperableSemanticAST<?> leftAssignedOperable = this.analyzeAssignedOperable(leftSideOperable);
         if (leftAssignedOperable == null) {
             this.addError(
                     this.getSemanticAnalyzer().getArkoiClass(),
@@ -389,7 +402,7 @@ public class AssignmentExpressionSemanticAST extends AbstractExpressionSemanticA
             );
             return null;
         }
-        final AbstractOperableSemanticAST<?, ?> rightExpressionOperable = this.analyzeExpressionOperable(rightSideOperable);
+        final AbstractOperableSemanticAST<?> rightExpressionOperable = this.analyzeExpressionOperable(rightSideOperable);
         if (rightExpressionOperable == null) {
             this.addError(
                     this.getSemanticAnalyzer().getArkoiClass(),
@@ -412,24 +425,21 @@ public class AssignmentExpressionSemanticAST extends AbstractExpressionSemanticA
     }
     
     
-    private AbstractOperableSemanticAST<?, ?> analyzeExpressionOperable(final AbstractOperableSemanticAST<?, ?> abstractOperableSemanticAST) {
+    @Nullable
+    private AbstractOperableSemanticAST<?> analyzeExpressionOperable(@NotNull final AbstractOperableSemanticAST<?> abstractOperableSemanticAST) {
         if (abstractOperableSemanticAST instanceof CollectionOperableSemanticAST)
             return null;
         return abstractOperableSemanticAST;
     }
     
     
-    private AbstractOperableSemanticAST<?, ?> analyzeAssignedOperable(final AbstractOperableSemanticAST<?, ?> abstractOperableSemanticAST) {
+    @Nullable
+    private AbstractOperableSemanticAST<?> analyzeAssignedOperable(@NotNull final AbstractOperableSemanticAST<?> abstractOperableSemanticAST) {
         if (abstractOperableSemanticAST instanceof IdentifierCallOperableSemanticAST) {
             final IdentifierCallOperableSemanticAST identifierCallOperableSemanticAST = (IdentifierCallOperableSemanticAST) abstractOperableSemanticAST;
             final AbstractSemanticAST<?> foundIdentifier = identifierCallOperableSemanticAST.getFoundIdentifier();
             if (foundIdentifier instanceof VariableDefinitionSemanticAST)
                 return abstractOperableSemanticAST;
-        } else if (abstractOperableSemanticAST instanceof IdentifierInvokeOperableSemanticAST) {
-            final IdentifierInvokeOperableSemanticAST identifierInvokeOperableSemanticAST = (IdentifierInvokeOperableSemanticAST) abstractOperableSemanticAST;
-            final AbstractSemanticAST<?> invokePostStatement = identifierInvokeOperableSemanticAST.getInvokePostStatement();
-            if (invokePostStatement instanceof AbstractOperableSemanticAST)
-                return this.analyzeAssignedOperable((AbstractOperableSemanticAST<?, ?>) invokePostStatement);
         }
         return null;
     }

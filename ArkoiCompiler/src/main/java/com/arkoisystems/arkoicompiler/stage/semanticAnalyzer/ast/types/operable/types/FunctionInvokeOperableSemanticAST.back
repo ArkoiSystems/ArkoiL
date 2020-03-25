@@ -63,7 +63,7 @@ public class FunctionInvokeOperableSemanticAST extends AbstractOperableSemanticA
     
     
     @Override
-    public TypeKind getOperableObject() {
+    public TypeKind getTypeKind() {
         if (this.getInvokedFunction() == null)
             return null;
         
@@ -116,7 +116,7 @@ public class FunctionInvokeOperableSemanticAST extends AbstractOperableSemanticA
                 final ExpressionSemanticAST expressionSemanticAST
                         = new ExpressionSemanticAST(this.getSemanticAnalyzer(), this.getLastContainerAST(), expressionSyntaxAST);
 
-                expressionSemanticAST.getOperableObject();
+                expressionSemanticAST.getTypeKind();
 
                 if (expressionSemanticAST.isFailed())
                     this.failed();
@@ -133,7 +133,7 @@ public class FunctionInvokeOperableSemanticAST extends AbstractOperableSemanticA
             return null;
         
         for (final ExpressionSemanticAST expressionSemanticAST : this.getInvokedExpressions()) {
-            final TypeKind typeKind = expressionSemanticAST.getOperableObject();
+            final TypeKind typeKind = expressionSemanticAST.getTypeKind();
             if (typeKind == null)
                 return null;
             descriptionBuilder.append(typeKind.name());

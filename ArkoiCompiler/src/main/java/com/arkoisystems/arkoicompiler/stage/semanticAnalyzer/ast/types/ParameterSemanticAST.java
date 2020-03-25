@@ -10,21 +10,25 @@ import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.SemanticAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.AbstractSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.ParameterSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
+import lombok.AccessLevel;
+import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.PrintStream;
 
 public class ParameterSemanticAST extends AbstractSemanticAST<ParameterSyntaxAST>
 {
     
+    @Setter(AccessLevel.PROTECTED)
+    @Nullable
     private TypeSemanticAST parameterType;
     
-    public ParameterSemanticAST(final SemanticAnalyzer semanticAnalyzer, final AbstractSemanticAST<?> lastContainerAST, final ParameterSyntaxAST parameterSyntaxAST) {
+    public ParameterSemanticAST(final SemanticAnalyzer semanticAnalyzer, @NotNull final AbstractSemanticAST<?> lastContainerAST, final ParameterSyntaxAST parameterSyntaxAST) {
         super(semanticAnalyzer, lastContainerAST, parameterSyntaxAST, ASTType.PARAMETER_DEFINITION);
     }
     
     
-    // TODO: Check for null safety.
     @Override
     public void printSemanticAST(@NotNull final PrintStream printStream, @NotNull final String indents) {
         printStream.println(indents + "├── name: " + this.getParameterName().getTokenContent());
@@ -32,11 +36,13 @@ public class ParameterSemanticAST extends AbstractSemanticAST<ParameterSyntaxAST
     }
     
     
+    @NotNull
     public IdentifierToken getParameterName() {
         return this.getSyntaxAST().getParameterName();
     }
     
     
+    @NotNull
     public TypeSemanticAST getParameterType() {
         if (this.parameterType == null)
             return (this.parameterType = new TypeSemanticAST(this.getSemanticAnalyzer(), this.getLastContainerAST(), this.getSyntaxAST().getParameterType()));

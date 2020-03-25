@@ -13,26 +13,31 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.ty
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types.ExpressionSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
+import lombok.NonNull;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
-public class CollectionOperableSemanticAST extends AbstractOperableSemanticAST<CollectionOperableSyntaxAST, TypeKind>
+public class CollectionOperableSemanticAST extends AbstractOperableSemanticAST<CollectionOperableSyntaxAST>
 {
     
+    @Nullable
     private List<ExpressionSemanticAST> collectionExpressions;
     
     
-    public CollectionOperableSemanticAST(final SemanticAnalyzer semanticAnalyzer, final AbstractSemanticAST<?> lastContainerAST, final CollectionOperableSyntaxAST collectionOperableSyntaxAST) {
+    public CollectionOperableSemanticAST(@Nullable final SemanticAnalyzer semanticAnalyzer, @Nullable final AbstractSemanticAST<?> lastContainerAST, @NonNull final CollectionOperableSyntaxAST collectionOperableSyntaxAST) {
         super(semanticAnalyzer, lastContainerAST, collectionOperableSyntaxAST, ASTType.COLLECTION_OPERABLE);
     }
     
     
-    // TODO: Check for null safety.
     @Override
     public void printSemanticAST(@NotNull final PrintStream printStream, @NotNull final String indents) {
+        Objects.requireNonNull(this.getCollectionExpressions());
+        
         printStream.println(indents + "└── expressions: " + (this.getCollectionExpressions().isEmpty() ? "N/A" : ""));
         for (int index = 0; index < this.getCollectionExpressions().size(); index++) {
             final ExpressionSemanticAST expressionSemanticAST = this.getCollectionExpressions().get(index);
@@ -48,21 +53,21 @@ public class CollectionOperableSemanticAST extends AbstractOperableSemanticAST<C
     }
     
     
+    @Nullable
     @Override
-    public TypeKind getOperableObject() {
-        if (this.getCollectionExpressions() == null)
-            return null;
+    public TypeKind getTypeKind() {
         return TypeKind.COLLECTION;
     }
     
     
+    @Nullable
     public List<ExpressionSemanticAST> getCollectionExpressions() {
         if (this.collectionExpressions == null) {
             this.collectionExpressions = new ArrayList<>();
             
             for (final ExpressionSyntaxAST expressionSyntaxAST : this.getSyntaxAST().getCollectionExpressions()) {
                 final ExpressionSemanticAST expressionSemanticAST = new ExpressionSemanticAST(this.getSemanticAnalyzer(), this.getLastContainerAST(), expressionSyntaxAST);
-                expressionSemanticAST.getOperableObject();
+                expressionSemanticAST.getTypeKind();
                 
                 if (expressionSemanticAST.isFailed())
                     this.failed();

@@ -6,6 +6,7 @@
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types;
 
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.IdentifierToken;
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.SymbolType;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxErrorType;
@@ -28,7 +29,7 @@ public class IdentifierCallOperableSyntaxAST extends AbstractOperableSyntaxAST<T
     
     @Getter
     @Setter(AccessLevel.PROTECTED)
-    private boolean fileLocal;
+    private boolean isFileLocal;
     
     
     @Getter
@@ -67,7 +68,7 @@ public class IdentifierCallOperableSyntaxAST extends AbstractOperableSyntaxAST<T
     @Override
     public Optional<IdentifierCallOperableSyntaxAST> parseAST(@NotNull final AbstractSyntaxAST parentAST) {
         Objects.requireNonNull(this.getSyntaxAnalyzer());
-        
+    
         if (this.getSyntaxAnalyzer().matchesCurrentToken(TokenType.IDENTIFIER) == null) {
             this.addError(
                     this.getSyntaxAnalyzer().getArkoiClass(),
@@ -76,7 +77,29 @@ public class IdentifierCallOperableSyntaxAST extends AbstractOperableSyntaxAST<T
             );
             return Optional.empty();
         }
+    
+        if (this.getSyntaxAnalyzer().currentToken().getTokenContent().equals("this")) {
+            this.isFileLocal = true;
         
+            if (this.getSyntaxAnalyzer().matchesPeekToken(1, SymbolType.PERIOD) == null) {
+                this.addError(
+                        this.getSyntaxAnalyzer().getArkoiClass(),
+                        this.getSyntaxAnalyzer().currentToken(),
+                        SyntaxErrorType.IDENTIFIER_THIS_NO_DOT
+                );
+                return Optional.empty();
+            } else this.getSyntaxAnalyzer().nextToken();
+            
+            if(this.getSyntaxAnalyzer().matchesPeekToken(1, TokenType.IDENTIFIER) == null) {
+                this.addError(
+                        this.getSyntaxAnalyzer().getArkoiClass(),
+                        this.getSyntaxAnalyzer().currentToken(),
+                        SyntaxErrorType.IDENTIFIER_CALL_NO_IDENTIFIER
+                );
+                return Optional.empty();
+            } else this.getSyntaxAnalyzer().nextToken();
+        }
+    
         this.calledIdentifier = (IdentifierToken) this.getSyntaxAnalyzer().currentToken();
         this.setStart(this.calledIdentifier.getStart());
         this.setEnd(this.calledIdentifier.getEnd());

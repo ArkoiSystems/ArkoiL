@@ -16,21 +16,23 @@ public class SemanticAnalyzer extends AbstractStage
 {
     
     @Getter
+    @NotNull
     private final ArkoiClass arkoiClass;
     
     
     @Getter
-    private final SemanticErrorHandler errorHandler;
+    @NotNull
+    private final SemanticErrorHandler errorHandler = new SemanticErrorHandler();
     
     
     @Getter
+    @NotNull
     private final RootSemanticAST rootSemanticAST;
     
     
     public SemanticAnalyzer(final ArkoiClass arkoiClass) {
         this.arkoiClass = arkoiClass;
         
-        this.errorHandler = new SemanticErrorHandler();
         this.rootSemanticAST = new RootSemanticAST(this, arkoiClass.getSyntaxAnalyzer().getRootSyntaxAST());
     }
     

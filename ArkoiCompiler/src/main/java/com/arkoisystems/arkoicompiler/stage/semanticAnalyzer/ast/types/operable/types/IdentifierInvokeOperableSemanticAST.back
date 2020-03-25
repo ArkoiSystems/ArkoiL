@@ -47,14 +47,14 @@ public class IdentifierInvokeOperableSemanticAST extends AbstractOperableSemanti
     
     
     @Override
-    public TypeKind getOperableObject() {
+    public TypeKind getTypeKind() {
         if (this.getInvokePostStatement() == null)
             return null;
         
         final AbstractSemanticAST<?> invokedPostStatement = this.getInvokePostStatement();
         if (invokedPostStatement instanceof FunctionInvokeOperableSemanticAST) {
             final FunctionInvokeOperableSemanticAST functionInvokeOperableSemanticAST = (FunctionInvokeOperableSemanticAST) invokedPostStatement;
-            return functionInvokeOperableSemanticAST.getOperableObject();
+            return functionInvokeOperableSemanticAST.getTypeKind();
         } else return null;
     }
     

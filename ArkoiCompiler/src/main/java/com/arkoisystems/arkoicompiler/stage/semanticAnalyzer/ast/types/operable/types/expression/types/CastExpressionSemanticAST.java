@@ -18,28 +18,32 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.ty
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types.utils.CastOperatorType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
-import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.PrintStream;
+import java.util.Objects;
 
-@Setter
 public class CastExpressionSemanticAST extends AbstractExpressionSemanticAST<CastExpressionSyntaxAST>
 {
     
+    @Nullable
+    private AbstractOperableSemanticAST<?> leftSideOperable;
     
-    private AbstractOperableSemanticAST<?, ?> leftSideOperable;
     
+    @Nullable
     private TypeKind expressionType;
     
-    public CastExpressionSemanticAST(final SemanticAnalyzer semanticAnalyzer, final AbstractSemanticAST<?> lastContainerAST, final CastExpressionSyntaxAST castExpressionSyntaxAST) {
+    
+    public CastExpressionSemanticAST(@Nullable final SemanticAnalyzer semanticAnalyzer, @Nullable final AbstractSemanticAST<?> lastContainerAST, @NotNull final CastExpressionSyntaxAST castExpressionSyntaxAST) {
         super(semanticAnalyzer, lastContainerAST, castExpressionSyntaxAST, ASTType.CAST_EXPRESSION);
     }
     
     
-    // TODO: Check null safety.
     @Override
     public void printSemanticAST(@NotNull final PrintStream printStream, @NotNull final String indents) {
+        Objects.requireNonNull(this.getLeftSideOperable());
+        
         printStream.println(indents + "├── left:");
         printStream.println(indents + "│   └── " + this.getLeftSideOperable().getClass().getSimpleName());
         this.getLeftSideOperable().printSemanticAST(printStream, indents + "│       ");
@@ -47,54 +51,47 @@ public class CastExpressionSemanticAST extends AbstractExpressionSemanticAST<Cas
     }
     
     
+    @Nullable
     @Override
-    public TypeKind getOperableObject() {
+    public TypeKind getTypeKind() {
         if (this.expressionType == null) {
-            if (this.getCastOperatorType() == null)
-                return null;
             if (this.getLeftSideOperable() == null)
                 return null;
-            
-            final TypeKind typeKind = TypeKind.getTypeKind(this.getCastOperatorType());
-            if (this.getLeftSideOperable() instanceof NumberOperableSemanticAST) {
-                final NumberOperableSemanticAST numberOperableSemanticAST = (NumberOperableSemanticAST) this.getLeftSideOperable();
-                numberOperableSemanticAST.setOperableType(typeKind);
-            }
-            return (this.expressionType = typeKind);
+            return (this.expressionType = TypeKind.getTypeKind(this.getCastOperatorType()));
         }
         return this.expressionType;
     }
     
     
-    public AbstractOperableSemanticAST<?, ?> getLeftSideOperable() {
+    @Nullable
+    public AbstractOperableSemanticAST<?> getLeftSideOperable() {
         if (this.leftSideOperable == null)
             return (this.leftSideOperable = this.analyzeOperable(this.getSyntaxAST().getLeftSideOperable()));
         return this.leftSideOperable;
     }
     
     
+    @NotNull
     public CastOperatorType getCastOperatorType() {
         return this.getSyntaxAST().getCastOperatorType();
     }
     
     
-    private AbstractOperableSemanticAST<?, ?> analyzeOperable(final AbstractOperableSyntaxAST<?> abstractOperableSyntaxAST) {
+    @Nullable
+    private AbstractOperableSemanticAST<?> analyzeOperable(@NotNull final AbstractOperableSyntaxAST<?> abstractOperableSyntaxAST) {
+        Objects.requireNonNull(this.getSemanticAnalyzer());
+        
         if (abstractOperableSyntaxAST instanceof ParenthesizedExpressionSyntaxAST) {
             final ParenthesizedExpressionSyntaxAST parenthesizedExpressionSyntaxAST = (ParenthesizedExpressionSyntaxAST) abstractOperableSyntaxAST;
             final ParenthesizedExpressionSemanticAST parenthesizedExpressionSemanticAST
                     = new ParenthesizedExpressionSemanticAST(this.getSemanticAnalyzer(), this.getLastContainerAST(), parenthesizedExpressionSyntaxAST);
             
-            if (parenthesizedExpressionSemanticAST.getOperableObject() == null)
+            if (parenthesizedExpressionSemanticAST.getTypeKind() == null)
                 return null;
             return parenthesizedExpressionSemanticAST;
         } else if (abstractOperableSyntaxAST instanceof NumberOperableSyntaxAST) {
             final NumberOperableSyntaxAST numberOperableSyntaxAST = (NumberOperableSyntaxAST) abstractOperableSyntaxAST;
-            final NumberOperableSemanticAST numberOperableSemanticAST
-                    = new NumberOperableSemanticAST(this.getSemanticAnalyzer(), this.getLastContainerAST(), numberOperableSyntaxAST);
-            
-            if (numberOperableSemanticAST.getOperableObject() == null)
-                return null;
-            return numberOperableSemanticAST;
+            return new NumberOperableSemanticAST(this.getSemanticAnalyzer(), this.getLastContainerAST(), numberOperableSyntaxAST);
         } else {
             this.addError(
                     this.getSemanticAnalyzer().getArkoiClass(),

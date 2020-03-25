@@ -158,7 +158,7 @@ public abstract class AbstractSyntaxAST
      * @param arguments
      *         the arguments list for the error message from the {@link SyntaxErrorType}.
      */
-    public void addError(@NotNull final ArkoiClass arkoiClass, @NotNull final AbstractSyntaxAST[] abstractSyntaxASTs, @NotNull final String message, final Object... arguments) {
+    public void addError(@NotNull final ArkoiClass arkoiClass, @NotNull final AbstractSyntaxAST[] abstractSyntaxASTs, @NotNull final String message, @NotNull final Object... arguments) {
         this.failed();
         
         Objects.requireNonNull(this.getSyntaxAnalyzer()).getErrorHandler().addError(new ArkoiError(
@@ -184,7 +184,7 @@ public abstract class AbstractSyntaxAST
      * @param arguments
      *         the arguments list for the error message from the {@link SyntaxErrorType}.
      */
-    public void addError(@NotNull final ArkoiClass arkoiClass, @NotNull final AbstractSyntaxAST abstractSyntaxAST, @NotNull final String message, final Object... arguments) {
+    public void addError(@NotNull final ArkoiClass arkoiClass, @NotNull final AbstractSyntaxAST abstractSyntaxAST, @NotNull final String message, @NotNull final Object... arguments) {
         this.failed();
         
         Objects.requireNonNull(this.getSyntaxAnalyzer()).getErrorHandler().addError(new ArkoiError(
@@ -212,7 +212,7 @@ public abstract class AbstractSyntaxAST
      * @param arguments
      *         the arguments list for the error message from the {@link SyntaxErrorType}.
      */
-    public void addError(@NotNull final ArkoiClass arkoiClass, final int start, final int end, @NotNull final String message, final Object... arguments) {
+    public void addError(@NotNull final ArkoiClass arkoiClass, final int start, final int end, @NotNull final String message, @NotNull final Object... arguments) {
         this.failed();
         
         Objects.requireNonNull(this.getSyntaxAnalyzer()).getErrorHandler().addError(new ArkoiError(
@@ -239,7 +239,7 @@ public abstract class AbstractSyntaxAST
      * @param arguments
      *         the arguments list for the error message from the {@link SyntaxErrorType}.
      */
-    public void addError(@NotNull final ArkoiClass arkoiClass, @NotNull final AbstractToken abstractToken, @NotNull final String message, final Object... arguments) {
+    public void addError(@NotNull final ArkoiClass arkoiClass, @NotNull final AbstractToken abstractToken, @NotNull final String message, @NotNull final Object... arguments) {
         this.failed();
         
         Objects.requireNonNull(this.getSyntaxAnalyzer()).getErrorHandler().addError(new ArkoiError(

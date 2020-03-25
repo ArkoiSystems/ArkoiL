@@ -11,6 +11,7 @@ import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.AbstractSemanti
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.AnnotationSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.PrintStream;
 import java.util.List;
@@ -18,12 +19,11 @@ import java.util.List;
 public class AnnotationSemanticAST extends AbstractSemanticAST<AnnotationSyntaxAST>
 {
     
-    public AnnotationSemanticAST(final SemanticAnalyzer semanticAnalyzer, final AbstractSemanticAST<?> lastContainerAST, final AnnotationSyntaxAST annotationSyntaxAST) {
+    public AnnotationSemanticAST(@Nullable final SemanticAnalyzer semanticAnalyzer, @Nullable final AbstractSemanticAST<?> lastContainerAST, @NotNull final AnnotationSyntaxAST annotationSyntaxAST) {
         super(semanticAnalyzer, lastContainerAST, annotationSyntaxAST, ASTType.ANNOTATION);
     }
     
     
-    // TODO: Check for null safety.
     @Override
     public void printSemanticAST(@NotNull final PrintStream printStream, @NotNull final String indents) {
         printStream.println(indents + "├── name: " + this.getAnnotationName().getTokenContent());
@@ -33,11 +33,13 @@ public class AnnotationSemanticAST extends AbstractSemanticAST<AnnotationSyntaxA
     }
     
     
+    @NotNull
     public List<IdentifierToken> getAnnotationArguments() {
         return this.getSyntaxAST().getAnnotationArguments();
     }
     
     
+    @NotNull
     public IdentifierToken getAnnotationName() {
         return this.getSyntaxAST().getAnnotationName();
     }

@@ -13,54 +13,60 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.ty
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.PrintStream;
 
 public class RelationalExpressionSemanticAST extends AbstractExpressionSemanticAST<RelationalExpressionSyntaxAST>
 {
     
-    public RelationalExpressionSemanticAST(final SemanticAnalyzer semanticAnalyzer, final AbstractSemanticAST<?> lastContainerAST, final RelationalExpressionSyntaxAST relationalExpressionSyntaxAST) {
+    public RelationalExpressionSemanticAST(@Nullable final SemanticAnalyzer semanticAnalyzer, @Nullable final AbstractSemanticAST<?> lastContainerAST, @NotNull final RelationalExpressionSyntaxAST relationalExpressionSyntaxAST) {
         super(semanticAnalyzer, lastContainerAST, relationalExpressionSyntaxAST, ASTType.RELATIONAL_EXPRESSION);
     }
     
     
-    // TODO: Check null safety.
     @Override
     public void printSemanticAST(@NotNull final PrintStream printStream, @NotNull final String indents) { }
     
     
+    @Nullable
     @Override
-    public TypeKind getOperableObject() {
+    public TypeKind getTypeKind() {
         return null;
     }
     
     
+    @Nullable
     @Override
-    public TypeKind relationalGreaterThan(final AbstractOperableSemanticAST<?, ?> leftSideOperable, final AbstractOperableSemanticAST<?, ?> rightSideOperable) {
+    public TypeKind relationalGreaterThan(@NotNull final AbstractOperableSemanticAST<?> leftSideOperable, @NotNull final AbstractOperableSemanticAST<?> rightSideOperable) {
         return super.relationalGreaterThan(leftSideOperable, rightSideOperable);
     }
     
     
+    @Nullable
     @Override
-    public TypeKind relationalGreaterEqualThan(final AbstractOperableSemanticAST<?, ?> leftSideOperable, final AbstractOperableSemanticAST<?, ?> rightSideOperable) {
+    public TypeKind relationalGreaterEqualThan(@NotNull final AbstractOperableSemanticAST<?> leftSideOperable, @NotNull final AbstractOperableSemanticAST<?> rightSideOperable) {
         return super.relationalGreaterEqualThan(leftSideOperable, rightSideOperable);
     }
     
     
+    @Nullable
     @Override
-    public TypeKind relationalLessThan(final AbstractOperableSemanticAST<?, ?> leftSideOperable, final AbstractOperableSemanticAST<?, ?> rightSideOperable) {
+    public TypeKind relationalLessThan(@NotNull final AbstractOperableSemanticAST<?> leftSideOperable, @NotNull final AbstractOperableSemanticAST<?> rightSideOperable) {
         return super.relationalLessThan(leftSideOperable, rightSideOperable);
     }
     
     
+    @Nullable
     @Override
-    public TypeKind relationalLessEqualThan(final AbstractOperableSemanticAST<?, ?> leftSideOperable, final AbstractOperableSemanticAST<?, ?> rightSideOperable) {
+    public TypeKind relationalLessEqualThan(@NotNull final AbstractOperableSemanticAST<?> leftSideOperable, @NotNull final AbstractOperableSemanticAST<?> rightSideOperable) {
         return super.relationalLessEqualThan(leftSideOperable, rightSideOperable);
     }
     
     
+    @Nullable
     @Override
-    public TypeKind relationalIs(final AbstractOperableSemanticAST<?, ?> leftSideOperable, final AbstractOperableSemanticAST<?, ?> rightSideOperable) {
+    public TypeKind relationalIs(@NotNull final AbstractOperableSemanticAST<?> leftSideOperable, @NotNull final AbstractOperableSemanticAST<?> rightSideOperable) {
         return super.relationalIs(leftSideOperable, rightSideOperable);
     }
     

@@ -77,6 +77,7 @@ public class SyntaxErrorType
     public static final String IDENTIFIER_INVOKE_NO_VALID_STATEMENT = "Couldn't parse the \"identifier invoke\" statement because the period isn't followed by an valid statement.";
     
     public static final String IDENTIFIER_CALL_NO_IDENTIFIER = "Couldn't parse the \"identifier call\" statement because the parsing doesn't start with an Identifier.";
+    public static final String IDENTIFIER_THIS_NO_DOT = "Couldn't parse the \"identifier call\" statement because the \"this\" keyword isn't followed by a period.";
     
     public static final String FUNCTION_INVOKE_WRONG_PARENT = "Couldn't parse the \"function invoke\" statement because it isn't declared inside a block, variable invocation or an expression.";
     public static final String FUNCTION_INVOKE_WRONG_START = "Couldn't parse the \"function invoke\" statement because the parsing doesn't start with the valid function name.";

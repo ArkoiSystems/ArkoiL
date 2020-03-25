@@ -13,35 +13,39 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.ty
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.PrintStream;
 
 public class LogicalExpressionSemanticAST extends AbstractExpressionSemanticAST<LogicalExpressionSyntaxAST>
 {
     
-    public LogicalExpressionSemanticAST(final SemanticAnalyzer semanticAnalyzer, final AbstractSemanticAST<?> lastContainerAST, final LogicalExpressionSyntaxAST logicalExpressionSyntaxAST) {
+    public LogicalExpressionSemanticAST(@Nullable final SemanticAnalyzer semanticAnalyzer, @Nullable final AbstractSemanticAST<?> lastContainerAST, @NotNull final LogicalExpressionSyntaxAST logicalExpressionSyntaxAST) {
         super(semanticAnalyzer, lastContainerAST, logicalExpressionSyntaxAST, ASTType.LOGICAL_EXPRESSION);
     }
     
     
-    // TODO: Check null safety.
     @Override
     public void printSemanticAST(@NotNull final PrintStream printStream, @NotNull final String indents) { }
     
     
+    @Nullable
     @Override
-    public TypeKind getOperableObject() {
+    public TypeKind getTypeKind() {
         return null;
     }
     
     
+    @Nullable
     @Override
-    public TypeKind logicalAnd(final AbstractOperableSemanticAST<?, ?> leftSideOperable, final AbstractOperableSemanticAST<?, ?> rightSideOperable) {
+    public TypeKind logicalAnd(@NotNull final AbstractOperableSemanticAST<?> leftSideOperable, @NotNull final AbstractOperableSemanticAST<?> rightSideOperable) {
         return super.logicalAnd(leftSideOperable, rightSideOperable);
     }
     
+    
+    @Nullable
     @Override
-    public TypeKind logicalOr(final AbstractOperableSemanticAST<?, ?> leftSideOperable, final AbstractOperableSemanticAST<?, ?> rightSideOperable) {
+    public TypeKind logicalOr(@NotNull final AbstractOperableSemanticAST<?> leftSideOperable, @NotNull final AbstractOperableSemanticAST<?> rightSideOperable) {
         return super.logicalOr(leftSideOperable, rightSideOperable);
     }
     

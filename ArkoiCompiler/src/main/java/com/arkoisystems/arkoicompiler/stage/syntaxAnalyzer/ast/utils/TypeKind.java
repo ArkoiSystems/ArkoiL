@@ -133,17 +133,17 @@ public enum TypeKind
     public static TypeKind getTypeKind(final AbstractOperableSemanticAST<?, ?> abstractOperableSemanticAST) {
         if (abstractOperableSemanticAST instanceof AbstractExpressionSemanticAST) {
             final AbstractExpressionSemanticAST<?> abstractExpressionSemanticAST = (AbstractExpressionSemanticAST<?>) abstractOperableSemanticAST;
-            return abstractExpressionSemanticAST.getOperableObject();
+            return abstractExpressionSemanticAST.getTypeKind();
         } else if (abstractOperableSemanticAST instanceof NumberOperableSemanticAST) {
             final NumberOperableSemanticAST numberExpression = (NumberOperableSemanticAST) abstractOperableSemanticAST;
-            return numberExpression.getOperableObject();
+            return numberExpression.getTypeKind();
         } else if (abstractOperableSemanticAST instanceof StringOperableSemanticAST) {
             return STRING;
         } else if (abstractOperableSemanticAST instanceof CollectionOperableSemanticAST) {
             return COLLECTION;
         } else if (abstractOperableSemanticAST instanceof IdentifierCallOperableSemanticAST) {
             final IdentifierCallOperableSemanticAST identifierCallOperableSemanticAST = (IdentifierCallOperableSemanticAST) abstractOperableSemanticAST;
-            return identifierCallOperableSemanticAST.getOperableObject();
+            return identifierCallOperableSemanticAST.getTypeKind();
         } else {
             System.out.println("TypeKind: Not supported yet #1: " + abstractOperableSemanticAST);
             return null;

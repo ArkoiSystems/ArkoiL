@@ -12,33 +12,41 @@ import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.SemanticErrorType;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.AbstractSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.types.ImportDefinitionSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
+import lombok.NonNull;
 import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.PrintStream;
+import java.util.Objects;
 
 public class ImportDefinitionSemanticAST extends AbstractSemanticAST<ImportDefinitionSyntaxAST>
 {
     
+    @Nullable
     private ArkoiClass importTargetClass;
     
     
-    public ImportDefinitionSemanticAST(final SemanticAnalyzer semanticAnalyzer, final AbstractSemanticAST<?> lastContainerAST, final ImportDefinitionSyntaxAST importDefinitionSyntaxAST) {
+    public ImportDefinitionSemanticAST(@Nullable final SemanticAnalyzer semanticAnalyzer, @Nullable final AbstractSemanticAST<?> lastContainerAST, @NonNull final ImportDefinitionSyntaxAST importDefinitionSyntaxAST) {
         super(semanticAnalyzer, lastContainerAST, importDefinitionSyntaxAST, ASTType.IMPORT_DEFINITION);
     }
     
     
-    // TODO: Check for null safety.
     @Override
     public void printSemanticAST(@NotNull final PrintStream printStream, @NotNull final String indents) {
+        Objects.requireNonNull(this.getImportTargetClass());
+        
         printStream.println(indents + "├── name: " + this.getImportName().getTokenContent());
         printStream.println(indents + "└── path: " + this.getImportTargetClass().getFilePath());
     }
     
     
     @SneakyThrows
+    @Nullable
     public ArkoiClass getImportTargetClass() {
+        Objects.requireNonNull(this.getSemanticAnalyzer());
+        
         if (this.importTargetClass == null) {
             final String filePath = new File(this.getSemanticAnalyzer().getArkoiClass().getArkoiCompiler().getWorkingDirectory() + File.separator +
                     this.getSyntaxAST().getImportFilePath().getTokenContent() + ".ark").getCanonicalPath();
@@ -57,6 +65,7 @@ public class ImportDefinitionSemanticAST extends AbstractSemanticAST<ImportDefin
     }
     
     
+    @NotNull
     public IdentifierToken getImportName() {
         return this.getSyntaxAST().getImportName();
     }
