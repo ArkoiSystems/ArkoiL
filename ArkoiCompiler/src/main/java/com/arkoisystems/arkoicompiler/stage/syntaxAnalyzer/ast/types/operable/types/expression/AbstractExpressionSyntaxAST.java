@@ -188,6 +188,8 @@ public class AbstractExpressionSyntaxAST extends AbstractOperableSyntaxAST<TypeK
         }
     }
     
+    
+    // TODO: Change parenthesized expression and cast expression
     public Optional<? extends AbstractOperableSyntaxAST<?>> parseOperable(@NotNull final AbstractSyntaxAST parentAST) {
         Objects.requireNonNull(this.getSyntaxAnalyzer());
         
@@ -202,13 +204,11 @@ public class AbstractExpressionSyntaxAST extends AbstractOperableSyntaxAST<TypeK
             abstractOperableSyntaxAST = new PrefixExpressionSyntaxAST(this.getSyntaxAnalyzer(), PrefixOperatorType.NEGATE).parseAST(parentAST);
         else if (this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.PLUS) != null)
             abstractOperableSyntaxAST = new PrefixExpressionSyntaxAST(this.getSyntaxAnalyzer(), PrefixOperatorType.AFFIRM).parseAST(parentAST);
-        
-        if (this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.OPENING_PARENTHESIS) != null) {
+        else if (this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.OPENING_PARENTHESIS) != null) {
             abstractOperableSyntaxAST = ParenthesizedExpressionSyntaxAST
                     .builder(this.getSyntaxAnalyzer())
                     .build()
                     .parseAST(parentAST);
-            this.getSyntaxAnalyzer().nextToken(); // TODO: Check if I need to remove this
         }
         
         if (abstractOperableSyntaxAST.isEmpty())
@@ -218,13 +218,11 @@ public class AbstractExpressionSyntaxAST extends AbstractOperableSyntaxAST<TypeK
         
         if (this.getSyntaxAnalyzer().matchesPeekToken(1, SymbolType.MINUS) != null &&
                 this.getSyntaxAnalyzer().matchesPeekToken(2, SymbolType.MINUS) != null) {
-            abstractOperableSyntaxAST = new PostfixExpressionSyntaxAST(this.getSyntaxAnalyzer(), abstractOperableSyntaxAST.get(), PostfixOperatorType.POSTFIX_SUB).parseAST(parentAST);
+            return new PostfixExpressionSyntaxAST(this.getSyntaxAnalyzer(), abstractOperableSyntaxAST.get(), PostfixOperatorType.POSTFIX_SUB).parseAST(parentAST);
         } else if (this.getSyntaxAnalyzer().matchesPeekToken(1, SymbolType.PLUS) != null &&
                 this.getSyntaxAnalyzer().matchesPeekToken(2, SymbolType.PLUS) != null) {
-            abstractOperableSyntaxAST = new PostfixExpressionSyntaxAST(this.getSyntaxAnalyzer(), abstractOperableSyntaxAST.get(), PostfixOperatorType.POSTFIX_ADD).parseAST(parentAST);
-        } // TODO: Check if I need to change this
-        
-        if (this.getSyntaxAnalyzer().matchesPeekToken(1, TokenType.IDENTIFIER, false) != null)
+            return new PostfixExpressionSyntaxAST(this.getSyntaxAnalyzer(), abstractOperableSyntaxAST.get(), PostfixOperatorType.POSTFIX_ADD).parseAST(parentAST);
+        } else if (this.getSyntaxAnalyzer().matchesPeekToken(1, TokenType.IDENTIFIER, false) != null)
             return new CastExpressionSyntaxAST(this.getSyntaxAnalyzer(), abstractOperableSyntaxAST.get()).parseAST(parentAST);
         return abstractOperableSyntaxAST;
     }

@@ -57,8 +57,9 @@ public class VariableDefinitionSemanticAST extends AbstractSemanticAST<VariableD
         printStream.println(indents + "│");
         printStream.println(indents + "├── name: " + this.getVariableName().getTokenContent());
         printStream.println(indents + "│");
-        printStream.println(indents + "└── expression:");
-        this.getVariableExpression().printSemanticAST(printStream, indents + "    ");
+        printStream.println(indents + "└── expression: " + (this.getVariableExpression() == null ? null : ""));
+        if (this.getVariableExpression() != null)
+            this.getVariableExpression().printSemanticAST(printStream, indents + "    ");
     }
     
     
@@ -72,25 +73,28 @@ public class VariableDefinitionSemanticAST extends AbstractSemanticAST<VariableD
             for (final AnnotationSyntaxAST annotationSyntaxAST : this.getSyntaxAST().getVariableAnnotations()) {
                 final AnnotationSemanticAST annotationSemanticAST
                         = new AnnotationSemanticAST(this.getSemanticAnalyzer(), this, annotationSyntaxAST);
-            
+    
                 final IdentifierToken annotationName = annotationSemanticAST.getAnnotationName();
-                if (names.containsKey(annotationName.getTokenContent())) {
-                    final AbstractSemanticAST<?> alreadyExistAST = names.get(annotationName.getTokenContent());
-                    this.addError(
-                            this.getSemanticAnalyzer().getArkoiClass(),
-                            new AbstractSemanticAST[] {
-                                    this,
-                                    alreadyExistAST
-                            },
-                            SemanticErrorType.VARIABLE_ANNOTATION_SAME_NAME
-                    );
-                    continue;
-                } else names.put(annotationName.getTokenContent(), annotationSemanticAST);
-            
+                if (annotationName != null) {
+                    if (names.containsKey(annotationName.getTokenContent())) {
+                        final AbstractSemanticAST<?> alreadyExistAST = names.get(annotationName.getTokenContent());
+                        this.addError(
+                                this.getSemanticAnalyzer().getArkoiClass(),
+                                new AbstractSemanticAST[] {
+                                        this,
+                                        alreadyExistAST
+                                },
+                                SemanticErrorType.VARIABLE_ANNOTATION_SAME_NAME
+                        );
+                        continue;
+                    } else
+                        names.put(annotationName.getTokenContent(), annotationSemanticAST);
+                } else this.failed();
+    
                 annotationSemanticAST.getAnnotationArguments();
                 if (annotationSemanticAST.isFailed())
                     this.failed();
-                
+    
                 this.variableAnnotations.add(annotationSemanticAST);
             }
         }
@@ -104,13 +108,15 @@ public class VariableDefinitionSemanticAST extends AbstractSemanticAST<VariableD
     }
     
     
-    @NotNull
+    @Nullable
     public ExpressionSemanticAST getVariableExpression() {
         if (this.variableExpression == null) {
-            this.variableExpression
-                    = new ExpressionSemanticAST(this.getSemanticAnalyzer(), this, this.getSyntaxAST().getVariableExpression());
-
+            if (this.getSyntaxAST().getVariableExpression() == null)
+                return null;
+    
+            this.variableExpression = new ExpressionSemanticAST(this.getSemanticAnalyzer(), this, this.getSyntaxAST().getVariableExpression());
             this.variableExpression.getTypeKind();
+    
             if (this.variableExpression.isFailed())
                 this.failed();
         }

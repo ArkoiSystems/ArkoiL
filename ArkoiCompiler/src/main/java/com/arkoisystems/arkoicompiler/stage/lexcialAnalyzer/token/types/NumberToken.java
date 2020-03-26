@@ -136,7 +136,7 @@ public class NumberToken extends AbstractToken
         }
         
         
-        public NumberTokenBuilder content(@NotNull final String tokenContent) {
+        public NumberTokenBuilder content(final String tokenContent) {
             this.tokenContent = tokenContent;
             return this;
         }

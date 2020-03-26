@@ -10,6 +10,8 @@ import com.intellij.psi.util.PsiTreeUtil;
 import static com.arkoisystems.lang.arkoi.ArkoiTokenTypes.*;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import com.arkoisystems.lang.arkoi.psi.*;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.FunctionCallPartSyntaxAST;
 
 public class ArkoiIdentifierCallPartImpl extends ASTWrapperPsiElement implements ArkoiIdentifierCallPart {
 
@@ -36,6 +38,12 @@ public class ArkoiIdentifierCallPartImpl extends ASTWrapperPsiElement implements
   @NotNull
   public PsiElement getIdentifier() {
     return findNotNullChildByType(IDENTIFIER);
+  }
+
+  @Override
+  @Nullable
+  public FunctionCallPartSyntaxAST getCalledFunctionPart(@NotNull SyntaxAnalyzer syntaxAnalyzer) {
+    return ArkoiPsiImplUtil.getCalledFunctionPart(this, syntaxAnalyzer);
   }
 
 }

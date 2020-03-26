@@ -63,6 +63,7 @@ public class BlockSyntaxAST extends AbstractSyntaxAST
      */
     @Getter
     @Setter(AccessLevel.PROTECTED)
+    @Nullable
     private BlockType blockType;
     
     
@@ -149,15 +150,6 @@ public class BlockSyntaxAST extends AbstractSyntaxAST
                                 this.skipToNextValidToken();
                                 continue main_loop;
                             }
-                        } else if (this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.SEMICOLON) == null) {
-                            this.addError(
-                                    this.getSyntaxAnalyzer().getArkoiClass(),
-                                    this.getSyntaxAnalyzer().currentToken(),
-                                    SyntaxErrorType.BLOCK_STATEMENT_HAS_WRONG_ENDING,
-                                    abstractSyntaxAST.getClass().getSimpleName()
-                            );
-                            this.skipToNextValidToken();
-                            continue main_loop;
                         }
                         
                         this.blockStorage.add(abstractSyntaxAST);
@@ -196,15 +188,6 @@ public class BlockSyntaxAST extends AbstractSyntaxAST
             if (optionalExpressionSyntaxAST.isEmpty())
                 return Optional.empty();
             this.blockStorage.add(optionalExpressionSyntaxAST.get());
-            
-            if (this.getSyntaxAnalyzer().matchesNextToken(SymbolType.SEMICOLON) == null) {
-                this.addError(
-                        this.getSyntaxAnalyzer().getArkoiClass(),
-                        this.getSyntaxAnalyzer().currentToken(),
-                        SyntaxErrorType.BLOCK_INLINED_BLOCK_WRONG_ENDING
-                );
-                return Optional.empty();
-            }
         } else {
             this.addError(
                     this.getSyntaxAnalyzer().getArkoiClass(),
@@ -275,13 +258,13 @@ public class BlockSyntaxAST extends AbstractSyntaxAST
         }
         
         
-        public BlockSyntaxASTBuilder storage(@NotNull final List<AbstractSyntaxAST> blockStorage) {
+        public BlockSyntaxASTBuilder storage(final List<AbstractSyntaxAST> blockStorage) {
             this.blockStorage = blockStorage;
             return this;
         }
         
         
-        public BlockSyntaxASTBuilder type(@NotNull final BlockType blockType) {
+        public BlockSyntaxASTBuilder type(final BlockType blockType) {
             this.blockType = blockType;
             return this;
         }
@@ -301,9 +284,9 @@ public class BlockSyntaxAST extends AbstractSyntaxAST
         
         public BlockSyntaxAST build() {
             final BlockSyntaxAST blockSyntaxAST = new BlockSyntaxAST(this.syntaxAnalyzer);
+            blockSyntaxAST.setBlockType(this.blockType);
             if (this.blockStorage != null)
                 blockSyntaxAST.setBlockStorage(this.blockStorage);
-            blockSyntaxAST.setBlockType(this.blockType);
             blockSyntaxAST.setStart(this.start);
             blockSyntaxAST.setEnd(this.end);
             return blockSyntaxAST;

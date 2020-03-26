@@ -89,7 +89,7 @@ variable_declaration ::= (annotation_call | comment_declaration)* var IDENTIFIER
 }
 
 function_declaration ::= (annotation_call | comment_declaration)* fun IDENTIFIER LESS_THAN primitives? GREATER_THAN L_PARENTHESIS parameter_list? R_PARENTHESIS block_declaration {
-    pin = 2
+    pin = 'fun'
     methods = [
         getFunctionName
         getFunctionReturnType
@@ -106,10 +106,15 @@ return_declaration ::= return expression? {
     ]
 }
 
-identifier_call ::= (this DOT)? identifier_call_part (DOT identifier_call_part)*
+identifier_call ::= (this DOT)? identifier_call_part (DOT identifier_call_part)* {
+    methods = [
+        getIdentifierCall
+    ]
+}
 
 identifier_call_part ::= IDENTIFIER function_call_part?  {
     methods = [
+        getCalledFunctionPart
         getName
     ]
 }
@@ -121,7 +126,7 @@ function_call_part ::= L_PARENTHESIS expression_list? R_PARENTHESIS { pin = 1 }
 annotation_call ::= AT identifier_call (L_BRACKET argument_list R_BRACKET)? {
     pin = 1
     methods = [
-        getAnnotationName
+        getAnnotationCall
         getAnnotationArguments
     ]
 }
@@ -150,7 +155,6 @@ assign_expression_part ::= assign_expression
                          | mul_assign_expression
                          | div_assign_expression
                          | mod_assign_expression
-                         | exp_assign_expression
 
 assign_expression ::= EQUALS assignment_expression { pin = 1 }
 add_assign_expression ::= ADD_ASSIGN assignment_expression { pin = 1 }
@@ -158,7 +162,7 @@ sub_assign_expression ::= SUB_ASSIGN assignment_expression { pin = 1 }
 mul_assign_expression ::= MUL_ASSIGN assignment_expression { pin = 1 }
 div_assign_expression ::= DIV_ASSIGN assignment_expression { pin = 1 }
 mod_assign_expression ::= MOD_ASSIGN assignment_expression { pin = 1 }
-exp_assign_expression ::= EXP_ASSIGN assignment_expression { pin = 1 }
+//exp_assign_expression ::= EXP_ASSIGN assignment_expression { pin = 1 }
 
 binary_additive_expression ::= binary_multiplicative_expression binary_additive_expression_part*
 

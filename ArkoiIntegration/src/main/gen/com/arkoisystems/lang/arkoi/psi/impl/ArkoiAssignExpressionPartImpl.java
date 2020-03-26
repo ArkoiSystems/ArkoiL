@@ -46,12 +46,6 @@ public class ArkoiAssignExpressionPartImpl extends ASTWrapperPsiElement implemen
 
   @Override
   @Nullable
-  public ArkoiExpAssignExpression getExpAssignExpression() {
-    return findChildByClass(ArkoiExpAssignExpression.class);
-  }
-
-  @Override
-  @Nullable
   public ArkoiModAssignExpression getModAssignExpression() {
     return findChildByClass(ArkoiModAssignExpression.class);
   }

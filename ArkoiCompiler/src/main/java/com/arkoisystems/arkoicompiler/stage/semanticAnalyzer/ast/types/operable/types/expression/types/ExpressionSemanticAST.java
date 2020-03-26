@@ -9,7 +9,9 @@ import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.SemanticAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.SemanticErrorType;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.AbstractSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.AbstractOperableSemanticAST;
-import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.types.*;
+import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.types.IdentifierCallOperableSemanticAST;
+import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.types.NumberOperableSemanticAST;
+import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.types.StringOperableSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.types.expression.AbstractExpressionSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.IdentifierCallOperableSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.NumberOperableSyntaxAST;
@@ -41,7 +43,8 @@ public class ExpressionSemanticAST extends AbstractExpressionSemanticAST<Express
     
     @Override
     public void printSemanticAST(@NotNull final PrintStream printStream, @NotNull final String indents) {
-        Objects.requireNonNull(this.getExpressionOperable()).printSemanticAST(printStream, indents);
+        if (this.getExpressionOperable() != null)
+            this.getExpressionOperable().printSemanticAST(printStream, indents);
     }
     
     
@@ -65,7 +68,6 @@ public class ExpressionSemanticAST extends AbstractExpressionSemanticAST<Express
             
             if (this.expressionOperable == null)
                 this.failed();
-            return this.expressionType;
         }
         return this.expressionType;
     }
@@ -106,7 +108,7 @@ public class ExpressionSemanticAST extends AbstractExpressionSemanticAST<Express
                 final ParenthesizedExpressionSyntaxAST parenthesizedExpressionSyntaxAST = (ParenthesizedExpressionSyntaxAST) this.getSyntaxAST().getExpressionOperable();
                 final ParenthesizedExpressionSemanticAST parenthesizedExpressionSemanticAST
                         = new ParenthesizedExpressionSemanticAST(this.getSemanticAnalyzer(), this.getLastContainerAST(), parenthesizedExpressionSyntaxAST);
-
+    
                 if (parenthesizedExpressionSemanticAST.getTypeKind() == null)
                     return null;
                 return (this.expressionOperable = parenthesizedExpressionSemanticAST);
@@ -114,7 +116,7 @@ public class ExpressionSemanticAST extends AbstractExpressionSemanticAST<Express
                 final AssignmentExpressionSyntaxAST assignmentExpressionSyntaxAST = (AssignmentExpressionSyntaxAST) this.getSyntaxAST().getExpressionOperable();
                 final AssignmentExpressionSemanticAST assignmentExpressionSemanticAST
                         = new AssignmentExpressionSemanticAST(this.getSemanticAnalyzer(), this.getLastContainerAST(), assignmentExpressionSyntaxAST);
-
+    
                 if (assignmentExpressionSemanticAST.getTypeKind() == null)
                     return null;
                 return (this.expressionOperable = assignmentExpressionSemanticAST);
@@ -122,7 +124,7 @@ public class ExpressionSemanticAST extends AbstractExpressionSemanticAST<Express
                 final PrefixExpressionSyntaxAST prefixExpressionSyntaxAST = (PrefixExpressionSyntaxAST) this.getSyntaxAST().getExpressionOperable();
                 final PrefixExpressionSemanticAST prefixExpressionSemanticAST
                         = new PrefixExpressionSemanticAST(this.getSemanticAnalyzer(), this.getLastContainerAST(), prefixExpressionSyntaxAST);
-
+    
                 if (prefixExpressionSemanticAST.getTypeKind() == null)
                     return null;
                 return (this.expressionOperable = prefixExpressionSemanticAST);
@@ -130,7 +132,7 @@ public class ExpressionSemanticAST extends AbstractExpressionSemanticAST<Express
                 final PostfixExpressionSyntaxAST postfixExpressionSyntaxAST = (PostfixExpressionSyntaxAST) this.getSyntaxAST().getExpressionOperable();
                 final PostfixExpressionSemanticAST postfixExpressionSemanticAST
                         = new PostfixExpressionSemanticAST(this.getSemanticAnalyzer(), this.getLastContainerAST(), postfixExpressionSyntaxAST);
-
+    
                 if (postfixExpressionSemanticAST.getTypeKind() == null)
                     return null;
                 return (this.expressionOperable = postfixExpressionSemanticAST);
@@ -138,11 +140,11 @@ public class ExpressionSemanticAST extends AbstractExpressionSemanticAST<Express
                 final CastExpressionSyntaxAST castExpressionSyntaxAST = (CastExpressionSyntaxAST) this.getSyntaxAST().getExpressionOperable();
                 final CastExpressionSemanticAST castExpressionSemanticAST
                         = new CastExpressionSemanticAST(this.getSemanticAnalyzer(), this.getLastContainerAST(), castExpressionSyntaxAST);
-
+    
                 if (castExpressionSemanticAST.getTypeKind() == null)
                     return null;
                 return (this.expressionOperable = castExpressionSemanticAST);
-            } else {
+            } else if(this.getSyntaxAST().getExpressionOperable() != null) {
                 this.addError(
                         this.getSemanticAnalyzer().getArkoiClass(),
                         this.getSyntaxAST().getExpressionOperable(),

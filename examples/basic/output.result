@@ -5,18 +5,177 @@ Syntax Trees:
    │   │
    │   ├── variables: N/A
    │   │
-   │   └── functions: N/A
+   │   └── functions: 
+   │       └── FunctionDefinitionSyntaxAST
+   │           ├── annotations: N/A
+   │           │
+   │           ├── name: test
+   │           ├── type: string
+   │           │
+   │           ├── arguments: N/A
+   │           │
+   │           └── block: 
+   │                ├── type: INLINE
+   │                └── storage: 
+   │                    └── ExpressionSyntaxAST
+   │                        └── operable: Hello World
    │
    ├── RootSyntaxAST
    │   ├── imports: N/A
    │   │
    │   ├── variables: N/A
    │   │
-   │   └── functions: N/A
+   │   └── functions: 
+   │       └── FunctionDefinitionSyntaxAST
+   │           ├── annotations: 
+   │           │   └── AnnotationSyntaxAST
+   │           │       ├── name: native
+   │           │       └── arguments: 
+   │           │           └── ArgumentSyntaxAST
+   │           │               ├── name: default
+   │           │               └── expression: 
+   │           │                    ├── fileLocal: false
+   │           │                    └── identifier: true
+   │           │
+   │           ├── name: println
+   │           ├── type: void
+   │           │
+   │           ├── arguments: 
+   │           │   └── ParameterSyntaxAST
+   │           │       ├── name: message
+   │           │       └── type: string
+   │           │
+   │           └── block: 
+   │                ├── type: NATIVE
+   │                └── storage: N/A
    │
    └── RootSyntaxAST
-       ├── imports: N/A
+       ├── imports: 
+       │   └── ImportDefinitionSyntaxAST
+       │       ├── name: test
+       │       └── path: ./test
        │
-       ├── variables: N/A
+       ├── variables: 
+       │   ├── VariableDefinitionSyntaxAST
+       │   │   ├── annotations: N/A
+       │   │   │
+       │   │   ├── name: test_1
+       │   │   │
+       │   │   └── expression: 
+       │   │       ├── fileLocal: false
+       │   │       └── identifier: test
+       │   │   
+       │   ├── VariableDefinitionSyntaxAST
+       │   │   ├── annotations: N/A
+       │   │   │
+       │   │   ├── name: test_2
+       │   │   │
+       │   │   └── expression: 
+       │   │       ├── fileLocal: true
+       │   │       └── identifier: greeting
+       │   │   
+       │   └── VariableDefinitionSyntaxAST
+       │       ├── annotations: N/A
+       │       │
+       │       ├── name: test_3
+       │       │
+       │       └── expression: 
+       │           ├── left:
+       │           │   └── CastExpressionSyntaxAST
+       │           │        ├── left:
+       │           │        │   └── ParenthesizedExpressionSyntaxAST
+       │           │        │       └── operable:
+       │           │        │           └── ExpressionSyntaxAST
+       │           │        │               ├── left:
+       │           │        │               │   └── IdentifierCallOperableSyntaxAST
+       │           │        │               │        ├── fileLocal: false
+       │           │        │               │        └── identifier: test_1
+       │           │        │               ├── operator: SUBTRACTION
+       │           │        │               └── right:
+       │           │        │                   └── BinaryExpressionSyntaxAST
+       │           │        │                       ├── left:
+       │           │        │                       │   └── ParenthesizedExpressionSyntaxAST
+       │           │        │                       │        └── operable:
+       │           │        │                       │            └── ExpressionSyntaxAST
+       │           │        │                       │                ├── left:
+       │           │        │                       │                │   └── BinaryExpressionSyntaxAST
+       │           │        │                       │                │        ├── left:
+       │           │        │                       │                │        │   └── IdentifierCallOperableSyntaxAST
+       │           │        │                       │                │        │        ├── fileLocal: false
+       │           │        │                       │                │        │        └── identifier: test_1
+       │           │        │                       │                │        ├── operator: MULTIPLICATION
+       │           │        │                       │                │        └── right:
+       │           │        │                       │                │            └── NumberOperableSyntaxAST
+       │           │        │                       │                │                └── operable: 2
+       │           │        │                       │                ├── operator: ADD_ASSIGN
+       │           │        │                       │                └── right:
+       │           │        │                       │                    └── BinaryExpressionSyntaxAST
+       │           │        │                       │                        ├── left:
+       │           │        │                       │                        │   └── NumberOperableSyntaxAST
+       │           │        │                       │                        │        └── operable: 4
+       │           │        │                       │                        ├── operator: ADDITION
+       │           │        │                       │                        └── right:
+       │           │        │                       │                            └── PrefixExpressionSyntaxAST
+       │           │        │                       │                                ├── operator: NEGATE
+       │           │        │                       │                                └── right:
+       │           │        │                       │                                    └── NumberOperableSyntaxAST
+       │           │        │                       │                                        └── operable: 10
+       │           │        │                       ├── operator: MULTIPLICATION
+       │           │        │                       └── right:
+       │           │        │                           └── NumberOperableSyntaxAST
+       │           │        │                               └── operable: 5
+       │           │        └── operator: INTEGER
+       │           ├── operator: MULTIPLICATION
+       │           └── right:
+       │               └── CastExpressionSyntaxAST
+       │                   ├── left:
+       │                   │   └── NumberOperableSyntaxAST
+       │                   │       └── operable: 2
+       │                   └── operator: FLOAT
        │
-       └── functions: N/A
+       └── functions: 
+           ├── FunctionDefinitionSyntaxAST
+           │   ├── annotations: N/A
+           │   │
+           │   ├── name: print_greet
+           │   ├── type: void
+           │   │
+           │   ├── arguments: 
+           │   │   └── ParameterSyntaxAST
+           │   │       ├── name: test_argument
+           │   │       └── type: string
+           │   │
+           │   └── block: 
+           │        ├── type: INLINE
+           │        └── storage: 
+           │            └── ExpressionSyntaxAST
+           │                ├── fileLocal: false
+           │                └── identifier: println
+           │   
+           ├── FunctionDefinitionSyntaxAST
+           │   ├── annotations: N/A
+           │   │
+           │   ├── name: greeting
+           │   ├── type: string
+           │   │
+           │   ├── arguments: N/A
+           │   │
+           │   └── block: 
+           │        ├── type: INLINE
+           │        └── storage: 
+           │            └── ExpressionSyntaxAST
+           │                └── operable: Hello World
+           │   
+           └── FunctionDefinitionSyntaxAST
+               ├── annotations: N/A
+               │
+               ├── name: greeting
+               ├── type: void
+               │
+               ├── arguments: N/A
+               │
+               └── block: 
+                    ├── type: INLINE
+                    └── storage: 
+                        └── ExpressionSyntaxAST
+                            └── operable: 

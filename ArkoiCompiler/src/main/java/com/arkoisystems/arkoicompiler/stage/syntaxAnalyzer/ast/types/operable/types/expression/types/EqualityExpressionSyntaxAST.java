@@ -15,6 +15,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.PrintStream;
 import java.util.Optional;
@@ -24,19 +25,19 @@ public class EqualityExpressionSyntaxAST extends AbstractExpressionSyntaxAST
     
     @Getter
     @Setter(AccessLevel.PROTECTED)
-    @NotNull
+    @Nullable
     private AbstractOperableSyntaxAST<?> leftSideOperable;
     
     
     @Getter
     @Setter(AccessLevel.PROTECTED)
-    @NotNull
+    @Nullable
     private EqualityOperatorType equalityOperatorType;
     
     
     @Getter
     @Setter(AccessLevel.PROTECTED)
-    @NotNull
+    @Nullable
     private AbstractOperableSyntaxAST<?> rightSideOperable;
     
     
@@ -59,12 +60,14 @@ public class EqualityExpressionSyntaxAST extends AbstractExpressionSyntaxAST
     @Override
     public void printSyntaxAST(@NotNull final PrintStream printStream, @NotNull final String indents) {
         printStream.println(indents + "├── left:");
-        printStream.println(indents + "│   └── " + this.getLeftSideOperable().getClass().getSimpleName());
-        this.getLeftSideOperable().printSyntaxAST(printStream, indents + "│       ");
+        printStream.println(indents + "│   └── " + (this.getLeftSideOperable() != null ? this.getLeftSideOperable().getClass().getSimpleName() : null));
+        if (this.getLeftSideOperable() != null)
+            this.getLeftSideOperable().printSyntaxAST(printStream, indents + "│       ");
         printStream.println(indents + "├── operator: " + this.getEqualityOperatorType());
         printStream.println(indents + "└── right:");
-        printStream.println(indents + "    └── " + this.getRightSideOperable().getClass().getSimpleName());
-        this.getRightSideOperable().printSyntaxAST(printStream, indents + "        ");
+        printStream.println(indents + "    └── " + (this.getRightSideOperable() != null ? this.getRightSideOperable().getClass().getSimpleName() : null));
+        if (this.getRightSideOperable() != null)
+            this.getRightSideOperable().printSyntaxAST(printStream, indents + "        ");
     }
     
 }

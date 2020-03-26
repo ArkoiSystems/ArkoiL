@@ -4,7 +4,9 @@ package com.arkoisystems.lang.arkoi.psi;
 import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
-import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.IdentifierToken;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.IdentifierCallOperableSyntaxAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.ArgumentSyntaxAST;
 
 public interface ArkoiAnnotationCall extends PsiElement {
 
@@ -15,9 +17,9 @@ public interface ArkoiAnnotationCall extends PsiElement {
   ArkoiIdentifierCall getIdentifierCall();
 
   @Nullable
-  IdentifierToken getAnnotationName();
+  IdentifierCallOperableSyntaxAST getAnnotationCall(@NotNull SyntaxAnalyzer syntaxAnalyzer);
 
   @NotNull
-  List<IdentifierToken> getAnnotationArguments();
+  List<ArgumentSyntaxAST> getAnnotationArguments(@NotNull SyntaxAnalyzer syntaxAnalyzer);
 
 }

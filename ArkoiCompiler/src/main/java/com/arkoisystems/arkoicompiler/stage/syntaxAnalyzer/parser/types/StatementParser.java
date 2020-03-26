@@ -6,14 +6,11 @@
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.parser.types;
 
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken;
-import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.IdentifierToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.IdentifierInvokeOperableSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.AbstractExpressionSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.AbstractStatementSyntaxAST;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.types.ThisStatementSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.parser.AbstractParser;
 import org.jetbrains.annotations.NotNull;
@@ -50,42 +47,13 @@ public class StatementParser extends AbstractParser
     }
     
     
-    /**
-     * Tests if the current {@link AbstractToken} is capable to parse a new {@link
-     * AbstractStatementSyntaxAST}. Depending on the parent {@link AbstractSyntaxAST} it
-     * will check for different values of the previously checked {@link IdentifierToken}.
-     * So you can't declare a {@link ThisStatementSyntaxAST} if the parent already is a
-     * {@link ThisStatementSyntaxAST}.
-     *
-     * @param parentAST
-     *         the {@link AbstractSyntaxAST} in which this AST is getting parsed.
-     * @param syntaxAnalyzer
-     *         the {@link SyntaxAnalyzer} which is used to call methods like {@link
-     *         SyntaxAnalyzer#matchesCurrentToken(TokenType)} etc.
-     *
-     * @return {@code false} if the current {@link AbstractToken} and parent {@link
-     *         AbstractSyntaxAST} aren't capable to parse a new {@link
-     *         AbstractStatementSyntaxAST} or {@code true} if they do.
-     */
-    @NotNull
     @Override
     public boolean canParse(@NotNull final AbstractSyntaxAST parentAST, @NotNull final SyntaxAnalyzer syntaxAnalyzer) {
         final AbstractToken currentToken = syntaxAnalyzer.currentToken();
         if (syntaxAnalyzer.matchesCurrentToken(TokenType.IDENTIFIER) == null)
             return false;
         
-        if (parentAST instanceof ThisStatementSyntaxAST) {
-            switch (currentToken.getTokenContent()) {
-                case "var":
-                case "fun":
-                case "import":
-                case "this":
-                case "return":
-                    return false;
-                default:
-                    return true;
-            }
-        } else if (parentAST instanceof AbstractExpressionSyntaxAST) {
+        if (parentAST instanceof AbstractExpressionSyntaxAST) {
             switch (currentToken.getTokenContent()) {
                 case "var":
                 case "fun":
@@ -93,17 +61,6 @@ public class StatementParser extends AbstractParser
                 case "return":
                     return false;
                 case "this":
-                default:
-                    return true;
-            }
-        } else if (parentAST instanceof IdentifierInvokeOperableSyntaxAST) {
-            switch (currentToken.getTokenContent()) {
-                case "var":
-                case "fun":
-                case "import":
-                case "return":
-                case "this":
-                    return false;
                 default:
                     return true;
             }

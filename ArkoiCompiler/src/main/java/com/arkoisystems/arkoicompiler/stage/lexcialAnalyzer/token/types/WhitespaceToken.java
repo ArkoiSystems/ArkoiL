@@ -73,7 +73,7 @@ public class WhitespaceToken extends AbstractToken
         }
         
         
-        public WhitespaceTokenBuilder content(@Nullable final String tokenContent) {
+        public WhitespaceTokenBuilder content(final String tokenContent) {
             this.tokenContent = tokenContent;
             return this;
         }

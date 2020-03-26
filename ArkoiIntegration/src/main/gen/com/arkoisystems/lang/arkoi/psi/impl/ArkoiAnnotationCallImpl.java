@@ -10,7 +10,9 @@ import com.intellij.psi.util.PsiTreeUtil;
 import static com.arkoisystems.lang.arkoi.ArkoiTokenTypes.*;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import com.arkoisystems.lang.arkoi.psi.*;
-import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.IdentifierToken;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.IdentifierCallOperableSyntaxAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.ArgumentSyntaxAST;
 
 public class ArkoiAnnotationCallImpl extends ASTWrapperPsiElement implements ArkoiAnnotationCall {
 
@@ -41,14 +43,14 @@ public class ArkoiAnnotationCallImpl extends ASTWrapperPsiElement implements Ark
 
   @Override
   @Nullable
-  public IdentifierToken getAnnotationName() {
-    return ArkoiPsiImplUtil.getAnnotationName(this);
+  public IdentifierCallOperableSyntaxAST getAnnotationCall(@NotNull SyntaxAnalyzer syntaxAnalyzer) {
+    return ArkoiPsiImplUtil.getAnnotationCall(this, syntaxAnalyzer);
   }
 
   @Override
   @NotNull
-  public List<IdentifierToken> getAnnotationArguments() {
-    return ArkoiPsiImplUtil.getAnnotationArguments(this);
+  public List<ArgumentSyntaxAST> getAnnotationArguments(@NotNull SyntaxAnalyzer syntaxAnalyzer) {
+    return ArkoiPsiImplUtil.getAnnotationArguments(this, syntaxAnalyzer);
   }
 
 }

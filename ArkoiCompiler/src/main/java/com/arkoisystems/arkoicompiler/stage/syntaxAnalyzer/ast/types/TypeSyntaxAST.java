@@ -180,7 +180,7 @@ public class TypeSyntaxAST extends AbstractSyntaxAST
         }
         
         
-        public TypeSyntaxASTBuilder typeKind(@NotNull final TypeKind typeKind) {
+        public TypeSyntaxASTBuilder typeKind(final TypeKind typeKind) {
             this.typeKind = typeKind;
             return this;
         }

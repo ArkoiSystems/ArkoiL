@@ -64,7 +64,6 @@ public class ParameterParser extends AbstractParser
      * @return {@code false} if the current {@link AbstractToken} isn't an {@link
      *         IdentifierToken} or {@code true} if it is.
      */
-    @NotNull
     @Override
     public boolean canParse(@NotNull final AbstractSyntaxAST parentAST, @NotNull final SyntaxAnalyzer syntaxAnalyzer) {
         return syntaxAnalyzer.currentToken().getTokenType() == TokenType.IDENTIFIER && syntaxAnalyzer.matchesPeekToken(1, SymbolType.COLON) != null;

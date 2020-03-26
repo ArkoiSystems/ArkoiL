@@ -95,10 +95,6 @@ public class ArkoiVisitor extends PsiElementVisitor {
     visitPsiElement(o);
   }
 
-  public void visitExpAssignExpression(@NotNull ArkoiExpAssignExpression o) {
-    visitPsiElement(o);
-  }
-
   public void visitExponentialExpression(@NotNull ArkoiExponentialExpression o) {
     visitPsiElement(o);
   }

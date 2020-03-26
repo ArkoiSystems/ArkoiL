@@ -38,10 +38,12 @@ public class ReturnStatementSemanticAST extends AbstractSemanticAST<ReturnStatem
     @NonNull
     public ExpressionSemanticAST getReturnExpression() {
         if (this.returnExpression == null) {
-            this.returnExpression
-                    = new ExpressionSemanticAST(this.getSemanticAnalyzer(), this.getLastContainerAST(), this.getSyntaxAST().getReturnExpression());
-
+            if (this.getSyntaxAST().getReturnExpression() == null)
+                return null;
+    
+            this.returnExpression = new ExpressionSemanticAST(this.getSemanticAnalyzer(), this.getLastContainerAST(), this.getSyntaxAST().getReturnExpression());
             this.returnExpression.getTypeKind();
+    
             if (this.returnExpression.isFailed())
                 this.failed();
         }

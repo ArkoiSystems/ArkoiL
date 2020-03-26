@@ -98,10 +98,10 @@ public class CollectionOperableSyntaxAST extends AbstractOperableSyntaxAST<TypeK
         for (int index = 0; index < this.getCollectionExpressions().size(); index++) {
             final ExpressionSyntaxAST abstractSyntaxAST = this.getCollectionExpressions().get(index);
             if (index == this.getCollectionExpressions().size() - 1) {
-                printStream.println(indents + "    └── " + abstractSyntaxAST.getExpressionOperable().getClass().getSimpleName());
+                printStream.println(indents + "    └── " + (abstractSyntaxAST.getExpressionOperable() != null ? abstractSyntaxAST.getExpressionOperable().getClass().getSimpleName() : null));
                 abstractSyntaxAST.printSyntaxAST(printStream, indents + "        ");
             } else {
-                printStream.println(indents + "    ├── " + abstractSyntaxAST.getExpressionOperable().getClass().getSimpleName());
+                printStream.println(indents + "    ├── " + (abstractSyntaxAST.getExpressionOperable() != null ? abstractSyntaxAST.getExpressionOperable().getClass().getSimpleName() : null));
                 abstractSyntaxAST.printSyntaxAST(printStream, indents + "    │   ");
                 printStream.println(indents + "    │   ");
             }
@@ -143,7 +143,7 @@ public class CollectionOperableSyntaxAST extends AbstractOperableSyntaxAST<TypeK
         }
         
         
-        public CollectionOperableSyntaxASTBuilder expressions(@NotNull final List<ExpressionSyntaxAST> collectionExpressions) {
+        public CollectionOperableSyntaxASTBuilder expressions(final List<ExpressionSyntaxAST> collectionExpressions) {
             this.collectionExpressions = collectionExpressions;
             return this;
         }

@@ -39,6 +39,7 @@ public class RootSemanticAST extends AbstractSemanticAST<RootSyntaxAST>
      * when the {@link #initialize()} method was executed.
      */
     @Getter
+    @NotNull
     private final List<ImportDefinitionSemanticAST> importStorage = new ArrayList<>();
     
     
@@ -47,6 +48,7 @@ public class RootSemanticAST extends AbstractSemanticAST<RootSyntaxAST>
      * when the {@link #initialize()} method was executed.
      */
     @Getter
+    @NotNull
     private final List<VariableDefinitionSemanticAST> variableStorage = new ArrayList<>();
     
     
@@ -55,6 +57,7 @@ public class RootSemanticAST extends AbstractSemanticAST<RootSyntaxAST>
      * when the {@link RootSemanticAST} was constructed.
      */
     @Getter
+    @NotNull
     private final List<FunctionDefinitionSemanticAST> functionStorage = new ArrayList<>();
     
     
@@ -71,7 +74,7 @@ public class RootSemanticAST extends AbstractSemanticAST<RootSyntaxAST>
      */
     public RootSemanticAST(@Nullable final SemanticAnalyzer semanticAnalyzer, @NotNull final RootSyntaxAST rootSyntaxAST) {
         super(semanticAnalyzer, null, rootSyntaxAST, ASTType.ROOT);
-    
+        
         for (final FunctionDefinitionSyntaxAST functionDefinitionSyntaxAST : rootSyntaxAST.getFunctionStorage()) {
             final FunctionDefinitionSemanticAST functionDefinitionSemanticAST
                     = new FunctionDefinitionSemanticAST(semanticAnalyzer, this, functionDefinitionSyntaxAST);
@@ -93,17 +96,17 @@ public class RootSemanticAST extends AbstractSemanticAST<RootSyntaxAST>
     @Override
     public Optional<AbstractSemanticAST<?>> initialize() {
         Objects.requireNonNull(this.getSemanticAnalyzer());
-    
+        
         final HashMap<String, AbstractSemanticAST<?>> names = new HashMap<>();
         for (final AbstractSyntaxAST abstractSyntaxAST : this.getSyntaxAST().getSortedStorage()) {
             if (abstractSyntaxAST instanceof FunctionDefinitionSyntaxAST)
                 continue;
-        
+            
             if (abstractSyntaxAST instanceof ImportDefinitionSyntaxAST) {
                 final ImportDefinitionSyntaxAST importDefinitionSyntaxAST = (ImportDefinitionSyntaxAST) abstractSyntaxAST;
                 final ImportDefinitionSemanticAST importDefinitionSemanticAST
                         = new ImportDefinitionSemanticAST(this.getSemanticAnalyzer(), this, importDefinitionSyntaxAST);
-            
+                
                 final IdentifierToken importName = importDefinitionSemanticAST.getImportName();
                 if (names.containsKey(importName.getTokenContent())) {
                     final AbstractSemanticAST<?> alreadyExistAST = names.get(importName.getTokenContent());
@@ -118,9 +121,9 @@ public class RootSemanticAST extends AbstractSemanticAST<RootSyntaxAST>
                     );
                 } else
                     names.put(importName.getTokenContent(), importDefinitionSemanticAST);
-            
+                
                 importDefinitionSemanticAST.getImportTargetClass();
-            
+                
                 if (importDefinitionSemanticAST.isFailed())
                     this.failed();
                 this.importStorage.add(importDefinitionSemanticAST);
@@ -128,9 +131,9 @@ public class RootSemanticAST extends AbstractSemanticAST<RootSyntaxAST>
                 final VariableDefinitionSyntaxAST variableDefinitionSyntaxAST = (VariableDefinitionSyntaxAST) abstractSyntaxAST;
                 final VariableDefinitionSemanticAST variableDefinitionSemanticAST
                         = new VariableDefinitionSemanticAST(this.getSemanticAnalyzer(), this, variableDefinitionSyntaxAST);
-            
+                
                 variableDefinitionSemanticAST.getVariableAnnotations();
-            
+                
                 final IdentifierToken variableName = variableDefinitionSemanticAST.getVariableName();
                 if (names.containsKey(variableName.getTokenContent())) {
                     final AbstractSemanticAST<?> alreadyExistAST = names.get(variableName.getTokenContent());
@@ -145,9 +148,9 @@ public class RootSemanticAST extends AbstractSemanticAST<RootSyntaxAST>
                     );
                 } else
                     names.put(variableName.getTokenContent(), variableDefinitionSemanticAST);
-            
+                
                 variableDefinitionSemanticAST.getVariableExpression();
-            
+                
                 if (variableDefinitionSemanticAST.isFailed())
                     this.failed();
                 this.variableStorage.add(variableDefinitionSemanticAST);
@@ -156,7 +159,7 @@ public class RootSemanticAST extends AbstractSemanticAST<RootSyntaxAST>
         
         for (final FunctionDefinitionSemanticAST functionDefinitionSemanticAST : this.getFunctionStorage()) {
             functionDefinitionSemanticAST.getFunctionAnnotations();
-    
+            
             final String functionDescription = functionDefinitionSemanticAST.getFunctionDescription();
             if (names.containsKey(functionDescription)) {
                 final AbstractSemanticAST<?> alreadyExistAST = names.get(functionDescription);
@@ -169,9 +172,9 @@ public class RootSemanticAST extends AbstractSemanticAST<RootSyntaxAST>
                         SemanticErrorType.FUNCTION_DESC_ALREADY_EXISTS
                 );
             } else names.put(functionDescription, functionDefinitionSemanticAST);
-    
+            
             functionDefinitionSemanticAST.getFunctionBlock();
-    
+            
             if (functionDefinitionSemanticAST.isFailed())
                 this.failed();
         }
@@ -193,7 +196,7 @@ public class RootSemanticAST extends AbstractSemanticAST<RootSyntaxAST>
                 printStream.println(indents + "│   │   ");
             }
         }
-
+        
         printStream.println(indents + "│");
         printStream.println(indents + "├── variables: " + (this.getVariableStorage().isEmpty() ? "N/A" : ""));
         for (int index = 0; index < this.getVariableStorage().size(); index++) {
@@ -207,7 +210,7 @@ public class RootSemanticAST extends AbstractSemanticAST<RootSyntaxAST>
                 printStream.println(indents + "│   │   ");
             }
         }
-
+        
         printStream.println(indents + "│");
         printStream.println(indents + "└── functions: " + (this.getFunctionStorage().isEmpty() ? "N/A" : ""));
         for (int index = 0; index < this.getFunctionStorage().size(); index++) {

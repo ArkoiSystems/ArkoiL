@@ -36,7 +36,6 @@ public interface ArkoiTokenTypes {
   IElementType EXPONENTIAL_EXPRESSION_PART = new ArkoiElementType("EXPONENTIAL_EXPRESSION_PART");
   IElementType EXPRESSION = new ArkoiElementType("EXPRESSION");
   IElementType EXPRESSION_LIST = new ArkoiElementType("EXPRESSION_LIST");
-  IElementType EXP_ASSIGN_EXPRESSION = new ArkoiElementType("EXP_ASSIGN_EXPRESSION");
   IElementType FUNCTION_CALL_PART = new ArkoiElementType("FUNCTION_CALL_PART");
   IElementType FUNCTION_DECLARATION = new ArkoiElementType("FUNCTION_DECLARATION");
   IElementType IDENTIFIER_CALL = new ArkoiElementType("IDENTIFIER_CALL");
@@ -185,9 +184,6 @@ public interface ArkoiTokenTypes {
       }
       else if (type == EXPRESSION_LIST) {
         return new ArkoiExpressionListImpl(node);
-      }
-      else if (type == EXP_ASSIGN_EXPRESSION) {
-        return new ArkoiExpAssignExpressionImpl(node);
       }
       else if (type == FUNCTION_CALL_PART) {
         return new ArkoiFunctionCallPartImpl(node);

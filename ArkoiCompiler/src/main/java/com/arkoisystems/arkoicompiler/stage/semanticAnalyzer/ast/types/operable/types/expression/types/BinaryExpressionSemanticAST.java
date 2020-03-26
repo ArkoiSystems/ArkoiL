@@ -47,16 +47,15 @@ public class BinaryExpressionSemanticAST extends AbstractExpressionSemanticAST<B
     
     @Override
     public void printSemanticAST(@NotNull final PrintStream printStream, @NotNull final String indents) {
-        Objects.requireNonNull(this.getLeftSideOperable());
-        Objects.requireNonNull(this.getRightSideOperable());
-    
         printStream.println(indents + "├── left:");
-        printStream.println(indents + "│   └── " + this.getLeftSideOperable().getClass().getSimpleName());
-        this.getLeftSideOperable().printSemanticAST(printStream, indents + "│        ");
+        printStream.println(indents + "│   └── " + (this.getLeftSideOperable() != null ? this.getLeftSideOperable().getClass().getSimpleName() : null));
+        if (this.getLeftSideOperable() != null)
+            this.getLeftSideOperable().printSemanticAST(printStream, indents + "│        ");
         printStream.println(indents + "├── operator: " + this.getBinaryOperatorType());
         printStream.println(indents + "└── right:");
-        printStream.println(indents + "    └── " + this.getRightSideOperable().getClass().getSimpleName());
-        this.getRightSideOperable().printSemanticAST(printStream, indents + "        ");
+        printStream.println(indents + "    └── " + (this.getRightSideOperable() != null ? this.getRightSideOperable().getClass().getSimpleName() : null));
+        if (this.getRightSideOperable() != null)
+            this.getRightSideOperable().printSemanticAST(printStream, indents + "        ");
     }
     
     
@@ -67,7 +66,9 @@ public class BinaryExpressionSemanticAST extends AbstractExpressionSemanticAST<B
             if (this.getLeftSideOperable() == null) {
                 this.getRightSideOperable();
                 return null;
-            } else if (this.getRightSideOperable() == null)
+            } else if (this.getRightSideOperable() == null) {
+                return null;
+            } else if (this.getBinaryOperatorType() == null)
                 return null;
             
             final TypeKind typeKind;
@@ -112,7 +113,7 @@ public class BinaryExpressionSemanticAST extends AbstractExpressionSemanticAST<B
     }
     
     
-    @NotNull
+    @Nullable
     public BinaryOperatorType getBinaryOperatorType() {
         return this.getSyntaxAST().getBinaryOperatorType();
     }
@@ -127,7 +128,7 @@ public class BinaryExpressionSemanticAST extends AbstractExpressionSemanticAST<B
     
     
     @Nullable
-    private AbstractOperableSemanticAST<?> analyzeOperable(@NotNull final AbstractOperableSyntaxAST<?> abstractOperableSyntaxAST) {
+    private AbstractOperableSemanticAST<?> analyzeOperable(@Nullable final AbstractOperableSyntaxAST<?> abstractOperableSyntaxAST) {
         Objects.requireNonNull(this.getSemanticAnalyzer());
         
         if (abstractOperableSyntaxAST instanceof ParenthesizedExpressionSyntaxAST) {
@@ -192,14 +193,14 @@ public class BinaryExpressionSemanticAST extends AbstractExpressionSemanticAST<B
             if (castExpressionSemanticAST.getTypeKind() == null)
                 return null;
             return castExpressionSemanticAST;
-        } else {
+        } else if(abstractOperableSyntaxAST != null) {
             this.addError(
                     this.getSemanticAnalyzer().getArkoiClass(),
                     abstractOperableSyntaxAST,
                     SemanticErrorType.BINARY_OPERABLE_NOT_SUPPORTED
             );
-            return null;
         }
+        return null;
     }
     
     
@@ -423,7 +424,7 @@ public class BinaryExpressionSemanticAST extends AbstractExpressionSemanticAST<B
             final PrefixExpressionSemanticAST prefixExpressionSemanticAST = (PrefixExpressionSemanticAST) abstractOperableSemanticAST;
             if (prefixExpressionSemanticAST.getTypeKind() == null)
                 return null;
-            
+    
             switch (prefixExpressionSemanticAST.getTypeKind()) {
                 case BYTE:
                 case FLOAT:
@@ -434,13 +435,13 @@ public class BinaryExpressionSemanticAST extends AbstractExpressionSemanticAST<B
                 default:
                     return null;
             }
-        } else if (abstractOperableSemanticAST instanceof NumberOperableSemanticAST){
+        } else if (abstractOperableSemanticAST instanceof NumberOperableSemanticAST) {
             return abstractOperableSemanticAST;
         } else if (abstractOperableSemanticAST instanceof IdentifierCallOperableSemanticAST) {
             final IdentifierCallOperableSemanticAST identifierCallOperableSemanticAST = (IdentifierCallOperableSemanticAST) abstractOperableSemanticAST;
             if (identifierCallOperableSemanticAST.getTypeKind() == null)
                 return null;
-            
+    
             switch (identifierCallOperableSemanticAST.getTypeKind()) {
                 case BYTE:
                 case FLOAT:

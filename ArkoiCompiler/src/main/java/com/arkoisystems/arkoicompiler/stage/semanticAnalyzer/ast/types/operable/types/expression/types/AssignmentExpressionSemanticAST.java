@@ -47,16 +47,15 @@ public class AssignmentExpressionSemanticAST extends AbstractExpressionSemanticA
     
     @Override
     public void printSemanticAST(@NotNull final PrintStream printStream, @NotNull final String indents) {
-        Objects.requireNonNull(this.getLeftSideOperable());
-        Objects.requireNonNull(this.getRightSideOperable());
-    
         printStream.println(indents + "├── left:");
-        printStream.println(indents + "│   └── " + this.getLeftSideOperable().getClass().getSimpleName());
-        this.getLeftSideOperable().printSemanticAST(printStream, indents + "│        ");
+        printStream.println(indents + "│   └── " + (this.getLeftSideOperable() != null ? this.getLeftSideOperable().getClass().getSimpleName() : null));
+        if (this.getLeftSideOperable() != null)
+            this.getLeftSideOperable().printSemanticAST(printStream, indents + "│        ");
         printStream.println(indents + "├── operator: " + this.getAssignmentOperatorType());
         printStream.println(indents + "└── right:");
-        printStream.println(indents + "    └── " + this.getRightSideOperable().getClass().getSimpleName());
-        this.getRightSideOperable().printSemanticAST(printStream, indents + "        ");
+        printStream.println(indents + "    └── " + (this.getRightSideOperable() != null ? this.getRightSideOperable().getClass().getSimpleName() : null));
+        if (this.getRightSideOperable() != null)
+            this.getRightSideOperable().printSemanticAST(printStream, indents + "        ");
     }
     
     
@@ -67,7 +66,9 @@ public class AssignmentExpressionSemanticAST extends AbstractExpressionSemanticA
             if (this.getLeftSideOperable() == null) {
                 this.getRightSideOperable();
                 return null;
-            } else if (this.getRightSideOperable() == null)
+            } else if (this.getRightSideOperable() == null) {
+                return null;
+            } else if (this.getAssignmentOperatorType() == null)
                 return null;
             
             final TypeKind typeKind;
@@ -108,7 +109,7 @@ public class AssignmentExpressionSemanticAST extends AbstractExpressionSemanticA
     }
     
     
-    @NotNull
+    @Nullable
     public AssignmentOperatorType getAssignmentOperatorType() {
         return this.getSyntaxAST().getAssignmentOperatorType();
     }
@@ -123,7 +124,7 @@ public class AssignmentExpressionSemanticAST extends AbstractExpressionSemanticA
     
     
     @Nullable
-    private AbstractOperableSemanticAST<?> analyzeOperable(@NotNull final AbstractOperableSyntaxAST<?> abstractOperableSyntaxAST) {
+    private AbstractOperableSemanticAST<?> analyzeOperable(@Nullable final AbstractOperableSyntaxAST<?> abstractOperableSyntaxAST) {
         Objects.requireNonNull(this.getSemanticAnalyzer());
         
         if (abstractOperableSyntaxAST instanceof ParenthesizedExpressionSyntaxAST) {
@@ -196,14 +197,14 @@ public class AssignmentExpressionSemanticAST extends AbstractExpressionSemanticA
             if (identifierCallOperableSemanticAST.getTypeKind() == null)
                 return null;
             return identifierCallOperableSemanticAST;
-        } else {
+        } else if (abstractOperableSyntaxAST != null) {
             this.addError(
                     this.getSemanticAnalyzer().getArkoiClass(),
                     abstractOperableSyntaxAST,
                     SemanticErrorType.ASSIGN_OPERABLE_NOT_SUPPORTED
             );
-            return null;
         }
+        return null;
     }
     
     

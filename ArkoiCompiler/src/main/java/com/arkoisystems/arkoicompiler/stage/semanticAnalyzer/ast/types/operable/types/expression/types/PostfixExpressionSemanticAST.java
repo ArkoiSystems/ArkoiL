@@ -44,11 +44,10 @@ public class PostfixExpressionSemanticAST extends AbstractExpressionSemanticAST<
     
     @Override
     public void printSemanticAST(@NotNull final PrintStream printStream, @NotNull final String indents) {
-        Objects.requireNonNull(this.getLeftSideOperable());
-    
         printStream.println(indents + "├── left:");
-        printStream.println(indents + "│   └── " + this.getLeftSideOperable().getClass().getSimpleName());
-        this.getLeftSideOperable().printSemanticAST(printStream, indents + "│       ");
+        printStream.println(indents + "│   └── " + (this.getLeftSideOperable() != null ? this.getLeftSideOperable().getClass().getSimpleName() : null));
+        if (this.getLeftSideOperable() != null)
+            this.getLeftSideOperable().printSemanticAST(printStream, indents + "│       ");
         printStream.println(indents + "└── operator: " + this.getPostfixOperatorType());
     }
     
@@ -58,6 +57,8 @@ public class PostfixExpressionSemanticAST extends AbstractExpressionSemanticAST<
     public TypeKind getTypeKind() {
         if (this.expressionType == null) {
             if (this.getLeftSideOperable() == null)
+                return null;
+            if(this.getPostfixOperatorType() == null)
                 return null;
             
             final TypeKind typeKind;
@@ -86,14 +87,14 @@ public class PostfixExpressionSemanticAST extends AbstractExpressionSemanticAST<
     }
     
     
-    @NotNull
+    @Nullable
     public PostfixOperatorType getPostfixOperatorType() {
         return this.getSyntaxAST().getPostfixOperatorType();
     }
     
     
     @Nullable
-    private AbstractOperableSemanticAST<?> analyzeOperable(@NotNull final AbstractOperableSyntaxAST<?> abstractOperableSyntaxAST) {
+    private AbstractOperableSemanticAST<?> analyzeOperable(@Nullable final AbstractOperableSyntaxAST<?> abstractOperableSyntaxAST) {
         Objects.requireNonNull(this.getSemanticAnalyzer());
         
         if (abstractOperableSyntaxAST instanceof ParenthesizedExpressionSyntaxAST) {
@@ -115,7 +116,7 @@ public class PostfixExpressionSemanticAST extends AbstractExpressionSemanticAST<
             if (identifierCallOperableSemanticAST.getTypeKind() == null)
                 return null;
             return identifierCallOperableSemanticAST;
-        } else {
+        } else if (abstractOperableSyntaxAST != null) {
             this.addError(
                     this.getSemanticAnalyzer().getArkoiClass(),
                     abstractOperableSyntaxAST,

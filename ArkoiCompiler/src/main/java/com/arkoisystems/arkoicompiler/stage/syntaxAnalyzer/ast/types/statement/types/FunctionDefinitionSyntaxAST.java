@@ -49,30 +49,23 @@ public class FunctionDefinitionSyntaxAST extends AbstractStatementSyntaxAST
     
     @Getter
     @Setter(AccessLevel.PROTECTED)
-    @NotNull
+    @Nullable
     private TypeSyntaxAST functionReturnType;
     
     
     @Getter
     @Setter(AccessLevel.PROTECTED)
     @NotNull
-    private List<ParameterSyntaxAST> functionArguments = new ArrayList<>();
+    private List<ParameterSyntaxAST> functionParameters = new ArrayList<>();
     
     
     @Getter
     @Setter(AccessLevel.PROTECTED)
-    @NotNull
+    @Nullable
     private BlockSyntaxAST functionBlock;
     
     
-    public FunctionDefinitionSyntaxAST(@Nullable final SyntaxAnalyzer syntaxAnalyzer, @NotNull final List<AnnotationSyntaxAST> functionAnnotations) {
-        super(syntaxAnalyzer, ASTType.FUNCTION_DEFINITION);
-        
-        this.functionAnnotations = functionAnnotations;
-    }
-    
-    
-    public FunctionDefinitionSyntaxAST(@Nullable final SyntaxAnalyzer syntaxAnalyzer) {
+    protected FunctionDefinitionSyntaxAST(@Nullable final SyntaxAnalyzer syntaxAnalyzer) {
         super(syntaxAnalyzer, ASTType.FUNCTION_DEFINITION);
     }
     
@@ -141,7 +134,7 @@ public class FunctionDefinitionSyntaxAST extends AbstractStatementSyntaxAST
             );
             return Optional.empty();
         }
-        
+    
         if (this.getSyntaxAnalyzer().matchesNextToken(SymbolType.OPENING_PARENTHESIS) == null) {
             this.addError(
                     this.getSyntaxAnalyzer().getArkoiClass(),
@@ -150,12 +143,12 @@ public class FunctionDefinitionSyntaxAST extends AbstractStatementSyntaxAST
             );
             return Optional.empty();
         }
-        
-        final Optional<List<ParameterSyntaxAST>> arguments = ParameterSyntaxAST.parseParameters(this, this.getSyntaxAnalyzer());
-        if (arguments.isEmpty())
+    
+        final Optional<List<ParameterSyntaxAST>> parameters = ParameterSyntaxAST.parseParameters(this, this.getSyntaxAnalyzer());
+        if (parameters.isEmpty())
             return Optional.empty();
-        this.functionArguments = arguments.get();
-        
+        this.functionParameters = parameters.get();
+    
         if (this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.CLOSING_PARENTHESIS) == null) {
             this.addError(
                     this.getSyntaxAnalyzer().getArkoiClass(),
@@ -163,19 +156,9 @@ public class FunctionDefinitionSyntaxAST extends AbstractStatementSyntaxAST
                     SyntaxErrorType.FUNCTION_DEFINITION_WRONG_ARGUMENTS_ENDING
             );
             return Optional.empty();
-        }
-        this.getSyntaxAnalyzer().nextToken();
+        } else this.getSyntaxAnalyzer().nextToken();
         
         if (this.hasAnnotation("native")) {
-            if (this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.SEMICOLON) == null) {
-                this.addError(
-                        this.getSyntaxAnalyzer().getArkoiClass(),
-                        this.getSyntaxAnalyzer().currentToken(),
-                        SyntaxErrorType.FUNCTION_DEFINITION_WRONG_NATIVE_ENDING
-                );
-                return Optional.empty();
-            }
-            
             this.functionBlock = BlockSyntaxAST
                     .builder(this.getSyntaxAnalyzer())
                     .type(BlockType.NATIVE)
@@ -205,15 +188,8 @@ public class FunctionDefinitionSyntaxAST extends AbstractStatementSyntaxAST
         if (optionalBlockSyntaxAST.isEmpty())
             return Optional.empty();
         this.functionBlock = optionalBlockSyntaxAST.get();
-        
-        if (this.functionBlock.getBlockType() == BlockType.INLINE && this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.SEMICOLON) == null) {
-            this.addError(
-                    this.getSyntaxAnalyzer().getArkoiClass(),
-                    this.getSyntaxAnalyzer().currentToken(),
-                    SyntaxErrorType.FUNCTION_DEFINITION_WRONG_INLINED_BLOCK_ENDING
-            );
-            return Optional.empty();
-        } else if (this.functionBlock.getBlockType() == BlockType.BLOCK && this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.CLOSING_BRACE) == null) {
+    
+        if (this.functionBlock.getBlockType() == BlockType.BLOCK && this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.CLOSING_BRACE) == null) {
             this.addError(
                     this.getSyntaxAnalyzer().getArkoiClass(),
                     this.getSyntaxAnalyzer().currentToken(),
@@ -243,12 +219,12 @@ public class FunctionDefinitionSyntaxAST extends AbstractStatementSyntaxAST
         }
         printStream.println(indents + "│");
         printStream.println(indents + "├── name: " + this.getFunctionName().getTokenContent());
-        printStream.println(indents + "├── type: " + this.getFunctionReturnType().getTypeKind().getName() + (this.getFunctionReturnType().isArray() ? "[]" : ""));
+        printStream.println(indents + "├── type: " + (this.getFunctionReturnType() != null ? this.getFunctionReturnType().getTypeKind().getName() + (this.getFunctionReturnType().isArray() ? "[]" : "") : null));
         printStream.println(indents + "│");
-        printStream.println(indents + "├── arguments: " + (this.getFunctionArguments().isEmpty() ? "N/A" : ""));
-        for (int index = 0; index < this.getFunctionArguments().size(); index++) {
-            final ParameterSyntaxAST abstractSyntaxAST = this.getFunctionArguments().get(index);
-            if (index == this.getFunctionArguments().size() - 1) {
+        printStream.println(indents + "├── arguments: " + (this.getFunctionParameters().isEmpty() ? "N/A" : ""));
+        for (int index = 0; index < this.getFunctionParameters().size(); index++) {
+            final ParameterSyntaxAST abstractSyntaxAST = this.getFunctionParameters().get(index);
+            if (index == this.getFunctionParameters().size() - 1) {
                 printStream.println(indents + "│   └── " + abstractSyntaxAST.getClass().getSimpleName());
                 abstractSyntaxAST.printSyntaxAST(printStream, indents + "│       ");
             } else {
@@ -258,16 +234,132 @@ public class FunctionDefinitionSyntaxAST extends AbstractStatementSyntaxAST
             }
         }
         printStream.println(indents + "│");
-        printStream.println(indents + "└── block: ");
-        this.getFunctionBlock().printSyntaxAST(printStream, indents + "     ");
+        printStream.println(indents + "└── block: " + (this.getFunctionBlock() == null ? null : ""));
+        if (this.getFunctionBlock() != null)
+            this.getFunctionBlock().printSyntaxAST(printStream, indents + "     ");
     }
     
     
     public boolean hasAnnotation(@NotNull final String annotationName) {
-        for (final AnnotationSyntaxAST annotationSyntaxAST : this.functionAnnotations)
+        for (final AnnotationSyntaxAST annotationSyntaxAST : this.functionAnnotations) {
+            if(annotationSyntaxAST.getAnnotationName() == null)
+                continue;
             if (annotationSyntaxAST.getAnnotationName().getTokenContent().equals(annotationName))
                 return true;
+        }
         return false;
+    }
+    
+    
+    public static FunctionDefinitionSyntaxASTBuilder builder(@NotNull final SyntaxAnalyzer syntaxAnalyzer) {
+        return new FunctionDefinitionSyntaxASTBuilder(syntaxAnalyzer);
+    }
+    
+    
+    public static FunctionDefinitionSyntaxASTBuilder builder() {
+        return new FunctionDefinitionSyntaxASTBuilder();
+    }
+    
+    
+    public static class FunctionDefinitionSyntaxASTBuilder
+    {
+        
+        @Nullable
+        private final SyntaxAnalyzer syntaxAnalyzer;
+        
+        
+        @Nullable
+        private List<AnnotationSyntaxAST> functionAnnotations;
+        
+        
+        @Nullable
+        private IdentifierToken functionName;
+        
+        
+        @Nullable
+        private TypeSyntaxAST functionReturnType;
+        
+        
+        @Nullable
+        private List<ParameterSyntaxAST> functionParameters;
+        
+        
+        @Nullable
+        private BlockSyntaxAST functionBlock;
+        
+        
+        private int start, end;
+        
+        
+        public FunctionDefinitionSyntaxASTBuilder(@NotNull final SyntaxAnalyzer syntaxAnalyzer) {
+            this.syntaxAnalyzer = syntaxAnalyzer;
+        }
+        
+        
+        public FunctionDefinitionSyntaxASTBuilder() {
+            this.syntaxAnalyzer = null;
+        }
+        
+        
+        public FunctionDefinitionSyntaxASTBuilder annotations(final List<AnnotationSyntaxAST> functionAnnotations) {
+            this.functionAnnotations = functionAnnotations;
+            return this;
+        }
+        
+        
+        public FunctionDefinitionSyntaxASTBuilder name(final IdentifierToken functionName) {
+            this.functionName = functionName;
+            return this;
+        }
+        
+        
+        public FunctionDefinitionSyntaxASTBuilder returnType(final TypeSyntaxAST functionReturnType) {
+            this.functionReturnType = functionReturnType;
+            return this;
+        }
+        
+        
+        public FunctionDefinitionSyntaxASTBuilder parameters(final List<ParameterSyntaxAST> functionParameters) {
+            this.functionParameters = functionParameters;
+            return this;
+        }
+        
+        
+        public FunctionDefinitionSyntaxASTBuilder block(final BlockSyntaxAST functionBlock) {
+            this.functionBlock = functionBlock;
+            return this;
+        }
+        
+        
+        public FunctionDefinitionSyntaxASTBuilder start(final int start) {
+            this.start = start;
+            return this;
+        }
+        
+        
+        public FunctionDefinitionSyntaxASTBuilder end(final int end) {
+            this.end = end;
+            return this;
+        }
+        
+        
+        public FunctionDefinitionSyntaxAST build() {
+            final FunctionDefinitionSyntaxAST functionDefinitionSyntaxAST = new FunctionDefinitionSyntaxAST(this.syntaxAnalyzer);
+            if (this.functionAnnotations != null)
+                functionDefinitionSyntaxAST.setFunctionAnnotations(this.functionAnnotations);
+            if (this.functionName != null)
+                functionDefinitionSyntaxAST.setFunctionName(this.functionName);
+            if (this.functionReturnType != null)
+                functionDefinitionSyntaxAST.setFunctionReturnType(this.functionReturnType);
+            if (this.functionParameters != null)
+                functionDefinitionSyntaxAST.setFunctionParameters(this.functionParameters);
+            if (this.functionBlock != null)
+                functionDefinitionSyntaxAST.setFunctionBlock(this.functionBlock);
+            functionDefinitionSyntaxAST.setStart(this.start);
+            functionDefinitionSyntaxAST.setEnd(this.end);
+            return functionDefinitionSyntaxAST;
+        }
+        
     }
     
 }

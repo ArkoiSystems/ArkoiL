@@ -18,6 +18,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.PrintStream;
 import java.util.Objects;
@@ -29,13 +30,13 @@ public class CastExpressionSyntaxAST extends AbstractExpressionSyntaxAST
     
     @Getter
     @Setter(AccessLevel.PROTECTED)
-    @NotNull
+    @Nullable
     private CastOperatorType castOperatorType;
     
     
     @Getter
     @Setter(AccessLevel.PROTECTED)
-    @NotNull
+    @Nullable
     private AbstractOperableSyntaxAST<?> leftSideOperable;
     
     
@@ -99,8 +100,9 @@ public class CastExpressionSyntaxAST extends AbstractExpressionSyntaxAST
     @Override
     public void printSyntaxAST(@NotNull final PrintStream printStream, @NotNull final String indents) {
         printStream.println(indents + "├── left:");
-        printStream.println(indents + "│   └── " + this.getLeftSideOperable().getClass().getSimpleName());
-        this.getLeftSideOperable().printSyntaxAST(printStream, indents + "│       ");
+        printStream.println(indents + "│   └── " + (this.getLeftSideOperable() != null ? this.getLeftSideOperable().getClass().getSimpleName() : null));
+        if (this.getLeftSideOperable() != null)
+            this.getLeftSideOperable().printSyntaxAST(printStream, indents + "│       ");
         printStream.println(indents + "└── operator: " + this.getCastOperatorType());
     }
     

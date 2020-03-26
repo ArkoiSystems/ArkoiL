@@ -153,7 +153,6 @@ public class ArkoiParser implements PsiParser, LightPsiParser {
   //                          | mul_assign_expression
   //                          | div_assign_expression
   //                          | mod_assign_expression
-  //                          | exp_assign_expression
   public static boolean assign_expression_part(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "assign_expression_part")) return false;
     boolean r;
@@ -164,7 +163,6 @@ public class ArkoiParser implements PsiParser, LightPsiParser {
     if (!r) r = mul_assign_expression(b, l + 1);
     if (!r) r = div_assign_expression(b, l + 1);
     if (!r) r = mod_assign_expression(b, l + 1);
-    if (!r) r = exp_assign_expression(b, l + 1);
     exit_section_(b, l, m, r, false, null);
     return r;
   }
@@ -451,20 +449,6 @@ public class ArkoiParser implements PsiParser, LightPsiParser {
     boolean r, p;
     Marker m = enter_section_(b, l, _NONE_, DIV_ASSIGN_EXPRESSION, "<expression>");
     r = consumeToken(b, DIV_ASSIGN);
-    p = r; // pin = 1
-    r = r && assignment_expression(b, l + 1);
-    exit_section_(b, l, m, r, p, null);
-    return r || p;
-  }
-
-  /* ********************************************************** */
-  // EXP_ASSIGN assignment_expression
-  public static boolean exp_assign_expression(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "exp_assign_expression")) return false;
-    if (!nextTokenIs(b, "<expression>", EXP_ASSIGN)) return false;
-    boolean r, p;
-    Marker m = enter_section_(b, l, _NONE_, EXP_ASSIGN_EXPRESSION, "<expression>");
-    r = consumeToken(b, EXP_ASSIGN);
     p = r; // pin = 1
     r = r && assignment_expression(b, l + 1);
     exit_section_(b, l, m, r, p, null);

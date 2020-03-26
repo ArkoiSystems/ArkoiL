@@ -61,7 +61,6 @@ public class OperableParser extends AbstractParser
      * @return {@code false} if the current {@link AbstractToken}s type isn't capable to
      *         parse a new {@link AbstractOperableSyntaxAST} or {@code true} if it is.
      */
-    @NotNull
     @Override
     public boolean canParse(@NotNull final AbstractSyntaxAST parentAST, @NotNull final SyntaxAnalyzer syntaxAnalyzer) {
         switch (syntaxAnalyzer.currentToken().getTokenType()) {

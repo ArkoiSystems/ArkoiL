@@ -21,17 +21,11 @@ package com.arkoisystems.lang.arkoi.psi.impl
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.IdentifierToken
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.NumberToken
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.StringToken
-import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.SymbolToken
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.AnnotationSyntaxAST
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.BlockSyntaxAST
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.ParameterSyntaxAST
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.TypeSyntaxAST
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.*
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.AbstractOperableSyntaxAST
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.CollectionOperableSyntaxAST
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.NumberOperableSyntaxAST
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.StringOperableSyntaxAST
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.*
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types.AssignmentExpressionSyntaxAST
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types.BinaryExpressionSyntaxAST
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types.ExpressionSyntaxAST
@@ -70,21 +64,78 @@ object ArkoiPsiImplUtil {
     }
 
     @JvmStatic
-    fun getAnnotationName(arkoiAnnotationCall: ArkoiAnnotationCall): IdentifierToken? {
-        val identifierCallPartList =
-            arkoiAnnotationCall.identifierCall?.identifierCallPartList ?: return null
-        val identifierCallPart = identifierCallPartList[identifierCallPartList.size - 1]
-        return IdentifierToken
-            .builder()
-            .content(identifierCallPart.text)
-            .start(identifierCallPart.textRange.startOffset)
-            .end(identifierCallPart.textRange.endOffset)
-            .build()
+    fun getAnnotationCall(
+        arkoiAnnotationCall: ArkoiAnnotationCall,
+        syntaxAnalyzer: SyntaxAnalyzer
+    ): IdentifierCallOperableSyntaxAST? {
+        return arkoiAnnotationCall.identifierCall?.getIdentifierCall(syntaxAnalyzer)
     }
 
     @JvmStatic
-    fun getAnnotationArguments(arkoiAnnotationCall: ArkoiAnnotationCall): MutableList<IdentifierToken> {
-        TODO()
+    fun getIdentifierCall(
+        arkoiIdentifierCall: ArkoiIdentifierCall,
+        syntaxAnalyzer: SyntaxAnalyzer
+    ): IdentifierCallOperableSyntaxAST? {
+        val isFileLocal = arkoiIdentifierCall.node.getChildren(TokenSet.forAllMatching {
+            it == ArkoiTokenTypes.THIS
+        }).size == 1
+        var firstIdentifierCall: IdentifierCallOperableSyntaxAST? = null
+        var parentIdentifierCall: IdentifierCallOperableSyntaxAST? = null
+
+        arkoiIdentifierCall.identifierCallPartList.forEachIndexed { index, arkoiIdentifierCallPart ->
+            val identifierCallOperableSyntaxAST = IdentifierCallOperableSyntaxAST
+                .builder()
+                .called(
+                    IdentifierToken
+                        .builder()
+                        .content(arkoiIdentifierCallPart.identifier.text)
+                        .start(arkoiIdentifierCallPart.identifier.textRange.startOffset)
+                        .end(arkoiIdentifierCallPart.identifier.textRange.endOffset)
+                        .build()
+                )
+                .functionPart(arkoiIdentifierCallPart.getCalledFunctionPart(syntaxAnalyzer))
+                .start(arkoiIdentifierCallPart.textRange.startOffset)
+                .end(arkoiIdentifierCallPart.textRange.endOffset)
+                .build()
+
+            if (index == 0) {
+                firstIdentifierCall = identifierCallOperableSyntaxAST
+                parentIdentifierCall = identifierCallOperableSyntaxAST
+            } else {
+                parentIdentifierCall?.nextIdentifierCall = identifierCallOperableSyntaxAST
+                parentIdentifierCall = identifierCallOperableSyntaxAST
+            }
+        }
+
+        firstIdentifierCall?.isFileLocal = isFileLocal
+        return firstIdentifierCall
+    }
+
+    @JvmStatic
+    fun getAnnotationArguments(
+        arkoiAnnotationCall: ArkoiAnnotationCall,
+        syntaxAnalyzer: SyntaxAnalyzer
+    ): MutableList<ArgumentSyntaxAST> {
+        val arguments = mutableListOf<ArgumentSyntaxAST>()
+        arkoiAnnotationCall.argumentList?.argumentListPartList?.forEach {
+            arguments.add(
+                ArgumentSyntaxAST
+                    .builder()
+                    .name(
+                        IdentifierToken
+                            .builder()
+                            .content(it.identifier.text)
+                            .start(it.textRange.startOffset)
+                            .end(it.textRange.endOffset)
+                            .build()
+                    )
+                    .expression(getExpression(it.expression!!, syntaxAnalyzer))
+                    .start(it.textRange.startOffset)
+                    .end(it.textRange.endOffset)
+                    .build()
+            )
+        }
+        return arguments
     }
 
     @JvmStatic
@@ -97,8 +148,8 @@ object ArkoiPsiImplUtil {
             annotations.add(
                 AnnotationSyntaxAST
                     .builder(syntaxAnalyzer)
-                    .name(it.annotationName)
-                    .arguments(it.annotationArguments)
+                    .call(it.getAnnotationCall(syntaxAnalyzer))
+                    .arguments(it.getAnnotationArguments(syntaxAnalyzer))
                     .start(it.textRange.startOffset)
                     .end(it.textRange.endOffset)
                     .build()
@@ -161,6 +212,8 @@ object ArkoiPsiImplUtil {
                 }
             )
             .array(arkoiPrimitives.text.contains("[]"))
+            .start(arkoiPrimitives.textRange.startOffset)
+            .end(arkoiPrimitives.textRange.endOffset)
             .build()
     }
 
@@ -198,17 +251,35 @@ object ArkoiPsiImplUtil {
         expression: ArkoiExpression,
         syntaxAnalyzer: SyntaxAnalyzer
     ): ExpressionSyntaxAST {
-        val expressionOperable = getOperable(expression, syntaxAnalyzer)
         return ExpressionSyntaxAST
             .builder(syntaxAnalyzer)
-            .operable(expressionOperable)
+            .operable(getOperable(expression, syntaxAnalyzer))
+            .start(expression.textRange.startOffset)
+            .end(expression.textRange.endOffset)
+            .build()
+    }
+
+    @JvmStatic
+    fun getCalledFunctionPart(
+        arkoiIdentifierCallPart: ArkoiIdentifierCallPart,
+        syntaxAnalyzer: SyntaxAnalyzer
+    ): FunctionCallPartSyntaxAST? {
+        val functionCallPart = arkoiIdentifierCallPart.functionCallPart ?: return null
+        return FunctionCallPartSyntaxAST
+            .builder()
+            .expressions(functionCallPart.expressionList?.expressionList?.map { getExpression(it, syntaxAnalyzer) }
+                ?.toMutableList())
+            .start(functionCallPart.textRange.startOffset)
+            .end(functionCallPart.textRange.endOffset)
             .build()
     }
 
     private fun getOperable(
-        psiElement: PsiElement,
+        psiElement: PsiElement?,
         syntaxAnalyzer: SyntaxAnalyzer
-    ): AbstractOperableSyntaxAST<TypeKind> {
+    ): AbstractOperableSyntaxAST<TypeKind>? {
+        psiElement ?: return null
+
         when (psiElement) {
             is ArkoiExpression -> return getOperable(getLeftestExpression(psiElement), syntaxAnalyzer)
 
@@ -222,6 +293,10 @@ object ArkoiPsiImplUtil {
                         .operator(getBinaryOperator(arkoiBinaryAdditiveExpressionPart))
                         .right(getOperable(getLeftestExpression(arkoiBinaryAdditiveExpressionPart), syntaxAnalyzer))
                         .build()
+                    if (leftOperable is BinaryExpressionSyntaxAST) {
+                        leftOperable.start = leftOperable.leftSideOperable?.start ?: 0
+                        leftOperable.end = leftOperable.rightSideOperable?.end ?: 0
+                    }
                 }
                 return leftOperable
             }
@@ -235,6 +310,10 @@ object ArkoiPsiImplUtil {
                         .operator(getBinaryOperator(arkoiBinaryAdditiveExpressionPart))
                         .right(getOperable(getLeftestExpression(arkoiBinaryAdditiveExpressionPart), syntaxAnalyzer))
                         .build()
+                    if (leftOperable is BinaryExpressionSyntaxAST) {
+                        leftOperable.start = leftOperable.leftSideOperable?.start ?: 0
+                        leftOperable.end = leftOperable.rightSideOperable?.end ?: 0
+                    }
                 }
                 return leftOperable
             }
@@ -248,6 +327,10 @@ object ArkoiPsiImplUtil {
                         .operator(getBinaryOperator(arkoiExponentialExpressionPart))
                         .right(getOperable(getLeftestExpression(arkoiExponentialExpressionPart), syntaxAnalyzer))
                         .build()
+                    if (leftOperable is BinaryExpressionSyntaxAST) {
+                        leftOperable.start = leftOperable.leftSideOperable?.start ?: 0
+                        leftOperable.end = leftOperable.rightSideOperable?.end ?: 0
+                    }
                 }
                 return leftOperable
             }
@@ -262,6 +345,10 @@ object ArkoiPsiImplUtil {
                         .operator(getAssignmentOperator(arkoiAssignExpressionPart))
                         .right(getOperable(getLeftestExpression(arkoiAssignExpressionPart), syntaxAnalyzer))
                         .build()
+                    if (leftOperable is AssignmentExpressionSyntaxAST) {
+                        leftOperable.start = leftOperable.leftSideOperable?.start ?: 0
+                        leftOperable.end = leftOperable.rightSideOperable?.end ?: 0
+                    }
                 }
                 return leftOperable
             }
@@ -278,16 +365,14 @@ object ArkoiPsiImplUtil {
                 } ?: throw NullPointerException("Strange behaviour #1")
             }
 
-            is ArkoiIdentifierCall -> {
-
-                TODO()
-            }
+            is ArkoiIdentifierCall -> return psiElement.getIdentifierCall(syntaxAnalyzer)!!
 
             is ArkoiOperable -> {
                 return when {
                     psiElement.collection != null -> getOperable(psiElement.collection!!, syntaxAnalyzer)
                     psiElement.literals != null -> getOperable(psiElement.literals!!, syntaxAnalyzer)
                     psiElement.identifierCall != null -> getOperable(psiElement.identifierCall!!, syntaxAnalyzer)
+
                     else -> throw NullPointerException("Strange behaviour #3")
                 }
             }
@@ -295,16 +380,8 @@ object ArkoiPsiImplUtil {
             is ArkoiCollection -> {
                 return CollectionOperableSyntaxAST
                     .builder(syntaxAnalyzer)
-                    .expressions(
-                        psiElement.expressionList?.expressionList?.map {
-                            ExpressionSyntaxAST
-                                .builder(syntaxAnalyzer)
-                                .operable(getOperable(it, syntaxAnalyzer))
-                                .start(it.textRange.startOffset)
-                                .end(it.textRange.endOffset)
-                                .build()
-                        }?.toMutableList()
-                    )
+                    .expressions(psiElement.expressionList?.expressionList?.map { getExpression(it, syntaxAnalyzer) }
+                        ?.toMutableList())
                     .start(psiElement.textRange.startOffset)
                     .end(psiElement.textRange.endOffset)
                     .build()
@@ -350,23 +427,12 @@ object ArkoiPsiImplUtil {
             }
 
             is ArkoiParenthesizedExpression -> {
-                val parenthesis = psiElement.node.getChildren(TokenSet.forAllMatching {
-                    it == ArkoiTokenTypes.L_PARENTHESIS || it == ArkoiTokenTypes.R_PARENTHESIS
-                })
                 val expressionOperable = getOperable(
                     psiElement.expression ?: throw NullPointerException("Strange behaviour #2"),
                     syntaxAnalyzer
-                )
+                ) ?: return null
                 return ParenthesizedExpressionSyntaxAST
                     .builder(syntaxAnalyzer)
-                    .open(
-                        SymbolToken
-                            .builder()
-                            .content(parenthesis[0].text)
-                            .start(parenthesis[0].textRange.startOffset)
-                            .end(parenthesis[0].textRange.endOffset)
-                            .build()
-                    )
                     .expression(
                         ExpressionSyntaxAST
                             .builder(syntaxAnalyzer)
@@ -375,21 +441,12 @@ object ArkoiPsiImplUtil {
                             .end(expressionOperable.end)
                             .build()
                     )
-                    .close(
-                        SymbolToken
-                            .builder()
-                            .content(parenthesis[1].text)
-                            .start(parenthesis[1].textRange.startOffset)
-                            .end(parenthesis[1].textRange.endOffset)
-                            .build()
-                    )
+                    .start(psiElement.textRange.startOffset)
+                    .end(psiElement.textRange.endOffset)
                     .build()
             }
 
-            else -> {
-                println("1# $psiElement")
-                TODO()
-            }
+            else -> TODO("1# $psiElement")
         }
     }
 
@@ -409,19 +466,21 @@ object ArkoiPsiImplUtil {
     }
 
     private fun getAssignmentOperator(psiElement: PsiElement): AssignmentOperatorType {
-        return when (psiElement) {
-            is ArkoiAssignmentExpression -> AssignmentOperatorType.ASSIGN
-            is ArkoiAddAssignExpression -> AssignmentOperatorType.ADD_ASSIGN
-            is ArkoiSubAssignExpression -> AssignmentOperatorType.SUB_ASSIGN
-            is ArkoiMulAssignExpression -> AssignmentOperatorType.MUL_ASSIGN
-            is ArkoiDivAssignExpression -> AssignmentOperatorType.DIV_ASSIGN
-            is ArkoiModAssignExpression -> AssignmentOperatorType.MOD_ASSIGN
+        return when {
+            psiElement is ArkoiAssignExpressionPart && psiElement.assignExpression != null -> AssignmentOperatorType.ASSIGN
+            psiElement is ArkoiAssignExpressionPart && psiElement.addAssignExpression != null -> AssignmentOperatorType.ADD_ASSIGN
+            psiElement is ArkoiAssignExpressionPart && psiElement.subAssignExpression != null -> AssignmentOperatorType.SUB_ASSIGN
+            psiElement is ArkoiAssignExpressionPart && psiElement.mulAssignExpression != null -> AssignmentOperatorType.MUL_ASSIGN
+            psiElement is ArkoiAssignExpressionPart && psiElement.divAssignExpression != null -> AssignmentOperatorType.DIV_ASSIGN
+            psiElement is ArkoiAssignExpressionPart && psiElement.modAssignExpression != null -> AssignmentOperatorType.MOD_ASSIGN
 
-            else -> throw NullPointerException("Strange behaviour #7")
+            else -> throw NullPointerException("Strange behaviour #7 $psiElement ${psiElement.text}")
         }
     }
 
-    private fun getLeftestExpression(psiElement: PsiElement): PsiElement {
+    private fun getLeftestExpression(psiElement: PsiElement?): PsiElement? {
+        psiElement ?: return null
+
         return when (psiElement) {
             is ArkoiExpression -> getLeftestExpression(psiElement.assignmentExpression)
 
@@ -439,17 +498,31 @@ object ArkoiPsiImplUtil {
 
             is ArkoiBinaryAdditiveExpressionPart -> {
                 return when {
-                    psiElement.binaryAddExpression != null -> getLeftestExpression(psiElement.binaryAddExpression!!.binaryAdditiveExpression!!)
-                    psiElement.binarySubExpression != null -> getLeftestExpression(psiElement.binarySubExpression!!.binaryAdditiveExpression!!)
+                    psiElement.binaryAddExpression != null -> getLeftestExpression(psiElement.binaryAddExpression?.binaryAdditiveExpression)
+                    psiElement.binarySubExpression != null -> getLeftestExpression(psiElement.binarySubExpression?.binaryAdditiveExpression)
                     else -> throw NullPointerException("Strange behaviour #6")
+                }
+            }
+
+            is ArkoiAssignExpressionPart -> {
+                return when {
+                    psiElement.assignExpression != null -> getLeftestExpression(psiElement.assignExpression?.assignmentExpression)
+                    psiElement.addAssignExpression != null -> getLeftestExpression(psiElement.addAssignExpression?.assignmentExpression)
+                    psiElement.subAssignExpression != null -> getLeftestExpression(psiElement.subAssignExpression?.assignmentExpression)
+                    psiElement.mulAssignExpression != null -> getLeftestExpression(psiElement.mulAssignExpression?.assignmentExpression)
+                    psiElement.divAssignExpression != null -> getLeftestExpression(psiElement.divAssignExpression?.assignmentExpression)
+                    psiElement.modAssignExpression != null -> getLeftestExpression(psiElement.modAssignExpression?.assignmentExpression)
+
+                    else -> throw NullPointerException("Strange behaviour #8")
                 }
             }
 
             is ArkoiBinaryMultiplicativeExpressionPart -> {
                 return when {
-                    psiElement.binaryMulExpression != null -> getLeftestExpression(psiElement.binaryMulExpression!!.binaryMultiplicativeExpression!!)
-                    psiElement.binaryDivExpression != null -> getLeftestExpression(psiElement.binaryDivExpression!!.binaryMultiplicativeExpression!!)
-                    psiElement.binaryModExpression != null -> getLeftestExpression(psiElement.binaryModExpression!!.binaryMultiplicativeExpression!!)
+                    psiElement.binaryMulExpression != null -> getLeftestExpression(psiElement.binaryMulExpression?.binaryMultiplicativeExpression)
+                    psiElement.binaryDivExpression != null -> getLeftestExpression(psiElement.binaryDivExpression?.binaryMultiplicativeExpression)
+                    psiElement.binaryModExpression != null -> getLeftestExpression(psiElement.binaryModExpression?.binaryMultiplicativeExpression)
+
                     else -> throw NullPointerException("Strange behaviour #7")
                 }
             }
@@ -458,10 +531,7 @@ object ArkoiPsiImplUtil {
 
             is ArkoiOperableExpression -> psiElement
 
-            else -> {
-                println("2# $psiElement")
-                TODO()
-            }
+            else -> TODO("2# $psiElement")
         }
     }
 

@@ -73,21 +73,21 @@ public enum TypeKind
     
     public double getPrecision() {
         if (this.crashOnAccess)
-            throw new CrashOnAccessException(this.getClass().getSimpleName() + ": " + this.precision + ", " + this.isNumeric + "," + this.name);
+            throw new CrashOnAccessException(this.getClass().getSimpleName() + ": " + this.precision + ", " + this.isNumeric + ", " + this.name);
         return this.precision;
     }
     
     
     public boolean isNumeric() {
         if (this.crashOnAccess)
-            throw new CrashOnAccessException(this.getClass().getSimpleName() + ": " + this.precision + ", " + this.isNumeric + "," + this.name);
+            throw new CrashOnAccessException(this.getClass().getSimpleName() + ": " + this.precision + ", " + this.isNumeric + ", " + this.name);
         return this.isNumeric;
     }
     
     
     public String getName() {
         if (this.crashOnAccess)
-            throw new CrashOnAccessException(this.getClass().getSimpleName() + ": " + this.precision + ", " + this.isNumeric + "," + this.name);
+            throw new CrashOnAccessException(this.getClass().getSimpleName() + ": " + this.precision + ", " + this.isNumeric + ", " + this.name);
         return this.name;
     }
     
@@ -106,7 +106,7 @@ public enum TypeKind
      */
     public static TypeKind getTypeKind(final AbstractToken abstractToken) {
         for (final TypeKind typeKind : TypeKind.values()) {
-            if (typeKind == COLLECTION)
+            if (typeKind == COLLECTION || typeKind == UNDEFINED)
                 continue;
             if (typeKind.getName() == null)
                 continue;
@@ -130,7 +130,7 @@ public enum TypeKind
      * @return {@code null} if the {@link AbstractOperableSemanticAST} isn't supported or
      *         the found {@link TypeKind}.
      */
-    public static TypeKind getTypeKind(final AbstractOperableSemanticAST<?, ?> abstractOperableSemanticAST) {
+    public static TypeKind getTypeKind(final AbstractOperableSemanticAST<?> abstractOperableSemanticAST) {
         if (abstractOperableSemanticAST instanceof AbstractExpressionSemanticAST) {
             final AbstractExpressionSemanticAST<?> abstractExpressionSemanticAST = (AbstractExpressionSemanticAST<?>) abstractOperableSemanticAST;
             return abstractExpressionSemanticAST.getTypeKind();
@@ -167,7 +167,7 @@ public enum TypeKind
      * @return {@code null} if the combination isn't supported or the result of the called
      *         method ({@link TypeKind#combineKinds(TypeKind, TypeKind)}).
      */
-    public static TypeKind combineKinds(final AbstractOperableSemanticAST<?, ?> leftSideOperable, final AbstractOperableSemanticAST<?, ?> rightSideOperable) {
+    public static TypeKind combineKinds(final AbstractOperableSemanticAST<?> leftSideOperable, final AbstractOperableSemanticAST<?> rightSideOperable) {
         return combineKinds(getTypeKind(leftSideOperable), getTypeKind(rightSideOperable));
     }
     

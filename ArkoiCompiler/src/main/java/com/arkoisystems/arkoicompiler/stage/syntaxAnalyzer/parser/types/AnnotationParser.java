@@ -62,7 +62,6 @@ public class AnnotationParser extends AbstractParser
      * @return {@code false} if the current {@link AbstractToken} isn't an at sign or
      *         {@code true} if it is.
      */
-    @NotNull
     @Override
     public boolean canParse(@NotNull final AbstractSyntaxAST parentAST, @NotNull final SyntaxAnalyzer syntaxAnalyzer) {
         return syntaxAnalyzer.matchesCurrentToken(SymbolType.AT_SIGN) != null;

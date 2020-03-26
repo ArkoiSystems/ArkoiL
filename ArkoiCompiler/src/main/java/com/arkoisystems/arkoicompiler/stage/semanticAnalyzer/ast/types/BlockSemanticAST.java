@@ -9,12 +9,14 @@ import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.Identifi
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.SemanticAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.SemanticErrorType;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.AbstractSemanticAST;
+import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.types.IdentifierCallOperableSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.types.expression.types.ExpressionSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.statements.ImportDefinitionSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.statements.ReturnStatementSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.statements.VariableDefinitionSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.BlockSyntaxAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.IdentifierCallOperableSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types.ExpressionSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.types.ReturnStatementSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.types.VariableDefinitionSyntaxAST;
@@ -146,6 +148,14 @@ public class BlockSemanticAST extends AbstractSemanticAST<BlockSyntaxAST>
                         if (returnStatementSemanticAST.isFailed())
                             this.failed();
                         this.blockStorage.add(returnStatementSemanticAST);
+                    } else if (abstractSyntaxAST instanceof IdentifierCallOperableSyntaxAST) {
+                        final IdentifierCallOperableSyntaxAST identifierCallOperableSyntaxAST = (IdentifierCallOperableSyntaxAST) abstractSyntaxAST;
+                        final IdentifierCallOperableSemanticAST identifierCallOperableSemanticAST
+                                = new IdentifierCallOperableSemanticAST(this.getSemanticAnalyzer(), this.getLastContainerAST(), identifierCallOperableSyntaxAST);
+                        
+                        if (identifierCallOperableSemanticAST.isFailed())
+                            this.failed();
+                        this.blockStorage.add(identifierCallOperableSemanticAST);
                     } else {
                         this.addError(
                                 this.getSemanticAnalyzer().getArkoiClass(),

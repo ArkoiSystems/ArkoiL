@@ -223,13 +223,13 @@ public class SyntaxAnalyzer extends AbstractStage
     }
     
     
-    @Nullable
+    @NotNull
     public AbstractToken peekToken(final int offset) {
         return this.peekToken(offset, true);
     }
     
     
-    @Nullable
+    @NotNull
     public AbstractToken peekToken(final int offset, final boolean skipWhitespaces) {
         AbstractToken abstractToken = this.nextToken(offset, skipWhitespaces);
         this.undoToken(offset, skipWhitespaces);
@@ -265,10 +265,10 @@ public class SyntaxAnalyzer extends AbstractStage
     }
     
     
-    @Nullable
+    @NotNull
     public AbstractToken nextToken(final int offset, final boolean skipWhitespaces) {
-        AbstractToken abstractToken = null;
-        for (int index = 0; index < offset; index++)
+        AbstractToken abstractToken = this.nextToken(skipWhitespaces);
+        for (int index = 1; index < offset; index++)
             abstractToken = this.nextToken(skipWhitespaces);
         return abstractToken;
     }

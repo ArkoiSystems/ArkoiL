@@ -101,7 +101,7 @@ public class NumberOperableSyntaxAST extends AbstractOperableSyntaxAST<TypeKind>
         }
         
         
-        public NumberOperableSyntaxASTBuilder literal(@NotNull final NumberToken numberToken) {
+        public NumberOperableSyntaxASTBuilder literal(final NumberToken numberToken) {
             this.numberToken = numberToken;
             return this;
         }

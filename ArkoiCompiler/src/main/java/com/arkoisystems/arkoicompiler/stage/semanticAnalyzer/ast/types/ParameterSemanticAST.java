@@ -32,7 +32,7 @@ public class ParameterSemanticAST extends AbstractSemanticAST<ParameterSyntaxAST
     @Override
     public void printSemanticAST(@NotNull final PrintStream printStream, @NotNull final String indents) {
         printStream.println(indents + "├── name: " + this.getParameterName().getTokenContent());
-        printStream.println(indents + "└── type: " + this.getParameterType().getTypeKind().getName() + (this.getParameterType().isArray() ? "[]" : ""));
+        printStream.println(indents + "└── type: " + (this.getParameterType() != null ? this.getParameterType().getTypeKind().getName() + (this.getParameterType().isArray() ? "[]" : "") : null));
     }
     
     
@@ -42,10 +42,13 @@ public class ParameterSemanticAST extends AbstractSemanticAST<ParameterSyntaxAST
     }
     
     
-    @NotNull
+    @Nullable
     public TypeSemanticAST getParameterType() {
-        if (this.parameterType == null)
+        if (this.parameterType == null) {
+            if(this.getSyntaxAST().getParameterType() == null)
+                return null;
             return (this.parameterType = new TypeSemanticAST(this.getSemanticAnalyzer(), this.getLastContainerAST(), this.getSyntaxAST().getParameterType()));
+        }
         return this.parameterType;
     }
     

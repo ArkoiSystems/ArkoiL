@@ -41,7 +41,10 @@ public class FunctionParser extends AbstractParser
     @NotNull
     @Override
     public Optional<FunctionDefinitionSyntaxAST> parse(@NotNull final AbstractSyntaxAST parentAST, @NotNull final SyntaxAnalyzer syntaxAnalyzer) {
-        return new FunctionDefinitionSyntaxAST(syntaxAnalyzer).parseAST(parentAST);
+        return FunctionDefinitionSyntaxAST
+                .builder(syntaxAnalyzer)
+                .build()
+                .parseAST(parentAST);
     }
     
     
@@ -60,7 +63,6 @@ public class FunctionParser extends AbstractParser
      * @return {@code false} if the current {@link AbstractToken} isn't an {@link
      *         IdentifierToken} which has the content "fun" or {@code true} if it is.
      */
-    @NotNull
     @Override
     public boolean canParse(@NotNull final AbstractSyntaxAST parentAST, @NotNull final SyntaxAnalyzer syntaxAnalyzer) {
         return syntaxAnalyzer.currentToken().getTokenType() == TokenType.IDENTIFIER && syntaxAnalyzer.currentToken().getTokenContent().equals("fun");

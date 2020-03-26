@@ -68,7 +68,6 @@ public class ExpressionParser extends AbstractParser
      * @return {@code false} if the current {@link AbstractToken}s type isn't supported or
      *         {@code true} if it is.
      */
-    @NotNull
     @Override
     public boolean canParse(@NotNull final AbstractSyntaxAST parentAST, @NotNull final SyntaxAnalyzer syntaxAnalyzer) {
         switch (syntaxAnalyzer.currentToken().getTokenType()) {

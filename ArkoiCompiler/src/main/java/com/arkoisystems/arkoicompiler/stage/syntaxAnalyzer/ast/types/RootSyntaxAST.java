@@ -93,9 +93,6 @@ public class RootSyntaxAST extends AbstractSyntaxAST
      */
     public RootSyntaxAST(@NotNull final SyntaxAnalyzer syntaxAnalyzer) {
         super(syntaxAnalyzer, ASTType.ROOT);
-        
-        this.setEnd(syntaxAnalyzer.getArkoiClass().getContent().length);
-        this.setStart(0);
     }
     
     
@@ -121,6 +118,9 @@ public class RootSyntaxAST extends AbstractSyntaxAST
     public Optional<RootSyntaxAST> parseAST(@Nullable final AbstractSyntaxAST parentAST) {
         Objects.requireNonNull(this.getSyntaxAnalyzer());
         
+        this.setEnd(this.getSyntaxAnalyzer().getArkoiClass().getContent().length);
+        this.setStart(0);
+        
         main_loop:
         while (this.getSyntaxAnalyzer().getPosition() < this.getSyntaxAnalyzer().getTokens().length) {
             if (this.getSyntaxAnalyzer().currentToken() instanceof EndOfFileToken)
@@ -138,15 +138,7 @@ public class RootSyntaxAST extends AbstractSyntaxAST
                     
                     if (abstractSyntaxAST instanceof FunctionDefinitionSyntaxAST) {
                         final FunctionDefinitionSyntaxAST functionDefinitionAST = (FunctionDefinitionSyntaxAST) abstractSyntaxAST;
-                        if (functionDefinitionAST.getFunctionBlock().getBlockType() == BlockType.INLINE && this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.SEMICOLON) == null) {
-                            this.addError(
-                                    this.getSyntaxAnalyzer().getArkoiClass(),
-                                    this.getSyntaxAnalyzer().currentToken(),
-                                    SyntaxErrorType.ROOT_INLINED_FUNCTION_HAS_WRONG_ENDING
-                            );
-                            this.skipToNextValidToken();
-                            continue main_loop;
-                        } else if (functionDefinitionAST.getFunctionBlock().getBlockType() == BlockType.BLOCK && this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.CLOSING_BRACE) == null) {
+                        if (functionDefinitionAST.getFunctionBlock().getBlockType() == BlockType.BLOCK && this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.CLOSING_BRACE) == null) {
                             this.addError(
                                     this.getSyntaxAnalyzer().getArkoiClass(),
                                     this.getSyntaxAnalyzer().currentToken(),
@@ -157,17 +149,6 @@ public class RootSyntaxAST extends AbstractSyntaxAST
                         } else
                             this.functionStorage.add(functionDefinitionAST);
                     } else {
-                        if (this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.SEMICOLON) == null) {
-                            this.addError(
-                                    this.getSyntaxAnalyzer().getArkoiClass(),
-                                    this.getSyntaxAnalyzer().currentToken(),
-                                    SyntaxErrorType.ROOT_STATEMENT_HAS_WRONG_ENDING,
-                                    abstractSyntaxAST.getClass().getSimpleName()
-                            );
-                            this.skipToNextValidToken();
-                            continue main_loop;
-                        }
-                        
                         if (abstractSyntaxAST instanceof VariableDefinitionSyntaxAST)
                             this.variableStorage.add((VariableDefinitionSyntaxAST) abstractSyntaxAST);
                         else if (abstractSyntaxAST instanceof ImportDefinitionSyntaxAST)

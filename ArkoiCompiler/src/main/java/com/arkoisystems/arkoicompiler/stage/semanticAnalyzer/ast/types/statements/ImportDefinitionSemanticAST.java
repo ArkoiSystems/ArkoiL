@@ -35,10 +35,8 @@ public class ImportDefinitionSemanticAST extends AbstractSemanticAST<ImportDefin
     
     @Override
     public void printSemanticAST(@NotNull final PrintStream printStream, @NotNull final String indents) {
-        Objects.requireNonNull(this.getImportTargetClass());
-        
         printStream.println(indents + "├── name: " + this.getImportName().getTokenContent());
-        printStream.println(indents + "└── path: " + this.getImportTargetClass().getFilePath());
+        printStream.println(indents + "└── path: " + (this.getImportTargetClass() != null ? this.getImportTargetClass().getFilePath() : null));
     }
     
     
@@ -50,7 +48,7 @@ public class ImportDefinitionSemanticAST extends AbstractSemanticAST<ImportDefin
         if (this.importTargetClass == null) {
             final String filePath = new File(this.getSemanticAnalyzer().getArkoiClass().getArkoiCompiler().getWorkingDirectory() + File.separator +
                     this.getSyntaxAST().getImportFilePath().getTokenContent() + ".ark").getCanonicalPath();
-
+            
             this.importTargetClass = this.getSemanticAnalyzer().getArkoiClass().getArkoiCompiler().getArkoiClasses().get(filePath);
             if (this.importTargetClass == null) {
                 this.addError(
