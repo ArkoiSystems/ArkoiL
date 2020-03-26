@@ -42,12 +42,11 @@ public class PrefixExpressionSemanticAST extends AbstractExpressionSemanticAST<P
     
     @Override
     public void printSemanticAST(@NotNull final PrintStream printStream, @NotNull final String indents) {
-        Objects.requireNonNull(this.getRightSideOperable());
-        
         printStream.println(indents + "├── operator: " + this.getPrefixOperatorType());
         printStream.println(indents + "└── right:");
-        printStream.println(indents + "    └── " + this.getRightSideOperable().getClass().getSimpleName());
-        this.getRightSideOperable().printSemanticAST(printStream, indents + "        ");
+        printStream.println(indents + "    └── " + (this.getRightSideOperable() != null ? this.getRightSideOperable().getClass().getSimpleName() : null));
+        if (this.getRightSideOperable() != null)
+            this.getRightSideOperable().printSemanticAST(printStream, indents + "        ");
     }
     
     
@@ -55,6 +54,8 @@ public class PrefixExpressionSemanticAST extends AbstractExpressionSemanticAST<P
     public TypeKind getTypeKind() {
         if (this.expressionType == null) {
             if (this.getRightSideOperable() == null)
+                return null;
+            if(this.getPrefixOperatorType() == null)
                 return null;
             
             final TypeKind typeKind;
@@ -81,7 +82,7 @@ public class PrefixExpressionSemanticAST extends AbstractExpressionSemanticAST<P
     }
     
     
-    @NotNull
+    @Nullable
     public PrefixOperatorType getPrefixOperatorType() {
         return this.getSyntaxAST().getPrefixOperatorType();
     }
@@ -96,7 +97,7 @@ public class PrefixExpressionSemanticAST extends AbstractExpressionSemanticAST<P
     
     
     @Nullable
-    private AbstractOperableSemanticAST<?> analyzeOperable(@NotNull final AbstractOperableSyntaxAST<?> abstractOperableSyntaxAST) {
+    private AbstractOperableSemanticAST<?> analyzeOperable(@Nullable final AbstractOperableSyntaxAST<?> abstractOperableSyntaxAST) {
         Objects.requireNonNull(this.getSemanticAnalyzer());
         
         if (abstractOperableSyntaxAST instanceof NumberOperableSyntaxAST) {
@@ -110,14 +111,14 @@ public class PrefixExpressionSemanticAST extends AbstractExpressionSemanticAST<P
             if (prefixExpressionSemanticAST.getTypeKind() == null)
                 return null;
             return prefixExpressionSemanticAST;
-        } else {
+        } else if(abstractOperableSyntaxAST != null) {
             this.addError(
                     this.getSemanticAnalyzer().getArkoiClass(),
                     abstractOperableSyntaxAST,
                     SemanticErrorType.PREFIX_OPERABLE_NOT_SUPPORTED
             );
-            return null;
         }
+        return null;
     }
     
     

@@ -5,6 +5,7 @@
  */
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types;
 
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.IdentifierToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.SymbolType;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
@@ -28,7 +29,7 @@ public class IdentifierCallOperableSyntaxAST extends AbstractOperableSyntaxAST<T
 {
     
     @Getter
-    @Setter(AccessLevel.PROTECTED)
+    @Setter
     private boolean isFileLocal;
     
     
@@ -48,7 +49,13 @@ public class IdentifierCallOperableSyntaxAST extends AbstractOperableSyntaxAST<T
     private FunctionCallPartSyntaxAST calledFunctionPart;
     
     
-    public IdentifierCallOperableSyntaxAST(@Nullable final SyntaxAnalyzer syntaxAnalyzer) {
+    @Getter
+    @Setter
+    @Nullable
+    private IdentifierCallOperableSyntaxAST nextIdentifierCall;
+    
+    
+    protected IdentifierCallOperableSyntaxAST(@Nullable final SyntaxAnalyzer syntaxAnalyzer) {
         super(syntaxAnalyzer, ASTType.IDENTIFIER_CALL_OPERABLE);
     }
     
@@ -68,7 +75,7 @@ public class IdentifierCallOperableSyntaxAST extends AbstractOperableSyntaxAST<T
     @Override
     public Optional<IdentifierCallOperableSyntaxAST> parseAST(@NotNull final AbstractSyntaxAST parentAST) {
         Objects.requireNonNull(this.getSyntaxAnalyzer());
-    
+        
         if (this.getSyntaxAnalyzer().matchesCurrentToken(TokenType.IDENTIFIER) == null) {
             this.addError(
                     this.getSyntaxAnalyzer().getArkoiClass(),
@@ -76,11 +83,11 @@ public class IdentifierCallOperableSyntaxAST extends AbstractOperableSyntaxAST<T
                     SyntaxErrorType.IDENTIFIER_CALL_NO_IDENTIFIER
             );
             return Optional.empty();
-        }
-    
+        } else this.setStart(this.getSyntaxAnalyzer().currentToken().getStart());
+        
         if (this.getSyntaxAnalyzer().currentToken().getTokenContent().equals("this")) {
             this.isFileLocal = true;
-        
+            
             if (this.getSyntaxAnalyzer().matchesPeekToken(1, SymbolType.PERIOD) == null) {
                 this.addError(
                         this.getSyntaxAnalyzer().getArkoiClass(),
@@ -90,7 +97,7 @@ public class IdentifierCallOperableSyntaxAST extends AbstractOperableSyntaxAST<T
                 return Optional.empty();
             } else this.getSyntaxAnalyzer().nextToken();
             
-            if(this.getSyntaxAnalyzer().matchesPeekToken(1, TokenType.IDENTIFIER) == null) {
+            if (this.getSyntaxAnalyzer().matchesPeekToken(1, TokenType.IDENTIFIER) == null) {
                 this.addError(
                         this.getSyntaxAnalyzer().getArkoiClass(),
                         this.getSyntaxAnalyzer().currentToken(),
@@ -99,9 +106,51 @@ public class IdentifierCallOperableSyntaxAST extends AbstractOperableSyntaxAST<T
                 return Optional.empty();
             } else this.getSyntaxAnalyzer().nextToken();
         }
-    
+        
         this.calledIdentifier = (IdentifierToken) this.getSyntaxAnalyzer().currentToken();
-        this.setStart(this.calledIdentifier.getStart());
+        
+        if (this.getSyntaxAnalyzer().matchesPeekToken(1, SymbolType.OPENING_PARENTHESIS) != null) {
+            this.getSyntaxAnalyzer().nextToken();
+            
+            final Optional<FunctionCallPartSyntaxAST> optionalFunctionCallPartSyntaxAST = new FunctionCallPartSyntaxAST(this.getSyntaxAnalyzer()).parseAST(this);
+            if (optionalFunctionCallPartSyntaxAST.isEmpty()) {
+                this.addError(
+                        this.getSyntaxAnalyzer().getArkoiClass(),
+                        this.getSyntaxAnalyzer().currentToken(),
+                        "1"
+                );
+                return Optional.empty();
+            }
+            this.calledFunctionPart = optionalFunctionCallPartSyntaxAST.get();
+        }
+        
+        if (this.getSyntaxAnalyzer().matchesPeekToken(1, SymbolType.PERIOD) != null) {
+            final AbstractToken periodToken = this.getSyntaxAnalyzer().nextToken();
+            
+            if (this.getSyntaxAnalyzer().matchesPeekToken(1, TokenType.IDENTIFIER) == null) {
+                this.addError(
+                        this.getSyntaxAnalyzer().getArkoiClass(),
+                        periodToken.getStart(),
+                        this.getSyntaxAnalyzer().currentToken().getEnd(),
+                        SyntaxErrorType.IDENTIFIER_CALL_WRONG_CALL_APPEND
+                );
+                return Optional.empty();
+            } else this.getSyntaxAnalyzer().nextToken();
+            
+            final Optional<IdentifierCallOperableSyntaxAST> optionalIdentifierCallOperableSyntaxAST =
+                    new IdentifierCallOperableSyntaxAST(this.getSyntaxAnalyzer()).parseAST(this);
+            if (optionalIdentifierCallOperableSyntaxAST.isEmpty()) {
+                this.addError(
+                        this.getSyntaxAnalyzer().getArkoiClass(),
+                        periodToken.getStart(),
+                        this.getSyntaxAnalyzer().currentToken().getEnd(),
+                        SyntaxErrorType.IDENTIFIER_CALL_WRONG_CALL_APPEND
+                );
+                return Optional.empty();
+            }
+            this.nextIdentifierCall = optionalIdentifierCallOperableSyntaxAST.get();
+        }
+        
         this.setEnd(this.calledIdentifier.getEnd());
         return Optional.of(this);
     }
@@ -111,6 +160,104 @@ public class IdentifierCallOperableSyntaxAST extends AbstractOperableSyntaxAST<T
     public void printSyntaxAST(@NotNull final PrintStream printStream, @NotNull final String indents) {
         printStream.println(indents + "├── fileLocal: " + this.isFileLocal());
         printStream.println(indents + "└── identifier: " + this.getCalledIdentifier().getTokenContent());
+    }
+    
+    
+    public static IdentifierCallOperableSyntaxASTBuilder builder(@NotNull final SyntaxAnalyzer syntaxAnalyzer) {
+        return new IdentifierCallOperableSyntaxASTBuilder(syntaxAnalyzer);
+    }
+    
+    
+    public static IdentifierCallOperableSyntaxASTBuilder builder() {
+        return new IdentifierCallOperableSyntaxASTBuilder();
+    }
+    
+    
+    public static class IdentifierCallOperableSyntaxASTBuilder
+    {
+        
+        @Nullable
+        private final SyntaxAnalyzer syntaxAnalyzer;
+        
+        
+        private boolean isFileLocal;
+        
+        
+        @Nullable
+        private IdentifierToken calledIdentifier;
+        
+        
+        @Nullable
+        private FunctionCallPartSyntaxAST calledFunctionPart;
+        
+        
+        @Nullable
+        private IdentifierCallOperableSyntaxAST nextIdentifierCall;
+        
+        
+        private int start, end;
+        
+        
+        public IdentifierCallOperableSyntaxASTBuilder(@NotNull final SyntaxAnalyzer syntaxAnalyzer) {
+            this.syntaxAnalyzer = syntaxAnalyzer;
+        }
+        
+        
+        public IdentifierCallOperableSyntaxASTBuilder() {
+            this.syntaxAnalyzer = null;
+        }
+        
+        
+        public IdentifierCallOperableSyntaxASTBuilder fileLocal(final boolean isFileLocal) {
+            this.isFileLocal = isFileLocal;
+            return this;
+        }
+        
+        
+        public IdentifierCallOperableSyntaxASTBuilder called(final IdentifierToken calledIdentifier) {
+            this.calledIdentifier = calledIdentifier;
+            return this;
+        }
+        
+        
+        public IdentifierCallOperableSyntaxASTBuilder functionPart(final FunctionCallPartSyntaxAST calledFunctionPart) {
+            this.calledFunctionPart = calledFunctionPart;
+            return this;
+        }
+        
+        
+        public IdentifierCallOperableSyntaxASTBuilder nextCall(final IdentifierCallOperableSyntaxAST nextIdentifierCall) {
+            this.nextIdentifierCall = nextIdentifierCall;
+            return this;
+        }
+        
+        
+        public IdentifierCallOperableSyntaxASTBuilder start(final int start) {
+            this.start = start;
+            return this;
+        }
+        
+        
+        public IdentifierCallOperableSyntaxASTBuilder end(final int end) {
+            this.end = end;
+            return this;
+        }
+        
+        
+        public IdentifierCallOperableSyntaxAST build() {
+            final IdentifierCallOperableSyntaxAST identifierCallOperableSyntaxAST = new IdentifierCallOperableSyntaxAST(this.syntaxAnalyzer);
+            identifierCallOperableSyntaxAST.setFileLocal(this.isFileLocal);
+            if (this.calledIdentifier != null)
+                identifierCallOperableSyntaxAST.setCalledIdentifier(this.calledIdentifier);
+            if (this.calledFunctionPart != null)
+                identifierCallOperableSyntaxAST.setCalledFunctionPart(this.calledFunctionPart);
+            if (this.nextIdentifierCall != null)
+                identifierCallOperableSyntaxAST.setNextIdentifierCall(this.nextIdentifierCall);
+            identifierCallOperableSyntaxAST.setStart(this.start);
+            identifierCallOperableSyntaxAST.setEnd(this.end);
+            return identifierCallOperableSyntaxAST;
+        }
+        
     }
     
 }

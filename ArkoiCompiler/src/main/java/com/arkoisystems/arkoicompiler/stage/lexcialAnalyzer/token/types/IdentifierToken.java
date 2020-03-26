@@ -8,7 +8,6 @@ package com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.LexicalAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
-import lombok.NonNull;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -88,7 +87,7 @@ public class IdentifierToken extends AbstractToken
         }
         
         
-        public IdentifierTokenBuilder content(@NonNull final String tokenContent) {
+        public IdentifierTokenBuilder content(final String tokenContent) {
             this.tokenContent = tokenContent;
             return this;
         }

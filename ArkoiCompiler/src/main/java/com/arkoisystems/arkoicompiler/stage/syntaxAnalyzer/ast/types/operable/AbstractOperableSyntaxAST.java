@@ -31,7 +31,7 @@ public class AbstractOperableSyntaxAST<O> extends AbstractSyntaxAST
     
     @Getter
     @Setter(AccessLevel.PROTECTED)
-    @NotNull
+    @Nullable
     private O operableObject;
     
     
@@ -84,13 +84,9 @@ public class AbstractOperableSyntaxAST<O> extends AbstractSyntaxAST
                     return Optional.empty();
                 
                 final AbstractSyntaxAST abstractSyntaxAST = optionalAbstractSyntaxAST.get();
-                if (abstractSyntaxAST instanceof IdentifierCallOperableSyntaxAST)
+                if (abstractSyntaxAST instanceof IdentifierCallOperableSyntaxAST) {
                     return Optional.of((IdentifierCallOperableSyntaxAST) abstractSyntaxAST);
-                else if (abstractSyntaxAST instanceof FunctionInvokeOperableSyntaxAST)
-                    return Optional.of((FunctionInvokeOperableSyntaxAST) abstractSyntaxAST);
-                else if (abstractSyntaxAST instanceof IdentifierInvokeOperableSyntaxAST)
-                    return Optional.of((IdentifierInvokeOperableSyntaxAST) abstractSyntaxAST);
-                else {
+                } else {
                     this.addError(
                             this.getSyntaxAnalyzer().getArkoiClass(),
                             optionalAbstractSyntaxAST.get(),

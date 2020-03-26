@@ -37,8 +37,9 @@ public class IdentifierCallOperableSemanticAST extends AbstractOperableSemanticA
     @Override
     public void printSemanticAST(@NotNull final PrintStream printStream, @NotNull final String indents) {
         printStream.println(indents + "├── fileLocal: " + this.isFileLocal());
-        printStream.println(indents + "└── identifier: ");
-        Objects.requireNonNull(this.getFoundIdentifier()).printSemanticAST(printStream, indents + "        ");
+        printStream.println(indents + "└── identifier: " + (this.getFoundIdentifier() == null ? null : ""));
+        if (this.getFoundIdentifier() != null)
+            this.getFoundIdentifier().printSemanticAST(printStream, indents + "        ");
     }
     
     
@@ -46,16 +47,20 @@ public class IdentifierCallOperableSemanticAST extends AbstractOperableSemanticA
     @Override
     public TypeKind getTypeKind() {
         Objects.requireNonNull(this.getSemanticAnalyzer());
+    
         if (this.getFoundIdentifier() == null)
             return null;
         
         final AbstractSemanticAST<?> foundIdentifier = this.getFoundIdentifier();
         if (foundIdentifier instanceof VariableDefinitionSemanticAST) {
             final VariableDefinitionSemanticAST variableDefinitionSemanticAST = (VariableDefinitionSemanticAST) foundIdentifier;
+            if(variableDefinitionSemanticAST.getVariableExpression() == null)
+                return null;
             return variableDefinitionSemanticAST.getVariableExpression().getTypeKind();
         } else if (foundIdentifier instanceof ParameterSemanticAST) {
             final ParameterSemanticAST parameterSemanticAST = (ParameterSemanticAST) foundIdentifier;
-            parameterSemanticAST.getParameterName();
+            if(parameterSemanticAST.getParameterType() == null)
+                return null;
             return parameterSemanticAST.getParameterType().getTypeKind();
         } else {
             this.addError(
@@ -76,6 +81,7 @@ public class IdentifierCallOperableSemanticAST extends AbstractOperableSemanticA
     @Nullable
     public AbstractSemanticAST<?> getFoundIdentifier() {
         Objects.requireNonNull(this.getSemanticAnalyzer());
+        Objects.requireNonNull(this.getSemanticAnalyzer().getRootSemanticAST());
         
         if (this.foundIdentifier == null) {
             AbstractSemanticAST<?> abstractSemanticAST = null;

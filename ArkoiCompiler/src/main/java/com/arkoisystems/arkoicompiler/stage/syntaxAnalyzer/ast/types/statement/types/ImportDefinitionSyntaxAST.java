@@ -7,7 +7,6 @@ package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.
 
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.IdentifierToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.StringToken;
-import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.SymbolType;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxErrorType;
@@ -30,6 +29,7 @@ public class ImportDefinitionSyntaxAST extends AbstractStatementSyntaxAST
     
     @Getter
     @Setter(AccessLevel.PROTECTED)
+    @NotNull
     private StringToken importFilePath = StringToken
             .builder()
             .content("Undefined string for \"importFilePath\"")
@@ -39,6 +39,7 @@ public class ImportDefinitionSyntaxAST extends AbstractStatementSyntaxAST
     
     @Getter
     @Setter(AccessLevel.PROTECTED)
+    @NotNull
     private IdentifierToken importName = IdentifierToken
             .builder()
             .content("Undefined identifier for \"importName\"")
@@ -99,22 +100,12 @@ public class ImportDefinitionSyntaxAST extends AbstractStatementSyntaxAST
             }
             
             this.importName = (IdentifierToken) this.getSyntaxAnalyzer().currentToken();
-            this.getSyntaxAnalyzer().nextToken();
         } else {
             final String[] split = this.importFilePath.getTokenContent().split("/");
             this.importName = IdentifierToken
                     .builder()
                     .content(split[split.length - 1].replace(".ark", ""))
                     .build();
-        }
-        
-        if (this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.SEMICOLON) == null) {
-            this.addError(
-                    this.getSyntaxAnalyzer().getArkoiClass(),
-                    this.getSyntaxAnalyzer().currentToken(),
-                    SyntaxErrorType.IMPORT_DEFINITION_WRONG_ENDING
-            );
-            return Optional.empty();
         }
         
         this.setEnd(this.getSyntaxAnalyzer().currentToken().getEnd());

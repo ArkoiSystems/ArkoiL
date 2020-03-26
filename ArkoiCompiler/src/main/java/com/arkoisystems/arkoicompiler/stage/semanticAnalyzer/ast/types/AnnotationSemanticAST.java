@@ -8,7 +8,9 @@ package com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.IdentifierToken;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.SemanticAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.AbstractSemanticAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.AnnotationSyntaxAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.ArgumentSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -26,20 +28,29 @@ public class AnnotationSemanticAST extends AbstractSemanticAST<AnnotationSyntaxA
     
     @Override
     public void printSemanticAST(@NotNull final PrintStream printStream, @NotNull final String indents) {
-        printStream.println(indents + "├── name: " + this.getAnnotationName().getTokenContent());
+        printStream.println(indents + "├── name: " + (this.getAnnotationName() != null ? this.getAnnotationName().getTokenContent() : null));
         printStream.println(indents + "└── arguments: " + (this.getAnnotationArguments().isEmpty() ? "N/A" : ""));
-        for (final IdentifierToken identifierToken : this.getAnnotationArguments())
-            printStream.println(indents + "    └── " + identifierToken.getTokenContent());
+        for (int index = 0; index < this.getAnnotationArguments().size(); index++) {
+            final AbstractSyntaxAST abstractSyntaxAST = this.getAnnotationArguments().get(index);
+            if (index == this.getAnnotationArguments().size() - 1) {
+                printStream.println(indents + "    └── " + abstractSyntaxAST.getClass().getSimpleName());
+                abstractSyntaxAST.printSyntaxAST(printStream, indents + "        ");
+            } else {
+                printStream.println(indents + "    ├── " + abstractSyntaxAST.getClass().getSimpleName());
+                abstractSyntaxAST.printSyntaxAST(printStream, indents + "    │   ");
+                printStream.println(indents + "    │   ");
+            }
+        }
     }
     
     
     @NotNull
-    public List<IdentifierToken> getAnnotationArguments() {
+    public List<ArgumentSyntaxAST> getAnnotationArguments() {
         return this.getSyntaxAST().getAnnotationArguments();
     }
     
     
-    @NotNull
+    @Nullable
     public IdentifierToken getAnnotationName() {
         return this.getSyntaxAST().getAnnotationName();
     }

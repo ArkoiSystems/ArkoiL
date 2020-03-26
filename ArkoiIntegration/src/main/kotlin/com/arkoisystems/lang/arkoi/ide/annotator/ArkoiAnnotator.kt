@@ -26,22 +26,28 @@ import com.arkoisystems.lang.arkoi.psi.ArkoiFile
 import com.arkoisystems.lang.arkoi.psi.ArkoiFunctionDeclaration
 import com.intellij.lang.annotation.AnnotationHolder
 import com.intellij.lang.annotation.Annotator
+import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
 import com.intellij.psi.tree.TokenSet
-import com.jetbrains.rd.util.string.print
 
 class ArkoiAnnotator : Annotator {
 
     override fun annotate(element: PsiElement, holder: AnnotationHolder) {
         if (element !is ArkoiFile)
             return
+
         val arkoiCompiler = ArkoiCompiler(element.project.basePath!!)
-        val arkoiClass = ArkoiClass(arkoiCompiler, element.project.basePath!!, ByteArray(0))
-        arkoiClass.lexicalAnalyzer
+        val arkoiClass = ArkoiClass(arkoiCompiler, element.project.basePath!!, element.text.toByteArray())
+
         arkoiClass.syntaxAnalyzer.rootSyntaxAST.functionStorage.addAll(generateFunctions(arkoiClass, element))
 
-        if(!arkoiClass.semanticAnalyzer.processStage()) arkoiCompiler.printStackTrace(System.out)
-        else arkoiClass.syntaxAnalyzer.rootSyntaxAST.printSyntaxAST(System.out, "")
+        if (arkoiClass.semanticAnalyzer.processStage())
+            return
+
+        arkoiClass.semanticAnalyzer.errorHandler.arkoiErrors.values.forEach {
+            for (position in it.positions)
+                holder.createErrorAnnotation(TextRange(position[0], position[1]), it.message)
+        }
     }
 
     private fun generateFunctions(arkoiClass: ArkoiClass, arkoiFile: ArkoiFile): Collection<FunctionDefinitionSyntaxAST> {
@@ -49,13 +55,18 @@ class ArkoiAnnotator : Annotator {
         arkoiFile.node.getChildren(TokenSet.forAllMatching {
             it == ArkoiTokenTypes.FUNCTION_DECLARATION
         }).map { it.psi as ArkoiFunctionDeclaration }.forEach {
-            val functionDefinitionSyntaxAST = FunctionDefinitionSyntaxAST(arkoiClass.syntaxAnalyzer)
-            functionDefinitionSyntaxAST.functionName = it.functionName
-            functionDefinitionSyntaxAST.functionReturnType = it.getFunctionReturnType(arkoiClass.syntaxAnalyzer)
-            functionDefinitionSyntaxAST.functionBlock = it.getFunctionBlock(arkoiClass.syntaxAnalyzer)
-            functionDefinitionSyntaxAST.functionArguments = it.getFunctionParameters(arkoiClass.syntaxAnalyzer)
-            functionDefinitionSyntaxAST.functionAnnotations =  it.getFunctionAnnotations(arkoiClass.syntaxAnalyzer)
-            functionDefinitions.add(functionDefinitionSyntaxAST)
+            functionDefinitions.add(
+                FunctionDefinitionSyntaxAST
+                    .builder(arkoiClass.syntaxAnalyzer)
+                    .annotations(it.getFunctionAnnotations(arkoiClass.syntaxAnalyzer))
+                    .name(it.functionName)
+                    .returnType(it.getFunctionReturnType(arkoiClass.syntaxAnalyzer))
+                    .parameters(it.getFunctionParameters(arkoiClass.syntaxAnalyzer))
+                    .block(it.getFunctionBlock(arkoiClass.syntaxAnalyzer))
+                    .start(it.textRange.startOffset)
+                    .end(it.textRange.endOffset)
+                    .build()
+            )
         }
         return functionDefinitions
     }

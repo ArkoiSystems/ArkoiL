@@ -11,6 +11,7 @@ import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.RootSeman
 import lombok.Getter;
 import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class SemanticAnalyzer extends AbstractStage
 {
@@ -26,21 +27,21 @@ public class SemanticAnalyzer extends AbstractStage
     
     
     @Getter
-    @NotNull
-    private final RootSemanticAST rootSemanticAST;
+    @Nullable
+    private RootSemanticAST rootSemanticAST;
     
     
-    public SemanticAnalyzer(final ArkoiClass arkoiClass) {
+    public SemanticAnalyzer(@NotNull final ArkoiClass arkoiClass) {
         this.arkoiClass = arkoiClass;
-        
-        this.rootSemanticAST = new RootSemanticAST(this, arkoiClass.getSyntaxAnalyzer().getRootSyntaxAST());
     }
     
     
     @SneakyThrows
     @Override
     public boolean processStage() {
+        this.rootSemanticAST = new RootSemanticAST(this, arkoiClass.getSyntaxAnalyzer().getRootSyntaxAST());
         this.rootSemanticAST.initialize();
+        
         return !this.rootSemanticAST.isFailed();
     }
     

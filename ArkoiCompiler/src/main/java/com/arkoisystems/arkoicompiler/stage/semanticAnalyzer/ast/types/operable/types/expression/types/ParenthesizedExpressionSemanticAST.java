@@ -16,7 +16,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.PrintStream;
-import java.util.Objects;
 
 public class ParenthesizedExpressionSemanticAST extends AbstractExpressionSemanticAST<ParenthesizedExpressionSyntaxAST>
 {
@@ -33,15 +32,18 @@ public class ParenthesizedExpressionSemanticAST extends AbstractExpressionSemant
     @Override
     public void printSemanticAST(@NotNull final PrintStream printStream, @NotNull final String indents) {
         printStream.println(indents + "└── operable:");
-        printStream.println(indents + "    └── " + this.getParenthesizedExpression().getClass().getSimpleName());
-        this.getParenthesizedExpression().printSemanticAST(printStream, indents + "        ");
+        printStream.println(indents + "    └── " + (this.getParenthesizedExpression() != null ? this.getParenthesizedExpression().getClass().getSimpleName() : null));
+        if (this.getParenthesizedExpression() != null)
+            this.getParenthesizedExpression().printSemanticAST(printStream, indents + "        ");
     }
     
     
     @Nullable
     @Override
     public TypeKind getTypeKind() {
-        return Objects.requireNonNull(this.getParenthesizedExpression()).getTypeKind();
+        if (this.getParenthesizedExpression() == null)
+            return null;
+        return this.getParenthesizedExpression().getTypeKind();
     }
     
     
@@ -49,9 +51,11 @@ public class ParenthesizedExpressionSemanticAST extends AbstractExpressionSemant
     public AbstractExpressionSemanticAST<?> getParenthesizedExpression() {
         if (this.parenthesizedExpression == null) {
             final ExpressionSyntaxAST expressionSyntaxAST = this.getSyntaxAST().getExpressionSyntaxAST();
+            if(expressionSyntaxAST == null)
+                return null;
+            
             this.parenthesizedExpression
                     = new ExpressionSemanticAST(this.getSemanticAnalyzer(), this.getLastContainerAST(), expressionSyntaxAST);
-            
             if (this.parenthesizedExpression.getTypeKind() == null)
                 return null;
         }

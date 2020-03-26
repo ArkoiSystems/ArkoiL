@@ -26,13 +26,13 @@ class SyntaxAnalyzerTest
                 "var test = 0;".getBytes()
         );
         arkoiCompiler.addClass(arkoiClass);
-
+        
         final LexicalAnalyzer lexicalAnalyzer = arkoiClass.getLexicalAnalyzer();
         assertTrue(lexicalAnalyzer.processStage(), "\n" + this.getStackTrace(arkoiCompiler));
-
+        
         final SyntaxAnalyzer syntaxAnalyzer = arkoiClass.getSyntaxAnalyzer();
         assertTrue(syntaxAnalyzer.processStage(), "\n" + this.getStackTrace(arkoiCompiler));
-
+        
         assertEquals("" +
                         "├── imports: N/A\n" +
                         "│\n" +
@@ -60,10 +60,10 @@ class SyntaxAnalyzerTest
         arkoiCompiler.addClass(arkoiClass);
         final LexicalAnalyzer lexicalAnalyzer = arkoiClass.getLexicalAnalyzer();
         assertTrue(lexicalAnalyzer.processStage(), "\n" + this.getStackTrace(arkoiCompiler));
-
+        
         final SyntaxAnalyzer syntaxAnalyzer = arkoiClass.getSyntaxAnalyzer();
         assertTrue(syntaxAnalyzer.processStage(), "\n" + this.getStackTrace(arkoiCompiler));
-
+        
         assertEquals("" +
                         "├── imports: N/A\n" +
                         "│\n" +
@@ -89,13 +89,13 @@ class SyntaxAnalyzerTest
                 "var test = \"Hello World :) \\\" okay?\";".getBytes()
         );
         arkoiCompiler.addClass(arkoiClass);
-
+        
         final LexicalAnalyzer lexicalAnalyzer = arkoiClass.getLexicalAnalyzer();
         assertTrue(lexicalAnalyzer.processStage(), "\n" + this.getStackTrace(arkoiCompiler));
-
+        
         final SyntaxAnalyzer syntaxAnalyzer = arkoiClass.getSyntaxAnalyzer();
         assertTrue(syntaxAnalyzer.processStage(), "\n" + this.getStackTrace(arkoiCompiler));
-
+        
         assertEquals("" +
                 "├── imports: N/A\n" +
                 "│\n" +
@@ -124,10 +124,10 @@ class SyntaxAnalyzerTest
         arkoiCompiler.addClass(arkoiClass);
         final LexicalAnalyzer lexicalAnalyzer = arkoiClass.getLexicalAnalyzer();
         assertTrue(lexicalAnalyzer.processStage(), "\n" + this.getStackTrace(arkoiCompiler));
-
+        
         final SyntaxAnalyzer syntaxAnalyzer = arkoiClass.getSyntaxAnalyzer();
         assertTrue(syntaxAnalyzer.processStage(), "\n" + this.getStackTrace(arkoiCompiler));
-
+        
         assertEquals("" +
                         "├── imports: N/A\n" +
                         "│\n" +
@@ -162,13 +162,13 @@ class SyntaxAnalyzerTest
                 "import \"System\" as system;".getBytes()
         );
         arkoiCompiler.addClass(arkoiClass);
-
+        
         final LexicalAnalyzer lexicalAnalyzer = arkoiClass.getLexicalAnalyzer();
         assertTrue(lexicalAnalyzer.processStage(), "\n" + this.getStackTrace(arkoiCompiler));
-
+        
         final SyntaxAnalyzer syntaxAnalyzer = arkoiClass.getSyntaxAnalyzer();
         assertTrue(syntaxAnalyzer.processStage(), "\n" + this.getStackTrace(arkoiCompiler));
-
+        
         assertEquals("" +
                         "├── imports: \n" +
                         "│   └── ImportDefinitionSyntaxAST\n" +
@@ -320,13 +320,13 @@ class SyntaxAnalyzerTest
                         "fun greeting<string>() = \"Hello World\";\n").getBytes()
         );
         arkoiCompiler.addClass(arkoiClass);
-
+        
         final LexicalAnalyzer lexicalAnalyzer = arkoiClass.getLexicalAnalyzer();
         assertTrue(lexicalAnalyzer.processStage(), "\n" + this.getStackTrace(arkoiCompiler));
-
+        
         final SyntaxAnalyzer syntaxAnalyzer = arkoiClass.getSyntaxAnalyzer();
         assertTrue(syntaxAnalyzer.processStage(), "\n" + this.getStackTrace(arkoiCompiler));
-
+        
         assertEquals("" +
                         "├── imports: \n" +
                         "│   └── ImportDefinitionSyntaxAST\n" +

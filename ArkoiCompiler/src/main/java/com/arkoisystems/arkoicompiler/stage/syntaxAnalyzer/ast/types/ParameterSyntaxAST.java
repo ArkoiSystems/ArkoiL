@@ -56,7 +56,7 @@ public class ParameterSyntaxAST extends AbstractSyntaxAST
      */
     @Getter
     @Setter(AccessLevel.PROTECTED)
-    @NotNull
+    @Nullable
     private TypeSyntaxAST parameterType;
     
     
@@ -125,7 +125,7 @@ public class ParameterSyntaxAST extends AbstractSyntaxAST
     @Override
     public void printSyntaxAST(@NotNull final PrintStream printStream, @NotNull final String indents) {
         printStream.println(indents + "├── name: " + this.getParameterName().getTokenContent());
-        printStream.println(indents + "└── type: " + this.getParameterType().getTypeKind().getName() + (this.getParameterType().isArray() ? "[]" : ""));
+        printStream.println(indents + "└── type: " + (this.getParameterType() != null ? this.getParameterType().getTypeKind().getName() + (this.getParameterType().isArray() ? "[]" : "") : null));
     }
     
     
@@ -146,13 +146,14 @@ public class ParameterSyntaxAST extends AbstractSyntaxAST
      * @return It will return null if an error occurred or the given "argumentsASTs" list
      *         if it parsed until to the end.
      */
+    @NotNull
     public static Optional<List<ParameterSyntaxAST>> parseParameters(final AbstractSyntaxAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
         final List<ParameterSyntaxAST> parameters = new ArrayList<>();
         if (syntaxAnalyzer.matchesCurrentToken(SymbolType.OPENING_PARENTHESIS) == null) {
             parentAST.addError(
                     syntaxAnalyzer.getArkoiClass(),
                     syntaxAnalyzer.currentToken(),
-                    SyntaxErrorType.ARGUMENTS_WRONG_START
+                    SyntaxErrorType.PARAMETERS_WRONG_START
             );
             return Optional.empty();
         } else syntaxAnalyzer.nextToken();
@@ -221,13 +222,13 @@ public class ParameterSyntaxAST extends AbstractSyntaxAST
         }
         
         
-        public ParameterSyntaxASTBuilder name(@NotNull final IdentifierToken argumentName) {
+        public ParameterSyntaxASTBuilder name(final IdentifierToken argumentName) {
             this.argumentName = argumentName;
             return this;
         }
         
         
-        public ParameterSyntaxASTBuilder type(@NotNull final TypeSyntaxAST argumentType) {
+        public ParameterSyntaxASTBuilder type(final TypeSyntaxAST argumentType) {
             this.argumentType = argumentType;
             return this;
         }
@@ -247,10 +248,10 @@ public class ParameterSyntaxAST extends AbstractSyntaxAST
         
         public ParameterSyntaxAST build() {
             final ParameterSyntaxAST parameterSyntaxAST = new ParameterSyntaxAST(this.syntaxAnalyzer);
-            if (this.argumentType != null)
-                parameterSyntaxAST.setParameterType(this.argumentType);
             if (this.argumentName != null)
                 parameterSyntaxAST.setParameterName(this.argumentName);
+            if (this.argumentType != null)
+                parameterSyntaxAST.setParameterType(this.argumentType);
             parameterSyntaxAST.setStart(this.start);
             parameterSyntaxAST.setEnd(this.end);
             return parameterSyntaxAST;

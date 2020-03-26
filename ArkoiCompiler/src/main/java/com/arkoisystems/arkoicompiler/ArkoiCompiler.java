@@ -18,10 +18,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * The {@link ArkoiCompiler} class is used for compiling multiple files. It also contains
@@ -105,12 +102,9 @@ public class ArkoiCompiler
      */
     public void printStackTrace(@NotNull final PrintStream errorStream) {
         for (final Map.Entry<String, ArkoiClass> classEntry : this.getArkoiClasses().entrySet()) {
-            if (classEntry.getValue().getLexicalAnalyzer() != null)
-                classEntry.getValue().getLexicalAnalyzer().getErrorHandler().printStackTrace(errorStream, false);
-            if (classEntry.getValue().getSyntaxAnalyzer() != null)
-                classEntry.getValue().getSyntaxAnalyzer().getErrorHandler().printStackTrace(errorStream, false);
-            if (classEntry.getValue().getSemanticAnalyzer() != null)
-                classEntry.getValue().getSemanticAnalyzer().getErrorHandler().printStackTrace(errorStream, false);
+            classEntry.getValue().getLexicalAnalyzer().getErrorHandler().printStackTrace(errorStream, false);
+            classEntry.getValue().getSyntaxAnalyzer().getErrorHandler().printStackTrace(errorStream, false);
+            classEntry.getValue().getSemanticAnalyzer().getErrorHandler().printStackTrace(errorStream, false);
         }
     }
     
@@ -188,6 +182,7 @@ public class ArkoiCompiler
             if (!arkoiClass.isNativeClass())
                 continue;
             
+            Objects.requireNonNull(arkoiClass.getSemanticAnalyzer().getRootSemanticAST());
             for (final FunctionDefinitionSemanticAST functionDefinitionSemanticAST : arkoiClass.getSemanticAnalyzer().getRootSemanticAST().getFunctionStorage()) {
                 if (functionDefinitionSemanticAST.getFunctionDescription().equals(functionDescription) && functionDefinitionSemanticAST.getSyntaxAST().hasAnnotation("native"))
                     return functionDefinitionSemanticAST;
@@ -207,10 +202,8 @@ public class ArkoiCompiler
      */
     public void printSyntaxTree(@NotNull final PrintStream printStream) {
         final List<RootSyntaxAST> roots = new ArrayList<>();
-        for (final ArkoiClass arkoiClass : this.getArkoiClasses().values()) {
-            if (arkoiClass.getSyntaxAnalyzer() != null)
-                roots.add(arkoiClass.getSyntaxAnalyzer().getRootSyntaxAST());
-        }
+        for (final ArkoiClass arkoiClass : this.getArkoiClasses().values())
+            roots.add(arkoiClass.getSyntaxAnalyzer().getRootSyntaxAST());
         
         printStream.println("Syntax Trees:");
         for (int index = 0; index < roots.size(); index++) {

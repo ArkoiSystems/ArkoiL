@@ -71,7 +71,7 @@ public class EndOfFileToken extends AbstractToken
         }
         
         
-        public EndOfFileTokenBuilder content(@NotNull final String tokenContent) {
+        public EndOfFileTokenBuilder content(final String tokenContent) {
             this.tokenContent = tokenContent;
             return this;
         }

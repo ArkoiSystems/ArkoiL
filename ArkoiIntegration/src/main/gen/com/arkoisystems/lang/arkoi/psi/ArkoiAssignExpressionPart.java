@@ -17,9 +17,6 @@ public interface ArkoiAssignExpressionPart extends PsiElement {
   ArkoiDivAssignExpression getDivAssignExpression();
 
   @Nullable
-  ArkoiExpAssignExpression getExpAssignExpression();
-
-  @Nullable
   ArkoiModAssignExpression getModAssignExpression();
 
   @Nullable

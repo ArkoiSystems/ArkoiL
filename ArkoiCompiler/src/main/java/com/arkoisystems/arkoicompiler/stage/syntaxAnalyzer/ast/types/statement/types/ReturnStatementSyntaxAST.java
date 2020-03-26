@@ -5,7 +5,6 @@
  */
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.types;
 
-import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.SymbolType;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxErrorType;
@@ -30,35 +29,15 @@ public class ReturnStatementSyntaxAST extends AbstractStatementSyntaxAST
     
     @Getter
     @Setter(AccessLevel.PROTECTED)
-    @NotNull
+    @Nullable
     private ExpressionSyntaxAST returnExpression;
     
     
-    /**
-     * This constructor is used to initialize the AST-Type "RETURN_STATEMENT_AST" for this
-     * class. This will help to debug problems or check the AST for correct Syntax.
-     */
     protected ReturnStatementSyntaxAST(@Nullable final SyntaxAnalyzer syntaxAnalyzer) {
         super(syntaxAnalyzer, ASTType.RETURN_STATEMENT);
     }
     
     
-    /**
-     * This method will parse the "return" statement and checks it for the correct syntax.
-     * This statement can just be used inside a BlockAST because it will define the return
-     * type of it. You can't use a "this" statement in-front of it and it needs to end
-     * with a semicolon.
-     * <p>
-     * An example for correct usage:
-     * <p>
-     * fun main<int>(args: string[]) = 0;
-     *
-     * @param parentAST
-     *         The parent of this AST which just can be a BlockAST.
-     *
-     * @return It will return null if an error occurred or an ReturnStatementAST if it
-     *         parsed until to the end.
-     */
     @Override
     public Optional<ReturnStatementSyntaxAST> parseAST(@NotNull final AbstractSyntaxAST parentAST) {
         Objects.requireNonNull(this.getSyntaxAnalyzer());
@@ -98,15 +77,6 @@ public class ReturnStatementSyntaxAST extends AbstractStatementSyntaxAST
             return Optional.empty();
         this.returnExpression = optionalExpressionSyntaxAST.get();
         
-        if (this.getSyntaxAnalyzer().matchesNextToken(SymbolType.SEMICOLON) == null) {
-            this.addError(
-                    this.getSyntaxAnalyzer().getArkoiClass(),
-                    this.getSyntaxAnalyzer().currentToken(),
-                    SyntaxErrorType.RETURN_STATEMENT_WRONG_ENDING
-            );
-            return Optional.empty();
-        }
-        
         this.setEnd(this.getSyntaxAnalyzer().currentToken().getEnd());
         return Optional.of(this);
     }
@@ -114,8 +84,9 @@ public class ReturnStatementSyntaxAST extends AbstractStatementSyntaxAST
     
     @Override
     public void printSyntaxAST(@NotNull final PrintStream printStream, @NotNull final String indents) {
-        printStream.println(indents + "└── expression:");
-        this.getReturnExpression().printSyntaxAST(printStream, indents + "    ");
+        printStream.println(indents + "└── expression: " + (this.getReturnExpression() == null ? null : ""));
+        if (this.getReturnExpression() != null)
+            this.getReturnExpression().printSyntaxAST(printStream, indents + "    ");
     }
     
     
@@ -151,9 +122,9 @@ public class ReturnStatementSyntaxAST extends AbstractStatementSyntaxAST
         public ReturnStatementSyntaxASTBuilder() {
             this.syntaxAnalyzer = null;
         }
-        
-        
-        public ReturnStatementSyntaxASTBuilder expression(@NotNull final ExpressionSyntaxAST expressionSyntaxAST) {
+    
+    
+        public ReturnStatementSyntaxASTBuilder expression(final ExpressionSyntaxAST expressionSyntaxAST) {
             this.expressionSyntaxAST = expressionSyntaxAST;
             return this;
         }

@@ -20,7 +20,6 @@ import org.jetbrains.annotations.Nullable;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 public class CollectionOperableSemanticAST extends AbstractOperableSemanticAST<CollectionOperableSyntaxAST>
 {
@@ -36,18 +35,18 @@ public class CollectionOperableSemanticAST extends AbstractOperableSemanticAST<C
     
     @Override
     public void printSemanticAST(@NotNull final PrintStream printStream, @NotNull final String indents) {
-        Objects.requireNonNull(this.getCollectionExpressions());
-        
-        printStream.println(indents + "└── expressions: " + (this.getCollectionExpressions().isEmpty() ? "N/A" : ""));
-        for (int index = 0; index < this.getCollectionExpressions().size(); index++) {
-            final ExpressionSemanticAST expressionSemanticAST = this.getCollectionExpressions().get(index);
-            if (index == this.getCollectionExpressions().size() - 1) {
-                printStream.println(indents + "    └── " + expressionSemanticAST.getClass().getSimpleName());
-                expressionSemanticAST.printSemanticAST(printStream, indents + "        ");
-            } else {
-                printStream.println(indents + "    ├── " + expressionSemanticAST.getClass().getSimpleName());
-                expressionSemanticAST.printSemanticAST(printStream, indents + "    │   ");
-                printStream.println(indents + "    │   ");
+        printStream.println(indents + "└── expressions: " + (this.getCollectionExpressions() != null ? (this.getCollectionExpressions().isEmpty() ? "N/A" : "") : null));
+        if (this.getCollectionExpressions() != null) {
+            for (int index = 0; index < this.getCollectionExpressions().size(); index++) {
+                final ExpressionSemanticAST expressionSemanticAST = this.getCollectionExpressions().get(index);
+                if (index == this.getCollectionExpressions().size() - 1) {
+                    printStream.println(indents + "    └── " + expressionSemanticAST.getClass().getSimpleName());
+                    expressionSemanticAST.printSemanticAST(printStream, indents + "        ");
+                } else {
+                    printStream.println(indents + "    ├── " + expressionSemanticAST.getClass().getSimpleName());
+                    expressionSemanticAST.printSemanticAST(printStream, indents + "    │   ");
+                    printStream.println(indents + "    │   ");
+                }
             }
         }
     }

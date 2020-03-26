@@ -52,7 +52,7 @@ public class VariableDefinitionSyntaxAST extends AbstractStatementSyntaxAST
     
     @Getter
     @Setter(AccessLevel.PROTECTED)
-    @NotNull
+    @Nullable
     private ExpressionSyntaxAST variableExpression;
     
     
@@ -100,16 +100,15 @@ public class VariableDefinitionSyntaxAST extends AbstractStatementSyntaxAST
             return Optional.empty();
         }
         this.variableName = (IdentifierToken) this.getSyntaxAnalyzer().currentToken();
-        
-        if (this.getSyntaxAnalyzer().matchesNextToken(SymbolType.EQUAL) == null) {
+    
+        if (this.getSyntaxAnalyzer().matchesPeekToken(1, SymbolType.EQUAL) == null) {
             this.addError(
                     this.getSyntaxAnalyzer().getArkoiClass(),
                     this.getSyntaxAnalyzer().currentToken(),
                     SyntaxErrorType.VARIABLE_DEFINITION_NO_EQUAL_SIGN
             );
             return Optional.empty();
-        }
-        this.getSyntaxAnalyzer().nextToken();
+        } else this.getSyntaxAnalyzer().nextToken(2);
         
         if (!AbstractExpressionSyntaxAST.EXPRESSION_PARSER.canParse(this, this.getSyntaxAnalyzer())) {
             this.addError(
@@ -124,15 +123,6 @@ public class VariableDefinitionSyntaxAST extends AbstractStatementSyntaxAST
         if (optionalExpressionSyntaxAST.isEmpty())
             return Optional.empty();
         this.variableExpression = optionalExpressionSyntaxAST.get();
-        
-        if (this.getSyntaxAnalyzer().matchesNextToken(SymbolType.SEMICOLON) == null) {
-            this.addError(
-                    this.getSyntaxAnalyzer().getArkoiClass(),
-                    this.getSyntaxAnalyzer().currentToken(),
-                    SyntaxErrorType.VARIABLE_DEFINITION_WRONG_ENDING
-            );
-            return Optional.empty();
-        }
         
         this.setEnd(this.getSyntaxAnalyzer().currentToken().getEnd());
         return Optional.of(this);
@@ -156,8 +146,9 @@ public class VariableDefinitionSyntaxAST extends AbstractStatementSyntaxAST
         printStream.println(indents + "│");
         printStream.println(indents + "├── name: " + this.getVariableName().getTokenContent());
         printStream.println(indents + "│");
-        printStream.println(indents + "└── expression:");
-        this.getVariableExpression().printSyntaxAST(printStream, indents + "    ");
+        printStream.println(indents + "└── expression: " + (this.getVariableExpression() == null ? null : ""));
+        if (this.getVariableExpression() != null)
+            this.getVariableExpression().printSyntaxAST(printStream, indents + "    ");
     }
     
 }

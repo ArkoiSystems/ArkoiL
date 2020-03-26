@@ -30,25 +30,12 @@ public class LexicalAnalyzer extends AbstractStage
 {
     
     /**
-     * This {@link Runnable} defines an error routine, when a token couldn't be parsed.
-     */
-    @Getter
-    @NotNull
-    private final Runnable errorRoutine = () -> {
-        this.failed();
-        this.next();
-    };
-    
-    
-    /**
      * This defines the {@link ArkoiClass} in which the {@link LexicalAnalyzer} got
      * created.
      */
     @Getter
     @NonNull
     private final ArkoiClass arkoiClass;
-    
-    
     /**
      * The {@link LexicalErrorHandler} is used for errors which are happening when lexing
      * the input content.
@@ -56,8 +43,6 @@ public class LexicalAnalyzer extends AbstractStage
     @Getter
     @NotNull
     private final LexicalErrorHandler errorHandler = new LexicalErrorHandler();
-    
-    
     /**
      * This {@link AbstractToken}[] is used to access the parsed {@link AbstractToken}s
      * like in the {@link SyntaxAnalyzer} for methods like {@link
@@ -66,14 +51,21 @@ public class LexicalAnalyzer extends AbstractStage
     @Getter
     @NotNull
     private AbstractToken[] tokens = new AbstractToken[0];
-    
-    
     /**
      * The current position in the {@link ArkoiClass#getContent()} array. This position is
      * used to peek and get tokens (e.g. {@link #next()} or {@link #peekChar(int)}).
      */
     @Getter
     private int position;
+    /**
+     * This {@link Runnable} defines an error routine, when a token couldn't be parsed.
+     */
+    @Getter
+    @NotNull
+    private final Runnable errorRoutine = () -> {
+        this.failed();
+        this.next();
+    };
     
     
     /**
@@ -157,7 +149,7 @@ public class LexicalAnalyzer extends AbstractStage
                 }
             }
         }
-    
+        
         EndOfFileToken.builder(this).build().parseToken().ifPresent(tokens::add);
         this.tokens = tokens.toArray(new AbstractToken[] { });
         return !this.isFailed();

@@ -105,13 +105,13 @@ public class SymbolToken extends AbstractToken
         }
         
         
-        public SymbolTokenBuilder type(@NotNull final SymbolType symbolType) {
+        public SymbolTokenBuilder type(final SymbolType symbolType) {
             this.symbolType = symbolType;
             return this;
         }
         
         
-        public SymbolTokenBuilder content(@NotNull final String tokenContent) {
+        public SymbolTokenBuilder content(final String tokenContent) {
             this.tokenContent = tokenContent;
             return this;
         }

@@ -105,7 +105,7 @@ public class StringToken extends AbstractToken
         }
         
         
-        public StringTokenBuilder content(@NotNull final String tokenContent) {
+        public StringTokenBuilder content(final String tokenContent) {
             this.tokenContent = tokenContent;
             return this;
         }

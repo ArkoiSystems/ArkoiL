@@ -101,7 +101,7 @@ public class StringOperableSyntaxAST extends AbstractOperableSyntaxAST<TypeKind>
         }
         
         
-        public StringOperableSyntaxASTBuilder literal(@NotNull final StringToken stringToken) {
+        public StringOperableSyntaxASTBuilder literal(final StringToken stringToken) {
             this.stringToken = stringToken;
             return this;
         }

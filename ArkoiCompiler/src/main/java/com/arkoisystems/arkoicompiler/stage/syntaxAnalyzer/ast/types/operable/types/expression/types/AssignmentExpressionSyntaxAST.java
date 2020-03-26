@@ -27,19 +27,19 @@ public class AssignmentExpressionSyntaxAST extends AbstractExpressionSyntaxAST
     
     @Getter
     @Setter(AccessLevel.PROTECTED)
-    @NotNull
+    @Nullable
     private AbstractOperableSyntaxAST<?> leftSideOperable;
     
     
     @Getter
     @Setter(AccessLevel.PROTECTED)
-    @NotNull
+    @Nullable
     private AssignmentOperatorType assignmentOperatorType;
     
     
     @Getter
     @Setter(AccessLevel.PROTECTED)
-    @NotNull
+    @Nullable
     private AbstractOperableSyntaxAST<?> rightSideOperable;
     
     
@@ -157,12 +157,14 @@ public class AssignmentExpressionSyntaxAST extends AbstractExpressionSyntaxAST
     @Override
     public void printSyntaxAST(@NotNull final PrintStream printStream, @NotNull final String indents) {
         printStream.println(indents + "├── left:");
-        printStream.println(indents + "│   └── " + this.getLeftSideOperable().getClass().getSimpleName());
-        this.getLeftSideOperable().printSyntaxAST(printStream, indents + "│        ");
+        printStream.println(indents + "│   └── " + (this.getLeftSideOperable() != null ? this.getLeftSideOperable().getClass().getSimpleName() : null));
+        if (this.getLeftSideOperable() != null)
+            this.getLeftSideOperable().printSyntaxAST(printStream, indents + "│        ");
         printStream.println(indents + "├── operator: " + this.getAssignmentOperatorType());
         printStream.println(indents + "└── right:");
-        printStream.println(indents + "    └── " + this.getRightSideOperable().getClass().getSimpleName());
-        this.getRightSideOperable().printSyntaxAST(printStream, indents + "        ");
+        printStream.println(indents + "    └── " + (this.getRightSideOperable() != null ? this.getRightSideOperable().getClass().getSimpleName() : null));
+        if (this.getRightSideOperable() != null)
+            this.getRightSideOperable().printSyntaxAST(printStream, indents + "        ");
     }
     
     
@@ -178,26 +180,26 @@ public class AssignmentExpressionSyntaxAST extends AbstractExpressionSyntaxAST
     
     public static class AssignmentExpressionSyntaxASTBuilder
     {
-    
+        
         @Nullable
         private final SyntaxAnalyzer syntaxAnalyzer;
-    
-    
+        
+        
         @Nullable
         private AbstractOperableSyntaxAST<?> leftSideOperable;
-    
-    
+        
+        
         @Nullable
         private AssignmentOperatorType assignmentOperatorType;
-    
-    
+        
+        
         @Nullable
         private AbstractOperableSyntaxAST<?> rightSideOperable;
         
         
         private int start, end;
-    
-    
+        
+        
         public AssignmentExpressionSyntaxASTBuilder(@NotNull final SyntaxAnalyzer syntaxAnalyzer) {
             this.syntaxAnalyzer = syntaxAnalyzer;
         }
@@ -206,21 +208,21 @@ public class AssignmentExpressionSyntaxAST extends AbstractExpressionSyntaxAST
         public AssignmentExpressionSyntaxASTBuilder() {
             this.syntaxAnalyzer = null;
         }
-    
-    
-        public AssignmentExpressionSyntaxASTBuilder left(@Nullable final AbstractOperableSyntaxAST<?> leftSideOperable) {
+        
+        
+        public AssignmentExpressionSyntaxASTBuilder left(final AbstractOperableSyntaxAST<?> leftSideOperable) {
             this.leftSideOperable = leftSideOperable;
             return this;
         }
-    
-    
-        public AssignmentExpressionSyntaxASTBuilder operator(@Nullable final AssignmentOperatorType assignmentOperatorType) {
+        
+        
+        public AssignmentExpressionSyntaxASTBuilder operator(final AssignmentOperatorType assignmentOperatorType) {
             this.assignmentOperatorType = assignmentOperatorType;
             return this;
         }
-    
-    
-        public AssignmentExpressionSyntaxASTBuilder right(@Nullable final AbstractOperableSyntaxAST<?> rightSideOperable) {
+        
+        
+        public AssignmentExpressionSyntaxASTBuilder right(final AbstractOperableSyntaxAST<?> rightSideOperable) {
             this.rightSideOperable = rightSideOperable;
             return this;
         }
@@ -240,12 +242,12 @@ public class AssignmentExpressionSyntaxAST extends AbstractExpressionSyntaxAST
         
         public AssignmentExpressionSyntaxAST build() {
             final AssignmentExpressionSyntaxAST assignmentExpressionSyntaxAST = new AssignmentExpressionSyntaxAST(this.syntaxAnalyzer);
+            if (this.leftSideOperable != null)
+                assignmentExpressionSyntaxAST.setLeftSideOperable(this.leftSideOperable);
             if (this.assignmentOperatorType != null)
                 assignmentExpressionSyntaxAST.setAssignmentOperatorType(this.assignmentOperatorType);
             if (this.rightSideOperable != null)
                 assignmentExpressionSyntaxAST.setRightSideOperable(this.rightSideOperable);
-            if (this.leftSideOperable != null)
-                assignmentExpressionSyntaxAST.setLeftSideOperable(this.leftSideOperable);
             assignmentExpressionSyntaxAST.setStart(this.start);
             assignmentExpressionSyntaxAST.setEnd(this.end);
             return assignmentExpressionSyntaxAST;

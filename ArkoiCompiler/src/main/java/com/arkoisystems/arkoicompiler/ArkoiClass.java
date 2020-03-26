@@ -29,6 +29,7 @@ public class ArkoiClass
      * The {@link ArkoiCompiler} in which the {@link ArkoiClass} got created.
      */
     @Getter
+    @NotNull
     private final ArkoiCompiler arkoiCompiler;
     
     
@@ -38,6 +39,7 @@ public class ArkoiClass
      * {@link AbstractToken}s.
      */
     @Getter
+    @NotNull
     private final char[] content;
     
     
@@ -46,6 +48,7 @@ public class ArkoiClass
      * want to get default functions from the natives.
      */
     @Getter
+    @NotNull
     private final boolean nativeClass;
     
     
@@ -53,6 +56,7 @@ public class ArkoiClass
      * Defines the path to the file which contains the data {@link #content}.
      */
     @Getter
+    @NotNull
     private final String filePath;
     
     
@@ -60,21 +64,27 @@ public class ArkoiClass
      * The {@link LexicalAnalyzer} is used to generate the {@link AbstractToken} list for
      * later use in the {@link SyntaxAnalyzer}.
      */
-    private LexicalAnalyzer lexicalAnalyzer;
+    @Getter
+    @NotNull
+    private LexicalAnalyzer lexicalAnalyzer = new LexicalAnalyzer(this);
     
     
     /**
      * The {@link SyntaxAnalyzer} is used to generate the AST (Abstract Syntax Tree) for
      * later use in the {@link SemanticAnalyzer}.
      */
-    private SyntaxAnalyzer syntaxAnalyzer;
+    @Getter
+    @NotNull
+    private SyntaxAnalyzer syntaxAnalyzer = new SyntaxAnalyzer(this);
     
     
     /**
      * The {@link SemanticAnalyzer} is used to generate an enhanced AST (Abstract Syntax
      * Tree) for later use.
      */
-    private SemanticAnalyzer semanticAnalyzer;
+    @Getter
+    @NotNull
+    private SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer(this);
     
     
     /**
@@ -125,63 +135,6 @@ public class ArkoiClass
         
         this.content = new String(content, StandardCharsets.UTF_8).toCharArray();
         this.nativeClass = false;
-    }
-    
-    
-    /**
-     * Initializes the {@link LexicalAnalyzer} which will produce a {@link AbstractToken}
-     * list for later use in the {@link SyntaxAnalyzer}.
-     */
-    public void initializeLexical() {
-        this.lexicalAnalyzer = new LexicalAnalyzer(this);
-    }
-    
-    
-    /**
-     * Initializes the {@link SyntaxAnalyzer} which will parse a AST (Abstract Syntax
-     * Tree) for later use in the {@link SemanticAnalyzer}. Also it will check if the
-     * {@link LexicalAnalyzer} got initialized or he will throw an exception because the
-     * {@link SyntaxAnalyzer} needs the {@link com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken}
-     * list.
-     */
-    public void initializeSyntax() {
-        if (this.lexicalAnalyzer == null) {
-            throw new NullPointerException("You need to initialize the LexicalAnalyzer before initializing the SyntaxAnalyzer, because it needs the output of the LexicalAnalyzer.");
-        } else this.syntaxAnalyzer = new SyntaxAnalyzer(this);
-    }
-    
-    
-    /**
-     * Initializes the {@link SemanticAnalyzer} which will produce a next AST (Abstract
-     * Syntax Tree) with simplified construction. Also it will check if the {@link
-     * SyntaxAnalyzer} got initialized or he will throw an exception because the {@link
-     * SyntaxAnalyzer} needs the old AST.
-     */
-    public void initializeSemantic() {
-        if (this.syntaxAnalyzer == null) {
-            throw new NullPointerException("You need to initialize the SyntaxAnalyzer before initializing the SemanticAnalyzer, because it needs the output of the SyntaxAnalyzer.");
-        } else this.semanticAnalyzer = new SemanticAnalyzer(this);
-    }
-    
-    
-    public LexicalAnalyzer getLexicalAnalyzer() {
-        if (this.lexicalAnalyzer == null)
-            this.initializeLexical();
-        return this.lexicalAnalyzer;
-    }
-    
-    
-    public SyntaxAnalyzer getSyntaxAnalyzer() {
-        if (this.syntaxAnalyzer == null)
-            this.initializeSyntax();
-        return this.syntaxAnalyzer;
-    }
-    
-    
-    public SemanticAnalyzer getSemanticAnalyzer() {
-        if (this.semanticAnalyzer == null)
-            this.initializeSemantic();
-        return this.semanticAnalyzer;
     }
     
     

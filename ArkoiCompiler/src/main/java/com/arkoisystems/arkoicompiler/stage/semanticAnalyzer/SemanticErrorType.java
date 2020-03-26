@@ -80,14 +80,8 @@ public class SemanticErrorType
     
     public static final String EXPRESSION_AST_NOT_SUPPORTED = "This AST isn't supported by an expression:";
     
-    public static final String STRING_NO_OPERABLE = "The operable string isn't declared. Please contact the developer if this error occurred.";
-    
     public static final String IDENTIFIER_CALL_AST_NOT_SUPPORTED = "The found identifier isn't supported by the identifier call operation:";
     public static final String IDENTIFIER_CALL_NO_SUCH_IDENTIFIER = "No identifier with the same name could be found:";
-    
-    public static final String IDENTIFIER_INVOKE_NO_SUCH_IDENTIFIER = "No identifier with the same name could be found:";
-    public static final String IDENTIFIER_INVOKE_IMPORT_NOT_VALID = "The identifier invoke couldn't be checked because the import isn't valid.";
-    public static final String IDENTIFIER_INVOKE_STATEMENT_NOT_SUPPORTED = "The invoked statement isn't supported by the identifier invoke operation:";
     
     public static final String CAST_OPERABLE_NOT_SUPPORTED = "The operable isn't supported by the cast expression:";
     

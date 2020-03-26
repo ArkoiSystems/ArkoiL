@@ -24,7 +24,7 @@ public class ExpressionSyntaxAST extends AbstractExpressionSyntaxAST
     
     @Getter
     @Setter(AccessLevel.PROTECTED)
-    @NotNull
+    @Nullable
     private AbstractOperableSyntaxAST<?> expressionOperable;
     
     
@@ -39,13 +39,16 @@ public class ExpressionSyntaxAST extends AbstractExpressionSyntaxAST
         if (optionalAbstractOperableSyntaxAST.isEmpty())
             return Optional.empty();
         this.expressionOperable = optionalAbstractOperableSyntaxAST.get();
+        this.setStart(this.expressionOperable.getStart());
+        this.setEnd(this.expressionOperable.getEnd());
         return Optional.of(this);
     }
     
     
     @Override
     public void printSyntaxAST(@NotNull final PrintStream printStream, @NotNull final String indents) {
-        this.getExpressionOperable().printSyntaxAST(printStream, indents);
+        if (this.getExpressionOperable() != null)
+            this.getExpressionOperable().printSyntaxAST(printStream, indents);
     }
     
     
@@ -81,9 +84,9 @@ public class ExpressionSyntaxAST extends AbstractExpressionSyntaxAST
         public ExpressionSyntaxASTBuilder() {
             this.syntaxAnalyzer = null;
         }
-        
-        
-        public ExpressionSyntaxASTBuilder operable(@NotNull final AbstractOperableSyntaxAST<?> expressionOperable) {
+    
+    
+        public ExpressionSyntaxASTBuilder operable(final AbstractOperableSyntaxAST<?> expressionOperable) {
             this.expressionOperable = expressionOperable;
             return this;
         }

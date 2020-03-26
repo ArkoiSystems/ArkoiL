@@ -89,7 +89,7 @@ public class CommentToken extends AbstractToken
         }
         
         
-        public CommentTokenBuilder content(@NotNull final String tokenContent) {
+        public CommentTokenBuilder content(final String tokenContent) {
             this.tokenContent = tokenContent;
             return this;
         }
