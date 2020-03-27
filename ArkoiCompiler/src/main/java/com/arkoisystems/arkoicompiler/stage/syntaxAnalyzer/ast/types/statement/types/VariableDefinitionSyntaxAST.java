@@ -6,6 +6,8 @@
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.types;
 
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.IdentifierToken;
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.KeywordType;
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.OperatorType;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.SymbolType;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
@@ -81,7 +83,7 @@ public class VariableDefinitionSyntaxAST extends AbstractStatementSyntaxAST
             return Optional.empty();
         }
         
-        if (this.getSyntaxAnalyzer().matchesCurrentToken(TokenType.IDENTIFIER) == null || !this.getSyntaxAnalyzer().currentToken().getTokenContent().equals("var")) {
+        if (this.getSyntaxAnalyzer().matchesCurrentToken(KeywordType.VAR) == null) {
             this.addError(
                     this.getSyntaxAnalyzer().getArkoiClass(),
                     this.getSyntaxAnalyzer().currentToken(),
@@ -101,7 +103,7 @@ public class VariableDefinitionSyntaxAST extends AbstractStatementSyntaxAST
         }
         this.variableName = (IdentifierToken) this.getSyntaxAnalyzer().currentToken();
     
-        if (this.getSyntaxAnalyzer().matchesPeekToken(1, SymbolType.EQUAL) == null) {
+        if (this.getSyntaxAnalyzer().matchesPeekToken(1, OperatorType.EQUALS) == null) {
             this.addError(
                     this.getSyntaxAnalyzer().getArkoiClass(),
                     this.getSyntaxAnalyzer().currentToken(),

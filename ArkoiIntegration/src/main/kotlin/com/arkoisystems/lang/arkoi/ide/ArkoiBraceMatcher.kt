@@ -18,7 +18,7 @@
  */
 package com.arkoisystems.lang.arkoi.ide
 
-import com.arkoisystems.lang.arkoi.ArkoiTokenTypes
+import com.arkoisystems.lang.arkoi.lexer.ArkoiTokenTypes
 import com.intellij.lang.BracePair
 import com.intellij.lang.PairedBraceMatcher
 import com.intellij.psi.PsiFile
@@ -27,17 +27,16 @@ import com.intellij.psi.tree.IElementType
 class ArkoiBraceMatcher : PairedBraceMatcher {
 
     private val bracePairs = arrayOf(
-        BracePair(ArkoiTokenTypes.L_BRACE, ArkoiTokenTypes.R_BRACE, true),
-        BracePair(ArkoiTokenTypes.L_BRACKET, ArkoiTokenTypes.R_BRACKET, false),
-        BracePair(ArkoiTokenTypes.L_PARENTHESIS, ArkoiTokenTypes.R_PARENTHESIS, false),
-        BracePair(ArkoiTokenTypes.LESS_THAN, ArkoiTokenTypes.GREATER_THAN, false)
+        BracePair(ArkoiTokenTypes.openingBrace, ArkoiTokenTypes.closingBrace, true),
+        BracePair(ArkoiTokenTypes.openingBracket, ArkoiTokenTypes.closingBracket, false),
+        BracePair(ArkoiTokenTypes.openingParenthesis, ArkoiTokenTypes.closingParenthesis, false),
+        BracePair(ArkoiTokenTypes.openingArrow, ArkoiTokenTypes.closingArrow, false)
     )
 
     override fun getCodeConstructStart(file: PsiFile?, openingBraceOffset: Int) = openingBraceOffset
 
     override fun getPairs() = bracePairs
 
-    // TODO: Check if the pair is inside a string
     override fun isPairedBracesAllowedBeforeType(lbraceType: IElementType, contextType: IElementType?) = true
 
 }

@@ -7,7 +7,9 @@ package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types;
 
 import com.arkoisystems.arkoicompiler.ArkoiClass;
 import com.arkoisystems.arkoicompiler.ArkoiCompiler;
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.CommentToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.EndOfFileToken;
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.KeywordType;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.SymbolType;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.SemanticAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
@@ -125,11 +127,11 @@ public class RootSyntaxAST extends AbstractSyntaxAST
         while (this.getSyntaxAnalyzer().getPosition() < this.getSyntaxAnalyzer().getTokens().length) {
             if (this.getSyntaxAnalyzer().currentToken() instanceof EndOfFileToken)
                 break;
-            
+    
             for (final AbstractParser abstractParser : ROOT_PARSERS) {
                 if (!abstractParser.canParse(this, this.getSyntaxAnalyzer()))
                     continue;
-                
+        
                 final Optional<? extends AbstractSyntaxAST> optionalAbstractSyntaxAST = abstractParser.parse(this, this.getSyntaxAnalyzer());
                 if (optionalAbstractSyntaxAST.isPresent()) {
                     final AbstractSyntaxAST abstractSyntaxAST = optionalAbstractSyntaxAST.get();
@@ -171,6 +173,7 @@ public class RootSyntaxAST extends AbstractSyntaxAST
             );
             this.skipToNextValidToken();
         }
+        
         return this.isFailed() ? Optional.empty() : Optional.of(this);
     }
     

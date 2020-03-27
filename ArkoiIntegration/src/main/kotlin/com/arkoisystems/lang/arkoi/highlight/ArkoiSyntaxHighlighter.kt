@@ -6,8 +6,8 @@
 package com.arkoisystems.lang.arkoi.highlight
 
 import com.arkoisystems.lang.arkoi.ArkoiBundle
-import com.arkoisystems.lang.arkoi.ArkoiTokenTypes.*
-import com.arkoisystems.lang.arkoi.lexer.ArkoiLexerAdapter
+import com.arkoisystems.lang.arkoi.lexer.ArkoiTokenTypes
+import com.arkoisystems.lang.arkoi.lexer.ArkoiLexer
 import com.intellij.openapi.editor.DefaultLanguageHighlighterColors
 import com.intellij.openapi.editor.HighlighterColors
 import com.intellij.openapi.editor.colors.TextAttributesKey
@@ -23,7 +23,7 @@ class ArkoiSyntaxHighlighter : SyntaxHighlighter {
 
         val dot = fillAttributes(
             ArkoiBundle.message("arkoi.syntaxHighlighter.dot.externalName") highlightWith DefaultLanguageHighlighterColors.DOT,
-            DOT
+            ArkoiTokenTypes.period
         )
 
         val badCharacter = fillAttributes(
@@ -33,87 +33,85 @@ class ArkoiSyntaxHighlighter : SyntaxHighlighter {
 
         val identifier = fillAttributes(
             ArkoiBundle.message("arkoi.syntaxHighlighter.identifier.externalName") highlightWith DefaultLanguageHighlighterColors.IDENTIFIER,
-            IDENTIFIER
+            ArkoiTokenTypes.identifier
         )
 
         val lineComment = fillAttributes(
             ArkoiBundle.message("arkoi.syntaxHighlighter.lineComment.externalName") highlightWith DefaultLanguageHighlighterColors.LINE_COMMENT,
-            COMMENT
+            ArkoiTokenTypes.comment
         )
 
         val parentheses = fillAttributes(
             ArkoiBundle.message("arkoi.syntaxHighlighter.parentheses.externalName") highlightWith DefaultLanguageHighlighterColors.PARENTHESES,
-            L_PARENTHESIS,
-            R_PARENTHESIS
+            ArkoiTokenTypes.openingParenthesis,
+            ArkoiTokenTypes.closingParenthesis
         )
 
         val brackets = fillAttributes(
             ArkoiBundle.message("arkoi.syntaxHighlighter.brackets.externalName") highlightWith DefaultLanguageHighlighterColors.BRACKETS,
-            L_BRACKET,
-            R_BRACKET
+            ArkoiTokenTypes.openingBracket,
+            ArkoiTokenTypes.closingBracket
         )
 
         val braces = fillAttributes(
             ArkoiBundle.message("arkoi.syntaxHighlighter.braces.externalName") highlightWith DefaultLanguageHighlighterColors.BRACES,
-            L_BRACE,
-            R_BRACE
+            ArkoiTokenTypes.openingBrace,
+            ArkoiTokenTypes.closingBrace
         )
 
         val semicolon = fillAttributes(
             ArkoiBundle.message("arkoi.syntaxHighlighter.semicolon.externalName") highlightWith DefaultLanguageHighlighterColors.SEMICOLON,
-            SEMICOLON
+            ArkoiTokenTypes.semicolon
         )
 
         val string = fillAttributes(
             ArkoiBundle.message("arkoi.syntaxHighlighter.string.externalName") highlightWith DefaultLanguageHighlighterColors.STRING,
-            STRING_LITERAL
+            ArkoiTokenTypes.stringLiteral
         )
 
         val number = fillAttributes(
             ArkoiBundle.message("arkoi.syntaxHighlighter.number.externalName") highlightWith DefaultLanguageHighlighterColors.STRING,
-            NUMBER_LITERAL
+            ArkoiTokenTypes.numberLiteral
         )
 
         val keyword = fillAttributes(
             ArkoiBundle.message("arkoi.syntaxHighlighter.keyword.externalName") highlightWith DefaultLanguageHighlighterColors.KEYWORD,
-            FUN,
-            VAR,
-            RETURN,
-            THIS,
-            IMPORT,
-            AS
-//            CLASS,
-//            ANNOTATION,
-//            ENUM
+            ArkoiTokenTypes.`fun`,
+            ArkoiTokenTypes.`var`,
+            ArkoiTokenTypes.`return`,
+            ArkoiTokenTypes.`this`,
+            ArkoiTokenTypes.import,
+            ArkoiTokenTypes.`as`
         )
 
         val primitives = fillAttributes(
             ArkoiBundle.message("arkoi.syntaxHighlighter.primitive.externalName") highlightWith DefaultLanguageHighlighterColors.KEYWORD,
-            INT,
-            LONG,
-            SHORT,
-            BOOLEAN,
-            BYTE,
-            CHAR,
-            STRING
+            ArkoiTokenTypes.int,
+            ArkoiTokenTypes.long,
+            ArkoiTokenTypes.short,
+            ArkoiTokenTypes.boolean,
+            ArkoiTokenTypes.byte,
+            ArkoiTokenTypes.char,
+            ArkoiTokenTypes.string
         )
 
         val operatorSign = fillAttributes(
             ArkoiBundle.message("arkoi.syntaxHighlighter.operatorSign.externalName") highlightWith DefaultLanguageHighlighterColors.OPERATION_SIGN,
-            PLUS,
-            MINUS,
-            ASTERISK,
-            SLASH,
-            PERCENT,
-            ADD_ASSIGN,
-            SUB_ASSIGN,
-            EQUALS,
-            MUL_ASSIGN,
-            DIV_ASSIGN,
-            EXP_ASSIGN,
-            DOUBLE_ASTERISK,
-            DOUBLE_PLUS,
-            DOUBLE_MINUS
+            ArkoiTokenTypes.plus,
+            ArkoiTokenTypes.minus,
+            ArkoiTokenTypes.asterisk,
+            ArkoiTokenTypes.div,
+            ArkoiTokenTypes.percent,
+            ArkoiTokenTypes.plusEquals,
+            ArkoiTokenTypes.minusEquals,
+            ArkoiTokenTypes.equals,
+            ArkoiTokenTypes.asteriskEquals,
+            ArkoiTokenTypes.divEquals,
+            ArkoiTokenTypes.asteriskAsteriskEquals,
+            ArkoiTokenTypes.asteriskAsterisk,
+            ArkoiTokenTypes.plusPlus,
+            ArkoiTokenTypes.minusMinus,
+            ArkoiTokenTypes.percentEquals
         )
 
         val functionCall =
@@ -148,7 +146,7 @@ class ArkoiSyntaxHighlighter : SyntaxHighlighter {
         return pack(attributes[tokenType])
     }
 
-    override fun getHighlightingLexer() = ArkoiLexerAdapter()
+    override fun getHighlightingLexer() = ArkoiLexer()
 
 }
 

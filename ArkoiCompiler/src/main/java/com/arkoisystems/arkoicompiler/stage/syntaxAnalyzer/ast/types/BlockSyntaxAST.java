@@ -7,6 +7,7 @@ package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types;
 
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.EndOfFileToken;
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.OperatorType;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.SymbolType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxErrorType;
@@ -171,7 +172,7 @@ public class BlockSyntaxAST extends AbstractSyntaxAST
                 );
                 this.skipToNextValidToken();
             }
-        } else if (this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.EQUAL) != null) {
+        } else if (this.getSyntaxAnalyzer().matchesCurrentToken(OperatorType.EQUALS) != null) {
             this.blockType = BlockType.INLINE;
             this.getSyntaxAnalyzer().nextToken(); // Because it would try to parse the equal sign as expression.
             

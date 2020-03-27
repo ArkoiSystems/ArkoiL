@@ -90,18 +90,6 @@ public class ArkoiError
     }
     
     
-    public ArkoiError(@NotNull final ArkoiClass arkoiClass, @NotNull final AbstractToken[] abstractTokens, @NotNull final String message, @NotNull final Object... arguments) {
-        this.arkoiClass = arkoiClass;
-        this.arguments = arguments;
-        this.message = message;
-        
-        this.positions = new int[abstractTokens.length][];
-        for (int index = 0; index < abstractTokens.length; index++)
-            this.positions[index] = new int[] { abstractTokens[index].getStart(), abstractTokens[index].getEnd() };
-        this.errorString = this.createError();
-    }
-    
-    
     public ArkoiError(@NotNull final ArkoiClass arkoiClass, final AbstractToken abstractToken, @NotNull final String message, @NotNull final Object... arguments) {
         this.arkoiClass = arkoiClass;
         this.arguments = arguments;

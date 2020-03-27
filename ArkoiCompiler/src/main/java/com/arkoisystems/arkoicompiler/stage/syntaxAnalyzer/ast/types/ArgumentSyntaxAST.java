@@ -6,6 +6,7 @@
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types;
 
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.IdentifierToken;
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.OperatorType;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.SymbolType;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
@@ -69,7 +70,7 @@ public class ArgumentSyntaxAST extends AbstractSyntaxAST
         this.argumentName = (IdentifierToken) this.getSyntaxAnalyzer().currentToken();
         this.setStart(this.getSyntaxAnalyzer().currentToken().getStart());
         
-        if (this.getSyntaxAnalyzer().matchesNextToken(SymbolType.EQUAL) == null) {
+        if (this.getSyntaxAnalyzer().matchesNextToken(OperatorType.EQUALS) == null) {
             this.addError(
                     this.getSyntaxAnalyzer().getArkoiClass(),
                     this.getSyntaxAnalyzer().currentToken(),

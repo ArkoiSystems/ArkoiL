@@ -50,9 +50,6 @@ public class StatementParser extends AbstractParser
     @Override
     public boolean canParse(@NotNull final AbstractSyntaxAST parentAST, @NotNull final SyntaxAnalyzer syntaxAnalyzer) {
         final AbstractToken currentToken = syntaxAnalyzer.currentToken();
-        if (syntaxAnalyzer.matchesCurrentToken(TokenType.IDENTIFIER) == null)
-            return false;
-        
         if (parentAST instanceof AbstractExpressionSyntaxAST) {
             switch (currentToken.getTokenContent()) {
                 case "var":
@@ -60,7 +57,6 @@ public class StatementParser extends AbstractParser
                 case "import":
                 case "return":
                     return false;
-                case "this":
                 default:
                     return true;
             }

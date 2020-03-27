@@ -125,7 +125,7 @@ public class ParameterSyntaxAST extends AbstractSyntaxAST
     @Override
     public void printSyntaxAST(@NotNull final PrintStream printStream, @NotNull final String indents) {
         printStream.println(indents + "├── name: " + this.getParameterName().getTokenContent());
-        printStream.println(indents + "└── type: " + (this.getParameterType() != null ? this.getParameterType().getTypeKind().getName() + (this.getParameterType().isArray() ? "[]" : "") : null));
+        printStream.println(indents + "└── type: " + (this.getParameterType() != null ? this.getParameterType().getTypeKeywordToken().getKeywordType() + (this.getParameterType().isArray() ? "[]" : "") : null));
     }
     
     

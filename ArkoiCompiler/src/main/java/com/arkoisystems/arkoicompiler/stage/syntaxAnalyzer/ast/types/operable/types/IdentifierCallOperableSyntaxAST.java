@@ -7,6 +7,7 @@ package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.t
 
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.IdentifierToken;
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.KeywordType;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.SymbolType;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
@@ -76,16 +77,8 @@ public class IdentifierCallOperableSyntaxAST extends AbstractOperableSyntaxAST<T
     public Optional<IdentifierCallOperableSyntaxAST> parseAST(@NotNull final AbstractSyntaxAST parentAST) {
         Objects.requireNonNull(this.getSyntaxAnalyzer());
         
-        if (this.getSyntaxAnalyzer().matchesCurrentToken(TokenType.IDENTIFIER) == null) {
-            this.addError(
-                    this.getSyntaxAnalyzer().getArkoiClass(),
-                    this.getSyntaxAnalyzer().currentToken(),
-                    SyntaxErrorType.IDENTIFIER_CALL_NO_IDENTIFIER
-            );
-            return Optional.empty();
-        } else this.setStart(this.getSyntaxAnalyzer().currentToken().getStart());
-        
-        if (this.getSyntaxAnalyzer().currentToken().getTokenContent().equals("this")) {
+        this.setStart(this.getSyntaxAnalyzer().currentToken().getStart());
+        if (this.getSyntaxAnalyzer().matchesCurrentToken(KeywordType.THIS) != null) {
             this.isFileLocal = true;
             
             if (this.getSyntaxAnalyzer().matchesPeekToken(1, SymbolType.PERIOD) == null) {
@@ -105,6 +98,13 @@ public class IdentifierCallOperableSyntaxAST extends AbstractOperableSyntaxAST<T
                 );
                 return Optional.empty();
             } else this.getSyntaxAnalyzer().nextToken();
+        } else if (this.getSyntaxAnalyzer().matchesCurrentToken(TokenType.IDENTIFIER) == null) {
+            this.addError(
+                    this.getSyntaxAnalyzer().getArkoiClass(),
+                    this.getSyntaxAnalyzer().currentToken(),
+                    SyntaxErrorType.IDENTIFIER_CALL_NO_IDENTIFIER
+            );
+            return Optional.empty();
         }
         
         this.calledIdentifier = (IdentifierToken) this.getSyntaxAnalyzer().currentToken();

@@ -25,16 +25,21 @@ public class StringToken extends AbstractToken
     
     @NotNull
     @Override
-    public Optional<StringToken> parseToken() {
+    public Optional<? extends AbstractToken> parseToken() {
         Objects.requireNonNull(this.getLexicalAnalyzer());
-        
+    
         if (this.getLexicalAnalyzer().currentChar() != '"') {
             this.addError(
                     this.getLexicalAnalyzer().getArkoiClass(),
                     this.getLexicalAnalyzer().getPosition(),
                     "Couldn't lex the string because it doesn't start with an \"."
             );
-            return Optional.empty();
+            return BadToken
+                    .builder()
+                    .start(this.getLexicalAnalyzer().getPosition())
+                    .end(this.getLexicalAnalyzer().getPosition() + 1)
+                    .build()
+                    .parseToken();
         }
         
         this.getLexicalAnalyzer().next();
@@ -59,7 +64,12 @@ public class StringToken extends AbstractToken
                     this.getLexicalAnalyzer().getPosition(),
                     "The defined string doesn't end with another double quote:"
             );
-            return Optional.empty();
+            return  BadToken
+                    .builder()
+                    .start(this.getStart())
+                    .end(this.getLexicalAnalyzer().getPosition() + 1)
+                    .build()
+                    .parseToken();
         }
         
         this.setTokenContent(new String(Arrays.copyOfRange(this.getLexicalAnalyzer().getArkoiClass().getContent(), this.getStart() + 1, this.getEnd() - 1)).intern());

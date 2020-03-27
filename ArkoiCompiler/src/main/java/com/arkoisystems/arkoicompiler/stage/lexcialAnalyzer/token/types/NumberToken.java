@@ -25,16 +25,21 @@ public class NumberToken extends AbstractToken
     
     @NotNull
     @Override
-    public Optional<NumberToken> parseToken() {
+    public Optional<? extends AbstractToken> parseToken() {
         Objects.requireNonNull(this.getLexicalAnalyzer());
-        
+    
         if (!Character.isDigit(this.getLexicalAnalyzer().currentChar()) && this.getLexicalAnalyzer().currentChar() != '.') {
             this.addError(
                     this.getLexicalAnalyzer().getArkoiClass(),
                     this.getLexicalAnalyzer().getPosition(),
                     "Couldn't lex the number because it doesn't start with a digit or dot."
             );
-            return Optional.empty();
+            return BadToken
+                    .builder()
+                    .start(this.getLexicalAnalyzer().getPosition())
+                    .end(this.getLexicalAnalyzer().getPosition() + 1)
+                    .build()
+                    .parseToken();
         } else this.setStart(this.getLexicalAnalyzer().getPosition());
         
         if (this.getLexicalAnalyzer().currentChar() == '0' && this.getLexicalAnalyzer().peekChar(1) == 'x') {
@@ -93,7 +98,12 @@ public class NumberToken extends AbstractToken
         this.setTokenContent(new String(Arrays.copyOfRange(this.getLexicalAnalyzer().getArkoiClass().getContent(), this.getStart(), this.getEnd())).intern());
         if (this.getTokenContent().equals(".")) {
             this.getLexicalAnalyzer().undo();
-            return Optional.empty();
+            return BadToken
+                    .builder()
+                    .start(this.getStart())
+                    .end(this.getEnd())
+                    .build()
+                    .parseToken();
         }
         return Optional.of(this);
     }

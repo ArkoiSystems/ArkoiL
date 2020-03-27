@@ -34,7 +34,8 @@ public class TypeSemanticAST extends AbstractSemanticAST<TypeSyntaxAST>
     
     @NotNull
     public TypeKind getTypeKind() {
-        return this.getSyntaxAST().getTypeKind();
+        return TypeKind.VOID;
+//        return this.getSyntaxAST().getTypeKeywordToken();
     }
     
 }

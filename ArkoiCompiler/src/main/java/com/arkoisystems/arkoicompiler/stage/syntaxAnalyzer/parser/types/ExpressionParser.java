@@ -6,7 +6,11 @@
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.parser.types;
 
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken;
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.KeywordToken;
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.OperatorToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.SymbolToken;
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.KeywordType;
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.SymbolType;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
@@ -74,17 +78,21 @@ public class ExpressionParser extends AbstractParser
             case STRING_LITERAL:
             case NUMBER_LITERAL:
                 return true;
-            case SYMBOL:
-                final SymbolToken symbolToken = (SymbolToken) syntaxAnalyzer.currentToken();
-                switch (symbolToken.getSymbolType()) {
-                    case OPENING_PARENTHESIS:
+            case KEYWORD:
+                final KeywordToken keywordToken = (KeywordToken) syntaxAnalyzer.currentToken();
+                return keywordToken.getKeywordType() == KeywordType.THIS;
+            case OPERATOR:
+                final OperatorToken operatorToken = (OperatorToken) syntaxAnalyzer.currentToken();
+                switch (operatorToken.getOperatorType()) {
                     case PLUS:
                     case MINUS:
-                    case EXCLAMATION_MARK:
                         return true;
                     default:
                         return false;
                 }
+            case SYMBOL:
+                final SymbolToken symbolToken = (SymbolToken) syntaxAnalyzer.currentToken();
+                return symbolToken.getSymbolType() == SymbolType.OPENING_PARENTHESIS;
             case IDENTIFIER:
                 return AbstractStatementSyntaxAST.STATEMENT_PARSER.canParse(parentAST, syntaxAnalyzer);
             default:

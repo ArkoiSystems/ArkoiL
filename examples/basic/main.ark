@@ -13,7 +13,6 @@ fun main<int>(args: string[]) {
     var test_1 = "Hello\n World\""
     var test_3 = this.test.test()
     var test_6 = 1
-
     this.print_greet(test_1)
     return (20++ + -10 * 5f) * 2 ** 3 ** 4 + (test_6 += 1 * 2)
 }

@@ -50,50 +50,7 @@ public class PostfixExpressionSyntaxAST extends AbstractExpressionSyntaxAST
     @Override
     public Optional<? extends AbstractOperableSyntaxAST<?>> parseAST(@NotNull final AbstractSyntaxAST parentAST) {
         Objects.requireNonNull(this.getSyntaxAnalyzer());
-        
-        if (this.getPostfixOperatorType() == PostfixOperatorType.POSTFIX_ADD) {
-            if (this.getSyntaxAnalyzer().matchesPeekToken(1, SymbolType.PLUS) == null) {
-                this.addError(
-                        this.getSyntaxAnalyzer().getArkoiClass(),
-                        this.getSyntaxAnalyzer().currentToken(),
-                        "Couldn't parse the postfix add expression because it doesn't start with a plus."
-                );
-                return Optional.empty();
-            }
-            this.getSyntaxAnalyzer().nextToken();
-            
-            if (this.getSyntaxAnalyzer().matchesPeekToken(1, SymbolType.PLUS, false) == null) {
-                this.addError(
-                        this.getSyntaxAnalyzer().getArkoiClass(),
-                        this.getSyntaxAnalyzer().currentToken(),
-                        "Couldn't parse the postfix add expression because the first operator isn't followed by a plus."
-                );
-                return Optional.empty();
-            }
-            this.getSyntaxAnalyzer().nextToken();
-            this.setEnd(this.getSyntaxAnalyzer().currentToken().getEnd());
-        } else if (this.getPostfixOperatorType() == PostfixOperatorType.POSTFIX_SUB) {
-            if (this.getSyntaxAnalyzer().matchesPeekToken(1, SymbolType.MINUS) == null) {
-                this.addError(
-                        this.getSyntaxAnalyzer().getArkoiClass(),
-                        this.getSyntaxAnalyzer().currentToken(),
-                        "Couldn't parse the postfix sub expression because it doesn't start with a plus."
-                );
-                return Optional.empty();
-            }
-            this.getSyntaxAnalyzer().nextToken();
-            
-            if (this.getSyntaxAnalyzer().matchesPeekToken(1, SymbolType.MINUS, false) == null) {
-                this.addError(
-                        this.getSyntaxAnalyzer().getArkoiClass(),
-                        this.getSyntaxAnalyzer().currentToken(),
-                        "Couldn't parse the postfix sub expression because the first operator isn't followed by a minus."
-                );
-                return Optional.empty();
-            }
-            this.getSyntaxAnalyzer().nextToken();
-            this.setEnd(this.getSyntaxAnalyzer().currentToken().getEnd());
-        }
+        this.getSyntaxAnalyzer().nextToken(2);
         return Optional.of(this);
     }
     

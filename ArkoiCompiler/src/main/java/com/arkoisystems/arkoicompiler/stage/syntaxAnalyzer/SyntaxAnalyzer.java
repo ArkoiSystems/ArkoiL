@@ -9,16 +9,19 @@ import com.arkoisystems.arkoicompiler.ArkoiClass;
 import com.arkoisystems.arkoicompiler.stage.AbstractStage;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.LexicalAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken;
-import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.SymbolToken;
-import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.SymbolType;
-import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.*;
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.*;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.RootSyntaxAST;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.function.Function;
+import java.util.function.Predicate;
 
 /**
  * This class is an implementation of the {@link AbstractStage}. It will parse an AST
@@ -95,7 +98,10 @@ public class SyntaxAnalyzer extends AbstractStage
      */
     @Override
     public boolean processStage() {
-        this.tokens = this.arkoiClass.getLexicalAnalyzer().getTokens();
+        this.tokens = Arrays.stream(this.arkoiClass.getLexicalAnalyzer()
+                .getTokens())
+                .filter(abstractToken -> !(abstractToken instanceof CommentToken))
+                .toArray(AbstractToken[]::new);
         this.position = 0;
         
         return this.rootSyntaxAST.parseAST(null).isPresent();
@@ -176,6 +182,186 @@ public class SyntaxAnalyzer extends AbstractStage
     
     
     @Nullable
+    public TypeKeywordToken matchesCurrentToken(@NotNull final TypeKeywordType symbolType) {
+        return this.matchesCurrentToken(symbolType, true);
+    }
+    
+    
+    @Nullable
+    public TypeKeywordToken matchesCurrentToken(@NotNull final TypeKeywordType typeKeywordType, final boolean skipWhitespaces) {
+        final AbstractToken currentToken = this.currentToken(skipWhitespaces);
+        if (!(currentToken instanceof TypeKeywordToken))
+            return null;
+        
+        final TypeKeywordToken typeKeywordToken = (TypeKeywordToken) currentToken;
+        if (typeKeywordToken.getKeywordType() != typeKeywordType)
+            return null;
+        return typeKeywordToken;
+    }
+    
+    
+    @Nullable
+    public TypeKeywordToken matchesNextToken(@NotNull final TypeKeywordType typeKeywordType) {
+        return this.matchesNextToken(typeKeywordType, true);
+    }
+    
+    
+    @Nullable
+    public TypeKeywordToken matchesNextToken(@NotNull final TypeKeywordType typeKeywordType, final boolean skipWhitespaces) {
+        final AbstractToken nextToken = this.nextToken(skipWhitespaces);
+        if (!(nextToken instanceof TypeKeywordToken))
+            return null;
+        
+        final TypeKeywordToken typeKeywordToken = (TypeKeywordToken) nextToken;
+        if (typeKeywordToken.getKeywordType() != typeKeywordType)
+            return null;
+        return typeKeywordToken;
+    }
+    
+    
+    @Nullable
+    public TypeKeywordToken matchesPeekToken(final int offset, @NotNull final TypeKeywordType typeKeywordType) {
+        return this.matchesPeekToken(offset, typeKeywordType, true);
+    }
+    
+    
+    @Nullable
+    public TypeKeywordToken matchesPeekToken(final int offset, @NotNull final TypeKeywordType typeKeywordType, final boolean skipWhitespaces) {
+        if (offset == 0)
+            return this.matchesCurrentToken(typeKeywordType, skipWhitespaces);
+        
+        final AbstractToken peekToken = this.peekToken(offset, skipWhitespaces);
+        if (!(peekToken instanceof TypeKeywordToken))
+            return null;
+        
+        final TypeKeywordToken typeKeywordToken = (TypeKeywordToken) peekToken;
+        if (typeKeywordToken.getKeywordType() != typeKeywordType)
+            return null;
+        return typeKeywordToken;
+    }
+    
+    
+    @Nullable
+    public OperatorToken matchesCurrentToken(@NotNull final OperatorType operatorType) {
+        return this.matchesCurrentToken(operatorType, true);
+    }
+    
+    
+    @Nullable
+    public OperatorToken matchesCurrentToken(@NotNull final OperatorType operatorType, final boolean skipWhitespaces) {
+        final AbstractToken currentToken = this.currentToken(skipWhitespaces);
+        if (!(currentToken instanceof OperatorToken))
+            return null;
+        
+        final OperatorToken operatorToken = (OperatorToken) currentToken;
+        if (operatorToken.getOperatorType() != operatorType)
+            return null;
+        return operatorToken;
+    }
+    
+    
+    @Nullable
+    public OperatorToken matchesNextToken(@NotNull final OperatorType operatorType) {
+        return this.matchesNextToken(operatorType, true);
+    }
+    
+    
+    @Nullable
+    public OperatorToken matchesNextToken(@NotNull final OperatorType operatorType, final boolean skipWhitespaces) {
+        final AbstractToken nextToken = this.nextToken(skipWhitespaces);
+        if (!(nextToken instanceof OperatorToken))
+            return null;
+        
+        final OperatorToken operatorToken = (OperatorToken) nextToken;
+        if (operatorToken.getOperatorType() != operatorType)
+            return null;
+        return operatorToken;
+    }
+    
+    
+    @Nullable
+    public OperatorToken matchesPeekToken(final int offset, @NotNull final OperatorType operatorType) {
+        return this.matchesPeekToken(offset, operatorType, true);
+    }
+    
+    
+    @Nullable
+    public OperatorToken matchesPeekToken(final int offset, @NotNull final OperatorType operatorType, final boolean skipWhitespaces) {
+        if (offset == 0)
+            return this.matchesCurrentToken(operatorType, skipWhitespaces);
+        
+        final AbstractToken peekToken = this.peekToken(offset, skipWhitespaces);
+        if (!(peekToken instanceof OperatorToken))
+            return null;
+        
+        final OperatorToken operatorToken = (OperatorToken) peekToken;
+        if (operatorToken.getOperatorType() != operatorType)
+            return null;
+        return operatorToken;
+    }
+    
+    
+    @Nullable
+    public KeywordToken matchesCurrentToken(@NotNull final KeywordType keywordType) {
+        return this.matchesCurrentToken(keywordType, true);
+    }
+    
+    
+    @Nullable
+    public KeywordToken matchesCurrentToken(@NotNull final KeywordType keywordType, final boolean skipWhitespaces) {
+        final AbstractToken currentToken = this.currentToken(skipWhitespaces);
+        if (!(currentToken instanceof KeywordToken))
+            return null;
+        
+        final KeywordToken keywordToken = (KeywordToken) currentToken;
+        if (keywordToken.getKeywordType() != keywordType)
+            return null;
+        return keywordToken;
+    }
+    
+    
+    @Nullable
+    public KeywordToken matchesNextToken(@NotNull final KeywordType keywordType) {
+        return this.matchesNextToken(keywordType, true);
+    }
+    
+    
+    @Nullable
+    public KeywordToken matchesNextToken(@NotNull final KeywordType keywordType, final boolean skipWhitespaces) {
+        final AbstractToken nextToken = this.nextToken(skipWhitespaces);
+        if (!(nextToken instanceof KeywordToken))
+            return null;
+        
+        final KeywordToken keywordToken = (KeywordToken) nextToken;
+        if (keywordToken.getKeywordType() != keywordType)
+            return null;
+        return keywordToken;
+    }
+    
+    
+    @Nullable
+    public KeywordToken matchesPeekToken(final int offset, @NotNull final KeywordType keywordType) {
+        return this.matchesPeekToken(offset, keywordType, true);
+    }
+    
+    
+    @Nullable
+    public KeywordToken matchesPeekToken(final int offset, @NotNull final KeywordType keywordType, final boolean skipWhitespaces) {
+        if (offset == 0)
+            return this.matchesCurrentToken(keywordType, skipWhitespaces);
+        
+        final AbstractToken peekToken = this.peekToken(offset, skipWhitespaces);
+        if (!(peekToken instanceof KeywordToken))
+            return null;
+        
+        final KeywordToken keywordToken = (KeywordToken) peekToken;
+        if (keywordToken.getKeywordType() != keywordType)
+            return null;
+        return keywordToken;
+    }
+    
+    
+    @Nullable
     public AbstractToken matchesCurrentToken(@NotNull final TokenType tokenType) {
         return this.matchesCurrentToken(tokenType, true);
     }
@@ -217,7 +403,7 @@ public class SyntaxAnalyzer extends AbstractStage
             return this.matchesCurrentToken(tokenType, skipWhitespaces);
         
         final AbstractToken peekToken = this.peekToken(offset, skipWhitespaces);
-        if (peekToken == null || peekToken.getTokenType() != tokenType)
+        if (peekToken.getTokenType() != tokenType)
             return null;
         return peekToken;
     }

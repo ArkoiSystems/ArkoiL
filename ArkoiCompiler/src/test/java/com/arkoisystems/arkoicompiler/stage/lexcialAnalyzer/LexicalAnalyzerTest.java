@@ -48,7 +48,7 @@ class LexicalAnalyzerTest
         assertTrue(lexicalAnalyzer.processStage(), "\n" + this.getStackTrace(arkoiCompiler));
         
         assertArrayEquals(new TokenType[] {
-                TokenType.IDENTIFIER, TokenType.IDENTIFIER, TokenType.SYMBOL, TokenType.NUMBER_LITERAL, TokenType.SYMBOL, TokenType.END_OF_FILE
+                TokenType.KEYWORD, TokenType.IDENTIFIER, TokenType.OPERATOR, TokenType.NUMBER_LITERAL, TokenType.SYMBOL, TokenType.END_OF_FILE
         }, lexicalAnalyzer.getTokenTypes(false));
     }
     
@@ -65,7 +65,7 @@ class LexicalAnalyzerTest
         assertTrue(lexicalAnalyzer.processStage(), "\n" + this.getStackTrace(arkoiCompiler));
         
         assertArrayEquals(new TokenType[] {
-                TokenType.IDENTIFIER, TokenType.IDENTIFIER, TokenType.SYMBOL, TokenType.NUMBER_LITERAL, TokenType.SYMBOL, TokenType.END_OF_FILE
+                TokenType.KEYWORD, TokenType.IDENTIFIER, TokenType.OPERATOR, TokenType.NUMBER_LITERAL, TokenType.SYMBOL, TokenType.END_OF_FILE
         }, lexicalAnalyzer.getTokenTypes(false));
     }
     
@@ -82,7 +82,7 @@ class LexicalAnalyzerTest
         assertTrue(lexicalAnalyzer.processStage(), "\n" + this.getStackTrace(arkoiCompiler));
         
         assertArrayEquals(new TokenType[] {
-                TokenType.IDENTIFIER, TokenType.IDENTIFIER, TokenType.SYMBOL, TokenType.STRING_LITERAL, TokenType.SYMBOL, TokenType.END_OF_FILE
+                TokenType.KEYWORD, TokenType.IDENTIFIER, TokenType.OPERATOR, TokenType.STRING_LITERAL, TokenType.SYMBOL, TokenType.END_OF_FILE
         }, lexicalAnalyzer.getTokenTypes(false));
     }
     
@@ -99,7 +99,7 @@ class LexicalAnalyzerTest
         assertTrue(lexicalAnalyzer.processStage(), "\n" + this.getStackTrace(arkoiCompiler));
         
         assertArrayEquals(new TokenType[] {
-                TokenType.IDENTIFIER, TokenType.STRING_LITERAL, TokenType.IDENTIFIER, TokenType.IDENTIFIER, TokenType.SYMBOL, TokenType.END_OF_FILE
+                TokenType.KEYWORD, TokenType.STRING_LITERAL, TokenType.KEYWORD, TokenType.IDENTIFIER, TokenType.SYMBOL, TokenType.END_OF_FILE
         }, lexicalAnalyzer.getTokenTypes(false));
     }
     
@@ -116,11 +116,10 @@ class LexicalAnalyzerTest
         assertTrue(lexicalAnalyzer.processStage(), this.getStackTrace(arkoiCompiler));
         
         assertArrayEquals(new TokenType[] {
-                TokenType.IDENTIFIER, TokenType.IDENTIFIER, TokenType.SYMBOL, TokenType.SYMBOL, TokenType.NUMBER_LITERAL, TokenType.SYMBOL, TokenType.SYMBOL,
-                TokenType.SYMBOL, TokenType.SYMBOL, TokenType.NUMBER_LITERAL, TokenType.SYMBOL, TokenType.NUMBER_LITERAL, TokenType.IDENTIFIER, TokenType.SYMBOL,
-                TokenType.SYMBOL, TokenType.NUMBER_LITERAL, TokenType.SYMBOL, TokenType.SYMBOL, TokenType.NUMBER_LITERAL, TokenType.SYMBOL, TokenType.SYMBOL,
-                TokenType.NUMBER_LITERAL, TokenType.SYMBOL, TokenType.SYMBOL, TokenType.IDENTIFIER, TokenType.SYMBOL, TokenType.SYMBOL, TokenType.NUMBER_LITERAL,
-                TokenType.SYMBOL, TokenType.SYMBOL, TokenType.END_OF_FILE
+                TokenType.KEYWORD, TokenType.IDENTIFIER, TokenType.OPERATOR, TokenType.SYMBOL, TokenType.NUMBER_LITERAL, TokenType.OPERATOR, TokenType.OPERATOR,
+                TokenType.OPERATOR, TokenType.NUMBER_LITERAL, TokenType.OPERATOR, TokenType.NUMBER_LITERAL, TokenType.IDENTIFIER, TokenType.SYMBOL, TokenType.OPERATOR,
+                TokenType.NUMBER_LITERAL, TokenType.OPERATOR, TokenType.NUMBER_LITERAL, TokenType.OPERATOR, TokenType.NUMBER_LITERAL, TokenType.OPERATOR, TokenType.SYMBOL,
+                TokenType.IDENTIFIER, TokenType.OPERATOR, TokenType.NUMBER_LITERAL, TokenType.SYMBOL, TokenType.SYMBOL, TokenType.END_OF_FILE
         }, lexicalAnalyzer.getTokenTypes(false));
     }
     
@@ -137,7 +136,7 @@ class LexicalAnalyzerTest
         assertTrue(lexicalAnalyzer.processStage(), this.getStackTrace(arkoiCompiler));
         
         assertArrayEquals(new TokenType[] {
-                TokenType.IDENTIFIER, TokenType.IDENTIFIER, TokenType.SYMBOL, TokenType.IDENTIFIER, TokenType.SYMBOL, TokenType.SYMBOL, TokenType.IDENTIFIER, TokenType.SYMBOL,
+                TokenType.KEYWORD, TokenType.IDENTIFIER, TokenType.SYMBOL, TokenType.IDENTIFIER, TokenType.SYMBOL, TokenType.SYMBOL, TokenType.IDENTIFIER, TokenType.SYMBOL,
                 TokenType.IDENTIFIER, TokenType.SYMBOL, TokenType.SYMBOL, TokenType.SYMBOL, TokenType.SYMBOL, TokenType.SYMBOL, TokenType.END_OF_FILE
         }, lexicalAnalyzer.getTokenTypes(false));
     }
