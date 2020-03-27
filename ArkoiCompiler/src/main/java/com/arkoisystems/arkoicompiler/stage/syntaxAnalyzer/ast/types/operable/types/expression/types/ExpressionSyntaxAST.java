@@ -17,6 +17,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.PrintStream;
+import java.util.Objects;
 import java.util.Optional;
 
 public class ExpressionSyntaxAST extends AbstractExpressionSyntaxAST
@@ -35,6 +36,8 @@ public class ExpressionSyntaxAST extends AbstractExpressionSyntaxAST
     
     @Override
     public Optional<ExpressionSyntaxAST> parseAST(@NotNull final AbstractSyntaxAST parentAST) {
+        Objects.requireNonNull(this.getSyntaxAnalyzer());
+    
         final Optional<? extends AbstractOperableSyntaxAST<?>> optionalAbstractOperableSyntaxAST = this.parseAssignment(this);
         if (optionalAbstractOperableSyntaxAST.isEmpty())
             return Optional.empty();

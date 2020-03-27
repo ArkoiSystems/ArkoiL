@@ -48,9 +48,9 @@ public class ParenthesizedExpressionSyntaxAST extends AbstractExpressionSyntaxAS
             );
             return Optional.empty();
         } else this.setStart(this.getSyntaxAnalyzer().currentToken().getStart());
-        
+    
         this.getSyntaxAnalyzer().nextToken();
-        
+    
         final Optional<ExpressionSyntaxAST> optionalExpressionSyntaxAST = new ExpressionSyntaxAST(this.getSyntaxAnalyzer()).parseAST(parentAST);
         if (optionalExpressionSyntaxAST.isEmpty())
             return Optional.empty();

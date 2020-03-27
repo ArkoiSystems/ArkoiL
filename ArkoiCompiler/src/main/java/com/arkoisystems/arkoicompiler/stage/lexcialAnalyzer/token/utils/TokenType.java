@@ -10,7 +10,11 @@ public enum TokenType
     
     WHITESPACE,
     COMMENT,
+    BAD,
     SYMBOL,
+    OPERATOR,
+    KEYWORD,
+    TYPE_KEYWORD,
     
     STRING_LITERAL,
     NUMBER_LITERAL,

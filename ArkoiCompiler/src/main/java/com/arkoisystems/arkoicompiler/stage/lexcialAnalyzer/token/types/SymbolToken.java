@@ -34,12 +34,12 @@ public class SymbolToken extends AbstractToken
     
     @NotNull
     @Override
-    public Optional<SymbolToken> parseToken() {
+    public Optional<? extends AbstractToken> parseToken() {
         Objects.requireNonNull(this.getLexicalAnalyzer());
-        
+    
         final char currentChar = this.getLexicalAnalyzer().currentChar();
         this.setTokenContent(String.valueOf(currentChar));
-        
+    
         SymbolType symbolType = null;
         for (final SymbolType type : SymbolType.values())
             if (type.getCharacter() == currentChar) {
@@ -53,7 +53,12 @@ public class SymbolToken extends AbstractToken
                     this.getLexicalAnalyzer().getPosition(),
                     "Couldn't lex this symbol because it isn't supported."
             );
-            return Optional.empty();
+            return BadToken
+                    .builder()
+                    .start(this.getLexicalAnalyzer().getPosition())
+                    .end(this.getLexicalAnalyzer().getPosition() + 1)
+                    .build()
+                    .parseToken();
         } else {
             this.symbolType = symbolType;
             this.setStart(this.getLexicalAnalyzer().getPosition());

@@ -64,7 +64,7 @@ public class TypeParser extends AbstractParser
      */
     @Override
     public boolean canParse(@NotNull final AbstractSyntaxAST parentAST, @NotNull final SyntaxAnalyzer syntaxAnalyzer) {
-        return syntaxAnalyzer.currentToken().getTokenType() == TokenType.IDENTIFIER;
+        return syntaxAnalyzer.currentToken().getTokenType() == TokenType.TYPE_KEYWORD;
     }
     
 }

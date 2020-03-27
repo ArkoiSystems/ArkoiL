@@ -23,18 +23,8 @@ public enum SymbolType
     COMMA(','),
     PERIOD('.'),
     
-    LESS_THAN_SIGN('<'),
-    GREATER_THAN_SIGN('>'),
-    
-    VERTICAL_BAR('|'),
-    AMPERSAND('&'),
-    EXCLAMATION_MARK('!'),
-    ASTERISK('*'),
-    EQUAL('='),
-    PERCENT('%'),
-    MINUS('-'),
-    SLASH('/'),
-    PLUS('+');
+    OPENING_ARROW('<'),
+    CLOSING_ARROW('>');
     
     @Getter
     private final char character;

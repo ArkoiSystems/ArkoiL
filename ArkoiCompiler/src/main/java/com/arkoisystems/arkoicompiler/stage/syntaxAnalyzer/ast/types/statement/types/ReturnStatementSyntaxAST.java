@@ -5,6 +5,7 @@
  */
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.types;
 
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.KeywordType;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxErrorType;
@@ -51,7 +52,7 @@ public class ReturnStatementSyntaxAST extends AbstractStatementSyntaxAST
             return Optional.empty();
         }
         
-        if (this.getSyntaxAnalyzer().matchesCurrentToken(TokenType.IDENTIFIER) == null || !this.getSyntaxAnalyzer().currentToken().getTokenContent().equals("return")) {
+        if (this.getSyntaxAnalyzer().matchesCurrentToken(KeywordType.RETURN) == null) {
             this.addError(
                     this.getSyntaxAnalyzer().getArkoiClass(),
                     this.getSyntaxAnalyzer().currentToken(),

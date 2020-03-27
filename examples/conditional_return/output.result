@@ -5,68 +5,21 @@ Syntax Trees:
    │   │
    │   ├── variables: N/A
    │   │
-   │   └── functions: 
-   │       └── FunctionDefinitionSyntaxAST
-   │           ├── annotations: N/A
-   │           │
-   │           ├── name: test
-   │           ├── type: string
-   │           │
-   │           ├── arguments: N/A
-   │           │
-   │           └── block: 
-   │                ├── type: INLINE
-   │                └── storage: 
-   │                    └── ExpressionSyntaxAST
-   │                        └── operable: Okay
+   │   └── functions: N/A
    │
    ├── RootSyntaxAST
    │   ├── imports: N/A
    │   │
    │   ├── variables: N/A
    │   │
-   │   └── functions: 
-   │       └── FunctionDefinitionSyntaxAST
-   │           ├── annotations: N/A
-   │           │
-   │           ├── name: hello
-   │           ├── type: string
-   │           │
-   │           ├── arguments: N/A
-   │           │
-   │           └── block: 
-   │                ├── type: INLINE
-   │                └── storage: 
-   │                    └── ExpressionSyntaxAST
-   │                        └── operable: Hello World!
+   │   └── functions: N/A
    │
    ├── RootSyntaxAST
-   │   ├── imports: 
-   │   │   ├── ImportDefinitionSyntaxAST
-   │   │   │   ├── name: first_class
-   │   │   │   └── path: first_class
-   │   │   │   
-   │   │   └── ImportDefinitionSyntaxAST
-   │   │       ├── name: SecondClass
-   │   │       └── path: second_class
+   │   ├── imports: N/A
    │   │
    │   ├── variables: N/A
    │   │
-   │   └── functions: 
-   │       └── FunctionDefinitionSyntaxAST
-   │           ├── annotations: N/A
-   │           │
-   │           ├── name: main
-   │           ├── type: int
-   │           │
-   │           ├── arguments: 
-   │           │   └── ParameterSyntaxAST
-   │           │       ├── name: args
-   │           │       └── type: string[]
-   │           │
-   │           └── block: 
-   │                ├── type: BLOCK
-   │                └── storage: N/A
+   │   └── functions: N/A
    │
    └── RootSyntaxAST
        ├── imports: N/A

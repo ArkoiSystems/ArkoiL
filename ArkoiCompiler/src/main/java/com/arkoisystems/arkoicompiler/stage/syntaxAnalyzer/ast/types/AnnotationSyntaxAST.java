@@ -6,6 +6,7 @@
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types;
 
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.IdentifierToken;
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.KeywordType;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.SymbolType;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
@@ -138,14 +139,14 @@ public class AnnotationSyntaxAST extends AbstractSyntaxAST
             return Optional.empty();
         }
         
-        if (!this.getSyntaxAnalyzer().currentToken().getTokenContent().equals("fun") && !this.getSyntaxAnalyzer().currentToken().getTokenContent().equals("var")) {
+        if (this.getSyntaxAnalyzer().matchesCurrentToken(KeywordType.FUN) != null && this.getSyntaxAnalyzer().matchesCurrentToken(KeywordType.VAR) != null) {
             this.addError(
                     this.getSyntaxAnalyzer().getArkoiClass(),
                     this.getSyntaxAnalyzer().currentToken(),
                     SyntaxErrorType.ANNOTATION_NO_VARIABLE_OR_FUNCTION
             );
             return Optional.empty();
-        } else if (this.getSyntaxAnalyzer().currentToken().getTokenContent().equals("fun")) {
+        } else if (this.getSyntaxAnalyzer().matchesCurrentToken(KeywordType.FUN) != null) {
             return FunctionDefinitionSyntaxAST
                     .builder(this.getSyntaxAnalyzer())
                     .annotations(this.getAnnotationStorage())

@@ -6,6 +6,7 @@
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types;
 
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken;
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.TypeKeywordToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.SymbolType;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.SemanticAnalyzer;
@@ -46,8 +47,8 @@ public class TypeSyntaxAST extends AbstractSyntaxAST
      */
     @Getter
     @Setter(AccessLevel.PROTECTED)
-    @NotNull
-    private TypeKind typeKind = TypeKind.UNDEFINED;
+    @Nullable
+    private TypeKeywordToken typeKeywordToken;
     
     
     /**
@@ -93,26 +94,17 @@ public class TypeSyntaxAST extends AbstractSyntaxAST
     public Optional<TypeSyntaxAST> parseAST(@NotNull final AbstractSyntaxAST parentAST) {
         Objects.requireNonNull(this.getSyntaxAnalyzer());
         
-        if (this.getSyntaxAnalyzer().matchesCurrentToken(TokenType.IDENTIFIER) == null) {
+        if (this.getSyntaxAnalyzer().matchesCurrentToken(TokenType.TYPE_KEYWORD) == null) {
             this.addError(
                     this.getSyntaxAnalyzer().getArkoiClass(),
                     this.getSyntaxAnalyzer().currentToken(),
-                    SyntaxErrorType.TYPE_DOES_NOT_START_WITH_IDENTIFIER
+                    SyntaxErrorType.TYPE_DOES_NOT_START_WITH_TYPE_KEYWORD
             );
             return Optional.empty();
         }
-        
-        final TypeKind typeKind = TypeKind.getTypeKind(this.getSyntaxAnalyzer().currentToken());
-        if (typeKind == null) {
-            this.addError(
-                    this.getSyntaxAnalyzer().getArkoiClass(),
-                    this.getSyntaxAnalyzer().currentToken(),
-                    SyntaxErrorType.TYPE_NOT_A_VALID_TYPE
-            );
-            return Optional.empty();
-        } else this.typeKind = typeKind;
-        
+    
         this.setStart(this.getSyntaxAnalyzer().currentToken().getStart());
+        this.setTypeKeywordToken((TypeKeywordToken) this.getSyntaxAnalyzer().currentToken());
         
         // This will check if the next two Tokens are an opening and closing bracket aka. "[]". If it is, then skip these two Tokens and set the "isArray" boolean to true.
         if (this.getSyntaxAnalyzer().matchesPeekToken(1, SymbolType.OPENING_BRACKET) != null && this.getSyntaxAnalyzer().matchesPeekToken(2, SymbolType.CLOSING_BRACKET) != null) {
@@ -155,7 +147,7 @@ public class TypeSyntaxAST extends AbstractSyntaxAST
         
         
         @Nullable
-        private TypeKind typeKind;
+        private TypeKeywordToken typeKeywordToken;
         
         
         private boolean isArray;
@@ -180,8 +172,8 @@ public class TypeSyntaxAST extends AbstractSyntaxAST
         }
         
         
-        public TypeSyntaxASTBuilder typeKind(final TypeKind typeKind) {
-            this.typeKind = typeKind;
+        public TypeSyntaxASTBuilder type(final TypeKeywordToken typeKeywordToken) {
+            this.typeKeywordToken = typeKeywordToken;
             return this;
         }
         
@@ -200,8 +192,8 @@ public class TypeSyntaxAST extends AbstractSyntaxAST
         
         public TypeSyntaxAST build() {
             final TypeSyntaxAST typeSyntaxAST = new TypeSyntaxAST(this.syntaxAnalyzer);
-            if (this.typeKind != null)
-                typeSyntaxAST.setTypeKind(this.typeKind);
+            if (this.typeKeywordToken != null)
+                typeSyntaxAST.setTypeKeywordToken(this.typeKeywordToken);
             typeSyntaxAST.setArray(this.isArray);
             typeSyntaxAST.setStart(this.start);
             typeSyntaxAST.setEnd(this.end);

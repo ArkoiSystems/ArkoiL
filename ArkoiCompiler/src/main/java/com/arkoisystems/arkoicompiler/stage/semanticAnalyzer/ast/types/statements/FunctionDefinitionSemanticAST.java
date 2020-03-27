@@ -68,7 +68,7 @@ public class FunctionDefinitionSemanticAST extends AbstractSemanticAST<FunctionD
         }
         printStream.println(indents + "│");
         printStream.println(indents + "├── name: " + this.getFunctionName().getTokenContent());
-        printStream.println(indents + "├── type: " + (this.getFunctionReturnType() != null ? this.getFunctionReturnType().getTypeKind().getName() + (this.getFunctionReturnType().isArray() ? "[]" : "") : null));
+        printStream.println(indents + "├── type: " + (this.getFunctionReturnType() != null ? this.getFunctionReturnType().getTypeKeywordToken().getKeywordType() + (this.getFunctionReturnType().isArray() ? "[]" : "") : null));
         printStream.println(indents + "│");
         printStream.println(indents + "├── arguments: " + (this.getFunctionArguments().isEmpty() ? "N/A" : ""));
         for (int index = 0; index < this.getFunctionArguments().size(); index++) {

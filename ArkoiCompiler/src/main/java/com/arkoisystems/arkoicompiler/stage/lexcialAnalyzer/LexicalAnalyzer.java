@@ -16,11 +16,14 @@ import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenTyp
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
 import lombok.Getter;
 import lombok.NonNull;
+import lombok.Setter;
 import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.function.Consumer;
 
 /**
  * This class is an implementation of the {@link AbstractStage}. It will lex a list of
@@ -36,6 +39,8 @@ public class LexicalAnalyzer extends AbstractStage
     @Getter
     @NonNull
     private final ArkoiClass arkoiClass;
+    
+    
     /**
      * The {@link LexicalErrorHandler} is used for errors which are happening when lexing
      * the input content.
@@ -43,6 +48,8 @@ public class LexicalAnalyzer extends AbstractStage
     @Getter
     @NotNull
     private final LexicalErrorHandler errorHandler = new LexicalErrorHandler();
+    
+    
     /**
      * This {@link AbstractToken}[] is used to access the parsed {@link AbstractToken}s
      * like in the {@link SyntaxAnalyzer} for methods like {@link
@@ -51,12 +58,17 @@ public class LexicalAnalyzer extends AbstractStage
     @Getter
     @NotNull
     private AbstractToken[] tokens = new AbstractToken[0];
+    
+    
     /**
      * The current position in the {@link ArkoiClass#getContent()} array. This position is
      * used to peek and get tokens (e.g. {@link #next()} or {@link #peekChar(int)}).
      */
     @Getter
+    @Setter
     private int position;
+    
+    
     /**
      * This {@link Runnable} defines an error routine, when a token couldn't be parsed.
      */
@@ -99,19 +111,78 @@ public class LexicalAnalyzer extends AbstractStage
         while (this.position < this.getArkoiClass().getContent().length) {
             final char currentChar = this.currentChar();
             if (Character.isWhitespace(currentChar)) {
-                WhitespaceToken.builder(this).build().parseToken().ifPresentOrElse(tokens::add, this.errorRoutine);
+                WhitespaceToken
+                        .builder(this)
+                        .build()
+                        .parseToken()
+                        .ifPresentOrElse(tokens::add, this.errorRoutine);
             } else if (currentChar == '#') {
-                CommentToken.builder(this).build().parseToken();
+                CommentToken
+                        .builder(this)
+                        .build()
+                        .parseToken()
+                        .ifPresentOrElse((Consumer<AbstractToken>) abstractToken -> {
+                            if (abstractToken instanceof BadToken)
+                                errorRoutine.run();
+                            tokens.add(abstractToken);
+                        }, this.errorRoutine);
             } else if (currentChar == '"') {
-                StringToken.builder(this).build().parseToken().ifPresentOrElse(tokens::add, this.errorRoutine);
+                StringToken
+                        .builder(this)
+                        .build()
+                        .parseToken()
+                        .ifPresentOrElse((Consumer<AbstractToken>) abstractToken -> {
+                            if (abstractToken instanceof BadToken)
+                                errorRoutine.run();
+                            tokens.add(abstractToken);
+                        }, this.errorRoutine);
             } else if (Character.isDigit(currentChar) || currentChar == '.') {
-                NumberToken.builder(this).build().parseToken().ifPresentOrElse(tokens::add, () ->
-                        SymbolToken.builder(this).build().parseToken().ifPresentOrElse(tokens::add, this.errorRoutine)
-                );
+                final Optional<? extends AbstractToken> numberToken = NumberToken
+                        .builder(this)
+                        .build()
+                        .parseToken();
+                if (numberToken.isPresent() && !(numberToken.get() instanceof BadToken))
+                    tokens.add(numberToken.get());
+                else {
+                    final Optional<? extends AbstractToken> symbolToken = SymbolToken
+                            .builder(this)
+                            .build()
+                            .parseToken();
+                    if(symbolToken.isEmpty() || symbolToken.get() instanceof BadToken)
+                        this.errorRoutine.run();
+                    symbolToken.ifPresent(tokens::add);
+                }
             } else if (Character.isJavaIdentifierStart(currentChar)) {
-                IdentifierToken.builder(this).build().parseToken().ifPresentOrElse(tokens::add, this.errorRoutine);
+                IdentifierToken
+                        .builder(this)
+                        .build()
+                        .parseToken()
+                        .ifPresentOrElse((Consumer<AbstractToken>) abstractToken -> {
+                            if (abstractToken instanceof BadToken)
+                                errorRoutine.run();
+                            tokens.add(abstractToken);
+                        }, this.errorRoutine);
             } else {
                 switch (currentChar) {
+                    case '+':
+                    case '-':
+                    case '*':
+                    case '/':
+                    case '%':
+                    case '!':
+                    case '=': {
+                        OperatorToken
+                                .builder(this)
+                                .build()
+                                .parseToken()
+                                .ifPresentOrElse((Consumer<AbstractToken>) abstractToken -> {
+                                    if (abstractToken instanceof BadToken)
+                                        errorRoutine.run();
+                                    tokens.add(abstractToken);
+                                }, this.errorRoutine);
+                        continue;
+                    }
+    
                     case '@':
                     case '^':
                     case '|':
@@ -125,19 +196,27 @@ public class LexicalAnalyzer extends AbstractStage
                     case ']':
                     case ',':
                     case '<':
-                    case '>':
-                    case '+':
-                    case '-':
-                    case '*':
-                    case '/':
-                    case '%':
-                    case '!':
-                    case '=':
-                    case '&': {
-                        SymbolToken.builder(this).build().parseToken().ifPresentOrElse(tokens::add, this.errorRoutine);
+                    case '>': {
+                        SymbolToken
+                                .builder(this)
+                                .build()
+                                .parseToken()
+                                .ifPresentOrElse((Consumer<AbstractToken>) abstractToken -> {
+                                    if (abstractToken instanceof BadToken)
+                                        errorRoutine.run();
+                                    tokens.add(abstractToken);
+                                }, this.errorRoutine);
                         continue;
                     }
+    
                     default:
+                        BadToken
+                                .builder()
+                                .start(this.getPosition())
+                                .end(this.getPosition() + 1)
+                                .build()
+                                .parseToken()
+                                .ifPresent(tokens::add);
                         this.getErrorHandler().addError(new ArkoiError(
                                 this.getArkoiClass(),
                                 this.position,
@@ -149,8 +228,12 @@ public class LexicalAnalyzer extends AbstractStage
                 }
             }
         }
-        
-        EndOfFileToken.builder(this).build().parseToken().ifPresent(tokens::add);
+    
+        EndOfFileToken
+                .builder(this)
+                .build()
+                .parseToken()
+                .ifPresent(tokens::add);
         this.tokens = tokens.toArray(new AbstractToken[] { });
         return !this.isFailed();
     }

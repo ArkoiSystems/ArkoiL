@@ -25,7 +25,7 @@ public class CommentToken extends AbstractToken
     
     @NotNull
     @Override
-    public Optional<CommentToken> parseToken() {
+    public Optional<? extends AbstractToken> parseToken() {
         Objects.requireNonNull(this.getLexicalAnalyzer());
         
         if (this.getLexicalAnalyzer().currentChar() != '#') {
@@ -34,7 +34,12 @@ public class CommentToken extends AbstractToken
                     this.getLexicalAnalyzer().getPosition(),
                     "Couldn't lex this comment because it doesn't start with an \"#\"."
             );
-            return Optional.empty();
+            return BadToken
+                    .builder()
+                    .start(this.getLexicalAnalyzer().getPosition())
+                    .end(this.getLexicalAnalyzer().getPosition() + 1)
+                    .build()
+                    .parseToken();
         }
         
         this.setStart(this.getLexicalAnalyzer().getPosition());

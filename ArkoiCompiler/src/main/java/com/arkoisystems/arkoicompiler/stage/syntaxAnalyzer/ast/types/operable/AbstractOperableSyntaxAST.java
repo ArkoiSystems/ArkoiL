@@ -6,6 +6,7 @@
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable;
 
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken;
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.KeywordType;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.SymbolType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxErrorType;
@@ -94,8 +95,27 @@ public class AbstractOperableSyntaxAST<O> extends AbstractSyntaxAST
                     );
                     return Optional.empty();
                 }
+            case KEYWORD:
+                if (this.getSyntaxAnalyzer().matchesCurrentToken(KeywordType.THIS) == null) {
+                    this.addError(
+                            this.getSyntaxAnalyzer().getArkoiClass(),
+                            currentToken,
+                            "Couldn't parse the operable because the keyword is not supported."
+                    );
+                    return Optional.empty();
+                }
+                return IdentifierCallOperableSyntaxAST
+                        .builder(this.getSyntaxAnalyzer())
+                        .build()
+                        .parseAST(parentAST);
+            default:
+                this.addError(
+                        this.getSyntaxAnalyzer().getArkoiClass(),
+                        currentToken,
+                        "Couldn't parse the operable because it isn't supported."
+                );
+                return Optional.empty();
         }
-        return Optional.empty();
     }
     
     

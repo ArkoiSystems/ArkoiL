@@ -25,9 +25,9 @@ public class IdentifierToken extends AbstractToken
     
     @NotNull
     @Override
-    public Optional<IdentifierToken> parseToken() {
+    public Optional<? extends AbstractToken> parseToken() {
         Objects.requireNonNull(this.getLexicalAnalyzer());
-        
+    
         final char currentChar = this.getLexicalAnalyzer().currentChar();
         if (!Character.isJavaIdentifierStart(currentChar)) {
             this.addError(
@@ -35,18 +35,43 @@ public class IdentifierToken extends AbstractToken
                     this.getLexicalAnalyzer().getPosition(),
                     "Couldn't lex the Identifier because it doesn't start with an alphabetic char."
             );
-            return Optional.empty();
+            return BadToken
+                    .builder()
+                    .start(this.getLexicalAnalyzer().getPosition())
+                    .end(this.getLexicalAnalyzer().getPosition() + 1)
+                    .build()
+                    .parseToken();
         } else this.getLexicalAnalyzer().next();
-        
+    
         this.setStart(this.getLexicalAnalyzer().getPosition() - 1);
         while (this.getLexicalAnalyzer().getPosition() < this.getLexicalAnalyzer().getArkoiClass().getContent().length) {
-            if (!Character.isUnicodeIdentifierPart(this.getLexicalAnalyzer().currentChar())) {
-                this.setEnd(this.getLexicalAnalyzer().getPosition());
+            if (!Character.isUnicodeIdentifierPart(this.getLexicalAnalyzer().currentChar()))
                 break;
-            } else this.getLexicalAnalyzer().next();
+            this.getLexicalAnalyzer().next();
         }
-        
+    
+        this.setEnd(this.getLexicalAnalyzer().getPosition());
         this.setTokenContent(new String(Arrays.copyOfRange(this.getLexicalAnalyzer().getArkoiClass().getContent(), this.getStart(), this.getEnd())).intern());
+    
+        final Optional<? extends AbstractToken> optionalKeywordToken = KeywordToken
+                .builder(this.getLexicalAnalyzer())
+                .content(this.getTokenContent())
+                .start(this.getStart())
+                .end(this.getEnd())
+                .build()
+                .parseToken();
+        if (optionalKeywordToken.isPresent())
+            return optionalKeywordToken;
+        
+        final Optional<? extends AbstractToken> optionalTypeKeywordToken = TypeKeywordToken
+                .builder(this.getLexicalAnalyzer())
+                .content(this.getTokenContent())
+                .start(this.getStart())
+                .end(this.getEnd())
+                .build()
+                .parseToken();
+        if (optionalTypeKeywordToken.isPresent())
+            return optionalTypeKeywordToken;
         return Optional.of(this);
     }
     

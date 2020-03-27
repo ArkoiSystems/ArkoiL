@@ -8,7 +8,7 @@ package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer;
 public class SyntaxErrorType
 {
     
-    public static final String TYPE_DOES_NOT_START_WITH_IDENTIFIER = "Couldn't parse the Type because the parsing doesn't start with an IdentifierToken.";
+    public static final String TYPE_DOES_NOT_START_WITH_TYPE_KEYWORD = "Couldn't parse the Type because the parsing doesn't start with a type keyword.";
     public static final String TYPE_NOT_A_VALID_TYPE = "Couldn't parse the Type because it isn't a valid type keyword.";
     
     public static final String ROOT_BLOCK_FUNCTION_HAS_WRONG_ENDING = "Couldn't parse the \"function definition\" statement because it doesn't end with a closing brace.";
@@ -78,7 +78,7 @@ public class SyntaxErrorType
     public static final String ANNOTATION_NO_PARSEABLE_STATEMENT = "Couldn't parse the Annotation because an there is no parsable statement after it.";
     public static final String ANNOTATION_NO_VARIABLE_OR_FUNCTION = "Couldn't parse the Annotation because it isn't followed by an function or variable definition.";
     
-    public static final String STATEMENT_WRONG_START = "Couldn't parse the statement because it doesn't start with an IdentifierToken.";
+    public static final String STATEMENT_WRONG_START = "Couldn't parse the statement because it doesn't start with a keyword.";
     
     public static final String EXPRESSION_ADD_ASSIGNMENT_SEPARATED = "Couldn't parse the add assignment expression because there is a whitespace between the operators.";
     public static final String EXPRESSION_EXPONENTIAL_OPERABLE_SEPARATED = "Couldn't parse the exponential expression because there is a whitespace between the operators.";

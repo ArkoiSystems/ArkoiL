@@ -7,6 +7,7 @@ package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.
 
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.IdentifierToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.StringToken;
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.KeywordType;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxErrorType;
@@ -65,7 +66,7 @@ public class ImportDefinitionSyntaxAST extends AbstractStatementSyntaxAST
             return Optional.empty();
         }
         
-        if (this.getSyntaxAnalyzer().matchesCurrentToken(TokenType.IDENTIFIER) == null || !this.getSyntaxAnalyzer().currentToken().getTokenContent().equals("import")) {
+        if (this.getSyntaxAnalyzer().matchesCurrentToken(KeywordType.IMPORT) == null) {
             this.addError(
                     this.getSyntaxAnalyzer().getArkoiClass(),
                     this.getSyntaxAnalyzer().currentToken(),
@@ -89,7 +90,7 @@ public class ImportDefinitionSyntaxAST extends AbstractStatementSyntaxAST
             this.importFilePath.setTokenContent(this.importFilePath.getTokenContent().substring(0, this.importFilePath.getTokenContent().length() - 4));
         this.getSyntaxAnalyzer().nextToken();
         
-        if (this.getSyntaxAnalyzer().matchesCurrentToken(TokenType.IDENTIFIER) != null && this.getSyntaxAnalyzer().currentToken().getTokenContent().equals("as")) {
+        if (this.getSyntaxAnalyzer().matchesCurrentToken(KeywordType.AS) != null) {
             if (this.getSyntaxAnalyzer().matchesNextToken(TokenType.IDENTIFIER) == null) {
                 this.addError(
                         this.getSyntaxAnalyzer().getArkoiClass(),

@@ -48,53 +48,7 @@ public class PrefixExpressionSyntaxAST extends AbstractExpressionSyntaxAST
     public Optional<? extends AbstractOperableSyntaxAST<?>> parseAST(@NotNull final AbstractSyntaxAST parentAST) {
         Objects.requireNonNull(this.getSyntaxAnalyzer());
         
-        if (this.getPrefixOperatorType() == PrefixOperatorType.PREFIX_SUB || this.getPrefixOperatorType() == PrefixOperatorType.NEGATE) {
-            if (this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.MINUS) == null) {
-                this.addError(
-                        this.getSyntaxAnalyzer().getArkoiClass(),
-                        this.getSyntaxAnalyzer().currentToken(),
-                        "Couldn't parse the %s expression because it doesn't start with a minus.",
-                        this.getPrefixOperatorType() == PrefixOperatorType.PREFIX_SUB ? "pre-sub" : "negate"
-                );
-                return Optional.empty();
-            }
-        } else if (this.getPrefixOperatorType() == PrefixOperatorType.PREFIX_ADD || this.getPrefixOperatorType() == PrefixOperatorType.AFFIRM) {
-            if (this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.PLUS) == null) {
-                this.addError(
-                        this.getSyntaxAnalyzer().getArkoiClass(),
-                        this.getSyntaxAnalyzer().currentToken(),
-                        "Couldn't parse the pre-add expression because it doesn't start with a minus.",
-                        this.getPrefixOperatorType() == PrefixOperatorType.PREFIX_ADD ? "pre-add" : "affirm"
-                );
-                return Optional.empty();
-            }
-        }
-        this.setStart(this.getSyntaxAnalyzer().currentToken().getStart());
-        
-        if (this.getPrefixOperatorType() == PrefixOperatorType.PREFIX_SUB) {
-            if (this.getSyntaxAnalyzer().matchesPeekToken(1, SymbolType.MINUS, false) == null) {
-                this.addError(
-                        this.getSyntaxAnalyzer().getArkoiClass(),
-                        this.getStart(),
-                        this.getSyntaxAnalyzer().currentToken().getEnd(),
-                        "Couldn't parse the pre-sub expression because it the first minus isn't directly followed by a next minus."
-                );
-                return Optional.empty();
-            }
-            this.getSyntaxAnalyzer().nextToken(2);
-        } else if (this.getPrefixOperatorType() == PrefixOperatorType.PREFIX_ADD) {
-            if (this.getSyntaxAnalyzer().matchesPeekToken(1, SymbolType.PLUS, false) == null) {
-                this.addError(
-                        this.getSyntaxAnalyzer().getArkoiClass(),
-                        this.getStart(),
-                        this.getSyntaxAnalyzer().currentToken().getEnd(),
-                        "Couldn't parse the pre-add expression because it the first minus isn't directly followed by a next minus."
-                );
-                return Optional.empty();
-            }
-            this.getSyntaxAnalyzer().nextToken(2);
-        } else this.getSyntaxAnalyzer().nextToken();
-        
+        this.getSyntaxAnalyzer().nextToken(1);
         final Optional<? extends AbstractOperableSyntaxAST<?>> optionalRightSideAST = this.parseOperable(parentAST);
         if (optionalRightSideAST.isEmpty())
             return Optional.empty();

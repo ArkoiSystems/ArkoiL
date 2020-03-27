@@ -41,15 +41,6 @@ public class AbstractStatementSyntaxAST extends AbstractSyntaxAST
         Objects.requireNonNull(this.getSyntaxAnalyzer());
         
         final AbstractToken currentToken = this.getSyntaxAnalyzer().currentToken();
-        if (this.getSyntaxAnalyzer().matchesCurrentToken(TokenType.IDENTIFIER) == null) {
-            this.addError(
-                    this.getSyntaxAnalyzer().getArkoiClass(),
-                    currentToken,
-                    SyntaxErrorType.STATEMENT_WRONG_START
-            );
-            return Optional.empty();
-        }
-        
         if (parentAST instanceof AbstractExpressionSyntaxAST) {
             switch (currentToken.getTokenContent()) {
                 case "var":
