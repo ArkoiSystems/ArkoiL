@@ -51,7 +51,7 @@ public class ArkoiError
         
         this.positions = new int[semanticASTs.length][];
         for (int index = 0; index < semanticASTs.length; index++)
-            this.positions[index] = new int[] { semanticASTs[index].getStart(), semanticASTs[index].getEnd() };
+            this.positions[index] = new int[] { semanticASTs[index].getStartToken().getStart(), semanticASTs[index].getEndToken().getEnd() };
         this.errorString = this.createError();
     }
     
@@ -62,7 +62,7 @@ public class ArkoiError
         this.message = message;
         
         this.positions = new int[1][];
-        this.positions[0] = new int[] { semanticAST.getStart(), semanticAST.getEnd() };
+        this.positions[0] = new int[] { semanticAST.getStartToken().getStart(), semanticAST.getEndToken().getEnd() };
         this.errorString = this.createError();
     }
     
@@ -74,7 +74,7 @@ public class ArkoiError
         
         this.positions = new int[syntaxASTs.length][];
         for (int index = 0; index < syntaxASTs.length; index++)
-            this.positions[index] = new int[] { syntaxASTs[index].getStart(), syntaxASTs[index].getEnd() };
+            this.positions[index] = new int[] { syntaxASTs[index].getStartToken().getStart(), syntaxASTs[index].getEndToken().getEnd() };
         this.errorString = this.createError();
     }
     
@@ -85,7 +85,7 @@ public class ArkoiError
         this.message = message;
         
         this.positions = new int[1][];
-        this.positions[0] = new int[] { syntaxAST.getStart(), syntaxAST.getEnd() };
+        this.positions[0] = new int[] { syntaxAST.getStartToken().getStart(), syntaxAST.getEndToken().getEnd() };
         this.errorString = this.createError();
     }
     

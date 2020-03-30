@@ -16,6 +16,7 @@
   <depends>com.intellij.modules.platform</depends>
   <extensions defaultExtensionNs="com.intellij">
     <fileType name="Arkoi" language="Arkoi" implementationClass="com.arkoisystems.lang.arkoi.ArkoiFileType" extensions="ark" fieldName="INSTANCE"/>
+    <lang.parserDefinition language="Arkoi" implementationClass="com.arkoisystems.lang.arkoi.parser.ArkoiParserDefinition"/>
     <lang.syntaxHighlighterFactory language="Arkoi" implementationClass="com.arkoisystems.lang.arkoi.highlight.ArkoiSyntaxHighlighterFactory"/>
     <lang.braceMatcher language="Arkoi" implementationClass="com.arkoisystems.lang.arkoi.ide.ArkoiBraceMatcher"/>
     <lang.commenter language="Arkoi" implementationClass="com.arkoisystems.lang.arkoi.ide.ArkoiCommenter"/>

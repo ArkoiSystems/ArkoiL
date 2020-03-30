@@ -133,11 +133,4 @@ object ArkoiTokenTypes {
 
     var percentEquals: IElementType = ArkoiTokenType("%=")
 
-
-    fun createElement(astNode: ASTNode?): PsiElement {
-        astNode ?: throw AssertionError("Cannot create an element with \"null\"");
-        val type = astNode.elementType
-        throw AssertionError("Unknown element type: $type");
-    }
-
 }

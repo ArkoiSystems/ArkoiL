@@ -5,6 +5,7 @@
  */
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types;
 
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.SymbolType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxErrorType;
@@ -47,13 +48,18 @@ public class ParenthesizedExpressionSyntaxAST extends AbstractExpressionSyntaxAS
                     SyntaxErrorType.EXPRESSION_PARENTHESIZED_WRONG_START
             );
             return Optional.empty();
-        } else this.setStart(this.getSyntaxAnalyzer().currentToken().getStart());
+        }
     
+        this.setStartToken(this.getSyntaxAnalyzer().currentToken());
+        this.getMarkerFactory().mark(this.getStartToken());
+        
         this.getSyntaxAnalyzer().nextToken();
     
         final Optional<ExpressionSyntaxAST> optionalExpressionSyntaxAST = new ExpressionSyntaxAST(this.getSyntaxAnalyzer()).parseAST(parentAST);
         if (optionalExpressionSyntaxAST.isEmpty())
             return Optional.empty();
+        
+        this.getMarkerFactory().addFactory(optionalExpressionSyntaxAST.get().getMarkerFactory());
         this.expressionSyntaxAST = optionalExpressionSyntaxAST.get();
     
         if (this.getSyntaxAnalyzer().matchesNextToken(SymbolType.CLOSING_PARENTHESIS) == null) {
@@ -63,7 +69,10 @@ public class ParenthesizedExpressionSyntaxAST extends AbstractExpressionSyntaxAS
                     SyntaxErrorType.EXPRESSION_PARENTHESIZED_WRONG_ENDING
             );
             return Optional.empty();
-        } else this.setEnd(this.getSyntaxAnalyzer().currentToken().getEnd());
+        }
+    
+        this.setEndToken(this.getSyntaxAnalyzer().currentToken());
+        this.getMarkerFactory().done(this.getEndToken());
         return Optional.of(this);
     }
     
@@ -97,7 +106,7 @@ public class ParenthesizedExpressionSyntaxAST extends AbstractExpressionSyntaxAS
         private ExpressionSyntaxAST expressionSyntaxAST;
         
         
-        private int start, end;
+        private AbstractToken startToken, endToken;
         
         
         public ParenthesizedExpressionSyntaxASTBuilder(@NotNull final SyntaxAnalyzer syntaxAnalyzer) {
@@ -116,14 +125,14 @@ public class ParenthesizedExpressionSyntaxAST extends AbstractExpressionSyntaxAS
         }
         
         
-        public ParenthesizedExpressionSyntaxASTBuilder start(final int start) {
-            this.start = start;
+        public ParenthesizedExpressionSyntaxASTBuilder start(final AbstractToken startToken) {
+            this.startToken = startToken;
             return this;
         }
         
         
-        public ParenthesizedExpressionSyntaxASTBuilder end(final int end) {
-            this.end = end;
+        public ParenthesizedExpressionSyntaxASTBuilder end(final AbstractToken endToken) {
+            this.endToken = endToken;
             return this;
         }
         
@@ -132,8 +141,8 @@ public class ParenthesizedExpressionSyntaxAST extends AbstractExpressionSyntaxAS
             final ParenthesizedExpressionSyntaxAST parenthesizedExpressionSyntaxAST = new ParenthesizedExpressionSyntaxAST(this.syntaxAnalyzer);
             if (this.expressionSyntaxAST != null)
                 parenthesizedExpressionSyntaxAST.setExpressionSyntaxAST(this.expressionSyntaxAST);
-            parenthesizedExpressionSyntaxAST.setStart(this.start);
-            parenthesizedExpressionSyntaxAST.setEnd(this.end);
+            parenthesizedExpressionSyntaxAST.setStartToken(this.startToken);
+            parenthesizedExpressionSyntaxAST.setEndToken(this.endToken);
             return parenthesizedExpressionSyntaxAST;
         }
         

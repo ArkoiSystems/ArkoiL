@@ -5,6 +5,7 @@
  */
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types;
 
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.SymbolType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxErrorType;
@@ -52,8 +53,10 @@ public class CollectionOperableSyntaxAST extends AbstractOperableSyntaxAST<TypeK
             );
             return Optional.empty();
         }
+    
+        this.setStartToken(this.getSyntaxAnalyzer().currentToken());
+        this.getMarkerFactory().mark(this.getEndToken());
         
-        this.setStart(this.getSyntaxAnalyzer().currentToken().getStart());
         this.getSyntaxAnalyzer().nextToken();
         
         while (this.getSyntaxAnalyzer().getPosition() < this.getSyntaxAnalyzer().getTokens().length) {
@@ -72,6 +75,8 @@ public class CollectionOperableSyntaxAST extends AbstractOperableSyntaxAST<TypeK
             final Optional<ExpressionSyntaxAST> optionalExpressionSyntaxAST = AbstractExpressionSyntaxAST.EXPRESSION_PARSER.parse(this, this.getSyntaxAnalyzer());
             if (optionalExpressionSyntaxAST.isEmpty())
                 return Optional.empty();
+            
+            this.getMarkerFactory().addFactory(optionalExpressionSyntaxAST.get().getMarkerFactory());
             this.collectionExpressions.add(optionalExpressionSyntaxAST.get());
             
             if (this.getSyntaxAnalyzer().matchesNextToken(SymbolType.COMMA) != null)
@@ -87,7 +92,8 @@ public class CollectionOperableSyntaxAST extends AbstractOperableSyntaxAST<TypeK
             return Optional.empty();
         }
         
-        this.setEnd(this.getSyntaxAnalyzer().currentToken().getEnd());
+        this.setEndToken(this.getSyntaxAnalyzer().currentToken());
+        this.getMarkerFactory().done(this.getEndToken());
         return Optional.of(this);
     }
     
@@ -130,7 +136,7 @@ public class CollectionOperableSyntaxAST extends AbstractOperableSyntaxAST<TypeK
         private List<ExpressionSyntaxAST> collectionExpressions;
         
         
-        private int start, end;
+        private AbstractToken startToken, endToken;
         
         
         public CollectionOperableSyntaxASTBuilder(@NotNull final SyntaxAnalyzer syntaxAnalyzer) {
@@ -149,14 +155,14 @@ public class CollectionOperableSyntaxAST extends AbstractOperableSyntaxAST<TypeK
         }
         
         
-        public CollectionOperableSyntaxASTBuilder start(final int start) {
-            this.start = start;
+        public CollectionOperableSyntaxASTBuilder start(final AbstractToken startToken) {
+            this.startToken = startToken;
             return this;
         }
         
         
-        public CollectionOperableSyntaxASTBuilder end(final int end) {
-            this.end = end;
+        public CollectionOperableSyntaxASTBuilder end(final AbstractToken endToken) {
+            this.endToken = endToken;
             return this;
         }
         
@@ -165,8 +171,8 @@ public class CollectionOperableSyntaxAST extends AbstractOperableSyntaxAST<TypeK
             final CollectionOperableSyntaxAST collectionOperableSyntaxAST = new CollectionOperableSyntaxAST(this.syntaxAnalyzer);
             if (this.collectionExpressions != null)
                 collectionOperableSyntaxAST.setCollectionExpressions(this.collectionExpressions);
-            collectionOperableSyntaxAST.setStart(this.start);
-            collectionOperableSyntaxAST.setEnd(this.end);
+            collectionOperableSyntaxAST.setStartToken(this.startToken);
+            collectionOperableSyntaxAST.setEndToken(this.endToken);
             return collectionOperableSyntaxAST;
         }
         

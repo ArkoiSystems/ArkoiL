@@ -5,6 +5,7 @@
  */
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types;
 
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.IdentifierToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.KeywordType;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.SymbolType;
@@ -81,7 +82,8 @@ public class AnnotationSyntaxAST extends AbstractSyntaxAST
             return Optional.empty();
         }
     
-        this.setStart(this.getSyntaxAnalyzer().currentToken().getStart());
+        this.setStartToken(this.getSyntaxAnalyzer().currentToken());
+        this.getMarkerFactory().mark(this.getStartToken());
     
         if (this.getSyntaxAnalyzer().matchesPeekToken(1, TokenType.IDENTIFIER) == null) {
             this.addError(
@@ -117,17 +119,21 @@ public class AnnotationSyntaxAST extends AbstractSyntaxAST
                 return Optional.empty();
             }
         }
-        
-        this.setEnd(this.getSyntaxAnalyzer().currentToken().getEnd());
+    
+        this.setEndToken(this.getSyntaxAnalyzer().currentToken());
+        this.getMarkerFactory().done(this.getEndToken());
+    
         this.getSyntaxAnalyzer().nextToken();
         this.getAnnotationStorage().add(this);
-        
+    
         if (ANNOTATION_PARSER.canParse(parentAST, this.getSyntaxAnalyzer())) {
-            return AnnotationSyntaxAST
+            final Optional<? extends AbstractSyntaxAST> annotationSyntaxAST = AnnotationSyntaxAST
                     .builder(this.getSyntaxAnalyzer())
                     .annotations(this.annotationStorage)
                     .build()
                     .parseAST(parentAST);
+            annotationSyntaxAST.ifPresent(abstractSyntaxAST -> this.getMarkerFactory().addFactory(abstractSyntaxAST.getMarkerFactory()));
+            return annotationSyntaxAST;
         }
         
         if (!AbstractStatementSyntaxAST.STATEMENT_PARSER.canParse(parentAST, this.getSyntaxAnalyzer())) {
@@ -147,13 +153,17 @@ public class AnnotationSyntaxAST extends AbstractSyntaxAST
             );
             return Optional.empty();
         } else if (this.getSyntaxAnalyzer().matchesCurrentToken(KeywordType.FUN) != null) {
-            return FunctionDefinitionSyntaxAST
+            final Optional<? extends AbstractSyntaxAST> functionDefinitionSyntaxAST = FunctionDefinitionSyntaxAST
                     .builder(this.getSyntaxAnalyzer())
                     .annotations(this.getAnnotationStorage())
                     .build()
                     .parseAST(parentAST);
+            functionDefinitionSyntaxAST.ifPresent(abstractSyntaxAST -> this.getMarkerFactory().addFactory(abstractSyntaxAST.getMarkerFactory()));
+            return functionDefinitionSyntaxAST;
         } else {
-            return new VariableDefinitionSyntaxAST(this.getSyntaxAnalyzer(), this.getAnnotationStorage()).parseAST(parentAST);
+            final Optional<? extends AbstractSyntaxAST> variableDefinitionSyntaxAST = new VariableDefinitionSyntaxAST(this.getSyntaxAnalyzer(), this.getAnnotationStorage()).parseAST(parentAST);
+            variableDefinitionSyntaxAST.ifPresent(abstractSyntaxAST -> this.getMarkerFactory().addFactory(abstractSyntaxAST.getMarkerFactory()));
+            return variableDefinitionSyntaxAST;
         }
     }
     
@@ -217,7 +227,7 @@ public class AnnotationSyntaxAST extends AbstractSyntaxAST
         private IdentifierCallOperableSyntaxAST annotationCall;
     
     
-        private int start, end;
+        private AbstractToken startToken, endToken;
     
     
         public AnnotationSyntaxASTBuilder(@NotNull final SyntaxAnalyzer syntaxAnalyzer) {
@@ -251,14 +261,14 @@ public class AnnotationSyntaxAST extends AbstractSyntaxAST
         }
     
     
-        public AnnotationSyntaxASTBuilder start(final int start) {
-            this.start = start;
+        public AnnotationSyntaxASTBuilder start(final AbstractToken startToken) {
+            this.startToken = startToken;
             return this;
         }
         
         
-        public AnnotationSyntaxASTBuilder end(final int end) {
-            this.end = end;
+        public AnnotationSyntaxASTBuilder end(final AbstractToken endToken) {
+            this.endToken = endToken;
             return this;
         }
         
@@ -271,8 +281,8 @@ public class AnnotationSyntaxAST extends AbstractSyntaxAST
                 annotationSyntaxAST.setAnnotationCall(this.annotationCall);
             if (this.annotationArguments != null)
                 annotationSyntaxAST.setAnnotationArguments(this.annotationArguments);
-            annotationSyntaxAST.setStart(this.start);
-            annotationSyntaxAST.setEnd(this.end);
+            annotationSyntaxAST.setStartToken(this.startToken);
+            annotationSyntaxAST.setEndToken(this.endToken);
             return annotationSyntaxAST;
         }
         

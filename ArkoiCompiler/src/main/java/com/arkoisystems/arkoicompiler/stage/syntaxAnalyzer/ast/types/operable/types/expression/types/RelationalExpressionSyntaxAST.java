@@ -47,7 +47,10 @@ public class RelationalExpressionSyntaxAST extends AbstractExpressionSyntaxAST
         this.relationalOperatorType = relationalOperatorType;
         this.leftSideOperable = leftSideOperable;
         
-        this.setStart(this.leftSideOperable.getStart());
+        this.getMarkerFactory().addFactory(this.leftSideOperable.getMarkerFactory());
+        
+        this.setStartToken(this.leftSideOperable.getStartToken());
+        this.getMarkerFactory().mark(this.getStartToken());
     }
     
     

@@ -7,6 +7,7 @@ package com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast;
 
 import com.arkoisystems.arkoicompiler.ArkoiClass;
 import com.arkoisystems.arkoicompiler.stage.errorHandler.ArkoiError;
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.SemanticAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
@@ -55,7 +56,7 @@ public abstract class AbstractSemanticAST<T extends AbstractSyntaxAST>
     
     @Getter
     @Setter
-    private int start, end;
+    private AbstractToken startToken, endToken;
     
     
     public AbstractSemanticAST(@Nullable final SemanticAnalyzer semanticAnalyzer, @Nullable final AbstractSemanticAST<?> lastContainerAST, @NotNull final T syntaxAST, @NotNull final ASTType astType) {
@@ -64,8 +65,8 @@ public abstract class AbstractSemanticAST<T extends AbstractSyntaxAST>
         this.syntaxAST = syntaxAST;
         this.astType = astType;
         
-        this.start = syntaxAST.getStart();
-        this.end = syntaxAST.getEnd();
+        this.startToken = syntaxAST.getStartToken();
+        this.endToken = syntaxAST.getEndToken();
     }
     
     
@@ -160,7 +161,7 @@ public abstract class AbstractSemanticAST<T extends AbstractSyntaxAST>
      */
     @Override
     public int hashCode() {
-        return Objects.hash(this.getLastContainerAST(), this.getSyntaxAST(), this.getAstType(), this.getStart(), this.getEnd());
+        return Objects.hash(this.getLastContainerAST(), this.getSyntaxAST(), this.getAstType(), this.getStartToken().getStart(), this.getEndToken().getEnd());
     }
     
 }

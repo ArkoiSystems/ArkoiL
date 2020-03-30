@@ -5,6 +5,7 @@
  */
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types;
 
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.IdentifierToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.OperatorType;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.SymbolType;
@@ -66,9 +67,11 @@ public class ArgumentSyntaxAST extends AbstractSyntaxAST
             );
             return Optional.empty();
         }
+    
+        this.setStartToken(this.getSyntaxAnalyzer().currentToken());
+        this.getMarkerFactory().mark(this.getStartToken());
         
         this.argumentName = (IdentifierToken) this.getSyntaxAnalyzer().currentToken();
-        this.setStart(this.getSyntaxAnalyzer().currentToken().getStart());
         
         if (this.getSyntaxAnalyzer().matchesNextToken(OperatorType.EQUALS) == null) {
             this.addError(
@@ -93,9 +96,12 @@ public class ArgumentSyntaxAST extends AbstractSyntaxAST
         final Optional<ExpressionSyntaxAST> optionalExpressionSyntaxAST = ExpressionSyntaxAST.EXPRESSION_PARSER.parse(this, this.getSyntaxAnalyzer());
         if (optionalExpressionSyntaxAST.isEmpty())
             return Optional.empty();
+        
+        this.getMarkerFactory().addFactory(optionalExpressionSyntaxAST.get().getMarkerFactory());
         this.argumentExpression = optionalExpressionSyntaxAST.get();
         
-        this.setEnd(this.getSyntaxAnalyzer().currentToken().getEnd());
+        this.setEndToken(this.getSyntaxAnalyzer().currentToken());
+        this.getMarkerFactory().done(this.getEndToken());
         return Optional.of(this);
     }
     
@@ -172,7 +178,7 @@ public class ArgumentSyntaxAST extends AbstractSyntaxAST
         private ExpressionSyntaxAST argumentExpression;
         
         
-        private int start, end;
+        private AbstractToken startToken, endToken;
         
         
         public ArgumentSyntaxASTBuilder(@NotNull final SyntaxAnalyzer syntaxAnalyzer) {
@@ -197,14 +203,14 @@ public class ArgumentSyntaxAST extends AbstractSyntaxAST
         }
         
         
-        public ArgumentSyntaxASTBuilder start(final int start) {
-            this.start = start;
+        public ArgumentSyntaxASTBuilder start(final AbstractToken startToken) {
+            this.startToken = startToken;
             return this;
         }
         
         
-        public ArgumentSyntaxASTBuilder end(final int end) {
-            this.end = end;
+        public ArgumentSyntaxASTBuilder end(final AbstractToken endToken) {
+            this.endToken = endToken;
             return this;
         }
         
@@ -215,8 +221,8 @@ public class ArgumentSyntaxAST extends AbstractSyntaxAST
                 parameterSyntaxAST.setArgumentName(this.argumentName);
             if (this.argumentExpression != null)
                 parameterSyntaxAST.setArgumentExpression(this.argumentExpression);
-            parameterSyntaxAST.setStart(this.start);
-            parameterSyntaxAST.setEnd(this.end);
+            parameterSyntaxAST.setStartToken(this.startToken);
+            parameterSyntaxAST.setEndToken(this.endToken);
             return parameterSyntaxAST;
         }
         

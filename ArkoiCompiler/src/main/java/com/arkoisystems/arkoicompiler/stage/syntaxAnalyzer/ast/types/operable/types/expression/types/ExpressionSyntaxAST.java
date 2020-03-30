@@ -5,6 +5,7 @@
  */
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types;
 
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.AbstractOperableSyntaxAST;
@@ -37,13 +38,19 @@ public class ExpressionSyntaxAST extends AbstractExpressionSyntaxAST
     @Override
     public Optional<ExpressionSyntaxAST> parseAST(@NotNull final AbstractSyntaxAST parentAST) {
         Objects.requireNonNull(this.getSyntaxAnalyzer());
-    
+        
         final Optional<? extends AbstractOperableSyntaxAST<?>> optionalAbstractOperableSyntaxAST = this.parseAssignment(this);
         if (optionalAbstractOperableSyntaxAST.isEmpty())
             return Optional.empty();
+        
+        this.getMarkerFactory().addFactory(optionalAbstractOperableSyntaxAST.get().getMarkerFactory());
         this.expressionOperable = optionalAbstractOperableSyntaxAST.get();
-        this.setStart(this.expressionOperable.getStart());
-        this.setEnd(this.expressionOperable.getEnd());
+    
+        this.setStartToken(this.expressionOperable.getStartToken());
+        this.getMarkerFactory().mark(this.getStartToken());
+        
+        this.setEndToken(this.expressionOperable.getEndToken());
+        this.getMarkerFactory().done(this.getEndToken());
         return Optional.of(this);
     }
     
@@ -76,7 +83,7 @@ public class ExpressionSyntaxAST extends AbstractExpressionSyntaxAST
         private AbstractOperableSyntaxAST<?> expressionOperable;
         
         
-        private int start, end;
+        private AbstractToken startToken, endToken;
         
         
         public ExpressionSyntaxASTBuilder(@NotNull final SyntaxAnalyzer syntaxAnalyzer) {
@@ -95,14 +102,14 @@ public class ExpressionSyntaxAST extends AbstractExpressionSyntaxAST
         }
         
         
-        public ExpressionSyntaxASTBuilder start(final int start) {
-            this.start = start;
+        public ExpressionSyntaxASTBuilder start(final AbstractToken startToken) {
+            this.startToken = startToken;
             return this;
         }
         
         
-        public ExpressionSyntaxASTBuilder end(final int end) {
-            this.end = end;
+        public ExpressionSyntaxASTBuilder end(final AbstractToken endToken) {
+            this.endToken = endToken;
             return this;
         }
         
@@ -111,8 +118,8 @@ public class ExpressionSyntaxAST extends AbstractExpressionSyntaxAST
             final ExpressionSyntaxAST typeSyntaxAST = new ExpressionSyntaxAST(this.syntaxAnalyzer);
             if (this.expressionOperable != null)
                 typeSyntaxAST.setExpressionOperable(this.expressionOperable);
-            typeSyntaxAST.setStart(this.start);
-            typeSyntaxAST.setEnd(this.end);
+            typeSyntaxAST.setStartToken(this.startToken);
+            typeSyntaxAST.setEndToken(this.endToken);
             return typeSyntaxAST;
         }
         

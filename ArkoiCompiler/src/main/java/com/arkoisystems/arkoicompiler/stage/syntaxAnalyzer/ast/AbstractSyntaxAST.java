@@ -15,6 +15,8 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxErrorType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.RootSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.marker.ArkoiMarker;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.marker.MarkerFactory;
 import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
@@ -35,6 +37,10 @@ import java.util.Optional;
 public abstract class AbstractSyntaxAST
 {
     
+    @Getter
+    @NotNull
+    private final MarkerFactory<? extends AbstractSyntaxAST> markerFactory;
+    
     /**
      * The {@link SyntaxAnalyzer} which is used to check the syntax with methods like
      * {@link SyntaxAnalyzer#matchesNextToken(SymbolType)} or {@link
@@ -54,14 +60,13 @@ public abstract class AbstractSyntaxAST
     @NotNull
     private final ASTType astType;
     
-    
     /**
      * The start and end index of the AST as char positions from the input source declared
      * in {@link ArkoiClass} which you can get through the {@link SyntaxAnalyzer}.
      */
     @Getter
     @Setter
-    private int start, end;
+    private AbstractToken startToken, endToken;
     
     
     /**
@@ -86,6 +91,8 @@ public abstract class AbstractSyntaxAST
     public AbstractSyntaxAST(@Nullable final SyntaxAnalyzer syntaxAnalyzer, @NotNull final ASTType astType) {
         this.syntaxAnalyzer = syntaxAnalyzer;
         this.astType = astType;
+    
+        this.markerFactory = new MarkerFactory<>(this, new ArkoiMarker(astType));
     }
     
     
@@ -159,14 +166,18 @@ public abstract class AbstractSyntaxAST
      *         the arguments list for the error message from the {@link SyntaxErrorType}.
      */
     public void addError(@NotNull final ArkoiClass arkoiClass, @NotNull final AbstractSyntaxAST[] abstractSyntaxASTs, @NotNull final String message, @NotNull final Object... arguments) {
-        this.failed();
-        
-        Objects.requireNonNull(this.getSyntaxAnalyzer()).getErrorHandler().addError(new ArkoiError(
+        Objects.requireNonNull(this.getSyntaxAnalyzer());
+        Objects.requireNonNull(this.getMarkerFactory());
+    
+        this.getSyntaxAnalyzer().getErrorHandler().addError(new ArkoiError(
                 arkoiClass,
                 abstractSyntaxASTs,
                 message,
                 arguments
         ));
+    
+        this.getMarkerFactory().error(message, arguments);
+        this.failed();
     }
     
     
@@ -185,14 +196,18 @@ public abstract class AbstractSyntaxAST
      *         the arguments list for the error message from the {@link SyntaxErrorType}.
      */
     public void addError(@NotNull final ArkoiClass arkoiClass, @NotNull final AbstractSyntaxAST abstractSyntaxAST, @NotNull final String message, @NotNull final Object... arguments) {
-        this.failed();
-        
-        Objects.requireNonNull(this.getSyntaxAnalyzer()).getErrorHandler().addError(new ArkoiError(
+        Objects.requireNonNull(this.getSyntaxAnalyzer());
+        Objects.requireNonNull(this.getMarkerFactory());
+    
+        this.getSyntaxAnalyzer().getErrorHandler().addError(new ArkoiError(
                 arkoiClass,
                 abstractSyntaxAST,
                 message,
                 arguments
         ));
+    
+        this.getMarkerFactory().error(message, arguments);
+        this.failed();
     }
     
     
@@ -213,15 +228,19 @@ public abstract class AbstractSyntaxAST
      *         the arguments list for the error message from the {@link SyntaxErrorType}.
      */
     public void addError(@NotNull final ArkoiClass arkoiClass, final int start, final int end, @NotNull final String message, @NotNull final Object... arguments) {
-        this.failed();
-        
-        Objects.requireNonNull(this.getSyntaxAnalyzer()).getErrorHandler().addError(new ArkoiError(
+        Objects.requireNonNull(this.getSyntaxAnalyzer());
+        Objects.requireNonNull(this.getMarkerFactory());
+    
+        this.getSyntaxAnalyzer().getErrorHandler().addError(new ArkoiError(
                 arkoiClass,
                 start,
                 end,
                 message,
                 arguments
         ));
+    
+        this.getMarkerFactory().error(message, arguments);
+        this.failed();
     }
     
     
@@ -240,14 +259,18 @@ public abstract class AbstractSyntaxAST
      *         the arguments list for the error message from the {@link SyntaxErrorType}.
      */
     public void addError(@NotNull final ArkoiClass arkoiClass, @NotNull final AbstractToken abstractToken, @NotNull final String message, @NotNull final Object... arguments) {
-        this.failed();
-        
-        Objects.requireNonNull(this.getSyntaxAnalyzer()).getErrorHandler().addError(new ArkoiError(
+        Objects.requireNonNull(this.getSyntaxAnalyzer());
+        Objects.requireNonNull(this.getMarkerFactory());
+    
+        this.getSyntaxAnalyzer().getErrorHandler().addError(new ArkoiError(
                 arkoiClass,
                 abstractToken,
                 message,
                 arguments
         ));
+    
+        this.getMarkerFactory().error(message, arguments);
+        this.failed();
     }
     
     
@@ -280,7 +303,7 @@ public abstract class AbstractSyntaxAST
      */
     @Override
     public int hashCode() {
-        return Objects.hash(this.getAstType(), this.getStart(), this.getEnd());
+        return Objects.hash(this.getAstType(), this.getStartToken(), this.getEndToken());
     }
     
 }

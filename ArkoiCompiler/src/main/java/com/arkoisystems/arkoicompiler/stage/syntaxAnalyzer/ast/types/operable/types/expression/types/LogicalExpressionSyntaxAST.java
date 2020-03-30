@@ -46,8 +46,11 @@ public class LogicalExpressionSyntaxAST extends AbstractExpressionSyntaxAST
         
         this.logicalOperatorType = logicalOperatorType;
         this.leftSideOperable = leftSideOperable;
+    
+        this.getMarkerFactory().addFactory(this.leftSideOperable.getMarkerFactory());
         
-        this.setStart(this.leftSideOperable.getStart());
+        this.setStartToken(this.leftSideOperable.getStartToken());
+        this.getMarkerFactory().mark(this.getStartToken());
     }
     
     

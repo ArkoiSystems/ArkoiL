@@ -93,7 +93,7 @@ public class TypeSyntaxAST extends AbstractSyntaxAST
     @Override
     public Optional<TypeSyntaxAST> parseAST(@NotNull final AbstractSyntaxAST parentAST) {
         Objects.requireNonNull(this.getSyntaxAnalyzer());
-        
+    
         if (this.getSyntaxAnalyzer().matchesCurrentToken(TokenType.TYPE_KEYWORD) == null) {
             this.addError(
                     this.getSyntaxAnalyzer().getArkoiClass(),
@@ -103,16 +103,18 @@ public class TypeSyntaxAST extends AbstractSyntaxAST
             return Optional.empty();
         }
     
-        this.setStart(this.getSyntaxAnalyzer().currentToken().getStart());
-        this.setTypeKeywordToken((TypeKeywordToken) this.getSyntaxAnalyzer().currentToken());
+        this.setStartToken(this.getSyntaxAnalyzer().currentToken());
+        this.getMarkerFactory().mark(this.getStartToken());
         
-        // This will check if the next two Tokens are an opening and closing bracket aka. "[]". If it is, then skip these two Tokens and set the "isArray" boolean to true.
+        this.setTypeKeywordToken((TypeKeywordToken) this.getSyntaxAnalyzer().currentToken());
+    
         if (this.getSyntaxAnalyzer().matchesPeekToken(1, SymbolType.OPENING_BRACKET) != null && this.getSyntaxAnalyzer().matchesPeekToken(2, SymbolType.CLOSING_BRACKET) != null) {
             this.getSyntaxAnalyzer().nextToken(2);
             this.isArray = true;
         }
         
-        this.setEnd(this.getSyntaxAnalyzer().currentToken().getEnd());
+        this.setEndToken(this.getSyntaxAnalyzer().currentToken());
+        this.getMarkerFactory().done(this.getEndToken());
         return Optional.of(this);
     }
     
@@ -141,7 +143,8 @@ public class TypeSyntaxAST extends AbstractSyntaxAST
     
     public static class TypeSyntaxASTBuilder
     {
-        
+    
+    
         @Nullable
         private final SyntaxAnalyzer syntaxAnalyzer;
         
@@ -153,9 +156,9 @@ public class TypeSyntaxAST extends AbstractSyntaxAST
         private boolean isArray;
         
         
-        private int start, end;
-        
-        
+        private AbstractToken startToken, endToken;
+    
+    
         public TypeSyntaxASTBuilder(@NotNull final SyntaxAnalyzer syntaxAnalyzer) {
             this.syntaxAnalyzer = syntaxAnalyzer;
         }
@@ -178,14 +181,14 @@ public class TypeSyntaxAST extends AbstractSyntaxAST
         }
         
         
-        public TypeSyntaxASTBuilder start(final int start) {
-            this.start = start;
+        public TypeSyntaxASTBuilder start(final AbstractToken startToken) {
+            this.startToken = startToken;
             return this;
         }
         
         
-        public TypeSyntaxASTBuilder end(final int end) {
-            this.end = end;
+        public TypeSyntaxASTBuilder end(final AbstractToken endToken) {
+            this.endToken = endToken;
             return this;
         }
         
@@ -195,8 +198,8 @@ public class TypeSyntaxAST extends AbstractSyntaxAST
             if (this.typeKeywordToken != null)
                 typeSyntaxAST.setTypeKeywordToken(this.typeKeywordToken);
             typeSyntaxAST.setArray(this.isArray);
-            typeSyntaxAST.setStart(this.start);
-            typeSyntaxAST.setEnd(this.end);
+            typeSyntaxAST.setStartToken(this.startToken);
+            typeSyntaxAST.setEndToken(this.endToken);
             return typeSyntaxAST;
         }
         

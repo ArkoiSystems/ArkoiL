@@ -74,7 +74,9 @@ public class ImportDefinitionSyntaxAST extends AbstractStatementSyntaxAST
             );
             return Optional.empty();
         }
-        this.setStart(this.getSyntaxAnalyzer().currentToken().getStart());
+        
+        this.setStartToken(this.getSyntaxAnalyzer().currentToken());
+        this.getMarkerFactory().mark(this.getStartToken());
         
         if (this.getSyntaxAnalyzer().matchesNextToken(TokenType.STRING_LITERAL) == null) {
             this.addError(
@@ -109,7 +111,8 @@ public class ImportDefinitionSyntaxAST extends AbstractStatementSyntaxAST
                     .build();
         }
         
-        this.setEnd(this.getSyntaxAnalyzer().currentToken().getEnd());
+        this.setEndToken(this.getSyntaxAnalyzer().currentToken());
+        this.getMarkerFactory().done(this.getEndToken());
         return Optional.of(this);
     }
     

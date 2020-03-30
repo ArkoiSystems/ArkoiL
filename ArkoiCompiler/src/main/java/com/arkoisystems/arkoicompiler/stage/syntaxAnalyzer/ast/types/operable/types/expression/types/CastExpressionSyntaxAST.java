@@ -44,8 +44,11 @@ public class CastExpressionSyntaxAST extends AbstractExpressionSyntaxAST
         super(syntaxAnalyzer, ASTType.CAST_EXPRESSION);
         
         this.leftSideOperable = leftSideOperable;
+    
+        this.getMarkerFactory().addFactory(this.leftSideOperable.getMarkerFactory());
         
-        this.setStart(this.leftSideOperable.getStart());
+        this.setStartToken(this.leftSideOperable.getStartToken());
+        this.getMarkerFactory().mark(this.getStartToken());
     }
     
     
@@ -90,9 +93,11 @@ public class CastExpressionSyntaxAST extends AbstractExpressionSyntaxAST
                         identifierToken,
                         SyntaxErrorType.EXPRESSION_CAST_WRONG_IDENTIFIER
                 );
+                return Optional.empty();
         }
         
-        this.setEnd(identifierToken.getEnd());
+        this.setEndToken(this.getSyntaxAnalyzer().currentToken());
+        this.getMarkerFactory().done(this.getEndToken());
         return Optional.of(this);
     }
     

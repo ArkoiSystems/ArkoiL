@@ -13,15 +13,16 @@ import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.*;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.*;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.RootSyntaxAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.marker.ArkoiMarker;
 import lombok.Getter;
+import lombok.NonNull;
+import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
-import java.util.function.Function;
-import java.util.function.Predicate;
 
 /**
  * This class is an implementation of the {@link AbstractStage}. It will parse an AST
@@ -71,6 +72,7 @@ public class SyntaxAnalyzer extends AbstractStage
      * {@link SyntaxAnalyzer#currentToken()} or {@link SyntaxAnalyzer#peekToken(int)}.
      */
     @Getter
+    @Setter
     private int position;
     
     

@@ -5,6 +5,7 @@
  */
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types;
 
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.NumberToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
@@ -53,10 +54,14 @@ public class NumberOperableSyntaxAST extends AbstractOperableSyntaxAST<TypeKind>
             );
             return Optional.empty();
         }
-        
+    
         this.setNumberToken((NumberToken) this.getSyntaxAnalyzer().currentToken());
-        this.setStart(this.getNumberToken().getStart());
-        this.setEnd(this.getNumberToken().getEnd());
+        
+        this.setStartToken(this.getNumberToken());
+        this.getMarkerFactory().mark(this.getStartToken());
+        
+        this.setEndToken(this.getNumberToken());
+        this.getMarkerFactory().done(this.getEndToken());
         return Optional.of(this);
     }
     
@@ -88,7 +93,7 @@ public class NumberOperableSyntaxAST extends AbstractOperableSyntaxAST<TypeKind>
         private NumberToken numberToken;
         
         
-        private int start, end;
+        private AbstractToken startToken, endToken;
         
         
         public NumberOperableSyntaxASTBuilder(@NotNull final SyntaxAnalyzer syntaxAnalyzer) {
@@ -107,14 +112,14 @@ public class NumberOperableSyntaxAST extends AbstractOperableSyntaxAST<TypeKind>
         }
         
         
-        public NumberOperableSyntaxASTBuilder start(final int start) {
-            this.start = start;
+        public NumberOperableSyntaxASTBuilder start(final AbstractToken startToken) {
+            this.startToken = startToken;
             return this;
         }
         
         
-        public NumberOperableSyntaxASTBuilder end(final int end) {
-            this.end = end;
+        public NumberOperableSyntaxASTBuilder end(final AbstractToken endToken) {
+            this.endToken = endToken;
             return this;
         }
         
@@ -123,8 +128,8 @@ public class NumberOperableSyntaxAST extends AbstractOperableSyntaxAST<TypeKind>
             final NumberOperableSyntaxAST numberOperableSyntaxAST = new NumberOperableSyntaxAST(this.syntaxAnalyzer);
             if (this.numberToken != null)
                 numberOperableSyntaxAST.setNumberToken(this.numberToken);
-            numberOperableSyntaxAST.setStart(this.start);
-            numberOperableSyntaxAST.setEnd(this.end);
+            numberOperableSyntaxAST.setStartToken(this.startToken);
+            numberOperableSyntaxAST.setEndToken(this.endToken);
             return numberOperableSyntaxAST;
         }
         

@@ -5,8 +5,8 @@
  */
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.types;
 
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.KeywordType;
-import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxErrorType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
@@ -61,7 +61,9 @@ public class ReturnStatementSyntaxAST extends AbstractStatementSyntaxAST
             return Optional.empty();
         }
         
-        this.setStart(this.getSyntaxAnalyzer().currentToken().getStart());
+        this.setStartToken(this.getSyntaxAnalyzer().currentToken());
+        this.getMarkerFactory().mark(this.getStartToken());
+        
         this.getSyntaxAnalyzer().nextToken(); // This will skip to the followed token after the "return" keyword, so we can check if the next token is an expression.
         
         if (!AbstractExpressionSyntaxAST.EXPRESSION_PARSER.canParse(this, this.getSyntaxAnalyzer())) {
@@ -76,9 +78,12 @@ public class ReturnStatementSyntaxAST extends AbstractStatementSyntaxAST
         final Optional<ExpressionSyntaxAST> optionalExpressionSyntaxAST = AbstractExpressionSyntaxAST.EXPRESSION_PARSER.parse(this, this.getSyntaxAnalyzer());
         if (optionalExpressionSyntaxAST.isEmpty())
             return Optional.empty();
+        
+        this.getMarkerFactory().addFactory(optionalExpressionSyntaxAST.get().getMarkerFactory());
         this.returnExpression = optionalExpressionSyntaxAST.get();
         
-        this.setEnd(this.getSyntaxAnalyzer().currentToken().getEnd());
+        this.setEndToken(this.getSyntaxAnalyzer().currentToken());
+        this.getMarkerFactory().done(this.getEndToken());
         return Optional.of(this);
     }
     
@@ -112,7 +117,7 @@ public class ReturnStatementSyntaxAST extends AbstractStatementSyntaxAST
         private ExpressionSyntaxAST expressionSyntaxAST;
         
         
-        private int start, end;
+        private AbstractToken startToken, endToken;
         
         
         public ReturnStatementSyntaxASTBuilder(@NotNull final SyntaxAnalyzer syntaxAnalyzer) {
@@ -131,14 +136,14 @@ public class ReturnStatementSyntaxAST extends AbstractStatementSyntaxAST
         }
         
         
-        public ReturnStatementSyntaxASTBuilder start(final int start) {
-            this.start = start;
+        public ReturnStatementSyntaxASTBuilder start(final AbstractToken startToken) {
+            this.startToken = startToken;
             return this;
         }
         
         
         public ReturnStatementSyntaxASTBuilder end(final int end) {
-            this.end = end;
+            this.endToken = endToken;
             return this;
         }
         
@@ -147,8 +152,8 @@ public class ReturnStatementSyntaxAST extends AbstractStatementSyntaxAST
             final ReturnStatementSyntaxAST returnStatementSyntaxAST = new ReturnStatementSyntaxAST(this.syntaxAnalyzer);
             if (this.expressionSyntaxAST != null)
                 returnStatementSyntaxAST.setReturnExpression(this.expressionSyntaxAST);
-            returnStatementSyntaxAST.setStart(this.start);
-            returnStatementSyntaxAST.setEnd(this.end);
+            returnStatementSyntaxAST.setStartToken(this.startToken);
+            returnStatementSyntaxAST.setEndToken(this.endToken);
             return returnStatementSyntaxAST;
         }
         
