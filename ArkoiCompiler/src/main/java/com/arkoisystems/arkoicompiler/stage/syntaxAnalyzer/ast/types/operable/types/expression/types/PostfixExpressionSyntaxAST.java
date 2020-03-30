@@ -5,7 +5,6 @@
  */
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types;
 
-import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.SymbolType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.AbstractOperableSyntaxAST;
@@ -42,15 +41,22 @@ public class PostfixExpressionSyntaxAST extends AbstractExpressionSyntaxAST
         
         this.postfixOperatorType = postfixOperatorType;
         this.leftSideOperable = leftSideOperable;
+    
+        this.getMarkerFactory().addFactory(this.leftSideOperable.getMarkerFactory());
         
-        this.setStart(this.leftSideOperable.getStart());
+        this.setStartToken(this.leftSideOperable.getStartToken());
+        this.getMarkerFactory().mark(this.getStartToken());
     }
     
     
     @Override
     public Optional<? extends AbstractOperableSyntaxAST<?>> parseAST(@NotNull final AbstractSyntaxAST parentAST) {
         Objects.requireNonNull(this.getSyntaxAnalyzer());
+        
         this.getSyntaxAnalyzer().nextToken(2);
+        
+        this.setEndToken(this.getSyntaxAnalyzer().currentToken());
+        this.getMarkerFactory().done(this.getEndToken());
         return Optional.of(this);
     }
     

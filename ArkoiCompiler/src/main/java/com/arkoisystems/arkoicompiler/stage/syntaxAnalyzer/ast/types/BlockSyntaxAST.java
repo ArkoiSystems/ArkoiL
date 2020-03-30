@@ -118,7 +118,9 @@ public class BlockSyntaxAST extends AbstractSyntaxAST
             );
             return Optional.empty();
         }
-        this.setStart(this.getSyntaxAnalyzer().currentToken().getStart());
+    
+        this.setStartToken(this.getSyntaxAnalyzer().currentToken());
+        this.getMarkerFactory().mark(this.getStartToken());
         
         if (this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.OPENING_BRACE) != null) {
             this.blockType = BlockType.BLOCK;
@@ -138,6 +140,8 @@ public class BlockSyntaxAST extends AbstractSyntaxAST
                     final Optional<? extends AbstractSyntaxAST> optionalAbstractSyntaxAST = abstractParser.parse(this, this.getSyntaxAnalyzer());
                     if (optionalAbstractSyntaxAST.isPresent()) {
                         final AbstractSyntaxAST abstractSyntaxAST = optionalAbstractSyntaxAST.get();
+                        this.getMarkerFactory().addFactory(abstractSyntaxAST.getMarkerFactory());
+                        
                         if (abstractSyntaxAST.isFailed())
                             this.failed();
                         
@@ -188,6 +192,8 @@ public class BlockSyntaxAST extends AbstractSyntaxAST
             final Optional<ExpressionSyntaxAST> optionalExpressionSyntaxAST = AbstractExpressionSyntaxAST.EXPRESSION_PARSER.parse(this, this.getSyntaxAnalyzer());
             if (optionalExpressionSyntaxAST.isEmpty())
                 return Optional.empty();
+            
+            this.getMarkerFactory().addFactory(optionalExpressionSyntaxAST.get().getMarkerFactory());
             this.blockStorage.add(optionalExpressionSyntaxAST.get());
         } else {
             this.addError(
@@ -198,7 +204,8 @@ public class BlockSyntaxAST extends AbstractSyntaxAST
             return Optional.empty();
         }
         
-        this.setEnd(this.getSyntaxAnalyzer().currentToken().getEnd());
+        this.setEndToken(this.getSyntaxAnalyzer().currentToken());
+        this.getMarkerFactory().done(this.getEndToken());
         return this.isFailed() ? Optional.empty() : Optional.of(this);
     }
     
@@ -246,7 +253,7 @@ public class BlockSyntaxAST extends AbstractSyntaxAST
         private BlockType blockType;
         
         
-        private int start, end;
+        private AbstractToken startToken, endToken;
         
         
         public BlockSyntaxASTBuilder(@NotNull final SyntaxAnalyzer syntaxAnalyzer) {
@@ -271,14 +278,14 @@ public class BlockSyntaxAST extends AbstractSyntaxAST
         }
         
         
-        public BlockSyntaxASTBuilder start(final int start) {
-            this.start = start;
+        public BlockSyntaxASTBuilder start(final AbstractToken startToken) {
+            this.startToken = startToken;
             return this;
         }
         
         
-        public BlockSyntaxASTBuilder end(final int end) {
-            this.end = end;
+        public BlockSyntaxASTBuilder end(final AbstractToken endToken) {
+            this.endToken = endToken;
             return this;
         }
         
@@ -288,8 +295,8 @@ public class BlockSyntaxAST extends AbstractSyntaxAST
             blockSyntaxAST.setBlockType(this.blockType);
             if (this.blockStorage != null)
                 blockSyntaxAST.setBlockStorage(this.blockStorage);
-            blockSyntaxAST.setStart(this.start);
-            blockSyntaxAST.setEnd(this.end);
+            blockSyntaxAST.setStartToken(this.startToken);
+            blockSyntaxAST.setEndToken(this.endToken);
             return blockSyntaxAST;
         }
         

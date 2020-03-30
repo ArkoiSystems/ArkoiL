@@ -14,7 +14,6 @@ import com.intellij.lang.ParserDefinition
 import com.intellij.lang.ParserDefinition.SpaceRequirements
 import com.intellij.openapi.project.Project
 import com.intellij.psi.FileViewProvider
-import com.intellij.psi.PsiElement
 import com.intellij.psi.TokenType
 import com.intellij.psi.tree.IFileElementType
 import com.intellij.psi.tree.TokenSet
@@ -30,8 +29,7 @@ class ArkoiParserDefinition : ParserDefinition {
 
     override fun getFileNodeType() = IFileElementType(ArkoiLanguage)
 
-    override fun createElement(node: ASTNode?): PsiElement =
-        ArkoiTokenTypes.createElement(node)
+    override fun createElement(node: ASTNode?) = ArkoiElementTypes.createElement(node)
 
 
     override fun getWhitespaceTokens() = TokenSet.create(TokenType.WHITE_SPACE)

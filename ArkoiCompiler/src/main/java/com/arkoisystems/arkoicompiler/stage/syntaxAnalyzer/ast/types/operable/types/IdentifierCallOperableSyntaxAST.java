@@ -76,8 +76,10 @@ public class IdentifierCallOperableSyntaxAST extends AbstractOperableSyntaxAST<T
     @Override
     public Optional<IdentifierCallOperableSyntaxAST> parseAST(@NotNull final AbstractSyntaxAST parentAST) {
         Objects.requireNonNull(this.getSyntaxAnalyzer());
+    
+        this.setStartToken(this.getSyntaxAnalyzer().currentToken());
+        this.getMarkerFactory().mark(this.getStartToken());
         
-        this.setStart(this.getSyntaxAnalyzer().currentToken().getStart());
         if (this.getSyntaxAnalyzer().matchesCurrentToken(KeywordType.THIS) != null) {
             this.isFileLocal = true;
             
@@ -121,6 +123,8 @@ public class IdentifierCallOperableSyntaxAST extends AbstractOperableSyntaxAST<T
                 );
                 return Optional.empty();
             }
+            
+            this.getMarkerFactory().addFactory(optionalFunctionCallPartSyntaxAST.get().getMarkerFactory());
             this.calledFunctionPart = optionalFunctionCallPartSyntaxAST.get();
         }
         
@@ -148,10 +152,13 @@ public class IdentifierCallOperableSyntaxAST extends AbstractOperableSyntaxAST<T
                 );
                 return Optional.empty();
             }
+            
+            this.getMarkerFactory().addFactory(optionalIdentifierCallOperableSyntaxAST.get().getMarkerFactory());
             this.nextIdentifierCall = optionalIdentifierCallOperableSyntaxAST.get();
         }
         
-        this.setEnd(this.calledIdentifier.getEnd());
+        this.setEndToken(this.getSyntaxAnalyzer().currentToken());
+        this.getMarkerFactory().done(this.getEndToken());
         return Optional.of(this);
     }
     
@@ -195,7 +202,7 @@ public class IdentifierCallOperableSyntaxAST extends AbstractOperableSyntaxAST<T
         private IdentifierCallOperableSyntaxAST nextIdentifierCall;
         
         
-        private int start, end;
+        private AbstractToken startToken, endToken;
         
         
         public IdentifierCallOperableSyntaxASTBuilder(@NotNull final SyntaxAnalyzer syntaxAnalyzer) {
@@ -232,14 +239,14 @@ public class IdentifierCallOperableSyntaxAST extends AbstractOperableSyntaxAST<T
         }
         
         
-        public IdentifierCallOperableSyntaxASTBuilder start(final int start) {
-            this.start = start;
+        public IdentifierCallOperableSyntaxASTBuilder start(final AbstractToken startToken) {
+            this.startToken = startToken;
             return this;
         }
         
         
-        public IdentifierCallOperableSyntaxASTBuilder end(final int end) {
-            this.end = end;
+        public IdentifierCallOperableSyntaxASTBuilder end(final AbstractToken endToken) {
+            this.endToken = endToken;
             return this;
         }
         
@@ -253,8 +260,8 @@ public class IdentifierCallOperableSyntaxAST extends AbstractOperableSyntaxAST<T
                 identifierCallOperableSyntaxAST.setCalledFunctionPart(this.calledFunctionPart);
             if (this.nextIdentifierCall != null)
                 identifierCallOperableSyntaxAST.setNextIdentifierCall(this.nextIdentifierCall);
-            identifierCallOperableSyntaxAST.setStart(this.start);
-            identifierCallOperableSyntaxAST.setEnd(this.end);
+            identifierCallOperableSyntaxAST.setStartToken(this.startToken);
+            identifierCallOperableSyntaxAST.setEndToken(this.endToken);
             return identifierCallOperableSyntaxAST;
         }
         

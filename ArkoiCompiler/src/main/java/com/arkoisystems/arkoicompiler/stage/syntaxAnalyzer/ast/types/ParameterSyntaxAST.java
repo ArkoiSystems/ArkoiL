@@ -5,6 +5,7 @@
  */
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types;
 
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.IdentifierToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.SymbolType;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
@@ -88,9 +89,11 @@ public class ParameterSyntaxAST extends AbstractSyntaxAST
             );
             return Optional.empty();
         }
+    
+        this.setStartToken(this.getSyntaxAnalyzer().currentToken());
+        this.getMarkerFactory().mark(this.getStartToken());
         
         this.parameterName = (IdentifierToken) this.getSyntaxAnalyzer().currentToken();
-        this.setStart(this.getSyntaxAnalyzer().currentToken().getStart());
         
         if (this.getSyntaxAnalyzer().matchesNextToken(SymbolType.COLON) == null) {
             this.addError(
@@ -115,9 +118,12 @@ public class ParameterSyntaxAST extends AbstractSyntaxAST
         final Optional<TypeSyntaxAST> optionalTypeSyntaxAST = TypeSyntaxAST.TYPE_PARSER.parse(this, this.getSyntaxAnalyzer());
         if (optionalTypeSyntaxAST.isEmpty())
             return Optional.empty();
+        
+        this.getMarkerFactory().addFactory(optionalTypeSyntaxAST.get().getMarkerFactory());
         this.parameterType = optionalTypeSyntaxAST.get();
         
-        this.setEnd(this.getSyntaxAnalyzer().currentToken().getEnd());
+        this.setEndToken(this.getSyntaxAnalyzer().currentToken());
+        this.getMarkerFactory().done(this.getEndToken());
         return Optional.of(this);
     }
     
@@ -209,7 +215,7 @@ public class ParameterSyntaxAST extends AbstractSyntaxAST
         private TypeSyntaxAST argumentType;
         
         
-        private int start, end;
+        private AbstractToken startToken, endToken;
         
         
         public ParameterSyntaxASTBuilder(@NotNull final SyntaxAnalyzer syntaxAnalyzer) {
@@ -234,14 +240,14 @@ public class ParameterSyntaxAST extends AbstractSyntaxAST
         }
         
         
-        public ParameterSyntaxASTBuilder start(final int start) {
-            this.start = start;
+        public ParameterSyntaxASTBuilder start(final AbstractToken startToken) {
+            this.startToken = startToken;
             return this;
         }
         
         
-        public ParameterSyntaxASTBuilder end(final int end) {
-            this.end = end;
+        public ParameterSyntaxASTBuilder end(final AbstractToken endToken) {
+            this.endToken = endToken;
             return this;
         }
         
@@ -252,8 +258,8 @@ public class ParameterSyntaxAST extends AbstractSyntaxAST
                 parameterSyntaxAST.setParameterName(this.argumentName);
             if (this.argumentType != null)
                 parameterSyntaxAST.setParameterType(this.argumentType);
-            parameterSyntaxAST.setStart(this.start);
-            parameterSyntaxAST.setEnd(this.end);
+            parameterSyntaxAST.setStartToken(this.startToken);
+            parameterSyntaxAST.setEndToken(this.endToken);
             return parameterSyntaxAST;
         }
         

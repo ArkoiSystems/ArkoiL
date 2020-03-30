@@ -8,7 +8,6 @@ package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.IdentifierToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.KeywordType;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.OperatorType;
-import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.SymbolType;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxErrorType;
@@ -91,7 +90,9 @@ public class VariableDefinitionSyntaxAST extends AbstractStatementSyntaxAST
             );
             return Optional.empty();
         }
-        this.setStart(this.getSyntaxAnalyzer().currentToken().getStart());
+    
+        this.setStartToken(this.getSyntaxAnalyzer().currentToken());
+        this.getMarkerFactory().mark(this.getStartToken());
         
         if (this.getSyntaxAnalyzer().matchesNextToken(TokenType.IDENTIFIER) == null) {
             this.addError(
@@ -124,9 +125,12 @@ public class VariableDefinitionSyntaxAST extends AbstractStatementSyntaxAST
         final Optional<ExpressionSyntaxAST> optionalExpressionSyntaxAST = AbstractExpressionSyntaxAST.EXPRESSION_PARSER.parse(this, this.getSyntaxAnalyzer());
         if (optionalExpressionSyntaxAST.isEmpty())
             return Optional.empty();
+        
+        this.getMarkerFactory().addFactory(optionalExpressionSyntaxAST.get().getMarkerFactory());
         this.variableExpression = optionalExpressionSyntaxAST.get();
         
-        this.setEnd(this.getSyntaxAnalyzer().currentToken().getEnd());
+        this.setEndToken(this.getSyntaxAnalyzer().currentToken());
+        this.getMarkerFactory().done(this.getEndToken());
         return Optional.of(this);
     }
     

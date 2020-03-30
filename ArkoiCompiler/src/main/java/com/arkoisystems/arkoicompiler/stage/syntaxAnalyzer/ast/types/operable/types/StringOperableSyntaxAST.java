@@ -5,6 +5,7 @@
  */
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types;
 
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.StringToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
@@ -53,10 +54,14 @@ public class StringOperableSyntaxAST extends AbstractOperableSyntaxAST<TypeKind>
             );
             return Optional.empty();
         }
-        
+    
         this.setStringToken((StringToken) this.getSyntaxAnalyzer().currentToken());
-        this.setStart(this.getStringToken().getStart());
-        this.setEnd(this.getStringToken().getEnd());
+        
+        this.setStartToken(this.getStringToken());
+        this.getMarkerFactory().mark(this.getStartToken());
+        
+        this.setEndToken(this.getStringToken());
+        this.getMarkerFactory().done(this.getEndToken());
         return Optional.of(this);
     }
     
@@ -88,7 +93,7 @@ public class StringOperableSyntaxAST extends AbstractOperableSyntaxAST<TypeKind>
         private StringToken stringToken;
         
         
-        private int start, end;
+        private AbstractToken startToken, endToken;
         
         
         public StringOperableSyntaxASTBuilder(@NotNull final SyntaxAnalyzer syntaxAnalyzer) {
@@ -107,14 +112,14 @@ public class StringOperableSyntaxAST extends AbstractOperableSyntaxAST<TypeKind>
         }
         
         
-        public StringOperableSyntaxASTBuilder start(final int start) {
-            this.start = start;
+        public StringOperableSyntaxASTBuilder start(final AbstractToken startToken) {
+            this.startToken = startToken;
             return this;
         }
         
         
-        public StringOperableSyntaxASTBuilder end(final int end) {
-            this.end = end;
+        public StringOperableSyntaxASTBuilder end(final AbstractToken endToken) {
+            this.endToken = endToken;
             return this;
         }
         
@@ -123,8 +128,8 @@ public class StringOperableSyntaxAST extends AbstractOperableSyntaxAST<TypeKind>
             final StringOperableSyntaxAST stringOperableSyntaxAST = new StringOperableSyntaxAST(this.syntaxAnalyzer);
             if (this.stringToken != null)
                 stringOperableSyntaxAST.setStringToken(this.stringToken);
-            stringOperableSyntaxAST.setStart(this.start);
-            stringOperableSyntaxAST.setEnd(this.end);
+            stringOperableSyntaxAST.setStartToken(this.startToken);
+            stringOperableSyntaxAST.setEndToken(this.endToken);
             return stringOperableSyntaxAST;
         }
         

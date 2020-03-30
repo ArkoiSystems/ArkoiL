@@ -5,6 +5,7 @@
  */
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types;
 
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.SymbolType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
@@ -47,7 +48,10 @@ public class FunctionCallPartSyntaxAST extends AbstractSyntaxAST
                     "2"
             );
             return Optional.empty();
-        } else this.setStart(this.getSyntaxAnalyzer().currentToken().getStart());
+        }
+    
+        this.setStartToken(this.getSyntaxAnalyzer().currentToken());
+        this.getMarkerFactory().mark(this.getStartToken());
         
         this.getSyntaxAnalyzer().nextToken();
         
@@ -67,6 +71,7 @@ public class FunctionCallPartSyntaxAST extends AbstractSyntaxAST
                 return Optional.empty();
             }
             
+            this.getMarkerFactory().addFactory(optionalExpressionSyntaxAST.get().getMarkerFactory());
             this.calledExpressions.add(optionalExpressionSyntaxAST.get());
             this.getSyntaxAnalyzer().nextToken();
         }
@@ -78,7 +83,10 @@ public class FunctionCallPartSyntaxAST extends AbstractSyntaxAST
                     "4"
             );
             return Optional.empty();
-        } else this.setEnd(this.getSyntaxAnalyzer().currentToken().getEnd());
+        }
+        
+        this.setEndToken(this.getSyntaxAnalyzer().currentToken());
+        this.getMarkerFactory().done(this.getEndToken());
         return Optional.of(this);
     }
     
@@ -108,7 +116,7 @@ public class FunctionCallPartSyntaxAST extends AbstractSyntaxAST
         private List<ExpressionSyntaxAST> calledExpressions;
         
         
-        private int start, end;
+        private AbstractToken startToken, endToken;
         
         
         public FunctionCallPartSyntaxASTBuilder(@NotNull final SyntaxAnalyzer syntaxAnalyzer) {
@@ -127,14 +135,14 @@ public class FunctionCallPartSyntaxAST extends AbstractSyntaxAST
         }
     
     
-        public FunctionCallPartSyntaxASTBuilder start(final int start) {
-            this.start = start;
+        public FunctionCallPartSyntaxASTBuilder start(final AbstractToken startToken) {
+            this.startToken = startToken;
             return this;
         }
     
     
-        public FunctionCallPartSyntaxASTBuilder end(final int end) {
-            this.end = end;
+        public FunctionCallPartSyntaxASTBuilder end(final AbstractToken endToken) {
+            this.endToken = endToken;
             return this;
         }
         
@@ -143,8 +151,8 @@ public class FunctionCallPartSyntaxAST extends AbstractSyntaxAST
             final FunctionCallPartSyntaxAST functionCallPartSyntaxAST = new FunctionCallPartSyntaxAST(this.syntaxAnalyzer);
             if (this.calledExpressions != null)
                 functionCallPartSyntaxAST.setCalledExpressions(this.calledExpressions);
-            functionCallPartSyntaxAST.setStart(this.start);
-            functionCallPartSyntaxAST.setEnd(this.end);
+            functionCallPartSyntaxAST.setStartToken(this.startToken);
+            functionCallPartSyntaxAST.setEndToken(this.endToken);
             return functionCallPartSyntaxAST;
         }
         

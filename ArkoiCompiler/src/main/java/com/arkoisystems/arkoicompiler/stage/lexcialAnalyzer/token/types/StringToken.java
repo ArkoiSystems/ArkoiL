@@ -41,21 +41,21 @@ public class StringToken extends AbstractToken
                     .build()
                     .parseToken();
         }
-        
+    
+        this.setStart(this.getLexicalAnalyzer().getPosition());
         this.getLexicalAnalyzer().next();
-        this.setStart(this.getLexicalAnalyzer().getPosition() - 1);
         
         char lastChar = ' ';
         while (this.getLexicalAnalyzer().getPosition() < this.getLexicalAnalyzer().getArkoiClass().getContent().length) {
             final char currentChar = this.getLexicalAnalyzer().currentChar();
-            if (lastChar != '\\' && currentChar == '"') {
-                this.setEnd(this.getLexicalAnalyzer().getPosition() + 1);
+            if (lastChar != '\\' && currentChar == '"')
                 break;
-            } else if (currentChar == 0x0A || currentChar == 0x0D)
+            else if (currentChar == 0x0A || currentChar == 0x0D)
                 break;
             lastChar = currentChar;
             this.getLexicalAnalyzer().next();
         }
+        this.setEnd(this.getLexicalAnalyzer().getPosition() + 1);
         
         if (this.getLexicalAnalyzer().currentChar() != '"') {
             this.addError(
@@ -64,10 +64,10 @@ public class StringToken extends AbstractToken
                     this.getLexicalAnalyzer().getPosition(),
                     "The defined string doesn't end with another double quote:"
             );
-            return  BadToken
+            return BadToken
                     .builder()
                     .start(this.getStart())
-                    .end(this.getLexicalAnalyzer().getPosition() + 1)
+                    .end(this.getEnd())
                     .build()
                     .parseToken();
         }

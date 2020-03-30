@@ -31,12 +31,12 @@ import com.intellij.psi.tree.IElementType
 
 class ArkoiLexer : LexerBase() {
 
-    private var tokens: Array<out AbstractToken>? = null
+    var tokens: Array<out AbstractToken>? = null
 
-    private var tokenIndex = 0
+    var bufferArray: ByteArray? = null
 
+    var arkoiClass: ArkoiClass? = null
 
-    private var bufferArray: ByteArray? = null
 
     private var buffer: CharSequence? = null
 
@@ -45,6 +45,8 @@ class ArkoiLexer : LexerBase() {
     private var tokenEndOffset = 0
 
     private var startOffset = 0
+
+    private var tokenIndex = 0
 
     private var endOffset = 0
 
@@ -70,6 +72,7 @@ class ArkoiLexer : LexerBase() {
                 "",
                 this.bufferArray!!
             )
+            this.arkoiClass = arkoiClass
 
             arkoiClass.lexicalAnalyzer.position = this.startOffset
             arkoiClass.lexicalAnalyzer.processStage()
@@ -78,7 +81,7 @@ class ArkoiLexer : LexerBase() {
     }
 
     override fun advance() {
-        this.tokenIndex++;
+        this.tokenIndex++
     }
 
     override fun getTokenType(): IElementType? {

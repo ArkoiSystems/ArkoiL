@@ -13,7 +13,6 @@ package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils;
 public enum ASTType
 {
     
-    THIS_STATEMENT,
     RETURN_STATEMENT,
     
     BINARY_EXPRESSION,
@@ -33,10 +32,8 @@ public enum ASTType
     VARIABLE_DEFINITION,
     FUNCTION_DEFINITION,
     
-    IDENTIFIER_INVOKE_OPERABLE,
     FUNCTION_CALL_PART,
     IDENTIFIER_CALL_OPERABLE,
-    FUNCTION_INVOKE_OPERABLE,
     COLLECTION_OPERABLE,
     NUMBER_OPERABLE,
     STRING_OPERABLE,

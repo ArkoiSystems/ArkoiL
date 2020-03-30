@@ -7,9 +7,7 @@ package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types;
 
 import com.arkoisystems.arkoicompiler.ArkoiClass;
 import com.arkoisystems.arkoicompiler.ArkoiCompiler;
-import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.CommentToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.EndOfFileToken;
-import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.KeywordType;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.SymbolType;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.SemanticAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
@@ -119,9 +117,10 @@ public class RootSyntaxAST extends AbstractSyntaxAST
     @Override
     public Optional<RootSyntaxAST> parseAST(@Nullable final AbstractSyntaxAST parentAST) {
         Objects.requireNonNull(this.getSyntaxAnalyzer());
-        
-        this.setEnd(this.getSyntaxAnalyzer().getArkoiClass().getContent().length);
-        this.setStart(0);
+        Objects.requireNonNull(this.getMarkerFactory());
+    
+        this.setStartToken(this.getSyntaxAnalyzer().currentToken());
+        this.getMarkerFactory().mark(this.getStartToken());
         
         main_loop:
         while (this.getSyntaxAnalyzer().getPosition() < this.getSyntaxAnalyzer().getTokens().length) {
@@ -135,6 +134,8 @@ public class RootSyntaxAST extends AbstractSyntaxAST
                 final Optional<? extends AbstractSyntaxAST> optionalAbstractSyntaxAST = abstractParser.parse(this, this.getSyntaxAnalyzer());
                 if (optionalAbstractSyntaxAST.isPresent()) {
                     final AbstractSyntaxAST abstractSyntaxAST = optionalAbstractSyntaxAST.get();
+                    this.getMarkerFactory().addFactory(abstractSyntaxAST.getMarkerFactory());
+                    
                     if (abstractSyntaxAST.isFailed())
                         this.failed();
                     
@@ -173,7 +174,9 @@ public class RootSyntaxAST extends AbstractSyntaxAST
             );
             this.skipToNextValidToken();
         }
-        
+    
+        this.setEndToken(this.getSyntaxAnalyzer().currentToken());
+        this.getMarkerFactory().done(this.getEndToken());
         return this.isFailed() ? Optional.empty() : Optional.of(this);
     }
     
@@ -242,7 +245,7 @@ public class RootSyntaxAST extends AbstractSyntaxAST
      * @return the {@link #sortedStorage} {@link List} which got sorted before.
      */
     public List<AbstractSyntaxAST> getSortedStorage() {
-        this.sortedStorage.sort(Comparator.comparingInt(AbstractSyntaxAST::getStart));
+        this.sortedStorage.sort(Comparator.comparingInt(value -> value.getStartToken().getStart()));
         return this.sortedStorage;
     }
     

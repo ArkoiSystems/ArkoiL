@@ -46,8 +46,11 @@ public class EqualityExpressionSyntaxAST extends AbstractExpressionSyntaxAST
         
         this.equalityOperatorType = equalityOperatorType;
         this.leftSideOperable = leftSideOperable;
+    
+        this.getMarkerFactory().addFactory(this.leftSideOperable.getMarkerFactory());
         
-        this.setStart(this.leftSideOperable.getStart());
+        this.setStartToken(this.leftSideOperable.getStartToken());
+        this.getMarkerFactory().mark(this.getStartToken());
     }
     
     

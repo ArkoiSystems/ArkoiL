@@ -5,7 +5,7 @@
  */
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types;
 
-import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.SymbolType;
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.AbstractOperableSyntaxAST;
@@ -54,8 +54,11 @@ public class BinaryExpressionSyntaxAST extends AbstractExpressionSyntaxAST
         
         this.binaryOperatorType = binaryOperatorType;
         this.leftSideOperable = leftSideOperable;
+    
+        this.getMarkerFactory().addFactory(this.leftSideOperable.getMarkerFactory());
         
-        this.setStart(this.leftSideOperable.getStart());
+        this.setStartToken(this.leftSideOperable.getStartToken());
+        this.getMarkerFactory().mark(this.getStartToken());
     }
     
     
@@ -64,11 +67,16 @@ public class BinaryExpressionSyntaxAST extends AbstractExpressionSyntaxAST
         Objects.requireNonNull(this.getSyntaxAnalyzer());
     
         this.getSyntaxAnalyzer().nextToken(2);
+        
         final Optional<? extends AbstractOperableSyntaxAST<?>> optionalRightSideAST = this.parseMultiplicative(parentAST);
         if (optionalRightSideAST.isEmpty())
             return Optional.empty();
+        
+        this.getMarkerFactory().addFactory(optionalRightSideAST.get().getMarkerFactory());
         this.rightSideOperable = optionalRightSideAST.get();
-        this.setEnd(this.rightSideOperable.getEnd());
+        
+        this.setEndToken(this.rightSideOperable.getEndToken());
+        this.getMarkerFactory().done(this.getEndToken());
         return Optional.of(this);
     }
     
@@ -116,7 +124,7 @@ public class BinaryExpressionSyntaxAST extends AbstractExpressionSyntaxAST
         private AbstractOperableSyntaxAST<?> rightSideOperable;
         
         
-        private int start, end;
+        private AbstractToken startToken, endToken;
     
     
         public BinaryExpressionSyntaxASTBuilder(@NotNull final SyntaxAnalyzer syntaxAnalyzer) {
@@ -147,14 +155,14 @@ public class BinaryExpressionSyntaxAST extends AbstractExpressionSyntaxAST
         }
     
     
-        public BinaryExpressionSyntaxASTBuilder start(final int start) {
-            this.start = start;
+        public BinaryExpressionSyntaxASTBuilder start(final AbstractToken startToken) {
+            this.startToken = startToken;
             return this;
         }
         
         
-        public BinaryExpressionSyntaxASTBuilder end(final int end) {
-            this.end = end;
+        public BinaryExpressionSyntaxASTBuilder end(final AbstractToken endToken) {
+            this.endToken = endToken;
             return this;
         }
         
@@ -167,8 +175,8 @@ public class BinaryExpressionSyntaxAST extends AbstractExpressionSyntaxAST
                 binaryExpressionSyntaxAST.setBinaryOperatorType(this.binaryOperatorType);
             if (this.rightSideOperable != null)
                 binaryExpressionSyntaxAST.setRightSideOperable(this.rightSideOperable);
-            binaryExpressionSyntaxAST.setStart(this.start);
-            binaryExpressionSyntaxAST.setEnd(this.end);
+            binaryExpressionSyntaxAST.setStartToken(this.startToken);
+            binaryExpressionSyntaxAST.setEndToken(this.endToken);
             return binaryExpressionSyntaxAST;
         }
         
