@@ -9,7 +9,8 @@ import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.SymbolType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types.ExpressionSyntaxAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.AbstractOperableSyntaxAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.AbstractExpressionSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -21,7 +22,6 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 public class FunctionCallPartSyntaxAST extends AbstractSyntaxAST
 {
@@ -29,7 +29,7 @@ public class FunctionCallPartSyntaxAST extends AbstractSyntaxAST
     @Getter
     @Setter(AccessLevel.PROTECTED)
     @NotNull
-    private List<ExpressionSyntaxAST> calledExpressions = new ArrayList<>();
+    private List<AbstractOperableSyntaxAST<?>> calledExpressions = new ArrayList<>();
     
     
     protected FunctionCallPartSyntaxAST(@Nullable final SyntaxAnalyzer syntaxAnalyzer) {
@@ -37,8 +37,9 @@ public class FunctionCallPartSyntaxAST extends AbstractSyntaxAST
     }
     
     
+    @NotNull
     @Override
-    public Optional<FunctionCallPartSyntaxAST> parseAST(@NotNull final AbstractSyntaxAST parentAST) {
+    public FunctionCallPartSyntaxAST parseAST(@NotNull final AbstractSyntaxAST parentAST) {
         Objects.requireNonNull(this.getSyntaxAnalyzer());
         
         if (this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.OPENING_PARENTHESIS) == null) {
@@ -47,9 +48,9 @@ public class FunctionCallPartSyntaxAST extends AbstractSyntaxAST
                     this.getSyntaxAnalyzer().currentToken(),
                     "2"
             );
-            return Optional.empty();
+            return this;
         }
-    
+        
         this.setStartToken(this.getSyntaxAnalyzer().currentToken());
         this.getMarkerFactory().mark(this.getStartToken());
         
@@ -58,21 +59,17 @@ public class FunctionCallPartSyntaxAST extends AbstractSyntaxAST
         while (this.getSyntaxAnalyzer().getPosition() < this.getSyntaxAnalyzer().getTokens().length) {
             if (this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.CLOSING_PARENTHESIS) != null)
                 break;
-            if (!ExpressionSyntaxAST.EXPRESSION_PARSER.canParse(this, getSyntaxAnalyzer()))
+            if (!AbstractExpressionSyntaxAST.EXPRESSION_PARSER.canParse(this, getSyntaxAnalyzer()))
                 break;
             
-            final Optional<ExpressionSyntaxAST> optionalExpressionSyntaxAST = ExpressionSyntaxAST.EXPRESSION_PARSER.parse(this, getSyntaxAnalyzer());
-            if (optionalExpressionSyntaxAST.isEmpty()) {
-                this.addError(
-                        this.getSyntaxAnalyzer().getArkoiClass(),
-                        this.getSyntaxAnalyzer().currentToken(),
-                        "3"
-                );
-                return Optional.empty();
-            }
+            final AbstractOperableSyntaxAST<?> abstractOperableSyntaxAST = AbstractExpressionSyntaxAST.EXPRESSION_PARSER.parse(this, getSyntaxAnalyzer());
+            this.getMarkerFactory().addFactory(abstractOperableSyntaxAST.getMarkerFactory());
             
-            this.getMarkerFactory().addFactory(optionalExpressionSyntaxAST.get().getMarkerFactory());
-            this.calledExpressions.add(optionalExpressionSyntaxAST.get());
+            if (abstractOperableSyntaxAST.isFailed()) {
+                this.failed();
+                return this;
+            } else this.calledExpressions.add(abstractOperableSyntaxAST);
+            
             this.getSyntaxAnalyzer().nextToken();
         }
         
@@ -82,12 +79,12 @@ public class FunctionCallPartSyntaxAST extends AbstractSyntaxAST
                     this.getSyntaxAnalyzer().currentToken(),
                     "4"
             );
-            return Optional.empty();
+            return this;
         }
         
         this.setEndToken(this.getSyntaxAnalyzer().currentToken());
         this.getMarkerFactory().done(this.getEndToken());
-        return Optional.of(this);
+        return this;
     }
     
     
@@ -110,26 +107,26 @@ public class FunctionCallPartSyntaxAST extends AbstractSyntaxAST
         
         @Nullable
         private final SyntaxAnalyzer syntaxAnalyzer;
-        
-        
+    
+    
         @Nullable
-        private List<ExpressionSyntaxAST> calledExpressions;
+        private List<AbstractOperableSyntaxAST<?>> calledExpressions;
         
         
         private AbstractToken startToken, endToken;
-        
-        
+    
+    
         public FunctionCallPartSyntaxASTBuilder(@NotNull final SyntaxAnalyzer syntaxAnalyzer) {
             this.syntaxAnalyzer = syntaxAnalyzer;
         }
-        
-        
+    
+    
         public FunctionCallPartSyntaxASTBuilder() {
             this.syntaxAnalyzer = null;
         }
-        
-        
-        public FunctionCallPartSyntaxASTBuilder expressions(final List<ExpressionSyntaxAST> expressions) {
+    
+    
+        public FunctionCallPartSyntaxASTBuilder expressions(final List<AbstractOperableSyntaxAST<?>> expressions) {
             this.calledExpressions = expressions;
             return this;
         }

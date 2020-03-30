@@ -34,8 +34,9 @@ public class AbstractStatementSyntaxAST extends AbstractSyntaxAST
     }
     
     
+    @NotNull
     @Override
-    public Optional<? extends AbstractSyntaxAST> parseAST(@NotNull final AbstractSyntaxAST parentAST) {
+    public AbstractSyntaxAST parseAST(@NotNull final AbstractSyntaxAST parentAST) {
         Objects.requireNonNull(this.getSyntaxAnalyzer());
         
         final AbstractToken currentToken = this.getSyntaxAnalyzer().currentToken();
@@ -45,7 +46,12 @@ public class AbstractStatementSyntaxAST extends AbstractSyntaxAST
                 case "fun":
                 case "import":
                 case "return":
-                    return Optional.empty();
+                    this.addError(
+                            this.getSyntaxAnalyzer().getArkoiClass(),
+                            currentToken,
+                            "10"
+                    );
+                    return this;
                 default:
                     return IdentifierCallOperableSyntaxAST
                             .builder(this.getSyntaxAnalyzer())

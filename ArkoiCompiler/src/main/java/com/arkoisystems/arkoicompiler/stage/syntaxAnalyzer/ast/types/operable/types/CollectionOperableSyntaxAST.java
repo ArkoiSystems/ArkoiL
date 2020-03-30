@@ -12,7 +12,6 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxErrorType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.AbstractOperableSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.AbstractExpressionSyntaxAST;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types.ExpressionSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
 import lombok.AccessLevel;
@@ -33,7 +32,7 @@ public class CollectionOperableSyntaxAST extends AbstractOperableSyntaxAST<TypeK
     @Getter
     @Setter(AccessLevel.PROTECTED)
     @NotNull
-    private List<ExpressionSyntaxAST> collectionExpressions = new ArrayList<>();
+    private List<AbstractOperableSyntaxAST<?>> collectionExpressions = new ArrayList<>();
     
     
     protected CollectionOperableSyntaxAST(final SyntaxAnalyzer syntaxAnalyzer) {
@@ -41,8 +40,9 @@ public class CollectionOperableSyntaxAST extends AbstractOperableSyntaxAST<TypeK
     }
     
     
+    @NotNull
     @Override
-    public Optional<CollectionOperableSyntaxAST> parseAST(@NotNull final AbstractSyntaxAST parentAST) {
+    public CollectionOperableSyntaxAST parseAST(@NotNull final AbstractSyntaxAST parentAST) {
         Objects.requireNonNull(this.getSyntaxAnalyzer());
         
         if (this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.OPENING_BRACKET) == null) {
@@ -51,7 +51,7 @@ public class CollectionOperableSyntaxAST extends AbstractOperableSyntaxAST<TypeK
                     this.getSyntaxAnalyzer().currentToken(),
                     SyntaxErrorType.COLLECTION_OPERABLE_WRONG_START
             );
-            return Optional.empty();
+            return this;
         }
     
         this.setStartToken(this.getSyntaxAnalyzer().currentToken());
@@ -69,15 +69,16 @@ public class CollectionOperableSyntaxAST extends AbstractOperableSyntaxAST<TypeK
                         this.getSyntaxAnalyzer().currentToken(),
                         SyntaxErrorType.COLLECTION_OPERABLE_INVALID_EXPRESSION
                 );
-                return Optional.empty();
+                return this;
             }
             
-            final Optional<ExpressionSyntaxAST> optionalExpressionSyntaxAST = AbstractExpressionSyntaxAST.EXPRESSION_PARSER.parse(this, this.getSyntaxAnalyzer());
-            if (optionalExpressionSyntaxAST.isEmpty())
-                return Optional.empty();
+            final AbstractOperableSyntaxAST<?> abstractOperableSyntaxAST = AbstractExpressionSyntaxAST.EXPRESSION_PARSER.parse(this, this.getSyntaxAnalyzer());
+            this.getMarkerFactory().addFactory(abstractOperableSyntaxAST.getMarkerFactory());
             
-            this.getMarkerFactory().addFactory(optionalExpressionSyntaxAST.get().getMarkerFactory());
-            this.collectionExpressions.add(optionalExpressionSyntaxAST.get());
+            if (abstractOperableSyntaxAST.isFailed()) {
+                this.failed();
+                return this;
+            } else this.collectionExpressions.add(abstractOperableSyntaxAST);
             
             if (this.getSyntaxAnalyzer().matchesNextToken(SymbolType.COMMA) != null)
                 this.getSyntaxAnalyzer().nextToken();
@@ -89,12 +90,12 @@ public class CollectionOperableSyntaxAST extends AbstractOperableSyntaxAST<TypeK
                     this.getSyntaxAnalyzer().currentToken(),
                     SyntaxErrorType.COLLECTION_OPERABLE_WRONG_ENDING
             );
-            return Optional.empty();
+            return this;
         }
         
         this.setEndToken(this.getSyntaxAnalyzer().currentToken());
         this.getMarkerFactory().done(this.getEndToken());
-        return Optional.of(this);
+        return this;
     }
     
     
@@ -102,12 +103,12 @@ public class CollectionOperableSyntaxAST extends AbstractOperableSyntaxAST<TypeK
     public void printSyntaxAST(@NotNull final PrintStream printStream, @NotNull final String indents) {
         printStream.println(indents + "└── expressions: " + (this.getCollectionExpressions().isEmpty() ? "N/A" : ""));
         for (int index = 0; index < this.getCollectionExpressions().size(); index++) {
-            final ExpressionSyntaxAST abstractSyntaxAST = this.getCollectionExpressions().get(index);
+            final AbstractOperableSyntaxAST<?> abstractSyntaxAST = this.getCollectionExpressions().get(index);
             if (index == this.getCollectionExpressions().size() - 1) {
-                printStream.println(indents + "    └── " + (abstractSyntaxAST.getExpressionOperable() != null ? abstractSyntaxAST.getExpressionOperable().getClass().getSimpleName() : null));
+                printStream.println(indents + "    └── " + abstractSyntaxAST.getClass().getSimpleName());
                 abstractSyntaxAST.printSyntaxAST(printStream, indents + "        ");
             } else {
-                printStream.println(indents + "    ├── " + (abstractSyntaxAST.getExpressionOperable() != null ? abstractSyntaxAST.getExpressionOperable().getClass().getSimpleName() : null));
+                printStream.println(indents + "    ├── " + abstractSyntaxAST.getClass().getSimpleName());
                 abstractSyntaxAST.printSyntaxAST(printStream, indents + "    │   ");
                 printStream.println(indents + "    │   ");
             }
@@ -133,7 +134,7 @@ public class CollectionOperableSyntaxAST extends AbstractOperableSyntaxAST<TypeK
         
         
         @Nullable
-        private List<ExpressionSyntaxAST> collectionExpressions;
+        private List<AbstractOperableSyntaxAST<?>> collectionExpressions;
         
         
         private AbstractToken startToken, endToken;
@@ -149,7 +150,7 @@ public class CollectionOperableSyntaxAST extends AbstractOperableSyntaxAST<TypeK
         }
         
         
-        public CollectionOperableSyntaxASTBuilder expressions(final List<ExpressionSyntaxAST> collectionExpressions) {
+        public CollectionOperableSyntaxASTBuilder expressions(final List<AbstractOperableSyntaxAST<?>> collectionExpressions) {
             this.collectionExpressions = collectionExpressions;
             return this;
         }

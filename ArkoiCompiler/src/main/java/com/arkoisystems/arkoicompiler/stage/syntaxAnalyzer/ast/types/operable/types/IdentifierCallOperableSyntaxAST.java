@@ -24,7 +24,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.PrintStream;
 import java.util.Objects;
-import java.util.Optional;
 
 public class IdentifierCallOperableSyntaxAST extends AbstractOperableSyntaxAST<TypeKind>
 {
@@ -73,23 +72,24 @@ public class IdentifierCallOperableSyntaxAST extends AbstractOperableSyntaxAST<T
      * @return It will return null if an error occurred or an IdentifierCallStatementAST
      *         if it parsed until to the end.
      */
+    @NotNull
     @Override
-    public Optional<IdentifierCallOperableSyntaxAST> parseAST(@NotNull final AbstractSyntaxAST parentAST) {
+    public IdentifierCallOperableSyntaxAST parseAST(@NotNull final AbstractSyntaxAST parentAST) {
         Objects.requireNonNull(this.getSyntaxAnalyzer());
     
         this.setStartToken(this.getSyntaxAnalyzer().currentToken());
         this.getMarkerFactory().mark(this.getStartToken());
-        
+    
         if (this.getSyntaxAnalyzer().matchesCurrentToken(KeywordType.THIS) != null) {
             this.isFileLocal = true;
-            
+        
             if (this.getSyntaxAnalyzer().matchesPeekToken(1, SymbolType.PERIOD) == null) {
                 this.addError(
                         this.getSyntaxAnalyzer().getArkoiClass(),
                         this.getSyntaxAnalyzer().currentToken(),
                         SyntaxErrorType.IDENTIFIER_THIS_NO_DOT
                 );
-                return Optional.empty();
+                return this;
             } else this.getSyntaxAnalyzer().nextToken();
             
             if (this.getSyntaxAnalyzer().matchesPeekToken(1, TokenType.IDENTIFIER) == null) {
@@ -98,7 +98,7 @@ public class IdentifierCallOperableSyntaxAST extends AbstractOperableSyntaxAST<T
                         this.getSyntaxAnalyzer().currentToken(),
                         SyntaxErrorType.IDENTIFIER_CALL_NO_IDENTIFIER
                 );
-                return Optional.empty();
+                return this;
             } else this.getSyntaxAnalyzer().nextToken();
         } else if (this.getSyntaxAnalyzer().matchesCurrentToken(TokenType.IDENTIFIER) == null) {
             this.addError(
@@ -106,31 +106,26 @@ public class IdentifierCallOperableSyntaxAST extends AbstractOperableSyntaxAST<T
                     this.getSyntaxAnalyzer().currentToken(),
                     SyntaxErrorType.IDENTIFIER_CALL_NO_IDENTIFIER
             );
-            return Optional.empty();
+            return this;
         }
         
         this.calledIdentifier = (IdentifierToken) this.getSyntaxAnalyzer().currentToken();
         
         if (this.getSyntaxAnalyzer().matchesPeekToken(1, SymbolType.OPENING_PARENTHESIS) != null) {
             this.getSyntaxAnalyzer().nextToken();
-            
-            final Optional<FunctionCallPartSyntaxAST> optionalFunctionCallPartSyntaxAST = new FunctionCallPartSyntaxAST(this.getSyntaxAnalyzer()).parseAST(this);
-            if (optionalFunctionCallPartSyntaxAST.isEmpty()) {
-                this.addError(
-                        this.getSyntaxAnalyzer().getArkoiClass(),
-                        this.getSyntaxAnalyzer().currentToken(),
-                        "1"
-                );
-                return Optional.empty();
-            }
-            
-            this.getMarkerFactory().addFactory(optionalFunctionCallPartSyntaxAST.get().getMarkerFactory());
-            this.calledFunctionPart = optionalFunctionCallPartSyntaxAST.get();
+    
+            final FunctionCallPartSyntaxAST functionCallPartSyntaxAST = new FunctionCallPartSyntaxAST(this.getSyntaxAnalyzer()).parseAST(this);
+            this.getMarkerFactory().addFactory(functionCallPartSyntaxAST.getMarkerFactory());
+    
+            if (functionCallPartSyntaxAST.isFailed()) {
+                this.failed();
+                return this;
+            } else this.calledFunctionPart = functionCallPartSyntaxAST;
         }
         
         if (this.getSyntaxAnalyzer().matchesPeekToken(1, SymbolType.PERIOD) != null) {
             final AbstractToken periodToken = this.getSyntaxAnalyzer().nextToken();
-            
+    
             if (this.getSyntaxAnalyzer().matchesPeekToken(1, TokenType.IDENTIFIER) == null) {
                 this.addError(
                         this.getSyntaxAnalyzer().getArkoiClass(),
@@ -138,28 +133,22 @@ public class IdentifierCallOperableSyntaxAST extends AbstractOperableSyntaxAST<T
                         this.getSyntaxAnalyzer().currentToken().getEnd(),
                         SyntaxErrorType.IDENTIFIER_CALL_WRONG_CALL_APPEND
                 );
-                return Optional.empty();
+                return this;
             } else this.getSyntaxAnalyzer().nextToken();
-            
-            final Optional<IdentifierCallOperableSyntaxAST> optionalIdentifierCallOperableSyntaxAST =
-                    new IdentifierCallOperableSyntaxAST(this.getSyntaxAnalyzer()).parseAST(this);
-            if (optionalIdentifierCallOperableSyntaxAST.isEmpty()) {
-                this.addError(
-                        this.getSyntaxAnalyzer().getArkoiClass(),
-                        periodToken.getStart(),
-                        this.getSyntaxAnalyzer().currentToken().getEnd(),
-                        SyntaxErrorType.IDENTIFIER_CALL_WRONG_CALL_APPEND
-                );
-                return Optional.empty();
-            }
-            
-            this.getMarkerFactory().addFactory(optionalIdentifierCallOperableSyntaxAST.get().getMarkerFactory());
-            this.nextIdentifierCall = optionalIdentifierCallOperableSyntaxAST.get();
+    
+            final IdentifierCallOperableSyntaxAST identifierCallOperableSyntaxAST = new IdentifierCallOperableSyntaxAST(this.getSyntaxAnalyzer())
+                    .parseAST(this);
+            this.getMarkerFactory().addFactory(identifierCallOperableSyntaxAST.getMarkerFactory());
+    
+            if (identifierCallOperableSyntaxAST.isFailed()) {
+                this.failed();
+                return this;
+            } else this.nextIdentifierCall = identifierCallOperableSyntaxAST;
         }
         
         this.setEndToken(this.getSyntaxAnalyzer().currentToken());
         this.getMarkerFactory().done(this.getEndToken());
-        return Optional.of(this);
+        return this;
     }
     
     

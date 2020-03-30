@@ -29,12 +29,18 @@ import com.intellij.lang.PsiBuilder
 import com.intellij.lang.PsiParser
 import com.intellij.lang.impl.PsiBuilderImpl
 import com.intellij.psi.tree.IElementType
+import java.lang.reflect.Field
 
 class ArkoiParser : PsiParser, LightPsiParser {
+
+    private lateinit var myCurrentLexeme: Field
 
     override fun parseLight(root: IElementType, builder: PsiBuilder) {
         if (builder !is PsiBuilderImpl || builder.lexer !is ArkoiLexer)
             return
+
+        this.myCurrentLexeme = builder.javaClass.getDeclaredField("myCurrentLexeme")
+        this.myCurrentLexeme.isAccessible = true
 
         val arkoiLexer = builder.lexer as ArkoiLexer
         val arkoiClass = arkoiLexer.arkoiClass ?: return
@@ -44,6 +50,7 @@ class ArkoiParser : PsiParser, LightPsiParser {
         val mark = builder.mark()
         makeTree(arkoiLexer, root, builder, arkoiClass.syntaxAnalyzer.rootSyntaxAST.markerFactory)
         mark.done(root)
+
     }
 
     override fun parse(root: IElementType, builder: PsiBuilder): ASTNode {
@@ -55,46 +62,31 @@ class ArkoiParser : PsiParser, LightPsiParser {
         arkoiLexer: ArkoiLexer,
         root: IElementType,
         builder: PsiBuilderImpl,
-        markerFactory: MarkerFactory<out AbstractSyntaxAST>,
-        indents: String = ""
+        markerFactory: MarkerFactory<out AbstractSyntaxAST>
     ) {
+        println(markerFactory.currentMarker.astType.name + ": " + markerFactory.currentMarker.errorMessage)
+        println(markerFactory.abstractSyntaxAST)
+        println(markerFactory.currentMarker.startToken.start)
+        println(markerFactory.currentMarker.endToken.end)
+
+        this.setLexemeIndex(builder, arkoiLexer.tokens!!.indexOf(markerFactory.currentMarker.startToken))
         val mark = builder.mark()
 
-        println(indents + markerFactory.currentMarker.astType.name + ": ")
+        for (nextFactory in markerFactory.nextMarkerFactories)
+            this.makeTree(arkoiLexer, root, builder, nextFactory)
 
-        for (nextFactory in markerFactory.nextMarkerFactories) {
-            this.toMarkerStart(builder, arkoiLexer, nextFactory.currentMarker)
-//            println()
-//            println(indents + "start -> " + nextFactory.currentMarker.startToken.tokenContent)
-//            println(indents + "  " + arkoiLexer.tokens!![builder.rawTokenIndex()].tokenContent)
-            makeTree(arkoiLexer, root, builder, nextFactory, "$indents  ")
-        }
-
-        this.toMarkerEnd(builder, arkoiLexer, markerFactory.currentMarker)
-        println(indents + "end -> " + markerFactory.currentMarker.endToken.tokenContent)
-        println(indents + "  " + arkoiLexer.tokens!![builder.rawTokenIndex()].tokenContent)
-        mark.done(getArkoiType(root, markerFactory.currentMarker))
+        this.setLexemeIndex(builder, arkoiLexer.tokens!!.indexOf(markerFactory.currentMarker.endToken) + 1)
+        if (markerFactory.currentMarker.errorMessage != null) {
+            mark.error(
+                String.format(
+                    markerFactory.currentMarker.errorMessage!!,
+                    markerFactory.currentMarker.errorArguments
+                )
+            )
+        } else mark.done(getArkoiType(root, markerFactory.currentMarker))
     }
 
-    private fun toMarkerStart(builder: PsiBuilderImpl, arkoiLexer: ArkoiLexer, arkoiMarker: ArkoiMarker) {
-        while (!builder.eof()) {
-            val currentToken = arkoiLexer.tokens!![builder.rawTokenIndex()]
-            if (currentToken == arkoiMarker.startToken)
-                break
-            builder.advanceLexer()
-        }
-    }
-
-    private fun toMarkerEnd(builder: PsiBuilderImpl, arkoiLexer: ArkoiLexer, arkoiMarker: ArkoiMarker) {
-        while (!builder.eof()) {
-            val currentToken = arkoiLexer.tokens!![builder.rawTokenIndex()]
-            if (currentToken == arkoiMarker.endToken) {
-                builder.advanceLexer()
-                break
-            }
-            builder.advanceLexer()
-        }
-    }
+    private fun setLexemeIndex(builder: PsiBuilderImpl, index: Int) = this.myCurrentLexeme.set(builder, index)
 
     private fun getArkoiType(root: IElementType, arkoiMarker: ArkoiMarker): IElementType {
         return when (arkoiMarker.astType) {
@@ -109,7 +101,6 @@ class ArkoiParser : PsiParser, LightPsiParser {
             ASTType.BLOCK -> ArkoiElementTypes.block
             ASTType.COLLECTION_OPERABLE -> ArkoiElementTypes.collectionOperable
             ASTType.EQUALITY_EXPRESSION -> ArkoiElementTypes.equalityExpression
-            ASTType.EXPRESSION -> ArkoiElementTypes.expression
             ASTType.FUNCTION_CALL_PART -> ArkoiElementTypes.functionCallPart
             ASTType.FUNCTION_DEFINITION -> ArkoiElementTypes.functionDeclaration
             ASTType.IDENTIFIER_CALL_OPERABLE -> ArkoiElementTypes.identifierCallOperable
@@ -124,6 +115,7 @@ class ArkoiParser : PsiParser, LightPsiParser {
             ASTType.STATEMENT -> ArkoiElementTypes.statement
             ASTType.STRING_OPERABLE -> ArkoiElementTypes.stringOperable
             ASTType.VARIABLE_DEFINITION -> ArkoiElementTypes.variableDeclaration
+            ASTType.EXPRESSION -> ArkoiElementTypes.expression
 
             ASTType.ROOT -> root
 

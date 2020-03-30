@@ -52,8 +52,9 @@ public class CastExpressionSyntaxAST extends AbstractExpressionSyntaxAST
     }
     
     
+    @NotNull
     @Override
-    public Optional<? extends AbstractOperableSyntaxAST<?>> parseAST(@NotNull final AbstractSyntaxAST parentAST) {
+    public CastExpressionSyntaxAST parseAST(@NotNull final AbstractSyntaxAST parentAST) {
         Objects.requireNonNull(this.getSyntaxAnalyzer());
         
         if (this.getSyntaxAnalyzer().matchesPeekToken(1, TokenType.IDENTIFIER, false) == null) {
@@ -62,7 +63,7 @@ public class CastExpressionSyntaxAST extends AbstractExpressionSyntaxAST
                     this.getSyntaxAnalyzer().peekToken(1),
                     "Couldn't parse the cast expression because it doesn't start with an identifier."
             );
-            return Optional.empty();
+            return this;
         }
         
         final IdentifierToken identifierToken = (IdentifierToken) this.getSyntaxAnalyzer().nextToken(false);
@@ -93,12 +94,12 @@ public class CastExpressionSyntaxAST extends AbstractExpressionSyntaxAST
                         identifierToken,
                         SyntaxErrorType.EXPRESSION_CAST_WRONG_IDENTIFIER
                 );
-                return Optional.empty();
+                return this;
         }
         
         this.setEndToken(this.getSyntaxAnalyzer().currentToken());
         this.getMarkerFactory().done(this.getEndToken());
-        return Optional.of(this);
+        return this;
     }
     
     

@@ -11,8 +11,8 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxErrorType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.BlockSyntaxAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.AbstractOperableSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.AbstractExpressionSyntaxAST;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types.ExpressionSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.AbstractStatementSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import lombok.AccessLevel;
@@ -31,7 +31,7 @@ public class ReturnStatementSyntaxAST extends AbstractStatementSyntaxAST
     @Getter
     @Setter(AccessLevel.PROTECTED)
     @Nullable
-    private ExpressionSyntaxAST returnExpression;
+    private AbstractOperableSyntaxAST<?> returnExpression;
     
     
     protected ReturnStatementSyntaxAST(@Nullable final SyntaxAnalyzer syntaxAnalyzer) {
@@ -39,8 +39,9 @@ public class ReturnStatementSyntaxAST extends AbstractStatementSyntaxAST
     }
     
     
+    @NotNull
     @Override
-    public Optional<ReturnStatementSyntaxAST> parseAST(@NotNull final AbstractSyntaxAST parentAST) {
+    public ReturnStatementSyntaxAST parseAST(@NotNull final AbstractSyntaxAST parentAST) {
         Objects.requireNonNull(this.getSyntaxAnalyzer());
         
         if (!(parentAST instanceof BlockSyntaxAST)) {
@@ -49,7 +50,7 @@ public class ReturnStatementSyntaxAST extends AbstractStatementSyntaxAST
                     this.getSyntaxAnalyzer().currentToken(),
                     SyntaxErrorType.RETURN_STATEMENT_WRONG_PARENT
             );
-            return Optional.empty();
+            return this;
         }
         
         if (this.getSyntaxAnalyzer().matchesCurrentToken(KeywordType.RETURN) == null) {
@@ -58,33 +59,34 @@ public class ReturnStatementSyntaxAST extends AbstractStatementSyntaxAST
                     this.getSyntaxAnalyzer().currentToken(),
                     SyntaxErrorType.RETURN_STATEMENT_WRONG_START
             );
-            return Optional.empty();
+            return this;
         }
-        
+    
         this.setStartToken(this.getSyntaxAnalyzer().currentToken());
         this.getMarkerFactory().mark(this.getStartToken());
-        
+    
         this.getSyntaxAnalyzer().nextToken(); // This will skip to the followed token after the "return" keyword, so we can check if the next token is an expression.
-        
+    
         if (!AbstractExpressionSyntaxAST.EXPRESSION_PARSER.canParse(this, this.getSyntaxAnalyzer())) {
             this.addError(
                     this.getSyntaxAnalyzer().getArkoiClass(),
                     this.getSyntaxAnalyzer().currentToken(),
                     SyntaxErrorType.RETURN_STATEMENT_NO_VALID_EXPRESSION
             );
-            return Optional.empty();
+            return this;
         }
+    
+        final AbstractOperableSyntaxAST<?> abstractOperableSyntaxAST = AbstractExpressionSyntaxAST.EXPRESSION_PARSER.parse(this, this.getSyntaxAnalyzer());
+        this.getMarkerFactory().addFactory(abstractOperableSyntaxAST.getMarkerFactory());
         
-        final Optional<ExpressionSyntaxAST> optionalExpressionSyntaxAST = AbstractExpressionSyntaxAST.EXPRESSION_PARSER.parse(this, this.getSyntaxAnalyzer());
-        if (optionalExpressionSyntaxAST.isEmpty())
-            return Optional.empty();
-        
-        this.getMarkerFactory().addFactory(optionalExpressionSyntaxAST.get().getMarkerFactory());
-        this.returnExpression = optionalExpressionSyntaxAST.get();
-        
+        if (abstractOperableSyntaxAST.isFailed()) {
+            this.failed();
+            return this;
+        } else this.returnExpression = abstractOperableSyntaxAST;
+    
         this.setEndToken(this.getSyntaxAnalyzer().currentToken());
         this.getMarkerFactory().done(this.getEndToken());
-        return Optional.of(this);
+        return this;
     }
     
     
@@ -111,10 +113,10 @@ public class ReturnStatementSyntaxAST extends AbstractStatementSyntaxAST
         
         @Nullable
         private final SyntaxAnalyzer syntaxAnalyzer;
-        
-        
+    
+    
         @Nullable
-        private ExpressionSyntaxAST expressionSyntaxAST;
+        private AbstractOperableSyntaxAST<?> expressionSyntaxAST;
         
         
         private AbstractToken startToken, endToken;
@@ -130,24 +132,24 @@ public class ReturnStatementSyntaxAST extends AbstractStatementSyntaxAST
         }
     
     
-        public ReturnStatementSyntaxASTBuilder expression(final ExpressionSyntaxAST expressionSyntaxAST) {
+        public ReturnStatementSyntaxASTBuilder expression(final AbstractOperableSyntaxAST<?> expressionSyntaxAST) {
             this.expressionSyntaxAST = expressionSyntaxAST;
             return this;
         }
-        
-        
+    
+    
         public ReturnStatementSyntaxASTBuilder start(final AbstractToken startToken) {
             this.startToken = startToken;
             return this;
         }
-        
-        
-        public ReturnStatementSyntaxASTBuilder end(final int end) {
+    
+    
+        public ReturnStatementSyntaxASTBuilder end(final AbstractToken endToken) {
             this.endToken = endToken;
             return this;
         }
-        
-        
+    
+    
         public ReturnStatementSyntaxAST build() {
             final ReturnStatementSyntaxAST returnStatementSyntaxAST = new ReturnStatementSyntaxAST(this.syntaxAnalyzer);
             if (this.expressionSyntaxAST != null)

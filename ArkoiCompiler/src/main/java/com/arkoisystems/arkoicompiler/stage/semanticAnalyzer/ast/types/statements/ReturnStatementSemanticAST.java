@@ -7,7 +7,7 @@ package com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.statemen
 
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.SemanticAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.AbstractSemanticAST;
-import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.types.expression.types.ExpressionSemanticAST;
+import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.types.expression.AbstractExpressionSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.types.ReturnStatementSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import lombok.NonNull;
@@ -20,7 +20,7 @@ public class ReturnStatementSemanticAST extends AbstractSemanticAST<ReturnStatem
 {
     
     @Nullable
-    private ExpressionSemanticAST returnExpression;
+    private AbstractExpressionSemanticAST<?> returnExpression;
     
     
     public ReturnStatementSemanticAST(@Nullable final SemanticAnalyzer semanticAnalyzer, @Nullable final AbstractSemanticAST<?> lastContainerAST, @NonNull final ReturnStatementSyntaxAST returnStatementSyntaxAST) {
@@ -36,12 +36,12 @@ public class ReturnStatementSemanticAST extends AbstractSemanticAST<ReturnStatem
     
     
     @NonNull
-    public ExpressionSemanticAST getReturnExpression() {
+    public AbstractExpressionSemanticAST<?> getReturnExpression() {
         if (this.returnExpression == null) {
             if (this.getSyntaxAST().getReturnExpression() == null)
                 return null;
     
-            this.returnExpression = new ExpressionSemanticAST(this.getSemanticAnalyzer(), this.getLastContainerAST(), this.getSyntaxAST().getReturnExpression());
+            this.returnExpression = new AbstractExpressionSemanticAST<>(this.getSemanticAnalyzer(), this.getLastContainerAST(), this.getSyntaxAST().getReturnExpression(), ASTType.EXPRESSION);
             this.returnExpression.getTypeKind();
     
             if (this.returnExpression.isFailed())

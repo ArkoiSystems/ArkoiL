@@ -29,7 +29,6 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 public class AnnotationSyntaxAST extends AbstractSyntaxAST
 {
@@ -60,8 +59,9 @@ public class AnnotationSyntaxAST extends AbstractSyntaxAST
     }
     
     
+    @NotNull
     @Override
-    public Optional<? extends AbstractSyntaxAST> parseAST(@NotNull final AbstractSyntaxAST parentAST) {
+    public AbstractSyntaxAST parseAST(@NotNull final AbstractSyntaxAST parentAST) {
         Objects.requireNonNull(this.getSyntaxAnalyzer());
         
         if (!(parentAST instanceof RootSyntaxAST)) {
@@ -70,70 +70,78 @@ public class AnnotationSyntaxAST extends AbstractSyntaxAST
                     this.getSyntaxAnalyzer().currentToken(),
                     SyntaxErrorType.ANNOTATION_WRONG_PARENT
             );
-            return Optional.empty();
+            return this;
         }
-    
+        
         if (this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.AT_SIGN) == null) {
             this.addError(
                     this.getSyntaxAnalyzer().getArkoiClass(),
                     this.getSyntaxAnalyzer().currentToken(),
                     SyntaxErrorType.ANNOTATION_WRONG_START
             );
-            return Optional.empty();
+            return this;
         }
-    
+        
         this.setStartToken(this.getSyntaxAnalyzer().currentToken());
         this.getMarkerFactory().mark(this.getStartToken());
-    
+        
         if (this.getSyntaxAnalyzer().matchesPeekToken(1, TokenType.IDENTIFIER) == null) {
             this.addError(
                     this.getSyntaxAnalyzer().getArkoiClass(),
                     this.getSyntaxAnalyzer().currentToken(),
                     SyntaxErrorType.ANNOTATION_NO_NAME
             );
-            return Optional.empty();
+            return this;
         } else this.getSyntaxAnalyzer().nextToken();
-    
-        final Optional<IdentifierCallOperableSyntaxAST> optionalIdentifierCallOperableSyntaxAST = IdentifierCallOperableSyntaxAST
+        
+        final IdentifierCallOperableSyntaxAST identifierCallOperableSyntaxAST = IdentifierCallOperableSyntaxAST
                 .builder(this.getSyntaxAnalyzer())
                 .build()
                 .parseAST(this);
-        if (optionalIdentifierCallOperableSyntaxAST.isEmpty())
-            return Optional.empty();
-        this.annotationCall = optionalIdentifierCallOperableSyntaxAST.get();
-    
+        this.getMarkerFactory().addFactory(identifierCallOperableSyntaxAST.getMarkerFactory());
+        
+        if (identifierCallOperableSyntaxAST.isFailed()) {
+            this.failed();
+            return this;
+        } else this.annotationCall = identifierCallOperableSyntaxAST;
+        
         if (this.getSyntaxAnalyzer().matchesPeekToken(1, SymbolType.OPENING_BRACKET) != null) {
             this.getSyntaxAnalyzer().nextToken();
-        
-            final Optional<List<ArgumentSyntaxAST>> arguments = ArgumentSyntaxAST.parseArguments(this, this.getSyntaxAnalyzer());
-            if (arguments.isEmpty())
-                return Optional.empty();
-            this.annotationArguments = arguments.get();
-        
+            
+            final List<ArgumentSyntaxAST> arguments = ArgumentSyntaxAST.parseArguments(this, this.getSyntaxAnalyzer());
+            if (arguments == null) {
+                this.failed();
+                return this;
+            } this.annotationArguments = arguments;
+            
             if (this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.CLOSING_BRACKET) == null) {
                 this.addError(
                         this.getSyntaxAnalyzer().getArkoiClass(),
                         this.getSyntaxAnalyzer().currentToken(),
                         "6"
                 );
-                return Optional.empty();
+                return this;
             }
         }
-    
+        
         this.setEndToken(this.getSyntaxAnalyzer().currentToken());
         this.getMarkerFactory().done(this.getEndToken());
-    
+        
         this.getSyntaxAnalyzer().nextToken();
         this.getAnnotationStorage().add(this);
-    
+        
         if (ANNOTATION_PARSER.canParse(parentAST, this.getSyntaxAnalyzer())) {
-            final Optional<? extends AbstractSyntaxAST> annotationSyntaxAST = AnnotationSyntaxAST
+            final AbstractSyntaxAST annotationSyntaxAST = AnnotationSyntaxAST
                     .builder(this.getSyntaxAnalyzer())
                     .annotations(this.annotationStorage)
                     .build()
                     .parseAST(parentAST);
-            annotationSyntaxAST.ifPresent(abstractSyntaxAST -> this.getMarkerFactory().addFactory(abstractSyntaxAST.getMarkerFactory()));
-            return annotationSyntaxAST;
+            this.getMarkerFactory().addFactory(annotationSyntaxAST.getMarkerFactory());
+            
+            if (annotationSyntaxAST.isFailed()) {
+                this.failed();
+                return this;
+            } else return annotationSyntaxAST;
         }
         
         if (!AbstractStatementSyntaxAST.STATEMENT_PARSER.canParse(parentAST, this.getSyntaxAnalyzer())) {
@@ -142,7 +150,7 @@ public class AnnotationSyntaxAST extends AbstractSyntaxAST
                     this.getSyntaxAnalyzer().currentToken(),
                     SyntaxErrorType.ANNOTATION_NO_PARSEABLE_STATEMENT
             );
-            return Optional.empty();
+            return this;
         }
         
         if (this.getSyntaxAnalyzer().matchesCurrentToken(KeywordType.FUN) != null && this.getSyntaxAnalyzer().matchesCurrentToken(KeywordType.VAR) != null) {
@@ -151,19 +159,28 @@ public class AnnotationSyntaxAST extends AbstractSyntaxAST
                     this.getSyntaxAnalyzer().currentToken(),
                     SyntaxErrorType.ANNOTATION_NO_VARIABLE_OR_FUNCTION
             );
-            return Optional.empty();
+            return this;
         } else if (this.getSyntaxAnalyzer().matchesCurrentToken(KeywordType.FUN) != null) {
-            final Optional<? extends AbstractSyntaxAST> functionDefinitionSyntaxAST = FunctionDefinitionSyntaxAST
+            final FunctionDefinitionSyntaxAST functionDefinitionSyntaxAST = FunctionDefinitionSyntaxAST
                     .builder(this.getSyntaxAnalyzer())
                     .annotations(this.getAnnotationStorage())
                     .build()
                     .parseAST(parentAST);
-            functionDefinitionSyntaxAST.ifPresent(abstractSyntaxAST -> this.getMarkerFactory().addFactory(abstractSyntaxAST.getMarkerFactory()));
-            return functionDefinitionSyntaxAST;
+            this.getMarkerFactory().addFactory(functionDefinitionSyntaxAST.getMarkerFactory());
+            
+            if (functionDefinitionSyntaxAST.isFailed()) {
+                this.failed();
+                return this;
+            } else return functionDefinitionSyntaxAST;
         } else {
-            final Optional<? extends AbstractSyntaxAST> variableDefinitionSyntaxAST = new VariableDefinitionSyntaxAST(this.getSyntaxAnalyzer(), this.getAnnotationStorage()).parseAST(parentAST);
-            variableDefinitionSyntaxAST.ifPresent(abstractSyntaxAST -> this.getMarkerFactory().addFactory(abstractSyntaxAST.getMarkerFactory()));
-            return variableDefinitionSyntaxAST;
+            final VariableDefinitionSyntaxAST variableDefinitionSyntaxAST = new VariableDefinitionSyntaxAST(this.getSyntaxAnalyzer(), this.getAnnotationStorage())
+                    .parseAST(parentAST);
+            this.getMarkerFactory().addFactory(variableDefinitionSyntaxAST.getMarkerFactory());
+            
+            if (variableDefinitionSyntaxAST.isFailed()) {
+                this.failed();
+                return this;
+            } else return variableDefinitionSyntaxAST;
         }
     }
     

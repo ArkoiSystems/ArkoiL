@@ -91,7 +91,7 @@ public class TypeSyntaxAST extends AbstractSyntaxAST
      *         everything worked correctly.
      */
     @Override
-    public Optional<TypeSyntaxAST> parseAST(@NotNull final AbstractSyntaxAST parentAST) {
+    public @NotNull TypeSyntaxAST parseAST(@NotNull final AbstractSyntaxAST parentAST) {
         Objects.requireNonNull(this.getSyntaxAnalyzer());
     
         if (this.getSyntaxAnalyzer().matchesCurrentToken(TokenType.TYPE_KEYWORD) == null) {
@@ -100,7 +100,7 @@ public class TypeSyntaxAST extends AbstractSyntaxAST
                     this.getSyntaxAnalyzer().currentToken(),
                     SyntaxErrorType.TYPE_DOES_NOT_START_WITH_TYPE_KEYWORD
             );
-            return Optional.empty();
+            return this;
         }
     
         this.setStartToken(this.getSyntaxAnalyzer().currentToken());
@@ -115,7 +115,7 @@ public class TypeSyntaxAST extends AbstractSyntaxAST
         
         this.setEndToken(this.getSyntaxAnalyzer().currentToken());
         this.getMarkerFactory().done(this.getEndToken());
-        return Optional.of(this);
+        return this;
     }
     
     

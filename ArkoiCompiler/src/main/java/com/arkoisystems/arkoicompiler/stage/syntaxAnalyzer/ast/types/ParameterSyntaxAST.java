@@ -24,7 +24,6 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 public class ParameterSyntaxAST extends AbstractSyntaxAST
 {
@@ -78,16 +77,16 @@ public class ParameterSyntaxAST extends AbstractSyntaxAST
     
     
     @Override
-    public Optional<ParameterSyntaxAST> parseAST(@NotNull final AbstractSyntaxAST parentAST) {
+    public @NotNull ParameterSyntaxAST parseAST(@NotNull final AbstractSyntaxAST parentAST) {
         Objects.requireNonNull(this.getSyntaxAnalyzer());
-        
+    
         if (this.getSyntaxAnalyzer().matchesCurrentToken(TokenType.IDENTIFIER) == null) {
             this.addError(
                     this.getSyntaxAnalyzer().getArkoiClass(),
                     this.getSyntaxAnalyzer().currentToken(),
                     SyntaxErrorType.PARAMETER_WRONG_START
             );
-            return Optional.empty();
+            return this;
         }
     
         this.setStartToken(this.getSyntaxAnalyzer().currentToken());
@@ -101,30 +100,31 @@ public class ParameterSyntaxAST extends AbstractSyntaxAST
                     this.getSyntaxAnalyzer().currentToken(),
                     SyntaxErrorType.PARAMETER_NO_SEPARATOR
             );
-            return Optional.empty();
+            return this;
         }
         
         this.getSyntaxAnalyzer().nextToken();
-        
+    
         if (!TypeSyntaxAST.TYPE_PARSER.canParse(parentAST, this.getSyntaxAnalyzer())) {
             this.addError(
                     this.getSyntaxAnalyzer().getArkoiClass(),
                     this.getSyntaxAnalyzer().currentToken(),
                     SyntaxErrorType.PARAMETER_NO_VALID_TYPE
             );
-            return Optional.empty();
+            return this;
         }
+    
+        final TypeSyntaxAST typeSyntaxAST = TypeSyntaxAST.TYPE_PARSER.parse(this, this.getSyntaxAnalyzer());
+        this.getMarkerFactory().addFactory(typeSyntaxAST.getMarkerFactory());
         
-        final Optional<TypeSyntaxAST> optionalTypeSyntaxAST = TypeSyntaxAST.TYPE_PARSER.parse(this, this.getSyntaxAnalyzer());
-        if (optionalTypeSyntaxAST.isEmpty())
-            return Optional.empty();
-        
-        this.getMarkerFactory().addFactory(optionalTypeSyntaxAST.get().getMarkerFactory());
-        this.parameterType = optionalTypeSyntaxAST.get();
-        
+        if (typeSyntaxAST.isFailed()) {
+            this.failed();
+            return this;
+        } else this.parameterType = typeSyntaxAST;
+    
         this.setEndToken(this.getSyntaxAnalyzer().currentToken());
         this.getMarkerFactory().done(this.getEndToken());
-        return Optional.of(this);
+        return this;
     }
     
     
@@ -135,25 +135,8 @@ public class ParameterSyntaxAST extends AbstractSyntaxAST
     }
     
     
-    /**
-     * This method provides the ability to parse a list of arguments which is used by the
-     * FunctionDefinitionAST for the function arguments. It will throw an error if the
-     * arguments didn't get separated by a semicolon or if it doesn't start/end with a
-     * parenthesis.
-     *
-     * @param parentAST
-     *         The ParentAST defines the AST in which the arguments should be getting
-     *         parsed. This is useful to check if the AST is supported or to report
-     *         errors.
-     * @param syntaxAnalyzer
-     *         The given SyntaxAnalyzer is used for checking the syntax of the current
-     *         Token list.
-     *
-     * @return It will return null if an error occurred or the given "argumentsASTs" list
-     *         if it parsed until to the end.
-     */
-    @NotNull
-    public static Optional<List<ParameterSyntaxAST>> parseParameters(final AbstractSyntaxAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
+    // TODO: Make a separated class named ParameterListSyntaxAST
+    public static @NotNull List<ParameterSyntaxAST> parseParameters(final AbstractSyntaxAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
         final List<ParameterSyntaxAST> parameters = new ArrayList<>();
         if (syntaxAnalyzer.matchesCurrentToken(SymbolType.OPENING_PARENTHESIS) == null) {
             parentAST.addError(
@@ -161,18 +144,18 @@ public class ParameterSyntaxAST extends AbstractSyntaxAST
                     syntaxAnalyzer.currentToken(),
                     SyntaxErrorType.PARAMETERS_WRONG_START
             );
-            return Optional.empty();
+            return null;
         } else syntaxAnalyzer.nextToken();
         
         while (syntaxAnalyzer.getPosition() < syntaxAnalyzer.getTokens().length) {
             if (!ParameterSyntaxAST.PARAMETER_DEFINITION_PARSER.canParse(parentAST, syntaxAnalyzer))
                 break;
-            
-            final Optional<ParameterSyntaxAST> optionalParameterDefinitionSyntaxAST = ParameterSyntaxAST.PARAMETER_DEFINITION_PARSER.parse(parentAST, syntaxAnalyzer);
-            if (optionalParameterDefinitionSyntaxAST.isEmpty())
-                return Optional.empty();
-            else parameters.add(optionalParameterDefinitionSyntaxAST.get());
-            
+    
+            final ParameterSyntaxAST parameterSyntaxAST = ParameterSyntaxAST.PARAMETER_DEFINITION_PARSER.parse(parentAST, syntaxAnalyzer);
+            if (parameterSyntaxAST.isFailed()) {
+                return null;
+            } else parameters.add(parameterSyntaxAST);
+    
             if (syntaxAnalyzer.matchesNextToken(SymbolType.COMMA) == null)
                 break;
             else syntaxAnalyzer.nextToken();
@@ -184,9 +167,9 @@ public class ParameterSyntaxAST extends AbstractSyntaxAST
                     syntaxAnalyzer.currentToken(),
                     SyntaxErrorType.ARGUMENTS_WRONG_ENDING
             );
-            return Optional.empty();
+            return null;
         }
-        return Optional.of(parameters);
+        return parameters;
     }
     
     

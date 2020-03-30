@@ -42,8 +42,9 @@ public class StringOperableSyntaxAST extends AbstractOperableSyntaxAST<TypeKind>
     }
     
     
+    @NotNull
     @Override
-    public Optional<StringOperableSyntaxAST> parseAST(@NotNull final AbstractSyntaxAST parentAST) {
+    public StringOperableSyntaxAST parseAST(@NotNull final AbstractSyntaxAST parentAST) {
         Objects.requireNonNull(this.getSyntaxAnalyzer());
         
         if (this.getSyntaxAnalyzer().matchesCurrentToken(TokenType.STRING_LITERAL) == null) {
@@ -52,7 +53,7 @@ public class StringOperableSyntaxAST extends AbstractOperableSyntaxAST<TypeKind>
                     this.getSyntaxAnalyzer().currentToken(),
                     SyntaxErrorType.STRING_OPERABLE_NO_STRING
             );
-            return Optional.empty();
+            return this;
         }
     
         this.setStringToken((StringToken) this.getSyntaxAnalyzer().currentToken());
@@ -62,7 +63,7 @@ public class StringOperableSyntaxAST extends AbstractOperableSyntaxAST<TypeKind>
         
         this.setEndToken(this.getStringToken());
         this.getMarkerFactory().done(this.getEndToken());
-        return Optional.of(this);
+        return this;
     }
     
     

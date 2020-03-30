@@ -8,9 +8,9 @@ package com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.SemanticAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.AbstractSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.AbstractOperableSemanticAST;
-import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.types.expression.types.ExpressionSemanticAST;
+import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.types.expression.AbstractExpressionSemanticAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.AbstractOperableSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.CollectionOperableSyntaxAST;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types.ExpressionSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
 import lombok.NonNull;
@@ -25,7 +25,7 @@ public class CollectionOperableSemanticAST extends AbstractOperableSemanticAST<C
 {
     
     @Nullable
-    private List<ExpressionSemanticAST> collectionExpressions;
+    private List<AbstractExpressionSemanticAST<?>> collectionExpressions;
     
     
     public CollectionOperableSemanticAST(@Nullable final SemanticAnalyzer semanticAnalyzer, @Nullable final AbstractSemanticAST<?> lastContainerAST, @NonNull final CollectionOperableSyntaxAST collectionOperableSyntaxAST) {
@@ -38,7 +38,7 @@ public class CollectionOperableSemanticAST extends AbstractOperableSemanticAST<C
         printStream.println(indents + "└── expressions: " + (this.getCollectionExpressions() != null ? (this.getCollectionExpressions().isEmpty() ? "N/A" : "") : null));
         if (this.getCollectionExpressions() != null) {
             for (int index = 0; index < this.getCollectionExpressions().size(); index++) {
-                final ExpressionSemanticAST expressionSemanticAST = this.getCollectionExpressions().get(index);
+                final AbstractExpressionSemanticAST<?> expressionSemanticAST = this.getCollectionExpressions().get(index);
                 if (index == this.getCollectionExpressions().size() - 1) {
                     printStream.println(indents + "    └── " + expressionSemanticAST.getClass().getSimpleName());
                     expressionSemanticAST.printSemanticAST(printStream, indents + "        ");
@@ -60,12 +60,12 @@ public class CollectionOperableSemanticAST extends AbstractOperableSemanticAST<C
     
     
     @Nullable
-    public List<ExpressionSemanticAST> getCollectionExpressions() {
+    public List<AbstractExpressionSemanticAST<?>> getCollectionExpressions() {
         if (this.collectionExpressions == null) {
             this.collectionExpressions = new ArrayList<>();
             
-            for (final ExpressionSyntaxAST expressionSyntaxAST : this.getSyntaxAST().getCollectionExpressions()) {
-                final ExpressionSemanticAST expressionSemanticAST = new ExpressionSemanticAST(this.getSemanticAnalyzer(), this.getLastContainerAST(), expressionSyntaxAST);
+            for (final AbstractOperableSyntaxAST<?> abstractOperableSyntaxAST : this.getSyntaxAST().getCollectionExpressions()) {
+                final AbstractExpressionSemanticAST<?> expressionSemanticAST = new AbstractExpressionSemanticAST<>(this.getSemanticAnalyzer(), this.getLastContainerAST(), abstractOperableSyntaxAST, ASTType.EXPRESSION);
                 expressionSemanticAST.getTypeKind();
                 
                 if (expressionSemanticAST.isFailed())

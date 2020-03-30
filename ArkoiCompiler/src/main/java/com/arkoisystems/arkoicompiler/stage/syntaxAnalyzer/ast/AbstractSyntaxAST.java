@@ -25,7 +25,6 @@ import org.jetbrains.annotations.Nullable;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.util.Objects;
-import java.util.Optional;
 
 /**
  * This class is used if you want to create an AST. With the {@link
@@ -59,6 +58,7 @@ public abstract class AbstractSyntaxAST
     @Getter
     @NotNull
     private final ASTType astType;
+    
     
     /**
      * The start and end index of the AST as char positions from the input source declared
@@ -111,7 +111,7 @@ public abstract class AbstractSyntaxAST
      * @return {@code null} if an error occurred or the parsed {@link AbstractSyntaxAST}
      *         if everything worked correctly.
      */
-    public abstract Optional<? extends AbstractSyntaxAST> parseAST(@NotNull final AbstractSyntaxAST parentAST);
+    public abstract @NotNull AbstractSyntaxAST parseAST(@NotNull final AbstractSyntaxAST parentAST);
     
     
     /**
@@ -176,6 +176,9 @@ public abstract class AbstractSyntaxAST
                 arguments
         ));
     
+        this.getMarkerFactory().getCurrentMarker().setStartToken(this.getSyntaxAnalyzer().currentToken());
+        this.getMarkerFactory().getCurrentMarker().setEndToken(this.getSyntaxAnalyzer().currentToken());
+    
         this.getMarkerFactory().error(message, arguments);
         this.failed();
     }
@@ -205,6 +208,9 @@ public abstract class AbstractSyntaxAST
                 message,
                 arguments
         ));
+    
+        this.getMarkerFactory().getCurrentMarker().setStartToken(this.getSyntaxAnalyzer().currentToken());
+        this.getMarkerFactory().getCurrentMarker().setEndToken(this.getSyntaxAnalyzer().currentToken());
     
         this.getMarkerFactory().error(message, arguments);
         this.failed();
@@ -239,6 +245,9 @@ public abstract class AbstractSyntaxAST
                 arguments
         ));
     
+        this.getMarkerFactory().getCurrentMarker().setStartToken(this.getSyntaxAnalyzer().currentToken());
+        this.getMarkerFactory().getCurrentMarker().setEndToken(this.getSyntaxAnalyzer().currentToken());
+    
         this.getMarkerFactory().error(message, arguments);
         this.failed();
     }
@@ -269,6 +278,9 @@ public abstract class AbstractSyntaxAST
                 arguments
         ));
     
+        this.getMarkerFactory().getCurrentMarker().setStartToken(this.getSyntaxAnalyzer().currentToken());
+        this.getMarkerFactory().getCurrentMarker().setEndToken(this.getSyntaxAnalyzer().currentToken());
+        
         this.getMarkerFactory().error(message, arguments);
         this.failed();
     }

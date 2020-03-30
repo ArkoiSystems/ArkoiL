@@ -62,22 +62,24 @@ public class BinaryExpressionSyntaxAST extends AbstractExpressionSyntaxAST
     }
     
     
+    @NotNull
     @Override
-    public Optional<? extends AbstractOperableSyntaxAST<?>> parseAST(@NotNull final AbstractSyntaxAST parentAST) {
+    public BinaryExpressionSyntaxAST parseAST(@NotNull final AbstractSyntaxAST parentAST) {
         Objects.requireNonNull(this.getSyntaxAnalyzer());
     
         this.getSyntaxAnalyzer().nextToken(2);
         
-        final Optional<? extends AbstractOperableSyntaxAST<?>> optionalRightSideAST = this.parseMultiplicative(parentAST);
-        if (optionalRightSideAST.isEmpty())
-            return Optional.empty();
+        final AbstractOperableSyntaxAST<?> abstractOperableSyntaxAST = this.parseMultiplicative(parentAST);
+        this.getMarkerFactory().addFactory(abstractOperableSyntaxAST.getMarkerFactory());
         
-        this.getMarkerFactory().addFactory(optionalRightSideAST.get().getMarkerFactory());
-        this.rightSideOperable = optionalRightSideAST.get();
+        if (abstractOperableSyntaxAST.isFailed()) {
+            this.failed();
+            return this;
+        } else this.rightSideOperable = abstractOperableSyntaxAST;
         
         this.setEndToken(this.rightSideOperable.getEndToken());
         this.getMarkerFactory().done(this.getEndToken());
-        return Optional.of(this);
+        return this;
     }
     
     

@@ -17,8 +17,7 @@ Syntax Trees:
    │       │   └── block: 
    │       │        ├── type: INLINE
    │       │        └── storage: 
-   │       │            └── ExpressionSyntaxAST
-   │       │                └── operable: Hello World
+   │       │            └── AbstractExpressionSyntaxAST
    │       │   
    │       └── FunctionDefinitionSyntaxAST
    │           ├── annotations: N/A
@@ -46,8 +45,6 @@ Syntax Trees:
    │           │           └── ArgumentSyntaxAST
    │           │               ├── name: default
    │           │               └── expression: 
-   │           │                    ├── fileLocal: false
-   │           │                    └── identifier: true
    │           │
    │           ├── name: println
    │           ├── type: VOID
@@ -74,57 +71,16 @@ Syntax Trees:
        │       ├── name: test_3
        │       │
        │       └── expression: 
-       │           ├── left:
-       │           │   └── CastExpressionSyntaxAST
-       │           │        ├── left:
-       │           │        │   └── ParenthesizedExpressionSyntaxAST
-       │           │        │       └── operable:
-       │           │        │           └── ExpressionSyntaxAST
-       │           │        │               ├── left:
-       │           │        │               │   └── IdentifierCallOperableSyntaxAST
-       │           │        │               │        ├── fileLocal: false
-       │           │        │               │        └── identifier: test_1
-       │           │        │               ├── operator: SUBTRACTION
-       │           │        │               └── right:
-       │           │        │                   └── BinaryExpressionSyntaxAST
-       │           │        │                       ├── left:
-       │           │        │                       │   └── ParenthesizedExpressionSyntaxAST
-       │           │        │                       │        └── operable:
-       │           │        │                       │            └── ExpressionSyntaxAST
-       │           │        │                       │                ├── left:
-       │           │        │                       │                │   └── BinaryExpressionSyntaxAST
-       │           │        │                       │                │        ├── left:
-       │           │        │                       │                │        │   └── IdentifierCallOperableSyntaxAST
-       │           │        │                       │                │        │        ├── fileLocal: false
-       │           │        │                       │                │        │        └── identifier: test_1
-       │           │        │                       │                │        ├── operator: MULTIPLICATION
-       │           │        │                       │                │        └── right:
-       │           │        │                       │                │            └── NumberOperableSyntaxAST
-       │           │        │                       │                │                └── operable: 2
-       │           │        │                       │                ├── operator: ADD_ASSIGN
-       │           │        │                       │                └── right:
-       │           │        │                       │                    └── BinaryExpressionSyntaxAST
-       │           │        │                       │                        ├── left:
-       │           │        │                       │                        │   └── NumberOperableSyntaxAST
-       │           │        │                       │                        │        └── operable: 4
-       │           │        │                       │                        ├── operator: ADDITION
-       │           │        │                       │                        └── right:
-       │           │        │                       │                            └── PrefixExpressionSyntaxAST
-       │           │        │                       │                                ├── operator: NEGATE
-       │           │        │                       │                                └── right:
-       │           │        │                       │                                    └── NumberOperableSyntaxAST
-       │           │        │                       │                                        └── operable: 10
-       │           │        │                       ├── operator: MULTIPLICATION
-       │           │        │                       └── right:
-       │           │        │                           └── NumberOperableSyntaxAST
-       │           │        │                               └── operable: 5
-       │           │        └── operator: INTEGER
-       │           ├── operator: MULTIPLICATION
-       │           └── right:
-       │               └── CastExpressionSyntaxAST
-       │                   ├── left:
-       │                   │   └── NumberOperableSyntaxAST
-       │                   │       └── operable: 2
-       │                   └── operator: FLOAT
        │
-       └── functions: N/A
+       └── functions: 
+           └── FunctionDefinitionSyntaxAST
+               ├── annotations: N/A
+               │
+               ├── name: test
+               ├── type: VOID
+               │
+               ├── arguments: N/A
+               │
+               └── block: 
+                    ├── type: BLOCK
+                    └── storage: N/A
