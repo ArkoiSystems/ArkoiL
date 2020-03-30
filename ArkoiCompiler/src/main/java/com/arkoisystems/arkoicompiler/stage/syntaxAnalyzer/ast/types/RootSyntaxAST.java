@@ -115,13 +115,13 @@ public class RootSyntaxAST extends AbstractSyntaxAST
      *         everything worked correctly.
      */
     @Override
-    public Optional<RootSyntaxAST> parseAST(@Nullable final AbstractSyntaxAST parentAST) {
+    public @NotNull RootSyntaxAST parseAST(@Nullable final AbstractSyntaxAST parentAST) {
         Objects.requireNonNull(this.getSyntaxAnalyzer());
         Objects.requireNonNull(this.getMarkerFactory());
     
         this.setStartToken(this.getSyntaxAnalyzer().currentToken());
         this.getMarkerFactory().mark(this.getStartToken());
-        
+    
         main_loop:
         while (this.getSyntaxAnalyzer().getPosition() < this.getSyntaxAnalyzer().getTokens().length) {
             if (this.getSyntaxAnalyzer().currentToken() instanceof EndOfFileToken)
@@ -131,14 +131,10 @@ public class RootSyntaxAST extends AbstractSyntaxAST
                 if (!abstractParser.canParse(this, this.getSyntaxAnalyzer()))
                     continue;
         
-                final Optional<? extends AbstractSyntaxAST> optionalAbstractSyntaxAST = abstractParser.parse(this, this.getSyntaxAnalyzer());
-                if (optionalAbstractSyntaxAST.isPresent()) {
-                    final AbstractSyntaxAST abstractSyntaxAST = optionalAbstractSyntaxAST.get();
-                    this.getMarkerFactory().addFactory(abstractSyntaxAST.getMarkerFactory());
-                    
-                    if (abstractSyntaxAST.isFailed())
-                        this.failed();
-                    
+                final AbstractSyntaxAST abstractSyntaxAST = abstractParser.parse(this, this.getSyntaxAnalyzer());
+                this.getMarkerFactory().addFactory(abstractSyntaxAST.getMarkerFactory());
+                
+                if (!abstractSyntaxAST.isFailed()) {
                     if (abstractSyntaxAST instanceof FunctionDefinitionSyntaxAST) {
                         final FunctionDefinitionSyntaxAST functionDefinitionAST = (FunctionDefinitionSyntaxAST) abstractSyntaxAST;
                         if (functionDefinitionAST.getFunctionBlock().getBlockType() == BlockType.BLOCK && this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.CLOSING_BRACE) == null) {
@@ -149,8 +145,7 @@ public class RootSyntaxAST extends AbstractSyntaxAST
                             );
                             this.skipToNextValidToken();
                             continue main_loop;
-                        } else
-                            this.functionStorage.add(functionDefinitionAST);
+                        } else this.functionStorage.add(functionDefinitionAST);
                     } else {
                         if (abstractSyntaxAST instanceof VariableDefinitionSyntaxAST)
                             this.variableStorage.add((VariableDefinitionSyntaxAST) abstractSyntaxAST);
@@ -160,10 +155,7 @@ public class RootSyntaxAST extends AbstractSyntaxAST
                     
                     this.sortedStorage.add(abstractSyntaxAST);
                     this.getSyntaxAnalyzer().nextToken();
-                } else {
-                    this.skipToNextValidToken();
-                    this.failed();
-                }
+                } else this.skipToNextValidToken();
                 continue main_loop;
             }
             
@@ -177,7 +169,7 @@ public class RootSyntaxAST extends AbstractSyntaxAST
     
         this.setEndToken(this.getSyntaxAnalyzer().currentToken());
         this.getMarkerFactory().done(this.getEndToken());
-        return this.isFailed() ? Optional.empty() : Optional.of(this);
+        return this;
     }
     
     

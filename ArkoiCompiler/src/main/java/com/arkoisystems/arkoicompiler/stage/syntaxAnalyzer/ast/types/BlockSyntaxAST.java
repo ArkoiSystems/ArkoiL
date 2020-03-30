@@ -12,8 +12,8 @@ import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.SymbolTy
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxErrorType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.AbstractOperableSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.AbstractExpressionSyntaxAST;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types.ExpressionSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.AbstractStatementSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.types.FunctionDefinitionSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.types.VariableDefinitionSyntaxAST;
@@ -31,7 +31,6 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 /**
  * Used if you want to create a new {@link BlockSyntaxAST}. But it is recommend to use the
@@ -107,16 +106,16 @@ public class BlockSyntaxAST extends AbstractSyntaxAST
      *         everything worked correctly.
      */
     @Override
-    public Optional<BlockSyntaxAST> parseAST(@NotNull final AbstractSyntaxAST parentAST) {
+    public @NotNull BlockSyntaxAST parseAST(@NotNull final AbstractSyntaxAST parentAST) {
         Objects.requireNonNull(this.getSyntaxAnalyzer());
-        
+    
         if (!(parentAST instanceof FunctionDefinitionSyntaxAST) && !(parentAST instanceof VariableDefinitionSyntaxAST) && !(parentAST instanceof BlockSyntaxAST)) {
             this.addError(
                     this.getSyntaxAnalyzer().getArkoiClass(),
                     this.getSyntaxAnalyzer().currentToken(),
                     SyntaxErrorType.BLOCK_WRONG_START
             );
-            return Optional.empty();
+            return this;
         }
     
         this.setStartToken(this.getSyntaxAnalyzer().currentToken());
@@ -124,7 +123,7 @@ public class BlockSyntaxAST extends AbstractSyntaxAST
         
         if (this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.OPENING_BRACE) != null) {
             this.blockType = BlockType.BLOCK;
-            this.getSyntaxAnalyzer().nextToken(); // Because it would parse a second block if we wouldn't do this.
+            this.getSyntaxAnalyzer().nextToken();
             
             main_loop:
             while (this.getSyntaxAnalyzer().getPosition() < this.getSyntaxAnalyzer().getTokens().length) {
@@ -136,15 +135,11 @@ public class BlockSyntaxAST extends AbstractSyntaxAST
                 for (final AbstractParser abstractParser : BLOCK_PARSERS) {
                     if (!abstractParser.canParse(this, this.getSyntaxAnalyzer()))
                         continue;
-                    
-                    final Optional<? extends AbstractSyntaxAST> optionalAbstractSyntaxAST = abstractParser.parse(this, this.getSyntaxAnalyzer());
-                    if (optionalAbstractSyntaxAST.isPresent()) {
-                        final AbstractSyntaxAST abstractSyntaxAST = optionalAbstractSyntaxAST.get();
-                        this.getMarkerFactory().addFactory(abstractSyntaxAST.getMarkerFactory());
-                        
-                        if (abstractSyntaxAST.isFailed())
-                            this.failed();
-                        
+    
+                    final AbstractSyntaxAST abstractSyntaxAST = abstractParser.parse(this, this.getSyntaxAnalyzer());
+                    this.getMarkerFactory().addFactory(abstractSyntaxAST.getMarkerFactory());
+    
+                    if (!abstractSyntaxAST.isFailed()) {
                         if (abstractSyntaxAST instanceof BlockSyntaxAST) {
                             if (this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.CLOSING_BRACE) == null) {
                                 this.addError(
@@ -156,13 +151,10 @@ public class BlockSyntaxAST extends AbstractSyntaxAST
                                 continue main_loop;
                             }
                         }
-                        
+        
                         this.blockStorage.add(abstractSyntaxAST);
                         this.getSyntaxAnalyzer().nextToken();
-                    } else {
-                        this.skipToNextValidToken();
-                        this.failed();
-                    }
+                    } else this.skipToNextValidToken();
                     continue main_loop;
                 }
                 
@@ -179,34 +171,35 @@ public class BlockSyntaxAST extends AbstractSyntaxAST
         } else if (this.getSyntaxAnalyzer().matchesCurrentToken(OperatorType.EQUALS) != null) {
             this.blockType = BlockType.INLINE;
             this.getSyntaxAnalyzer().nextToken(); // Because it would try to parse the equal sign as expression.
-            
+    
             if (!AbstractExpressionSyntaxAST.EXPRESSION_PARSER.canParse(this, this.getSyntaxAnalyzer())) {
                 this.addError(
                         this.getSyntaxAnalyzer().getArkoiClass(),
                         this.getSyntaxAnalyzer().currentToken(),
                         SyntaxErrorType.BLOCK_NO_VALID_EXPRESSION
                 );
-                return Optional.empty();
+                return this;
             }
+    
+            final AbstractOperableSyntaxAST<?> abstractOperableSyntaxAST = AbstractExpressionSyntaxAST.EXPRESSION_PARSER.parse(this, this.getSyntaxAnalyzer());
+            this.getMarkerFactory().addFactory(abstractOperableSyntaxAST.getMarkerFactory());
             
-            final Optional<ExpressionSyntaxAST> optionalExpressionSyntaxAST = AbstractExpressionSyntaxAST.EXPRESSION_PARSER.parse(this, this.getSyntaxAnalyzer());
-            if (optionalExpressionSyntaxAST.isEmpty())
-                return Optional.empty();
-            
-            this.getMarkerFactory().addFactory(optionalExpressionSyntaxAST.get().getMarkerFactory());
-            this.blockStorage.add(optionalExpressionSyntaxAST.get());
+            if (abstractOperableSyntaxAST.isFailed()) {
+                this.failed();
+                return this;
+            } else this.blockStorage.add(abstractOperableSyntaxAST);
         } else {
             this.addError(
                     this.getSyntaxAnalyzer().getArkoiClass(),
                     this.getSyntaxAnalyzer().currentToken(),
                     SyntaxErrorType.BLOCK_INVALID_SEPARATOR
             );
-            return Optional.empty();
+            return this;
         }
         
         this.setEndToken(this.getSyntaxAnalyzer().currentToken());
         this.getMarkerFactory().done(this.getEndToken());
-        return this.isFailed() ? Optional.empty() : Optional.of(this);
+        return this;
     }
     
     

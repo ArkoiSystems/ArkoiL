@@ -54,9 +54,10 @@ public class EqualityExpressionSyntaxAST extends AbstractExpressionSyntaxAST
     }
     
     
+    @NotNull
     @Override
-    public Optional<? extends AbstractOperableSyntaxAST<?>> parseAST(@NotNull final AbstractSyntaxAST parentAST) {
-        return Optional.empty();
+    public EqualityExpressionSyntaxAST parseAST(@NotNull final AbstractSyntaxAST parentAST) {
+        return null;
     }
     
     

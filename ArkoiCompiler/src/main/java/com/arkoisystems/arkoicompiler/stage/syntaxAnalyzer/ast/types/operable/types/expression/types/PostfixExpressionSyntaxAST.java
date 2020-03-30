@@ -49,15 +49,16 @@ public class PostfixExpressionSyntaxAST extends AbstractExpressionSyntaxAST
     }
     
     
+    @NotNull
     @Override
-    public Optional<? extends AbstractOperableSyntaxAST<?>> parseAST(@NotNull final AbstractSyntaxAST parentAST) {
+    public PostfixExpressionSyntaxAST parseAST(@NotNull final AbstractSyntaxAST parentAST) {
         Objects.requireNonNull(this.getSyntaxAnalyzer());
         
         this.getSyntaxAnalyzer().nextToken(2);
         
         this.setEndToken(this.getSyntaxAnalyzer().currentToken());
         this.getMarkerFactory().done(this.getEndToken());
-        return Optional.of(this);
+        return this;
     }
     
     

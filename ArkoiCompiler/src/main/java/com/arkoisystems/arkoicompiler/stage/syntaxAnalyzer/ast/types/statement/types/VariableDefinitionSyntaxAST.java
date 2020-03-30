@@ -15,8 +15,8 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.AnnotationSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.BlockSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.RootSyntaxAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.AbstractOperableSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.AbstractExpressionSyntaxAST;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types.ExpressionSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.AbstractStatementSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import lombok.AccessLevel;
@@ -54,7 +54,7 @@ public class VariableDefinitionSyntaxAST extends AbstractStatementSyntaxAST
     @Getter
     @Setter(AccessLevel.PROTECTED)
     @Nullable
-    private ExpressionSyntaxAST variableExpression;
+    private AbstractOperableSyntaxAST<?> variableExpression;
     
     
     public VariableDefinitionSyntaxAST(@Nullable final SyntaxAnalyzer syntaxAnalyzer, @NotNull final List<AnnotationSyntaxAST> variableAnnotations) {
@@ -69,8 +69,9 @@ public class VariableDefinitionSyntaxAST extends AbstractStatementSyntaxAST
     }
     
     
+    @NotNull
     @Override
-    public Optional<VariableDefinitionSyntaxAST> parseAST(@NotNull final AbstractSyntaxAST parentAST) {
+    public VariableDefinitionSyntaxAST parseAST(@NotNull final AbstractSyntaxAST parentAST) {
         Objects.requireNonNull(this.getSyntaxAnalyzer());
         
         if (!(parentAST instanceof RootSyntaxAST) && !(parentAST instanceof BlockSyntaxAST)) {
@@ -79,7 +80,7 @@ public class VariableDefinitionSyntaxAST extends AbstractStatementSyntaxAST
                     this.getSyntaxAnalyzer().currentToken(),
                     SyntaxErrorType.VARIABLE_DEFINITION_WRONG_PARENT
             );
-            return Optional.empty();
+            return this;
         }
         
         if (this.getSyntaxAnalyzer().matchesCurrentToken(KeywordType.VAR) == null) {
@@ -88,7 +89,7 @@ public class VariableDefinitionSyntaxAST extends AbstractStatementSyntaxAST
                     this.getSyntaxAnalyzer().currentToken(),
                     SyntaxErrorType.VARIABLE_DEFINITION_WRONG_STAR
             );
-            return Optional.empty();
+            return this;
         }
     
         this.setStartToken(this.getSyntaxAnalyzer().currentToken());
@@ -100,7 +101,7 @@ public class VariableDefinitionSyntaxAST extends AbstractStatementSyntaxAST
                     this.getSyntaxAnalyzer().currentToken(),
                     SyntaxErrorType.VARIABLE_DEFINITION_NO_NAME
             );
-            return Optional.empty();
+            return this;
         }
         this.variableName = (IdentifierToken) this.getSyntaxAnalyzer().currentToken();
     
@@ -110,7 +111,7 @@ public class VariableDefinitionSyntaxAST extends AbstractStatementSyntaxAST
                     this.getSyntaxAnalyzer().currentToken(),
                     SyntaxErrorType.VARIABLE_DEFINITION_NO_EQUAL_SIGN
             );
-            return Optional.empty();
+            return this;
         } else this.getSyntaxAnalyzer().nextToken(2);
         
         if (!AbstractExpressionSyntaxAST.EXPRESSION_PARSER.canParse(this, this.getSyntaxAnalyzer())) {
@@ -119,19 +120,20 @@ public class VariableDefinitionSyntaxAST extends AbstractStatementSyntaxAST
                     this.getSyntaxAnalyzer().currentToken(),
                     SyntaxErrorType.VARIABLE_DEFINITION_ERROR_DURING_EXPRESSION_PARSING
             );
-            return Optional.empty();
+            return this;
         }
         
-        final Optional<ExpressionSyntaxAST> optionalExpressionSyntaxAST = AbstractExpressionSyntaxAST.EXPRESSION_PARSER.parse(this, this.getSyntaxAnalyzer());
-        if (optionalExpressionSyntaxAST.isEmpty())
-            return Optional.empty();
+        final AbstractOperableSyntaxAST<?> abstractOperableSyntaxAST = AbstractExpressionSyntaxAST.EXPRESSION_PARSER.parse(this, this.getSyntaxAnalyzer());
+        this.getMarkerFactory().addFactory(abstractOperableSyntaxAST.getMarkerFactory());
         
-        this.getMarkerFactory().addFactory(optionalExpressionSyntaxAST.get().getMarkerFactory());
-        this.variableExpression = optionalExpressionSyntaxAST.get();
+        if (abstractOperableSyntaxAST.isFailed()) {
+            this.failed();
+            return this;
+        } this.variableExpression = abstractOperableSyntaxAST;
         
         this.setEndToken(this.getSyntaxAnalyzer().currentToken());
         this.getMarkerFactory().done(this.getEndToken());
-        return Optional.of(this);
+        return this;
     }
     
     

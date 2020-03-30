@@ -10,7 +10,7 @@ import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.SemanticAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.SemanticErrorType;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.AbstractSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.AnnotationSemanticAST;
-import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.types.expression.types.ExpressionSemanticAST;
+import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.types.expression.AbstractExpressionSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.AnnotationSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.types.VariableDefinitionSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
@@ -31,7 +31,7 @@ public class VariableDefinitionSemanticAST extends AbstractSemanticAST<VariableD
     
     
     @Nullable
-    private ExpressionSemanticAST variableExpression;
+    private AbstractExpressionSemanticAST<?> variableExpression;
     
     
     public VariableDefinitionSemanticAST(@Nullable final SemanticAnalyzer semanticAnalyzer, @Nullable final AbstractSemanticAST<?> lastContainerAST, @NotNull final VariableDefinitionSyntaxAST variableDefinitionSyntaxAST) {
@@ -109,12 +109,12 @@ public class VariableDefinitionSemanticAST extends AbstractSemanticAST<VariableD
     
     
     @Nullable
-    public ExpressionSemanticAST getVariableExpression() {
+    public AbstractExpressionSemanticAST<?> getVariableExpression() {
         if (this.variableExpression == null) {
             if (this.getSyntaxAST().getVariableExpression() == null)
                 return null;
     
-            this.variableExpression = new ExpressionSemanticAST(this.getSemanticAnalyzer(), this, this.getSyntaxAST().getVariableExpression());
+            this.variableExpression = new AbstractExpressionSemanticAST<>(this.getSemanticAnalyzer(), this, this.getSyntaxAST().getVariableExpression(), ASTType.EXPRESSION);
             this.variableExpression.getTypeKind();
     
             if (this.variableExpression.isFailed())

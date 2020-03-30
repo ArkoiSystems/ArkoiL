@@ -10,14 +10,15 @@ import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.SemanticAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.SemanticErrorType;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.AbstractSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.types.IdentifierCallOperableSemanticAST;
-import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.types.expression.types.ExpressionSemanticAST;
+import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.types.expression.AbstractExpressionSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.statements.ImportDefinitionSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.statements.ReturnStatementSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.statements.VariableDefinitionSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.BlockSyntaxAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.AbstractOperableSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.IdentifierCallOperableSyntaxAST;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types.ExpressionSyntaxAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.AbstractExpressionSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.types.ReturnStatementSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.types.VariableDefinitionSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
@@ -79,7 +80,7 @@ public class BlockSemanticAST extends AbstractSemanticAST<BlockSyntaxAST>
             
             for (final AbstractSyntaxAST abstractSyntaxAST : this.getSyntaxAST().getBlockStorage()) {
                 if (this.getBlockType() == BlockType.INLINE) {
-                    if (!(abstractSyntaxAST instanceof ExpressionSyntaxAST)) {
+                    if (!(abstractSyntaxAST instanceof AbstractOperableSyntaxAST)) {
                         this.addError(
                                 this.getSemanticAnalyzer().getArkoiClass(),
                                 abstractSyntaxAST,
@@ -88,9 +89,9 @@ public class BlockSemanticAST extends AbstractSemanticAST<BlockSyntaxAST>
                         continue;
                     }
                     
-                    final ExpressionSyntaxAST expressionSyntaxAST = (ExpressionSyntaxAST) abstractSyntaxAST;
-                    final ExpressionSemanticAST expressionSemanticAST
-                            = new ExpressionSemanticAST(this.getSemanticAnalyzer(), this.getLastContainerAST(), expressionSyntaxAST);
+                    final AbstractOperableSyntaxAST<?> expressionSyntaxAST = (AbstractOperableSyntaxAST<?>) abstractSyntaxAST;
+                    final AbstractExpressionSemanticAST<?> expressionSemanticAST
+                            = new AbstractExpressionSemanticAST<>(this.getSemanticAnalyzer(), this.getLastContainerAST(), expressionSyntaxAST, ASTType.EXPRESSION);
                     
                     expressionSemanticAST.getTypeKind();
                     

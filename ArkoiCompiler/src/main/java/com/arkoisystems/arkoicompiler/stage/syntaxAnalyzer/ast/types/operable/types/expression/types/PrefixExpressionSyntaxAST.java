@@ -43,8 +43,9 @@ public class PrefixExpressionSyntaxAST extends AbstractExpressionSyntaxAST
     }
     
     
+    @NotNull
     @Override
-    public Optional<? extends AbstractOperableSyntaxAST<?>> parseAST(@NotNull final AbstractSyntaxAST parentAST) {
+    public PrefixExpressionSyntaxAST parseAST(@NotNull final AbstractSyntaxAST parentAST) {
         Objects.requireNonNull(this.getSyntaxAnalyzer());
         
         this.setStartToken(this.getSyntaxAnalyzer().currentToken());
@@ -52,16 +53,17 @@ public class PrefixExpressionSyntaxAST extends AbstractExpressionSyntaxAST
         
         this.getSyntaxAnalyzer().nextToken(1);
         
-        final Optional<? extends AbstractOperableSyntaxAST<?>> optionalRightSideAST = this.parseOperable(parentAST);
-        if (optionalRightSideAST.isEmpty())
-            return Optional.empty();
+        final AbstractOperableSyntaxAST<?> abstractOperableSyntaxAST = this.parseOperable(parentAST);
+        this.getMarkerFactory().addFactory(abstractOperableSyntaxAST.getMarkerFactory());
         
-        this.getMarkerFactory().addFactory(optionalRightSideAST.get().getMarkerFactory());
-        this.rightSideOperable = optionalRightSideAST.get();
+        if (abstractOperableSyntaxAST.isFailed()) {
+            this.failed();
+            return this;
+        } else this.rightSideOperable = abstractOperableSyntaxAST;
         
         this.setEndToken(this.rightSideOperable.getEndToken());
         this.getMarkerFactory().done(this.getEndToken());
-        return Optional.of(this);
+        return this;
     }
     
     

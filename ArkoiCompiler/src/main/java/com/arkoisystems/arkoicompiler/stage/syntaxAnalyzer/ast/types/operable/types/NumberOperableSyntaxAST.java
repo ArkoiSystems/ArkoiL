@@ -42,8 +42,9 @@ public class NumberOperableSyntaxAST extends AbstractOperableSyntaxAST<TypeKind>
     }
     
     
+    @NotNull
     @Override
-    public Optional<NumberOperableSyntaxAST> parseAST(@NotNull final AbstractSyntaxAST parentAST) {
+    public NumberOperableSyntaxAST parseAST(@NotNull final AbstractSyntaxAST parentAST) {
         Objects.requireNonNull(this.getSyntaxAnalyzer());
         
         if (this.getSyntaxAnalyzer().matchesCurrentToken(TokenType.NUMBER_LITERAL) == null) {
@@ -52,7 +53,7 @@ public class NumberOperableSyntaxAST extends AbstractOperableSyntaxAST<TypeKind>
                     this.getSyntaxAnalyzer().currentToken(),
                     SyntaxErrorType.NUMBER_OPERABLE_NO_NUMBER
             );
-            return Optional.empty();
+            return this;
         }
     
         this.setNumberToken((NumberToken) this.getSyntaxAnalyzer().currentToken());
@@ -62,7 +63,7 @@ public class NumberOperableSyntaxAST extends AbstractOperableSyntaxAST<TypeKind>
         
         this.setEndToken(this.getNumberToken());
         this.getMarkerFactory().done(this.getEndToken());
-        return Optional.of(this);
+        return this;
     }
     
     

@@ -80,9 +80,7 @@ object ArkoiElementTypes {
     fun createElement(astNode: ASTNode?): PsiElement {
         astNode ?: throw AssertionError("Cannot create an element with \"null\"");
         val type = astNode.elementType
-        println("$type: " + astNode.getChildren(null).joinToString { it.toString() })
         return ASTWrapperPsiElement(astNode)
-//        throw AssertionError("Unknown element type: $type");
     }
 
 }

@@ -5,6 +5,7 @@
  */
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types;
 
+import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.types.expression.types.LogicalExpressionSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.AbstractOperableSyntaxAST;
@@ -54,9 +55,10 @@ public class LogicalExpressionSyntaxAST extends AbstractExpressionSyntaxAST
     }
     
     
+    @NotNull
     @Override
-    public Optional<? extends AbstractOperableSyntaxAST<?>> parseAST(@NotNull final AbstractSyntaxAST parentAST) {
-        return Optional.empty();
+    public LogicalExpressionSyntaxAST parseAST(@NotNull final AbstractSyntaxAST parentAST) {
+        return null;
     }
     
     

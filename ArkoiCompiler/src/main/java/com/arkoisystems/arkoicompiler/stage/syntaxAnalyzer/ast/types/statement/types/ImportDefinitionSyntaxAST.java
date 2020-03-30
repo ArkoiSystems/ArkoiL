@@ -53,8 +53,9 @@ public class ImportDefinitionSyntaxAST extends AbstractStatementSyntaxAST
     }
     
     
+    @NotNull
     @Override
-    public Optional<ImportDefinitionSyntaxAST> parseAST(@NotNull final AbstractSyntaxAST parentAST) {
+    public ImportDefinitionSyntaxAST parseAST(@NotNull final AbstractSyntaxAST parentAST) {
         Objects.requireNonNull(this.getSyntaxAnalyzer());
         
         if (!(parentAST instanceof RootSyntaxAST)) {
@@ -63,7 +64,7 @@ public class ImportDefinitionSyntaxAST extends AbstractStatementSyntaxAST
                     parentAST,
                     SyntaxErrorType.IMPORT_DEFINITION_WRONG_PARENT
             );
-            return Optional.empty();
+            return this;
         }
         
         if (this.getSyntaxAnalyzer().matchesCurrentToken(KeywordType.IMPORT) == null) {
@@ -72,7 +73,7 @@ public class ImportDefinitionSyntaxAST extends AbstractStatementSyntaxAST
                     this.getSyntaxAnalyzer().currentToken(),
                     SyntaxErrorType.IMPORT_DEFINITION_WRONG_START
             );
-            return Optional.empty();
+            return this;
         }
         
         this.setStartToken(this.getSyntaxAnalyzer().currentToken());
@@ -84,7 +85,7 @@ public class ImportDefinitionSyntaxAST extends AbstractStatementSyntaxAST
                     this.getSyntaxAnalyzer().currentToken(),
                     SyntaxErrorType.IMPORT_DEFINITION_NO_FILEPATH
             );
-            return Optional.empty();
+            return this;
         }
         
         this.importFilePath = (StringToken) this.getSyntaxAnalyzer().currentToken();
@@ -99,7 +100,7 @@ public class ImportDefinitionSyntaxAST extends AbstractStatementSyntaxAST
                         this.getSyntaxAnalyzer().currentToken(),
                         SyntaxErrorType.IMPORT_DEFINITION_NOT_FOLLOWED_BY_NAME
                 );
-                return Optional.empty();
+                return this;
             }
             
             this.importName = (IdentifierToken) this.getSyntaxAnalyzer().currentToken();
@@ -113,7 +114,7 @@ public class ImportDefinitionSyntaxAST extends AbstractStatementSyntaxAST
         
         this.setEndToken(this.getSyntaxAnalyzer().currentToken());
         this.getMarkerFactory().done(this.getEndToken());
-        return Optional.of(this);
+        return this;
     }
     
     

@@ -13,11 +13,8 @@ import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenTyp
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.BlockSyntaxAST;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.marker.MarkerFactory;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.parser.AbstractParser;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.Optional;
 
 /**
  * A {@link AbstractParser} for the {@link BlockSyntaxAST} with which you can easily parse
@@ -41,9 +38,8 @@ public class BlockParser extends AbstractParser
      * @return {@code null} if an error occurred during the parsing of the {@link
      *         BlockSyntaxAST} or simply returns the parsed result.
      */
-    @NotNull
     @Override
-    public Optional<BlockSyntaxAST> parse(@NotNull final AbstractSyntaxAST parentAST, @NotNull final SyntaxAnalyzer syntaxAnalyzer) {
+    public @NotNull BlockSyntaxAST parse(@NotNull final AbstractSyntaxAST parentAST, @NotNull final SyntaxAnalyzer syntaxAnalyzer) {
         return BlockSyntaxAST
                 .builder(syntaxAnalyzer)
                 .build()

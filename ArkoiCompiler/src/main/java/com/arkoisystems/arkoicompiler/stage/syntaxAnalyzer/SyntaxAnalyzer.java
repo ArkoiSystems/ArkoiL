@@ -106,7 +106,7 @@ public class SyntaxAnalyzer extends AbstractStage
                 .toArray(AbstractToken[]::new);
         this.position = 0;
         
-        return this.rootSyntaxAST.parseAST(null).isPresent();
+        return !this.rootSyntaxAST.parseAST(null).isFailed();
     }
     
     

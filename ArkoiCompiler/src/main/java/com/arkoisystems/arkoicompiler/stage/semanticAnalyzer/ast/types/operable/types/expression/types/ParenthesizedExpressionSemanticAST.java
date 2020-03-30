@@ -8,7 +8,7 @@ package com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.SemanticAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.AbstractSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.types.expression.AbstractExpressionSemanticAST;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types.ExpressionSyntaxAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.AbstractOperableSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types.ParenthesizedExpressionSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
@@ -50,12 +50,11 @@ public class ParenthesizedExpressionSemanticAST extends AbstractExpressionSemant
     @Nullable
     public AbstractExpressionSemanticAST<?> getParenthesizedExpression() {
         if (this.parenthesizedExpression == null) {
-            final ExpressionSyntaxAST expressionSyntaxAST = this.getSyntaxAST().getExpressionSyntaxAST();
-            if(expressionSyntaxAST == null)
+            final AbstractOperableSyntaxAST<?> abstractOperableSyntaxAST = this.getSyntaxAST().getParenthesizedExpression();
+            if(abstractOperableSyntaxAST == null)
                 return null;
             
-            this.parenthesizedExpression
-                    = new ExpressionSemanticAST(this.getSemanticAnalyzer(), this.getLastContainerAST(), expressionSyntaxAST);
+            this.parenthesizedExpression = new AbstractExpressionSemanticAST<>(this.getSemanticAnalyzer(), this.getLastContainerAST(), abstractOperableSyntaxAST, ASTType.EXPRESSION);
             if (this.parenthesizedExpression.getTypeKind() == null)
                 return null;
         }

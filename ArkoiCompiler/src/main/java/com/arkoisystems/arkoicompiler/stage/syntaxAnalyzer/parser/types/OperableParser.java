@@ -13,11 +13,8 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.AbstractOperableSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.AbstractStatementSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.marker.MarkerFactory;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.parser.AbstractParser;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.Optional;
 
 /**
  * A {@link AbstractParser} for the {@link AbstractOperableSyntaxAST} with which you can
@@ -41,10 +38,10 @@ public class OperableParser extends AbstractParser
      * @return {@code null} if an error occurred during the parsing of the {@link
      *         AbstractOperableSyntaxAST} or simply returns the parsed result.
      */
-    @NotNull
     @Override
-    public Optional<? extends AbstractOperableSyntaxAST<?>> parse(@NotNull final AbstractSyntaxAST parentAST, @NotNull final SyntaxAnalyzer syntaxAnalyzer) {
-        return new AbstractOperableSyntaxAST<>(syntaxAnalyzer, ASTType.OPERABLE).parseAST(parentAST);
+    public @NotNull AbstractOperableSyntaxAST<?> parse(@NotNull final AbstractSyntaxAST parentAST, @NotNull final SyntaxAnalyzer syntaxAnalyzer) {
+        return new AbstractOperableSyntaxAST<>(syntaxAnalyzer, ASTType.OPERABLE)
+                .parseAST(parentAST);
     }
     
     

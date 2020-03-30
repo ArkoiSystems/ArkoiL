@@ -25,7 +25,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.PrintStream;
 import java.util.Objects;
-import java.util.Optional;
 
 public class AbstractOperableSyntaxAST<O> extends AbstractSyntaxAST
 {
@@ -41,8 +40,9 @@ public class AbstractOperableSyntaxAST<O> extends AbstractSyntaxAST
     }
     
     
+    @NotNull
     @Override
-    public Optional<? extends AbstractOperableSyntaxAST<?>> parseAST(@NotNull final AbstractSyntaxAST parentAST) {
+    public AbstractOperableSyntaxAST<?> parseAST(@NotNull final AbstractSyntaxAST parentAST) {
         Objects.requireNonNull(this.getSyntaxAnalyzer());
         
         final AbstractToken currentToken = this.getSyntaxAnalyzer().currentToken();
@@ -64,7 +64,7 @@ public class AbstractOperableSyntaxAST<O> extends AbstractSyntaxAST
                             currentToken,
                             SyntaxErrorType.OPERABLE_UNSUPPORTED_SYMBOL_TYPE
                     );
-                    return Optional.empty();
+                    return this;
                 }
                 return CollectionOperableSyntaxAST
                         .builder(this.getSyntaxAnalyzer())
@@ -77,24 +77,21 @@ public class AbstractOperableSyntaxAST<O> extends AbstractSyntaxAST
                             currentToken,
                             SyntaxErrorType.OPERABLE_IDENTIFIER_NOT_PARSEABLE
                     );
-                    return Optional.empty();
+                    return this;
                 }
                 
-                final Optional<? extends AbstractSyntaxAST> optionalAbstractSyntaxAST = AbstractStatementSyntaxAST.STATEMENT_PARSER.parse(parentAST, this.getSyntaxAnalyzer());
-                if (optionalAbstractSyntaxAST.isEmpty())
-                    return Optional.empty();
+                final AbstractSyntaxAST abstractSyntaxAST = AbstractStatementSyntaxAST.STATEMENT_PARSER.parse(parentAST, this.getSyntaxAnalyzer());
+                this.getMarkerFactory().addFactory(abstractSyntaxAST.getMarkerFactory());
                 
-                final AbstractSyntaxAST abstractSyntaxAST = optionalAbstractSyntaxAST.get();
-                if (abstractSyntaxAST instanceof IdentifierCallOperableSyntaxAST) {
-                    return Optional.of((IdentifierCallOperableSyntaxAST) abstractSyntaxAST);
-                } else {
+                if (!(abstractSyntaxAST instanceof IdentifierCallOperableSyntaxAST)) {
                     this.addError(
                             this.getSyntaxAnalyzer().getArkoiClass(),
-                            optionalAbstractSyntaxAST.get(),
+                            abstractSyntaxAST,
                             SyntaxErrorType.OPERABLE_UNSUPPORTED_STATEMENT
                     );
-                    return Optional.empty();
-                }
+                } else if(abstractSyntaxAST.isFailed())
+                    this.failed();
+                return this;
             case KEYWORD:
                 if (this.getSyntaxAnalyzer().matchesCurrentToken(KeywordType.THIS) == null) {
                     this.addError(
@@ -102,8 +99,9 @@ public class AbstractOperableSyntaxAST<O> extends AbstractSyntaxAST
                             currentToken,
                             "Couldn't parse the operable because the keyword is not supported."
                     );
-                    return Optional.empty();
+                    return this;
                 }
+                
                 return IdentifierCallOperableSyntaxAST
                         .builder(this.getSyntaxAnalyzer())
                         .build()
@@ -114,7 +112,7 @@ public class AbstractOperableSyntaxAST<O> extends AbstractSyntaxAST
                         currentToken,
                         "Couldn't parse the operable because it isn't supported."
                 );
-                return Optional.empty();
+                return this;
         }
     }
     

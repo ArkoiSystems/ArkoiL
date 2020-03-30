@@ -11,11 +11,8 @@ import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenTyp
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.AnnotationSyntaxAST;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.marker.MarkerFactory;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.parser.AbstractParser;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.Optional;
 
 /**
  * A {@link AbstractParser} for the {@link AnnotationSyntaxAST} with which you can easily
@@ -39,9 +36,8 @@ public class AnnotationParser extends AbstractParser
      * @return {@code null} if an error occurred during the parsing of the {@link
      *         AnnotationSyntaxAST} or simply returns the parsed result.
      */
-    @NotNull
     @Override
-    public Optional<? extends AbstractSyntaxAST> parse(@NotNull final AbstractSyntaxAST parentAST, @NotNull final SyntaxAnalyzer syntaxAnalyzer) {
+    public @NotNull AbstractSyntaxAST parse(@NotNull final AbstractSyntaxAST parentAST, @NotNull final SyntaxAnalyzer syntaxAnalyzer) {
         return AnnotationSyntaxAST
                 .builder(syntaxAnalyzer)
                 .build()

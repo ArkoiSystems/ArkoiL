@@ -54,9 +54,10 @@ public class RelationalExpressionSyntaxAST extends AbstractExpressionSyntaxAST
     }
     
     
+    @NotNull
     @Override
-    public Optional<? extends AbstractOperableSyntaxAST<?>> parseAST(@NotNull final AbstractSyntaxAST parentAST) {
-        return Optional.empty();
+    public RelationalExpressionSyntaxAST parseAST(@NotNull final AbstractSyntaxAST parentAST) {
+        return null;
     }
     
     

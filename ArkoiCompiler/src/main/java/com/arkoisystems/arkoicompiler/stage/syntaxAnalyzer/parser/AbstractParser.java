@@ -9,12 +9,8 @@ import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.marker.MarkerFactory;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-import java.util.Optional;
 
 /**
  * This class is used to define a {@link AbstractParser} for a specific {@link
@@ -60,8 +56,7 @@ public abstract class AbstractParser
      * @return {@code null} if an error occurred or the specified {@link
      *         AbstractSyntaxAST}.
      */
-    @NotNull
-    public abstract Optional<? extends AbstractSyntaxAST> parse(@NotNull final AbstractSyntaxAST parentAST, @NotNull final SyntaxAnalyzer syntaxAnalyzer);
+    public abstract  @NotNull AbstractSyntaxAST parse(@NotNull final AbstractSyntaxAST parentAST, @NotNull final SyntaxAnalyzer syntaxAnalyzer);
     
     
     /**
