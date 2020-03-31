@@ -19,8 +19,16 @@
 package com.arkoisystems.lang.arkoi.parser
 
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.*
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.AbstractOperableSyntaxAST
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.*
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types.*
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.AbstractStatementSyntaxAST
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.types.FunctionDefinitionSyntaxAST
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.types.ImportDefinitionSyntaxAST
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.types.ReturnStatementSyntaxAST
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.types.VariableDefinitionSyntaxAST
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.marker.ArkoiMarker
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.marker.MarkerFactory
 import com.arkoisystems.lang.arkoi.lexer.ArkoiLexer
 import com.intellij.lang.ASTNode
@@ -64,11 +72,6 @@ class ArkoiParser : PsiParser, LightPsiParser {
         builder: PsiBuilderImpl,
         markerFactory: MarkerFactory<out AbstractSyntaxAST>
     ) {
-        println(markerFactory.currentMarker.astType.name + ": " + markerFactory.currentMarker.errorMessage)
-        println(markerFactory.abstractSyntaxAST)
-        println(markerFactory.currentMarker.startToken.start)
-        println(markerFactory.currentMarker.endToken.end)
-
         this.setLexemeIndex(builder, arkoiLexer.tokens!!.indexOf(markerFactory.currentMarker.startToken))
         val mark = builder.mark()
 
@@ -83,43 +86,41 @@ class ArkoiParser : PsiParser, LightPsiParser {
                     markerFactory.currentMarker.errorArguments
                 )
             )
-        } else mark.done(getArkoiType(root, markerFactory.currentMarker))
+        } else mark.done(getArkoiType(markerFactory))
     }
 
     private fun setLexemeIndex(builder: PsiBuilderImpl, index: Int) = this.myCurrentLexeme.set(builder, index)
 
-    private fun getArkoiType(root: IElementType, arkoiMarker: ArkoiMarker): IElementType {
-        return when (arkoiMarker.astType) {
-            ASTType.IMPORT_DEFINITION -> ArkoiElementTypes.importDeclaration
-            ASTType.NUMBER_OPERABLE -> ArkoiElementTypes.numberOperable
-            ASTType.CAST_EXPRESSION -> ArkoiElementTypes.castExpression
-            ASTType.TYPE -> ArkoiElementTypes.type
-            ASTType.ANNOTATION -> ArkoiElementTypes.annotation
-            ASTType.ARGUMENT_DEFINITION -> ArkoiElementTypes.argumentDeclaration
-            ASTType.ASSIGNMENT_EXPRESSION -> ArkoiElementTypes.assignmentExpression
-            ASTType.BINARY_EXPRESSION -> ArkoiElementTypes.binaryExpression
-            ASTType.BLOCK -> ArkoiElementTypes.block
-            ASTType.COLLECTION_OPERABLE -> ArkoiElementTypes.collectionOperable
-            ASTType.EQUALITY_EXPRESSION -> ArkoiElementTypes.equalityExpression
-            ASTType.FUNCTION_CALL_PART -> ArkoiElementTypes.functionCallPart
-            ASTType.FUNCTION_DEFINITION -> ArkoiElementTypes.functionDeclaration
-            ASTType.IDENTIFIER_CALL_OPERABLE -> ArkoiElementTypes.identifierCallOperable
-            ASTType.LOGICAL_EXPRESSION -> ArkoiElementTypes.logicalExpression
-            ASTType.OPERABLE -> ArkoiElementTypes.operable
-            ASTType.PARAMETER_DEFINITION -> ArkoiElementTypes.parameterDeclaration
-            ASTType.PARENTHESIZED_EXPRESSION -> ArkoiElementTypes.parenthesizedExpression
-            ASTType.POSTFIX_EXPRESSION -> ArkoiElementTypes.postfixExpression
-            ASTType.PREFIX_EXPRESSION -> ArkoiElementTypes.prefixExpression
-            ASTType.RELATIONAL_EXPRESSION -> ArkoiElementTypes.relationalExpression
-            ASTType.RETURN_STATEMENT -> ArkoiElementTypes.returnStatement
-            ASTType.STATEMENT -> ArkoiElementTypes.statement
-            ASTType.STRING_OPERABLE -> ArkoiElementTypes.stringOperable
-            ASTType.VARIABLE_DEFINITION -> ArkoiElementTypes.variableDeclaration
-            ASTType.EXPRESSION -> ArkoiElementTypes.expression
+    private fun getArkoiType(markerFactory: MarkerFactory<*>): IElementType {
+        return when (markerFactory.currentMarker.astType) {
+            ASTType.IMPORT_DEFINITION -> ArkoiElementTypes.ImportDeclarationElement(markerFactory.abstractSyntaxAST as ImportDefinitionSyntaxAST)
+            ASTType.NUMBER_OPERABLE -> ArkoiElementTypes.NumberOperableElement(markerFactory.abstractSyntaxAST as NumberOperableSyntaxAST)
+            ASTType.CAST_EXPRESSION -> ArkoiElementTypes.CastExpressionElement(markerFactory.abstractSyntaxAST as CastExpressionSyntaxAST)
+            ASTType.TYPE -> ArkoiElementTypes.TypeElement(markerFactory.abstractSyntaxAST as TypeSyntaxAST)
+            ASTType.ANNOTATION -> ArkoiElementTypes.AnnotationElement(markerFactory.abstractSyntaxAST as AnnotationSyntaxAST)
+            ASTType.ARGUMENT_DEFINITION -> ArkoiElementTypes.ArgumentElement(markerFactory.abstractSyntaxAST as ArgumentSyntaxAST)
+            ASTType.ASSIGNMENT_EXPRESSION -> ArkoiElementTypes.AssignmentExpressionElement(markerFactory.abstractSyntaxAST as AssignmentExpressionSyntaxAST)
+            ASTType.BINARY_EXPRESSION -> ArkoiElementTypes.BinaryExpressionElement(markerFactory.abstractSyntaxAST as BinaryExpressionSyntaxAST)
+            ASTType.BLOCK -> ArkoiElementTypes.BlockElement(markerFactory.abstractSyntaxAST as BlockSyntaxAST)
+            ASTType.COLLECTION_OPERABLE -> ArkoiElementTypes.CollectionOperableElement(markerFactory.abstractSyntaxAST as CollectionOperableSyntaxAST)
+            ASTType.EQUALITY_EXPRESSION -> ArkoiElementTypes.EqualityExpressionElement(markerFactory.abstractSyntaxAST as EqualityExpressionSyntaxAST)
+            ASTType.FUNCTION_CALL_PART -> ArkoiElementTypes.FunctionCallPartElement(markerFactory.abstractSyntaxAST as FunctionCallPartSyntaxAST)
+            ASTType.FUNCTION_DEFINITION -> ArkoiElementTypes.FunctionDeclarationElement(markerFactory.abstractSyntaxAST as FunctionDefinitionSyntaxAST)
+            ASTType.IDENTIFIER_CALL_OPERABLE -> ArkoiElementTypes.IdentifierCallOperableElement(markerFactory.abstractSyntaxAST as IdentifierCallOperableSyntaxAST)
+            ASTType.LOGICAL_EXPRESSION -> ArkoiElementTypes.LogicalExpressionElement(markerFactory.abstractSyntaxAST as LogicalExpressionSyntaxAST)
+            ASTType.OPERABLE -> ArkoiElementTypes.OperableElement(markerFactory.abstractSyntaxAST as AbstractOperableSyntaxAST<*>)
+            ASTType.PARAMETER_DEFINITION -> ArkoiElementTypes.ParameterElement(markerFactory.abstractSyntaxAST as ParameterSyntaxAST)
+            ASTType.PARENTHESIZED_EXPRESSION -> ArkoiElementTypes.ParenthesizedExpressionElement(markerFactory.abstractSyntaxAST as ParenthesizedExpressionSyntaxAST)
+            ASTType.POSTFIX_EXPRESSION -> ArkoiElementTypes.PostfixExpressionElement(markerFactory.abstractSyntaxAST as PostfixExpressionSyntaxAST)
+            ASTType.PREFIX_EXPRESSION -> ArkoiElementTypes.PrefixExpressionElement(markerFactory.abstractSyntaxAST as PrefixExpressionSyntaxAST)
+            ASTType.RELATIONAL_EXPRESSION -> ArkoiElementTypes.RelationalExpressionElement(markerFactory.abstractSyntaxAST as RelationalExpressionSyntaxAST)
+            ASTType.RETURN_STATEMENT -> ArkoiElementTypes.ReturnStatementElement(markerFactory.abstractSyntaxAST as ReturnStatementSyntaxAST)
+            ASTType.STATEMENT -> ArkoiElementTypes.StatementElement(markerFactory.abstractSyntaxAST as AbstractStatementSyntaxAST)
+            ASTType.STRING_OPERABLE -> ArkoiElementTypes.StringOperableElement(markerFactory.abstractSyntaxAST as StringOperableSyntaxAST)
+            ASTType.VARIABLE_DEFINITION -> ArkoiElementTypes.VariableDeclarationElement(markerFactory.abstractSyntaxAST as VariableDefinitionSyntaxAST)
+            ASTType.ROOT -> ArkoiElementTypes.RootElement(markerFactory.abstractSyntaxAST as RootSyntaxAST)
 
-            ASTType.ROOT -> root
-
-            else -> TODO(arkoiMarker.astType.name)
+            else -> TODO(markerFactory.currentMarker.astType.name)
         }
     }
 

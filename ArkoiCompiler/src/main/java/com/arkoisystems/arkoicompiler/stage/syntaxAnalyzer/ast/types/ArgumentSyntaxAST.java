@@ -75,16 +75,14 @@ public class ArgumentSyntaxAST extends AbstractSyntaxAST
         
         this.argumentName = (IdentifierToken) this.getSyntaxAnalyzer().currentToken();
         
-        if (this.getSyntaxAnalyzer().matchesNextToken(OperatorType.EQUALS) == null) {
+        if (this.getSyntaxAnalyzer().matchesPeekToken(1, OperatorType.EQUALS) == null) {
             this.addError(
                     this.getSyntaxAnalyzer().getArkoiClass(),
                     this.getSyntaxAnalyzer().currentToken(),
                     SyntaxErrorType.ARGUMENT_NO_SEPARATOR
             );
             return this;
-        }
-        
-        this.getSyntaxAnalyzer().nextToken();
+        } else this.getSyntaxAnalyzer().nextToken(2);
         
         if (!AbstractExpressionSyntaxAST.EXPRESSION_PARSER.canParse(parentAST, this.getSyntaxAnalyzer())) {
             this.addError(

@@ -24,7 +24,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.PrintStream;
 import java.util.Objects;
-import java.util.Optional;
 
 /**
  * Used if you want to create a new {@link TypeSyntaxAST}. But it is recommend to use the
@@ -98,7 +97,7 @@ public class TypeSyntaxAST extends AbstractSyntaxAST
             this.addError(
                     this.getSyntaxAnalyzer().getArkoiClass(),
                     this.getSyntaxAnalyzer().currentToken(),
-                    SyntaxErrorType.TYPE_DOES_NOT_START_WITH_TYPE_KEYWORD
+                    SyntaxErrorType.TYPE_START_NO_VALID_KEYWORD
             );
             return this;
         }

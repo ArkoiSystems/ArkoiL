@@ -18,69 +18,210 @@
  */
 package com.arkoisystems.lang.arkoi.parser
 
-import com.intellij.extapi.psi.ASTWrapperPsiElement
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.*
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.AbstractOperableSyntaxAST
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.*
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types.*
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.AbstractStatementSyntaxAST
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.types.FunctionDefinitionSyntaxAST
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.types.ImportDefinitionSyntaxAST
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.types.ReturnStatementSyntaxAST
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.types.VariableDefinitionSyntaxAST
+import com.arkoisystems.lang.arkoi.parser.psi.*
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
-import com.intellij.psi.tree.IElementType
+import com.intellij.psi.tree.IFileElementType
 
 object ArkoiElementTypes {
 
-    var importDeclaration: IElementType = ArkoiElementType("IMPORT_DECLARATION")
+    class ImportDeclarationElement(importDefinitionSyntaxAST: ImportDefinitionSyntaxAST) :
+        ArkoiElementType<ImportDefinitionSyntaxAST>("IMPORT_DECLARATION", importDefinitionSyntaxAST)
 
-    var numberOperable: IElementType = ArkoiElementType("NUMBER_OPERABLE")
+    class NumberOperableElement(numberOperableSyntaxAST: NumberOperableSyntaxAST) :
+        ArkoiElementType<NumberOperableSyntaxAST>("NUMBER_OPERABLE", numberOperableSyntaxAST)
 
-    var castExpression: IElementType = ArkoiElementType("CAST_EXPRESSION")
+    class CastExpressionElement(castExpressionSyntaxAST: CastExpressionSyntaxAST) :
+        ArkoiElementType<CastExpressionSyntaxAST>("CAST_EXPRESSION", castExpressionSyntaxAST)
 
-    var type: IElementType = ArkoiElementType("TYPE")
+    class TypeElement(typeSyntaxAST: TypeSyntaxAST) :
+        ArkoiElementType<TypeSyntaxAST>("TYPE", typeSyntaxAST)
 
-    var annotation: IElementType = ArkoiElementType("ANNOTATION")
+    class AnnotationElement(annotationSyntaxAST: AnnotationSyntaxAST) :
+        ArkoiElementType<AnnotationSyntaxAST>("ANNOTATION", annotationSyntaxAST)
 
-    var argumentDeclaration: IElementType = ArkoiElementType("ARGUMENT_DECLARATION")
+    class ArgumentElement(argumentSyntaxAST: ArgumentSyntaxAST) :
+        ArkoiElementType<ArgumentSyntaxAST>("ARGUMENT", argumentSyntaxAST)
 
-    var assignmentExpression: IElementType = ArkoiElementType("ASSIGNMENT_EXPRESSION")
+    class AssignmentExpressionElement(assignmentExpressionSyntaxAST: AssignmentExpressionSyntaxAST) :
+        ArkoiElementType<AssignmentExpressionSyntaxAST>("ASSIGNMENT_EXPRESSION", assignmentExpressionSyntaxAST)
 
-    var binaryExpression: IElementType = ArkoiElementType("BINARY_EXPRESSION")
+    class BinaryExpressionElement(binaryExpressionSyntaxAST: BinaryExpressionSyntaxAST) :
+        ArkoiElementType<BinaryExpressionSyntaxAST>("BINARY_EXPRESSION", binaryExpressionSyntaxAST)
 
-    var block: IElementType = ArkoiElementType("BLOCK")
+    class BlockElement(blockSyntaxAST: BlockSyntaxAST) :
+        ArkoiElementType<BlockSyntaxAST>("BLOCK", blockSyntaxAST)
 
-    var collectionOperable: IElementType = ArkoiElementType("COLLECTION_OPERABLE")
+    class CollectionOperableElement(collectionOperableSyntaxAST: CollectionOperableSyntaxAST) :
+        ArkoiElementType<CollectionOperableSyntaxAST>("COLLECTION_OPERABLE", collectionOperableSyntaxAST)
 
-    var equalityExpression: IElementType = ArkoiElementType("EQUALITY_EXPRESSION")
+    class EqualityExpressionElement(equalityExpressionSyntaxAST: EqualityExpressionSyntaxAST) :
+        ArkoiElementType<EqualityExpressionSyntaxAST>("EQUALITY_EXPRESSION", equalityExpressionSyntaxAST)
 
-    var expression: IElementType = ArkoiElementType("EXPRESSION")
+    class FunctionCallPartElement(functionCallPartSyntaxAST: FunctionCallPartSyntaxAST) :
+        ArkoiElementType<FunctionCallPartSyntaxAST>("FUNCTION_CALL_PART", functionCallPartSyntaxAST)
 
-    var functionCallPart: IElementType = ArkoiElementType("FUNCTION_CALL_PART")
+    class FunctionDeclarationElement(functionDefinitionSyntaxAST: FunctionDefinitionSyntaxAST) :
+        ArkoiElementType<FunctionDefinitionSyntaxAST>("FUNCTION_DECLARATION", functionDefinitionSyntaxAST)
 
-    var functionDeclaration: IElementType = ArkoiElementType("FUNCTION_DECLARATION")
+    class IdentifierCallOperableElement(identifierCallOperableSyntaxAST: IdentifierCallOperableSyntaxAST) :
+        ArkoiElementType<IdentifierCallOperableSyntaxAST>("IDENTIFIER_CALL_OPERABLE", identifierCallOperableSyntaxAST)
 
-    var identifierCallOperable: IElementType = ArkoiElementType("IDENTIFIER_CALL_OPERABLE")
+    class LogicalExpressionElement(logicalExpressionSyntaxAST: LogicalExpressionSyntaxAST) :
+        ArkoiElementType<LogicalExpressionSyntaxAST>("LOGICAL_EXPRESSION", logicalExpressionSyntaxAST)
 
-    var logicalExpression: IElementType = ArkoiElementType("LOGICAL_EXPRESSION")
+    class OperableElement(abstractOperableSyntaxAST: AbstractOperableSyntaxAST<*>) :
+        ArkoiElementType<AbstractOperableSyntaxAST<*>>("OPERABLE", abstractOperableSyntaxAST)
 
-    var operable: IElementType = ArkoiElementType("OPERABLE")
+    class ParameterElement(parameterSyntaxAST: ParameterSyntaxAST) :
+        ArkoiElementType<ParameterSyntaxAST>("PARAMETER", parameterSyntaxAST)
 
-    var parameterDeclaration: IElementType = ArkoiElementType("PARAMETER_DECLARATION")
+    class ParenthesizedExpressionElement(parenthesizedExpressionSyntaxAST: ParenthesizedExpressionSyntaxAST) :
+        ArkoiElementType<ParenthesizedExpressionSyntaxAST>("PARENTHESIZED_EXPRESSION", parenthesizedExpressionSyntaxAST)
 
-    var parenthesizedExpression: IElementType = ArkoiElementType("PARENTHESIZED_EXPRESSION")
+    class PostfixExpressionElement(postfixExpressionSyntaxAST: PostfixExpressionSyntaxAST) :
+        ArkoiElementType<PostfixExpressionSyntaxAST>("POSTFIX_EXPRESSION", postfixExpressionSyntaxAST)
 
-    var postfixExpression: IElementType = ArkoiElementType("POSTFIX_EXPRESSION")
+    class PrefixExpressionElement(prefixExpressionSyntaxAST: PrefixExpressionSyntaxAST) :
+        ArkoiElementType<PrefixExpressionSyntaxAST>("PREFIX_EXPRESSION", prefixExpressionSyntaxAST)
 
-    var prefixExpression: IElementType = ArkoiElementType("PREFIX_EXPRESSION")
+    class RelationalExpressionElement(relationalExpressionSyntaxAST: RelationalExpressionSyntaxAST) :
+        ArkoiElementType<RelationalExpressionSyntaxAST>("RELATIONAL_EXPRESSION", relationalExpressionSyntaxAST)
 
-    var relationalExpression: IElementType = ArkoiElementType("RELATIONAL_EXPRESSION")
+    class ReturnStatementElement(returnStatementSyntaxAST: ReturnStatementSyntaxAST) :
+        ArkoiElementType<ReturnStatementSyntaxAST>("RETURN_STATEMENT", returnStatementSyntaxAST)
 
-    var returnStatement: IElementType = ArkoiElementType("RETURN_STATEMENT")
+    class StatementElement(abstractStatementSyntaxAST: AbstractStatementSyntaxAST) :
+        ArkoiElementType<AbstractStatementSyntaxAST>("STATEMENT", abstractStatementSyntaxAST)
 
-    var statement: IElementType = ArkoiElementType("STATEMENT")
+    class StringOperableElement(stringOperableSyntaxAST: StringOperableSyntaxAST) :
+        ArkoiElementType<StringOperableSyntaxAST>("STRING_OPERABLE", stringOperableSyntaxAST)
 
-    var stringOperable: IElementType = ArkoiElementType("STRING_OPERABLE")
+    class VariableDeclarationElement(variableDefinitionSyntaxAST: VariableDefinitionSyntaxAST) :
+        ArkoiElementType<VariableDefinitionSyntaxAST>("VARIABLE_DECLARATION", variableDefinitionSyntaxAST)
 
-    var variableDeclaration: IElementType = ArkoiElementType("VARIABLE_DECLARATION")
+    class RootElement(rootSyntaxAST: RootSyntaxAST) :
+        ArkoiElementType<RootSyntaxAST>("ROOT", rootSyntaxAST)
 
     fun createElement(astNode: ASTNode?): PsiElement {
-        astNode ?: throw AssertionError("Cannot create an element with \"null\"");
-        val type = astNode.elementType
-        return ASTWrapperPsiElement(astNode)
+        astNode ?: throw AssertionError("Cannot create an element with \"null\"")
+        return when (astNode.elementType) {
+            is RootElement -> ArkoiRoot(
+                astNode,
+                (astNode.elementType as RootElement).abstractSyntaxAST!!
+            )
+            is ImportDeclarationElement -> ArkoiImportDeclaration(
+                astNode,
+                (astNode.elementType as ImportDeclarationElement).abstractSyntaxAST!!
+            )
+            is NumberOperableElement -> ArkoiNumberOperable(
+                astNode,
+                (astNode.elementType as NumberOperableElement).abstractSyntaxAST!!
+            )
+            is CastExpressionElement -> ArkoiCastExpression(
+                astNode,
+                (astNode.elementType as CastExpressionElement).abstractSyntaxAST!!
+            )
+            is TypeElement -> ArkoiType(
+                astNode,
+                (astNode.elementType as TypeElement).abstractSyntaxAST!!
+            )
+            is AnnotationElement -> ArkoiAnnotation(
+                astNode,
+                (astNode.elementType as AnnotationElement).abstractSyntaxAST!!
+            )
+            is ArgumentElement -> ArkoiArgument(
+                astNode,
+                (astNode.elementType as ArgumentElement).abstractSyntaxAST!!
+            )
+            is AssignmentExpressionElement -> ArkoiAssignmentExpression(
+                astNode,
+                (astNode.elementType as AssignmentExpressionElement).abstractSyntaxAST!!
+            )
+            is BinaryExpressionElement -> ArkoiBinaryExpression(
+                astNode,
+                (astNode.elementType as BinaryExpressionElement).abstractSyntaxAST!!
+            )
+            is BlockElement -> ArkoiBlock(
+                astNode,
+                (astNode.elementType as BlockElement).abstractSyntaxAST!!
+            )
+            is CollectionOperableElement -> ArkoiCollectionOperable(
+                astNode,
+                (astNode.elementType as CollectionOperableElement).abstractSyntaxAST!!
+            )
+            is EqualityExpressionElement -> ArkoiEqualityExpression(
+                astNode,
+                (astNode.elementType as EqualityExpressionElement).abstractSyntaxAST!!
+            )
+            is FunctionCallPartElement -> ArkoiFunctionCallPart(
+                astNode,
+                (astNode.elementType as FunctionCallPartElement).abstractSyntaxAST!!
+            )
+            is FunctionDeclarationElement -> ArkoiFunctionDeclaration(
+                astNode,
+                (astNode.elementType as FunctionDeclarationElement).abstractSyntaxAST!!
+            )
+            is IdentifierCallOperableElement -> ArkoiIdentifierCallOperable(
+                astNode,
+                (astNode.elementType as IdentifierCallOperableElement).abstractSyntaxAST!!
+            )
+            is LogicalExpressionElement -> ArkoiLogicalExpression(
+                astNode,
+                (astNode.elementType as LogicalExpressionElement).abstractSyntaxAST!!
+            )
+            is OperableElement -> ArkoiOperable(
+                astNode,
+                (astNode.elementType as OperableElement).abstractSyntaxAST!!
+            )
+            is ParameterElement -> ArkoiParameter(
+                astNode,
+                (astNode.elementType as ParameterElement).abstractSyntaxAST!!
+            )
+            is ParenthesizedExpressionElement -> ArkoiParenthesizedExpression(
+                astNode,
+                (astNode.elementType as ParenthesizedExpressionElement).abstractSyntaxAST!!
+            )
+            is PostfixExpressionElement -> ArkoiPostExpression(
+                astNode,
+                (astNode.elementType as PostfixExpressionElement).abstractSyntaxAST!!
+            )
+            is PrefixExpressionElement -> ArkoiPrefixExpression(
+                astNode,
+                (astNode.elementType as PrefixExpressionElement).abstractSyntaxAST!!
+            )
+            is RelationalExpressionElement -> ArkoiRelationalExpression(
+                astNode,
+                (astNode.elementType as RelationalExpressionElement).abstractSyntaxAST!!
+            )
+            is ReturnStatementElement -> ArkoiReturnStatement(
+                astNode,
+                (astNode.elementType as ReturnStatementElement).abstractSyntaxAST!!
+            )
+            is StatementElement -> ArkoiStatement(
+                astNode,
+                (astNode.elementType as StatementElement).abstractSyntaxAST!!
+            )
+            is StringOperableElement -> ArkoiStringOperable(
+                astNode,
+                (astNode.elementType as StringOperableElement).abstractSyntaxAST!!
+            )
+            is VariableDeclarationElement -> ArkoiVariableDeclaration(
+                astNode,
+                (astNode.elementType as VariableDeclarationElement).abstractSyntaxAST!!
+            )
+
+            else -> TODO(astNode.elementType.javaClass.simpleName)
+        }
     }
 
 }

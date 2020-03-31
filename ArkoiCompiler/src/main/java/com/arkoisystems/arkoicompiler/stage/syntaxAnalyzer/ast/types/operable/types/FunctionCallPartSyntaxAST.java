@@ -61,15 +61,17 @@ public class FunctionCallPartSyntaxAST extends AbstractSyntaxAST
                 break;
             if (!AbstractExpressionSyntaxAST.EXPRESSION_PARSER.canParse(this, getSyntaxAnalyzer()))
                 break;
-            
+    
             final AbstractOperableSyntaxAST<?> abstractOperableSyntaxAST = AbstractExpressionSyntaxAST.EXPRESSION_PARSER.parse(this, getSyntaxAnalyzer());
             this.getMarkerFactory().addFactory(abstractOperableSyntaxAST.getMarkerFactory());
-            
+    
             if (abstractOperableSyntaxAST.isFailed()) {
                 this.failed();
                 return this;
             } else this.calledExpressions.add(abstractOperableSyntaxAST);
-            
+    
+            if (this.getSyntaxAnalyzer().matchesNextToken(SymbolType.COMMA) == null)
+                break;
             this.getSyntaxAnalyzer().nextToken();
         }
         

@@ -24,7 +24,6 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 public class CollectionOperableSyntaxAST extends AbstractOperableSyntaxAST<TypeKind>
 {
@@ -55,7 +54,7 @@ public class CollectionOperableSyntaxAST extends AbstractOperableSyntaxAST<TypeK
         }
     
         this.setStartToken(this.getSyntaxAnalyzer().currentToken());
-        this.getMarkerFactory().mark(this.getEndToken());
+        this.getMarkerFactory().mark(this.getStartToken());
         
         this.getSyntaxAnalyzer().nextToken();
         
@@ -71,17 +70,18 @@ public class CollectionOperableSyntaxAST extends AbstractOperableSyntaxAST<TypeK
                 );
                 return this;
             }
-            
+    
             final AbstractOperableSyntaxAST<?> abstractOperableSyntaxAST = AbstractExpressionSyntaxAST.EXPRESSION_PARSER.parse(this, this.getSyntaxAnalyzer());
             this.getMarkerFactory().addFactory(abstractOperableSyntaxAST.getMarkerFactory());
-            
+    
             if (abstractOperableSyntaxAST.isFailed()) {
                 this.failed();
                 return this;
             } else this.collectionExpressions.add(abstractOperableSyntaxAST);
-            
-            if (this.getSyntaxAnalyzer().matchesNextToken(SymbolType.COMMA) != null)
-                this.getSyntaxAnalyzer().nextToken();
+    
+            if (this.getSyntaxAnalyzer().matchesNextToken(SymbolType.COMMA) == null)
+                break;
+            this.getSyntaxAnalyzer().nextToken(1);
         }
         
         if (this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.CLOSING_BRACKET) == null) {

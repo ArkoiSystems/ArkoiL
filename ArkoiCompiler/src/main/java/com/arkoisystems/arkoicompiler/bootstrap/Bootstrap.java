@@ -51,14 +51,13 @@ public class Bootstrap
             new HelpFormatter().printHelp("arkoi-compiler", options);
             return;
         }
-        
+    
         final File targetPath = new File(commandLine.getOptionValue("inputPath"));
         if (!targetPath.exists())
             throw new NullPointerException("The given \"inputPath\" doesn't exists. Please correct the path to a valid file or directory.");
-        
-        final ArkoiCompiler arkoiCompiler;
+    
+        final ArkoiCompiler arkoiCompiler = new ArkoiCompiler();
         if (targetPath.isDirectory()) {
-            arkoiCompiler = new ArkoiCompiler(targetPath.getCanonicalPath());
             for (final File file : FileUtils.getAllFiles(targetPath)) {
                 if (!file.getName().endsWith(".ark"))
                     continue;
@@ -67,9 +66,6 @@ public class Bootstrap
         } else {
             if (!targetPath.getName().endsWith(".ark"))
                 throw new NullPointerException("Couldn't compile this file because it doesn't has the Arkoi file extension \".ark\".");
-            
-            final File inputDirectory = targetPath.getParentFile();
-            arkoiCompiler = new ArkoiCompiler(inputDirectory.getCanonicalPath());
             arkoiCompiler.addFile(targetPath);
         }
         
@@ -79,7 +75,7 @@ public class Bootstrap
         }
         
         try (final PrintStream printStream = new PrintStream(new File(commandLine.getOptionValue("outputFile")))) {
-            for (final ArkoiClass arkoiClass : arkoiCompiler.getArkoiClasses().values())
+            for (final ArkoiClass arkoiClass : arkoiCompiler.getArkoiClasses())
                 printStream.print(arkoiClass);
         } catch (final Exception ex) {
             ex.printStackTrace();

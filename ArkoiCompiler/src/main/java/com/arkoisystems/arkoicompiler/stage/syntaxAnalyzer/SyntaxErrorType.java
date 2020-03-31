@@ -8,21 +8,20 @@ package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer;
 public class SyntaxErrorType
 {
     
-    public static final String TYPE_DOES_NOT_START_WITH_TYPE_KEYWORD = "Couldn't parse the Type because the parsing doesn't start with a type keyword.";
-    public static final String TYPE_NOT_A_VALID_TYPE = "Couldn't parse the Type because it isn't a valid type keyword.";
+    public static final String TYPE_START_NO_VALID_KEYWORD = "Couldn't parse the type because it doesn't start with a valid keyword.";
     
-    public static final String ROOT_BLOCK_FUNCTION_HAS_WRONG_ENDING = "Couldn't parse the \"function definition\" statement because it doesn't end with a closing brace.";
-    public static final String ROOT_NO_PARSER_FOUND = "Couldn't parse the AST because no parser could parse this token. Check for misspelling or something else.";
+    public static final String ROOT_FUNCTION_BLOCK_WRONG_ENDING = "The function block doesn't end with a curly brace.";
+    public static final String ROOT_NO_PARSER_FOUND = "There's no parser that can parse this token.";
     
-    public static final String BLOCK_BLOCK_HAS_WRONG_ENDING = "Couldn't parse the \"BlockAST\" because it doesn't end with a closing brace.";
-    public static final String BLOCK_NO_PARSER_FOUND = "Couldn't parse the AST because no parser could parse this token. Check for misspelling or something else.";
+    public static final String BLOCK_BLOCK_HAS_WRONG_ENDING = "The block doesn't end with a curly brace."; // Couldn't parse the "BlockAST" because it doesn't end with a closing brace.
+    public static final String BLOCK_NO_PARSER_FOUND = "There's no parser that can parse this token."; // Couldn't parse the AST because no parser could parse this token. Check for misspelling or something else.
     public static final String BLOCK_NO_VALID_EXPRESSION = "Couldn't parse the BlockAST because the equal sign isn't followed by an valid expression.";
     public static final String BLOCK_INVALID_SEPARATOR = "Couldn't parse the BlockAST because the parsing doesn't start with an opening brace or equal sign to identify the block type.";
     public static final String BLOCK_WRONG_START = "Couldn't parse the BlockAST because it isn't declared inside a function/variable definition or block.";
     
-    public static final String PARAMETER_WRONG_START = "Couldn't parse the parameter definition because the parsing doesn't start with an identifier as name.";
-    public static final String PARAMETER_NO_SEPARATOR = "Couldn't parse the parameter definition because the parameter name isn't followed by a colon.";
-    public static final String PARAMETER_NO_VALID_TYPE = "Couldn't parse the parameter definition because the colon isn't followed by a valid type.";
+    public static final String PARAMETER_WRONG_START = "The parameter definition doesn't start with a name."; // Couldn't parse the parameter definition because the parsing doesn't start with an identifier as name.
+    public static final String PARAMETER_NO_SEPARATOR = "The name of the parameter isn't followed by a colon."; // Couldn't parse the parameter definition because the parameter name isn't followed by a colon.
+    public static final String PARAMETER_NO_VALID_TYPE = "The parameter definition contains an invalid type."; // Couldn't parse the parameter definition because the colon isn't followed by a valid type.
     
     public static final String VARIABLE_DEFINITION_WRONG_PARENT = "Couldn't parse the \"variable definition\" statement because it isn't declared inside the root file or in a block.";
     public static final String VARIABLE_DEFINITION_WRONG_STAR = "Couldn't parse the \"variable definition\" statement because the parsing doesn't start with the \"var\" keyword.";
@@ -30,10 +29,10 @@ public class SyntaxErrorType
     public static final String VARIABLE_DEFINITION_NO_EQUAL_SIGN = "Couldn't parse the \"variable definition\" statement because the variable name isn't followed by an equal sign for deceleration of the following expression.";
     public static final String VARIABLE_DEFINITION_ERROR_DURING_EXPRESSION_PARSING = "Couldn't parse the \"variable definition\" statement because the equal sign is followed by an invalid expression.";
     
-    public static final String IMPORT_DEFINITION_WRONG_PARENT = "Couldn't parse the \"import\" statement because it isn't declared inside the root file.";
-    public static final String IMPORT_DEFINITION_WRONG_START = "Couldn't parse the \"import\" statement because the parsing doesn't start with the \"import\" keyword.";
-    public static final String IMPORT_DEFINITION_NO_FILEPATH = "Couldn't parse the \"import\" statement because the \"import\" keyword isn't followed by an file path.";
-    public static final String IMPORT_DEFINITION_NOT_FOLLOWED_BY_NAME = "Couldn't parse the \"import\" statement because the \"named\" keyword isn't followed by an name identifier.";
+    public static final String IMPORT_DEFINITION_WRONG_PARENT = "The import isn't declared inside the root file."; // Couldn't parse the "import" statement because it isn't declared inside the root file.
+    public static final String IMPORT_DEFINITION_WRONG_START = "Couldn't parse the import because it doesn't start with the valid keyword."; // Couldn't parse the "import" statement because the parsing doesn't start with the "import" keyword.
+    public static final String IMPORT_DEFINITION_NO_FILE_PATH = "The import keyword needs to be followed by a valid file path."; // Couldn't parse the "import" statement because the "import" keyword isn't followed by an file path.
+    public static final String IMPORT_DEFINITION_NOT_FOLLOWED_BY_NAME = "When using the \"named\" keyword the import needs to have a valid name."; // Couldn't parse the "import" statement because the "named" keyword isn't followed by an name identifier.
     
     public static final String RETURN_STATEMENT_WRONG_PARENT = "Couldn't parse the \"return\" statement because it isn't declared inside a block.";
     public static final String RETURN_STATEMENT_WRONG_START = "Couldn't parse the \"return\" statement because the parsing doesn't start with the \"return\" keyword.";
@@ -67,18 +66,12 @@ public class SyntaxErrorType
     public static final String COLLECTION_OPERABLE_WRONG_ENDING = "Couldn't parse the collection operable because it doesn't end with an closing bracket.";
     
     public static final String PARAMETERS_WRONG_START = "Couldn't parse the parameters because parsing doesn't start with an opening parenthesis.";
-    public static final String PARAMETERS_WRONG_ENDING = "Couldn't parse the parameters because the parsing doesn't end with a closing parenthesis.";
     
     public static final String ANNOTATION_WRONG_PARENT = "Couldn't parse the Annotation because it isn't declared inside the root file.";
     public static final String ANNOTATION_WRONG_START = "Couldn't parse the Annotation because the parsing doesn't start with an at sign aka. \"@\".";
     public static final String ANNOTATION_NO_NAME = "Couldn't parse the Annotation because the at sign isn't followed by an name for the annotation.";
-    public static final String ANNOTATION_NO_COMMA_SEPARATION = "Couldn't parse the Annotation because you can't define a non IdentifierToken inside the arguments section beside a comma after an argument if it should get followed by an extra one.";
-    public static final String ANNOTATION_UNSUPPORTED_TOKEN_INSIDE = "Couldn't parse the Annotation because you can't declare something else then a closing bracket and a comma after an argument.";
-    public static final String ANNOTATION_WRONG_ENDING = "Couldn't parse the Annotation because the arguments section doesn't end with a closing bracket.";
     public static final String ANNOTATION_NO_PARSEABLE_STATEMENT = "Couldn't parse the Annotation because an there is no parsable statement after it.";
     public static final String ANNOTATION_NO_VARIABLE_OR_FUNCTION = "Couldn't parse the Annotation because it isn't followed by an function or variable definition.";
-    
-    public static final String STATEMENT_WRONG_START = "Couldn't parse the statement because it doesn't start with a keyword.";
     
     public static final String EXPRESSION_ADD_ASSIGNMENT_SEPARATED = "Couldn't parse the add assignment expression because there is a whitespace between the operators.";
     public static final String EXPRESSION_EXPONENTIAL_OPERABLE_SEPARATED = "Couldn't parse the exponential expression because there is a whitespace between the operators.";
@@ -95,8 +88,4 @@ public class SyntaxErrorType
     public static final String ARGUMENTS_WRONG_START = "Couldn't parse the arguments because parsing doesn't start with an opening bracket.";
     public static final String ARGUMENTS_WRONG_ENDING = "Couldn't parse the arguments because the parsing doesn't end with a closing bracket.";
     
-    //    public static final String PARAMETER_WRONG_START = "Couldn't parse the argument definition because the parsing doesn't start with an identifier as name.";
-    //    public static final String PARAMETER_NO_SEPARATOR = "Couldn't parse the argument definition because the argument name isn't followed by a colon.";
-    //    public static final String PARAMETER_NO_VALID_TYPE = "Couldn't parse the argument definition because the colon isn't followed by a valid type.";
-    //
 }

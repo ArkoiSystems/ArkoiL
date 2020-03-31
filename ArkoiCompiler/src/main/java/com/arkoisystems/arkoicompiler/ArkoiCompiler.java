@@ -13,12 +13,15 @@ import com.arkoisystems.arkoicompiler.utils.FileUtils;
 import lombok.Getter;
 import lombok.NonNull;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * The {@link ArkoiCompiler} class is used for compiling multiple files. It also contains
@@ -28,40 +31,12 @@ import java.util.*;
 public class ArkoiCompiler
 {
     
-    /**
-     * This {@link HashMap} contains every {@link ArkoiClass} with the canonical path as a
-     * key. You can use it to search a specified file or getting all {@link ArkoiClass}s
-     * inside it.
-     */
     @Getter
     @NonNull
-    private final HashMap<String, ArkoiClass> arkoiClasses = new HashMap<>();
+    private final List<ArkoiClass> arkoiClasses = new ArrayList<>();
     
     
-    /**
-     * The working directory is specified with a {@link String} and is used to declare the
-     * workstation of the compiler.
-     */
-    @Getter
-    @NonNull
-    private final String workingDirectory;
-    
-    
-    /**
-     * Constructs an {@link ArkoiCompiler} with the given parameters. It will set the
-     * workstation for the compiler {@link ArkoiCompiler#workingDirectory} and also
-     * initializes itself with all natives files found ({@link ArkoiCompiler#addNativeFiles()}).
-     *
-     * @param workingDirectory
-     *         the workstation for the compiler which is declared through a {@link
-     *         String}.
-     *
-     * @throws IOException
-     *         if something with the natives went wrong.
-     */
-    public ArkoiCompiler(@NotNull final String workingDirectory) throws IOException {
-        this.workingDirectory = workingDirectory;
-        
+    public ArkoiCompiler() throws IOException {
         this.addNativeFiles();
     }
     
@@ -77,7 +52,7 @@ public class ArkoiCompiler
      *         if something went wrong during the reading of all bytes inside the file.
      */
     public void addFile(@NotNull final File file) throws IOException {
-        this.getArkoiClasses().put(file.getCanonicalPath(), new ArkoiClass(this, file.getCanonicalPath(), Files.readAllBytes(file.toPath())));
+        this.getArkoiClasses().add(new ArkoiClass(this, file.getCanonicalPath(), Files.readAllBytes(file.toPath())));
     }
     
     
@@ -89,7 +64,7 @@ public class ArkoiCompiler
      *         the {@link ArkoiClass} which should get added to the map.
      */
     public void addClass(@NotNull final ArkoiClass arkoiClass) {
-        this.getArkoiClasses().put(arkoiClass.getFilePath(), arkoiClass);
+        this.getArkoiClasses().add(arkoiClass);
     }
     
     
@@ -101,10 +76,10 @@ public class ArkoiCompiler
      *         the {@link PrintStream} which is used to print the StackTrace.
      */
     public void printStackTrace(@NotNull final PrintStream errorStream) {
-        for (final Map.Entry<String, ArkoiClass> classEntry : this.getArkoiClasses().entrySet()) {
-            classEntry.getValue().getLexicalAnalyzer().getErrorHandler().printStackTrace(errorStream, false);
-            classEntry.getValue().getSyntaxAnalyzer().getErrorHandler().printStackTrace(errorStream, false);
-            classEntry.getValue().getSemanticAnalyzer().getErrorHandler().printStackTrace(errorStream, false);
+        for (final ArkoiClass arkoiClass : this.getArkoiClasses()) {
+            arkoiClass.getLexicalAnalyzer().getErrorHandler().printStackTrace(errorStream, false);
+            arkoiClass.getSyntaxAnalyzer().getErrorHandler().printStackTrace(errorStream, false);
+            arkoiClass.getSemanticAnalyzer().getErrorHandler().printStackTrace(errorStream, false);
         }
     }
     
@@ -120,21 +95,21 @@ public class ArkoiCompiler
         final long compileStart = System.nanoTime();
         {
             final long lexicalStart = System.nanoTime();
-            for (final ArkoiClass arkoiClass : this.getArkoiClasses().values()) {
+            for (final ArkoiClass arkoiClass : this.getArkoiClasses()) {
                 if (!arkoiClass.getLexicalAnalyzer().processStage())
                     return false;
             }
             System.out.printf("The lexical analysis took %sms for all classes (%s in total)\n", (System.nanoTime() - lexicalStart) / 1_000_000D, this.arkoiClasses.size());
             
             final long syntaxStart = System.nanoTime();
-            for (final ArkoiClass arkoiClass : this.getArkoiClasses().values()) {
+            for (final ArkoiClass arkoiClass : this.getArkoiClasses()) {
                 if (!arkoiClass.getSyntaxAnalyzer().processStage())
                     return false;
             }
             System.out.printf("The syntax analysis took %sms for all classes (%s in total)\n", (System.nanoTime() - syntaxStart) / 1_000_000D, this.getArkoiClasses().size());
             
             final long semanticStart = System.nanoTime();
-            for (final ArkoiClass arkoiClass : this.getArkoiClasses().values()) {
+            for (final ArkoiClass arkoiClass : this.getArkoiClasses()) {
                 if (!arkoiClass.getSemanticAnalyzer().processStage())
                     return false;
             }
@@ -158,10 +133,10 @@ public class ArkoiCompiler
         final File nativeDirectory = new File("/home/timo/dev/ArkoiL/ArkoiCompiler/natives/");
         if (!nativeDirectory.exists())
             throw new NullPointerException("Couldn't find a native directory. Please try to fix the problem with reinstalling the compiler.");
-        
+    
         final List<File> files = FileUtils.getAllFiles(nativeDirectory);
         for (final File file : files)
-            this.getArkoiClasses().put(file.getCanonicalPath(), new ArkoiClass(this, file.getCanonicalPath(), Files.readAllBytes(file.toPath()), true));
+            this.getArkoiClasses().add(new ArkoiClass(this, file.getCanonicalPath(), Files.readAllBytes(file.toPath()), true));
     }
     
     
@@ -178,10 +153,10 @@ public class ArkoiCompiler
      *         exists any native functions with the same description.
      */
     public FunctionDefinitionSemanticAST findNativeSemanticFunction(@NotNull final String functionDescription) {
-        for (final ArkoiClass arkoiClass : this.getArkoiClasses().values()) {
+        for (final ArkoiClass arkoiClass : this.getArkoiClasses()) {
             if (!arkoiClass.isNativeClass())
                 continue;
-            
+        
             Objects.requireNonNull(arkoiClass.getSemanticAnalyzer().getRootSemanticAST());
             for (final FunctionDefinitionSemanticAST functionDefinitionSemanticAST : arkoiClass.getSemanticAnalyzer().getRootSemanticAST().getFunctionStorage()) {
                 if (functionDefinitionSemanticAST.getFunctionDescription().equals(functionDescription) && functionDefinitionSemanticAST.getSyntaxAST().hasAnnotation("native"))
@@ -202,7 +177,7 @@ public class ArkoiCompiler
      */
     public void printSyntaxTree(@NotNull final PrintStream printStream) {
         final List<RootSyntaxAST> roots = new ArrayList<>();
-        for (final ArkoiClass arkoiClass : this.getArkoiClasses().values())
+        for (final ArkoiClass arkoiClass : this.getArkoiClasses())
             roots.add(arkoiClass.getSyntaxAnalyzer().getRootSyntaxAST());
         
         printStream.println("Syntax Trees:");
