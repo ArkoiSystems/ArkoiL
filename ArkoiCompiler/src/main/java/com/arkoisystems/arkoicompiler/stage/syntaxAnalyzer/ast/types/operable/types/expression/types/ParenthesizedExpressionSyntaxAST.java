@@ -63,14 +63,14 @@ public class ParenthesizedExpressionSyntaxAST extends AbstractExpressionSyntaxAS
             return this;
         } else this.parenthesizedExpression = abstractOperableSyntaxAST;
         
-        if (this.getSyntaxAnalyzer().matchesNextToken(SymbolType.CLOSING_PARENTHESIS) == null) {
+        if (this.getSyntaxAnalyzer().matchesPeekToken(1, SymbolType.CLOSING_PARENTHESIS) == null) {
             this.addError(
                     this.getSyntaxAnalyzer().getArkoiClass(),
                     this.getSyntaxAnalyzer().currentToken(),
                     SyntaxErrorType.EXPRESSION_PARENTHESIZED_WRONG_ENDING
             );
             return this;
-        }
+        } else this.getSyntaxAnalyzer().nextToken();
         
         this.setEndToken(this.getSyntaxAnalyzer().currentToken());
         this.getMarkerFactory().done(this.getEndToken());

@@ -20,7 +20,7 @@ class LexicalAnalyzerTest
     
     @Test
     public void parseInvalidCharacterVariable() throws Exception {
-        final ArkoiCompiler arkoiCompiler = new ArkoiCompiler("");
+        final ArkoiCompiler arkoiCompiler = new ArkoiCompiler();
         final ArkoiClass arkoiClass = new ArkoiClass(arkoiCompiler, "",
                 "var 'test = 0;".getBytes()
         );
@@ -38,7 +38,7 @@ class LexicalAnalyzerTest
     
     @Test
     public void parseIntegerVariable() throws Exception {
-        final ArkoiCompiler arkoiCompiler = new ArkoiCompiler("");
+        final ArkoiCompiler arkoiCompiler = new ArkoiCompiler();
         final ArkoiClass arkoiClass = new ArkoiClass(arkoiCompiler, "",
                 "var test = 0;".getBytes()
         );
@@ -55,7 +55,7 @@ class LexicalAnalyzerTest
     
     @Test
     public void parseFloatingVariable() throws Exception {
-        final ArkoiCompiler arkoiCompiler = new ArkoiCompiler("");
+        final ArkoiCompiler arkoiCompiler = new ArkoiCompiler();
         final ArkoiClass arkoiClass = new ArkoiClass(arkoiCompiler, "",
                 "var test = 2.0;".getBytes()
         );
@@ -72,7 +72,7 @@ class LexicalAnalyzerTest
     
     @Test
     public void parseStringVariable() throws Exception {
-        final ArkoiCompiler arkoiCompiler = new ArkoiCompiler("");
+        final ArkoiCompiler arkoiCompiler = new ArkoiCompiler();
         final ArkoiClass arkoiClass = new ArkoiClass(arkoiCompiler, "",
                 "var test = \"Hello World :) \\\" okay?\";".getBytes()
         );
@@ -89,7 +89,7 @@ class LexicalAnalyzerTest
     
     @Test
     public void parseImport() throws Exception {
-        final ArkoiCompiler arkoiCompiler = new ArkoiCompiler("");
+        final ArkoiCompiler arkoiCompiler = new ArkoiCompiler();
         final ArkoiClass arkoiClass = new ArkoiClass(arkoiCompiler, "",
                 "import \"System\" as system;".getBytes()
         );
@@ -106,7 +106,7 @@ class LexicalAnalyzerTest
     
     @Test
     public void parseMathematicalExpression() throws Exception {
-        final ArkoiCompiler arkoiCompiler = new ArkoiCompiler("");
+        final ArkoiCompiler arkoiCompiler = new ArkoiCompiler();
         final ArkoiClass arkoiClass = new ArkoiClass(arkoiCompiler, "",
                 "var test = (20++ + -10 * 5f) * 2 ** 3 ** 4 + (test_6 += 1);".getBytes()
         );
@@ -126,7 +126,7 @@ class LexicalAnalyzerTest
     
     @Test
     public void parseMainMethod() throws Exception {
-        final ArkoiCompiler arkoiCompiler = new ArkoiCompiler("");
+        final ArkoiCompiler arkoiCompiler = new ArkoiCompiler();
         final ArkoiClass arkoiClass = new ArkoiClass(arkoiCompiler, "",
                 "fun main<int>(args: string[]) { }".getBytes()
         );

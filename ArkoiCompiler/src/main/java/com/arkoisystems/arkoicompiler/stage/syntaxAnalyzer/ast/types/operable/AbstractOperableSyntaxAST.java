@@ -89,9 +89,11 @@ public class AbstractOperableSyntaxAST<O> extends AbstractSyntaxAST
                             abstractSyntaxAST,
                             SyntaxErrorType.OPERABLE_UNSUPPORTED_STATEMENT
                     );
-                } else if(abstractSyntaxAST.isFailed())
-                    this.failed();
-                return this;
+                } else {
+                    if(abstractSyntaxAST.isFailed())
+                        this.failed();
+                    return (IdentifierCallOperableSyntaxAST) abstractSyntaxAST;
+                }
             case KEYWORD:
                 if (this.getSyntaxAnalyzer().matchesCurrentToken(KeywordType.THIS) == null) {
                     this.addError(

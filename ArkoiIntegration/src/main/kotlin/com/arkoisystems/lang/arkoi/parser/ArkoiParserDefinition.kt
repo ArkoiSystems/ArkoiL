@@ -20,9 +20,13 @@ import com.intellij.psi.tree.TokenSet
 
 class ArkoiParserDefinition : ParserDefinition {
 
-    override fun createLexer(project: Project?) = ArkoiLexer()
+    private val arkoiLexer = ArkoiLexer()
 
-    override fun createParser(project: Project?) = ArkoiParser()
+    private val arkoiParser = ArkoiParser()
+
+    override fun createLexer(project: Project?) = arkoiLexer
+
+    override fun createParser(project: Project?) = arkoiParser
 
     override fun createFile(viewProvider: FileViewProvider) = ArkoiFile(viewProvider)
 

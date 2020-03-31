@@ -20,9 +20,9 @@ class SyntaxAnalyzerTest
     
     @Test
     public void parseVariable() throws Exception {
-        final ArkoiCompiler arkoiCompiler = new ArkoiCompiler("");
+        final ArkoiCompiler arkoiCompiler = new ArkoiCompiler();
         final ArkoiClass arkoiClass = new ArkoiClass(
-                new ArkoiCompiler(""), "",
+                new ArkoiCompiler(), "",
                 "var test = 0;".getBytes()
         );
         arkoiCompiler.addClass(arkoiClass);
@@ -53,7 +53,7 @@ class SyntaxAnalyzerTest
     
     @Test
     public void parseFloatingVariable() throws Exception {
-        final ArkoiCompiler arkoiCompiler = new ArkoiCompiler("");
+        final ArkoiCompiler arkoiCompiler = new ArkoiCompiler();
         final ArkoiClass arkoiClass = new ArkoiClass(arkoiCompiler, "",
                 "var test = 2.0;".getBytes()
         );
@@ -84,7 +84,7 @@ class SyntaxAnalyzerTest
     
     @Test
     public void parseStringVariable() throws Exception {
-        final ArkoiCompiler arkoiCompiler = new ArkoiCompiler("");
+        final ArkoiCompiler arkoiCompiler = new ArkoiCompiler();
         final ArkoiClass arkoiClass = new ArkoiClass(arkoiCompiler, "",
                 "var test = \"Hello World :) \\\" okay?\";".getBytes()
         );
@@ -115,7 +115,7 @@ class SyntaxAnalyzerTest
     
     @Test
     public void parseAnnotationVariable() throws Exception {
-        final ArkoiCompiler arkoiCompiler = new ArkoiCompiler("");
+        final ArkoiCompiler arkoiCompiler = new ArkoiCompiler();
         final ArkoiClass arkoiClass = new ArkoiClass(arkoiCompiler, "",
                 ("@Test[okay]\n" +
                         "@World[Hello]\n" +
@@ -157,7 +157,7 @@ class SyntaxAnalyzerTest
     
     @Test
     public void parseImport() throws Exception {
-        final ArkoiCompiler arkoiCompiler = new ArkoiCompiler("");
+        final ArkoiCompiler arkoiCompiler = new ArkoiCompiler();
         final ArkoiClass arkoiClass = new ArkoiClass(arkoiCompiler, "",
                 "import \"System\" as system;".getBytes()
         );
@@ -185,7 +185,7 @@ class SyntaxAnalyzerTest
     
     @Test
     public void parseMultipleErrorExpression() throws Exception {
-        final ArkoiCompiler arkoiCompiler = new ArkoiCompiler("");
+        final ArkoiCompiler arkoiCompiler = new ArkoiCompiler();
         final ArkoiClass arkoiClass = new ArkoiClass(arkoiCompiler, "",
                 "var test = (20++ + -10 * 5f * 2 * * 3 * * 4 + (test_6 + = 1);".getBytes()
         );
@@ -217,7 +217,7 @@ class SyntaxAnalyzerTest
     
     @Test
     public void parseMathematicalExpression() throws Exception {
-        final ArkoiCompiler arkoiCompiler = new ArkoiCompiler("");
+        final ArkoiCompiler arkoiCompiler = new ArkoiCompiler();
         final ArkoiClass arkoiClass = new ArkoiClass(arkoiCompiler, "",
                 "var test = (20++ + -10 * 5f) * 2 ** 3 ** 4 + (test_6 += 1);".getBytes());
         arkoiCompiler.addClass(arkoiClass);
@@ -304,7 +304,7 @@ class SyntaxAnalyzerTest
     
     @Test
     public void parseFullClass() throws Exception {
-        final ArkoiCompiler arkoiCompiler = new ArkoiCompiler("");
+        final ArkoiCompiler arkoiCompiler = new ArkoiCompiler();
         final ArkoiClass arkoiClass = new ArkoiClass(arkoiCompiler, "",
                 ("import \"./test\" as test;\n" +
                         "\n" +

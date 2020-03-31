@@ -17,7 +17,6 @@ import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.File;
 import java.io.PrintStream;
 import java.util.Objects;
 
@@ -46,10 +45,8 @@ public class ImportDefinitionSemanticAST extends AbstractSemanticAST<ImportDefin
         Objects.requireNonNull(this.getSemanticAnalyzer());
         
         if (this.importTargetClass == null) {
-            final String filePath = new File(this.getSemanticAnalyzer().getArkoiClass().getArkoiCompiler().getWorkingDirectory() + File.separator +
-                    this.getSyntaxAST().getImportFilePath().getTokenContent() + ".ark").getCanonicalPath();
+            this.importTargetClass = this.getSemanticAnalyzer().getArkoiClass().getArkoiFile(this.getSyntaxAST().getImportFilePath().getTokenContent() + ".ark");
             
-            this.importTargetClass = this.getSemanticAnalyzer().getArkoiClass().getArkoiCompiler().getArkoiClasses().get(filePath);
             if (this.importTargetClass == null) {
                 this.addError(
                         this.getSemanticAnalyzer().getArkoiClass(),

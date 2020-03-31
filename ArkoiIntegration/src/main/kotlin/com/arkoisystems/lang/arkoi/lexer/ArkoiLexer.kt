@@ -66,12 +66,13 @@ class ArkoiLexer : LexerBase() {
         this.tokenIndex = 0
 
         if (this.bufferArray != null) {
-            val arkoiCompiler = ArkoiCompiler("")
+            val arkoiCompiler = ArkoiCompiler()
             val arkoiClass = ArkoiClass(
                 arkoiCompiler,
                 "",
                 this.bufferArray!!
             )
+            arkoiCompiler.addClass(arkoiClass)
             this.arkoiClass = arkoiClass
 
             arkoiClass.lexicalAnalyzer.position = this.startOffset

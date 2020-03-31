@@ -23,7 +23,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.PrintStream;
 import java.util.Objects;
-import java.util.Optional;
 
 public class ImportDefinitionSyntaxAST extends AbstractStatementSyntaxAST
 {
@@ -79,14 +78,14 @@ public class ImportDefinitionSyntaxAST extends AbstractStatementSyntaxAST
         this.setStartToken(this.getSyntaxAnalyzer().currentToken());
         this.getMarkerFactory().mark(this.getStartToken());
         
-        if (this.getSyntaxAnalyzer().matchesNextToken(TokenType.STRING_LITERAL) == null) {
+        if (this.getSyntaxAnalyzer().matchesPeekToken(1, TokenType.STRING_LITERAL) == null) {
             this.addError(
                     this.getSyntaxAnalyzer().getArkoiClass(),
                     this.getSyntaxAnalyzer().currentToken(),
-                    SyntaxErrorType.IMPORT_DEFINITION_NO_FILEPATH
+                    SyntaxErrorType.IMPORT_DEFINITION_NO_FILE_PATH
             );
             return this;
-        }
+        } else this.getSyntaxAnalyzer().nextToken();
         
         this.importFilePath = (StringToken) this.getSyntaxAnalyzer().currentToken();
         if (this.importFilePath.getTokenContent().endsWith(".ark"))

@@ -36,7 +36,7 @@ public class ArkoiCompilerTest
     
     
     private void runTest(final String inputDirectory) throws Exception {
-        final ArkoiCompiler arkoiCompiler = new ArkoiCompiler(inputDirectory);
+        final ArkoiCompiler arkoiCompiler = new ArkoiCompiler();
         
         final File testDirectory = new File(inputDirectory);
         if (testDirectory.listFiles() != null) {

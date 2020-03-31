@@ -141,7 +141,7 @@ public class RootSyntaxAST extends AbstractSyntaxAST
                             this.addError(
                                     this.getSyntaxAnalyzer().getArkoiClass(),
                                     this.getSyntaxAnalyzer().currentToken(),
-                                    SyntaxErrorType.ROOT_BLOCK_FUNCTION_HAS_WRONG_ENDING
+                                    SyntaxErrorType.ROOT_FUNCTION_BLOCK_WRONG_ENDING
                             );
                             this.skipToNextValidToken();
                             continue main_loop;

@@ -94,16 +94,14 @@ public class ParameterSyntaxAST extends AbstractSyntaxAST
         
         this.parameterName = (IdentifierToken) this.getSyntaxAnalyzer().currentToken();
         
-        if (this.getSyntaxAnalyzer().matchesNextToken(SymbolType.COLON) == null) {
+        if (this.getSyntaxAnalyzer().matchesPeekToken(1, SymbolType.COLON) == null) {
             this.addError(
                     this.getSyntaxAnalyzer().getArkoiClass(),
                     this.getSyntaxAnalyzer().currentToken(),
                     SyntaxErrorType.PARAMETER_NO_SEPARATOR
             );
             return this;
-        }
-        
-        this.getSyntaxAnalyzer().nextToken();
+        } else this.getSyntaxAnalyzer().nextToken(2);
     
         if (!TypeSyntaxAST.TYPE_PARSER.canParse(parentAST, this.getSyntaxAnalyzer())) {
             this.addError(
@@ -158,7 +156,7 @@ public class ParameterSyntaxAST extends AbstractSyntaxAST
     
             if (syntaxAnalyzer.matchesNextToken(SymbolType.COMMA) == null)
                 break;
-            else syntaxAnalyzer.nextToken();
+            syntaxAnalyzer.nextToken();
         }
         
         if (syntaxAnalyzer.matchesCurrentToken(SymbolType.CLOSING_PARENTHESIS) == null) {

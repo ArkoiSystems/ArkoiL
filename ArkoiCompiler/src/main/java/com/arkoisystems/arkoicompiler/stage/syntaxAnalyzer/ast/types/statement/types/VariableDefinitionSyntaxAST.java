@@ -29,7 +29,6 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 public class VariableDefinitionSyntaxAST extends AbstractStatementSyntaxAST
 {
@@ -95,14 +94,15 @@ public class VariableDefinitionSyntaxAST extends AbstractStatementSyntaxAST
         this.setStartToken(this.getSyntaxAnalyzer().currentToken());
         this.getMarkerFactory().mark(this.getStartToken());
         
-        if (this.getSyntaxAnalyzer().matchesNextToken(TokenType.IDENTIFIER) == null) {
+        if (this.getSyntaxAnalyzer().matchesPeekToken(1, TokenType.IDENTIFIER) == null) {
             this.addError(
                     this.getSyntaxAnalyzer().getArkoiClass(),
                     this.getSyntaxAnalyzer().currentToken(),
                     SyntaxErrorType.VARIABLE_DEFINITION_NO_NAME
             );
             return this;
-        }
+        } else this.getSyntaxAnalyzer().nextToken();
+        
         this.variableName = (IdentifierToken) this.getSyntaxAnalyzer().currentToken();
     
         if (this.getSyntaxAnalyzer().matchesPeekToken(1, OperatorType.EQUALS) == null) {

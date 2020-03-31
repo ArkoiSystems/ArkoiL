@@ -5,13 +5,18 @@
  */
 package com.arkoisystems.arkoicompiler;
 
+import com.arkoisystems.arkoicompiler.api.IClassHandler;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.LexicalAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.SemanticAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
 import lombok.Getter;
+import lombok.Setter;
+import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
+import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Objects;
@@ -22,7 +27,7 @@ import java.util.Objects;
  * compiler. Also you can output this class in a JSON like view with the method {@link
  * ArkoiClass#toString()}.
  */
-public class ArkoiClass
+public class ArkoiClass implements IClassHandler
 {
     
     /**
@@ -31,6 +36,12 @@ public class ArkoiClass
     @Getter
     @NotNull
     private final ArkoiCompiler arkoiCompiler;
+    
+    
+    @Getter
+    @Setter
+    @Nullable
+    private IClassHandler customHandler;
     
     
     /**
@@ -48,7 +59,6 @@ public class ArkoiClass
      * want to get default functions from the natives.
      */
     @Getter
-    @NotNull
     private final boolean nativeClass;
     
     
@@ -56,8 +66,9 @@ public class ArkoiClass
      * Defines the path to the file which contains the data {@link #content}.
      */
     @Getter
+    @Setter
     @NotNull
-    private final String filePath;
+    private String filePath;
     
     
     /**
@@ -132,9 +143,22 @@ public class ArkoiClass
     public ArkoiClass(@NotNull final ArkoiCompiler arkoiCompiler, @NotNull final String filePath, @NotNull final byte[] content) {
         this.arkoiCompiler = arkoiCompiler;
         this.filePath = filePath;
-        
+    
         this.content = new String(content, StandardCharsets.UTF_8).toCharArray();
         this.nativeClass = false;
+    }
+    
+    @SneakyThrows
+    @Override
+    public @Nullable ArkoiClass getArkoiFile(@NotNull String filePath) {
+        if (this.getCustomHandler() != null)
+            return this.getCustomHandler().getArkoiFile(filePath);
+        
+        filePath = new File(new File(this.getFilePath()).getParent(), filePath).getCanonicalPath();
+        for (final ArkoiClass arkoiClass : this.getArkoiCompiler().getArkoiClasses())
+            if (arkoiClass.getFilePath().equals(filePath))
+                return arkoiClass;
+        return null;
     }
     
     

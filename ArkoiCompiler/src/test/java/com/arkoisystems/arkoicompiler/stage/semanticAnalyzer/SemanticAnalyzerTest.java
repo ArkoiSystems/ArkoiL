@@ -16,7 +16,7 @@ class SemanticAnalyzerTest
     
     @Test
     public void parseVariable() throws Exception {
-        final ArkoiCompiler arkoiCompiler = new ArkoiCompiler("");
+        final ArkoiCompiler arkoiCompiler = new ArkoiCompiler();
         final ArkoiClass arkoiClass = new ArkoiClass(arkoiCompiler, "",
                 "var test = 0;".getBytes()
         );
@@ -51,7 +51,7 @@ class SemanticAnalyzerTest
     
     @Test
     public void parseInvalidStringExpression() throws Exception {
-        final ArkoiCompiler arkoiCompiler = new ArkoiCompiler("");
+        final ArkoiCompiler arkoiCompiler = new ArkoiCompiler();
         final ArkoiClass arkoiClass = new ArkoiClass(arkoiCompiler, "",
                 "var test = \"Hello World\" + 5;".getBytes()
         );
@@ -77,7 +77,7 @@ class SemanticAnalyzerTest
     
     @Test
     public void parseInvalidMathematicalExpression() throws Exception {
-        final ArkoiCompiler arkoiCompiler = new ArkoiCompiler("");
+        final ArkoiCompiler arkoiCompiler = new ArkoiCompiler();
         final ArkoiClass arkoiClass = new ArkoiClass(arkoiCompiler, "",
                 ("var test_6 = \"Hello World\";\n" +
                         "var test = (20++ + -10-- * 5f) * 2 ** 3 ** 4 + (test_6 * 2 += 1);").getBytes()

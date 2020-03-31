@@ -170,7 +170,7 @@ public class BlockSyntaxAST extends AbstractSyntaxAST
             }
         } else if (this.getSyntaxAnalyzer().matchesCurrentToken(OperatorType.EQUALS) != null) {
             this.blockType = BlockType.INLINE;
-            this.getSyntaxAnalyzer().nextToken(); // Because it would try to parse the equal sign as expression.
+            this.getSyntaxAnalyzer().nextToken();
     
             if (!AbstractExpressionSyntaxAST.EXPRESSION_PARSER.canParse(this, this.getSyntaxAnalyzer())) {
                 this.addError(

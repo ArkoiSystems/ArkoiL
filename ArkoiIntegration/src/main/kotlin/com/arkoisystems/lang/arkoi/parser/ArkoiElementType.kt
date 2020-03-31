@@ -18,7 +18,8 @@
  */
 package com.arkoisystems.lang.arkoi.parser
 
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST
 import com.arkoisystems.lang.arkoi.ArkoiLanguage
 import com.intellij.psi.tree.IElementType
 
-class ArkoiElementType(debugName: String) : IElementType(debugName, ArkoiLanguage)
+open class ArkoiElementType<T : AbstractSyntaxAST>(debugName: String, val abstractSyntaxAST: T?) : IElementType(debugName, ArkoiLanguage)

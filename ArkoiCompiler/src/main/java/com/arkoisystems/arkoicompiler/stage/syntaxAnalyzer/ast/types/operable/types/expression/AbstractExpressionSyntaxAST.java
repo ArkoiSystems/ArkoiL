@@ -87,12 +87,8 @@ public class AbstractExpressionSyntaxAST extends AbstractOperableSyntaxAST<TypeK
      */
     @NotNull
     @Override
-    public AbstractExpressionSyntaxAST parseAST(@NotNull final AbstractSyntaxAST parentAST) {
-        this.abstractOperableSyntaxAST = this.parseAssignment(parentAST);
-        
-        this.setStartToken(this.abstractOperableSyntaxAST.getStartToken());
-        this.setEndToken(this.abstractOperableSyntaxAST.getEndToken());
-        return this;
+    public AbstractOperableSyntaxAST<?> parseAST(@NotNull final AbstractSyntaxAST parentAST) {
+        return this.parseAssignment(parentAST);
     }
     
     
@@ -104,7 +100,7 @@ public class AbstractExpressionSyntaxAST extends AbstractOperableSyntaxAST<TypeK
         
         if (abstractOperableSyntaxAST.isFailed()) {
             this.failed();
-            return this;
+            return abstractOperableSyntaxAST;
         }
         
         while (true) {
@@ -132,7 +128,7 @@ public class AbstractExpressionSyntaxAST extends AbstractOperableSyntaxAST<TypeK
     
         if (abstractOperableSyntaxAST.isFailed()) {
             this.failed();
-            return this;
+            return abstractOperableSyntaxAST;
         }
         
         while (true) {
@@ -152,7 +148,7 @@ public class AbstractExpressionSyntaxAST extends AbstractOperableSyntaxAST<TypeK
     
         if (abstractOperableSyntaxAST.isFailed()) {
             this.failed();
-            return this;
+            return abstractOperableSyntaxAST;
         }
         
         while (true) {
@@ -174,7 +170,7 @@ public class AbstractExpressionSyntaxAST extends AbstractOperableSyntaxAST<TypeK
     
         if (abstractOperableSyntaxAST.isFailed()) {
             this.failed();
-            return this;
+            return abstractOperableSyntaxAST;
         }
         
         while (true) {
@@ -209,7 +205,7 @@ public class AbstractExpressionSyntaxAST extends AbstractOperableSyntaxAST<TypeK
             abstractOperableSyntaxAST = new AbstractOperableSyntaxAST<>(this.getSyntaxAnalyzer(), ASTType.OPERABLE).parseAST(parentAST);
         if (abstractOperableSyntaxAST.isFailed()) {
             this.failed();
-            return this;
+            return abstractOperableSyntaxAST;
         }
         
         if (this.getSyntaxAnalyzer().matchesPeekToken(1, OperatorType.MINUS_MINUS) != null) {
