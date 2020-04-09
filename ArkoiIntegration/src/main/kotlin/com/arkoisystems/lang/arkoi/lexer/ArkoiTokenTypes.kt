@@ -46,7 +46,7 @@ object ArkoiTokenTypes {
 
     var colon: IElementType = ArkoiTokenType(":")
 
-    var semicolon: IElementType = ArkoiTokenType(";")
+//    var semicolon: IElementType = ArkoiTokenType(";")
 
 
     var period: IElementType = ArkoiTokenType(".")

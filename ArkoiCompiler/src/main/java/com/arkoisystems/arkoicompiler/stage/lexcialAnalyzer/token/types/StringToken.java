@@ -18,8 +18,8 @@ import java.util.Optional;
 public class StringToken extends AbstractToken
 {
     
-    protected StringToken(@Nullable final LexicalAnalyzer lexicalAnalyzer, final boolean crashOnAccess) {
-        super(lexicalAnalyzer, TokenType.STRING_LITERAL, crashOnAccess);
+    protected StringToken(@Nullable final LexicalAnalyzer lexicalAnalyzer) {
+        super(lexicalAnalyzer, TokenType.STRING_LITERAL);
     }
     
     
@@ -27,7 +27,7 @@ public class StringToken extends AbstractToken
     @Override
     public Optional<? extends AbstractToken> parseToken() {
         Objects.requireNonNull(this.getLexicalAnalyzer());
-    
+        
         if (this.getLexicalAnalyzer().currentChar() != '"') {
             this.addError(
                     this.getLexicalAnalyzer().getArkoiClass(),
@@ -35,17 +35,15 @@ public class StringToken extends AbstractToken
                     "Couldn't lex the string because it doesn't start with an \"."
             );
             return BadToken
-                    .builder()
+                    .builder(this.getLexicalAnalyzer())
                     .start(this.getLexicalAnalyzer().getPosition())
                     .end(this.getLexicalAnalyzer().getPosition() + 1)
                     .build()
                     .parseToken();
         }
-    
-        this.setStart(this.getLexicalAnalyzer().getPosition());
-        this.getLexicalAnalyzer().next();
         
-        char lastChar = ' ';
+        this.setStart(this.getLexicalAnalyzer().getPosition());
+        char lastChar = '\\';
         while (this.getLexicalAnalyzer().getPosition() < this.getLexicalAnalyzer().getArkoiClass().getContent().length) {
             final char currentChar = this.getLexicalAnalyzer().currentChar();
             if (lastChar != '\\' && currentChar == '"')
@@ -65,7 +63,7 @@ public class StringToken extends AbstractToken
                     "The defined string doesn't end with another double quote:"
             );
             return BadToken
-                    .builder()
+                    .builder(this.getLexicalAnalyzer())
                     .start(this.getStart())
                     .end(this.getEnd())
                     .build()
@@ -93,9 +91,6 @@ public class StringToken extends AbstractToken
         
         @Nullable
         private final LexicalAnalyzer lexicalAnalyzer;
-        
-        
-        private boolean crashOnAccess;
         
         
         @Nullable
@@ -133,14 +128,8 @@ public class StringToken extends AbstractToken
         }
         
         
-        public StringTokenBuilder crash() {
-            this.crashOnAccess = true;
-            return this;
-        }
-        
-        
         public StringToken build() {
-            final StringToken stringToken = new StringToken(this.lexicalAnalyzer, this.crashOnAccess);
+            final StringToken stringToken = new StringToken(this.lexicalAnalyzer);
             if (this.tokenContent != null)
                 stringToken.setTokenContent(this.tokenContent);
             stringToken.setStart(this.start);

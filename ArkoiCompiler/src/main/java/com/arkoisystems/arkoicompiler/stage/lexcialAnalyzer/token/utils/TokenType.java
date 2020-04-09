@@ -20,7 +20,6 @@ public enum TokenType
     NUMBER_LITERAL,
     
     // TODO: Add BOOLEAN_LITERAL and CHAR_LITERAL
-    IDENTIFIER,
-    END_OF_FILE
+    IDENTIFIER
     
 }

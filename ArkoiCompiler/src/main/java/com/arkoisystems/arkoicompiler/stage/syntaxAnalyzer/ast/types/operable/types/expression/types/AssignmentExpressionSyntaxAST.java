@@ -5,11 +5,12 @@
  */
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types;
 
+import com.arkoisystems.arkoicompiler.api.ICompilerSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.AbstractOperableSyntaxAST;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.AbstractExpressionSyntaxAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.ArkoiSyntaxAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.OperableSyntaxAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.ExpressionSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types.utils.AssignmentOperatorType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import lombok.AccessLevel;
@@ -20,15 +21,15 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.PrintStream;
 import java.util.Objects;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
-public class AssignmentExpressionSyntaxAST extends AbstractExpressionSyntaxAST
+public class AssignmentExpressionSyntaxAST extends ExpressionSyntaxAST
 {
     
     @Getter
     @Setter(AccessLevel.PROTECTED)
     @Nullable
-    private AbstractOperableSyntaxAST<?> leftSideOperable;
+    private OperableSyntaxAST leftSideOperable;
     
     
     @Getter
@@ -40,7 +41,7 @@ public class AssignmentExpressionSyntaxAST extends AbstractExpressionSyntaxAST
     @Getter
     @Setter(AccessLevel.PROTECTED)
     @Nullable
-    private AbstractOperableSyntaxAST<?> rightSideOperable;
+    private OperableSyntaxAST rightSideOperable;
     
     
     protected AssignmentExpressionSyntaxAST(@Nullable final SyntaxAnalyzer syntaxAnalyzer) {
@@ -48,34 +49,24 @@ public class AssignmentExpressionSyntaxAST extends AbstractExpressionSyntaxAST
     }
     
     
-    public AssignmentExpressionSyntaxAST(@Nullable final SyntaxAnalyzer syntaxAnalyzer, @NotNull final AbstractOperableSyntaxAST<?> leftSideOperable, @NotNull final AssignmentOperatorType assignmentOperatorType) {
-        super(syntaxAnalyzer, ASTType.ASSIGNMENT_EXPRESSION);
-        
-        this.assignmentOperatorType = assignmentOperatorType;
-        this.leftSideOperable = leftSideOperable;
-    
-        this.getMarkerFactory().addFactory(this.leftSideOperable.getMarkerFactory());
-        
-        this.setStartToken(this.leftSideOperable.getStartToken());
-        this.getMarkerFactory().mark(this.getStartToken());
-    }
-    
-    
     @NotNull
     @Override
-    public AssignmentExpressionSyntaxAST parseAST(@NotNull final AbstractSyntaxAST parentAST) {
+    public AssignmentExpressionSyntaxAST parseAST(@NotNull final ICompilerSyntaxAST parentAST) {
         Objects.requireNonNull(this.getSyntaxAnalyzer());
+        Objects.requireNonNull(this.getLeftSideOperable());
+    
+        this.getMarkerFactory().addFactory(this.getLeftSideOperable().getMarkerFactory());
     
         this.getSyntaxAnalyzer().nextToken(2);
-        
-        final AbstractOperableSyntaxAST<?> abstractOperableSyntaxAST = this.parseAdditive(parentAST);
-        this.getMarkerFactory().addFactory(abstractOperableSyntaxAST.getMarkerFactory());
-        
-        if (abstractOperableSyntaxAST.isFailed()) {
+    
+        final OperableSyntaxAST operableSyntaxAST = this.parseAdditive(parentAST);
+        this.getMarkerFactory().addFactory(operableSyntaxAST.getMarkerFactory());
+    
+        if (operableSyntaxAST.isFailed()) {
             this.failed();
             return this;
-        } else this.rightSideOperable = abstractOperableSyntaxAST;
-        
+        } else this.rightSideOperable = operableSyntaxAST;
+    
         this.setEndToken(this.rightSideOperable.getEndToken());
         this.getMarkerFactory().done(this.getEndToken());
         return this;
@@ -84,15 +75,28 @@ public class AssignmentExpressionSyntaxAST extends AbstractExpressionSyntaxAST
     
     @Override
     public void printSyntaxAST(@NotNull final PrintStream printStream, @NotNull final String indents) {
+        Objects.requireNonNull(this.getMarkerFactory().getCurrentMarker().getStart());
+        Objects.requireNonNull(this.getMarkerFactory().getCurrentMarker().getEnd());
+        Objects.requireNonNull(this.getRightSideOperable());
+        Objects.requireNonNull(this.getLeftSideOperable());
+        
+        printStream.println(indents + "├── factory:");
+        printStream.println(indents + "│    ├── next: " + this.getMarkerFactory()
+                .getNextMarkerFactories()
+                .stream()
+                .map(markerFactory -> markerFactory.getCurrentMarker().getAstType().name())
+                .collect(Collectors.joining(", "))
+        );
+        printStream.println(indents + "│    ├── start: " + this.getMarkerFactory().getCurrentMarker().getStart().getStart());
+        printStream.println(indents + "│    └── end: " + this.getMarkerFactory().getCurrentMarker().getEnd().getEnd());
+        printStream.println(indents + "│");
         printStream.println(indents + "├── left:");
-        printStream.println(indents + "│   └── " + (this.getLeftSideOperable() != null ? this.getLeftSideOperable().getClass().getSimpleName() : null));
-        if (this.getLeftSideOperable() != null)
-            this.getLeftSideOperable().printSyntaxAST(printStream, indents + "│        ");
+        printStream.println(indents + "│   └── " + this.getLeftSideOperable().getClass().getSimpleName());
+        this.getLeftSideOperable().printSyntaxAST(printStream, indents + "│        ");
         printStream.println(indents + "├── operator: " + this.getAssignmentOperatorType());
         printStream.println(indents + "└── right:");
-        printStream.println(indents + "    └── " + (this.getRightSideOperable() != null ? this.getRightSideOperable().getClass().getSimpleName() : null));
-        if (this.getRightSideOperable() != null)
-            this.getRightSideOperable().printSyntaxAST(printStream, indents + "        ");
+        printStream.println(indents + "    └── " + this.getRightSideOperable().getClass().getSimpleName());
+        this.getRightSideOperable().printSyntaxAST(printStream, indents + "        ");
     }
     
     
@@ -114,7 +118,7 @@ public class AssignmentExpressionSyntaxAST extends AbstractExpressionSyntaxAST
         
         
         @Nullable
-        private AbstractOperableSyntaxAST<?> leftSideOperable;
+        private OperableSyntaxAST leftSideOperable;
         
         
         @Nullable
@@ -122,7 +126,7 @@ public class AssignmentExpressionSyntaxAST extends AbstractExpressionSyntaxAST
         
         
         @Nullable
-        private AbstractOperableSyntaxAST<?> rightSideOperable;
+        private OperableSyntaxAST rightSideOperable;
         
         
         private AbstractToken startToken, endToken;
@@ -138,7 +142,7 @@ public class AssignmentExpressionSyntaxAST extends AbstractExpressionSyntaxAST
         }
         
         
-        public AssignmentExpressionSyntaxASTBuilder left(final AbstractOperableSyntaxAST<?> leftSideOperable) {
+        public AssignmentExpressionSyntaxASTBuilder left(final OperableSyntaxAST leftSideOperable) {
             this.leftSideOperable = leftSideOperable;
             return this;
         }
@@ -150,7 +154,7 @@ public class AssignmentExpressionSyntaxAST extends AbstractExpressionSyntaxAST
         }
         
         
-        public AssignmentExpressionSyntaxASTBuilder right(final AbstractOperableSyntaxAST<?> rightSideOperable) {
+        public AssignmentExpressionSyntaxASTBuilder right(final OperableSyntaxAST rightSideOperable) {
             this.rightSideOperable = rightSideOperable;
             return this;
         }
@@ -177,7 +181,9 @@ public class AssignmentExpressionSyntaxAST extends AbstractExpressionSyntaxAST
             if (this.rightSideOperable != null)
                 assignmentExpressionSyntaxAST.setRightSideOperable(this.rightSideOperable);
             assignmentExpressionSyntaxAST.setStartToken(this.startToken);
+            assignmentExpressionSyntaxAST.getMarkerFactory().getCurrentMarker().setStart(assignmentExpressionSyntaxAST.getStartToken());
             assignmentExpressionSyntaxAST.setEndToken(this.endToken);
+            assignmentExpressionSyntaxAST.getMarkerFactory().getCurrentMarker().setEnd(assignmentExpressionSyntaxAST.getEndToken());
             return assignmentExpressionSyntaxAST;
         }
         

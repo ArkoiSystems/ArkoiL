@@ -1,5 +1,8 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 plugins {
 	java
+	kotlin("jvm") version "1.3.71"
 }
 
 group = "com.arkoisystems"
@@ -14,13 +17,24 @@ dependencies {
 	
 	compile("org.jetbrains", "annotations", "19.0.0")
 	annotationProcessor("org.projectlombok", "lombok", "1.18.8")
-	
 	compileOnly("org.projectlombok", "lombok", "1.18.8")
 	
 	compile("commons-cli", "commons-cli", "1.4")
+	
+	implementation(kotlin("stdlib-jdk8"))
 }
 
 configure<JavaPluginConvention> {
 	sourceCompatibility = JavaVersion.VERSION_11
 	targetCompatibility = JavaVersion.VERSION_11
+}
+
+val compileKotlin: KotlinCompile by tasks
+compileKotlin.kotlinOptions {
+	jvmTarget = "1.8"
+}
+
+val compileTestKotlin: KotlinCompile by tasks
+compileTestKotlin.kotlinOptions {
+	jvmTarget = "1.8"
 }

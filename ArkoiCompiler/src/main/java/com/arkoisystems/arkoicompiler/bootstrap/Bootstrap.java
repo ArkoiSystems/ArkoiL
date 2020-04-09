@@ -5,8 +5,8 @@
  */
 package com.arkoisystems.arkoicompiler.bootstrap;
 
-import com.arkoisystems.arkoicompiler.ArkoiClass;
 import com.arkoisystems.arkoicompiler.ArkoiCompiler;
+import com.arkoisystems.arkoicompiler.api.ICompilerClass;
 import com.arkoisystems.arkoicompiler.utils.FileUtils;
 import lombok.SneakyThrows;
 import org.apache.commons.cli.*;
@@ -15,21 +15,9 @@ import org.jetbrains.annotations.NotNull;
 import java.io.File;
 import java.io.PrintStream;
 
-/**
- * The {@link Bootstrap} class is used for the main method. It's the first method which is
- * getting called. It will check the correctness of the input arguments and also will
- * throw an error if the input {@link File} doesn't exists etc.
- */
 public class Bootstrap
 {
     
-    /**
-     * This method will get called at first when executing the program. It will check for
-     * correct arguments and if the input {@link File} exists.
-     *
-     * @param args
-     *         the arguments which are given from the Java program.
-     */
     @SneakyThrows
     public static void main(@NotNull final String[] args) {
         final Options options = new Options();
@@ -51,11 +39,11 @@ public class Bootstrap
             new HelpFormatter().printHelp("arkoi-compiler", options);
             return;
         }
-    
+        
         final File targetPath = new File(commandLine.getOptionValue("inputPath"));
         if (!targetPath.exists())
             throw new NullPointerException("The given \"inputPath\" doesn't exists. Please correct the path to a valid file or directory.");
-    
+        
         final ArkoiCompiler arkoiCompiler = new ArkoiCompiler();
         if (targetPath.isDirectory()) {
             for (final File file : FileUtils.getAllFiles(targetPath)) {
@@ -75,7 +63,7 @@ public class Bootstrap
         }
         
         try (final PrintStream printStream = new PrintStream(new File(commandLine.getOptionValue("outputFile")))) {
-            for (final ArkoiClass arkoiClass : arkoiCompiler.getArkoiClasses())
+            for (final ICompilerClass arkoiClass : arkoiCompiler.getArkoiClasses())
                 printStream.print(arkoiClass);
         } catch (final Exception ex) {
             ex.printStackTrace();

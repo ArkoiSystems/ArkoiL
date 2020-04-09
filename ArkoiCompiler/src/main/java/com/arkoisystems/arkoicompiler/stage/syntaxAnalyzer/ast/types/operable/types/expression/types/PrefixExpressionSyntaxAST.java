@@ -5,10 +5,11 @@
  */
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types;
 
+import com.arkoisystems.arkoicompiler.api.ICompilerSyntaxAST;
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.AbstractOperableSyntaxAST;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.AbstractExpressionSyntaxAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.OperableSyntaxAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.ExpressionSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types.utils.PrefixOperatorType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import lombok.AccessLevel;
@@ -19,9 +20,9 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.PrintStream;
 import java.util.Objects;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
-public class PrefixExpressionSyntaxAST extends AbstractExpressionSyntaxAST
+public class PrefixExpressionSyntaxAST extends ExpressionSyntaxAST
 {
     
     @Getter
@@ -33,19 +34,17 @@ public class PrefixExpressionSyntaxAST extends AbstractExpressionSyntaxAST
     @Getter
     @Setter(AccessLevel.PROTECTED)
     @Nullable
-    private AbstractOperableSyntaxAST<?> rightSideOperable;
+    private OperableSyntaxAST rightSideOperable;
     
     
-    public PrefixExpressionSyntaxAST(@NotNull final SyntaxAnalyzer syntaxAnalyzer, @NotNull final PrefixOperatorType prefixOperatorType) {
+    protected PrefixExpressionSyntaxAST(@Nullable final SyntaxAnalyzer syntaxAnalyzer) {
         super(syntaxAnalyzer, ASTType.PREFIX_EXPRESSION);
-        
-        this.prefixOperatorType = prefixOperatorType;
     }
     
     
     @NotNull
     @Override
-    public PrefixExpressionSyntaxAST parseAST(@NotNull final AbstractSyntaxAST parentAST) {
+    public PrefixExpressionSyntaxAST parseAST(@NotNull final ICompilerSyntaxAST parentAST) {
         Objects.requireNonNull(this.getSyntaxAnalyzer());
         
         this.setStartToken(this.getSyntaxAnalyzer().currentToken());
@@ -53,13 +52,13 @@ public class PrefixExpressionSyntaxAST extends AbstractExpressionSyntaxAST
         
         this.getSyntaxAnalyzer().nextToken(1);
         
-        final AbstractOperableSyntaxAST<?> abstractOperableSyntaxAST = this.parseOperable(parentAST);
-        this.getMarkerFactory().addFactory(abstractOperableSyntaxAST.getMarkerFactory());
+        final OperableSyntaxAST operableSyntaxAST = this.parseOperable(parentAST);
+        this.getMarkerFactory().addFactory(operableSyntaxAST.getMarkerFactory());
         
-        if (abstractOperableSyntaxAST.isFailed()) {
+        if (operableSyntaxAST.isFailed()) {
             this.failed();
             return this;
-        } else this.rightSideOperable = abstractOperableSyntaxAST;
+        } else this.rightSideOperable = operableSyntaxAST;
         
         this.setEndToken(this.rightSideOperable.getEndToken());
         this.getMarkerFactory().done(this.getEndToken());
@@ -69,11 +68,102 @@ public class PrefixExpressionSyntaxAST extends AbstractExpressionSyntaxAST
     
     @Override
     public void printSyntaxAST(@NotNull final PrintStream printStream, @NotNull final String indents) {
+        Objects.requireNonNull(this.getMarkerFactory().getCurrentMarker().getStart());
+        Objects.requireNonNull(this.getMarkerFactory().getCurrentMarker().getEnd());
+        Objects.requireNonNull(this.getRightSideOperable());
+    
+        printStream.println(indents + "├── factory:");
+        printStream.println(indents + "│    ├── next: " + this.getMarkerFactory()
+                .getNextMarkerFactories()
+                .stream()
+                .map(markerFactory -> markerFactory.getCurrentMarker().getAstType().name())
+                .collect(Collectors.joining(", "))
+        );
+        printStream.println(indents + "│    ├── start: " + this.getMarkerFactory().getCurrentMarker().getStart().getStart());
+        printStream.println(indents + "│    └── end: " + this.getMarkerFactory().getCurrentMarker().getEnd().getEnd());
+        printStream.println(indents + "│");
         printStream.println(indents + "├── operator: " + this.getPrefixOperatorType());
         printStream.println(indents + "└── right:");
-        printStream.println(indents + "    └── " + (this.getRightSideOperable() != null ? this.getRightSideOperable().getClass().getSimpleName() : null));
-        if (this.getRightSideOperable() != null)
-            this.getRightSideOperable().printSyntaxAST(printStream, indents + "        ");
+        printStream.println(indents + "    └── " + this.getRightSideOperable().getClass().getSimpleName());
+        this.getRightSideOperable().printSyntaxAST(printStream, indents + "        ");
+    }
+    
+    
+    public static PrefixExpressionSyntaxASTBuilder builder(@NotNull final SyntaxAnalyzer syntaxAnalyzer) {
+        return new PrefixExpressionSyntaxASTBuilder(syntaxAnalyzer);
+    }
+    
+    
+    public static PrefixExpressionSyntaxASTBuilder builder() {
+        return new PrefixExpressionSyntaxASTBuilder();
+    }
+    
+    
+    public static class PrefixExpressionSyntaxASTBuilder
+    {
+        
+        @Nullable
+        private final SyntaxAnalyzer syntaxAnalyzer;
+        
+        
+        @Nullable
+        private PrefixOperatorType prefixOperatorType;
+        
+        
+        @Nullable
+        private OperableSyntaxAST rightSideOperable;
+        
+        
+        private AbstractToken startToken, endToken;
+        
+        
+        public PrefixExpressionSyntaxASTBuilder(@NotNull final SyntaxAnalyzer syntaxAnalyzer) {
+            this.syntaxAnalyzer = syntaxAnalyzer;
+        }
+        
+        
+        public PrefixExpressionSyntaxASTBuilder() {
+            this.syntaxAnalyzer = null;
+        }
+        
+        
+        public PrefixExpressionSyntaxASTBuilder right(final OperableSyntaxAST rightSideOperable) {
+            this.rightSideOperable = rightSideOperable;
+            return this;
+        }
+        
+        
+        public PrefixExpressionSyntaxASTBuilder operator(final PrefixOperatorType prefixOperatorType) {
+            this.prefixOperatorType = prefixOperatorType;
+            return this;
+        }
+        
+        
+        public PrefixExpressionSyntaxASTBuilder start(final AbstractToken startToken) {
+            this.startToken = startToken;
+            return this;
+        }
+        
+        
+        public PrefixExpressionSyntaxASTBuilder end(final AbstractToken endToken) {
+            this.endToken = endToken;
+            return this;
+        }
+        
+        
+        public PrefixExpressionSyntaxAST build() {
+            final PrefixExpressionSyntaxAST prefixExpressionSyntaxAST = new PrefixExpressionSyntaxAST(this.syntaxAnalyzer);
+            if (this.rightSideOperable != null)
+                prefixExpressionSyntaxAST.setRightSideOperable(this.rightSideOperable);
+            if (this.prefixOperatorType != null)
+                prefixExpressionSyntaxAST.setPrefixOperatorType(this.prefixOperatorType);
+            prefixExpressionSyntaxAST.setStartToken(this.startToken);
+            prefixExpressionSyntaxAST.getMarkerFactory().getCurrentMarker().setStart(prefixExpressionSyntaxAST.getStartToken());
+            prefixExpressionSyntaxAST.setEndToken(this.endToken);
+            prefixExpressionSyntaxAST.getMarkerFactory().getCurrentMarker().setEnd(prefixExpressionSyntaxAST.getEndToken());
+            return prefixExpressionSyntaxAST;
+        }
+        
     }
     
 }

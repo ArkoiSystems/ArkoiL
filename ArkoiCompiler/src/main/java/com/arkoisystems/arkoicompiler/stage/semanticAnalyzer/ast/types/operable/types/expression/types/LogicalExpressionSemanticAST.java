@@ -5,10 +5,10 @@
  */
 package com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.types.expression.types;
 
+import com.arkoisystems.arkoicompiler.api.ICompilerSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.SemanticAnalyzer;
-import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.AbstractSemanticAST;
-import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.AbstractOperableSemanticAST;
-import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.types.expression.AbstractExpressionSemanticAST;
+import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.ArkoiSemanticAST;
+import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.types.expression.ExpressionSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types.LogicalExpressionSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
@@ -17,10 +17,10 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.PrintStream;
 
-public class LogicalExpressionSemanticAST extends AbstractExpressionSemanticAST<LogicalExpressionSyntaxAST>
+public class LogicalExpressionSemanticAST extends ExpressionSemanticAST<LogicalExpressionSyntaxAST>
 {
     
-    public LogicalExpressionSemanticAST(@Nullable final SemanticAnalyzer semanticAnalyzer, @Nullable final AbstractSemanticAST<?> lastContainerAST, @NotNull final LogicalExpressionSyntaxAST logicalExpressionSyntaxAST) {
+    public LogicalExpressionSemanticAST(@Nullable final SemanticAnalyzer semanticAnalyzer, @Nullable final ICompilerSemanticAST<?> lastContainerAST, @NotNull final LogicalExpressionSyntaxAST logicalExpressionSyntaxAST) {
         super(semanticAnalyzer, lastContainerAST, logicalExpressionSyntaxAST, ASTType.LOGICAL_EXPRESSION);
     }
     
@@ -29,24 +29,10 @@ public class LogicalExpressionSemanticAST extends AbstractExpressionSemanticAST<
     public void printSemanticAST(@NotNull final PrintStream printStream, @NotNull final String indents) { }
     
     
-    @Nullable
+    @NotNull
     @Override
     public TypeKind getTypeKind() {
-        return null;
-    }
-    
-    
-    @Nullable
-    @Override
-    public TypeKind logicalAnd(@NotNull final AbstractOperableSemanticAST<?> leftSideOperable, @NotNull final AbstractOperableSemanticAST<?> rightSideOperable) {
-        return super.logicalAnd(leftSideOperable, rightSideOperable);
-    }
-    
-    
-    @Nullable
-    @Override
-    public TypeKind logicalOr(@NotNull final AbstractOperableSemanticAST<?> leftSideOperable, @NotNull final AbstractOperableSemanticAST<?> rightSideOperable) {
-        return super.logicalOr(leftSideOperable, rightSideOperable);
+        return TypeKind.UNDEFINED;
     }
     
 }

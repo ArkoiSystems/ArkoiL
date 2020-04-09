@@ -27,8 +27,8 @@ public class SymbolToken extends AbstractToken
     private SymbolType symbolType;
     
     
-    protected SymbolToken(@Nullable final LexicalAnalyzer lexicalAnalyzer, final boolean crashOnAccess) {
-        super(lexicalAnalyzer, TokenType.SYMBOL, crashOnAccess);
+    protected SymbolToken(@Nullable final LexicalAnalyzer lexicalAnalyzer) {
+        super(lexicalAnalyzer, TokenType.SYMBOL);
     }
     
     
@@ -36,10 +36,10 @@ public class SymbolToken extends AbstractToken
     @Override
     public Optional<? extends AbstractToken> parseToken() {
         Objects.requireNonNull(this.getLexicalAnalyzer());
-    
+        
         final char currentChar = this.getLexicalAnalyzer().currentChar();
         this.setTokenContent(String.valueOf(currentChar));
-    
+        
         SymbolType symbolType = null;
         for (final SymbolType type : SymbolType.values())
             if (type.getCharacter() == currentChar) {
@@ -54,7 +54,7 @@ public class SymbolToken extends AbstractToken
                     "Couldn't lex this symbol because it isn't supported."
             );
             return BadToken
-                    .builder()
+                    .builder(this.getLexicalAnalyzer())
                     .start(this.getLexicalAnalyzer().getPosition())
                     .end(this.getLexicalAnalyzer().getPosition() + 1)
                     .build()
@@ -84,9 +84,6 @@ public class SymbolToken extends AbstractToken
         
         @Nullable
         private final LexicalAnalyzer lexicalAnalyzer;
-        
-        
-        private boolean crashOnAccess;
         
         
         @Nullable
@@ -134,14 +131,8 @@ public class SymbolToken extends AbstractToken
         }
         
         
-        public SymbolTokenBuilder crash() {
-            this.crashOnAccess = true;
-            return this;
-        }
-        
-        
         public SymbolToken build() {
-            final SymbolToken symbolToken = new SymbolToken(this.lexicalAnalyzer, this.crashOnAccess);
+            final SymbolToken symbolToken = new SymbolToken(this.lexicalAnalyzer);
             if (this.tokenContent != null)
                 symbolToken.setTokenContent(this.tokenContent);
             if (this.symbolType != null)

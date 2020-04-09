@@ -28,8 +28,8 @@ public class OperatorToken extends AbstractToken
     private OperatorType operatorType;
     
     
-    protected OperatorToken(@Nullable final LexicalAnalyzer lexicalAnalyzer, final boolean crashOnAccess) {
-        super(lexicalAnalyzer, TokenType.OPERATOR, crashOnAccess);
+    protected OperatorToken(@Nullable final LexicalAnalyzer lexicalAnalyzer) {
+        super(lexicalAnalyzer, TokenType.OPERATOR);
     }
     
     
@@ -103,7 +103,7 @@ public class OperatorToken extends AbstractToken
                     "Couldn't lex this operator because the character is unknown."
             );
             return BadToken
-                    .builder()
+                    .builder(this.getLexicalAnalyzer())
                     .start(this.getLexicalAnalyzer().getPosition())
                     .end(this.getLexicalAnalyzer().getPosition() + 1)
                     .build()
@@ -135,9 +135,6 @@ public class OperatorToken extends AbstractToken
         
         @Nullable
         private OperatorType operatorType;
-        
-        
-        private boolean crashOnAccess;
         
         
         @Nullable
@@ -181,14 +178,8 @@ public class OperatorToken extends AbstractToken
         }
         
         
-        public OperatorTokenBuilder crash() {
-            this.crashOnAccess = true;
-            return this;
-        }
-        
-        
         public OperatorToken build() {
-            final OperatorToken operatorToken = new OperatorToken(this.lexicalAnalyzer, this.crashOnAccess);
+            final OperatorToken operatorToken = new OperatorToken(this.lexicalAnalyzer);
             if (this.tokenContent != null)
                 operatorToken.setTokenContent(this.tokenContent);
             if (this.operatorType != null)

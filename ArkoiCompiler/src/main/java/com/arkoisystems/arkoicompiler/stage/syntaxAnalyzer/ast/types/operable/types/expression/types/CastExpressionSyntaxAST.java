@@ -5,15 +5,16 @@
  */
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types;
 
+import com.arkoisystems.arkoicompiler.api.ICompilerSyntaxAST;
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.IdentifierToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxErrorType;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.AbstractOperableSyntaxAST;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.AbstractExpressionSyntaxAST;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types.utils.CastOperatorType;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.OperableSyntaxAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.ExpressionSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
@@ -22,79 +23,75 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.PrintStream;
 import java.util.Objects;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
-public class CastExpressionSyntaxAST extends AbstractExpressionSyntaxAST
+public class CastExpressionSyntaxAST extends ExpressionSyntaxAST
 {
     
     
     @Getter
     @Setter(AccessLevel.PROTECTED)
     @Nullable
-    private CastOperatorType castOperatorType;
+    private TypeKind typeKind;
     
     
     @Getter
     @Setter(AccessLevel.PROTECTED)
     @Nullable
-    private AbstractOperableSyntaxAST<?> leftSideOperable;
+    private OperableSyntaxAST leftSideOperable;
     
     
-    public CastExpressionSyntaxAST(@NotNull final SyntaxAnalyzer syntaxAnalyzer, @NotNull final AbstractOperableSyntaxAST<?> leftSideOperable) {
+    protected CastExpressionSyntaxAST(@Nullable final SyntaxAnalyzer syntaxAnalyzer) {
         super(syntaxAnalyzer, ASTType.CAST_EXPRESSION);
-        
-        this.leftSideOperable = leftSideOperable;
-    
-        this.getMarkerFactory().addFactory(this.leftSideOperable.getMarkerFactory());
-        
-        this.setStartToken(this.leftSideOperable.getStartToken());
-        this.getMarkerFactory().mark(this.getStartToken());
     }
     
     
     @NotNull
     @Override
-    public CastExpressionSyntaxAST parseAST(@NotNull final AbstractSyntaxAST parentAST) {
+    public CastExpressionSyntaxAST parseAST(@NotNull final ICompilerSyntaxAST parentAST) {
         Objects.requireNonNull(this.getSyntaxAnalyzer());
+        Objects.requireNonNull(this.getLeftSideOperable());
+        
+        this.getMarkerFactory().addFactory(this.getLeftSideOperable().getMarkerFactory());
         
         if (this.getSyntaxAnalyzer().matchesPeekToken(1, TokenType.IDENTIFIER, false) == null) {
-            this.addError(
-                    this.getSyntaxAnalyzer().getArkoiClass(),
+            return this.addError(
+                    this,
+                    this.getSyntaxAnalyzer().getCompilerClass(),
                     this.getSyntaxAnalyzer().peekToken(1),
                     "Couldn't parse the cast expression because it doesn't start with an identifier."
             );
-            return this;
         }
         
         final IdentifierToken identifierToken = (IdentifierToken) this.getSyntaxAnalyzer().nextToken(false);
         switch (identifierToken.getTokenContent()) {
             case "i":
             case "I":
-                this.castOperatorType = CastOperatorType.INTEGER;
+                this.typeKind = TypeKind.INTEGER;
                 break;
             case "d":
             case "D":
-                this.castOperatorType = CastOperatorType.DOUBLE;
+                this.typeKind = TypeKind.DOUBLE;
                 break;
             case "f":
             case "F":
-                this.castOperatorType = CastOperatorType.FLOAT;
+                this.typeKind = TypeKind.FLOAT;
                 break;
             case "b":
             case "B":
-                this.castOperatorType = CastOperatorType.BYTE;
+                this.typeKind = TypeKind.BYTE;
                 break;
             case "s":
             case "S":
-                this.castOperatorType = CastOperatorType.SHORT;
+                this.typeKind = TypeKind.SHORT;
                 break;
             default:
-                this.addError(
-                        this.getSyntaxAnalyzer().getArkoiClass(),
+                return this.addError(
+                        this,
+                        this.getSyntaxAnalyzer().getCompilerClass(),
                         identifierToken,
                         SyntaxErrorType.EXPRESSION_CAST_WRONG_IDENTIFIER
                 );
-                return this;
         }
         
         this.setEndToken(this.getSyntaxAnalyzer().currentToken());
@@ -105,11 +102,102 @@ public class CastExpressionSyntaxAST extends AbstractExpressionSyntaxAST
     
     @Override
     public void printSyntaxAST(@NotNull final PrintStream printStream, @NotNull final String indents) {
+        Objects.requireNonNull(this.getMarkerFactory().getCurrentMarker().getStart());
+        Objects.requireNonNull(this.getMarkerFactory().getCurrentMarker().getEnd());
+        Objects.requireNonNull(this.getLeftSideOperable());
+    
+        printStream.println(indents + "├── factory:");
+        printStream.println(indents + "│    ├── next: " + this.getMarkerFactory()
+                .getNextMarkerFactories()
+                .stream()
+                .map(markerFactory -> markerFactory.getCurrentMarker().getAstType().name())
+                .collect(Collectors.joining(", "))
+        );
+        printStream.println(indents + "│    ├── start: " + this.getMarkerFactory().getCurrentMarker().getStart().getStart());
+        printStream.println(indents + "│    └── end: " + this.getMarkerFactory().getCurrentMarker().getEnd().getEnd());
+        printStream.println(indents + "│");
         printStream.println(indents + "├── left:");
-        printStream.println(indents + "│   └── " + (this.getLeftSideOperable() != null ? this.getLeftSideOperable().getClass().getSimpleName() : null));
-        if (this.getLeftSideOperable() != null)
-            this.getLeftSideOperable().printSyntaxAST(printStream, indents + "│       ");
-        printStream.println(indents + "└── operator: " + this.getCastOperatorType());
+        printStream.println(indents + "│   └── " + this.getLeftSideOperable().getClass().getSimpleName());
+        this.getLeftSideOperable().printSyntaxAST(printStream, indents + "│       ");
+        printStream.println(indents + "└── operator: " + this.getTypeKind());
+    }
+    
+    
+    public static CastExpressionSyntaxASTBuilder builder(@NotNull final SyntaxAnalyzer syntaxAnalyzer) {
+        return new CastExpressionSyntaxASTBuilder(syntaxAnalyzer);
+    }
+    
+    
+    public static CastExpressionSyntaxASTBuilder builder() {
+        return new CastExpressionSyntaxASTBuilder();
+    }
+    
+    
+    public static class CastExpressionSyntaxASTBuilder
+    {
+        
+        @Nullable
+        private final SyntaxAnalyzer syntaxAnalyzer;
+        
+        
+        @Nullable
+        private TypeKind typeKind;
+        
+        
+        @Nullable
+        private OperableSyntaxAST leftSideOperable;
+        
+        
+        private AbstractToken startToken, endToken;
+        
+        
+        public CastExpressionSyntaxASTBuilder(@NotNull final SyntaxAnalyzer syntaxAnalyzer) {
+            this.syntaxAnalyzer = syntaxAnalyzer;
+        }
+        
+        
+        public CastExpressionSyntaxASTBuilder() {
+            this.syntaxAnalyzer = null;
+        }
+        
+        
+        public CastExpressionSyntaxASTBuilder left(final OperableSyntaxAST leftSideOperable) {
+            this.leftSideOperable = leftSideOperable;
+            return this;
+        }
+        
+        
+        public CastExpressionSyntaxASTBuilder operator(final TypeKind typeKind) {
+            this.typeKind = typeKind;
+            return this;
+        }
+        
+        
+        public CastExpressionSyntaxASTBuilder start(final AbstractToken startToken) {
+            this.startToken = startToken;
+            return this;
+        }
+        
+        
+        public CastExpressionSyntaxASTBuilder end(final AbstractToken endToken) {
+            this.endToken = endToken;
+            return this;
+        }
+        
+        
+        public CastExpressionSyntaxAST build() {
+            final CastExpressionSyntaxAST castExpressionSyntaxAST = new CastExpressionSyntaxAST(this.syntaxAnalyzer);
+            if (this.leftSideOperable != null)
+                castExpressionSyntaxAST.setLeftSideOperable(this.leftSideOperable);
+            if (this.typeKind != null)
+                castExpressionSyntaxAST.setTypeKind(this.typeKind);
+            castExpressionSyntaxAST.setStartToken(this.startToken);
+            castExpressionSyntaxAST.getMarkerFactory().getCurrentMarker().setStart(castExpressionSyntaxAST.getStartToken());
+            castExpressionSyntaxAST.setEndToken(this.endToken);
+            castExpressionSyntaxAST.getMarkerFactory().getCurrentMarker().setEnd(castExpressionSyntaxAST.getEndToken());
+            return castExpressionSyntaxAST;
+        }
+        
     }
     
 }

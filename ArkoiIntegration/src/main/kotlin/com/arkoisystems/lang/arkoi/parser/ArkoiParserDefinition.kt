@@ -5,6 +5,7 @@
  */
 package com.arkoisystems.lang.arkoi.parser
 
+import com.arkoisystems.arkoicompiler.ArkoiClass
 import com.arkoisystems.lang.arkoi.ArkoiFile
 import com.arkoisystems.lang.arkoi.ArkoiLanguage
 import com.arkoisystems.lang.arkoi.lexer.ArkoiLexer
@@ -20,18 +21,17 @@ import com.intellij.psi.tree.TokenSet
 
 class ArkoiParserDefinition : ParserDefinition {
 
-    private val arkoiLexer = ArkoiLexer()
-
-    private val arkoiParser = ArkoiParser()
-
-    override fun createLexer(project: Project?) = arkoiLexer
-
-    override fun createParser(project: Project?) = arkoiParser
-
-    override fun createFile(viewProvider: FileViewProvider) = ArkoiFile(viewProvider)
+    val arkoiClasses = hashMapOf<Int, ArkoiClass>()
 
 
-    override fun getFileNodeType() = IFileElementType(ArkoiLanguage)
+    override fun createLexer(project: Project?) = ArkoiLexer()
+
+    override fun createParser(project: Project?) = ArkoiParser(this)
+
+    override fun createFile(viewProvider: FileViewProvider) = ArkoiFile(viewProvider, this)
+
+
+    override fun getFileNodeType() = ArkoiElementTypes.file
 
     override fun createElement(node: ASTNode?) = ArkoiElementTypes.createElement(node)
 

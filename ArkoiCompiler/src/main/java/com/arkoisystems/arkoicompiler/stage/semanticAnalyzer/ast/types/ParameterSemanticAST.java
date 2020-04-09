@@ -5,51 +5,65 @@
  */
 package com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types;
 
+import com.arkoisystems.arkoicompiler.api.ICompilerSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.IdentifierToken;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.SemanticAnalyzer;
-import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.AbstractSemanticAST;
+import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.ArkoiSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.ParameterSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
-import lombok.AccessLevel;
-import lombok.Setter;
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.PrintStream;
+import java.util.Objects;
 
-public class ParameterSemanticAST extends AbstractSemanticAST<ParameterSyntaxAST>
+public class ParameterSemanticAST extends ArkoiSemanticAST<ParameterSyntaxAST>
 {
     
-    @Setter(AccessLevel.PROTECTED)
-    @Nullable
-    private TypeSemanticAST parameterType;
+    @Getter
+    @NotNull
+    private final TypeSemanticAST parameterType = this.checkParameterType();
     
-    public ParameterSemanticAST(final SemanticAnalyzer semanticAnalyzer, @NotNull final AbstractSemanticAST<?> lastContainerAST, final ParameterSyntaxAST parameterSyntaxAST) {
-        super(semanticAnalyzer, lastContainerAST, parameterSyntaxAST, ASTType.PARAMETER_DEFINITION);
+    
+    @Getter
+    @NotNull
+    private final IdentifierToken parameterName = this.checkParameterName();
+    
+    
+    public ParameterSemanticAST(@Nullable final SemanticAnalyzer semanticAnalyzer, @NotNull final ICompilerSemanticAST<?> lastContainerAST, @NotNull final ParameterSyntaxAST parameterSyntaxAST) {
+        super(semanticAnalyzer, lastContainerAST, parameterSyntaxAST, ASTType.PARAMETER);
     }
     
     
     @Override
     public void printSemanticAST(@NotNull final PrintStream printStream, @NotNull final String indents) {
-        printStream.println(indents + "├── name: " + this.getParameterName().getTokenContent());
-        printStream.println(indents + "└── type: " + (this.getParameterType() != null ? this.getParameterType().getTypeKind().getName() + (this.getParameterType().isArray() ? "[]" : "") : null));
+        printStream.printf("%s├── name: %s%n", indents, this.getParameterName().getTokenContent());
+        printStream.printf("%s└── type:%n", indents);
+        this.getParameterType().printSemanticAST(printStream, indents + "    ");
     }
     
     
     @NotNull
-    public IdentifierToken getParameterName() {
+    public IdentifierToken checkParameterName() {
+        Objects.requireNonNull(this.getSyntaxAST().getParameterName(), this.getFailedSupplier("syntaxAST.parameterName must not be null."));
         return this.getSyntaxAST().getParameterName();
     }
     
     
-    @Nullable
-    public TypeSemanticAST getParameterType() {
-        if (this.parameterType == null) {
-            if(this.getSyntaxAST().getParameterType() == null)
-                return null;
-            return (this.parameterType = new TypeSemanticAST(this.getSemanticAnalyzer(), this.getLastContainerAST(), this.getSyntaxAST().getParameterType()));
-        }
-        return this.parameterType;
+    @NotNull
+    public TypeSemanticAST checkParameterType() {
+        Objects.requireNonNull(this.getSyntaxAST().getParameterType(), this.getFailedSupplier("syntaxAST.parameterType must not be null."));
+        
+        final TypeSemanticAST typeSemanticAST = new TypeSemanticAST(
+                this.getSemanticAnalyzer(),
+                this.getLastContainerAST(),
+                this.getSyntaxAST().getParameterType()
+        );
+        
+        if (typeSemanticAST.isFailed())
+            this.failed();
+        return typeSemanticAST;
     }
     
 }

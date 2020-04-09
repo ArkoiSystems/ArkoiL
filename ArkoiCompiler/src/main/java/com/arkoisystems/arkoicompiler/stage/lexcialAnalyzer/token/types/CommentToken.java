@@ -18,8 +18,8 @@ import java.util.Optional;
 public class CommentToken extends AbstractToken
 {
     
-    protected CommentToken(@Nullable final LexicalAnalyzer lexicalAnalyzer, final boolean crashOnAccess) {
-        super(lexicalAnalyzer, TokenType.COMMENT, crashOnAccess);
+    protected CommentToken(@Nullable final LexicalAnalyzer lexicalAnalyzer) {
+        super(lexicalAnalyzer, TokenType.COMMENT);
     }
     
     
@@ -35,7 +35,7 @@ public class CommentToken extends AbstractToken
                     "Couldn't lex this comment because it doesn't start with an \"#\"."
             );
             return BadToken
-                    .builder()
+                    .builder(this.getLexicalAnalyzer())
                     .start(this.getLexicalAnalyzer().getPosition())
                     .end(this.getLexicalAnalyzer().getPosition() + 1)
                     .build()
@@ -74,9 +74,6 @@ public class CommentToken extends AbstractToken
         private final LexicalAnalyzer lexicalAnalyzer;
         
         
-        private boolean crashOnAccess;
-        
-        
         @Nullable
         private String tokenContent;
         
@@ -112,14 +109,8 @@ public class CommentToken extends AbstractToken
         }
         
         
-        public CommentTokenBuilder crash() {
-            this.crashOnAccess = true;
-            return this;
-        }
-        
-        
         public CommentToken build() {
-            final CommentToken commentToken = new CommentToken(this.lexicalAnalyzer, this.crashOnAccess);
+            final CommentToken commentToken = new CommentToken(this.lexicalAnalyzer);
             if (this.tokenContent != null)
                 commentToken.setTokenContent(this.tokenContent);
             commentToken.setStart(this.start);

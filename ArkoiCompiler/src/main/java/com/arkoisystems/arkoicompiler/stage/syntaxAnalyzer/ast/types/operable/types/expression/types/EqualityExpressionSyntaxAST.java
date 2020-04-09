@@ -5,10 +5,10 @@
  */
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types;
 
+import com.arkoisystems.arkoicompiler.api.ICompilerSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.AbstractOperableSyntaxAST;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.AbstractExpressionSyntaxAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.OperableSyntaxAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.ExpressionSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types.utils.EqualityOperatorType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import lombok.AccessLevel;
@@ -18,15 +18,16 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.PrintStream;
-import java.util.Optional;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
-public class EqualityExpressionSyntaxAST extends AbstractExpressionSyntaxAST
+public class EqualityExpressionSyntaxAST extends ExpressionSyntaxAST
 {
     
     @Getter
     @Setter(AccessLevel.PROTECTED)
     @Nullable
-    private AbstractOperableSyntaxAST<?> leftSideOperable;
+    private OperableSyntaxAST leftSideOperable;
     
     
     @Getter
@@ -38,15 +39,15 @@ public class EqualityExpressionSyntaxAST extends AbstractExpressionSyntaxAST
     @Getter
     @Setter(AccessLevel.PROTECTED)
     @Nullable
-    private AbstractOperableSyntaxAST<?> rightSideOperable;
+    private OperableSyntaxAST rightSideOperable;
     
     
-    public EqualityExpressionSyntaxAST(@NotNull final SyntaxAnalyzer syntaxAnalyzer, @NotNull final AbstractOperableSyntaxAST<?> leftSideOperable, @NotNull final EqualityOperatorType equalityOperatorType) {
+    public EqualityExpressionSyntaxAST(@NotNull final SyntaxAnalyzer syntaxAnalyzer, @NotNull final OperableSyntaxAST leftSideOperable, @NotNull final EqualityOperatorType equalityOperatorType) {
         super(syntaxAnalyzer, ASTType.EQUALITY_EXPRESSION);
         
         this.equalityOperatorType = equalityOperatorType;
         this.leftSideOperable = leftSideOperable;
-    
+        
         this.getMarkerFactory().addFactory(this.leftSideOperable.getMarkerFactory());
         
         this.setStartToken(this.leftSideOperable.getStartToken());
@@ -56,22 +57,35 @@ public class EqualityExpressionSyntaxAST extends AbstractExpressionSyntaxAST
     
     @NotNull
     @Override
-    public EqualityExpressionSyntaxAST parseAST(@NotNull final AbstractSyntaxAST parentAST) {
+    public EqualityExpressionSyntaxAST parseAST(@NotNull final ICompilerSyntaxAST parentAST) {
         return null;
     }
     
     
     @Override
     public void printSyntaxAST(@NotNull final PrintStream printStream, @NotNull final String indents) {
+        Objects.requireNonNull(this.getMarkerFactory().getCurrentMarker().getStart());
+        Objects.requireNonNull(this.getMarkerFactory().getCurrentMarker().getEnd());
+        Objects.requireNonNull(this.getRightSideOperable());
+        Objects.requireNonNull(this.getLeftSideOperable());
+    
+        printStream.println(indents + "├── factory:");
+        printStream.println(indents + "│    ├── next: " + this.getMarkerFactory()
+                .getNextMarkerFactories()
+                .stream()
+                .map(markerFactory -> markerFactory.getCurrentMarker().getAstType().name())
+                .collect(Collectors.joining(", "))
+        );
+        printStream.println(indents + "│    ├── start: " + this.getMarkerFactory().getCurrentMarker().getStart().getStart());
+        printStream.println(indents + "│    └── end: " + this.getMarkerFactory().getCurrentMarker().getEnd().getEnd());
+        printStream.println(indents + "│");
         printStream.println(indents + "├── left:");
-        printStream.println(indents + "│   └── " + (this.getLeftSideOperable() != null ? this.getLeftSideOperable().getClass().getSimpleName() : null));
-        if (this.getLeftSideOperable() != null)
-            this.getLeftSideOperable().printSyntaxAST(printStream, indents + "│       ");
+        printStream.println(indents + "│   └── " + this.getLeftSideOperable().getClass().getSimpleName());
+        this.getLeftSideOperable().printSyntaxAST(printStream, indents + "│       ");
         printStream.println(indents + "├── operator: " + this.getEqualityOperatorType());
         printStream.println(indents + "└── right:");
-        printStream.println(indents + "    └── " + (this.getRightSideOperable() != null ? this.getRightSideOperable().getClass().getSimpleName() : null));
-        if (this.getRightSideOperable() != null)
-            this.getRightSideOperable().printSyntaxAST(printStream, indents + "        ");
+        printStream.println(indents + "    └── " + this.getRightSideOperable().getClass().getSimpleName());
+        this.getRightSideOperable().printSyntaxAST(printStream, indents + "        ");
     }
     
 }

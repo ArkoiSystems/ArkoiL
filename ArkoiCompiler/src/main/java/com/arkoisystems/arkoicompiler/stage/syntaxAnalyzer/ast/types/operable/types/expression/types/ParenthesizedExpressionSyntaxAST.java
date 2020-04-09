@@ -5,13 +5,13 @@
  */
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types;
 
+import com.arkoisystems.arkoicompiler.api.ICompilerSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.SymbolType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxErrorType;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.AbstractOperableSyntaxAST;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.AbstractExpressionSyntaxAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.OperableSyntaxAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.ExpressionSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -21,14 +21,15 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.PrintStream;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
-public class ParenthesizedExpressionSyntaxAST extends AbstractExpressionSyntaxAST
+public class ParenthesizedExpressionSyntaxAST extends ExpressionSyntaxAST
 {
     
     @Getter
     @Setter(AccessLevel.PROTECTED)
     @Nullable
-    private AbstractOperableSyntaxAST<?> parenthesizedExpression;
+    private OperableSyntaxAST parenthesizedExpression;
     
     
     protected ParenthesizedExpressionSyntaxAST(@Nullable final SyntaxAnalyzer syntaxAnalyzer) {
@@ -38,16 +39,16 @@ public class ParenthesizedExpressionSyntaxAST extends AbstractExpressionSyntaxAS
     
     @NotNull
     @Override
-    public ParenthesizedExpressionSyntaxAST parseAST(@NotNull final AbstractSyntaxAST parentAST) {
+    public ParenthesizedExpressionSyntaxAST parseAST(@NotNull final ICompilerSyntaxAST parentAST) {
         Objects.requireNonNull(this.getSyntaxAnalyzer());
         
         if (this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.OPENING_PARENTHESIS) == null) {
-            this.addError(
-                    this.getSyntaxAnalyzer().getArkoiClass(),
+            return this.addError(
+                    this,
+                    this.getSyntaxAnalyzer().getCompilerClass(),
                     this.getSyntaxAnalyzer().currentToken(),
                     SyntaxErrorType.EXPRESSION_PARENTHESIZED_WRONG_START
             );
-            return this;
         }
         
         this.setStartToken(this.getSyntaxAnalyzer().currentToken());
@@ -55,21 +56,21 @@ public class ParenthesizedExpressionSyntaxAST extends AbstractExpressionSyntaxAS
         
         this.getSyntaxAnalyzer().nextToken();
         
-        final AbstractOperableSyntaxAST<?> abstractOperableSyntaxAST = AbstractExpressionSyntaxAST.EXPRESSION_PARSER.parse(parentAST, this.getSyntaxAnalyzer());
-        this.getMarkerFactory().addFactory(abstractOperableSyntaxAST.getMarkerFactory());
+        final OperableSyntaxAST operableSyntaxAST = ExpressionSyntaxAST.EXPRESSION_PARSER.parse(parentAST, this.getSyntaxAnalyzer());
+        this.getMarkerFactory().addFactory(operableSyntaxAST.getMarkerFactory());
         
-        if (abstractOperableSyntaxAST.isFailed()) {
+        if (operableSyntaxAST.isFailed()) {
             this.failed();
             return this;
-        } else this.parenthesizedExpression = abstractOperableSyntaxAST;
+        } else this.parenthesizedExpression = operableSyntaxAST;
         
         if (this.getSyntaxAnalyzer().matchesPeekToken(1, SymbolType.CLOSING_PARENTHESIS) == null) {
-            this.addError(
-                    this.getSyntaxAnalyzer().getArkoiClass(),
+            return this.addError(
+                    this,
+                    this.getSyntaxAnalyzer().getCompilerClass(),
                     this.getSyntaxAnalyzer().currentToken(),
                     SyntaxErrorType.EXPRESSION_PARENTHESIZED_WRONG_ENDING
             );
-            return this;
         } else this.getSyntaxAnalyzer().nextToken();
         
         this.setEndToken(this.getSyntaxAnalyzer().currentToken());
@@ -77,12 +78,26 @@ public class ParenthesizedExpressionSyntaxAST extends AbstractExpressionSyntaxAS
         return this;
     }
     
+    
     @Override
     public void printSyntaxAST(@NotNull final PrintStream printStream, @NotNull final String indents) {
+        Objects.requireNonNull(this.getMarkerFactory().getCurrentMarker().getStart());
+        Objects.requireNonNull(this.getMarkerFactory().getCurrentMarker().getEnd());
+        Objects.requireNonNull(this.getParenthesizedExpression());
+        
+        printStream.println(indents + "├── factory:");
+        printStream.println(indents + "│    ├── next: " + this.getMarkerFactory()
+                .getNextMarkerFactories()
+                .stream()
+                .map(markerFactory -> markerFactory.getCurrentMarker().getAstType().name())
+                .collect(Collectors.joining(", "))
+        );
+        printStream.println(indents + "│    ├── start: " + this.getMarkerFactory().getCurrentMarker().getStart().getStart());
+        printStream.println(indents + "│    └── end: " + this.getMarkerFactory().getCurrentMarker().getEnd().getEnd());
+        printStream.println(indents + "│");
         printStream.println(indents + "└── operable:");
-        printStream.println(indents + "    └── " + (this.getParenthesizedExpression() != null ? this.getParenthesizedExpression().getClass().getSimpleName() : null));
-        if (this.getParenthesizedExpression() != null)
-            this.getParenthesizedExpression().printSyntaxAST(printStream, indents + "        ");
+        printStream.println(indents + "    └── " + this.getParenthesizedExpression().getClass().getSimpleName());
+        this.getParenthesizedExpression().printSyntaxAST(printStream, indents + "        ");
     }
     
     
@@ -104,7 +119,7 @@ public class ParenthesizedExpressionSyntaxAST extends AbstractExpressionSyntaxAS
     
     
         @Nullable
-        private AbstractOperableSyntaxAST<?> parenthesizedExpression;
+        private OperableSyntaxAST parenthesizedExpression;
         
         
         private AbstractToken startToken, endToken;
@@ -120,7 +135,7 @@ public class ParenthesizedExpressionSyntaxAST extends AbstractExpressionSyntaxAS
         }
     
     
-        public ParenthesizedExpressionSyntaxASTBuilder expression(final AbstractOperableSyntaxAST<?> parenthesizedExpression) {
+        public ParenthesizedExpressionSyntaxASTBuilder expression(final OperableSyntaxAST parenthesizedExpression) {
             this.parenthesizedExpression = parenthesizedExpression;
             return this;
         }
@@ -143,7 +158,9 @@ public class ParenthesizedExpressionSyntaxAST extends AbstractExpressionSyntaxAS
             if (this.parenthesizedExpression != null)
                 parenthesizedExpressionSyntaxAST.setParenthesizedExpression(this.parenthesizedExpression);
             parenthesizedExpressionSyntaxAST.setStartToken(this.startToken);
+            parenthesizedExpressionSyntaxAST.getMarkerFactory().getCurrentMarker().setStart(parenthesizedExpressionSyntaxAST.getStartToken());
             parenthesizedExpressionSyntaxAST.setEndToken(this.endToken);
+            parenthesizedExpressionSyntaxAST.getMarkerFactory().getCurrentMarker().setEnd(parenthesizedExpressionSyntaxAST.getEndToken());
             return parenthesizedExpressionSyntaxAST;
         }
         

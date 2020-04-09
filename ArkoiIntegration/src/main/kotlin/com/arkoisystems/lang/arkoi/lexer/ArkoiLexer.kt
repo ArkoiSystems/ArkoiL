@@ -33,9 +33,7 @@ class ArkoiLexer : LexerBase() {
 
     var tokens: Array<out AbstractToken>? = null
 
-    var bufferArray: ByteArray? = null
-
-    var arkoiClass: ArkoiClass? = null
+    val arkoiClass = ArkoiClass(ArkoiCompiler(), "", byteArrayOf())
 
 
     private var buffer: CharSequence? = null
@@ -62,23 +60,13 @@ class ArkoiLexer : LexerBase() {
         this.endOffset = endOffset
         this.buffer = buffer
 
-        this.bufferArray = this.buffer.toString().toByteArray()
         this.tokenIndex = 0
 
-        if (this.bufferArray != null) {
-            val arkoiCompiler = ArkoiCompiler()
-            val arkoiClass = ArkoiClass(
-                arkoiCompiler,
-                "",
-                this.bufferArray!!
-            )
-            arkoiCompiler.addClass(arkoiClass)
-            this.arkoiClass = arkoiClass
+        this.arkoiClass.content = String(this.buffer.toString().toByteArray()).toCharArray()
 
-            arkoiClass.lexicalAnalyzer.position = this.startOffset
-            arkoiClass.lexicalAnalyzer.processStage()
-            this.tokens = arkoiClass.lexicalAnalyzer.tokens
-        }
+        this.arkoiClass.lexicalAnalyzer.position = this.startOffset
+        this.arkoiClass.lexicalAnalyzer.processStage()
+        this.tokens = arkoiClass.lexicalAnalyzer.tokens
     }
 
     override fun advance() {
@@ -109,7 +97,7 @@ class ArkoiLexer : LexerBase() {
                 SymbolType.AT_SIGN -> ArkoiTokenTypes.at
 
                 SymbolType.COLON -> ArkoiTokenTypes.colon
-                SymbolType.SEMICOLON -> ArkoiTokenTypes.semicolon
+//                SymbolType.SEMICOLON -> ArkoiTokenTypes.semicolon
 
                 SymbolType.PERIOD -> ArkoiTokenTypes.period
                 SymbolType.COMMA -> ArkoiTokenTypes.comma
@@ -172,8 +160,6 @@ class ArkoiLexer : LexerBase() {
 
                 else -> TokenType.BAD_CHARACTER
             }
-
-            is EndOfFileToken -> null
 
             else -> TokenType.BAD_CHARACTER
         }

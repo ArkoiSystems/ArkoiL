@@ -18,8 +18,8 @@ import java.util.Optional;
 public class IdentifierToken extends AbstractToken
 {
     
-    protected IdentifierToken(@Nullable final LexicalAnalyzer lexicalAnalyzer, final boolean crashOnAccess) {
-        super(lexicalAnalyzer, TokenType.IDENTIFIER, crashOnAccess);
+    protected IdentifierToken(@Nullable final LexicalAnalyzer lexicalAnalyzer) {
+        super(lexicalAnalyzer, TokenType.IDENTIFIER);
     }
     
     
@@ -27,7 +27,7 @@ public class IdentifierToken extends AbstractToken
     @Override
     public Optional<? extends AbstractToken> parseToken() {
         Objects.requireNonNull(this.getLexicalAnalyzer());
-    
+        
         final char currentChar = this.getLexicalAnalyzer().currentChar();
         if (!Character.isJavaIdentifierStart(currentChar)) {
             this.addError(
@@ -36,23 +36,23 @@ public class IdentifierToken extends AbstractToken
                     "Couldn't lex the Identifier because it doesn't start with an alphabetic char."
             );
             return BadToken
-                    .builder()
+                    .builder(this.getLexicalAnalyzer())
                     .start(this.getLexicalAnalyzer().getPosition())
                     .end(this.getLexicalAnalyzer().getPosition() + 1)
                     .build()
                     .parseToken();
         } else this.getLexicalAnalyzer().next();
-    
+        
         this.setStart(this.getLexicalAnalyzer().getPosition() - 1);
         while (this.getLexicalAnalyzer().getPosition() < this.getLexicalAnalyzer().getArkoiClass().getContent().length) {
             if (!Character.isUnicodeIdentifierPart(this.getLexicalAnalyzer().currentChar()))
                 break;
             this.getLexicalAnalyzer().next();
         }
-    
+        
         this.setEnd(this.getLexicalAnalyzer().getPosition());
         this.setTokenContent(new String(Arrays.copyOfRange(this.getLexicalAnalyzer().getArkoiClass().getContent(), this.getStart(), this.getEnd())).intern());
-    
+        
         final Optional<? extends AbstractToken> optionalKeywordToken = KeywordToken
                 .builder(this.getLexicalAnalyzer())
                 .content(this.getTokenContent())
@@ -93,9 +93,6 @@ public class IdentifierToken extends AbstractToken
         private final LexicalAnalyzer lexicalAnalyzer;
         
         
-        private boolean crashOnAccess;
-        
-        
         @Nullable
         private String tokenContent;
         
@@ -130,14 +127,8 @@ public class IdentifierToken extends AbstractToken
         }
         
         
-        public IdentifierTokenBuilder crash() {
-            this.crashOnAccess = true;
-            return this;
-        }
-        
-        
         public IdentifierToken build() {
-            final IdentifierToken identifierToken = new IdentifierToken(this.lexicalAnalyzer, this.crashOnAccess);
+            final IdentifierToken identifierToken = new IdentifierToken(this.lexicalAnalyzer);
             if (this.tokenContent != null)
                 identifierToken.setTokenContent(this.tokenContent);
             identifierToken.setStart(this.start);

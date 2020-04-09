@@ -19,7 +19,7 @@ class ArkoiColorSettingsPage : ColorSettingsPage {
         ArkoiBundle.message("arkoi.colorSettings.brackets.displayName") to ArkoiSyntaxHighlighter.brackets,
         ArkoiBundle.message("arkoi.colorSettings.braces.displayName") to ArkoiSyntaxHighlighter.braces,
         ArkoiBundle.message("arkoi.colorSettings.dot.displayName") to ArkoiSyntaxHighlighter.dot,
-        ArkoiBundle.message("arkoi.colorSettings.semicolon.displayName") to ArkoiSyntaxHighlighter.semicolon,
+//        ArkoiBundle.message("arkoi.colorSettings.semicolon.displayName") to ArkoiSyntaxHighlighter.semicolon,
 
         ArkoiBundle.message("arkoi.colorSettings.lineComment.displayName") to ArkoiSyntaxHighlighter.lineComment,
 

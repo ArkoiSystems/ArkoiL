@@ -5,10 +5,10 @@
  */
 package com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.types.expression.types;
 
+import com.arkoisystems.arkoicompiler.api.ICompilerSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.SemanticAnalyzer;
-import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.AbstractSemanticAST;
-import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.AbstractOperableSemanticAST;
-import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.types.expression.AbstractExpressionSemanticAST;
+import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.ArkoiSemanticAST;
+import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.types.expression.ExpressionSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types.EqualityExpressionSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
@@ -17,10 +17,10 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.PrintStream;
 
-public class EqualityExpressionSemanticAST extends AbstractExpressionSemanticAST<EqualityExpressionSyntaxAST>
+public class EqualityExpressionSemanticAST extends ExpressionSemanticAST<EqualityExpressionSyntaxAST>
 {
     
-    public EqualityExpressionSemanticAST(@Nullable final SemanticAnalyzer semanticAnalyzer, @Nullable final AbstractSemanticAST<?> lastContainerAST, @NotNull final EqualityExpressionSyntaxAST equalityExpressionSyntaxAST) {
+    public EqualityExpressionSemanticAST(@Nullable final SemanticAnalyzer semanticAnalyzer, @Nullable final ICompilerSemanticAST<?> lastContainerAST, @NotNull final EqualityExpressionSyntaxAST equalityExpressionSyntaxAST) {
         super(semanticAnalyzer, lastContainerAST, equalityExpressionSyntaxAST, ASTType.EQUALITY_EXPRESSION);
     }
     
@@ -29,22 +29,10 @@ public class EqualityExpressionSemanticAST extends AbstractExpressionSemanticAST
     public void printSemanticAST(@NotNull final PrintStream printStream, @NotNull final String indents) { }
     
     
-    @Nullable
+    @NotNull
     @Override
     public TypeKind getTypeKind() {
-        return null;
-    }
-    
-    
-    @Override
-    public TypeKind equal(@NotNull final AbstractOperableSemanticAST<?> leftSideOperable, @NotNull final AbstractOperableSemanticAST<?> rightSideOperable) {
-        return super.equal(leftSideOperable, rightSideOperable);
-    }
-    
-    
-    @Override
-    public TypeKind notEqual(@NotNull final AbstractOperableSemanticAST<?> leftSideOperable, @NotNull final AbstractOperableSemanticAST<?> rightSideOperable) {
-        return super.notEqual(leftSideOperable, rightSideOperable);
+        return TypeKind.UNDEFINED;
     }
     
 }
