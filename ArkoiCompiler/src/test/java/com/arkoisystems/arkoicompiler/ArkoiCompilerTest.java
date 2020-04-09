@@ -47,6 +47,7 @@ public class ArkoiCompilerTest
         
         try (final PrintStream printStream = new PrintStream(new File(inputDirectory + "output.result"))) {
             assertTrue(arkoiCompiler.compile(), "\n" + this.getStackTraceAndPrintTree(arkoiCompiler, printStream));
+            arkoiCompiler.printSyntaxTree(System.out);
         } catch (final Exception ex) {
             ex.printStackTrace();
         }
@@ -57,7 +58,10 @@ public class ArkoiCompilerTest
         final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         final PrintStream printStream = new PrintStream(byteArrayOutputStream);
         arkoiCompiler.printStackTrace(printStream);
-        arkoiCompiler.printSyntaxTree(treeStream);
+        try {
+            arkoiCompiler.printSyntaxTree(treeStream);
+        } catch (final Exception ignored) {
+        }
         return byteArrayOutputStream.toString();
     }
     

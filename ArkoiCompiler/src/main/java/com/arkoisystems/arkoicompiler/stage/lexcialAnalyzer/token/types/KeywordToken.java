@@ -26,8 +26,8 @@ public class KeywordToken extends AbstractToken
     private KeywordType keywordType;
     
     
-    protected KeywordToken(@Nullable final LexicalAnalyzer lexicalAnalyzer, final boolean crashOnAccess) {
-        super(lexicalAnalyzer, TokenType.KEYWORD, crashOnAccess);
+    protected KeywordToken(@Nullable final LexicalAnalyzer lexicalAnalyzer) {
+        super(lexicalAnalyzer, TokenType.KEYWORD);
     }
     
     
@@ -80,9 +80,6 @@ public class KeywordToken extends AbstractToken
         private KeywordType keywordType;
         
         
-        private boolean crashOnAccess;
-        
-        
         @Nullable
         private String tokenContent;
         
@@ -124,14 +121,8 @@ public class KeywordToken extends AbstractToken
         }
         
         
-        public KeywordTokenBuilder crash() {
-            this.crashOnAccess = true;
-            return this;
-        }
-        
-        
         public KeywordToken build() {
-            final KeywordToken keywordToken = new KeywordToken(this.lexicalAnalyzer, this.crashOnAccess);
+            final KeywordToken keywordToken = new KeywordToken(this.lexicalAnalyzer);
             if (this.tokenContent != null)
                 keywordToken.setTokenContent(this.tokenContent);
             if (this.keywordType != null)

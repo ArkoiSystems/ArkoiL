@@ -5,60 +5,68 @@
  */
 package com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.types.expression.types;
 
+import com.arkoisystems.arkoicompiler.api.ICompilerSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.SemanticAnalyzer;
-import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.AbstractSemanticAST;
-import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.types.expression.AbstractExpressionSemanticAST;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.AbstractOperableSyntaxAST;
+import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.ArkoiSemanticAST;
+import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.types.expression.ExpressionSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types.ParenthesizedExpressionSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.PrintStream;
+import java.util.Objects;
 
-public class ParenthesizedExpressionSemanticAST extends AbstractExpressionSemanticAST<ParenthesizedExpressionSyntaxAST>
+public class ParenthesizedExpressionSemanticAST extends ExpressionSemanticAST<ParenthesizedExpressionSyntaxAST>
 {
     
+    @Getter
     @Nullable
-    private AbstractExpressionSemanticAST<?> parenthesizedExpression;
+    private final ExpressionSemanticAST<?> parenthesizedExpression = this.checkParenthesizedExpression();
     
     
-    public ParenthesizedExpressionSemanticAST(@Nullable final SemanticAnalyzer semanticAnalyzer, @Nullable final AbstractSemanticAST<?> lastContainerAST, @NotNull final ParenthesizedExpressionSyntaxAST parenthesizedExpressionSyntaxAST) {
+    @Getter
+    @NotNull
+    private final TypeKind typeKind = this.checkTypeKind();
+    
+    
+    public ParenthesizedExpressionSemanticAST(@Nullable final SemanticAnalyzer semanticAnalyzer, @Nullable final ICompilerSemanticAST<?> lastContainerAST, @NotNull final ParenthesizedExpressionSyntaxAST parenthesizedExpressionSyntaxAST) {
         super(semanticAnalyzer, lastContainerAST, parenthesizedExpressionSyntaxAST, ASTType.PARENTHESIZED_EXPRESSION);
     }
     
     
     @Override
     public void printSemanticAST(@NotNull final PrintStream printStream, @NotNull final String indents) {
-        printStream.println(indents + "└── operable:");
-        printStream.println(indents + "    └── " + (this.getParenthesizedExpression() != null ? this.getParenthesizedExpression().getClass().getSimpleName() : null));
+        printStream.printf("%s└── operable:%n", indents);
+        printStream.printf("%s    └── %s%n", indents, this.getParenthesizedExpression() != null ? this.getParenthesizedExpression().getClass().getSimpleName() : null);
         if (this.getParenthesizedExpression() != null)
             this.getParenthesizedExpression().printSemanticAST(printStream, indents + "        ");
     }
     
     
-    @Nullable
-    @Override
-    public TypeKind getTypeKind() {
-        if (this.getParenthesizedExpression() == null)
-            return null;
-        return this.getParenthesizedExpression().getTypeKind();
+    @NotNull
+    private ExpressionSemanticAST<?> checkParenthesizedExpression() {
+        Objects.requireNonNull(this.getSyntaxAST().getParenthesizedExpression(), this.getFailedSupplier("syntaxAST.parenthesizedExpression must not be null."));
+        
+        final ExpressionSemanticAST<?> expressionSemanticAST = new ExpressionSemanticAST<>(
+                this.getSemanticAnalyzer(),
+                this.getLastContainerAST(),
+                this.getSyntaxAST().getParenthesizedExpression()
+        );
+        
+        if (expressionSemanticAST.isFailed())
+            this.failed();
+        return expressionSemanticAST;
     }
     
     
-    @Nullable
-    public AbstractExpressionSemanticAST<?> getParenthesizedExpression() {
-        if (this.parenthesizedExpression == null) {
-            final AbstractOperableSyntaxAST<?> abstractOperableSyntaxAST = this.getSyntaxAST().getParenthesizedExpression();
-            if(abstractOperableSyntaxAST == null)
-                return null;
-            
-            this.parenthesizedExpression = new AbstractExpressionSemanticAST<>(this.getSemanticAnalyzer(), this.getLastContainerAST(), abstractOperableSyntaxAST, ASTType.EXPRESSION);
-            if (this.parenthesizedExpression.getTypeKind() == null)
-                return null;
-        }
-        return this.parenthesizedExpression;
+    @NotNull
+    private TypeKind checkTypeKind() {
+        if (this.getParenthesizedExpression() == null)
+            return TypeKind.UNDEFINED;
+        return this.getParenthesizedExpression().getTypeKind();
     }
     
 }

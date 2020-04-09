@@ -1,16 +1,16 @@
-import "test" as test
-
 var test_1 = test.test(1)
 
 var test_2 = this.greeting()
 
 var test_3 = (test_1 - (test_1 * 2 += 4 + -10) * 5)i * 2f
 
+import "test" as test
+
 @test.tests
 # this method gets invoked first
 @test.world
 fun main<int>(args: string[]) {
-    var test_1 = "Hello\n World\""
+    var test_1 = "Hello\n Worlds\""
     var test_3 = this.test.test()
     var test_6 = 1
 
@@ -21,5 +21,3 @@ fun main<int>(args: string[]) {
 fun print_greet<>(test_argument: string) = println("%s , %s" % [test_2, test_argument])
 
 fun greeting<string>() = "Hello World"
-
-fun greeting<>() = ""

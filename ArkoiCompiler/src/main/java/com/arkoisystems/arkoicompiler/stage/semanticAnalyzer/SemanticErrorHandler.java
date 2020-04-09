@@ -5,31 +5,30 @@
  */
 package com.arkoisystems.arkoicompiler.stage.semanticAnalyzer;
 
-import com.arkoisystems.arkoicompiler.stage.errorHandler.ArkoiError;
-import com.arkoisystems.arkoicompiler.stage.errorHandler.ErrorHandler;
+import com.arkoisystems.arkoicompiler.api.error.ICompilerError;
+import com.arkoisystems.arkoicompiler.api.error.IErrorHandler;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.PrintStream;
-import java.util.HashMap;
+import java.util.HashSet;
 
-public class SemanticErrorHandler extends ErrorHandler
+public class SemanticErrorHandler implements IErrorHandler
 {
     
     @Getter
-    private final HashMap<Integer, ArkoiError> arkoiErrors = new HashMap<>();
+    private final HashSet<ICompilerError> compileErrors = new HashSet<>();
     
     
     @Override
-    public void addError(@NotNull final ArkoiError arkoiError) {
-        if (!this.getArkoiErrors().containsKey(arkoiError.hashCode()))
-            this.getArkoiErrors().put(arkoiError.hashCode(), arkoiError);
+    public void addError(@NotNull final ICompilerError compilerError) {
+        this.compileErrors.add(compilerError);
     }
     
     
     @Override
     public void printStackTrace(@NotNull final PrintStream printStream, boolean testing) {
-        for (final ArkoiError arkoiError : this.getArkoiErrors().values())
+        for (final ICompilerError arkoiError : this.getCompileErrors())
             printStream.println(testing ? arkoiError.toString().substring(arkoiError.toString().indexOf(' ') + 1) : arkoiError.toString());
     }
     

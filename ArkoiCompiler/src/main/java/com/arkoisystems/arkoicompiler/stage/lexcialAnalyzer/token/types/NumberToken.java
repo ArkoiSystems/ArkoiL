@@ -18,8 +18,8 @@ import java.util.Optional;
 public class NumberToken extends AbstractToken
 {
     
-    protected NumberToken(@Nullable final LexicalAnalyzer lexicalAnalyzer, final boolean crashOnAccess) {
-        super(lexicalAnalyzer, TokenType.NUMBER_LITERAL, crashOnAccess);
+    protected NumberToken(@Nullable final LexicalAnalyzer lexicalAnalyzer) {
+        super(lexicalAnalyzer, TokenType.NUMBER_LITERAL);
     }
     
     
@@ -27,7 +27,7 @@ public class NumberToken extends AbstractToken
     @Override
     public Optional<? extends AbstractToken> parseToken() {
         Objects.requireNonNull(this.getLexicalAnalyzer());
-    
+        
         if (!Character.isDigit(this.getLexicalAnalyzer().currentChar()) && this.getLexicalAnalyzer().currentChar() != '.') {
             this.addError(
                     this.getLexicalAnalyzer().getArkoiClass(),
@@ -35,7 +35,7 @@ public class NumberToken extends AbstractToken
                     "Couldn't lex the number because it doesn't start with a digit or dot."
             );
             return BadToken
-                    .builder()
+                    .builder(this.getLexicalAnalyzer())
                     .start(this.getLexicalAnalyzer().getPosition())
                     .end(this.getLexicalAnalyzer().getPosition() + 1)
                     .build()
@@ -99,7 +99,7 @@ public class NumberToken extends AbstractToken
         if (this.getTokenContent().equals(".")) {
             this.getLexicalAnalyzer().undo();
             return BadToken
-                    .builder()
+                    .builder(this.getLexicalAnalyzer())
                     .start(this.getStart())
                     .end(this.getEnd())
                     .build()
@@ -124,9 +124,6 @@ public class NumberToken extends AbstractToken
         
         @Nullable
         private final LexicalAnalyzer lexicalAnalyzer;
-        
-        
-        private boolean crashOnAccess;
         
         
         @Nullable
@@ -164,14 +161,8 @@ public class NumberToken extends AbstractToken
         }
         
         
-        public NumberTokenBuilder crash() {
-            this.crashOnAccess = true;
-            return this;
-        }
-        
-        
         public NumberToken build() {
-            final NumberToken numberToken = new NumberToken(this.lexicalAnalyzer, this.crashOnAccess);
+            final NumberToken numberToken = new NumberToken(this.lexicalAnalyzer);
             if (this.tokenContent != null)
                 numberToken.setTokenContent(this.tokenContent);
             numberToken.setStart(this.start);

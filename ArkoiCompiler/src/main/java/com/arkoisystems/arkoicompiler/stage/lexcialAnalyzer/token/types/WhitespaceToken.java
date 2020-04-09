@@ -18,8 +18,8 @@ import java.util.Optional;
 public class WhitespaceToken extends AbstractToken
 {
     
-    protected WhitespaceToken(@Nullable final LexicalAnalyzer lexicalAnalyzer, final boolean crashOnAccess) {
-        super(lexicalAnalyzer, TokenType.WHITESPACE, crashOnAccess);
+    protected WhitespaceToken(@Nullable final LexicalAnalyzer lexicalAnalyzer) {
+        super(lexicalAnalyzer, TokenType.WHITESPACE);
     }
     
     
@@ -51,9 +51,6 @@ public class WhitespaceToken extends AbstractToken
         
         @Nullable
         private final LexicalAnalyzer lexicalAnalyzer;
-        
-        
-        private boolean crashOnAccess;
         
         
         @Nullable
@@ -91,14 +88,8 @@ public class WhitespaceToken extends AbstractToken
         }
         
         
-        public WhitespaceTokenBuilder crash() {
-            this.crashOnAccess = true;
-            return this;
-        }
-        
-        
         public WhitespaceToken build() {
-            final WhitespaceToken whitespaceToken = new WhitespaceToken(this.lexicalAnalyzer, this.crashOnAccess);
+            final WhitespaceToken whitespaceToken = new WhitespaceToken(this.lexicalAnalyzer);
             if (this.tokenContent != null)
                 whitespaceToken.setTokenContent(this.tokenContent);
             whitespaceToken.setStart(this.start);

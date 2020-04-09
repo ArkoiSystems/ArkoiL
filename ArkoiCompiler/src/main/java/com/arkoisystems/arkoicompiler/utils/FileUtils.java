@@ -12,23 +12,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-/**
- * This class is capable for all {@link File} related functions which are getting used
- * more frequently and so they don't need to be created every time.
- */
 public class FileUtils
 {
     
-    /**
-     * Gets every file inside a specified directory. It also includes sub-directories an
-     * so on. If the {@link File[]} is null or the input {@link File} isn't a directory
-     * the method will throw an error.
-     *
-     * @param directory
-     *         the start directory where all files and sub-directories are included.
-     *
-     * @return a list of all files without the directories.
-     */
+    @NotNull
     public static List<File> getAllFiles(@NotNull final File directory) {
         if (!directory.isDirectory())
             throw new NullPointerException("Couldn't get all files out of this directory, because it isn't a directory.");

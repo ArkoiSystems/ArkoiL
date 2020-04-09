@@ -1,5 +1,5 @@
 /*
- * Copyright © 2019-2020 ArkoiSystems (https://www.arkoisystems.com/) All Rights Reserved.
+ * Copyright © 2019-2020 ArykoiSystems (https://www.arkoisystems.com/) All Rights Reserved.
  * Created ArkoiIntegration on March 31, 2020
  * Author єхcsє#5543 aka timo
  *
@@ -19,7 +19,7 @@
 package com.arkoisystems.lang.arkoi.folding
 
 import com.arkoisystems.lang.arkoi.ArkoiFile
-import com.arkoisystems.lang.arkoi.parser.psi.ArkoiBlock
+import com.arkoisystems.lang.arkoi.parser.psi.BlockPSI
 import com.intellij.codeInsight.folding.CodeFoldingSettings
 import com.intellij.lang.ASTNode
 import com.intellij.lang.folding.CustomFoldingBuilder
@@ -36,7 +36,7 @@ class ArkoiFoldingBuilder : CustomFoldingBuilder(), DumbAware {
     private val dots = "…"
 
     override fun isRegionCollapsedByDefault(node: ASTNode): Boolean {
-        if (node.psi !is ArkoiBlock)
+        if (node.psi !is BlockPSI)
             return false
         return CodeFoldingSettings.getInstance().COLLAPSE_METHODS
     }
@@ -50,10 +50,10 @@ class ArkoiFoldingBuilder : CustomFoldingBuilder(), DumbAware {
         if (root !is ArkoiFile)
             return
 
-        root.getArkoiRoot()?.getFunctions()?.forEach {
-            if (it.isInlined() || it.isFailed())
+        root.getRoot()?.getFunctions()?.forEach {
+            if (it.isInlined() || (it.isFailed() ?: return@forEach))
                 return@forEach
-            val block = it.getBlock() ?: return@forEach
+            val block = it.block ?: return@forEach
             if (block.textLength <= 2)
                 return@forEach
             descriptors.add(FoldingDescriptor(block, block.textRange))
@@ -61,7 +61,7 @@ class ArkoiFoldingBuilder : CustomFoldingBuilder(), DumbAware {
     }
 
     override fun getLanguagePlaceholderText(node: ASTNode, range: TextRange): String {
-        if (node.psi is ArkoiBlock)
+        if (node.psi is BlockPSI)
             return braceDots
         return dots
     }

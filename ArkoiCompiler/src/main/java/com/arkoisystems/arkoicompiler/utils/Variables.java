@@ -10,10 +10,6 @@ import java.text.SimpleDateFormat;
 public class Variables
 {
     
-    /**
-     * Defines a {@link SimpleDateFormat} for later debugging to see the time in which
-     * this error happened.
-     */
     public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("HH:mm:ss");
     
 }

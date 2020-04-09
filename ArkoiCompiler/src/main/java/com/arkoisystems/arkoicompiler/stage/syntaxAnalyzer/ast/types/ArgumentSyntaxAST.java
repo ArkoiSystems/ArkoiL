@@ -5,18 +5,18 @@
  */
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types;
 
+import com.arkoisystems.arkoicompiler.api.ICompilerSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.IdentifierToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.OperatorType;
-import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.SymbolType;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxErrorType;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.AbstractOperableSyntaxAST;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.AbstractExpressionSyntaxAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.ArkoiSyntaxAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.OperableSyntaxAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.ExpressionSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.parser.types.ArgumentParser;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.parsers.ArgumentParser;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
@@ -24,12 +24,10 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
-public class ArgumentSyntaxAST extends AbstractSyntaxAST
+public class ArgumentSyntaxAST extends ArkoiSyntaxAST
 {
     
     public static ArgumentParser ARGUMENT_DEFINITION_PARSER = new ArgumentParser();
@@ -37,70 +35,66 @@ public class ArgumentSyntaxAST extends AbstractSyntaxAST
     
     @Getter
     @Setter(AccessLevel.PROTECTED)
-    @NotNull
-    private IdentifierToken argumentName = IdentifierToken
-            .builder()
-            .content("Undefined identifier for \"argumentName\"")
-            .crash()
-            .build();
+    @Nullable
+    private IdentifierToken argumentName;
     
     
     @Getter
     @Setter(AccessLevel.PROTECTED)
     @Nullable
-    private AbstractOperableSyntaxAST<?> argumentExpression;
+    private OperableSyntaxAST argumentExpression;
     
     
     protected ArgumentSyntaxAST(@Nullable final SyntaxAnalyzer syntaxAnalyzer) {
-        super(syntaxAnalyzer, ASTType.ARGUMENT_DEFINITION);
+        super(syntaxAnalyzer, ASTType.ARGUMENT);
     }
     
     
     @NotNull
     @Override
-    public ArgumentSyntaxAST parseAST(@NotNull final AbstractSyntaxAST parentAST) {
+    public ArgumentSyntaxAST parseAST(@NotNull final ICompilerSyntaxAST parentAST) {
         Objects.requireNonNull(this.getSyntaxAnalyzer());
-        
+    
         if (this.getSyntaxAnalyzer().matchesCurrentToken(TokenType.IDENTIFIER) == null) {
-            this.addError(
-                    this.getSyntaxAnalyzer().getArkoiClass(),
+            return this.addError(
+                    this,
+                    this.getSyntaxAnalyzer().getCompilerClass(),
                     this.getSyntaxAnalyzer().currentToken(),
                     SyntaxErrorType.ARGUMENT_WRONG_START
             );
-            return this;
         }
-        
+    
         this.setStartToken(this.getSyntaxAnalyzer().currentToken());
         this.getMarkerFactory().mark(this.getStartToken());
-        
+    
         this.argumentName = (IdentifierToken) this.getSyntaxAnalyzer().currentToken();
-        
+    
         if (this.getSyntaxAnalyzer().matchesPeekToken(1, OperatorType.EQUALS) == null) {
-            this.addError(
-                    this.getSyntaxAnalyzer().getArkoiClass(),
+            return this.addError(
+                    this,
+                    this.getSyntaxAnalyzer().getCompilerClass(),
                     this.getSyntaxAnalyzer().currentToken(),
                     SyntaxErrorType.ARGUMENT_NO_SEPARATOR
             );
-            return this;
         } else this.getSyntaxAnalyzer().nextToken(2);
-        
-        if (!AbstractExpressionSyntaxAST.EXPRESSION_PARSER.canParse(parentAST, this.getSyntaxAnalyzer())) {
-            this.addError(
-                    this.getSyntaxAnalyzer().getArkoiClass(),
+    
+        if (!ExpressionSyntaxAST.EXPRESSION_PARSER.canParse(parentAST, this.getSyntaxAnalyzer())) {
+            return this.addError(
+                    this,
+                    this.getSyntaxAnalyzer().getCompilerClass(),
                     this.getSyntaxAnalyzer().currentToken(),
                     SyntaxErrorType.PARAMETER_NO_VALID_EXPRESSION
             );
-            return this;
         }
-        
-        final AbstractOperableSyntaxAST<?> abstractOperableSyntaxAST = AbstractExpressionSyntaxAST.EXPRESSION_PARSER.parse(this, this.getSyntaxAnalyzer());
-        this.getMarkerFactory().addFactory(abstractOperableSyntaxAST.getMarkerFactory());
-        
-        if (abstractOperableSyntaxAST.isFailed()) {
+    
+        final OperableSyntaxAST operableSyntaxAST = ExpressionSyntaxAST.EXPRESSION_PARSER.parse(this, this.getSyntaxAnalyzer());
+        this.getMarkerFactory().addFactory(operableSyntaxAST.getMarkerFactory());
+    
+        if (operableSyntaxAST.isFailed()) {
             this.failed();
             return this;
-        } else this.argumentExpression = abstractOperableSyntaxAST;
-        
+        } else this.argumentExpression = operableSyntaxAST;
+    
         this.setEndToken(this.getSyntaxAnalyzer().currentToken());
         this.getMarkerFactory().done(this.getEndToken());
         return this;
@@ -109,48 +103,24 @@ public class ArgumentSyntaxAST extends AbstractSyntaxAST
     
     @Override
     public void printSyntaxAST(@NotNull final PrintStream printStream, @NotNull final String indents) {
+        Objects.requireNonNull(this.getMarkerFactory().getCurrentMarker().getStart());
+        Objects.requireNonNull(this.getMarkerFactory().getCurrentMarker().getEnd());
+        Objects.requireNonNull(this.getArgumentExpression());
+        Objects.requireNonNull(this.getArgumentName());
+        
+        printStream.println(indents + "├── factory:");
+        printStream.println(indents + "│    ├── next: " + this.getMarkerFactory()
+                .getNextMarkerFactories()
+                .stream()
+                .map(markerFactory -> markerFactory.getCurrentMarker().getAstType().name())
+                .collect(Collectors.joining(", "))
+        );
+        printStream.println(indents + "│    ├── start: " + this.getMarkerFactory().getCurrentMarker().getStart().getStart());
+        printStream.println(indents + "│    └── end: " + this.getMarkerFactory().getCurrentMarker().getEnd().getEnd());
+        printStream.println(indents + "│");
         printStream.println(indents + "├── name: " + this.getArgumentName().getTokenContent());
-        printStream.println(indents + "└── expression: " + (this.getArgumentExpression() == null ? null : ""));
-        if (this.getArgumentExpression() != null)
-            this.getArgumentExpression().printSyntaxAST(printStream, indents + "     ");
-    }
-    
-    
-    // TODO: Create new class named ArgumentListSyntaxAST
-    public static @NotNull List<ArgumentSyntaxAST> parseArguments(final AbstractSyntaxAST parentAST, final SyntaxAnalyzer syntaxAnalyzer) {
-        final List<ArgumentSyntaxAST> arguments = new ArrayList<>();
-        if (syntaxAnalyzer.matchesCurrentToken(SymbolType.OPENING_BRACKET) == null) {
-            parentAST.addError(
-                    syntaxAnalyzer.getArkoiClass(),
-                    syntaxAnalyzer.currentToken(),
-                    SyntaxErrorType.ARGUMENTS_WRONG_START
-            );
-            return null;
-        } else syntaxAnalyzer.nextToken();
-        
-        while (syntaxAnalyzer.getPosition() < syntaxAnalyzer.getTokens().length) {
-            if (!ArgumentSyntaxAST.ARGUMENT_DEFINITION_PARSER.canParse(parentAST, syntaxAnalyzer))
-                break;
-    
-            final ArgumentSyntaxAST argumentSyntaxAST = ArgumentSyntaxAST.ARGUMENT_DEFINITION_PARSER.parse(parentAST, syntaxAnalyzer);
-            if (argumentSyntaxAST.isFailed()) {
-                return null;
-            } else arguments.add(argumentSyntaxAST);
-    
-            if (syntaxAnalyzer.matchesNextToken(SymbolType.COMMA) == null)
-                break;
-            else syntaxAnalyzer.nextToken();
-        }
-        
-        if (syntaxAnalyzer.matchesCurrentToken(SymbolType.CLOSING_BRACKET) == null) {
-            parentAST.addError(
-                    syntaxAnalyzer.getArkoiClass(),
-                    syntaxAnalyzer.currentToken(),
-                    SyntaxErrorType.ARGUMENTS_WRONG_ENDING
-            );
-            return null;
-        }
-        return arguments;
+        printStream.println(indents + "└── expression: ");
+        this.getArgumentExpression().printSyntaxAST(printStream, indents + "     ");
     }
     
     
@@ -173,10 +143,10 @@ public class ArgumentSyntaxAST extends AbstractSyntaxAST
         
         @Nullable
         private IdentifierToken argumentName;
-    
-    
+        
+        
         @Nullable
-        private AbstractOperableSyntaxAST<?> argumentExpression;
+        private OperableSyntaxAST argumentExpression;
         
         
         private AbstractToken startToken, endToken;
@@ -185,25 +155,25 @@ public class ArgumentSyntaxAST extends AbstractSyntaxAST
         public ArgumentSyntaxASTBuilder(@NotNull final SyntaxAnalyzer syntaxAnalyzer) {
             this.syntaxAnalyzer = syntaxAnalyzer;
         }
-    
-    
+        
+        
         public ArgumentSyntaxASTBuilder() {
             this.syntaxAnalyzer = null;
         }
-    
-    
+        
+        
         public ArgumentSyntaxASTBuilder name(final IdentifierToken argumentName) {
             this.argumentName = argumentName;
             return this;
         }
-    
-    
-        public ArgumentSyntaxASTBuilder expression(final AbstractOperableSyntaxAST<?> argumentExpression) {
+        
+        
+        public ArgumentSyntaxASTBuilder expression(final OperableSyntaxAST argumentExpression) {
             this.argumentExpression = argumentExpression;
             return this;
         }
-    
-    
+        
+        
         public ArgumentSyntaxASTBuilder start(final AbstractToken startToken) {
             this.startToken = startToken;
             return this;
@@ -223,7 +193,9 @@ public class ArgumentSyntaxAST extends AbstractSyntaxAST
             if (this.argumentExpression != null)
                 parameterSyntaxAST.setArgumentExpression(this.argumentExpression);
             parameterSyntaxAST.setStartToken(this.startToken);
+            parameterSyntaxAST.getMarkerFactory().getCurrentMarker().setStart(parameterSyntaxAST.getStartToken());
             parameterSyntaxAST.setEndToken(this.endToken);
+            parameterSyntaxAST.getMarkerFactory().getCurrentMarker().setEnd(parameterSyntaxAST.getEndToken());
             return parameterSyntaxAST;
         }
         

@@ -1,2 +1,2 @@
 @native[default = true]
-fun println<>(message: string);
+fun println<>(message: string)

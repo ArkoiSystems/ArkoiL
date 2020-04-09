@@ -5,9 +5,10 @@
  */
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.marker;
 
-import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
-import lombok.Getter;
+import com.arkoisystems.arkoicompiler.api.ICompilerMarker;
+import com.arkoisystems.arkoicompiler.api.ICompilerSyntaxAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.ArkoiSyntaxAST;
+import lombok.Data;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -15,65 +16,46 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class MarkerFactory<T extends AbstractSyntaxAST>
+@Data
+public class MarkerFactory<T extends ICompilerSyntaxAST, T1, T2>
 {
     
-    @Getter
     @NotNull
-    private final List<MarkerFactory<? extends AbstractSyntaxAST>> nextMarkerFactories = new ArrayList<>();
+    private final List<MarkerFactory<? extends ICompilerSyntaxAST, ?, ?>> nextMarkerFactories = new ArrayList<>();
     
-    @Getter
+    
     @NotNull
-    private final ArkoiMarker currentMarker;
+    private final ICompilerMarker<T1, T2> currentMarker;
     
     
-    @Getter
     @Nullable
-    private final T abstractSyntaxAST;
+    private final T syntaxAST;
     
     
-    @Getter
-    private boolean locked;
-    
-    public MarkerFactory(@Nullable final T abstractSyntaxAST, @NotNull final ArkoiMarker currentMarker) {
-        this.abstractSyntaxAST = abstractSyntaxAST;
-        this.currentMarker = currentMarker;
-        
-        this.locked = true;
-    }
-    
-    
-    public void addFactory(final MarkerFactory<? extends AbstractSyntaxAST> markerFactory) {
+    public void addFactory(final MarkerFactory<? extends ICompilerSyntaxAST, ?, ?> markerFactory) {
         this.nextMarkerFactories.add(markerFactory);
     }
     
     
-    public void mark(final AbstractToken abstractToken) {
-        this.currentMarker.setStartToken(abstractToken);
+    public void mark(final T1 start) {
+        this.currentMarker.setStart(start);
     }
     
     
-    public void error(final String message, final Object... arguments) {
-        Objects.requireNonNull(this.getAbstractSyntaxAST());
-        Objects.requireNonNull(this.getAbstractSyntaxAST().getSyntaxAnalyzer());
+    public void error(final T1 start, final T2 end, final String message, final Object... arguments) {
+        Objects.requireNonNull(this.getSyntaxAST());
+        Objects.requireNonNull(this.getSyntaxAST().getSyntaxAnalyzer());
         
         this.currentMarker.setErrorMessage(message);
         this.currentMarker.setErrorArguments(arguments);
         
-        this.mark(this.getAbstractSyntaxAST().getSyntaxAnalyzer().currentToken());
-        this.done(this.getAbstractSyntaxAST().getSyntaxAnalyzer().currentToken());
+        this.mark(start);
+        this.done(end);
     }
     
     
-    public boolean done(final AbstractToken abstractToken) {
-        this.currentMarker.setEndToken(abstractToken);
-        this.locked = true;
-        
-        for (final MarkerFactory<?> nextMarker : this.getNextMarkerFactories()) {
-            if (nextMarker.isLocked())
-                return false;
-        }
-        return true;
+    public void done(final T2 end) {
+        this.currentMarker.setEnd(end);
     }
     
 }

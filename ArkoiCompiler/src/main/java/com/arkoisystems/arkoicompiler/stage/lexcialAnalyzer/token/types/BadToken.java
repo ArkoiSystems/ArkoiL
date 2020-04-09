@@ -11,19 +11,23 @@ import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenTyp
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Objects;
 import java.util.Optional;
 
 public class BadToken extends AbstractToken
 {
     
-    protected BadToken(@Nullable final LexicalAnalyzer lexicalAnalyzer, final boolean crashOnAccess) {
-        super(lexicalAnalyzer, TokenType.BAD, crashOnAccess);
+    protected BadToken(@Nullable final LexicalAnalyzer lexicalAnalyzer) {
+        super(lexicalAnalyzer, TokenType.BAD);
     }
     
     
     @NotNull
     @Override
     public Optional<BadToken> parseToken() {
+        Objects.requireNonNull(this.getLexicalAnalyzer());
+        
+        this.setTokenContent(String.valueOf(this.getLexicalAnalyzer().currentChar()));
         return Optional.of(this);
     }
     
@@ -43,9 +47,6 @@ public class BadToken extends AbstractToken
         
         @Nullable
         private final LexicalAnalyzer lexicalAnalyzer;
-        
-        
-        private boolean crashOnAccess;
         
         
         @Nullable
@@ -83,14 +84,8 @@ public class BadToken extends AbstractToken
         }
         
         
-        public BadTokenBuilder crash() {
-            this.crashOnAccess = true;
-            return this;
-        }
-        
-        
         public BadToken build() {
-            final BadToken commentToken = new BadToken(this.lexicalAnalyzer, this.crashOnAccess);
+            final BadToken commentToken = new BadToken(this.lexicalAnalyzer);
             if (this.tokenContent != null)
                 commentToken.setTokenContent(this.tokenContent);
             commentToken.setStart(this.start);

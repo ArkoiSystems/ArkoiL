@@ -16,7 +16,7 @@
     <property name="lastTip" value="1" />
     <property name="packagesearch.endpoint.url.fulltext" value="https://package-search.services.jetbrains.com/api/search/idea/fulltext" />
     <property name="packagesearch.endpoint.url.suggest" value="https://package-search.services.jetbrains.com/api/search/idea/suggest" />
-    <property name="packagesearch.status.updated.ts" value="1585239400433" />
+    <property name="packagesearch.status.updated.ts" value="1586029808522" />
     <property name="selected.color.option.type" value="ARKOI_OPERATOR_SIGN" />
     <property name="tasks.pass.word.conversion.enforced" value="true" />
   </component>

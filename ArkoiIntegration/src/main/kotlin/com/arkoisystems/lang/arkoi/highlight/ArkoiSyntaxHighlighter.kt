@@ -59,10 +59,10 @@ class ArkoiSyntaxHighlighter : SyntaxHighlighter {
             ArkoiTokenTypes.closingBrace
         )
 
-        val semicolon = fillAttributes(
-            ArkoiBundle.message("arkoi.syntaxHighlighter.semicolon.externalName") highlightWith DefaultLanguageHighlighterColors.SEMICOLON,
-            ArkoiTokenTypes.semicolon
-        )
+//        val semicolon = fillAttributes(
+//            ArkoiBundle.message("arkoi.syntaxHighlighter.semicolon.externalName") highlightWith DefaultLanguageHighlighterColors.SEMICOLON,
+//            ArkoiTokenTypes.semicolon
+//        )
 
         val string = fillAttributes(
             ArkoiBundle.message("arkoi.syntaxHighlighter.string.externalName") highlightWith DefaultLanguageHighlighterColors.STRING,

@@ -5,49 +5,32 @@
  */
 package com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer;
 
-import com.arkoisystems.arkoicompiler.stage.errorHandler.ArkoiError;
-import com.arkoisystems.arkoicompiler.stage.errorHandler.ErrorHandler;
+import com.arkoisystems.arkoicompiler.api.error.ICompilerError;
+import com.arkoisystems.arkoicompiler.api.error.IErrorHandler;
 import lombok.Getter;
 import lombok.NonNull;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
 
-/**
- * The implementation of the {@link ErrorHandler} for the {@link LexicalAnalyzer} which
- * needs to provide an {@link ErrorHandler}. It will just stores the {@link ArkoiError}s
- * until it needs to print them.
- */
-public class LexicalErrorHandler extends ErrorHandler
+
+public class LexicalErrorHandler implements IErrorHandler
 {
     
-    /**
-     * The {@link ArkoiError} list which is used to store the thrown errors.
-     */
     @Getter
     @NonNull
-    private final List<ArkoiError> abstractErrors = new ArrayList<>();
+    private final HashSet<ICompilerError> compilerErrors = new HashSet<>();
     
     
-    /**
-     * Adds the given {@link ArkoiError} to the {@link LexicalErrorHandler#abstractErrors}
-     * list for later usage (see {@link ErrorHandler#printStackTrace(PrintStream,
-     * boolean)}).
-     *
-     * @param arkoiError
-     *         the given {@link ArkoiError} which is used added to the {@link
-     *         LexicalErrorHandler#abstractErrors} list.
-     */
-    public void addError(@NotNull final ArkoiError arkoiError) {
-        this.abstractErrors.add(arkoiError);
+    public void addError(@NotNull final ICompilerError compilerError) {
+        this.compilerErrors.add(compilerError);
     }
     
     
     @Override
     public void printStackTrace(@NotNull final PrintStream printStream, boolean testing) {
-        for (final ArkoiError arkoiError : this.abstractErrors)
+        for (final ICompilerError arkoiError : this.compilerErrors)
             printStream.println(testing ? arkoiError.toString().substring(arkoiError.toString().indexOf(' ') + 1) : arkoiError.toString());
     }
     

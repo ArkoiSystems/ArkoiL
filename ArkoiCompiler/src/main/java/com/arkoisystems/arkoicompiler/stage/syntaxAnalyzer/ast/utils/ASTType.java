@@ -5,15 +5,8 @@
  */
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils;
 
-/**
- * This enum contains for every AST one entry to differentiate these from each other. Also
- * they are grouped in "statements", "expressions", "definitions", "operable" and
- * "others".
- */
 public enum ASTType
 {
-    
-    RETURN_STATEMENT,
     
     BINARY_EXPRESSION,
     PARENTHESIZED_EXPRESSION,
@@ -26,20 +19,24 @@ public enum ASTType
     RELATIONAL_EXPRESSION,
     EXPRESSION,
     
-    IMPORT_DEFINITION,
-    PARAMETER_DEFINITION,
-    ARGUMENT_DEFINITION,
-    VARIABLE_DEFINITION,
-    FUNCTION_DEFINITION,
+    IMPORT,
+    PARAMETER,
+    RETURN,
+    ARGUMENT,
+    VARIABLE,
+    FUNCTION,
     
     FUNCTION_CALL_PART,
-    IDENTIFIER_CALL_OPERABLE,
-    COLLECTION_OPERABLE,
-    NUMBER_OPERABLE,
-    STRING_OPERABLE,
+    IDENTIFIER_CALL,
+    COLLECTION,
+    NUMBER,
+    STRING,
     
     OPERABLE,
     STATEMENT,
+    
+    PARAMETER_LIST,
+    ARGUMENT_LIST,
     
     ANNOTATION,
     BLOCK,

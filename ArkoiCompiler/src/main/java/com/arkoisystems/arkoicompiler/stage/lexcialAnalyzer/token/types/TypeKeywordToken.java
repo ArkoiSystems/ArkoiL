@@ -7,9 +7,8 @@ package com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types;
 
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.LexicalAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken;
-import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.KeywordType;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
-import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TypeKeywordType;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
@@ -23,12 +22,12 @@ public class TypeKeywordToken extends AbstractToken
     
     @Getter
     @Setter(AccessLevel.PROTECTED)
-    @NotNull
-    private TypeKeywordType keywordType;
+    @Nullable
+    private TypeKind typeKind;
     
     
-    protected TypeKeywordToken(@Nullable final LexicalAnalyzer lexicalAnalyzer, final boolean crashOnAccess) {
-        super(lexicalAnalyzer, TokenType.TYPE_KEYWORD, crashOnAccess);
+    protected TypeKeywordToken(@Nullable final LexicalAnalyzer lexicalAnalyzer) {
+        super(lexicalAnalyzer, TokenType.TYPE_KEYWORD);
     }
     
     
@@ -37,25 +36,25 @@ public class TypeKeywordToken extends AbstractToken
     public Optional<? extends AbstractToken> parseToken() {
         switch (this.getTokenContent()) {
             case "char":
-                this.setKeywordType(TypeKeywordType.CHAR);
+                this.setTypeKind(TypeKind.CHAR);
                 return Optional.of(this);
             case "boolean":
-                this.setKeywordType(TypeKeywordType.BOOLEAN);
+                this.setTypeKind(TypeKind.BOOLEAN);
                 return Optional.of(this);
             case "byte":
-                this.setKeywordType(TypeKeywordType.BYTE);
+                this.setTypeKind(TypeKind.BYTE);
                 return Optional.of(this);
             case "int":
-                this.setKeywordType(TypeKeywordType.INT);
+                this.setTypeKind(TypeKind.INTEGER);
                 return Optional.of(this);
             case "long":
-                this.setKeywordType(TypeKeywordType.LONG);
+                this.setTypeKind(TypeKind.LONG);
                 return Optional.of(this);
             case "short":
-                this.setKeywordType(TypeKeywordType.SHORT);
+                this.setTypeKind(TypeKind.SHORT);
                 return Optional.of(this);
             case "string":
-                this.setKeywordType(TypeKeywordType.STRING);
+                this.setTypeKind(TypeKind.STRING);
                 return Optional.of(this);
             default:
                 return Optional.empty();
@@ -81,10 +80,7 @@ public class TypeKeywordToken extends AbstractToken
         
         
         @Nullable
-        private TypeKeywordType keywordType;
-        
-        
-        private boolean crashOnAccess;
+        private TypeKind typeKind;
         
         
         @Nullable
@@ -110,8 +106,8 @@ public class TypeKeywordToken extends AbstractToken
         }
         
         
-        public TypeKeywordTokenBuilder type(final TypeKeywordType keywordType) {
-            this.keywordType = keywordType;
+        public TypeKeywordTokenBuilder type(final TypeKind typeKind) {
+            this.typeKind = typeKind;
             return this;
         }
         
@@ -128,18 +124,12 @@ public class TypeKeywordToken extends AbstractToken
         }
         
         
-        public TypeKeywordTokenBuilder crash() {
-            this.crashOnAccess = true;
-            return this;
-        }
-        
-        
         public TypeKeywordToken build() {
-            final TypeKeywordToken keywordToken = new TypeKeywordToken(this.lexicalAnalyzer, this.crashOnAccess);
+            final TypeKeywordToken keywordToken = new TypeKeywordToken(this.lexicalAnalyzer);
             if (this.tokenContent != null)
                 keywordToken.setTokenContent(this.tokenContent);
-            if (this.keywordType != null)
-                keywordToken.setKeywordType(this.keywordType);
+            if (this.typeKind != null)
+                keywordToken.setTypeKind(this.typeKind);
             keywordToken.setStart(this.start);
             keywordToken.setEnd(this.end);
             return keywordToken;

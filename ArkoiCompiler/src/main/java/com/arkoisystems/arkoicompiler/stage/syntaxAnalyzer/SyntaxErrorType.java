@@ -10,7 +10,6 @@ public class SyntaxErrorType
     
     public static final String TYPE_START_NO_VALID_KEYWORD = "Couldn't parse the type because it doesn't start with a valid keyword.";
     
-    public static final String ROOT_FUNCTION_BLOCK_WRONG_ENDING = "The function block doesn't end with a curly brace.";
     public static final String ROOT_NO_PARSER_FOUND = "There's no parser that can parse this token.";
     
     public static final String BLOCK_BLOCK_HAS_WRONG_ENDING = "The block doesn't end with a curly brace."; // Couldn't parse the "BlockAST" because it doesn't end with a closing brace.
@@ -64,8 +63,6 @@ public class SyntaxErrorType
     public static final String COLLECTION_OPERABLE_WRONG_START = "Couldn't parse the collection operable because the parsing doesn't start with an opening bracket.";
     public static final String COLLECTION_OPERABLE_INVALID_EXPRESSION = "Couldn't parse the collection operable because there is an invalid expression inside.";
     public static final String COLLECTION_OPERABLE_WRONG_ENDING = "Couldn't parse the collection operable because it doesn't end with an closing bracket.";
-    
-    public static final String PARAMETERS_WRONG_START = "Couldn't parse the parameters because parsing doesn't start with an opening parenthesis.";
     
     public static final String ANNOTATION_WRONG_PARENT = "Couldn't parse the Annotation because it isn't declared inside the root file.";
     public static final String ANNOTATION_WRONG_START = "Couldn't parse the Annotation because the parsing doesn't start with an at sign aka. \"@\".";

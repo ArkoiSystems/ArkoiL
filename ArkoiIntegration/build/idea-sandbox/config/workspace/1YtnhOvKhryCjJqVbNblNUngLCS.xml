@@ -1,25 +1,6 @@
 <project version="4">
   <component name="FileEditorManager">
-    <leaf>
-      <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/main.ark">
-          <provider selected="true" editor-type-id="text-editor">
-            <state>
-              <caret column="14" lean-forward="true" selection-start-column="14" selection-end-column="14" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/test.ark">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="18">
-              <caret line="1" column="16" selection-start-line="1" selection-start-column="16" selection-end-line="1" selection-end-column="16" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-    </leaf>
+    <leaf />
   </component>
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
@@ -31,11 +12,10 @@
       </list>
     </option>
   </component>
-  <component name="ProjectFrameBounds" x="214" y="136" width="1521" height="823" />
+  <component name="ProjectFrameBounds" x="2122" y="81" width="1521" height="823" />
   <component name="ProjectView">
     <navigator proportions="" version="1" />
     <panes>
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -47,14 +27,14 @@
           <select />
         </subPane>
       </pane>
+      <pane id="Scope" />
       <pane id="PackagesPane" />
     </panes>
   </component>
   <component name="ToolWindowManager">
-    <frame x="214" y="136" width="1521" height="823" extended-state="0" />
-    <editor active="true" />
+    <frame x="2122" y="81" width="1521" height="823" extended-state="0" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.3035835" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.35496956" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
@@ -80,17 +60,17 @@
     <entry file="file://$PROJECT_DIR$/test.properties" />
     <entry file="file://$PROJECT_DIR$/test1.ark" />
     <entry file="file://$PROJECT_DIR$/Okay.ark" />
-    <entry file="file://$PROJECT_DIR$/main.ark">
+    <entry file="file://$PROJECT_DIR$/test.ark">
       <provider selected="true" editor-type-id="text-editor">
-        <state>
-          <caret column="14" lean-forward="true" selection-start-column="14" selection-end-column="14" />
+        <state relative-caret-position="36">
+          <caret line="2" lean-forward="true" selection-start-line="2" selection-end-line="2" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/test.ark">
+    <entry file="file://$PROJECT_DIR$/main.ark">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="18">
-          <caret line="1" column="16" selection-start-line="1" selection-start-column="16" selection-end-line="1" selection-end-column="16" />
+        <state relative-caret-position="120">
+          <caret line="5" lean-forward="true" selection-start-line="5" selection-end-line="5" />
         </state>
       </provider>
     </entry>

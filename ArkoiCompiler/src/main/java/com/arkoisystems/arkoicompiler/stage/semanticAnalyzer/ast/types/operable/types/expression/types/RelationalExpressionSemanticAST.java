@@ -5,10 +5,9 @@
  */
 package com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.types.expression.types;
 
+import com.arkoisystems.arkoicompiler.api.ICompilerSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.SemanticAnalyzer;
-import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.AbstractSemanticAST;
-import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.AbstractOperableSemanticAST;
-import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.types.expression.AbstractExpressionSemanticAST;
+import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.operable.types.expression.ExpressionSemanticAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types.RelationalExpressionSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
@@ -17,10 +16,10 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.PrintStream;
 
-public class RelationalExpressionSemanticAST extends AbstractExpressionSemanticAST<RelationalExpressionSyntaxAST>
+public class RelationalExpressionSemanticAST extends ExpressionSemanticAST<RelationalExpressionSyntaxAST>
 {
     
-    public RelationalExpressionSemanticAST(@Nullable final SemanticAnalyzer semanticAnalyzer, @Nullable final AbstractSemanticAST<?> lastContainerAST, @NotNull final RelationalExpressionSyntaxAST relationalExpressionSyntaxAST) {
+    public RelationalExpressionSemanticAST(@Nullable final SemanticAnalyzer semanticAnalyzer, @Nullable final ICompilerSemanticAST<?> lastContainerAST, @NotNull final RelationalExpressionSyntaxAST relationalExpressionSyntaxAST) {
         super(semanticAnalyzer, lastContainerAST, relationalExpressionSyntaxAST, ASTType.RELATIONAL_EXPRESSION);
     }
     
@@ -29,45 +28,10 @@ public class RelationalExpressionSemanticAST extends AbstractExpressionSemanticA
     public void printSemanticAST(@NotNull final PrintStream printStream, @NotNull final String indents) { }
     
     
-    @Nullable
+    @NotNull
     @Override
     public TypeKind getTypeKind() {
-        return null;
-    }
-    
-    
-    @Nullable
-    @Override
-    public TypeKind relationalGreaterThan(@NotNull final AbstractOperableSemanticAST<?> leftSideOperable, @NotNull final AbstractOperableSemanticAST<?> rightSideOperable) {
-        return super.relationalGreaterThan(leftSideOperable, rightSideOperable);
-    }
-    
-    
-    @Nullable
-    @Override
-    public TypeKind relationalGreaterEqualThan(@NotNull final AbstractOperableSemanticAST<?> leftSideOperable, @NotNull final AbstractOperableSemanticAST<?> rightSideOperable) {
-        return super.relationalGreaterEqualThan(leftSideOperable, rightSideOperable);
-    }
-    
-    
-    @Nullable
-    @Override
-    public TypeKind relationalLessThan(@NotNull final AbstractOperableSemanticAST<?> leftSideOperable, @NotNull final AbstractOperableSemanticAST<?> rightSideOperable) {
-        return super.relationalLessThan(leftSideOperable, rightSideOperable);
-    }
-    
-    
-    @Nullable
-    @Override
-    public TypeKind relationalLessEqualThan(@NotNull final AbstractOperableSemanticAST<?> leftSideOperable, @NotNull final AbstractOperableSemanticAST<?> rightSideOperable) {
-        return super.relationalLessEqualThan(leftSideOperable, rightSideOperable);
-    }
-    
-    
-    @Nullable
-    @Override
-    public TypeKind relationalIs(@NotNull final AbstractOperableSemanticAST<?> leftSideOperable, @NotNull final AbstractOperableSemanticAST<?> rightSideOperable) {
-        return super.relationalIs(leftSideOperable, rightSideOperable);
+        return TypeKind.UNDEFINED;
     }
     
 }

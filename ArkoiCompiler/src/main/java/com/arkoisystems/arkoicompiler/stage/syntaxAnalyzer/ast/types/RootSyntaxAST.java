@@ -5,162 +5,98 @@
  */
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types;
 
-import com.arkoisystems.arkoicompiler.ArkoiClass;
-import com.arkoisystems.arkoicompiler.ArkoiCompiler;
-import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.EndOfFileToken;
-import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.SymbolType;
-import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.SemanticAnalyzer;
+import com.arkoisystems.arkoicompiler.api.ICompilerSyntaxAST;
+import com.arkoisystems.arkoicompiler.api.ISyntaxParser;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxErrorType;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.ArkoiSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.AbstractStatementSyntaxAST;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.types.FunctionDefinitionSyntaxAST;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.types.ImportDefinitionSyntaxAST;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.types.VariableDefinitionSyntaxAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.types.FunctionSyntaxAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.types.ImportSyntaxAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.types.VariableSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.BlockType;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.parser.AbstractParser;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.io.PrintStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-/**
- * Used if you want to create a new {@link RootSyntaxAST}. It doesn't has an {@link
- * AbstractParser} because you shouldn't treat this class like that. There should only be
- * one instance for one {@link ArkoiClass}.
- */
-public class RootSyntaxAST extends AbstractSyntaxAST
+public class RootSyntaxAST extends ArkoiSyntaxAST
 {
     
-    /**
-     * This variable is used to get all {@link AbstractParser}s which are supported by the
-     * {@link RootSyntaxAST}.
-     */
-    public static AbstractParser[] ROOT_PARSERS = new AbstractParser[] {
+    public static ISyntaxParser[] ROOT_PARSERS = new ISyntaxParser[] {
             AnnotationSyntaxAST.ANNOTATION_PARSER,
             AbstractStatementSyntaxAST.STATEMENT_PARSER,
     };
     
     
-    /**
-     * Declares the {@link List} for all {@link ImportDefinitionSyntaxAST}s which got
-     * parsed. This variable is used frequently within the {@link SemanticAnalyzer}.
-     */
     @Getter
     @NotNull
-    private final List<ImportDefinitionSyntaxAST> importStorage = new ArrayList<>();
+    private final List<ImportSyntaxAST> importStorage = new ArrayList<>();
     
     
-    /**
-     * Declares the {@link List} for all {@link VariableDefinitionSyntaxAST}s which got
-     * parsed. This variable is used frequently within the {@link SemanticAnalyzer}.
-     */
     @Getter
     @NotNull
-    private final List<VariableDefinitionSyntaxAST> variableStorage = new ArrayList<>();
+    private final List<VariableSyntaxAST> variableStorage = new ArrayList<>();
     
     
-    /**
-     * Declares the {@link List} for all {@link FunctionDefinitionSyntaxAST}s which got
-     * parsed. This variable is used frequently within the {@link SemanticAnalyzer}.
-     */
     @Getter
     @NotNull
-    private final List<FunctionDefinitionSyntaxAST> functionStorage = new ArrayList<>();
+    private final List<FunctionSyntaxAST> functionStorage = new ArrayList<>();
     
     
-    /**
-     * Declares the {@link List} for all {@link AbstractSyntaxAST}s which got parsed
-     * inside here. Also they are sorted, so you can check the order of variables or
-     * imports.
-     */
     @NotNull
-    private final List<AbstractSyntaxAST> sortedStorage = new ArrayList<>();
+    private final List<ICompilerSyntaxAST> sortedStorage = new ArrayList<>();
     
     
-    /**
-     * Constructs a new {@link RootSyntaxAST} with the given parameters. The {@link
-     * SyntaxAnalyzer} is used to check syntax and also to get the {@link ArkoiClass} or
-     * {@link ArkoiCompiler}.
-     *
-     * @param syntaxAnalyzer
-     *         the {@link SyntaxAnalyzer} which is used to check for correct syntax with
-     *         methods like {@link SyntaxAnalyzer#matchesNextToken(SymbolType)} or {@link
-     *         SyntaxAnalyzer#nextToken()}.
-     */
     public RootSyntaxAST(@NotNull final SyntaxAnalyzer syntaxAnalyzer) {
         super(syntaxAnalyzer, ASTType.ROOT);
     }
     
     
-    /**
-     * Parses a new {@link TypeSyntaxAST} with the given parameters, where the {@link
-     * SyntaxAnalyzer} is used to check the syntax and the parent {@link
-     * AbstractSyntaxAST} is used to see if this AST can be created inside the parent. It
-     * will parse every {@link ImportDefinitionSyntaxAST}, {@link
-     * VariableDefinitionSyntaxAST} and {@link FunctionDefinitionSyntaxAST} which are
-     * present at the root-level (the first layer of the AST). Besides that it will parse
-     * also {@link AnnotationSyntaxAST}s but they return a followed {@link
-     * FunctionDefinitionSyntaxAST} or {@link VariableDefinitionSyntaxAST}. So basically
-     * just these three types of ASTs are getting parsed.
-     *
-     * @param parentAST
-     *         the parent {@link AbstractSyntaxAST} which is used used to check if the
-     *         {@link AbstractSyntaxAST} can be created inside it.
-     *
-     * @return {@code null} if an error occurred or the {@link RootSyntaxAST} if
-     *         everything worked correctly.
-     */
+    @NotNull
     @Override
-    public @NotNull RootSyntaxAST parseAST(@Nullable final AbstractSyntaxAST parentAST) {
+    public RootSyntaxAST parseAST(@NotNull ICompilerSyntaxAST parentAST) {
         Objects.requireNonNull(this.getSyntaxAnalyzer());
         Objects.requireNonNull(this.getMarkerFactory());
-    
-        this.setStartToken(this.getSyntaxAnalyzer().currentToken());
+        
+        this.setStartToken(this.getSyntaxAnalyzer().currentToken(false));
         this.getMarkerFactory().mark(this.getStartToken());
-    
+        
         main_loop:
         while (this.getSyntaxAnalyzer().getPosition() < this.getSyntaxAnalyzer().getTokens().length) {
-            if (this.getSyntaxAnalyzer().currentToken() instanceof EndOfFileToken)
-                break;
-    
-            for (final AbstractParser abstractParser : ROOT_PARSERS) {
-                if (!abstractParser.canParse(this, this.getSyntaxAnalyzer()))
+            for (final ISyntaxParser parser : ROOT_PARSERS) {
+                if (!parser.canParse(this, this.getSyntaxAnalyzer()))
                     continue;
-        
-                final AbstractSyntaxAST abstractSyntaxAST = abstractParser.parse(this, this.getSyntaxAnalyzer());
-                this.getMarkerFactory().addFactory(abstractSyntaxAST.getMarkerFactory());
                 
-                if (!abstractSyntaxAST.isFailed()) {
-                    if (abstractSyntaxAST instanceof FunctionDefinitionSyntaxAST) {
-                        final FunctionDefinitionSyntaxAST functionDefinitionAST = (FunctionDefinitionSyntaxAST) abstractSyntaxAST;
-                        if (functionDefinitionAST.getFunctionBlock().getBlockType() == BlockType.BLOCK && this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.CLOSING_BRACE) == null) {
-                            this.addError(
-                                    this.getSyntaxAnalyzer().getArkoiClass(),
-                                    this.getSyntaxAnalyzer().currentToken(),
-                                    SyntaxErrorType.ROOT_FUNCTION_BLOCK_WRONG_ENDING
-                            );
-                            this.skipToNextValidToken();
-                            continue main_loop;
-                        } else this.functionStorage.add(functionDefinitionAST);
+                final ICompilerSyntaxAST syntaxAST = parser.parse(this, this.getSyntaxAnalyzer());
+                this.getMarkerFactory().addFactory(syntaxAST.getMarkerFactory());
+                
+                if (!syntaxAST.isFailed()) {
+                    if (syntaxAST instanceof FunctionSyntaxAST) {
+                        final FunctionSyntaxAST functionDefinitionAST = (FunctionSyntaxAST) syntaxAST;
+                        this.functionStorage.add(functionDefinitionAST);
                     } else {
-                        if (abstractSyntaxAST instanceof VariableDefinitionSyntaxAST)
-                            this.variableStorage.add((VariableDefinitionSyntaxAST) abstractSyntaxAST);
-                        else if (abstractSyntaxAST instanceof ImportDefinitionSyntaxAST)
-                            this.importStorage.add((ImportDefinitionSyntaxAST) abstractSyntaxAST);
+                        if (syntaxAST instanceof VariableSyntaxAST)
+                            this.variableStorage.add((VariableSyntaxAST) syntaxAST);
+                        else if (syntaxAST instanceof ImportSyntaxAST)
+                            this.importStorage.add((ImportSyntaxAST) syntaxAST);
                     }
                     
-                    this.sortedStorage.add(abstractSyntaxAST);
+                    this.sortedStorage.add(syntaxAST);
                     this.getSyntaxAnalyzer().nextToken();
                 } else this.skipToNextValidToken();
                 continue main_loop;
             }
             
             this.addError(
-                    this.getSyntaxAnalyzer().getArkoiClass(),
+                    null,
+                    this.getSyntaxAnalyzer().getCompilerClass(),
                     this.getSyntaxAnalyzer().currentToken(),
                     SyntaxErrorType.ROOT_NO_PARSER_FOUND
             );
@@ -173,29 +109,30 @@ public class RootSyntaxAST extends AbstractSyntaxAST
     }
     
     
-    /**
-     * Prints out a Tree for the  {@link RootSyntaxAST} class. It will show every {@link
-     * ImportDefinitionSyntaxAST}, {@link VariableDefinitionSyntaxAST} and {@link
-     * FunctionDefinitionSyntaxAST}. This method should just been called by {@link
-     * ArkoiCompiler#printSyntaxTree(PrintStream)}.
-     *
-     * @param printStream
-     *         the {@link PrintStream} which is used used for the output.
-     * @param indents
-     *         the indents which the Tree should add before printing a new line.
-     */
     @Override
-    public void printSyntaxAST(@NotNull final PrintStream printStream,
-            @NotNull final String indents) {
+    public void printSyntaxAST(@NotNull final PrintStream printStream, @NotNull final String indents) {
+        Objects.requireNonNull(this.getMarkerFactory().getCurrentMarker().getStart());
+        Objects.requireNonNull(this.getMarkerFactory().getCurrentMarker().getEnd());
+        
+        printStream.println(indents + "├── factory:");
+        printStream.println(indents + "│    ├── next: " + this.getMarkerFactory()
+                .getNextMarkerFactories()
+                .stream()
+                .map(markerFactory -> markerFactory.getCurrentMarker().getAstType().name())
+                .collect(Collectors.joining(", "))
+        );
+        printStream.println(indents + "│    ├── start: " + this.getMarkerFactory().getCurrentMarker().getStart().getStart());
+        printStream.println(indents + "│    └── end: " + this.getMarkerFactory().getCurrentMarker().getEnd().getEnd());
+        printStream.println(indents + "│");
         printStream.println(indents + "├── imports: " + (this.getImportStorage().isEmpty() ? "N/A" : ""));
         for (int index = 0; index < this.getImportStorage().size(); index++) {
-            final AbstractSyntaxAST abstractSyntaxAST = this.getImportStorage().get(index);
+            final ArkoiSyntaxAST arkoiSyntaxAST = this.getImportStorage().get(index);
             if (index == this.getImportStorage().size() - 1) {
-                printStream.println(indents + "│   └── " + abstractSyntaxAST.getClass().getSimpleName());
-                abstractSyntaxAST.printSyntaxAST(printStream, indents + "│       ");
+                printStream.println(indents + "│   └── " + arkoiSyntaxAST.getClass().getSimpleName());
+                arkoiSyntaxAST.printSyntaxAST(printStream, indents + "│       ");
             } else {
-                printStream.println(indents + "│   ├── " + abstractSyntaxAST.getClass().getSimpleName());
-                abstractSyntaxAST.printSyntaxAST(printStream, indents + "│   │   ");
+                printStream.println(indents + "│   ├── " + arkoiSyntaxAST.getClass().getSimpleName());
+                arkoiSyntaxAST.printSyntaxAST(printStream, indents + "│   │   ");
                 printStream.println(indents + "│   │   ");
             }
         }
@@ -203,13 +140,13 @@ public class RootSyntaxAST extends AbstractSyntaxAST
         printStream.println(indents + "│");
         printStream.println(indents + "├── variables: " + (this.getVariableStorage().isEmpty() ? "N/A" : ""));
         for (int index = 0; index < this.getVariableStorage().size(); index++) {
-            final AbstractSyntaxAST abstractSyntaxAST = this.getVariableStorage().get(index);
+            final ArkoiSyntaxAST arkoiSyntaxAST = this.getVariableStorage().get(index);
             if (index == this.getVariableStorage().size() - 1) {
-                printStream.println(indents + "│   └── " + abstractSyntaxAST.getClass().getSimpleName());
-                abstractSyntaxAST.printSyntaxAST(printStream, indents + "│       ");
+                printStream.println(indents + "│   └── " + arkoiSyntaxAST.getClass().getSimpleName());
+                arkoiSyntaxAST.printSyntaxAST(printStream, indents + "│       ");
             } else {
-                printStream.println(indents + "│   ├── " + abstractSyntaxAST.getClass().getSimpleName());
-                abstractSyntaxAST.printSyntaxAST(printStream, indents + "│   │   ");
+                printStream.println(indents + "│   ├── " + arkoiSyntaxAST.getClass().getSimpleName());
+                arkoiSyntaxAST.printSyntaxAST(printStream, indents + "│   │   ");
                 printStream.println(indents + "│   │   ");
             }
         }
@@ -217,28 +154,22 @@ public class RootSyntaxAST extends AbstractSyntaxAST
         printStream.println(indents + "│");
         printStream.println(indents + "└── functions: " + (this.getFunctionStorage().isEmpty() ? "N/A" : ""));
         for (int index = 0; index < this.getFunctionStorage().size(); index++) {
-            final AbstractSyntaxAST abstractSyntaxAST = this.getFunctionStorage().get(index);
+            final ArkoiSyntaxAST arkoiSyntaxAST = this.getFunctionStorage().get(index);
             if (index == this.getFunctionStorage().size() - 1) {
-                printStream.println(indents + "    └── " + abstractSyntaxAST.getClass().getSimpleName());
-                abstractSyntaxAST.printSyntaxAST(printStream, indents + "        ");
+                printStream.println(indents + "    └── " + arkoiSyntaxAST.getClass().getSimpleName());
+                arkoiSyntaxAST.printSyntaxAST(printStream, indents + "        ");
             } else {
-                printStream.println(indents + "    ├── " + abstractSyntaxAST.getClass().getSimpleName());
-                abstractSyntaxAST.printSyntaxAST(printStream, indents + "    │   ");
+                printStream.println(indents + "    ├── " + arkoiSyntaxAST.getClass().getSimpleName());
+                arkoiSyntaxAST.printSyntaxAST(printStream, indents + "    │   ");
                 printStream.println(indents + "    │   ");
             }
         }
     }
     
     
-    /**
-     * Just returns the {@link #sortedStorage} {@link List} which got sorted by the
-     * integrated Java method. (Not the smartest solution)
-     *
-     * @return the {@link #sortedStorage} {@link List} which got sorted before.
-     */
-    public List<AbstractSyntaxAST> getSortedStorage() {
-        this.sortedStorage.sort(Comparator.comparingInt(value -> value.getStartToken().getStart()));
-        return this.sortedStorage;
+    public Stream<ICompilerSyntaxAST> getSortedStorage() {
+        return this.sortedStorage.stream()
+                .sorted(Comparator.comparingInt(arkoiSyntaxAST -> Objects.requireNonNull(arkoiSyntaxAST.getStartToken()).getStart()));
     }
     
 }

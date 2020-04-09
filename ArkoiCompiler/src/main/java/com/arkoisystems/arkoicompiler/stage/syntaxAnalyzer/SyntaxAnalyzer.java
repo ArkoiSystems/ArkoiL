@@ -6,120 +6,85 @@
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer;
 
 import com.arkoisystems.arkoicompiler.ArkoiClass;
-import com.arkoisystems.arkoicompiler.stage.AbstractStage;
+import com.arkoisystems.arkoicompiler.api.ICompilerClass;
+import com.arkoisystems.arkoicompiler.api.ICompilerStage;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.LexicalAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken;
-import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.*;
-import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.*;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.KeywordToken;
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.OperatorToken;
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.SymbolToken;
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.KeywordType;
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.OperatorType;
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.SymbolType;
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.ArkoiSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.RootSyntaxAST;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.marker.ArkoiMarker;
 import lombok.Getter;
-import lombok.NonNull;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
-/**
- * This class is an implementation of the {@link AbstractStage}. It will parse an AST
- * (Abstract Syntax Tree) with help of the parsed {@link AbstractToken} list of the {@link
- * LexicalAnalyzer}.
- */
-public class SyntaxAnalyzer extends AbstractStage
+public class SyntaxAnalyzer implements ICompilerStage
 {
     
-    /**
-     * This defines the {@link ArkoiClass} in which the {@link SyntaxAnalyzer} got
-     * created.
-     */
     @Getter
     @NotNull
-    private final ArkoiClass arkoiClass;
+    private final ICompilerClass compilerClass;
     
     
-    /**
-     * The {@link SyntaxErrorHandler} is used for errors which are happening through the
-     * process of parsing the {@link AbstractSyntaxAST}s.
-     */
     @Getter
     @NotNull
-    private final SyntaxErrorHandler errorHandler = new SyntaxErrorHandler();
+    private SyntaxErrorHandler errorHandler = new SyntaxErrorHandler();
     
     
-    /**
-     * The {@link RootSyntaxAST} which is getting parsed directly at the beginning.
-     */
     @Getter
     @NotNull
-    private final RootSyntaxAST rootSyntaxAST = new RootSyntaxAST(this);
+    private RootSyntaxAST rootSyntaxAST = new RootSyntaxAST(this);
     
     
-    /**
-     * The {@link AbstractToken[]} which is used to get current, peeked, next tokens
-     * without needing to use a {@link List} or something else.
-     */
     @Getter
     @NotNull
     private AbstractToken[] tokens = new AbstractToken[0];
     
     
-    /**
-     * The current token position of the {@link SyntaxAnalyzer}. Used for methods like
-     * {@link SyntaxAnalyzer#currentToken()} or {@link SyntaxAnalyzer#peekToken(int)}.
-     */
+    @Getter
+    private boolean failed;
+    
+    
     @Getter
     @Setter
     private int position;
     
     
-    /**
-     * Constructs a new {@link SyntaxAnalyzer} with the given parameters. It will set the
-     * {@link ArkoiClass} it got created in and also the {@link SyntaxErrorHandler} and
-     * {@link RootSyntaxAST} are getting created.
-     *
-     * @param arkoiClass
-     *         the {@link ArkoiClass} in which the {@link SyntaxAnalyzer} got created.
-     */
-    public SyntaxAnalyzer(@NotNull final ArkoiClass arkoiClass) {
-        this.arkoiClass = arkoiClass;
+    public SyntaxAnalyzer(@NotNull final ICompilerClass compilerClass) {
+        this.compilerClass = compilerClass;
     }
     
     
-    /**
-     * Overwritten method from the {@link AbstractStage} class which will run this stage.
-     * It will reset the current position and the tokens array. Also it will return the
-     * {@link RootSyntaxAST} if the parsing went well or {@code null} if an error
-     * occurred.
-     *
-     * @return the {@link RootSyntaxAST} if everything went well or {@code null} if an
-     *         error occurred.
-     */
     @Override
     public boolean processStage() {
-        this.tokens = Arrays.stream(this.arkoiClass.getLexicalAnalyzer()
-                .getTokens())
-                .filter(abstractToken -> !(abstractToken instanceof CommentToken))
-                .toArray(AbstractToken[]::new);
-        this.position = 0;
+        this.reset();
         
-        return !this.rootSyntaxAST.parseAST(null).isFailed();
+        this.tokens = this.compilerClass.getLexicalAnalyzer().getTokens();
+        return !this.rootSyntaxAST.parseAST(this.rootSyntaxAST).isFailed();
     }
     
     
-    /**
-     * Overwritten method from the {@link AbstractStage} class which will return the
-     * created {@link SyntaxErrorHandler}.
-     *
-     * @return the {@link SyntaxErrorHandler} which got created in the constructor.
-     */
-    @NotNull
     @Override
-    public SyntaxErrorHandler errorHandler() {
-        return this.errorHandler;
+    public void reset() {
+        this.rootSyntaxAST = new RootSyntaxAST(this);
+        this.errorHandler = new SyntaxErrorHandler();
+        this.tokens = new AbstractToken[0];
+        this.failed = false;
+        this.position = 0;
+    }
+    
+    
+    @Override
+    public void failed() {
+        this.failed = true;
     }
     
     
@@ -130,8 +95,8 @@ public class SyntaxAnalyzer extends AbstractStage
     
     
     @Nullable
-    public SymbolToken matchesCurrentToken(@NotNull final SymbolType symbolType, final boolean skipWhitespaces) {
-        final AbstractToken currentToken = this.currentToken(skipWhitespaces);
+    public SymbolToken matchesCurrentToken(@NotNull final SymbolType symbolType, final boolean advance) {
+        final AbstractToken currentToken = this.currentToken(advance);
         if (!(currentToken instanceof SymbolToken))
             return null;
         
@@ -149,8 +114,8 @@ public class SyntaxAnalyzer extends AbstractStage
     
     
     @Nullable
-    public SymbolToken matchesNextToken(@NotNull final SymbolType symbolType, final boolean skipWhitespaces) {
-        final AbstractToken nextToken = this.nextToken(skipWhitespaces);
+    public SymbolToken matchesNextToken(@NotNull final SymbolType symbolType, final boolean advance) {
+        final AbstractToken nextToken = this.nextToken(advance);
         if (!(nextToken instanceof SymbolToken))
             return null;
         
@@ -168,11 +133,11 @@ public class SyntaxAnalyzer extends AbstractStage
     
     
     @Nullable
-    public SymbolToken matchesPeekToken(final int offset, @NotNull final SymbolType symbolType, final boolean skipWhitespaces) {
+    public SymbolToken matchesPeekToken(final int offset, @NotNull final SymbolType symbolType, final boolean advance) {
         if (offset == 0)
-            return this.matchesCurrentToken(symbolType, skipWhitespaces);
+            return this.matchesCurrentToken(symbolType, advance);
         
-        final AbstractToken peekToken = this.peekToken(offset, skipWhitespaces);
+        final AbstractToken peekToken = this.peekToken(offset, advance);
         if (!(peekToken instanceof SymbolToken))
             return null;
         
@@ -184,74 +149,14 @@ public class SyntaxAnalyzer extends AbstractStage
     
     
     @Nullable
-    public TypeKeywordToken matchesCurrentToken(@NotNull final TypeKeywordType symbolType) {
-        return this.matchesCurrentToken(symbolType, true);
-    }
-    
-    
-    @Nullable
-    public TypeKeywordToken matchesCurrentToken(@NotNull final TypeKeywordType typeKeywordType, final boolean skipWhitespaces) {
-        final AbstractToken currentToken = this.currentToken(skipWhitespaces);
-        if (!(currentToken instanceof TypeKeywordToken))
-            return null;
-        
-        final TypeKeywordToken typeKeywordToken = (TypeKeywordToken) currentToken;
-        if (typeKeywordToken.getKeywordType() != typeKeywordType)
-            return null;
-        return typeKeywordToken;
-    }
-    
-    
-    @Nullable
-    public TypeKeywordToken matchesNextToken(@NotNull final TypeKeywordType typeKeywordType) {
-        return this.matchesNextToken(typeKeywordType, true);
-    }
-    
-    
-    @Nullable
-    public TypeKeywordToken matchesNextToken(@NotNull final TypeKeywordType typeKeywordType, final boolean skipWhitespaces) {
-        final AbstractToken nextToken = this.nextToken(skipWhitespaces);
-        if (!(nextToken instanceof TypeKeywordToken))
-            return null;
-        
-        final TypeKeywordToken typeKeywordToken = (TypeKeywordToken) nextToken;
-        if (typeKeywordToken.getKeywordType() != typeKeywordType)
-            return null;
-        return typeKeywordToken;
-    }
-    
-    
-    @Nullable
-    public TypeKeywordToken matchesPeekToken(final int offset, @NotNull final TypeKeywordType typeKeywordType) {
-        return this.matchesPeekToken(offset, typeKeywordType, true);
-    }
-    
-    
-    @Nullable
-    public TypeKeywordToken matchesPeekToken(final int offset, @NotNull final TypeKeywordType typeKeywordType, final boolean skipWhitespaces) {
-        if (offset == 0)
-            return this.matchesCurrentToken(typeKeywordType, skipWhitespaces);
-        
-        final AbstractToken peekToken = this.peekToken(offset, skipWhitespaces);
-        if (!(peekToken instanceof TypeKeywordToken))
-            return null;
-        
-        final TypeKeywordToken typeKeywordToken = (TypeKeywordToken) peekToken;
-        if (typeKeywordToken.getKeywordType() != typeKeywordType)
-            return null;
-        return typeKeywordToken;
-    }
-    
-    
-    @Nullable
     public OperatorToken matchesCurrentToken(@NotNull final OperatorType operatorType) {
         return this.matchesCurrentToken(operatorType, true);
     }
     
     
     @Nullable
-    public OperatorToken matchesCurrentToken(@NotNull final OperatorType operatorType, final boolean skipWhitespaces) {
-        final AbstractToken currentToken = this.currentToken(skipWhitespaces);
+    public OperatorToken matchesCurrentToken(@NotNull final OperatorType operatorType, final boolean advance) {
+        final AbstractToken currentToken = this.currentToken(advance);
         if (!(currentToken instanceof OperatorToken))
             return null;
         
@@ -269,8 +174,8 @@ public class SyntaxAnalyzer extends AbstractStage
     
     
     @Nullable
-    public OperatorToken matchesNextToken(@NotNull final OperatorType operatorType, final boolean skipWhitespaces) {
-        final AbstractToken nextToken = this.nextToken(skipWhitespaces);
+    public OperatorToken matchesNextToken(@NotNull final OperatorType operatorType, final boolean advance) {
+        final AbstractToken nextToken = this.nextToken(advance);
         if (!(nextToken instanceof OperatorToken))
             return null;
         
@@ -288,11 +193,11 @@ public class SyntaxAnalyzer extends AbstractStage
     
     
     @Nullable
-    public OperatorToken matchesPeekToken(final int offset, @NotNull final OperatorType operatorType, final boolean skipWhitespaces) {
+    public OperatorToken matchesPeekToken(final int offset, @NotNull final OperatorType operatorType, final boolean advance) {
         if (offset == 0)
-            return this.matchesCurrentToken(operatorType, skipWhitespaces);
+            return this.matchesCurrentToken(operatorType, advance);
         
-        final AbstractToken peekToken = this.peekToken(offset, skipWhitespaces);
+        final AbstractToken peekToken = this.peekToken(offset, advance);
         if (!(peekToken instanceof OperatorToken))
             return null;
         
@@ -310,8 +215,8 @@ public class SyntaxAnalyzer extends AbstractStage
     
     
     @Nullable
-    public KeywordToken matchesCurrentToken(@NotNull final KeywordType keywordType, final boolean skipWhitespaces) {
-        final AbstractToken currentToken = this.currentToken(skipWhitespaces);
+    public KeywordToken matchesCurrentToken(@NotNull final KeywordType keywordType, final boolean advance) {
+        final AbstractToken currentToken = this.currentToken(advance);
         if (!(currentToken instanceof KeywordToken))
             return null;
         
@@ -329,8 +234,8 @@ public class SyntaxAnalyzer extends AbstractStage
     
     
     @Nullable
-    public KeywordToken matchesNextToken(@NotNull final KeywordType keywordType, final boolean skipWhitespaces) {
-        final AbstractToken nextToken = this.nextToken(skipWhitespaces);
+    public KeywordToken matchesNextToken(@NotNull final KeywordType keywordType, final boolean advance) {
+        final AbstractToken nextToken = this.nextToken(advance);
         if (!(nextToken instanceof KeywordToken))
             return null;
         
@@ -348,11 +253,11 @@ public class SyntaxAnalyzer extends AbstractStage
     
     
     @Nullable
-    public KeywordToken matchesPeekToken(final int offset, @NotNull final KeywordType keywordType, final boolean skipWhitespaces) {
+    public KeywordToken matchesPeekToken(final int offset, @NotNull final KeywordType keywordType, final boolean advance) {
         if (offset == 0)
-            return this.matchesCurrentToken(keywordType, skipWhitespaces);
+            return this.matchesCurrentToken(keywordType, advance);
         
-        final AbstractToken peekToken = this.peekToken(offset, skipWhitespaces);
+        final AbstractToken peekToken = this.peekToken(offset, advance);
         if (!(peekToken instanceof KeywordToken))
             return null;
         
@@ -370,8 +275,8 @@ public class SyntaxAnalyzer extends AbstractStage
     
     
     @Nullable
-    public AbstractToken matchesCurrentToken(@NotNull final TokenType tokenType, final boolean skipWhitespaces) {
-        final AbstractToken currentToken = this.currentToken(skipWhitespaces);
+    public AbstractToken matchesCurrentToken(@NotNull final TokenType tokenType, final boolean advance) {
+        final AbstractToken currentToken = this.currentToken(advance);
         if (currentToken.getTokenType() != tokenType)
             return null;
         return currentToken;
@@ -385,8 +290,8 @@ public class SyntaxAnalyzer extends AbstractStage
     
     
     @Nullable
-    public AbstractToken matchesNextToken(@NotNull final TokenType tokenType, final boolean skipWhitespaces) {
-        final AbstractToken nextToken = this.nextToken(skipWhitespaces);
+    public AbstractToken matchesNextToken(@NotNull final TokenType tokenType, final boolean advance) {
+        final AbstractToken nextToken = this.nextToken(advance);
         if (nextToken.getTokenType() != tokenType)
             return null;
         return nextToken;
@@ -400,11 +305,11 @@ public class SyntaxAnalyzer extends AbstractStage
     
     
     @Nullable
-    public AbstractToken matchesPeekToken(final int offset, @NotNull final TokenType tokenType, final boolean skipWhitespaces) {
+    public AbstractToken matchesPeekToken(final int offset, @NotNull final TokenType tokenType, final boolean advance) {
         if (offset == 0)
-            return this.matchesCurrentToken(tokenType, skipWhitespaces);
+            return this.matchesCurrentToken(tokenType, advance);
         
-        final AbstractToken peekToken = this.peekToken(offset, skipWhitespaces);
+        final AbstractToken peekToken = this.peekToken(offset, advance);
         if (peekToken.getTokenType() != tokenType)
             return null;
         return peekToken;
@@ -418,9 +323,9 @@ public class SyntaxAnalyzer extends AbstractStage
     
     
     @NotNull
-    public AbstractToken peekToken(final int offset, final boolean skipWhitespaces) {
-        AbstractToken abstractToken = this.nextToken(offset, skipWhitespaces);
-        this.undoToken(offset, skipWhitespaces);
+    public AbstractToken peekToken(final int offset, final boolean advance) {
+        AbstractToken abstractToken = this.nextToken(offset, advance);
+        this.undoToken(offset, advance);
         return abstractToken;
     }
     
@@ -432,10 +337,10 @@ public class SyntaxAnalyzer extends AbstractStage
     
     
     @NotNull
-    public AbstractToken currentToken(final boolean skipWhitespaces) {
-        if (skipWhitespaces) {
+    public AbstractToken currentToken(final boolean advance) {
+        if (advance) {
             while (this.position < this.tokens.length) {
-                if (this.tokens[this.position].getTokenType() != TokenType.WHITESPACE)
+                if (this.tokens[this.position].getTokenType() != TokenType.WHITESPACE && this.tokens[this.position].getTokenType() != TokenType.COMMENT)
                     break;
                 this.position++;
             }
@@ -454,10 +359,10 @@ public class SyntaxAnalyzer extends AbstractStage
     
     
     @NotNull
-    public AbstractToken nextToken(final int offset, final boolean skipWhitespaces) {
-        AbstractToken abstractToken = this.nextToken(skipWhitespaces);
+    public AbstractToken nextToken(final int offset, final boolean advance) {
+        AbstractToken abstractToken = this.nextToken(advance);
         for (int index = 1; index < offset; index++)
-            abstractToken = this.nextToken(skipWhitespaces);
+            abstractToken = this.nextToken(advance);
         return abstractToken;
     }
     
@@ -469,12 +374,12 @@ public class SyntaxAnalyzer extends AbstractStage
     
     
     @NotNull
-    public AbstractToken nextToken(final boolean skipWhitespaces) {
+    public AbstractToken nextToken(final boolean advance) {
         this.position++;
         
-        if (skipWhitespaces) {
+        if (advance) {
             while (this.position < this.tokens.length) {
-                if (this.tokens[this.position].getTokenType() != TokenType.WHITESPACE)
+                if (this.tokens[this.position].getTokenType() != TokenType.WHITESPACE && this.tokens[this.position].getTokenType() != TokenType.COMMENT)
                     break;
                 this.position++;
             }
@@ -487,18 +392,12 @@ public class SyntaxAnalyzer extends AbstractStage
     
     
     @NotNull
-    public AbstractToken undoToken() {
-        return this.undoToken(true);
-    }
-    
-    
-    @NotNull
-    public AbstractToken undoToken(final boolean skipWhitespaces) {
+    public AbstractToken undoToken(final boolean advance) {
         this.position--;
         
-        if (skipWhitespaces) {
+        if (advance) {
             while (this.position > 0) {
-                if (this.tokens[this.position].getTokenType() != TokenType.WHITESPACE)
+                if (this.tokens[this.position].getTokenType() != TokenType.WHITESPACE && this.tokens[this.position].getTokenType() != TokenType.COMMENT)
                     break;
                 this.position--;
             }
@@ -511,16 +410,10 @@ public class SyntaxAnalyzer extends AbstractStage
     
     
     @Nullable
-    public AbstractToken undoToken(final int offset) {
-        return this.undoToken(offset, true);
-    }
-    
-    
-    @Nullable
-    public AbstractToken undoToken(final int offset, final boolean skipWhitespaces) {
+    public AbstractToken undoToken(final int offset, final boolean advance) {
         AbstractToken abstractToken = null;
         for (int index = 0; index < offset; index++)
-            abstractToken = this.undoToken(skipWhitespaces);
+            abstractToken = this.undoToken(advance);
         return abstractToken;
     }
     

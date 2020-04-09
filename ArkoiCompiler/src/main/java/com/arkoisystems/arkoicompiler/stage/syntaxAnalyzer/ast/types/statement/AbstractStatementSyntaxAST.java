@@ -5,25 +5,25 @@
  */
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement;
 
+import com.arkoisystems.arkoicompiler.api.ICompilerSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.AbstractSyntaxAST;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.IdentifierCallOperableSyntaxAST;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.AbstractExpressionSyntaxAST;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.types.FunctionDefinitionSyntaxAST;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.types.ImportDefinitionSyntaxAST;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.types.ReturnStatementSyntaxAST;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.types.VariableDefinitionSyntaxAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.ArkoiSyntaxAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.IdentifierCallSyntaxAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.ExpressionSyntaxAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.types.FunctionSyntaxAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.types.ImportSyntaxAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.types.ReturnSyntaxAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.types.VariableSyntaxAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.parser.types.StatementParser;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.parsers.StatementParser;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.PrintStream;
 import java.util.Objects;
-import java.util.Optional;
 
-public class AbstractStatementSyntaxAST extends AbstractSyntaxAST
+public class AbstractStatementSyntaxAST extends ArkoiSyntaxAST
 {
     
     public static StatementParser STATEMENT_PARSER = new StatementParser();
@@ -36,24 +36,24 @@ public class AbstractStatementSyntaxAST extends AbstractSyntaxAST
     
     @NotNull
     @Override
-    public AbstractSyntaxAST parseAST(@NotNull final AbstractSyntaxAST parentAST) {
+    public ICompilerSyntaxAST parseAST(@NotNull final ICompilerSyntaxAST parentAST) {
         Objects.requireNonNull(this.getSyntaxAnalyzer());
-        
+    
         final AbstractToken currentToken = this.getSyntaxAnalyzer().currentToken();
-        if (parentAST instanceof AbstractExpressionSyntaxAST) {
+        if (parentAST instanceof ExpressionSyntaxAST) {
             switch (currentToken.getTokenContent()) {
                 case "var":
                 case "fun":
                 case "import":
                 case "return":
-                    this.addError(
-                            this.getSyntaxAnalyzer().getArkoiClass(),
+                    return this.addError(
+                            this,
+                            this.getSyntaxAnalyzer().getCompilerClass(),
                             currentToken,
                             "10"
                     );
-                    return this;
                 default:
-                    return IdentifierCallOperableSyntaxAST
+                    return IdentifierCallSyntaxAST
                             .builder(this.getSyntaxAnalyzer())
                             .build()
                             .parseAST(parentAST);
@@ -61,21 +61,25 @@ public class AbstractStatementSyntaxAST extends AbstractSyntaxAST
         } else {
             switch (currentToken.getTokenContent()) {
                 case "var":
-                    return new VariableDefinitionSyntaxAST(this.getSyntaxAnalyzer()).parseAST(parentAST);
+                    return VariableSyntaxAST.builder(this.getSyntaxAnalyzer())
+                            .build()
+                            .parseAST(parentAST);
                 case "import":
-                    return new ImportDefinitionSyntaxAST(this.getSyntaxAnalyzer()).parseAST(parentAST);
+                    return ImportSyntaxAST.builder(this.getSyntaxAnalyzer())
+                            .build()
+                            .parseAST(parentAST);
                 case "fun":
-                    return FunctionDefinitionSyntaxAST
+                    return FunctionSyntaxAST
                             .builder(this.getSyntaxAnalyzer())
                             .build()
                             .parseAST(parentAST);
                 case "return":
-                    return ReturnStatementSyntaxAST
+                    return ReturnSyntaxAST
                             .builder(this.getSyntaxAnalyzer())
                             .build()
                             .parseAST(parentAST);
                 default:
-                    return IdentifierCallOperableSyntaxAST
+                    return IdentifierCallSyntaxAST
                             .builder(this.getSyntaxAnalyzer())
                             .build()
                             .parseAST(parentAST);

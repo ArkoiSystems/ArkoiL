@@ -5,40 +5,33 @@
  */
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.marker;
 
-import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken;
+import com.arkoisystems.arkoicompiler.api.ICompilerMarker;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class ArkoiMarker
+@Data
+public class ArkoiMarker<T1, T2> implements ICompilerMarker<T1, T2>
 {
     
-    @Getter
-    @Setter
-    private AbstractToken startToken, endToken;
+    @Nullable
+    private T1 start;
     
     
-    @Getter
-    @Setter
+    @Nullable
+    private T2 end;
+    
+    
     @Nullable
     private Object[] errorArguments;
     
     
-    @Getter
     @NotNull
     private final ASTType astType;
     
     
-    @Getter
-    @Setter
     @Nullable
     private String errorMessage;
-    
-    
-    public ArkoiMarker(@NotNull final ASTType astType) {
-        this.astType = astType;
-    }
     
 }
