@@ -5,12 +5,12 @@
  */
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.parsers;
 
-import com.arkoisystems.arkoicompiler.api.ICompilerSyntaxAST;
+import com.arkoisystems.arkoicompiler.api.IASTNode;
 import com.arkoisystems.arkoicompiler.api.ISyntaxParser;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.OperatorType;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.SymbolType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.BlockSyntaxAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.BlockAST;
 import org.jetbrains.annotations.NotNull;
 
 public class BlockParser implements ISyntaxParser
@@ -18,8 +18,8 @@ public class BlockParser implements ISyntaxParser
     
     @NotNull
     @Override
-    public BlockSyntaxAST parse(@NotNull final ICompilerSyntaxAST parentAST, @NotNull final SyntaxAnalyzer syntaxAnalyzer) {
-        return BlockSyntaxAST
+    public BlockAST parse(@NotNull final IASTNode parentAST, @NotNull final SyntaxAnalyzer syntaxAnalyzer) {
+        return BlockAST
                 .builder(syntaxAnalyzer)
                 .build()
                 .parseAST(parentAST);
@@ -27,7 +27,7 @@ public class BlockParser implements ISyntaxParser
     
     
     @Override
-    public boolean canParse(@NotNull final ICompilerSyntaxAST parentAST, @NotNull final SyntaxAnalyzer syntaxAnalyzer) {
+    public boolean canParse(@NotNull final IASTNode parentAST, @NotNull final SyntaxAnalyzer syntaxAnalyzer) {
         return syntaxAnalyzer.matchesCurrentToken(SymbolType.OPENING_BRACE) != null || syntaxAnalyzer.matchesCurrentToken(OperatorType.EQUALS) != null;
     }
     

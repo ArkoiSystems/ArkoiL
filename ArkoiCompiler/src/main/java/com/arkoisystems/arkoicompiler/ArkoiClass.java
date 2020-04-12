@@ -11,13 +11,9 @@ import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.SemanticAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-import java.io.File;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 
 public class ArkoiClass implements ICompilerClass
 {
@@ -35,7 +31,7 @@ public class ArkoiClass implements ICompilerClass
     
     @Getter
     @Setter
-    private boolean nativeClass;
+    private boolean isNative;
     
     
     @Getter
@@ -46,17 +42,17 @@ public class ArkoiClass implements ICompilerClass
     
     @Getter
     @NotNull
-    private LexicalAnalyzer lexicalAnalyzer = new LexicalAnalyzer(this);
+    private final LexicalAnalyzer lexicalAnalyzer = new LexicalAnalyzer(this);
     
     
     @Getter
     @NotNull
-    private SyntaxAnalyzer syntaxAnalyzer = new SyntaxAnalyzer(this);
+    private final SyntaxAnalyzer syntaxAnalyzer = new SyntaxAnalyzer(this);
     
     
     @Getter
     @NotNull
-    private SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer(this);
+    private final SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer(this);
     
     
     public ArkoiClass(@NotNull final ArkoiCompiler arkoiCompiler, @NotNull final String filePath, @NotNull final byte[] content) {
@@ -64,31 +60,7 @@ public class ArkoiClass implements ICompilerClass
         this.filePath = filePath;
     
         this.content = new String(content, StandardCharsets.UTF_8).toCharArray();
-        this.nativeClass = false;
-    }
-    
-    
-    @SneakyThrows
-    @Override
-    @Nullable
-    public ICompilerClass getArkoiFile(@NotNull File file) {
-        if (!file.isAbsolute())
-            file = new File(new File(this.getFilePath()).getParent(), file.getPath());
-        
-        for (final ICompilerClass arkoiClass : this.getArkoiCompiler().getArkoiClasses())
-            if (arkoiClass.getFilePath().equals(file.getAbsolutePath()))
-                return arkoiClass;
-        
-        if (file.exists()) {
-            final ArkoiClass arkoiClass = new ArkoiClass(this.getArkoiCompiler(), file.getAbsolutePath(), Files.readAllBytes(file.toPath()));
-            arkoiClass.getLexicalAnalyzer().processStage();
-            arkoiClass.getSyntaxAnalyzer().processStage();
-            arkoiClass.getSemanticAnalyzer().processStage();
-            
-            this.getArkoiCompiler().addClass(arkoiClass);
-            return arkoiClass;
-        }
-        return null;
+        this.isNative = false;
     }
     
 }

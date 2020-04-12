@@ -27,31 +27,32 @@ public class IdentifierToken extends AbstractToken
     @Override
     public Optional<? extends AbstractToken> parseToken() {
         Objects.requireNonNull(this.getLexicalAnalyzer());
-        
+    
         final char currentChar = this.getLexicalAnalyzer().currentChar();
-        if (!Character.isJavaIdentifierStart(currentChar)) {
-            this.addError(
-                    this.getLexicalAnalyzer().getArkoiClass(),
+        if (!Character.isJavaIdentifierStart(currentChar))
+            return this.addError(
+                    BadToken.builder(this.getLexicalAnalyzer())
+                            .start(this.getLexicalAnalyzer().getPosition())
+                            .end(this.getLexicalAnalyzer().getPosition() + 1)
+                            .build()
+                            .parseToken(),
+                
+                    this.getLexicalAnalyzer().getCompilerClass(),
                     this.getLexicalAnalyzer().getPosition(),
                     "Couldn't lex the Identifier because it doesn't start with an alphabetic char."
             );
-            return BadToken
-                    .builder(this.getLexicalAnalyzer())
-                    .start(this.getLexicalAnalyzer().getPosition())
-                    .end(this.getLexicalAnalyzer().getPosition() + 1)
-                    .build()
-                    .parseToken();
-        } else this.getLexicalAnalyzer().next();
         
+        this.getLexicalAnalyzer().next();
+    
         this.setStart(this.getLexicalAnalyzer().getPosition() - 1);
-        while (this.getLexicalAnalyzer().getPosition() < this.getLexicalAnalyzer().getArkoiClass().getContent().length) {
+        while (this.getLexicalAnalyzer().getPosition() < this.getLexicalAnalyzer().getCompilerClass().getContent().length) {
             if (!Character.isUnicodeIdentifierPart(this.getLexicalAnalyzer().currentChar()))
                 break;
             this.getLexicalAnalyzer().next();
         }
-        
+    
         this.setEnd(this.getLexicalAnalyzer().getPosition());
-        this.setTokenContent(new String(Arrays.copyOfRange(this.getLexicalAnalyzer().getArkoiClass().getContent(), this.getStart(), this.getEnd())).intern());
+        this.setTokenContent(new String(Arrays.copyOfRange(this.getLexicalAnalyzer().getCompilerClass().getContent(), this.getStart(), this.getEnd())).intern());
         
         final Optional<? extends AbstractToken> optionalKeywordToken = KeywordToken
                 .builder(this.getLexicalAnalyzer())

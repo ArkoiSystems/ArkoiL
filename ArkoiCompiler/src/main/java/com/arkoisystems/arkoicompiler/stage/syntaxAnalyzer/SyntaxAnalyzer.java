@@ -5,10 +5,10 @@
  */
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer;
 
-import com.arkoisystems.arkoicompiler.ArkoiClass;
+import com.arkoisystems.arkoicompiler.ArkoiError;
 import com.arkoisystems.arkoicompiler.api.ICompilerClass;
 import com.arkoisystems.arkoicompiler.api.ICompilerStage;
-import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.LexicalAnalyzer;
+import com.arkoisystems.arkoicompiler.api.error.ICompilerError;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.KeywordToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.OperatorToken;
@@ -17,14 +17,11 @@ import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.KeywordT
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.OperatorType;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.SymbolType;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.ArkoiSyntaxAST;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.RootSyntaxAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.RootAST;
 import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.List;
 
 public class SyntaxAnalyzer implements ICompilerStage
 {
@@ -41,7 +38,7 @@ public class SyntaxAnalyzer implements ICompilerStage
     
     @Getter
     @NotNull
-    private RootSyntaxAST rootSyntaxAST = new RootSyntaxAST(this);
+    private RootAST rootAST = new RootAST(this);
     
     
     @Getter
@@ -68,13 +65,13 @@ public class SyntaxAnalyzer implements ICompilerStage
         this.reset();
         
         this.tokens = this.compilerClass.getLexicalAnalyzer().getTokens();
-        return !this.rootSyntaxAST.parseAST(this.rootSyntaxAST).isFailed();
+        return !this.rootAST.parseAST(this.rootAST).isFailed();
     }
     
     
     @Override
     public void reset() {
-        this.rootSyntaxAST = new RootSyntaxAST(this);
+        this.rootAST = new RootAST(this);
         this.errorHandler = new SyntaxErrorHandler();
         this.tokens = new AbstractToken[0];
         this.failed = false;

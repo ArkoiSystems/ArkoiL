@@ -6,8 +6,7 @@
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.marker;
 
 import com.arkoisystems.arkoicompiler.api.ICompilerMarker;
-import com.arkoisystems.arkoicompiler.api.ICompilerSyntaxAST;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.ArkoiSyntaxAST;
+import com.arkoisystems.arkoicompiler.api.IASTNode;
 import lombok.Data;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -17,11 +16,11 @@ import java.util.List;
 import java.util.Objects;
 
 @Data
-public class MarkerFactory<T extends ICompilerSyntaxAST, T1, T2>
+public class MarkerFactory<T extends IASTNode, T1, T2>
 {
     
     @NotNull
-    private final List<MarkerFactory<? extends ICompilerSyntaxAST, ?, ?>> nextMarkerFactories = new ArrayList<>();
+    private final List<MarkerFactory<? extends IASTNode, ?, ?>> nextMarkerFactories = new ArrayList<>();
     
     
     @NotNull
@@ -29,10 +28,10 @@ public class MarkerFactory<T extends ICompilerSyntaxAST, T1, T2>
     
     
     @Nullable
-    private final T syntaxAST;
+    private final T astNode;
     
     
-    public void addFactory(final MarkerFactory<? extends ICompilerSyntaxAST, ?, ?> markerFactory) {
+    public void addFactory(final MarkerFactory<? extends IASTNode, ?, ?> markerFactory) {
         this.nextMarkerFactories.add(markerFactory);
     }
     
@@ -43,8 +42,8 @@ public class MarkerFactory<T extends ICompilerSyntaxAST, T1, T2>
     
     
     public void error(final T1 start, final T2 end, final String message, final Object... arguments) {
-        Objects.requireNonNull(this.getSyntaxAST());
-        Objects.requireNonNull(this.getSyntaxAST().getSyntaxAnalyzer());
+        Objects.requireNonNull(this.getAstNode());
+        Objects.requireNonNull(this.getAstNode().getSyntaxAnalyzer());
         
         this.currentMarker.setErrorMessage(message);
         this.currentMarker.setErrorArguments(arguments);

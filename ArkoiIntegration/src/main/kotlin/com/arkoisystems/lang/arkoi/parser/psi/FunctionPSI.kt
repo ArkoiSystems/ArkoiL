@@ -18,6 +18,8 @@
  */
 package com.arkoisystems.lang.arkoi.parser.psi
 
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.types.FunctionAST
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.BlockType
 import com.arkoisystems.lang.arkoi.ArkoiFile
 import com.intellij.extapi.psi.ASTWrapperPsiElement
@@ -31,7 +33,9 @@ class FunctionPSI(node: ASTNode) : ASTWrapperPsiElement(node) {
     val block = PsiTreeUtil.getChildOfType(this, BlockPSI::class.java)
 
 
-    private fun getFunctionSyntaxAST() = arkoiClass!!.syntaxAnalyzer.rootSyntaxAST.functionStorage.find {
+    private fun getFunctionSyntaxAST() = arkoiClass!!.syntaxAnalyzer.rootAST.astNodes.filter {
+        it.astType == ASTType.FUNCTION
+    }.map { it as FunctionAST }.find {
         it.startToken?.start == node.textRange.startOffset && it.endToken?.end == node.textRange.endOffset
     }
 

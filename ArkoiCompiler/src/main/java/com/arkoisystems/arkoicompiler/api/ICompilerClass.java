@@ -20,8 +20,10 @@ public interface ICompilerClass
     @NotNull
     SyntaxAnalyzer getSyntaxAnalyzer();
     
+    
     @NotNull
     LexicalAnalyzer getLexicalAnalyzer();
+    
     
     @NotNull
     SemanticAnalyzer getSemanticAnalyzer();
@@ -30,14 +32,15 @@ public interface ICompilerClass
     @NotNull
     char[] getContent();
     
+    
     @NotNull
     String getFilePath();
     
     
-    @Nullable
-    ICompilerClass getArkoiFile(@NotNull final File file);
-    
     @NotNull
     ArkoiCompiler getArkoiCompiler();
+    
+    
+    boolean isNative();
     
 }

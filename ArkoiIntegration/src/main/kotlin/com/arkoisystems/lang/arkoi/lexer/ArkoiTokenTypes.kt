@@ -81,7 +81,7 @@ object ArkoiTokenTypes {
 
     var byte: IElementType = ArkoiTokenType("byte")
 
-    var int: IElementType = ArkoiTokenType("int")
+    var integer: IElementType = ArkoiTokenType("int")
 
     var long: IElementType = ArkoiTokenType("long")
 

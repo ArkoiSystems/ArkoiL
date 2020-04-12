@@ -30,7 +30,7 @@ public class WhitespaceToken extends AbstractToken
         
         this.setStart(this.getLexicalAnalyzer().getPosition());
         this.setEnd(this.getLexicalAnalyzer().getPosition() + 1);
-        this.setTokenContent(new String(Arrays.copyOfRange(this.getLexicalAnalyzer().getArkoiClass().getContent(), this.getStart(), this.getEnd())).intern());
+        this.setTokenContent(new String(Arrays.copyOfRange(this.getLexicalAnalyzer().getCompilerClass().getContent(), this.getStart(), this.getEnd())).intern());
         this.getLexicalAnalyzer().next();
         return Optional.of(this);
     }

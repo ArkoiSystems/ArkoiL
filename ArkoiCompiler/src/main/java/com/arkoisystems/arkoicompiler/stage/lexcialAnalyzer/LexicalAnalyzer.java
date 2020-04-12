@@ -5,15 +5,12 @@
  */
 package com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer;
 
-import com.arkoisystems.arkoicompiler.ArkoiClass;
-import com.arkoisystems.arkoicompiler.ArkoiCompiler;
 import com.arkoisystems.arkoicompiler.ArkoiError;
+import com.arkoisystems.arkoicompiler.api.ICompilerClass;
 import com.arkoisystems.arkoicompiler.api.ICompilerStage;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.*;
-import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.SymbolType;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
@@ -30,7 +27,7 @@ public class LexicalAnalyzer implements ICompilerStage
     
     @Getter
     @NonNull
-    private final ArkoiClass arkoiClass;
+    private final ICompilerClass compilerClass;
     
     
     @Getter
@@ -60,8 +57,8 @@ public class LexicalAnalyzer implements ICompilerStage
     };
     
     
-    public LexicalAnalyzer(@NotNull final ArkoiClass arkoiClass) {
-        this.arkoiClass = arkoiClass;
+    public LexicalAnalyzer(@NotNull final ICompilerClass compilerClass) {
+        this.compilerClass = compilerClass;
     }
     
     
@@ -71,7 +68,7 @@ public class LexicalAnalyzer implements ICompilerStage
         this.reset();
         
         final List<AbstractToken> tokens = new ArrayList<>();
-        while (this.position < this.getArkoiClass().getContent().length) {
+        while (this.position < this.getCompilerClass().getContent().length) {
             final char currentChar = this.currentChar();
             if (Character.isWhitespace(currentChar)) {
                 WhitespaceToken.builder(this)
@@ -173,7 +170,7 @@ public class LexicalAnalyzer implements ICompilerStage
                                 .ifPresent(tokens::add);
                         
                         this.getErrorHandler().addError(ArkoiError.builder()
-                                .compilerClass(this.getArkoiClass())
+                                .compilerClass(this.getCompilerClass())
                                 .positions(new int[][] { { this.position, this.position + 1 } })
                                 .message("The defined character is unknown for the lexical analyzer:")
                                 .build()
@@ -220,30 +217,30 @@ public class LexicalAnalyzer implements ICompilerStage
     public void next(final int positions) {
         this.position += positions;
         
-        if (this.position >= this.getArkoiClass().getContent().length)
-            this.position = this.getArkoiClass().getContent().length;
+        if (this.position >= this.getCompilerClass().getContent().length)
+            this.position = this.getCompilerClass().getContent().length;
     }
     
     
     public void next() {
         this.position++;
         
-        if (this.position >= this.getArkoiClass().getContent().length)
-            this.position = this.getArkoiClass().getContent().length;
+        if (this.position >= this.getCompilerClass().getContent().length)
+            this.position = this.getCompilerClass().getContent().length;
     }
     
     
     public char peekChar(final int offset) {
-        if (this.position + offset >= this.getArkoiClass().getContent().length)
-            return this.getArkoiClass().getContent()[this.getArkoiClass().getContent().length - 1];
-        return this.getArkoiClass().getContent()[this.position + offset];
+        if (this.position + offset >= this.getCompilerClass().getContent().length)
+            return this.getCompilerClass().getContent()[this.getCompilerClass().getContent().length - 1];
+        return this.getCompilerClass().getContent()[this.position + offset];
     }
     
     
     public char currentChar() {
-        if (this.position >= this.getArkoiClass().getContent().length)
-            return this.getArkoiClass().getContent()[this.getArkoiClass().getContent().length - 1];
-        return this.getArkoiClass().getContent()[this.position];
+        if (this.position >= this.getCompilerClass().getContent().length)
+            return this.getCompilerClass().getContent()[this.getCompilerClass().getContent().length - 1];
+        return this.getCompilerClass().getContent()[this.position];
     }
     
     

@@ -1,6 +1,16 @@
 <project version="4">
   <component name="FileEditorManager">
-    <leaf />
+    <leaf>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/main.ark">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="396">
+              <caret line="22" column="38" selection-start-line="22" selection-start-column="38" selection-end-line="22" selection-end-column="38" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+    </leaf>
   </component>
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
@@ -12,7 +22,7 @@
       </list>
     </option>
   </component>
-  <component name="ProjectFrameBounds" x="2122" y="81" width="1521" height="823" />
+  <component name="ProjectFrameBounds" x="2020" y="63" width="1521" height="823" />
   <component name="ProjectView">
     <navigator proportions="" version="1" />
     <panes>
@@ -27,14 +37,15 @@
           <select />
         </subPane>
       </pane>
-      <pane id="Scope" />
       <pane id="PackagesPane" />
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="ToolWindowManager">
-    <frame x="2122" y="81" width="1521" height="823" extended-state="0" />
+    <frame x="2020" y="63" width="1521" height="823" extended-state="0" />
+    <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.35496956" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.3597025" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
@@ -69,8 +80,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/main.ark">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="120">
-          <caret line="5" lean-forward="true" selection-start-line="5" selection-end-line="5" />
+        <state relative-caret-position="396">
+          <caret line="22" column="38" selection-start-line="22" selection-start-column="38" selection-end-line="22" selection-end-column="38" />
         </state>
       </provider>
     </entry>

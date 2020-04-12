@@ -5,7 +5,7 @@
  */
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.parsers;
 
-import com.arkoisystems.arkoicompiler.api.ICompilerSyntaxAST;
+import com.arkoisystems.arkoicompiler.api.IASTNode;
 import com.arkoisystems.arkoicompiler.api.ISyntaxParser;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.KeywordToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.OperatorToken;
@@ -13,9 +13,9 @@ import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.SymbolTo
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.KeywordType;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.SymbolType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.OperableSyntaxAST;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.ExpressionSyntaxAST;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.AbstractStatementSyntaxAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.OperableAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.ExpressionAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.StatementAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import org.jetbrains.annotations.NotNull;
 
@@ -24,14 +24,14 @@ public class ExpressionParser implements ISyntaxParser
     
     @NotNull
     @Override
-    public OperableSyntaxAST parse(@NotNull final ICompilerSyntaxAST parentAST, @NotNull final SyntaxAnalyzer syntaxAnalyzer) {
-        return new ExpressionSyntaxAST(syntaxAnalyzer, ASTType.EXPRESSION)
+    public OperableAST parse(@NotNull final IASTNode parentAST, @NotNull final SyntaxAnalyzer syntaxAnalyzer) {
+        return new ExpressionAST(syntaxAnalyzer, ASTType.EXPRESSION)
                 .parseAST(parentAST);
     }
     
     
     @Override
-    public boolean canParse(@NotNull final ICompilerSyntaxAST parentAST, @NotNull final SyntaxAnalyzer syntaxAnalyzer) {
+    public boolean canParse(@NotNull final IASTNode parentAST, @NotNull final SyntaxAnalyzer syntaxAnalyzer) {
         switch (syntaxAnalyzer.currentToken().getTokenType()) {
             case STRING_LITERAL:
             case NUMBER_LITERAL:
@@ -52,7 +52,7 @@ public class ExpressionParser implements ISyntaxParser
                 final SymbolToken symbolToken = (SymbolToken) syntaxAnalyzer.currentToken();
                 return symbolToken.getSymbolType() == SymbolType.OPENING_PARENTHESIS;
             case IDENTIFIER:
-                return AbstractStatementSyntaxAST.STATEMENT_PARSER.canParse(parentAST, syntaxAnalyzer);
+                return StatementAST.STATEMENT_PARSER.canParse(parentAST, syntaxAnalyzer);
             default:
                 return false;
         }
