@@ -89,28 +89,26 @@ public class OperatorToken extends AbstractToken
             this.setEnd(this.getLexicalAnalyzer().getPosition() + 1);
         } else if (this.getLexicalAnalyzer().currentChar() == '%') {
             this.setStart(this.getLexicalAnalyzer().getPosition());
-            
+    
             if (this.getLexicalAnalyzer().peekChar(1) == '=') {
                 this.getLexicalAnalyzer().next();
                 this.setOperatorType(OperatorType.PERCENT_EQUALS);
             } else this.setOperatorType(OperatorType.PERCENT);
-            
+    
             this.setEnd(this.getLexicalAnalyzer().getPosition() + 1);
-        } else {
-            this.addError(
-                    this.getLexicalAnalyzer().getArkoiClass(),
-                    this.getLexicalAnalyzer().getPosition(),
-                    "Couldn't lex this operator because the character is unknown."
-            );
-            return BadToken
-                    .builder(this.getLexicalAnalyzer())
-                    .start(this.getLexicalAnalyzer().getPosition())
-                    .end(this.getLexicalAnalyzer().getPosition() + 1)
-                    .build()
-                    .parseToken();
-        }
+        } else return this.addError(
+                BadToken.builder(this.getLexicalAnalyzer())
+                        .start(this.getLexicalAnalyzer().getPosition())
+                        .end(this.getLexicalAnalyzer().getPosition() + 1)
+                        .build()
+                        .parseToken(),
         
-        this.setTokenContent(new String(Arrays.copyOfRange(this.getLexicalAnalyzer().getArkoiClass().getContent(), this.getStart(), this.getEnd())).intern());
+                this.getLexicalAnalyzer().getCompilerClass(),
+                this.getLexicalAnalyzer().getPosition(),
+                "Couldn't lex this operator because the character is unknown."
+        );
+    
+        this.setTokenContent(new String(Arrays.copyOfRange(this.getLexicalAnalyzer().getCompilerClass().getContent(), this.getStart(), this.getEnd())).intern());
         this.getLexicalAnalyzer().next();
         return Optional.of(this);
     }

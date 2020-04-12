@@ -5,12 +5,12 @@
  */
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.parsers;
 
-import com.arkoisystems.arkoicompiler.api.ICompilerSyntaxAST;
+import com.arkoisystems.arkoicompiler.api.IASTNode;
 import com.arkoisystems.arkoicompiler.api.ISyntaxParser;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.ExpressionSyntaxAST;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.AbstractStatementSyntaxAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.ExpressionAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.StatementAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import org.jetbrains.annotations.NotNull;
 
@@ -19,16 +19,16 @@ public class StatementParser implements ISyntaxParser
 
     @Override
     public @NotNull
-    ICompilerSyntaxAST parse(@NotNull final ICompilerSyntaxAST parentAST, @NotNull final SyntaxAnalyzer syntaxAnalyzer) {
-        return new AbstractStatementSyntaxAST(syntaxAnalyzer, ASTType.STATEMENT)
+    IASTNode parse(@NotNull final IASTNode parentAST, @NotNull final SyntaxAnalyzer syntaxAnalyzer) {
+        return new StatementAST(syntaxAnalyzer, ASTType.STATEMENT)
                 .parseAST(parentAST);
     }
     
     
     @Override
-    public boolean canParse(@NotNull final ICompilerSyntaxAST parentAST, @NotNull final SyntaxAnalyzer syntaxAnalyzer) {
+    public boolean canParse(@NotNull final IASTNode parentAST, @NotNull final SyntaxAnalyzer syntaxAnalyzer) {
         final AbstractToken currentToken = syntaxAnalyzer.currentToken();
-        if (parentAST instanceof ExpressionSyntaxAST) {
+        if (parentAST instanceof ExpressionAST) {
             switch (currentToken.getTokenContent()) {
                 case "var":
                 case "fun":

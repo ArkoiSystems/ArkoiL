@@ -5,11 +5,11 @@
  */
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.parsers;
 
-import com.arkoisystems.arkoicompiler.api.ICompilerSyntaxAST;
+import com.arkoisystems.arkoicompiler.api.IASTNode;
 import com.arkoisystems.arkoicompiler.api.ISyntaxParser;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.SymbolType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.AnnotationSyntaxAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.AnnotationAST;
 import org.jetbrains.annotations.NotNull;
 
 public class AnnotationParser implements ISyntaxParser
@@ -17,8 +17,8 @@ public class AnnotationParser implements ISyntaxParser
     
     @NotNull
     @Override
-    public ICompilerSyntaxAST parse(@NotNull final ICompilerSyntaxAST parentAST, @NotNull final SyntaxAnalyzer syntaxAnalyzer) {
-        return AnnotationSyntaxAST
+    public IASTNode parse(@NotNull final IASTNode parentAST, @NotNull final SyntaxAnalyzer syntaxAnalyzer) {
+        return AnnotationAST
                 .builder(syntaxAnalyzer)
                 .build()
                 .parseAST(parentAST);
@@ -26,7 +26,7 @@ public class AnnotationParser implements ISyntaxParser
     
     
     @Override
-    public boolean canParse(@NotNull final ICompilerSyntaxAST parentAST, @NotNull final SyntaxAnalyzer syntaxAnalyzer) {
+    public boolean canParse(@NotNull final IASTNode parentAST, @NotNull final SyntaxAnalyzer syntaxAnalyzer) {
         return syntaxAnalyzer.matchesCurrentToken(SymbolType.AT_SIGN) != null;
     }
     

@@ -6,9 +6,8 @@
 package com.arkoisystems.arkoicompiler;
 
 import com.arkoisystems.arkoicompiler.api.ICompilerClass;
-import com.arkoisystems.arkoicompiler.api.ICompilerStage;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.ArkoiSyntaxAST;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.RootSyntaxAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.ArkoiASTPrinter;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.RootAST;
 import com.arkoisystems.arkoicompiler.utils.FileUtils;
 import lombok.Getter;
 import lombok.NonNull;
@@ -99,28 +98,36 @@ public class ArkoiCompiler
         final List<File> files = FileUtils.getAllFiles(nativeDirectory);
         for (final File file : files) {
             final ArkoiClass arkoiClass = new ArkoiClass(this, file.getCanonicalPath(), Files.readAllBytes(file.toPath()));
-            arkoiClass.setNativeClass(true);
+            arkoiClass.setNative(true);
             this.getArkoiClasses().add(arkoiClass);
         }
     }
     
     
     public void printSyntaxTree(@NotNull final PrintStream printStream) throws NullPointerException {
-        final List<RootSyntaxAST> roots = new ArrayList<>();
+        final List<RootAST> roots = new ArrayList<>();
         for (final ICompilerClass arkoiClass : this.getArkoiClasses())
-            roots.add(arkoiClass.getSyntaxAnalyzer().getRootSyntaxAST());
+            roots.add(arkoiClass.getSyntaxAnalyzer().getRootAST());
         
         printStream.println("Syntax Trees:");
         for (int index = 0; index < roots.size(); index++) {
-            final ArkoiSyntaxAST arkoiSyntaxAST = roots.get(index);
+            final RootAST rootAST = roots.get(index);
             if (index == roots.size() - 1) {
                 printStream.println("   │");
-                printStream.println("   └── " + arkoiSyntaxAST.getClass().getSimpleName());
-                arkoiSyntaxAST.printSyntaxAST(printStream, "       ");
+                printStream.println("   └── " + rootAST.getClass().getSimpleName());
+                ArkoiASTPrinter.builder()
+                        .printStream(printStream)
+                        .indents("       ")
+                        .build()
+                        .visit(rootAST);
             } else {
                 printStream.println("   │");
-                printStream.println("   ├── " + arkoiSyntaxAST.getClass().getSimpleName());
-                arkoiSyntaxAST.printSyntaxAST(printStream, "   │   ");
+                printStream.println("   ├── " + rootAST.getClass().getSimpleName());
+                ArkoiASTPrinter.builder()
+                        .printStream(printStream)
+                        .indents("   │   ")
+                        .build()
+                        .visit(rootAST);
             }
         }
     }

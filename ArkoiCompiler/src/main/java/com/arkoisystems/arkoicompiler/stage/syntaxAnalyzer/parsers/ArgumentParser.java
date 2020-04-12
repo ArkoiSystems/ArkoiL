@@ -5,12 +5,12 @@
  */
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.parsers;
 
-import com.arkoisystems.arkoicompiler.api.ICompilerSyntaxAST;
+import com.arkoisystems.arkoicompiler.api.IASTNode;
 import com.arkoisystems.arkoicompiler.api.ISyntaxParser;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.OperatorType;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.ArgumentSyntaxAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.ArgumentAST;
 import org.jetbrains.annotations.NotNull;
 
 public class ArgumentParser implements ISyntaxParser
@@ -18,8 +18,8 @@ public class ArgumentParser implements ISyntaxParser
     
     @NotNull
     @Override
-    public ArgumentSyntaxAST parse(@NotNull final ICompilerSyntaxAST parentAST, @NotNull final SyntaxAnalyzer syntaxAnalyzer) {
-        return ArgumentSyntaxAST
+    public ArgumentAST parse(@NotNull final IASTNode parentAST, @NotNull final SyntaxAnalyzer syntaxAnalyzer) {
+        return ArgumentAST
                 .builder(syntaxAnalyzer)
                 .build()
                 .parseAST(parentAST);
@@ -27,7 +27,7 @@ public class ArgumentParser implements ISyntaxParser
     
     
     @Override
-    public boolean canParse(@NotNull final ICompilerSyntaxAST parentAST, @NotNull final SyntaxAnalyzer syntaxAnalyzer) {
+    public boolean canParse(@NotNull final IASTNode parentAST, @NotNull final SyntaxAnalyzer syntaxAnalyzer) {
         return syntaxAnalyzer.currentToken().getTokenType() == TokenType.IDENTIFIER && syntaxAnalyzer.matchesPeekToken(1, OperatorType.EQUALS) != null;
     }
     

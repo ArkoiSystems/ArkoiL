@@ -28,23 +28,22 @@ public class StringToken extends AbstractToken
     public Optional<? extends AbstractToken> parseToken() {
         Objects.requireNonNull(this.getLexicalAnalyzer());
         
-        if (this.getLexicalAnalyzer().currentChar() != '"') {
-            this.addError(
-                    this.getLexicalAnalyzer().getArkoiClass(),
+        if (this.getLexicalAnalyzer().currentChar() != '"')
+            return this.addError(
+                    BadToken.builder(this.getLexicalAnalyzer())
+                            .start(this.getLexicalAnalyzer().getPosition())
+                            .end(this.getLexicalAnalyzer().getPosition() + 1)
+                            .build()
+                            .parseToken(),
+            
+                    this.getLexicalAnalyzer().getCompilerClass(),
                     this.getLexicalAnalyzer().getPosition(),
                     "Couldn't lex the string because it doesn't start with an \"."
             );
-            return BadToken
-                    .builder(this.getLexicalAnalyzer())
-                    .start(this.getLexicalAnalyzer().getPosition())
-                    .end(this.getLexicalAnalyzer().getPosition() + 1)
-                    .build()
-                    .parseToken();
-        }
         
         this.setStart(this.getLexicalAnalyzer().getPosition());
         char lastChar = '\\';
-        while (this.getLexicalAnalyzer().getPosition() < this.getLexicalAnalyzer().getArkoiClass().getContent().length) {
+        while (this.getLexicalAnalyzer().getPosition() < this.getLexicalAnalyzer().getCompilerClass().getContent().length) {
             final char currentChar = this.getLexicalAnalyzer().currentChar();
             if (lastChar != '\\' && currentChar == '"')
                 break;
@@ -56,21 +55,21 @@ public class StringToken extends AbstractToken
         this.setEnd(this.getLexicalAnalyzer().getPosition() + 1);
         
         if (this.getLexicalAnalyzer().currentChar() != '"') {
-            this.addError(
-                    this.getLexicalAnalyzer().getArkoiClass(),
+            return this.addError(
+                    BadToken.builder(this.getLexicalAnalyzer())
+                            .start(this.getStart())
+                            .end(this.getEnd())
+                            .build()
+                            .parseToken(),
+                    
+                    this.getLexicalAnalyzer().getCompilerClass(),
                     this.getStart(),
                     this.getLexicalAnalyzer().getPosition(),
                     "The defined string doesn't end with another double quote:"
             );
-            return BadToken
-                    .builder(this.getLexicalAnalyzer())
-                    .start(this.getStart())
-                    .end(this.getEnd())
-                    .build()
-                    .parseToken();
         }
         
-        this.setTokenContent(new String(Arrays.copyOfRange(this.getLexicalAnalyzer().getArkoiClass().getContent(), this.getStart() + 1, this.getEnd() - 1)).intern());
+        this.setTokenContent(new String(Arrays.copyOfRange(this.getLexicalAnalyzer().getCompilerClass().getContent(), this.getStart() + 1, this.getEnd() - 1)).intern());
         this.getLexicalAnalyzer().next();
         return Optional.of(this);
     }

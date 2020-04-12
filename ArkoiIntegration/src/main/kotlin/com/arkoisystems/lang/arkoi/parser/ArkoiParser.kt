@@ -19,8 +19,8 @@
 package com.arkoisystems.lang.arkoi.parser
 
 import com.arkoisystems.arkoicompiler.ArkoiClass
+import com.arkoisystems.arkoicompiler.api.ICompilerMarker
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.marker.ArkoiMarker
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.marker.MarkerFactory
 import com.arkoisystems.lang.arkoi.lexer.ArkoiLexer
 import com.intellij.lang.ASTNode
@@ -52,7 +52,7 @@ class ArkoiParser(private val arkoiParserDefinition: ArkoiParserDefinition) : Ps
         this.arkoiClass.syntaxAnalyzer.processStage()
 
         val mark = builder.mark()
-        makeTree(arkoiLexer, root, builder, this.arkoiClass.syntaxAnalyzer.rootSyntaxAST.markerFactory)
+        makeTree(arkoiLexer, root, builder, this.arkoiClass.syntaxAnalyzer.rootAST.markerFactory)
         mark.done(root)
     }
 
@@ -78,19 +78,16 @@ class ArkoiParser(private val arkoiParserDefinition: ArkoiParserDefinition) : Ps
 
         this.setLexemeIndex(builder, arkoiLexer.tokens!!.indexOf(markerFactory.currentMarker.end) + 1)
         if (markerFactory.currentMarker.errorMessage != null) {
-            mark.error(
-                String.format(
-                    markerFactory.currentMarker.errorMessage!!,
-                    markerFactory.currentMarker.errorArguments
-                )
-            )
+//            println(String.format(markerFactory.currentMarker.errorMessage!!, markerFactory.currentMarker.errorArguments))
+//            println(markerFactory.currentMarker.errorMessage!! + ", " + markerFactory.currentMarker.errorArguments?.contentToString())
+            mark.error(markerFactory.currentMarker.errorMessage!!)
         } else mark.done(getArkoiType(markerFactory.currentMarker))
     }
 
     private fun setLexemeIndex(builder: PsiBuilderImpl, index: Int) = this.myCurrentLexeme.set(builder, index)
 
-    private fun getArkoiType(arkoiMarker: ArkoiMarker<*, *>): IElementType {
-        return when (arkoiMarker.astType) {
+    private fun getArkoiType(compilerMarker: ICompilerMarker<*, *>): IElementType {
+        return when (compilerMarker.astType) {
             ASTType.IMPORT -> ArkoiElementTypes.import
             ASTType.NUMBER -> ArkoiElementTypes.number
             ASTType.CAST_EXPRESSION -> ArkoiElementTypes.castExpression
@@ -121,7 +118,7 @@ class ArkoiParser(private val arkoiParserDefinition: ArkoiParserDefinition) : Ps
             ASTType.ARGUMENT_LIST -> ArkoiElementTypes.argumentList
             ASTType.ROOT -> ArkoiElementTypes.root
 
-            else -> TODO(arkoiMarker.astType.name)
+            else -> TODO(compilerMarker.astType.name)
         }
     }
 

@@ -6,9 +6,8 @@
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils;
 
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken;
-import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.SemanticAnalyzer;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.TypeSyntaxAST;
 import lombok.Getter;
+import org.jetbrains.annotations.NotNull;
 
 public enum TypeKind
 {
@@ -29,6 +28,7 @@ public enum TypeKind
     UNDEFINED("undefined", false, 0);
     
     
+    @NotNull
     @Getter
     private final String name;
     
@@ -41,7 +41,7 @@ public enum TypeKind
     private final double precision;
     
     
-    TypeKind(final String name, final boolean isNumeric, final double precision) {
+    TypeKind(@NotNull final String name, final boolean isNumeric, final double precision) {
         this.isNumeric = isNumeric;
         this.precision = precision;
         this.name = name;

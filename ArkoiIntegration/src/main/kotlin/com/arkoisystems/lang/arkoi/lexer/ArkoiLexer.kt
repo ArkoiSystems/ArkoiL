@@ -24,7 +24,7 @@ import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.*
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.KeywordType
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.OperatorType
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.SymbolType
-import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TypeKeywordType
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind
 import com.intellij.lexer.LexerBase
 import com.intellij.psi.TokenType
 import com.intellij.psi.tree.IElementType
@@ -149,14 +149,14 @@ class ArkoiLexer : LexerBase() {
                 else -> TokenType.BAD_CHARACTER
             }
 
-            is TypeKeywordToken -> when(token.keywordType) {
-                TypeKeywordType.BOOLEAN -> ArkoiTokenTypes.boolean
-                TypeKeywordType.BYTE -> ArkoiTokenTypes.byte
-                TypeKeywordType.CHAR -> ArkoiTokenTypes.char
-                TypeKeywordType.INT -> ArkoiTokenTypes.int
-                TypeKeywordType.LONG -> ArkoiTokenTypes.long
-                TypeKeywordType.SHORT -> ArkoiTokenTypes.short
-                TypeKeywordType.STRING -> ArkoiTokenTypes.string
+            is TypeKeywordToken -> when(token.typeKind) {
+                TypeKind.BOOLEAN -> ArkoiTokenTypes.boolean
+                TypeKind.BYTE -> ArkoiTokenTypes.byte
+                TypeKind.CHAR -> ArkoiTokenTypes.char
+                TypeKind.INTEGER -> ArkoiTokenTypes.integer
+                TypeKind.LONG -> ArkoiTokenTypes.long
+                TypeKind.SHORT -> ArkoiTokenTypes.short
+                TypeKind.STRING -> ArkoiTokenTypes.string
 
                 else -> TokenType.BAD_CHARACTER
             }

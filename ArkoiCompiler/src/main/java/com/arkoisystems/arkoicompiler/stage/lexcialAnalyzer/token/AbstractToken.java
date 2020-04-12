@@ -7,6 +7,7 @@ package com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token;
 
 import com.arkoisystems.arkoicompiler.ArkoiClass;
 import com.arkoisystems.arkoicompiler.ArkoiError;
+import com.arkoisystems.arkoicompiler.api.ICompilerClass;
 import com.arkoisystems.arkoicompiler.api.utils.IFailed;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.LexicalAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.NumberToken;
@@ -71,11 +72,11 @@ public abstract class AbstractToken implements IFailed
     }
     
     
-    public void addError(@NotNull final ArkoiClass arkoiClass, final int position, @NotNull final String message, final Object... arguments) {
+    public <E> E addError(@Nullable E errorSource, @NotNull final ICompilerClass compilerClass, final int position, @NotNull final String message, final Object... arguments) {
         Objects.requireNonNull(this.getLexicalAnalyzer());
         
         this.getLexicalAnalyzer().getErrorHandler().addError(ArkoiError.builder()
-                .compilerClass(arkoiClass)
+                .compilerClass(compilerClass)
                 .positions(new int[][] { { position, position + 1 } })
                 .message(message)
                 .arguments(arguments)
@@ -83,14 +84,15 @@ public abstract class AbstractToken implements IFailed
         );
         
         this.failed();
+        return errorSource;
     }
     
     
-    public void addError(@NotNull final ArkoiClass arkoiClass, final int start, final int end, @NotNull final String message, final Object... arguments) {
+    public <E> E addError(@Nullable final E errorSource, @NotNull final ICompilerClass compilerClass, final int start, final int end, @NotNull final String message, final Object... arguments) {
         Objects.requireNonNull(this.getLexicalAnalyzer());
         
         this.getLexicalAnalyzer().getErrorHandler().addError(ArkoiError.builder()
-                .compilerClass(arkoiClass)
+                .compilerClass(compilerClass)
                 .positions(new int[][] { { start, end } })
                 .message(message)
                 .arguments(arguments)
@@ -98,6 +100,7 @@ public abstract class AbstractToken implements IFailed
         );
         
         this.failed();
+        return errorSource;
     }
     
 }

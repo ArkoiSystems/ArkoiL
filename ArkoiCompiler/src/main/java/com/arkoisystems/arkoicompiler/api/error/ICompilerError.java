@@ -14,8 +14,10 @@ public interface ICompilerError
     @NotNull
     ICompilerClass getCompilerClass();
     
+    
     @NotNull
     int[][] getPositions();
+    
     
     @NotNull
     String getFinalError();

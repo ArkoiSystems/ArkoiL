@@ -4,7 +4,7 @@
     <annotationProcessing>
       <profile default="true" name="Default" enabled="true" />
     </annotationProcessing>
-    <bytecodeTargetLevel>
+    <bytecodeTargetLevel target="11">
       <module name="ArkoiCompiler.main" target="11" />
       <module name="ArkoiCompiler.test" target="11" />
       <module name="Test.main" target="1.8" />

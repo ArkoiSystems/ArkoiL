@@ -11,13 +11,15 @@ import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.PrintStream;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 
 public class SemanticErrorHandler implements IErrorHandler
 {
     
     @Getter
-    private final HashSet<ICompilerError> compileErrors = new HashSet<>();
+    private final List<ICompilerError> compileErrors = new ArrayList<>();
     
     
     @Override

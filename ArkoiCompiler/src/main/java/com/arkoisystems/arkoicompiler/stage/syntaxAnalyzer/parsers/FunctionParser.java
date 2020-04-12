@@ -5,11 +5,11 @@
  */
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.parsers;
 
-import com.arkoisystems.arkoicompiler.api.ICompilerSyntaxAST;
+import com.arkoisystems.arkoicompiler.api.IASTNode;
 import com.arkoisystems.arkoicompiler.api.ISyntaxParser;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.KeywordType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.types.FunctionSyntaxAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.types.FunctionAST;
 import org.jetbrains.annotations.NotNull;
 
 public class FunctionParser implements ISyntaxParser
@@ -17,8 +17,8 @@ public class FunctionParser implements ISyntaxParser
     
     @Override
     public @NotNull
-    ICompilerSyntaxAST parse(@NotNull final ICompilerSyntaxAST parentAST, @NotNull final SyntaxAnalyzer syntaxAnalyzer) {
-        return FunctionSyntaxAST
+    IASTNode parse(@NotNull final IASTNode parentAST, @NotNull final SyntaxAnalyzer syntaxAnalyzer) {
+        return FunctionAST
                 .builder(syntaxAnalyzer)
                 .build()
                 .parseAST(parentAST);
@@ -26,7 +26,7 @@ public class FunctionParser implements ISyntaxParser
     
     
     @Override
-    public boolean canParse(@NotNull final ICompilerSyntaxAST parentAST, @NotNull final SyntaxAnalyzer syntaxAnalyzer) {
+    public boolean canParse(@NotNull final IASTNode parentAST, @NotNull final SyntaxAnalyzer syntaxAnalyzer) {
         return syntaxAnalyzer.matchesCurrentToken(KeywordType.FUN) != null;
     }
     

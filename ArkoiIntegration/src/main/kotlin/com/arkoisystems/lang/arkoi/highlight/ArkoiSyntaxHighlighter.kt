@@ -86,7 +86,7 @@ class ArkoiSyntaxHighlighter : SyntaxHighlighter {
 
         val primitives = fillAttributes(
             ArkoiBundle.message("arkoi.syntaxHighlighter.primitive.externalName") highlightWith DefaultLanguageHighlighterColors.KEYWORD,
-            ArkoiTokenTypes.int,
+            ArkoiTokenTypes.integer,
             ArkoiTokenTypes.long,
             ArkoiTokenTypes.short,
             ArkoiTokenTypes.boolean,

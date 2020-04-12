@@ -5,20 +5,18 @@
  */
 package com.arkoisystems.arkoicompiler.stage.semanticAnalyzer;
 
-import com.arkoisystems.arkoicompiler.ArkoiClass;
+import com.arkoisystems.arkoicompiler.api.ICompilerClass;
 import com.arkoisystems.arkoicompiler.api.ICompilerStage;
-import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.ast.types.RootSemanticAST;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 public class SemanticAnalyzer implements ICompilerStage
 {
     
     @Getter
     @NotNull
-    private final ArkoiClass arkoiClass;
+    private final ICompilerClass compilerClass;
     
     
     @Getter
@@ -30,13 +28,8 @@ public class SemanticAnalyzer implements ICompilerStage
     private boolean failed;
     
     
-    @Getter
-    @Nullable
-    private RootSemanticAST rootSemanticAST;
-    
-    
-    public SemanticAnalyzer(@NotNull final ArkoiClass arkoiClass) {
-        this.arkoiClass = arkoiClass;
+    public SemanticAnalyzer(@NotNull final ICompilerClass compilerClass) {
+        this.compilerClass = compilerClass;
     }
     
     
@@ -44,10 +37,9 @@ public class SemanticAnalyzer implements ICompilerStage
     @Override
     public boolean processStage() {
         this.reset();
-        
-        if (this.rootSemanticAST == null)
-            return false;
-        return !this.rootSemanticAST.isFailed();
+        final ASTScope astScope = new ASTScope(this);
+        astScope.visit(this.getCompilerClass().getSyntaxAnalyzer().getRootAST());
+        return !astScope.isFailed();
     }
     
     
@@ -55,9 +47,6 @@ public class SemanticAnalyzer implements ICompilerStage
     public void reset() {
         this.errorHandler = new SemanticErrorHandler();
         this.failed = false;
-        
-        this.rootSemanticAST = new RootSemanticAST(this, arkoiClass.getSyntaxAnalyzer().getRootSyntaxAST());
-        this.rootSemanticAST.initialize();
     }
     
     
