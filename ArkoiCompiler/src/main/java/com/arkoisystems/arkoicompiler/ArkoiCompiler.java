@@ -91,7 +91,7 @@ public class ArkoiCompiler
     
     
     private void addNativeFiles() throws IOException {
-        final File nativeDirectory = new File("/home/timo/dev/ArkoiL/ArkoiCompiler/natives/");
+        final File nativeDirectory = new File("./natives/");
         if (!nativeDirectory.exists())
             throw new NullPointerException("Couldn't find a native directory. Please try to fix the problem with reinstalling the compiler.");
         
