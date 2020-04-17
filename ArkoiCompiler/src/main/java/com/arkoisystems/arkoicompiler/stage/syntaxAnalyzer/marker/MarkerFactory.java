@@ -1,7 +1,20 @@
 /*
  * Copyright © 2019-2020 ArkoiSystems (https://www.arkoisystems.com/) All Rights Reserved.
  * Created ArkoiCompiler on March 29, 2020
- * Author timo aka. єхcsє#5543
+ * Author єхcsє#5543 aka timo
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ *
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.marker;
 
@@ -42,8 +55,8 @@ public class MarkerFactory<T extends IASTNode, T1, T2>
     
     
     public void error(final T1 start, final T2 end, final String message, final Object... arguments) {
-        Objects.requireNonNull(this.getAstNode());
-        Objects.requireNonNull(this.getAstNode().getSyntaxAnalyzer());
+        Objects.requireNonNull(this.getAstNode(), "astNode must not be null.");
+        Objects.requireNonNull(this.getAstNode().getSyntaxAnalyzer(), "astNode.syntaxAnalyzer must not be null.");
         
         this.currentMarker.setErrorMessage(message);
         this.currentMarker.setErrorArguments(arguments);

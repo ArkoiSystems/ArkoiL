@@ -1,13 +1,27 @@
 /*
  * Copyright © 2019-2020 ArkoiSystems (https://www.arkoisystems.com/) All Rights Reserved.
  * Created ArkoiCompiler on April 11, 2020
- * Author timo aka. єхcsє#5543
+ * Author єхcsє#5543 aka timo
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ *
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast;
 
 import com.arkoisystems.arkoicompiler.api.IASTNode;
 import com.arkoisystems.arkoicompiler.api.IVisitor;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.*;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.OperableAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.*;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types.*;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.types.FunctionAST;
@@ -273,14 +287,33 @@ public class ArkoiASTPrinter implements IVisitor<IASTNode>
         
         this.printFactory(identifierCallAST);
         this.getPrintStream().printf("%s├── fileLocal: %s%n", this.getIndents(), identifierCallAST.isFileLocal());
-        this.getPrintStream().printf("%s└── identifier: %s%n", this.getIndents(), identifierCallAST.getCalledIdentifier().getTokenContent());
+        this.getPrintStream().printf("%s├── identifier: %s%n", this.getIndents(), identifierCallAST.getCalledIdentifier().getTokenContent());
+        this.getPrintStream().printf("%s├── functionCall: %s%n", this.getIndents(), identifierCallAST.getCalledFunctionPart() == null ? "null" : "");
+        if(identifierCallAST.getCalledFunctionPart() != null)
+            this.tempIndent(this.getIndents(), this.getIndents() + "│   ", () -> this.visit(identifierCallAST.getCalledFunctionPart()));
+        this.getPrintStream().printf("%s└── nextCall: %s%n", this.getIndents(), identifierCallAST.getNextIdentifierCall() == null ? "null" : "");
+        if(identifierCallAST.getNextIdentifierCall() != null)
+            this.tempIndent(this.getIndents(), this.getIndents() + "    ", () -> this.visit(identifierCallAST.getNextIdentifierCall()));
         return identifierCallAST;
     }
     
     
     @Override
     public FunctionCallPartAST visit(@NotNull final FunctionCallPartAST functionCallPartAST) {
-        throw new NullPointerException();
+        this.printFactory(functionCallPartAST);
+        this.getPrintStream().printf("%s└── expressions: %s%n", this.getIndents(), functionCallPartAST.getCalledExpressions().isEmpty() ? "NaN" : "");
+        for (int index = 0; index < functionCallPartAST.getCalledExpressions().size(); index++) {
+            final IASTNode astNode = functionCallPartAST.getCalledExpressions().get(index);
+            if (index == functionCallPartAST.getCalledExpressions().size() - 1) {
+                this.getPrintStream().printf("%s    └── %s%n", this.getIndents(), astNode.getClass().getSimpleName());
+                this.tempIndent(this.getIndents(), this.getIndents() + "        ", () -> this.visit(astNode));
+            } else {
+                this.getPrintStream().printf("%s    ├── %s%n", this.getIndents(), astNode.getClass().getSimpleName());
+                this.tempIndent(this.getIndents(), this.getIndents() + "    │   ", () -> this.visit(astNode));
+                this.getPrintStream().printf("%s    │%n", this.getIndents());
+            }
+        }
+        return functionCallPartAST;
     }
     
     

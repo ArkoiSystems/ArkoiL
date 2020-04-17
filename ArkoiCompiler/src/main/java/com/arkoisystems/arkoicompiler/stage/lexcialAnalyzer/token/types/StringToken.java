@@ -1,21 +1,33 @@
 /*
  * Copyright © 2019-2020 ArkoiSystems (https://www.arkoisystems.com/) All Rights Reserved.
  * Created ArkoiCompiler on February 15, 2020
- * Author timo aka. єхcsє#5543
+ * Author єхcsє#5543 aka timo
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ *
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types;
 
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.LexicalAnalyzer;
-import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken;
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.ArkoiToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.Objects;
-import java.util.Optional;
 
-public class StringToken extends AbstractToken
+public class StringToken extends ArkoiToken
 {
     
     protected StringToken(@Nullable final LexicalAnalyzer lexicalAnalyzer) {
@@ -23,10 +35,9 @@ public class StringToken extends AbstractToken
     }
     
     
-    @NotNull
     @Override
-    public Optional<? extends AbstractToken> parseToken() {
-        Objects.requireNonNull(this.getLexicalAnalyzer());
+    public @NotNull ArkoiToken parseToken() {
+        Objects.requireNonNull(this.getLexicalAnalyzer(), "lexicalAnalyzer must not be null.");
         
         if (this.getLexicalAnalyzer().currentChar() != '"')
             return this.addError(
@@ -45,9 +56,7 @@ public class StringToken extends AbstractToken
         char lastChar = '\\';
         while (this.getLexicalAnalyzer().getPosition() < this.getLexicalAnalyzer().getCompilerClass().getContent().length) {
             final char currentChar = this.getLexicalAnalyzer().currentChar();
-            if (lastChar != '\\' && currentChar == '"')
-                break;
-            else if (currentChar == 0x0A || currentChar == 0x0D)
+            if ((lastChar != '\\' && currentChar == '"') || (currentChar == 0x0A || currentChar == 0x0D))
                 break;
             lastChar = currentChar;
             this.getLexicalAnalyzer().next();
@@ -71,7 +80,7 @@ public class StringToken extends AbstractToken
         
         this.setTokenContent(new String(Arrays.copyOfRange(this.getLexicalAnalyzer().getCompilerClass().getContent(), this.getStart() + 1, this.getEnd() - 1)).intern());
         this.getLexicalAnalyzer().next();
-        return Optional.of(this);
+        return this;
     }
     
     

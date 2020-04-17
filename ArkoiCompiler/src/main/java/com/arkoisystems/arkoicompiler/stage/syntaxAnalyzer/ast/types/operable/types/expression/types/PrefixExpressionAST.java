@@ -1,18 +1,32 @@
 /*
  * Copyright © 2019-2020 ArkoiSystems (https://www.arkoisystems.com/) All Rights Reserved.
  * Created ArkoiCompiler on February 15, 2020
- * Author timo aka. єхcsє#5543
+ * Author єхcsє#5543 aka timo
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ *
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types;
 
 import com.arkoisystems.arkoicompiler.api.IASTNode;
 import com.arkoisystems.arkoicompiler.api.IVisitor;
-import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken;
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.ArkoiToken;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.OperableAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.ExpressionAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types.operators.PrefixOperatorType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
@@ -44,7 +58,7 @@ public class PrefixExpressionAST extends ExpressionAST
     @NotNull
     @Override
     public PrefixExpressionAST parseAST(@NotNull final IASTNode parentAST) {
-        Objects.requireNonNull(this.getSyntaxAnalyzer());
+        Objects.requireNonNull(this.getSyntaxAnalyzer(), "syntaxAnalyzer must not be null.");
         
         this.setStartToken(this.getSyntaxAnalyzer().currentToken());
         this.getMarkerFactory().mark(this.getStartToken());
@@ -68,8 +82,14 @@ public class PrefixExpressionAST extends ExpressionAST
     
     
     @Override
-    public void accept(@NotNull final IVisitor visitor) {
+    public void accept(@NotNull final IVisitor<?> visitor) {
         visitor.visit(this);
+    }
+    
+    
+    @Override
+    public @NotNull TypeKind getTypeKind() {
+        return TypeKind.UNDEFINED;
     }
     
     
@@ -98,7 +118,7 @@ public class PrefixExpressionAST extends ExpressionAST
         private OperableAST rightSideOperable;
         
         
-        private AbstractToken startToken, endToken;
+        private ArkoiToken startToken, endToken;
         
         
         public PrefixExpressionASTBuilder(@NotNull final SyntaxAnalyzer syntaxAnalyzer) {
@@ -123,13 +143,13 @@ public class PrefixExpressionAST extends ExpressionAST
         }
         
         
-        public PrefixExpressionASTBuilder start(final AbstractToken startToken) {
+        public PrefixExpressionASTBuilder start(final ArkoiToken startToken) {
             this.startToken = startToken;
             return this;
         }
         
         
-        public PrefixExpressionASTBuilder end(final AbstractToken endToken) {
+        public PrefixExpressionASTBuilder end(final ArkoiToken endToken) {
             this.endToken = endToken;
             return this;
         }

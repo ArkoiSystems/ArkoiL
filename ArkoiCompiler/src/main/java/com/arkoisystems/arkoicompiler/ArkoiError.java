@@ -1,7 +1,20 @@
 /*
  * Copyright © 2019-2020 ArkoiSystems (https://www.arkoisystems.com/) All Rights Reserved.
  * Created ArkoiCompiler on February 15, 2020
- * Author timo aka. єхcsє#5543
+ * Author єхcsє#5543 aka timo
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ *
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package com.arkoisystems.arkoicompiler;
 
@@ -34,6 +47,7 @@ public class ArkoiError implements ICompilerError
     private final Object[] arguments;
     
     
+    @EqualsAndHashCode.Include
     @Getter
     @Nullable
     private final int[][] positions;
@@ -48,9 +62,9 @@ public class ArkoiError implements ICompilerError
     @Override
     public @NotNull
     String getFinalError() {
-        Objects.requireNonNull(this.getMessage());
-        Objects.requireNonNull(this.getPositions());
-        Objects.requireNonNull(this.getCompilerClass());
+        Objects.requireNonNull(this.getMessage(), "message must not be null.");
+        Objects.requireNonNull(this.getPositions(), "positions must not be null.");
+        Objects.requireNonNull(this.getCompilerClass(), "compilerClass must not be null.");
         
         final StringBuilder stringBuilder = new StringBuilder("[" + Variables.DATE_FORMAT.format(new Date()) + "/INFO] " + String.format(this.getMessage(), this.getArguments()) + "\n");
         for (int index = 0; index < this.getPositions().length; index++) {

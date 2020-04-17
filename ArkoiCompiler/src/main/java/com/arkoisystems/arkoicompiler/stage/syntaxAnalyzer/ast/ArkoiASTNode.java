@@ -1,17 +1,31 @@
 /*
  * Copyright © 2019-2020 ArkoiSystems (https://www.arkoisystems.com/) All Rights Reserved.
  * Created ArkoiCompiler on February 15, 2020
- * Author timo aka. єхcsє#5543
+ * Author єхcsє#5543 aka timo
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ *
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast;
 
 import com.arkoisystems.arkoicompiler.ArkoiError;
 import com.arkoisystems.arkoicompiler.api.ICompilerClass;
 import com.arkoisystems.arkoicompiler.api.IASTNode;
-import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken;
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.ArkoiToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.SymbolType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.marker.ArkoiMarker;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.marker.MarkerFactory;
 import lombok.EqualsAndHashCode;
@@ -31,7 +45,7 @@ public abstract class ArkoiASTNode implements IASTNode
     
     @Getter
     @NotNull
-    private final MarkerFactory<? extends ArkoiASTNode, AbstractToken, AbstractToken> markerFactory;
+    private final MarkerFactory<? extends ArkoiASTNode, ArkoiToken, ArkoiToken> markerFactory;
     
     
     @Getter
@@ -49,7 +63,7 @@ public abstract class ArkoiASTNode implements IASTNode
     @Getter
     @Setter
     @Nullable
-    private AbstractToken startToken, endToken;
+    private ArkoiToken startToken, endToken;
     
     
     @Getter
@@ -69,17 +83,21 @@ public abstract class ArkoiASTNode implements IASTNode
     public abstract IASTNode parseAST(@NotNull final IASTNode parentAST);
     
     
+    @NotNull
+    public abstract TypeKind getTypeKind();
+    
+    
     @Override
     public <E> E addError(@Nullable final E errorSource, @NotNull final ICompilerClass compilerClass, @NotNull final IASTNode[] astNodes, @NotNull final String message, @NotNull final Object... arguments) {
-        Objects.requireNonNull(this.getSyntaxAnalyzer());
-        Objects.requireNonNull(this.getMarkerFactory());
+        Objects.requireNonNull(this.getSyntaxAnalyzer(), "syntaxAnalyzer must not be null.");
+        Objects.requireNonNull(this.getMarkerFactory(), "markerFactory must not be null.");
         
         this.getSyntaxAnalyzer().getErrorHandler().addError(ArkoiError.builder()
                 .compilerClass(compilerClass)
                 .positions(Arrays.stream(astNodes)
                         .map(astNode -> new int[] {
-                                Objects.requireNonNull(astNode.getStartToken()).getStart(),
-                                Objects.requireNonNull(astNode.getEndToken()).getEnd()
+                                Objects.requireNonNull(astNode.getStartToken(), "astNode.startToken must not be null.").getStart(),
+                                Objects.requireNonNull(astNode.getEndToken(), "astNode.endToken must not be null.").getEnd()
                         })
                         .toArray(size -> new int[size][1])
                 )
@@ -96,14 +114,14 @@ public abstract class ArkoiASTNode implements IASTNode
     
     @Override
     public <E> E addError(@Nullable final E errorSource, @NotNull final ICompilerClass compilerClass, @NotNull final IASTNode astNode, @NotNull final String message, @NotNull final Object... arguments) {
-        Objects.requireNonNull(this.getSyntaxAnalyzer());
-        Objects.requireNonNull(this.getMarkerFactory());
+        Objects.requireNonNull(this.getSyntaxAnalyzer(), "syntaxAnalyzer must not be null.");
+        Objects.requireNonNull(this.getMarkerFactory(), "markerFactory must not be null.");
         
         this.getSyntaxAnalyzer().getErrorHandler().addError(ArkoiError.builder()
                 .compilerClass(compilerClass)
                 .positions(new int[][] { {
-                        Objects.requireNonNull(astNode.getStartToken()).getStart(),
-                        Objects.requireNonNull(astNode.getEndToken()).getEnd()
+                        Objects.requireNonNull(astNode.getStartToken(), "astNode.startToken must not be null.").getStart(),
+                        Objects.requireNonNull(astNode.getEndToken(), "astNode.endToken must not be null.").getEnd()
                 } })
                 .message(message)
                 .arguments(arguments)
@@ -118,8 +136,8 @@ public abstract class ArkoiASTNode implements IASTNode
     
     @Override
     public <E> E addError(@Nullable final E errorSource, @NotNull final ICompilerClass compilerClass, final int start, final int end, @NotNull final String message, @NotNull final Object... arguments) {
-        Objects.requireNonNull(this.getSyntaxAnalyzer());
-        Objects.requireNonNull(this.getMarkerFactory());
+        Objects.requireNonNull(this.getSyntaxAnalyzer(), "syntaxAnalyzer must not be null.");
+        Objects.requireNonNull(this.getMarkerFactory(), "markerFactory must not be null.");
         
         this.getSyntaxAnalyzer().getErrorHandler().addError(ArkoiError.builder()
                 .compilerClass(compilerClass)
@@ -136,13 +154,13 @@ public abstract class ArkoiASTNode implements IASTNode
     
     
     @Override
-    public <E> E addError(@Nullable final E errorSource, @NotNull final ICompilerClass compilerClass, @NotNull final AbstractToken abstractToken, @NotNull final String message, @NotNull final Object... arguments) {
-        Objects.requireNonNull(this.getSyntaxAnalyzer());
-        Objects.requireNonNull(this.getMarkerFactory());
+    public <E> E addError(@Nullable final E errorSource, @NotNull final ICompilerClass compilerClass, @NotNull final ArkoiToken arkoiToken, @NotNull final String message, @NotNull final Object... arguments) {
+        Objects.requireNonNull(this.getSyntaxAnalyzer(), "syntaxAnalyzer must not be null.");
+        Objects.requireNonNull(this.getMarkerFactory(), "markerFactory must not be null.");
         
         this.getSyntaxAnalyzer().getErrorHandler().addError(ArkoiError.builder()
                 .compilerClass(compilerClass)
-                .positions(new int[][] { { abstractToken.getStart(), abstractToken.getEnd() } })
+                .positions(new int[][] { { arkoiToken.getStart(), arkoiToken.getEnd() } })
                 .message(message)
                 .arguments(arguments)
                 .build()
@@ -162,7 +180,7 @@ public abstract class ArkoiASTNode implements IASTNode
     
     protected void skipToNextValidToken() {
         this.failed();
-        Objects.requireNonNull(this.getSyntaxAnalyzer());
+        Objects.requireNonNull(this.getSyntaxAnalyzer(), "syntaxAnalyzer must not be null.");
         
         int openBraces = 0;
         while (this.getSyntaxAnalyzer().getPosition() < this.getSyntaxAnalyzer().getTokens().length) {
