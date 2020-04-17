@@ -20,23 +20,22 @@ package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types;
 
 import com.arkoisystems.arkoicompiler.api.IASTNode;
 import com.arkoisystems.arkoicompiler.api.IVisitor;
-import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken;
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.ArkoiToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.SymbolType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxErrorType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.ArkoiASTNode;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 public class ArgumentListAST extends ArkoiASTNode
 {
@@ -55,7 +54,7 @@ public class ArgumentListAST extends ArkoiASTNode
     @NotNull
     @Override
     public ArgumentListAST parseAST(@NotNull final IASTNode parentAST) {
-        Objects.requireNonNull(this.getSyntaxAnalyzer());
+        Objects.requireNonNull(this.getSyntaxAnalyzer(), "syntaxAnalyzer must not be null.");
         
         if (this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.OPENING_BRACKET) == null)
             return this.addError(
@@ -108,8 +107,14 @@ public class ArgumentListAST extends ArkoiASTNode
     
     
     @Override
-    public void accept(@NotNull final IVisitor visitor) {
+    public void accept(@NotNull final IVisitor<?> visitor) {
         visitor.visit(this);
+    }
+    
+    
+    @Override
+    public @NotNull TypeKind getTypeKind() {
+        return TypeKind.UNDEFINED;
     }
     
     
@@ -135,7 +140,7 @@ public class ArgumentListAST extends ArkoiASTNode
         private List<ArgumentAST> arguments;
         
         
-        private AbstractToken startToken, endToken;
+        private ArkoiToken startToken, endToken;
         
         
         public ArgumentListASTBuilder(@NotNull final SyntaxAnalyzer syntaxAnalyzer) {
@@ -154,13 +159,13 @@ public class ArgumentListAST extends ArkoiASTNode
         }
         
         
-        public ArgumentListASTBuilder start(final AbstractToken startToken) {
+        public ArgumentListASTBuilder start(final ArkoiToken startToken) {
             this.startToken = startToken;
             return this;
         }
         
         
-        public ArgumentListASTBuilder end(final AbstractToken endToken) {
+        public ArgumentListASTBuilder end(final ArkoiToken endToken) {
             this.endToken = endToken;
             return this;
         }

@@ -47,6 +47,7 @@ public class ArkoiError implements ICompilerError
     private final Object[] arguments;
     
     
+    @EqualsAndHashCode.Include
     @Getter
     @Nullable
     private final int[][] positions;
@@ -61,9 +62,9 @@ public class ArkoiError implements ICompilerError
     @Override
     public @NotNull
     String getFinalError() {
-        Objects.requireNonNull(this.getMessage());
-        Objects.requireNonNull(this.getPositions());
-        Objects.requireNonNull(this.getCompilerClass());
+        Objects.requireNonNull(this.getMessage(), "message must not be null.");
+        Objects.requireNonNull(this.getPositions(), "positions must not be null.");
+        Objects.requireNonNull(this.getCompilerClass(), "compilerClass must not be null.");
         
         final StringBuilder stringBuilder = new StringBuilder("[" + Variables.DATE_FORMAT.format(new Date()) + "/INFO] " + String.format(this.getMessage(), this.getArguments()) + "\n");
         for (int index = 0; index < this.getPositions().length; index++) {

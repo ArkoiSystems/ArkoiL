@@ -1,0 +1,450 @@
+Syntax Trees:
+   │
+   ├── RootAST
+   │   ├── factory:
+   │   │   ├── next: FUNCTION
+   │   │   ├── start: 0
+   │   │   └── end: 57
+   │   │
+   │   └── nodes: 
+   │       └── FunctionAST
+   │           ├── factory:
+   │           │   ├── next: PARAMETER_LIST
+   │           │   ├── start: 25
+   │           │   └── end: 57
+   │           │
+   │           ├── annotations: 
+   │           │   └── AnnotationAST
+   │           │       ├── factory:
+   │           │       │   ├── next: IDENTIFIER_CALL, ARGUMENT_LIST, FUNCTION
+   │           │       │   ├── start: 0
+   │           │       │   └── end: 23
+   │           │       │
+   │           │       ├── name: native
+   │           │       └── arguments: 
+   │           │           ├── factory:
+   │           │           │   ├── next: ARGUMENT
+   │           │           │   ├── start: 7
+   │           │           │   └── end: 23
+   │           │           │
+   │           │           └── arguments: 
+   │           │               └── ArgumentAST
+   │           │                   ├── factory:
+   │           │                   │   ├── next: IDENTIFIER_CALL
+   │           │                   │   ├── start: 8
+   │           │                   │   └── end: 22
+   │           │                   │
+   │           │                   ├── name: default
+   │           │                   └── expression:
+   │           │                        ├── factory:
+   │           │                        │   ├── next: 
+   │           │                        │   ├── start: 18
+   │           │                        │   └── end: 22
+   │           │                        │
+   │           │                        ├── fileLocal: false
+   │           │                        ├── identifier: true
+   │           │                        ├── functionCall: null
+   │           │                        └── nextCall: null
+   │           │
+   │           ├── name: println
+   │           ├── type: 
+   │           │   ├── factory:
+   │           │   │   ├── next: 
+   │           │   │   ├── start: -1
+   │           │   │   └── end: -1
+   │           │   │
+   │           │   └── keyword: VOID
+   │           │
+   │           ├── parameters: 
+   │           │   ├── factory:
+   │           │   │   ├── next: PARAMETER
+   │           │   │   ├── start: 38
+   │           │   │   └── end: 55
+   │           │   │
+   │           │   └── parameters: 
+   │           │       └── ParameterAST
+   │           │           ├── factory:
+   │           │           │   ├── next: TYPE
+   │           │           │   ├── start: 39
+   │           │           │   └── end: 54
+   │           │           │
+   │           │           ├── name: message
+   │           │           └── type:
+   │           │               ├── factory:
+   │           │               │   ├── next: 
+   │           │               │   ├── start: 48
+   │           │               │   └── end: 54
+   │           │               │
+   │           │               └── keyword: STRING
+   │           │
+   │           └── block: 
+   │               ├── factory:
+   │               │   ├── next: 
+   │               │   ├── start: -1
+   │               │   └── end: -1
+   │               │
+   │               └── keyword: VOID
+   │
+   ├── RootAST
+   │   ├── factory:
+   │   │   ├── next: FUNCTION, FUNCTION
+   │   │   ├── start: 0
+   │   │   └── end: 70
+   │   │
+   │   └── nodes: 
+   │       ├── FunctionAST
+   │       │   ├── factory:
+   │       │   │   ├── next: TYPE, PARAMETER_LIST, BLOCK
+   │       │   │   ├── start: 14
+   │       │   │   └── end: 48
+   │       │   │
+   │       │   ├── annotations: N/A
+   │       │   │
+   │       │   ├── name: test
+   │       │   ├── type: 
+   │       │   │   ├── factory:
+   │       │   │   │   ├── next: 
+   │       │   │   │   ├── start: 23
+   │       │   │   │   └── end: 29
+   │       │   │   │
+   │       │   │   └── keyword: STRING
+   │       │   │
+   │       │   ├── parameters: N/A
+   │       │   │   ├── factory:
+   │       │   │   │   ├── next: 
+   │       │   │   │   ├── start: 30
+   │       │   │   │   └── end: 32
+   │       │   │   │
+   │       │   │   └── parameters: N/A
+   │       │   │
+   │       │   └── block: 
+   │       │       ├── factory:
+   │       │       │   ├── next: 
+   │       │       │   ├── start: 23
+   │       │       │   └── end: 29
+   │       │       │
+   │       │       └── keyword: STRING
+   │       │
+   │       └── FunctionAST
+   │           ├── factory:
+   │           │   ├── next: PARAMETER_LIST, BLOCK
+   │           │   ├── start: 50
+   │           │   └── end: 69
+   │           │
+   │           ├── annotations: N/A
+   │           │
+   │           ├── name: iksdeh
+   │           ├── type: 
+   │           │   ├── factory:
+   │           │   │   ├── next: 
+   │           │   │   ├── start: -1
+   │           │   │   └── end: -1
+   │           │   │
+   │           │   └── keyword: VOID
+   │           │
+   │           ├── parameters: N/A
+   │           │   ├── factory:
+   │           │   │   ├── next: 
+   │           │   │   ├── start: 62
+   │           │   │   └── end: 64
+   │           │   │
+   │           │   └── parameters: N/A
+   │           │
+   │           └── block: 
+   │               ├── factory:
+   │               │   ├── next: 
+   │               │   ├── start: -1
+   │               │   └── end: -1
+   │               │
+   │               └── keyword: VOID
+   │
+   └── RootAST
+       ├── factory:
+       │   ├── next: IMPORT, VARIABLE, VARIABLE, VARIABLE, FUNCTION
+       │   ├── start: 0
+       │   └── end: 563
+       │
+       └── nodes: 
+           ├── ImportAST
+           │   ├── factory:
+           │   │   ├── next: 
+           │   │   ├── start: 0
+           │   │   └── end: 21
+           │   │
+           │   ├── name: test
+           │   └── path: test
+           │
+           ├── VariableAST
+           │   ├── factory:
+           │   │   ├── next: IDENTIFIER_CALL
+           │   │   ├── start: 23
+           │   │   └── end: 48
+           │   │
+           │   ├── annotations: N/A
+           │   │
+           │   ├── name: test_1
+           │   │
+           │   └── expression: 
+           │       ├── factory:
+           │       │   ├── next: IDENTIFIER_CALL
+           │       │   ├── start: 36
+           │       │   └── end: 48
+           │       │
+           │       ├── fileLocal: false
+           │       ├── identifier: test
+           │       ├── functionCall: null
+           │       └── nextCall: 
+           │           ├── factory:
+           │           │   ├── next: FUNCTION_CALL_PART
+           │           │   ├── start: 41
+           │           │   └── end: 48
+           │           │
+           │           ├── fileLocal: false
+           │           ├── identifier: test
+           │           ├── functionCall: 
+           │           │   ├── factory:
+           │           │   │   ├── next: NUMBER
+           │           │   │   ├── start: 45
+           │           │   │   └── end: 48
+           │           │   │
+           │           │   └── expressions: 
+           │           │       └── NumberAST
+           │           │           ├── factory:
+           │           │           │   ├── next: 
+           │           │           │   ├── start: 46
+           │           │           │   └── end: 47
+           │           │           │
+           │           │           └── operable: 1
+           │           └── nextCall: null
+           │
+           ├── VariableAST
+           │   ├── factory:
+           │   │   ├── next: IDENTIFIER_CALL
+           │   │   ├── start: 50
+           │   │   └── end: 78
+           │   │
+           │   ├── annotations: N/A
+           │   │
+           │   ├── name: test_2
+           │   │
+           │   └── expression: 
+           │       ├── factory:
+           │       │   ├── next: FUNCTION_CALL_PART
+           │       │   ├── start: 63
+           │       │   └── end: 78
+           │       │
+           │       ├── fileLocal: true
+           │       ├── identifier: greeting
+           │       ├── functionCall: 
+           │       │   ├── factory:
+           │       │   │   ├── next: 
+           │       │   │   ├── start: 76
+           │       │   │   └── end: 78
+           │       │   │
+           │       │   └── expressions: NaN
+           │       └── nextCall: null
+           │
+           ├── VariableAST
+           │   ├── factory:
+           │   │   ├── next: BINARY_EXPRESSION
+           │   │   ├── start: 80
+           │   │   └── end: 137
+           │   │
+           │   ├── annotations: N/A
+           │   │
+           │   ├── name: test_3
+           │   │
+           │   └── expression: 
+           │       ├── factory:
+           │       │   ├── next: CAST_EXPRESSION, CAST_EXPRESSION
+           │       │   ├── start: 93
+           │       │   └── end: 137
+           │       │
+           │       ├── left:
+           │       │   └── CastExpressionAST
+           │       │       ├── factory:
+           │       │       │   ├── next: PARENTHESIZED_EXPRESSION
+           │       │       │   ├── start: 93
+           │       │       │   └── end: 132
+           │       │       │
+           │       │       ├── left:
+           │       │       │   └── ParenthesizedExpressionAST
+           │       │       │       ├── factory:
+           │       │       │       │   ├── next: BINARY_EXPRESSION
+           │       │       │       │   ├── start: 93
+           │       │       │       │   └── end: 131
+           │       │       │       │
+           │       │       │       └── operable:
+           │       │       │           └── BinaryExpressionAST
+           │       │       │               ├── factory:
+           │       │       │               │   ├── next: IDENTIFIER_CALL, BINARY_EXPRESSION
+           │       │       │               │   ├── start: 94
+           │       │       │               │   └── end: 130
+           │       │       │               │
+           │       │       │               ├── left:
+           │       │       │               │   └── IdentifierCallAST
+           │       │       │               │       ├── factory:
+           │       │       │               │       │   ├── next: 
+           │       │       │               │       │   ├── start: 94
+           │       │       │               │       │   └── end: 100
+           │       │       │               │       │
+           │       │       │               │       ├── fileLocal: false
+           │       │       │               │       ├── identifier: test_1
+           │       │       │               │       ├── functionCall: null
+           │       │       │               │       └── nextCall: null
+           │       │       │               ├── operator: SUBTRACTION
+           │       │       │               └── right:
+           │       │       │                   └── BinaryExpressionAST
+           │       │       │                       ├── factory:
+           │       │       │                       │   ├── next: PARENTHESIZED_EXPRESSION, NUMBER
+           │       │       │                       │   ├── start: 103
+           │       │       │                       │   └── end: 130
+           │       │       │                       │
+           │       │       │                       ├── left:
+           │       │       │                       │   └── ParenthesizedExpressionAST
+           │       │       │                       │       ├── factory:
+           │       │       │                       │       │   ├── next: ASSIGNMENT_EXPRESSION
+           │       │       │                       │       │   ├── start: 103
+           │       │       │                       │       │   └── end: 126
+           │       │       │                       │       │
+           │       │       │                       │       └── operable:
+           │       │       │                       │           └── AssignmentExpressionAST
+           │       │       │                       │               ├── factory:
+           │       │       │                       │               │   ├── next: BINARY_EXPRESSION, BINARY_EXPRESSION
+           │       │       │                       │               │   ├── start: 104
+           │       │       │                       │               │   └── end: 125
+           │       │       │                       │               │
+           │       │       │                       │               ├── left:
+           │       │       │                       │               │   └── BinaryExpressionAST
+           │       │       │                       │               │       ├── factory:
+           │       │       │                       │               │       │   ├── next: IDENTIFIER_CALL, NUMBER
+           │       │       │                       │               │       │   ├── start: 104
+           │       │       │                       │               │       │   └── end: 114
+           │       │       │                       │               │       │
+           │       │       │                       │               │       ├── left:
+           │       │       │                       │               │       │   └── IdentifierCallAST
+           │       │       │                       │               │       │       ├── factory:
+           │       │       │                       │               │       │       │   ├── next: 
+           │       │       │                       │               │       │       │   ├── start: 104
+           │       │       │                       │               │       │       │   └── end: 110
+           │       │       │                       │               │       │       │
+           │       │       │                       │               │       │       ├── fileLocal: false
+           │       │       │                       │               │       │       ├── identifier: test_1
+           │       │       │                       │               │       │       ├── functionCall: null
+           │       │       │                       │               │       │       └── nextCall: null
+           │       │       │                       │               │       ├── operator: MULTIPLICATION
+           │       │       │                       │               │       └── right:
+           │       │       │                       │               │           └── NumberAST
+           │       │       │                       │               │               ├── factory:
+           │       │       │                       │               │               │   ├── next: 
+           │       │       │                       │               │               │   ├── start: 113
+           │       │       │                       │               │               │   └── end: 114
+           │       │       │                       │               │               │
+           │       │       │                       │               │               └── operable: 2
+           │       │       │                       │               ├── operator: ADD_ASSIGN
+           │       │       │                       │               └── right:
+           │       │       │                       │                   └── BinaryExpressionAST
+           │       │       │                       │                       ├── factory:
+           │       │       │                       │                       │   ├── next: NUMBER, PREFIX_EXPRESSION
+           │       │       │                       │                       │   ├── start: 118
+           │       │       │                       │                       │   └── end: 125
+           │       │       │                       │                       │
+           │       │       │                       │                       ├── left:
+           │       │       │                       │                       │   └── NumberAST
+           │       │       │                       │                       │       ├── factory:
+           │       │       │                       │                       │       │   ├── next: 
+           │       │       │                       │                       │       │   ├── start: 118
+           │       │       │                       │                       │       │   └── end: 119
+           │       │       │                       │                       │       │
+           │       │       │                       │                       │       └── operable: 4
+           │       │       │                       │                       ├── operator: ADDITION
+           │       │       │                       │                       └── right:
+           │       │       │                       │                           └── PrefixExpressionAST
+           │       │       │                       │                               ├── factory:
+           │       │       │                       │                               │   ├── next: NUMBER
+           │       │       │                       │                               │   ├── start: 122
+           │       │       │                       │                               │   └── end: 125
+           │       │       │                       │                               │
+           │       │       │                       │                               ├── operator: NEGATE
+           │       │       │                       │                               └── right:
+           │       │       │                       │                                   └── NumberAST
+           │       │       │                       │                                       ├── factory:
+           │       │       │                       │                                       │   ├── next: 
+           │       │       │                       │                                       │   ├── start: 123
+           │       │       │                       │                                       │   └── end: 125
+           │       │       │                       │                                       │
+           │       │       │                       │                                       └── operable: 10
+           │       │       │                       ├── operator: MULTIPLICATION
+           │       │       │                       └── right:
+           │       │       │                           └── NumberAST
+           │       │       │                               ├── factory:
+           │       │       │                               │   ├── next: 
+           │       │       │                               │   ├── start: 129
+           │       │       │                               │   └── end: 130
+           │       │       │                               │
+           │       │       │                               └── operable: 5
+           │       │       └── typeKind: UNDEFINED
+           │       ├── operator: MULTIPLICATION
+           │       └── right:
+           │           └── CastExpressionAST
+           │               ├── factory:
+           │               │   ├── next: NUMBER
+           │               │   ├── start: 135
+           │               │   └── end: 137
+           │               │
+           │               ├── left:
+           │               │   └── NumberAST
+           │               │       ├── factory:
+           │               │       │   ├── next: 
+           │               │       │   ├── start: 135
+           │               │       │   └── end: 136
+           │               │       │
+           │               │       └── operable: 2
+           │               └── typeKind: UNDEFINED
+           │
+           └── FunctionAST
+               ├── factory:
+               │   ├── next: PARAMETER_LIST, BLOCK
+               │   ├── start: 433
+               │   └── end: 520
+               │
+               ├── annotations: N/A
+               │
+               ├── name: print_greet
+               ├── type: 
+               │   ├── factory:
+               │   │   ├── next: 
+               │   │   ├── start: -1
+               │   │   └── end: -1
+               │   │
+               │   └── keyword: VOID
+               │
+               ├── parameters: 
+               │   ├── factory:
+               │   │   ├── next: PARAMETER
+               │   │   ├── start: 450
+               │   │   └── end: 473
+               │   │
+               │   └── parameters: 
+               │       └── ParameterAST
+               │           ├── factory:
+               │           │   ├── next: TYPE
+               │           │   ├── start: 451
+               │           │   └── end: 472
+               │           │
+               │           ├── name: test_argument
+               │           └── type:
+               │               ├── factory:
+               │               │   ├── next: 
+               │               │   ├── start: 466
+               │               │   └── end: 472
+               │               │
+               │               └── keyword: STRING
+               │
+               └── block: 
+                   ├── factory:
+                   │   ├── next: 
+                   │   ├── start: -1
+                   │   └── end: -1
+                   │
+                   └── keyword: VOID

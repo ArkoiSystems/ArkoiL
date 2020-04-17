@@ -20,7 +20,7 @@ package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.parsers;
 
 import com.arkoisystems.arkoicompiler.api.IASTNode;
 import com.arkoisystems.arkoicompiler.api.ISyntaxParser;
-import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken;
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.ArkoiToken;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.ExpressionAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.StatementAST;
@@ -40,7 +40,7 @@ public class StatementParser implements ISyntaxParser
     
     @Override
     public boolean canParse(@NotNull final IASTNode parentAST, @NotNull final SyntaxAnalyzer syntaxAnalyzer) {
-        final AbstractToken currentToken = syntaxAnalyzer.currentToken();
+        final ArkoiToken currentToken = syntaxAnalyzer.currentToken();
         if (parentAST instanceof ExpressionAST) {
             switch (currentToken.getTokenContent()) {
                 case "var":

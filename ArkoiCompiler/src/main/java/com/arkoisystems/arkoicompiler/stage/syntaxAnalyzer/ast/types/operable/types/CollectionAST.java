@@ -20,7 +20,7 @@ package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.t
 
 import com.arkoisystems.arkoicompiler.api.IASTNode;
 import com.arkoisystems.arkoicompiler.api.IVisitor;
-import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken;
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.ArkoiToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.SymbolType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxErrorType;
@@ -34,11 +34,9 @@ import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 public class CollectionAST extends OperableAST
 {
@@ -57,7 +55,7 @@ public class CollectionAST extends OperableAST
     @NotNull
     @Override
     public CollectionAST parseAST(@NotNull final IASTNode parentAST) {
-        Objects.requireNonNull(this.getSyntaxAnalyzer());
+        Objects.requireNonNull(this.getSyntaxAnalyzer(), "syntaxAnalyzer must not be null.");
         
         if (this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.OPENING_BRACKET) == null)
             return this.addError(
@@ -113,13 +111,13 @@ public class CollectionAST extends OperableAST
     
     
     @Override
-    public void accept(@NotNull final IVisitor visitor) {
+    public void accept(@NotNull final IVisitor<?> visitor) {
         visitor.visit(this);
     }
     
     
     @Override
-    public TypeKind getTypeKind() {
+    public @NotNull TypeKind getTypeKind() {
         return TypeKind.COLLECTION;
     }
     
@@ -145,7 +143,7 @@ public class CollectionAST extends OperableAST
         private List<OperableAST> collectionExpressions;
         
         
-        private AbstractToken startToken, endToken;
+        private ArkoiToken startToken, endToken;
     
     
         public CollectionASTBuilder(@NotNull final SyntaxAnalyzer syntaxAnalyzer) {
@@ -164,13 +162,13 @@ public class CollectionAST extends OperableAST
         }
     
     
-        public CollectionASTBuilder start(final AbstractToken startToken) {
+        public CollectionASTBuilder start(final ArkoiToken startToken) {
             this.startToken = startToken;
             return this;
         }
     
     
-        public CollectionASTBuilder end(final AbstractToken endToken) {
+        public CollectionASTBuilder end(final ArkoiToken endToken) {
             this.endToken = endToken;
             return this;
         }

@@ -20,6 +20,8 @@ package com.arkoisystems.arkoicompiler.stage.semanticAnalyzer;
 
 import com.arkoisystems.arkoicompiler.api.ICompilerClass;
 import com.arkoisystems.arkoicompiler.api.ICompilerStage;
+import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.visitors.ScopeVisitor;
+import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.visitors.TypeVisitor;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
@@ -50,9 +52,14 @@ public class SemanticAnalyzer implements ICompilerStage
     @Override
     public boolean processStage() {
         this.reset();
-        final ASTScope astScope = new ASTScope(this);
-        astScope.visit(this.getCompilerClass().getSyntaxAnalyzer().getRootAST());
-        return !astScope.isFailed();
+    
+        final ScopeVisitor scopeVisitor = new ScopeVisitor(this);
+        scopeVisitor.visit(this.getCompilerClass().getSyntaxAnalyzer().getRootAST());
+    
+        final TypeVisitor typeVisitor = new TypeVisitor(this);
+        typeVisitor.visit(this.getCompilerClass().getSyntaxAnalyzer().getRootAST());
+    
+        return !scopeVisitor.isFailed() && !typeVisitor.isFailed();
     }
     
     

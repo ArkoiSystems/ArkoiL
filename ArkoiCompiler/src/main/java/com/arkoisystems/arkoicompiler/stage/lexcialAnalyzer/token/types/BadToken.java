@@ -19,7 +19,7 @@
 package com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types;
 
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.LexicalAnalyzer;
-import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken;
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.ArkoiToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -27,7 +27,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Objects;
 import java.util.Optional;
 
-public class BadToken extends AbstractToken
+public class BadToken extends ArkoiToken
 {
     
     protected BadToken(@Nullable final LexicalAnalyzer lexicalAnalyzer) {
@@ -35,13 +35,12 @@ public class BadToken extends AbstractToken
     }
     
     
-    @NotNull
     @Override
-    public Optional<BadToken> parseToken() {
-        Objects.requireNonNull(this.getLexicalAnalyzer());
+    public @NotNull ArkoiToken parseToken() {
+        Objects.requireNonNull(this.getLexicalAnalyzer(), "lexicalAnalyzer must not be null.");
         
         this.setTokenContent(String.valueOf(this.getLexicalAnalyzer().currentChar()));
-        return Optional.of(this);
+        return this;
     }
     
     

@@ -20,7 +20,7 @@ package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement;
 
 import com.arkoisystems.arkoicompiler.api.IASTNode;
 import com.arkoisystems.arkoicompiler.api.IVisitor;
-import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken;
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.ArkoiToken;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxErrorType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.ArkoiASTNode;
@@ -31,11 +31,11 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.t
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.types.ReturnAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.types.VariableAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.parsers.StatementParser;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.PrintStream;
 import java.util.Objects;
 
 public class StatementAST extends ArkoiASTNode
@@ -52,9 +52,9 @@ public class StatementAST extends ArkoiASTNode
     @NotNull
     @Override
     public IASTNode parseAST(@NotNull final IASTNode parentAST) {
-        Objects.requireNonNull(this.getSyntaxAnalyzer());
+        Objects.requireNonNull(this.getSyntaxAnalyzer(), "syntaxAnalyzer must not be null.");
     
-        final AbstractToken currentToken = this.getSyntaxAnalyzer().currentToken();
+        final ArkoiToken currentToken = this.getSyntaxAnalyzer().currentToken();
         if (parentAST instanceof ExpressionAST) {
             switch (currentToken.getTokenContent()) {
                 case "var":
@@ -102,6 +102,12 @@ public class StatementAST extends ArkoiASTNode
     
     
     @Override
-    public void accept(@NotNull final IVisitor visitor) { }
+    public void accept(@NotNull final IVisitor<?> visitor) { }
+    
+    
+    @Override
+    public @NotNull TypeKind getTypeKind() {
+        throw new NullPointerException(this.toString());
+    }
     
 }

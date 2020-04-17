@@ -18,11 +18,9 @@
  */
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer;
 
-import com.arkoisystems.arkoicompiler.ArkoiError;
 import com.arkoisystems.arkoicompiler.api.ICompilerClass;
 import com.arkoisystems.arkoicompiler.api.ICompilerStage;
-import com.arkoisystems.arkoicompiler.api.error.ICompilerError;
-import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken;
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.ArkoiToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.KeywordToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.OperatorToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.SymbolToken;
@@ -56,7 +54,7 @@ public class SyntaxAnalyzer implements ICompilerStage
     
     @Getter
     @NotNull
-    private AbstractToken[] tokens = new AbstractToken[0];
+    private ArkoiToken[] tokens = new ArkoiToken[0];
     
     
     @Getter
@@ -86,7 +84,7 @@ public class SyntaxAnalyzer implements ICompilerStage
     public void reset() {
         this.rootAST = new RootAST(this);
         this.errorHandler = new SyntaxErrorHandler();
-        this.tokens = new AbstractToken[0];
+        this.tokens = new ArkoiToken[0];
         this.failed = false;
         this.position = 0;
     }
@@ -106,7 +104,7 @@ public class SyntaxAnalyzer implements ICompilerStage
     
     @Nullable
     public SymbolToken matchesCurrentToken(@NotNull final SymbolType symbolType, final boolean advance) {
-        final AbstractToken currentToken = this.currentToken(advance);
+        final ArkoiToken currentToken = this.currentToken(advance);
         if (!(currentToken instanceof SymbolToken))
             return null;
         
@@ -125,7 +123,7 @@ public class SyntaxAnalyzer implements ICompilerStage
     
     @Nullable
     public SymbolToken matchesNextToken(@NotNull final SymbolType symbolType, final boolean advance) {
-        final AbstractToken nextToken = this.nextToken(advance);
+        final ArkoiToken nextToken = this.nextToken(advance);
         if (!(nextToken instanceof SymbolToken))
             return null;
         
@@ -147,7 +145,7 @@ public class SyntaxAnalyzer implements ICompilerStage
         if (offset == 0)
             return this.matchesCurrentToken(symbolType, advance);
         
-        final AbstractToken peekToken = this.peekToken(offset, advance);
+        final ArkoiToken peekToken = this.peekToken(offset, advance);
         if (!(peekToken instanceof SymbolToken))
             return null;
         
@@ -166,7 +164,7 @@ public class SyntaxAnalyzer implements ICompilerStage
     
     @Nullable
     public OperatorToken matchesCurrentToken(@NotNull final OperatorType operatorType, final boolean advance) {
-        final AbstractToken currentToken = this.currentToken(advance);
+        final ArkoiToken currentToken = this.currentToken(advance);
         if (!(currentToken instanceof OperatorToken))
             return null;
         
@@ -185,7 +183,7 @@ public class SyntaxAnalyzer implements ICompilerStage
     
     @Nullable
     public OperatorToken matchesNextToken(@NotNull final OperatorType operatorType, final boolean advance) {
-        final AbstractToken nextToken = this.nextToken(advance);
+        final ArkoiToken nextToken = this.nextToken(advance);
         if (!(nextToken instanceof OperatorToken))
             return null;
         
@@ -207,7 +205,7 @@ public class SyntaxAnalyzer implements ICompilerStage
         if (offset == 0)
             return this.matchesCurrentToken(operatorType, advance);
         
-        final AbstractToken peekToken = this.peekToken(offset, advance);
+        final ArkoiToken peekToken = this.peekToken(offset, advance);
         if (!(peekToken instanceof OperatorToken))
             return null;
         
@@ -226,7 +224,7 @@ public class SyntaxAnalyzer implements ICompilerStage
     
     @Nullable
     public KeywordToken matchesCurrentToken(@NotNull final KeywordType keywordType, final boolean advance) {
-        final AbstractToken currentToken = this.currentToken(advance);
+        final ArkoiToken currentToken = this.currentToken(advance);
         if (!(currentToken instanceof KeywordToken))
             return null;
         
@@ -245,7 +243,7 @@ public class SyntaxAnalyzer implements ICompilerStage
     
     @Nullable
     public KeywordToken matchesNextToken(@NotNull final KeywordType keywordType, final boolean advance) {
-        final AbstractToken nextToken = this.nextToken(advance);
+        final ArkoiToken nextToken = this.nextToken(advance);
         if (!(nextToken instanceof KeywordToken))
             return null;
         
@@ -267,7 +265,7 @@ public class SyntaxAnalyzer implements ICompilerStage
         if (offset == 0)
             return this.matchesCurrentToken(keywordType, advance);
         
-        final AbstractToken peekToken = this.peekToken(offset, advance);
+        final ArkoiToken peekToken = this.peekToken(offset, advance);
         if (!(peekToken instanceof KeywordToken))
             return null;
         
@@ -279,14 +277,14 @@ public class SyntaxAnalyzer implements ICompilerStage
     
     
     @Nullable
-    public AbstractToken matchesCurrentToken(@NotNull final TokenType tokenType) {
+    public ArkoiToken matchesCurrentToken(@NotNull final TokenType tokenType) {
         return this.matchesCurrentToken(tokenType, true);
     }
     
     
     @Nullable
-    public AbstractToken matchesCurrentToken(@NotNull final TokenType tokenType, final boolean advance) {
-        final AbstractToken currentToken = this.currentToken(advance);
+    public ArkoiToken matchesCurrentToken(@NotNull final TokenType tokenType, final boolean advance) {
+        final ArkoiToken currentToken = this.currentToken(advance);
         if (currentToken.getTokenType() != tokenType)
             return null;
         return currentToken;
@@ -294,14 +292,14 @@ public class SyntaxAnalyzer implements ICompilerStage
     
     
     @Nullable
-    public AbstractToken matchesNextToken(@NotNull final TokenType tokenType) {
+    public ArkoiToken matchesNextToken(@NotNull final TokenType tokenType) {
         return this.matchesNextToken(tokenType, true);
     }
     
     
     @Nullable
-    public AbstractToken matchesNextToken(@NotNull final TokenType tokenType, final boolean advance) {
-        final AbstractToken nextToken = this.nextToken(advance);
+    public ArkoiToken matchesNextToken(@NotNull final TokenType tokenType, final boolean advance) {
+        final ArkoiToken nextToken = this.nextToken(advance);
         if (nextToken.getTokenType() != tokenType)
             return null;
         return nextToken;
@@ -309,17 +307,17 @@ public class SyntaxAnalyzer implements ICompilerStage
     
     
     @Nullable
-    public AbstractToken matchesPeekToken(final int offset, @NotNull final TokenType tokenType) {
+    public ArkoiToken matchesPeekToken(final int offset, @NotNull final TokenType tokenType) {
         return this.matchesPeekToken(offset, tokenType, true);
     }
     
     
     @Nullable
-    public AbstractToken matchesPeekToken(final int offset, @NotNull final TokenType tokenType, final boolean advance) {
+    public ArkoiToken matchesPeekToken(final int offset, @NotNull final TokenType tokenType, final boolean advance) {
         if (offset == 0)
             return this.matchesCurrentToken(tokenType, advance);
         
-        final AbstractToken peekToken = this.peekToken(offset, advance);
+        final ArkoiToken peekToken = this.peekToken(offset, advance);
         if (peekToken.getTokenType() != tokenType)
             return null;
         return peekToken;
@@ -327,27 +325,27 @@ public class SyntaxAnalyzer implements ICompilerStage
     
     
     @NotNull
-    public AbstractToken peekToken(final int offset) {
+    public ArkoiToken peekToken(final int offset) {
         return this.peekToken(offset, true);
     }
     
     
     @NotNull
-    public AbstractToken peekToken(final int offset, final boolean advance) {
-        AbstractToken abstractToken = this.nextToken(offset, advance);
+    public ArkoiToken peekToken(final int offset, final boolean advance) {
+        ArkoiToken arkoiToken = this.nextToken(offset, advance);
         this.undoToken(offset, advance);
-        return abstractToken;
+        return arkoiToken;
     }
     
     
     @NotNull
-    public AbstractToken currentToken() {
+    public ArkoiToken currentToken() {
         return this.currentToken(true);
     }
     
     
     @NotNull
-    public AbstractToken currentToken(final boolean advance) {
+    public ArkoiToken currentToken(final boolean advance) {
         if (advance) {
             while (this.position < this.tokens.length) {
                 if (this.tokens[this.position].getTokenType() != TokenType.WHITESPACE && this.tokens[this.position].getTokenType() != TokenType.COMMENT)
@@ -363,28 +361,28 @@ public class SyntaxAnalyzer implements ICompilerStage
     
     
     @Nullable
-    public AbstractToken nextToken(final int offset) {
+    public ArkoiToken nextToken(final int offset) {
         return this.nextToken(offset, true);
     }
     
     
     @NotNull
-    public AbstractToken nextToken(final int offset, final boolean advance) {
-        AbstractToken abstractToken = this.nextToken(advance);
+    public ArkoiToken nextToken(final int offset, final boolean advance) {
+        ArkoiToken arkoiToken = this.nextToken(advance);
         for (int index = 1; index < offset; index++)
-            abstractToken = this.nextToken(advance);
-        return abstractToken;
+            arkoiToken = this.nextToken(advance);
+        return arkoiToken;
     }
     
     
     @NotNull
-    public AbstractToken nextToken() {
+    public ArkoiToken nextToken() {
         return this.nextToken(true);
     }
     
     
     @NotNull
-    public AbstractToken nextToken(final boolean advance) {
+    public ArkoiToken nextToken(final boolean advance) {
         this.position++;
         
         if (advance) {
@@ -402,7 +400,7 @@ public class SyntaxAnalyzer implements ICompilerStage
     
     
     @NotNull
-    public AbstractToken undoToken(final boolean advance) {
+    public ArkoiToken undoToken(final boolean advance) {
         this.position--;
         
         if (advance) {
@@ -420,11 +418,11 @@ public class SyntaxAnalyzer implements ICompilerStage
     
     
     @Nullable
-    public AbstractToken undoToken(final int offset, final boolean advance) {
-        AbstractToken abstractToken = null;
+    public ArkoiToken undoToken(final int offset, final boolean advance) {
+        ArkoiToken arkoiToken = null;
         for (int index = 0; index < offset; index++)
-            abstractToken = this.undoToken(advance);
-        return abstractToken;
+            arkoiToken = this.undoToken(advance);
+        return arkoiToken;
     }
     
 }

@@ -32,7 +32,7 @@ public class SemanticErrorHandler implements IErrorHandler
 {
     
     @Getter
-    private final List<ICompilerError> compileErrors = new ArrayList<>();
+    private final HashSet<ICompilerError> compileErrors = new HashSet<>();
     
     
     @Override

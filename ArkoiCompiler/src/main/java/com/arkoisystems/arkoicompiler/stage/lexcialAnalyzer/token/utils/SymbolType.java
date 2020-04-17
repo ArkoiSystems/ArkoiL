@@ -9,7 +9,6 @@ public enum SymbolType
     CARET('^'),
     
     COLON(':'),
-    //    SEMICOLON(';'),
     
     OPENING_BRACE('{'),
     CLOSING_BRACE('}'),

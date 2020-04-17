@@ -10,6 +10,10 @@ body {
     background-color: #242428;
 }
 
+h1 {
+    color: white;
+}
+
 /* Custom Navbar */
 
 .navbar {

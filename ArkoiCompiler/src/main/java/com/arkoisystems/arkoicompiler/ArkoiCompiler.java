@@ -69,32 +69,29 @@ public class ArkoiCompiler
         final long compileStart = System.nanoTime();
         {
             final long lexicalStart = System.nanoTime();
-            boolean failed = false;
-            for (final ICompilerClass arkoiClass : this.getArkoiClasses()) {
-                if (!arkoiClass.getLexicalAnalyzer().processStage())
-                    failed = true;
-            }
-            if (failed)
+            final ICompilerClass lexicalFailed = this.getArkoiClasses().stream()
+                    .filter(compilerClass -> !compilerClass.getLexicalAnalyzer().processStage())
+                    .findFirst()
+                    .orElse(null);
+            if (lexicalFailed != null)
                 return false;
             System.out.printf("The lexical analysis took %sms for all classes (%s in total)\n", (System.nanoTime() - lexicalStart) / 1_000_000D, this.arkoiClasses.size());
-            
+    
             final long syntaxStart = System.nanoTime();
-            failed = false;
-            for (final ICompilerClass arkoiClass : this.getArkoiClasses()) {
-                if (!arkoiClass.getSyntaxAnalyzer().processStage())
-                    failed = true;
-            }
-            if (failed)
+            final ICompilerClass syntaxFailed = this.getArkoiClasses().stream()
+                    .filter(compilerClass -> !compilerClass.getSyntaxAnalyzer().processStage())
+                    .findFirst()
+                    .orElse(null);
+            if (syntaxFailed != null)
                 return false;
             System.out.printf("The syntax analysis took %sms for all classes (%s in total)\n", (System.nanoTime() - syntaxStart) / 1_000_000D, this.getArkoiClasses().size());
-            
+    
             final long semanticStart = System.nanoTime();
-            failed = false;
-            for (final ICompilerClass arkoiClass : this.getArkoiClasses()) {
-                if (!arkoiClass.getSemanticAnalyzer().processStage())
-                    failed = true;
-            }
-            if (failed)
+            final ICompilerClass semanticFailed = this.getArkoiClasses().stream()
+                    .filter(compilerClass -> !compilerClass.getSemanticAnalyzer().processStage())
+                    .findFirst()
+                    .orElse(null);
+            if (semanticFailed != null)
                 return false;
             System.out.printf("The semantic analysis took %sms for all classes (%s in total)\n", (System.nanoTime() - semanticStart) / 1_000_000D, this.getArkoiClasses().size());
         }
@@ -104,7 +101,7 @@ public class ArkoiCompiler
     
     
     private void addNativeFiles() throws IOException {
-        final File nativeDirectory = new File("./natives/");
+        final File nativeDirectory = new File("../natives");
         if (!nativeDirectory.exists())
             throw new NullPointerException("Couldn't find a native directory. Please try to fix the problem with reinstalling the compiler.");
         

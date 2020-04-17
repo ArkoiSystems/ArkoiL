@@ -18,7 +18,7 @@
  */
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils;
 
-import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken;
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.ArkoiToken;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
@@ -61,11 +61,11 @@ public enum TypeKind
     }
     
     
-    public static TypeKind getTypeKind(final AbstractToken abstractToken) {
+    public static TypeKind getTypeKind(final ArkoiToken arkoiToken) {
         for (final TypeKind typeKind : TypeKind.values()) {
             if (typeKind == COLLECTION || typeKind == UNDEFINED)
                 continue;
-            if (typeKind.getName().equals(abstractToken.getTokenContent()))
+            if (typeKind.getName().equals(arkoiToken.getTokenContent()))
                 return typeKind;
         }
         return null;

@@ -25,6 +25,7 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.Op
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.ExpressionAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types.operators.EqualityOperatorType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
@@ -73,8 +74,14 @@ public class EqualityExpressionAST extends ExpressionAST
     
     
     @Override
-    public void accept(@NotNull final IVisitor visitor) {
+    public void accept(@NotNull final IVisitor<?> visitor) {
         visitor.visit(this);
+    }
+    
+    
+    @Override
+    public @NotNull TypeKind getTypeKind() {
+        return TypeKind.UNDEFINED;
     }
     
 }

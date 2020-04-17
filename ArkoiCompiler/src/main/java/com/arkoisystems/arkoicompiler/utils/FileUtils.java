@@ -34,7 +34,7 @@ public class FileUtils
             throw new NullPointerException("Couldn't get all files out of this directory, because it isn't a directory.");
         
         final List<File> files = new ArrayList<>();
-        for (final File file : Objects.requireNonNull(directory.listFiles())) {
+        for (final File file : directory.listFiles()) {
             if (file.isDirectory())
                 files.addAll(getAllFiles(file));
             else

@@ -55,8 +55,8 @@ public class MarkerFactory<T extends IASTNode, T1, T2>
     
     
     public void error(final T1 start, final T2 end, final String message, final Object... arguments) {
-        Objects.requireNonNull(this.getAstNode());
-        Objects.requireNonNull(this.getAstNode().getSyntaxAnalyzer());
+        Objects.requireNonNull(this.getAstNode(), "astNode must not be null.");
+        Objects.requireNonNull(this.getAstNode().getSyntaxAnalyzer(), "astNode.syntaxAnalyzer must not be null.");
         
         this.currentMarker.setErrorMessage(message);
         this.currentMarker.setErrorArguments(arguments);

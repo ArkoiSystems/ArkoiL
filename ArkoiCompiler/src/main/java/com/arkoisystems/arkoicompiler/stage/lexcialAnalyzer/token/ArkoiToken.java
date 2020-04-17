@@ -18,14 +18,11 @@
  */
 package com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token;
 
-import com.arkoisystems.arkoicompiler.ArkoiClass;
 import com.arkoisystems.arkoicompiler.ArkoiError;
 import com.arkoisystems.arkoicompiler.api.ICompilerClass;
-import com.arkoisystems.arkoicompiler.api.utils.IFailed;
+import com.arkoisystems.arkoicompiler.api.IToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.LexicalAnalyzer;
-import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.NumberToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxErrorType;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -34,10 +31,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
-import java.util.Optional;
 
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public abstract class AbstractToken implements IFailed
+public abstract class ArkoiToken implements IToken
 {
     
     @Getter
@@ -64,19 +60,18 @@ public abstract class AbstractToken implements IFailed
     
     
     @EqualsAndHashCode.Include
-    @Setter(AccessLevel.PROTECTED)
+    @Setter
     @Getter
     private int start, end;
     
     
-    public AbstractToken(@Nullable final LexicalAnalyzer lexicalAnalyzer, @NotNull final TokenType tokenType) {
+    public ArkoiToken(@Nullable final LexicalAnalyzer lexicalAnalyzer, @NotNull final TokenType tokenType) {
         this.lexicalAnalyzer = lexicalAnalyzer;
         this.tokenType = tokenType;
     }
     
     
-    @NotNull
-    public abstract Optional<? extends AbstractToken> parseToken();
+    public abstract @Nullable ArkoiToken parseToken();
     
     
     @Override
@@ -86,7 +81,7 @@ public abstract class AbstractToken implements IFailed
     
     
     public <E> E addError(@Nullable E errorSource, @NotNull final ICompilerClass compilerClass, final int position, @NotNull final String message, final Object... arguments) {
-        Objects.requireNonNull(this.getLexicalAnalyzer());
+        Objects.requireNonNull(this.getLexicalAnalyzer(), "lexicalAnalyzer must not be null.");
         
         this.getLexicalAnalyzer().getErrorHandler().addError(ArkoiError.builder()
                 .compilerClass(compilerClass)
@@ -102,7 +97,7 @@ public abstract class AbstractToken implements IFailed
     
     
     public <E> E addError(@Nullable final E errorSource, @NotNull final ICompilerClass compilerClass, final int start, final int end, @NotNull final String message, final Object... arguments) {
-        Objects.requireNonNull(this.getLexicalAnalyzer());
+        Objects.requireNonNull(this.getLexicalAnalyzer(), "lexicalAnalyzer must not be null.");
         
         this.getLexicalAnalyzer().getErrorHandler().addError(ArkoiError.builder()
                 .compilerClass(compilerClass)
