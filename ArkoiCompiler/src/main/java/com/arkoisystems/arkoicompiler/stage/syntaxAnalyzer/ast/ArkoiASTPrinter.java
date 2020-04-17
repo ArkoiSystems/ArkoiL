@@ -21,6 +21,7 @@ package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast;
 import com.arkoisystems.arkoicompiler.api.IASTNode;
 import com.arkoisystems.arkoicompiler.api.IVisitor;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.*;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.OperableAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.*;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types.*;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.types.FunctionAST;
@@ -286,14 +287,33 @@ public class ArkoiASTPrinter implements IVisitor<IASTNode>
         
         this.printFactory(identifierCallAST);
         this.getPrintStream().printf("%s├── fileLocal: %s%n", this.getIndents(), identifierCallAST.isFileLocal());
-        this.getPrintStream().printf("%s└── identifier: %s%n", this.getIndents(), identifierCallAST.getCalledIdentifier().getTokenContent());
+        this.getPrintStream().printf("%s├── identifier: %s%n", this.getIndents(), identifierCallAST.getCalledIdentifier().getTokenContent());
+        this.getPrintStream().printf("%s├── functionCall: %s%n", this.getIndents(), identifierCallAST.getCalledFunctionPart() == null ? "null" : "");
+        if(identifierCallAST.getCalledFunctionPart() != null)
+            this.tempIndent(this.getIndents(), this.getIndents() + "│   ", () -> this.visit(identifierCallAST.getCalledFunctionPart()));
+        this.getPrintStream().printf("%s└── nextCall: %s%n", this.getIndents(), identifierCallAST.getNextIdentifierCall() == null ? "null" : "");
+        if(identifierCallAST.getNextIdentifierCall() != null)
+            this.tempIndent(this.getIndents(), this.getIndents() + "    ", () -> this.visit(identifierCallAST.getNextIdentifierCall()));
         return identifierCallAST;
     }
     
     
     @Override
     public FunctionCallPartAST visit(@NotNull final FunctionCallPartAST functionCallPartAST) {
-        throw new NullPointerException();
+        this.printFactory(functionCallPartAST);
+        this.getPrintStream().printf("%s└── expressions: %s%n", this.getIndents(), functionCallPartAST.getCalledExpressions().isEmpty() ? "NaN" : "");
+        for (int index = 0; index < functionCallPartAST.getCalledExpressions().size(); index++) {
+            final IASTNode astNode = functionCallPartAST.getCalledExpressions().get(index);
+            if (index == functionCallPartAST.getCalledExpressions().size() - 1) {
+                this.getPrintStream().printf("%s    └── %s%n", this.getIndents(), astNode.getClass().getSimpleName());
+                this.tempIndent(this.getIndents(), this.getIndents() + "        ", () -> this.visit(astNode));
+            } else {
+                this.getPrintStream().printf("%s    ├── %s%n", this.getIndents(), astNode.getClass().getSimpleName());
+                this.tempIndent(this.getIndents(), this.getIndents() + "    │   ", () -> this.visit(astNode));
+                this.getPrintStream().printf("%s    │%n", this.getIndents());
+            }
+        }
+        return functionCallPartAST;
     }
     
     

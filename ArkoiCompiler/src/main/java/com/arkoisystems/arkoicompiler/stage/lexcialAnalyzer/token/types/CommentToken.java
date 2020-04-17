@@ -19,7 +19,7 @@
 package com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types;
 
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.LexicalAnalyzer;
-import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken;
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.ArkoiToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -28,7 +28,7 @@ import java.util.Arrays;
 import java.util.Objects;
 import java.util.Optional;
 
-public class CommentToken extends AbstractToken
+public class CommentToken extends ArkoiToken
 {
     
     protected CommentToken(@Nullable final LexicalAnalyzer lexicalAnalyzer) {
@@ -36,10 +36,9 @@ public class CommentToken extends AbstractToken
     }
     
     
-    @NotNull
     @Override
-    public Optional<? extends AbstractToken> parseToken() {
-        Objects.requireNonNull(this.getLexicalAnalyzer());
+    public @NotNull ArkoiToken parseToken() {
+        Objects.requireNonNull(this.getLexicalAnalyzer(), "lexicalAnalyzer must not be null.");
     
         if (this.getLexicalAnalyzer().currentChar() != '#')
             return this.addError(
@@ -65,7 +64,7 @@ public class CommentToken extends AbstractToken
         this.setEnd(this.getLexicalAnalyzer().getPosition());
     
         this.setTokenContent(new String(Arrays.copyOfRange(this.getLexicalAnalyzer().getCompilerClass().getContent(), this.getStart(), this.getEnd())).intern());
-        return Optional.of(this);
+        return this;
     }
     
     

@@ -19,9 +19,10 @@
 package com.arkoisystems.arkoicompiler.api;
 
 import com.arkoisystems.arkoicompiler.api.utils.IFailed;
-import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken;
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.ArkoiToken;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.marker.MarkerFactory;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -30,7 +31,7 @@ public interface IASTNode extends IFailed
 {
     
     @NotNull
-    MarkerFactory<? extends IASTNode, AbstractToken, AbstractToken> getMarkerFactory();
+    MarkerFactory<? extends IASTNode, ArkoiToken, ArkoiToken> getMarkerFactory();
     
     
     @Nullable
@@ -38,11 +39,11 @@ public interface IASTNode extends IFailed
     
     
     @Nullable
-    AbstractToken getStartToken();
+    ArkoiToken getStartToken();
     
     
     @Nullable
-    AbstractToken getEndToken();
+    ArkoiToken getEndToken();
     
     
     @NotNull
@@ -50,10 +51,14 @@ public interface IASTNode extends IFailed
     
     
     @NotNull
+    TypeKind getTypeKind();
+    
+    
+    @NotNull
     IASTNode parseAST(@NotNull final IASTNode parentAST);
     
     
-    void accept(@NotNull final IVisitor visitor);
+    void accept(@NotNull final IVisitor<?> visitor);
     
     
     <E> E addError(@Nullable final E errorSource, @NotNull final ICompilerClass compilerClass, @NotNull final IASTNode[] astNodes, @NotNull final String message, @NotNull final Object... arguments);
@@ -65,6 +70,6 @@ public interface IASTNode extends IFailed
     <E> E addError(@Nullable final E errorSource, @NotNull final ICompilerClass compilerClass, final int start, final int end, @NotNull final String message, @NotNull final Object... arguments);
     
     
-    <E> E addError(@Nullable final E errorSource, @NotNull final ICompilerClass compilerClass, @NotNull final AbstractToken abstractToken, @NotNull final String message, @NotNull final Object... arguments);
+    <E> E addError(@Nullable final E errorSource, @NotNull final ICompilerClass compilerClass, @NotNull final ArkoiToken arkoiToken, @NotNull final String message, @NotNull final Object... arguments);
     
 }

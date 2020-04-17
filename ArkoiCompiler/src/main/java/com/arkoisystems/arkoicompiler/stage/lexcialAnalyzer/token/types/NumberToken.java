@@ -19,16 +19,15 @@
 package com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types;
 
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.LexicalAnalyzer;
-import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken;
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.ArkoiToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.Objects;
-import java.util.Optional;
 
-public class NumberToken extends AbstractToken
+public class NumberToken extends ArkoiToken
 {
     
     protected NumberToken(@Nullable final LexicalAnalyzer lexicalAnalyzer) {
@@ -36,10 +35,9 @@ public class NumberToken extends AbstractToken
     }
     
     
-    @NotNull
     @Override
-    public Optional<? extends AbstractToken> parseToken() {
-        Objects.requireNonNull(this.getLexicalAnalyzer());
+    public @NotNull ArkoiToken parseToken() {
+        Objects.requireNonNull(this.getLexicalAnalyzer(), "lexicalAnalyzer must not be null.");
     
         if (!Character.isDigit(this.getLexicalAnalyzer().currentChar()) && this.getLexicalAnalyzer().currentChar() != '.')
             return this.addError(
@@ -112,14 +110,13 @@ public class NumberToken extends AbstractToken
         this.setTokenContent(new String(Arrays.copyOfRange(this.getLexicalAnalyzer().getCompilerClass().getContent(), this.getStart(), this.getEnd())).intern());
         if (this.getTokenContent().equals(".")) {
             this.getLexicalAnalyzer().undo();
-            return BadToken
-                    .builder(this.getLexicalAnalyzer())
+            return BadToken.builder(this.getLexicalAnalyzer())
                     .start(this.getStart())
                     .end(this.getEnd())
                     .build()
                     .parseToken();
         }
-        return Optional.of(this);
+        return this;
     }
     
     

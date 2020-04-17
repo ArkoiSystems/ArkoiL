@@ -19,16 +19,15 @@
 package com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types;
 
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.LexicalAnalyzer;
-import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken;
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.ArkoiToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.Objects;
-import java.util.Optional;
 
-public class WhitespaceToken extends AbstractToken
+public class WhitespaceToken extends ArkoiToken
 {
     
     protected WhitespaceToken(@Nullable final LexicalAnalyzer lexicalAnalyzer) {
@@ -36,16 +35,15 @@ public class WhitespaceToken extends AbstractToken
     }
     
     
-    @NotNull
     @Override
-    public Optional<WhitespaceToken> parseToken() {
-        Objects.requireNonNull(this.getLexicalAnalyzer());
+    public @NotNull WhitespaceToken parseToken() {
+        Objects.requireNonNull(this.getLexicalAnalyzer(), "lexicalAnalyzer must not be null.");
         
         this.setStart(this.getLexicalAnalyzer().getPosition());
         this.setEnd(this.getLexicalAnalyzer().getPosition() + 1);
         this.setTokenContent(new String(Arrays.copyOfRange(this.getLexicalAnalyzer().getCompilerClass().getContent(), this.getStart(), this.getEnd())).intern());
         this.getLexicalAnalyzer().next();
-        return Optional.of(this);
+        return this;
     }
     
     

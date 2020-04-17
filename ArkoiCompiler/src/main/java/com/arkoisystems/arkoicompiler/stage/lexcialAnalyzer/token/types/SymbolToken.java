@@ -19,7 +19,7 @@
 package com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types;
 
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.LexicalAnalyzer;
-import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken;
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.ArkoiToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.SymbolType;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
 import lombok.AccessLevel;
@@ -29,9 +29,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
-import java.util.Optional;
 
-public class SymbolToken extends AbstractToken
+public class SymbolToken extends ArkoiToken
 {
     
     @Getter
@@ -45,21 +44,22 @@ public class SymbolToken extends AbstractToken
     }
     
     
-    @NotNull
     @Override
-    public Optional<? extends AbstractToken> parseToken() {
-        Objects.requireNonNull(this.getLexicalAnalyzer());
-    
+    public @NotNull ArkoiToken parseToken() {
+        Objects.requireNonNull(this.getLexicalAnalyzer(), "lexicalAnalyzer must not be null.");
+        
         final char currentChar = this.getLexicalAnalyzer().currentChar();
         this.setTokenContent(String.valueOf(currentChar));
-    
+        
         SymbolType symbolType = null;
-        for (final SymbolType type : SymbolType.values())
-            if (type.getCharacter() == currentChar) {
-                symbolType = type;
-                break;
-            }
-    
+        for (final SymbolType type : SymbolType.values()) {
+            if (type.getCharacter() != currentChar)
+                continue;
+            
+            symbolType = type;
+            break;
+        }
+        
         if (symbolType == null)
             return this.addError(
                     BadToken.builder(this.getLexicalAnalyzer())
@@ -77,7 +77,7 @@ public class SymbolToken extends AbstractToken
         this.setStart(this.getLexicalAnalyzer().getPosition());
         this.setEnd(this.getLexicalAnalyzer().getPosition() + 1);
         this.getLexicalAnalyzer().next();
-        return Optional.of(this);
+        return this;
     }
     
     

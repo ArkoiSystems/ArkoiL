@@ -20,7 +20,7 @@ package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.t
 
 import com.arkoisystems.arkoicompiler.api.IASTNode;
 import com.arkoisystems.arkoicompiler.api.IVisitor;
-import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken;
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.ArkoiToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.StringToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
@@ -53,7 +53,7 @@ public class StringAST extends OperableAST
     @NotNull
     @Override
     public StringAST parseAST(@NotNull final IASTNode parentAST) {
-        Objects.requireNonNull(this.getSyntaxAnalyzer());
+        Objects.requireNonNull(this.getSyntaxAnalyzer(), "syntaxAnalyzer must not be null.");
         
         if (this.getSyntaxAnalyzer().matchesCurrentToken(TokenType.STRING_LITERAL) == null)
             return this.addError(
@@ -77,13 +77,13 @@ public class StringAST extends OperableAST
     
     
     @Override
-    public void accept(@NotNull final IVisitor visitor) {
+    public void accept(@NotNull final IVisitor<?> visitor) {
         visitor.visit(this);
     }
     
     
     @Override
-    public TypeKind getTypeKind() {
+    public @NotNull TypeKind getTypeKind() {
         return TypeKind.STRING;
     }
     
@@ -109,7 +109,7 @@ public class StringAST extends OperableAST
         private StringToken stringToken;
         
         
-        private AbstractToken startToken, endToken;
+        private ArkoiToken startToken, endToken;
         
         
         public StringASTBuilder(@NotNull final SyntaxAnalyzer syntaxAnalyzer) {
@@ -128,13 +128,13 @@ public class StringAST extends OperableAST
         }
         
         
-        public StringASTBuilder start(final AbstractToken startToken) {
+        public StringASTBuilder start(final ArkoiToken startToken) {
             this.startToken = startToken;
             return this;
         }
         
         
-        public StringASTBuilder end(final AbstractToken endToken) {
+        public StringASTBuilder end(final ArkoiToken endToken) {
             this.endToken = endToken;
             return this;
         }

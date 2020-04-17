@@ -26,6 +26,7 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxErrorType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.ArkoiASTNode;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.StatementAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
@@ -57,8 +58,8 @@ public class RootAST extends ArkoiASTNode
     @NotNull
     @Override
     public RootAST parseAST(@NotNull IASTNode parentAST) {
-        Objects.requireNonNull(this.getSyntaxAnalyzer());
-        Objects.requireNonNull(this.getMarkerFactory());
+        Objects.requireNonNull(this.getSyntaxAnalyzer(), "syntaxAnalyzer must not be null.");
+        Objects.requireNonNull(this.getMarkerFactory(), "markerFactory must not be null.");
         
         this.setStartToken(this.getSyntaxAnalyzer().currentToken(false));
         this.getMarkerFactory().mark(this.getStartToken());
@@ -98,8 +99,14 @@ public class RootAST extends ArkoiASTNode
     
     
     @Override
-    public void accept(@NotNull final IVisitor visitor) {
+    public void accept(@NotNull final IVisitor<?> visitor) {
         visitor.visit(this);
+    }
+    
+    
+    @Override
+    public @NotNull TypeKind getTypeKind() {
+        return TypeKind.UNDEFINED;
     }
     
 }

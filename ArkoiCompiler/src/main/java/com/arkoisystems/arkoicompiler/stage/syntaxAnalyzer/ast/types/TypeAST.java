@@ -20,7 +20,7 @@ package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types;
 
 import com.arkoisystems.arkoicompiler.api.IASTNode;
 import com.arkoisystems.arkoicompiler.api.IVisitor;
-import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken;
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.ArkoiToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.TypeKeywordToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.SymbolType;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
@@ -28,17 +28,15 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxErrorType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.ArkoiASTNode;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.parsers.TypeParser;
-import com.arkoisystems.arkoicompiler.utils.Variables;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.PrintStream;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 public class TypeAST extends ArkoiASTNode
 {
@@ -65,7 +63,7 @@ public class TypeAST extends ArkoiASTNode
     @NotNull
     @Override
     public TypeAST parseAST(@NotNull final IASTNode parentAST) {
-        Objects.requireNonNull(this.getSyntaxAnalyzer());
+        Objects.requireNonNull(this.getSyntaxAnalyzer(), "syntaxAnalyzer must not be null.");
         
         if (this.getSyntaxAnalyzer().matchesCurrentToken(TokenType.TYPE_KEYWORD) == null)
             return this.addError(
@@ -94,8 +92,17 @@ public class TypeAST extends ArkoiASTNode
     
     
     @Override
-    public void accept(@NotNull final IVisitor visitor) {
+    public void accept(@NotNull final IVisitor<?> visitor) {
         visitor.visit(this);
+    }
+    
+    
+    @Override
+    public @NotNull TypeKind getTypeKind() {
+        Objects.requireNonNull(this.getTypeKeywordToken(), "typeKeywordToken must not be null.");
+        Objects.requireNonNull(this.getTypeKeywordToken().getTypeKind(), "typeKeywordToken.typeKind must not be null.");
+        
+        return this.getTypeKeywordToken().getTypeKind();
     }
     
     
@@ -124,7 +131,7 @@ public class TypeAST extends ArkoiASTNode
         private boolean isArray;
         
         
-        private AbstractToken startToken, endToken;
+        private ArkoiToken startToken, endToken;
         
         
         public TypeASTBuilder(@NotNull final SyntaxAnalyzer syntaxAnalyzer) {
@@ -149,13 +156,13 @@ public class TypeAST extends ArkoiASTNode
         }
         
         
-        public TypeASTBuilder start(final AbstractToken startToken) {
+        public TypeASTBuilder start(final ArkoiToken startToken) {
             this.startToken = startToken;
             return this;
         }
         
         
-        public TypeASTBuilder end(final AbstractToken endToken) {
+        public TypeASTBuilder end(final ArkoiToken endToken) {
             this.endToken = endToken;
             return this;
         }

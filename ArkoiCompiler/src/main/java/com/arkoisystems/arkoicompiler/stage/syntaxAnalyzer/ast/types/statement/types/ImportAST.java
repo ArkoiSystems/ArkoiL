@@ -20,7 +20,7 @@ package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.
 
 import com.arkoisystems.arkoicompiler.api.IASTNode;
 import com.arkoisystems.arkoicompiler.api.IVisitor;
-import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken;
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.ArkoiToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.IdentifierToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.StringToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.KeywordType;
@@ -29,15 +29,14 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxErrorType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.StatementAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.PrintStream;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 public class ImportAST extends StatementAST
 {
@@ -62,7 +61,7 @@ public class ImportAST extends StatementAST
     @NotNull
     @Override
     public ImportAST parseAST(@NotNull final IASTNode parentAST) {
-        Objects.requireNonNull(this.getSyntaxAnalyzer());
+        Objects.requireNonNull(this.getSyntaxAnalyzer(), "syntaxAnalyzer must not be null.");
         
         if (this.getSyntaxAnalyzer().matchesCurrentToken(KeywordType.IMPORT) == null) {
             return this.addError(
@@ -122,8 +121,14 @@ public class ImportAST extends StatementAST
     
     
     @Override
-    public void accept(@NotNull final IVisitor visitor) {
+    public void accept(@NotNull final IVisitor<?> visitor) {
         visitor.visit(this);
+    }
+    
+    
+    @Override
+    public @NotNull TypeKind getTypeKind() {
+        return TypeKind.UNDEFINED;
     }
     
     
@@ -152,7 +157,7 @@ public class ImportAST extends StatementAST
         private IdentifierToken importName;
         
         
-        private AbstractToken startToken, endToken;
+        private ArkoiToken startToken, endToken;
         
         
         public ImportASTBuilder(@NotNull final SyntaxAnalyzer syntaxAnalyzer) {
@@ -177,13 +182,13 @@ public class ImportAST extends StatementAST
         }
         
         
-        public ImportASTBuilder start(final AbstractToken startToken) {
+        public ImportASTBuilder start(final ArkoiToken startToken) {
             this.startToken = startToken;
             return this;
         }
         
         
-        public ImportASTBuilder end(final AbstractToken endToken) {
+        public ImportASTBuilder end(final ArkoiToken endToken) {
             this.endToken = endToken;
             return this;
         }

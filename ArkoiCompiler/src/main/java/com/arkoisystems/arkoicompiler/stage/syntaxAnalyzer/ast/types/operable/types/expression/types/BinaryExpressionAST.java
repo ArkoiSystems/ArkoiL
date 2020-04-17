@@ -20,12 +20,13 @@ package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.t
 
 import com.arkoisystems.arkoicompiler.api.IASTNode;
 import com.arkoisystems.arkoicompiler.api.IVisitor;
-import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken;
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.ArkoiToken;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.OperableAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.ExpressionAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types.operators.BinaryOperatorType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
@@ -64,8 +65,8 @@ public class BinaryExpressionAST extends ExpressionAST
     @NotNull
     @Override
     public BinaryExpressionAST parseAST(@NotNull final IASTNode parentAST) {
-        Objects.requireNonNull(this.getSyntaxAnalyzer());
-        Objects.requireNonNull(this.getLeftSideOperable());
+        Objects.requireNonNull(this.getSyntaxAnalyzer(), "syntaxAnalyzer must not be null.");
+        Objects.requireNonNull(this.getLeftSideOperable(), "leftSideOperable must not be null.");
         
         this.getMarkerFactory().addFactory(this.getLeftSideOperable().getMarkerFactory());
         
@@ -88,8 +89,14 @@ public class BinaryExpressionAST extends ExpressionAST
     
     
     @Override
-    public void accept(@NotNull final IVisitor visitor) {
+    public void accept(@NotNull final IVisitor<?> visitor) {
         visitor.visit(this);
+    }
+    
+    
+    @Override
+    public @NotNull TypeKind getTypeKind() {
+        return TypeKind.UNDEFINED;
     }
     
     
@@ -122,7 +129,7 @@ public class BinaryExpressionAST extends ExpressionAST
         private OperableAST rightSideOperable;
         
         
-        private AbstractToken startToken, endToken;
+        private ArkoiToken startToken, endToken;
     
     
         public BinaryExpressionBuilder(@NotNull final SyntaxAnalyzer syntaxAnalyzer) {
@@ -153,13 +160,13 @@ public class BinaryExpressionAST extends ExpressionAST
         }
     
     
-        public BinaryExpressionBuilder start(final AbstractToken startToken) {
+        public BinaryExpressionBuilder start(final ArkoiToken startToken) {
             this.startToken = startToken;
             return this;
         }
         
         
-        public BinaryExpressionBuilder end(final AbstractToken endToken) {
+        public BinaryExpressionBuilder end(final ArkoiToken endToken) {
             this.endToken = endToken;
             return this;
         }

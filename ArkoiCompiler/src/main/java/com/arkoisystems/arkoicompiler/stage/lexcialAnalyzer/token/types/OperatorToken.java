@@ -19,7 +19,7 @@
 package com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types;
 
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.LexicalAnalyzer;
-import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken;
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.ArkoiToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.OperatorType;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
 import lombok.AccessLevel;
@@ -30,9 +30,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.Objects;
-import java.util.Optional;
 
-public class OperatorToken extends AbstractToken
+public class OperatorToken extends ArkoiToken
 {
     
     @Getter
@@ -46,10 +45,9 @@ public class OperatorToken extends AbstractToken
     }
     
     
-    @NotNull
     @Override
-    public Optional<? extends AbstractToken> parseToken() {
-        Objects.requireNonNull(this.getLexicalAnalyzer());
+    public @NotNull ArkoiToken parseToken() {
+        Objects.requireNonNull(this.getLexicalAnalyzer(), "lexicalAnalyzer must not be null.");
         
         if (this.getLexicalAnalyzer().currentChar() == '=') {
             this.setOperatorType(OperatorType.EQUALS);
@@ -123,7 +121,7 @@ public class OperatorToken extends AbstractToken
     
         this.setTokenContent(new String(Arrays.copyOfRange(this.getLexicalAnalyzer().getCompilerClass().getContent(), this.getStart(), this.getEnd())).intern());
         this.getLexicalAnalyzer().next();
-        return Optional.of(this);
+        return this;
     }
     
     

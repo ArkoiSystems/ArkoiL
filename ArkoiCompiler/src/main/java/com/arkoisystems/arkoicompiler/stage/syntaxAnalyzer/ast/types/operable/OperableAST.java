@@ -20,7 +20,7 @@ package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable;
 
 import com.arkoisystems.arkoicompiler.api.IASTNode;
 import com.arkoisystems.arkoicompiler.api.IVisitor;
-import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken;
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.ArkoiToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.KeywordType;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.SymbolType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
@@ -36,7 +36,6 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.PrintStream;
 import java.util.Objects;
 
 public class OperableAST extends ArkoiASTNode
@@ -51,9 +50,9 @@ public class OperableAST extends ArkoiASTNode
     @NotNull
     @Override
     public OperableAST parseAST(@NotNull final IASTNode parentAST) {
-        Objects.requireNonNull(this.getSyntaxAnalyzer());
-        
-        final AbstractToken currentToken = this.getSyntaxAnalyzer().currentToken();
+        Objects.requireNonNull(this.getSyntaxAnalyzer(), "syntaxAnalyzer must not be null.");
+    
+        final ArkoiToken currentToken = this.getSyntaxAnalyzer().currentToken();
         switch (currentToken.getTokenType()) {
             case STRING_LITERAL:
                 return StringAST.builder(this.getSyntaxAnalyzer())
@@ -132,11 +131,12 @@ public class OperableAST extends ArkoiASTNode
     
     
     @Override
-    public void accept(@NotNull final IVisitor visitor) { }
+    public void accept(@NotNull final IVisitor<?> visitor) { }
     
     
-    public TypeKind getTypeKind() {
-        return TypeKind.UNDEFINED;
+    @Override
+    public @NotNull TypeKind getTypeKind() {
+        throw new NullPointerException(this.toString());
     }
     
 }

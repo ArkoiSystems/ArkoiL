@@ -19,7 +19,7 @@
 package com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types;
 
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.LexicalAnalyzer;
-import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken;
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.ArkoiToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -28,7 +28,7 @@ import java.util.Arrays;
 import java.util.Objects;
 import java.util.Optional;
 
-public class IdentifierToken extends AbstractToken
+public class IdentifierToken extends ArkoiToken
 {
     
     protected IdentifierToken(@Nullable final LexicalAnalyzer lexicalAnalyzer) {
@@ -36,11 +36,10 @@ public class IdentifierToken extends AbstractToken
     }
     
     
-    @NotNull
     @Override
-    public Optional<? extends AbstractToken> parseToken() {
-        Objects.requireNonNull(this.getLexicalAnalyzer());
-    
+    public @NotNull ArkoiToken parseToken() {
+        Objects.requireNonNull(this.getLexicalAnalyzer(), "lexicalAnalyzer must not be null.");
+        
         final char currentChar = this.getLexicalAnalyzer().currentChar();
         if (!Character.isJavaIdentifierStart(currentChar))
             return this.addError(
@@ -67,26 +66,24 @@ public class IdentifierToken extends AbstractToken
         this.setEnd(this.getLexicalAnalyzer().getPosition());
         this.setTokenContent(new String(Arrays.copyOfRange(this.getLexicalAnalyzer().getCompilerClass().getContent(), this.getStart(), this.getEnd())).intern());
         
-        final Optional<? extends AbstractToken> optionalKeywordToken = KeywordToken
-                .builder(this.getLexicalAnalyzer())
+        final ArkoiToken optionalKeywordToken = KeywordToken.builder(this.getLexicalAnalyzer())
                 .content(this.getTokenContent())
                 .start(this.getStart())
                 .end(this.getEnd())
                 .build()
                 .parseToken();
-        if (optionalKeywordToken.isPresent())
+        if (optionalKeywordToken != null)
             return optionalKeywordToken;
         
-        final Optional<? extends AbstractToken> optionalTypeKeywordToken = TypeKeywordToken
-                .builder(this.getLexicalAnalyzer())
+        final ArkoiToken optionalTypeKeywordToken = TypeKeywordToken.builder(this.getLexicalAnalyzer())
                 .content(this.getTokenContent())
                 .start(this.getStart())
                 .end(this.getEnd())
                 .build()
                 .parseToken();
-        if (optionalTypeKeywordToken.isPresent())
+        if (optionalTypeKeywordToken != null)
             return optionalTypeKeywordToken;
-        return Optional.of(this);
+        return this;
     }
     
     

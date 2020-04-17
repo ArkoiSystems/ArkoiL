@@ -52,15 +52,13 @@ public class ArkoiCompilerTest
         final ArkoiCompiler arkoiCompiler = new ArkoiCompiler();
         
         final File testDirectory = new File(inputDirectory);
-        if (testDirectory.listFiles() != null) {
-            for (final File file : Objects.requireNonNull(testDirectory.listFiles()))
-                if (file.getName().endsWith(".ark"))
-                    arkoiCompiler.addFile(file);
+        for (File file : testDirectory.listFiles()) {
+            if (file.getName().endsWith(".ark"))
+                arkoiCompiler.addFile(file);
         }
         
         try (final PrintStream printStream = new PrintStream(new File(inputDirectory + "output.result"))) {
             assertTrue(arkoiCompiler.compile(), "\n" + this.getStackTraceAndPrintTree(arkoiCompiler, printStream));
-            arkoiCompiler.printSyntaxTree(System.out);
         } catch (final Exception ex) {
             ex.printStackTrace();
         }
@@ -73,8 +71,7 @@ public class ArkoiCompilerTest
         arkoiCompiler.printStackTrace(printStream);
         try {
             arkoiCompiler.printSyntaxTree(treeStream);
-        } catch (final Exception ignored) {
-        }
+        } catch (final Exception ignored) { }
         return byteArrayOutputStream.toString();
     }
     

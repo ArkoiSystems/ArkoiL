@@ -19,7 +19,7 @@
 package com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types;
 
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.LexicalAnalyzer;
-import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.AbstractToken;
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.ArkoiToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
 import lombok.AccessLevel;
@@ -28,9 +28,9 @@ import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Optional;
+import java.util.Objects;
 
-public class TypeKeywordToken extends AbstractToken
+public class TypeKeywordToken extends ArkoiToken
 {
     
     @Getter
@@ -44,33 +44,34 @@ public class TypeKeywordToken extends AbstractToken
     }
     
     
-    @NotNull
     @Override
-    public Optional<? extends AbstractToken> parseToken() {
+    public @Nullable TypeKeywordToken parseToken() {
+        Objects.requireNonNull(this.getLexicalAnalyzer(), "lexicalAnalyzer must not be null.");
+        
         switch (this.getTokenContent()) {
             case "char":
                 this.setTypeKind(TypeKind.CHAR);
-                return Optional.of(this);
+                return this;
             case "boolean":
                 this.setTypeKind(TypeKind.BOOLEAN);
-                return Optional.of(this);
+                return this;
             case "byte":
                 this.setTypeKind(TypeKind.BYTE);
-                return Optional.of(this);
+                return this;
             case "int":
                 this.setTypeKind(TypeKind.INTEGER);
-                return Optional.of(this);
+                return this;
             case "long":
                 this.setTypeKind(TypeKind.LONG);
-                return Optional.of(this);
+                return this;
             case "short":
                 this.setTypeKind(TypeKind.SHORT);
-                return Optional.of(this);
+                return this;
             case "string":
                 this.setTypeKind(TypeKind.STRING);
-                return Optional.of(this);
+                return this;
             default:
-                return Optional.empty();
+                return null;
         }
     }
     
