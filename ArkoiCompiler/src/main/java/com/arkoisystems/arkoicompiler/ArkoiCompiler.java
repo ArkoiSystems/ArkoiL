@@ -1,7 +1,20 @@
 /*
  * Copyright © 2019-2020 ArkoiSystems (https://www.arkoisystems.com/) All Rights Reserved.
  * Created ArkoiCompiler on February 15, 2020
- * Author timo aka. єхcsє#5543
+ * Author єхcsє#5543 aka timo
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ *
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package com.arkoisystems.arkoicompiler;
 
@@ -56,32 +69,29 @@ public class ArkoiCompiler
         final long compileStart = System.nanoTime();
         {
             final long lexicalStart = System.nanoTime();
-            boolean failed = false;
-            for (final ICompilerClass arkoiClass : this.getArkoiClasses()) {
-                if (!arkoiClass.getLexicalAnalyzer().processStage())
-                    failed = true;
-            }
-            if (failed)
+            final ICompilerClass lexicalFailed = this.getArkoiClasses().stream()
+                    .filter(compilerClass -> !compilerClass.getLexicalAnalyzer().processStage())
+                    .findFirst()
+                    .orElse(null);
+            if (lexicalFailed != null)
                 return false;
             System.out.printf("The lexical analysis took %sms for all classes (%s in total)\n", (System.nanoTime() - lexicalStart) / 1_000_000D, this.arkoiClasses.size());
-            
+    
             final long syntaxStart = System.nanoTime();
-            failed = false;
-            for (final ICompilerClass arkoiClass : this.getArkoiClasses()) {
-                if (!arkoiClass.getSyntaxAnalyzer().processStage())
-                    failed = true;
-            }
-            if (failed)
+            final ICompilerClass syntaxFailed = this.getArkoiClasses().stream()
+                    .filter(compilerClass -> !compilerClass.getSyntaxAnalyzer().processStage())
+                    .findFirst()
+                    .orElse(null);
+            if (syntaxFailed != null)
                 return false;
             System.out.printf("The syntax analysis took %sms for all classes (%s in total)\n", (System.nanoTime() - syntaxStart) / 1_000_000D, this.getArkoiClasses().size());
-            
+    
             final long semanticStart = System.nanoTime();
-            failed = false;
-            for (final ICompilerClass arkoiClass : this.getArkoiClasses()) {
-                if (!arkoiClass.getSemanticAnalyzer().processStage())
-                    failed = true;
-            }
-            if (failed)
+            final ICompilerClass semanticFailed = this.getArkoiClasses().stream()
+                    .filter(compilerClass -> !compilerClass.getSemanticAnalyzer().processStage())
+                    .findFirst()
+                    .orElse(null);
+            if (semanticFailed != null)
                 return false;
             System.out.printf("The semantic analysis took %sms for all classes (%s in total)\n", (System.nanoTime() - semanticStart) / 1_000_000D, this.getArkoiClasses().size());
         }
@@ -91,7 +101,7 @@ public class ArkoiCompiler
     
     
     private void addNativeFiles() throws IOException {
-        final File nativeDirectory = new File("/home/timo/dev/ArkoiL/ArkoiCompiler/natives/");
+        final File nativeDirectory = new File("../natives");
         if (!nativeDirectory.exists())
             throw new NullPointerException("Couldn't find a native directory. Please try to fix the problem with reinstalling the compiler.");
         
