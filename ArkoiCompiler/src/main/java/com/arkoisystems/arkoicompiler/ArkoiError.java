@@ -91,8 +91,8 @@ public class ArkoiError implements ICompilerError
             final int difference = realLine.length() - line.length();
             
             stringBuilder.append(line).append("\n");
-            stringBuilder.append(" ".repeat(Math.max(0, 5 + (position[0] - startPosition) - difference)));
-            stringBuilder.append("^".repeat(Math.max(1, (position[1] - position[0]))));
+            stringBuilder.append(" ".repeat(Math.max(0, 5 + (position[0] - startPosition))));
+            stringBuilder.append("^".repeat(Math.max(1, (position[1] - position[0]) - difference)));
             
             if (index != this.getPositions().length - 1)
                 stringBuilder.append("\n");

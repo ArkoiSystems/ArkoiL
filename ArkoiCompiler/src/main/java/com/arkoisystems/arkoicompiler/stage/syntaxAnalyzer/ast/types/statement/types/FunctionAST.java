@@ -253,7 +253,9 @@ public class FunctionAST extends StatementAST
     
     public String getFunctionDescription() {
         Objects.requireNonNull(this.getFunctionName(), "functionName must not be null.");
-        return this.getFunctionName().getTokenContent() + "()";
+        Objects.requireNonNull(this.getFunctionParameters(), "functionParameters must not be null.");
+        
+        return this.getFunctionName().getTokenContent() + "(" + this.getFunctionParameters().getParameters().size() + ")";
     }
     
     

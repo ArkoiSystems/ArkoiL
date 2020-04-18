@@ -54,7 +54,7 @@ public class ArkoiCompilerTest
         final File testDirectory = new File(inputDirectory);
         for (File file : testDirectory.listFiles()) {
             if (file.getName().endsWith(".ark"))
-                arkoiCompiler.addFile(file);
+                arkoiCompiler.addFile(file, true);
         }
         
         try (final PrintStream printStream = new PrintStream(new File(inputDirectory + "output.result"))) {

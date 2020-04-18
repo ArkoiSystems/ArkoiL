@@ -42,6 +42,9 @@ public class Bootstrap
             final Option outputFile = new Option("of", "outputFile", true, "output path for the compilation");
             outputFile.setRequired(true);
             options.addOption(outputFile);
+            
+            final Option detailed = new Option("d", "detailed", false, "prints a detailed error stack trace");
+            options.addOption(detailed);
         }
         
         final CommandLine commandLine;
@@ -62,12 +65,12 @@ public class Bootstrap
             for (final File file : FileUtils.getAllFiles(targetPath)) {
                 if (!file.getName().endsWith(".ark"))
                     continue;
-                arkoiCompiler.addFile(file);
+                arkoiCompiler.addFile(file, Boolean.parseBoolean(commandLine.getOptionValue("detailed")));
             }
         } else {
             if (!targetPath.getName().endsWith(".ark"))
                 throw new NullPointerException("Couldn't compile this file because it doesn't has the Arkoi file extension \".ark\".");
-            arkoiCompiler.addFile(targetPath);
+            arkoiCompiler.addFile(targetPath, Boolean.parseBoolean(commandLine.getOptionValue("detailed")));
         }
         
         if (!arkoiCompiler.compile()) {

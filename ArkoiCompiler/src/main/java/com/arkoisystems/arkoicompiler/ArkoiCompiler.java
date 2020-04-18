@@ -46,8 +46,8 @@ public class ArkoiCompiler
     }
     
     
-    public void addFile(@NotNull final File file) throws IOException {
-        this.getArkoiClasses().add(new ArkoiClass(this, file.getCanonicalPath(), Files.readAllBytes(file.toPath())));
+    public void addFile(@NotNull final File file, final boolean detailed) throws IOException {
+        this.getArkoiClasses().add(new ArkoiClass(this, file.getCanonicalPath(), Files.readAllBytes(file.toPath()), detailed));
     }
     
     
@@ -107,7 +107,7 @@ public class ArkoiCompiler
         
         final List<File> files = FileUtils.getAllFiles(nativeDirectory);
         for (final File file : files) {
-            final ArkoiClass arkoiClass = new ArkoiClass(this, file.getCanonicalPath(), Files.readAllBytes(file.toPath()));
+            final ArkoiClass arkoiClass = new ArkoiClass(this, file.getCanonicalPath(), Files.readAllBytes(file.toPath()), true);
             arkoiClass.setNative(true);
             this.getArkoiClasses().add(arkoiClass);
         }

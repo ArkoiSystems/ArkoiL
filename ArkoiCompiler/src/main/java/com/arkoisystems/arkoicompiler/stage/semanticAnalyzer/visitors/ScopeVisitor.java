@@ -36,15 +36,14 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.t
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.types.ReturnAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.types.VariableAST;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.nio.file.Files;
-import java.util.HashMap;
-import java.util.Objects;
-import java.util.Stack;
+import java.util.*;
 
 public class ScopeVisitor implements IVisitor<IASTNode>, IFailed
 {
@@ -52,12 +51,12 @@ public class ScopeVisitor implements IVisitor<IASTNode>, IFailed
     
     @NotNull
     @Getter
-    private final Stack<HashMap<String, IASTNode>> scopeStack = new Stack<>();
+    private final List<HashMap<String, IASTNode>> scopeStack = new ArrayList<>();
     
     
-    @NotNull
     @Getter
-    private final HashMap<String, IASTNode> rootScope = new HashMap<>();
+    @NotNull
+    private final HashMap<Integer, Integer> scopeIndexes = new HashMap<>();
     
     
     @NotNull
@@ -66,13 +65,16 @@ public class ScopeVisitor implements IVisitor<IASTNode>, IFailed
     
     
     @Getter
+    @Setter
+    private int currentIndex;
+    
+    
+    @Getter
     private boolean failed;
     
     
     public ScopeVisitor(@NotNull final SemanticAnalyzer semanticAnalyzer) {
         this.semanticAnalyzer = semanticAnalyzer;
-        
-        this.scopeStack.add(rootScope);
     }
     
     
@@ -84,6 +86,9 @@ public class ScopeVisitor implements IVisitor<IASTNode>, IFailed
     
     @Override
     public RootAST visit(@NotNull final RootAST rootAST) {
+        this.getScopeStack().add(new HashMap<>());
+        this.setCurrentIndex(0);
+        
         for (final IASTNode astNode : rootAST.getAstNodes()) {
             if (astNode instanceof VariableAST)
                 this.preVisit((VariableAST) astNode);
@@ -112,9 +117,15 @@ public class ScopeVisitor implements IVisitor<IASTNode>, IFailed
         Objects.requireNonNull(parameterAST.getParameterName(), "parameterAST.parameterName must not be null.");
         Objects.requireNonNull(parameterAST.getSyntaxAnalyzer(), "parameterAST.syntaxAnalyzer must not be null.");
         
-        final HashMap<String, IASTNode> currentScope = this.getScopeStack().peek();
+        final HashMap<String, IASTNode> currentScope = this.getScopeIndexes().containsKey(parameterAST.hashCode()) ?
+                this.getScopeStack().get(this.getScopeIndexes().get(parameterAST.hashCode())) :
+                this.getScopeStack().get(this.getCurrentIndex());
+        if(!this.getScopeIndexes().containsKey(parameterAST.hashCode()))
+            this.getScopeIndexes().put(parameterAST.hashCode(), this.getCurrentIndex());
+        
         if (currentScope.containsKey(parameterAST.getParameterName().getTokenContent())) {
             this.addError(
+                    parameterAST,
                     parameterAST.getSyntaxAnalyzer().getCompilerClass(),
                     
                     parameterAST.getParameterName(),
@@ -150,9 +161,15 @@ public class ScopeVisitor implements IVisitor<IASTNode>, IFailed
         Objects.requireNonNull(argumentAST.getArgumentName(), "argumentAST.argumentName must not be null.");
         Objects.requireNonNull(argumentAST.getSyntaxAnalyzer(), "argumentAST.syntaxAnalyzer must not be null.");
         
-        final HashMap<String, IASTNode> currentScope = this.getScopeStack().peek();
+        final HashMap<String, IASTNode> currentScope = this.getScopeIndexes().containsKey(argumentAST.hashCode()) ?
+                this.getScopeStack().get(this.getScopeIndexes().get(argumentAST.hashCode())) :
+                this.getScopeStack().get(this.getCurrentIndex());
+        if(!this.getScopeIndexes().containsKey(argumentAST.hashCode()))
+            this.getScopeIndexes().put(argumentAST.hashCode(), this.getCurrentIndex());
+        
         if (currentScope.containsKey(argumentAST.getArgumentName().getTokenContent())) {
             this.addError(
+                    argumentAST,
                     argumentAST.getSyntaxAnalyzer().getCompilerClass(),
                     
                     argumentAST.getArgumentName(),
@@ -169,8 +186,11 @@ public class ScopeVisitor implements IVisitor<IASTNode>, IFailed
         Objects.requireNonNull(annotationAST.getAnnotationArguments(), "annotationAST.annotationArguments must not be null.");
         
         this.getScopeStack().add(new HashMap<>());
+        this.setCurrentIndex(this.getCurrentIndex() + 1);
+        if(!this.getScopeIndexes().containsKey(annotationAST.hashCode()))
+            this.getScopeIndexes().put(annotationAST.hashCode(), this.getCurrentIndex());
+        
         this.visit(annotationAST.getAnnotationArguments());
-        this.getScopeStack().pop();
         return annotationAST;
     }
     
@@ -179,15 +199,16 @@ public class ScopeVisitor implements IVisitor<IASTNode>, IFailed
         Objects.requireNonNull(functionAST.getFunctionName(), "functionAST.functionName must not be null.");
         Objects.requireNonNull(functionAST.getSyntaxAnalyzer(), "functionAST.syntaxAnalyzer must not be null.");
         
-        final HashMap<String, IASTNode> currentScope = this.getScopeStack().peek();
-        if (currentScope.containsKey(functionAST.getFunctionDescription())) {
+        final HashMap<String, IASTNode> rootScope = this.getScopeStack().get(0);
+        if (rootScope.containsKey(functionAST.getFunctionDescription())) {
             this.addError(
+                    functionAST,
                     functionAST.getSyntaxAnalyzer().getCompilerClass(),
                     
                     functionAST.getFunctionName(),
                     "Function '%s' is already defined in the scope.", functionAST.getFunctionDescription()
             );
-        } else currentScope.put(functionAST.getFunctionDescription(), functionAST);
+        } else rootScope.put(functionAST.getFunctionDescription(), functionAST);
     }
     
     
@@ -197,9 +218,12 @@ public class ScopeVisitor implements IVisitor<IASTNode>, IFailed
         Objects.requireNonNull(functionAST.getFunctionBlock(), "functionAST.functionBlock must not be null.");
         
         this.getScopeStack().add(new HashMap<>());
+        this.setCurrentIndex(this.getCurrentIndex() + 1);
+        if(!this.getScopeIndexes().containsKey(functionAST.hashCode()))
+            this.getScopeIndexes().put(functionAST.hashCode(), this.getCurrentIndex());
+        
         this.visit(functionAST.getFunctionParameters());
         this.visit(functionAST.getFunctionBlock());
-        this.getScopeStack().pop();
         return functionAST;
     }
     
@@ -208,15 +232,16 @@ public class ScopeVisitor implements IVisitor<IASTNode>, IFailed
         Objects.requireNonNull(importAST.getImportName(), "importAST.importName must not be null.");
         Objects.requireNonNull(importAST.getSyntaxAnalyzer(), "importAST.syntaxAnalyzer must not be null.");
         
-        final HashMap<String, IASTNode> currentScope = this.getScopeStack().peek();
-        if (currentScope.containsKey(importAST.getImportName().getTokenContent())) {
+        final HashMap<String, IASTNode> rootScope = this.getScopeStack().get(0);
+        if (rootScope.containsKey(importAST.getImportName().getTokenContent())) {
             this.addError(
+                    importAST,
                     importAST.getSyntaxAnalyzer().getCompilerClass(),
                     
                     importAST.getImportName(),
                     "Variable '%s' is already defined in the scope.", importAST.getImportName().getTokenContent()
             );
-        } else currentScope.put(importAST.getImportName().getTokenContent(), importAST);
+        } else rootScope.put(importAST.getImportName().getTokenContent(), importAST);
     }
     
     
@@ -239,9 +264,15 @@ public class ScopeVisitor implements IVisitor<IASTNode>, IFailed
         Objects.requireNonNull(variableAST.getVariableName(), "variableAST.variableName must not be null.");
         Objects.requireNonNull(variableAST.getSyntaxAnalyzer(), "variableAST.syntaxAnalyzer must not be null.");
         
-        final HashMap<String, IASTNode> currentScope = this.getScopeStack().peek();
+        final HashMap<String, IASTNode> currentScope = this.getScopeIndexes().containsKey(variableAST.hashCode()) ?
+                this.getScopeStack().get(this.getScopeIndexes().get(variableAST.hashCode())) :
+                this.getScopeStack().get(this.getCurrentIndex());
+        if(!this.getScopeIndexes().containsKey(variableAST.hashCode()))
+            this.getScopeIndexes().put(variableAST.hashCode(), this.getCurrentIndex());
+        
         if (currentScope.containsKey(variableAST.getVariableName().getTokenContent())) {
             this.addError(
+                    variableAST,
                     variableAST.getSyntaxAnalyzer().getCompilerClass(),
                     
                     variableAST.getVariableName(),
@@ -279,15 +310,17 @@ public class ScopeVisitor implements IVisitor<IASTNode>, IFailed
         Objects.requireNonNull(identifierCallAST.getCalledIdentifier(), "identifierCallAST.calledIdentifier must not be null.");
         Objects.requireNonNull(identifierCallAST.getSyntaxAnalyzer(), "identifierCallAST.syntaxAnalyzer must not be null.");
         
-        final HashMap<String, IASTNode> currentScope = this.getScopeStack().peek();
-//        if(identifierCallAST.getCalledIdentifier().getTokenContent().equals("test_argument"))
-//            System.out.println(this.getRootScope().keySet() + ", " + currentScope.keySet());
+        final HashMap<String, IASTNode> currentScope = this.getScopeIndexes().containsKey(identifierCallAST.hashCode()) ?
+                this.getScopeStack().get(this.getScopeIndexes().get(identifierCallAST.hashCode())) :
+                this.getScopeStack().get(this.getCurrentIndex());
+        if(!this.getScopeIndexes().containsKey(identifierCallAST.hashCode()))
+            this.getScopeIndexes().put(identifierCallAST.hashCode(), this.getCurrentIndex());
         
         IASTNode foundAST = null;
         if (!identifierCallAST.isFileLocal() && currentScope.containsKey(identifierCallAST.getDescriptor()))
             foundAST = currentScope.get(identifierCallAST.getDescriptor());
-        if (foundAST == null && this.getRootScope().containsKey(identifierCallAST.getDescriptor()))
-            foundAST = this.getRootScope().get(identifierCallAST.getDescriptor());
+        if (foundAST == null && this.getScopeStack().get(0).containsKey(identifierCallAST.getDescriptor()))
+            foundAST = this.getScopeStack().get(0).get(identifierCallAST.getDescriptor());
         if (foundAST == null) {
             final ICompilerClass[] compilerClasses = this.getSemanticAnalyzer().getCompilerClass().getArkoiCompiler().getArkoiClasses().stream()
                     .filter(ICompilerClass::isNative)
@@ -297,27 +330,31 @@ public class ScopeVisitor implements IVisitor<IASTNode>, IFailed
             for (final ICompilerClass compilerClass : compilerClasses) {
                 final ScopeVisitor scopeVisitor = new ScopeVisitor(compilerClass.getSemanticAnalyzer());
                 scopeVisitor.visit(compilerClass.getSyntaxAnalyzer().getRootAST());
-                if (!scopeVisitor.getRootScope().containsKey(identifierCallAST.getDescriptor()))
+                if(scopeVisitor.isFailed())
+                    this.failed();
+                if (!scopeVisitor.getScopeStack().get(0).containsKey(identifierCallAST.getDescriptor()))
                     continue;
                 
-                foundAST = scopeVisitor.getRootScope().get(identifierCallAST.getDescriptor());
+                foundAST = scopeVisitor.getScopeStack().get(0).get(identifierCallAST.getDescriptor());
                 break;
             }
         }
         
+        
         if (identifierCallAST.getCalledFunctionPart() != null)
             this.visit(identifierCallAST.getCalledFunctionPart());
         
-        if (foundAST == null) {
-//            System.out.println(identifierCallAST.getCalledIdentifier().getTokenContent() + "," + this.getRootScope().keySet() + ", " + currentScope.keySet());
-            this.addError(
+        if (foundAST == null)
+            return this.addError(
+                    null,
                     identifierCallAST.getSyntaxAnalyzer().getCompilerClass(),
                     
-                    identifierCallAST.getCalledIdentifier(),
+                    identifierCallAST.getCalledIdentifier().getStart(),
+                    identifierCallAST.getCalledFunctionPart() != null ?
+                            Objects.requireNonNull(identifierCallAST.getCalledFunctionPart().getEndToken(), "identifierCallAST.calledFunctionPart.endToken must not be null.").getEnd() :
+                            identifierCallAST.getCalledIdentifier().getEnd(),
                     "Cannot resolve reference '%s'.", identifierCallAST.getCalledIdentifier().getTokenContent()
             );
-            return null;
-        }
         
         if (identifierCallAST.getNextIdentifierCall() == null)
             return foundAST;
@@ -329,11 +366,10 @@ public class ScopeVisitor implements IVisitor<IASTNode>, IFailed
         final ScopeVisitor scopeVisitor = new ScopeVisitor(resolvedClass.getSemanticAnalyzer());
         scopeVisitor.visit(resolvedClass.getSyntaxAnalyzer().getRootAST());
         foundAST = scopeVisitor.visit(identifierCallAST.getNextIdentifierCall());
-        if (foundAST == null)
-            return null;
-        
         if (scopeVisitor.isFailed())
             this.failed();
+        if (foundAST == null)
+            return null;
         return this.visit(foundAST);
     }
     
@@ -345,28 +381,29 @@ public class ScopeVisitor implements IVisitor<IASTNode>, IFailed
         
         if (foundAST instanceof ImportAST) {
             final ImportAST importAST = (ImportAST) foundAST;
+            
             Objects.requireNonNull(importAST.getImportFilePath(), "importAST.importFilePath must not be null.");
+            Objects.requireNonNull(importAST.getSyntaxAnalyzer(), "importAST.syntaxAnalyzer must not be null.");
             
             File file = new File(importAST.getImportFilePath().getTokenContent() + ".ark");
             if (!file.isAbsolute())
                 file = new File(new File(this.getSemanticAnalyzer().getCompilerClass().getFilePath()).getParent(), file.getPath());
             
-            if (!file.exists()) {
-                this.addError(
-                        foundAST.getSyntaxAnalyzer().getCompilerClass(),
+            if (!file.exists())
+                return this.addError(
+                        null,
+                        importAST.getSyntaxAnalyzer().getCompilerClass(),
                         
                         importAST.getImportFilePath(),
                         "Path doesn't lead to file '%s'.", importAST.getImportFilePath().getTokenContent()
                 );
-                return null;
-            }
             
             final ArkoiCompiler arkoiCompiler = this.getSemanticAnalyzer().getCompilerClass().getArkoiCompiler();
             for (final ICompilerClass compilerClass : arkoiCompiler.getArkoiClasses())
                 if (compilerClass.getFilePath().equals(file.getCanonicalPath()))
                     return compilerClass;
             
-            final ArkoiClass arkoiClass = new ArkoiClass(arkoiCompiler, file.getCanonicalPath(), Files.readAllBytes(file.toPath()));
+            final ArkoiClass arkoiClass = new ArkoiClass(arkoiCompiler, file.getCanonicalPath(), Files.readAllBytes(file.toPath()), this.getSemanticAnalyzer().getCompilerClass().isDetailed());
             arkoiCompiler.addClass(arkoiClass);
             arkoiClass.getLexicalAnalyzer().processStage();
             arkoiClass.getSyntaxAnalyzer().processStage();
@@ -490,11 +527,8 @@ public class ScopeVisitor implements IVisitor<IASTNode>, IFailed
     }
     
     
-    public void addError(@NotNull final ICompilerClass compilerClass, @NotNull final IASTNode astNode, @NotNull final String message, @NotNull final Object... arguments) {
-        Objects.requireNonNull(astNode.getSyntaxAnalyzer());
-        Objects.requireNonNull(astNode.getSyntaxAnalyzer().getCompilerClass().getSemanticAnalyzer());
-    
-        astNode.getSyntaxAnalyzer().getCompilerClass().getSemanticAnalyzer().getErrorHandler().addError(ArkoiError.builder()
+    public <E> E addError(@Nullable E errorSource, @NotNull final ICompilerClass compilerClass, @NotNull final IASTNode astNode, @NotNull final String message, @NotNull final Object... arguments) {
+        compilerClass.getSemanticAnalyzer().getErrorHandler().addError(ArkoiError.builder()
                 .compilerClass(compilerClass)
                 .positions(new int[][] { {
                         Objects.requireNonNull(astNode.getStartToken()).getStart(),
@@ -504,16 +538,14 @@ public class ScopeVisitor implements IVisitor<IASTNode>, IFailed
                 .arguments(arguments)
                 .build()
         );
-    
+        
         this.failed();
+        return errorSource;
     }
     
     
-    public void addError(@NotNull final ICompilerClass compilerClass, @NotNull final ArkoiToken arkoiToken, @NotNull final String message, @NotNull final Object... arguments) {
-        Objects.requireNonNull(arkoiToken.getLexicalAnalyzer());
-        Objects.requireNonNull(arkoiToken.getLexicalAnalyzer().getCompilerClass().getSemanticAnalyzer());
-        
-        arkoiToken.getLexicalAnalyzer().getCompilerClass().getSemanticAnalyzer().getErrorHandler().addError(ArkoiError.builder()
+    public <E> E addError(@Nullable E errorSource, @NotNull final ICompilerClass compilerClass, @NotNull final ArkoiToken arkoiToken, @NotNull final String message, @NotNull final Object... arguments) {
+        compilerClass.getSemanticAnalyzer().getErrorHandler().addError(ArkoiError.builder()
                 .compilerClass(compilerClass)
                 .positions(new int[][] { {
                         arkoiToken.getStart(),
@@ -525,6 +557,21 @@ public class ScopeVisitor implements IVisitor<IASTNode>, IFailed
         );
         
         this.failed();
+        return errorSource;
+    }
+    
+    
+    public <E> E addError(@Nullable E errorSource, @NotNull final ICompilerClass compilerClass, final int start, final int end, @NotNull final String message, @NotNull final Object... arguments) {
+        compilerClass.getSemanticAnalyzer().getErrorHandler().addError(ArkoiError.builder()
+                .compilerClass(compilerClass)
+                .positions(new int[][] { { start, end } })
+                .message(message)
+                .arguments(arguments)
+                .build()
+        );
+        
+        this.failed();
+        return errorSource;
     }
     
 }
