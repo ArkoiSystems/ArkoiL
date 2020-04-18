@@ -82,7 +82,7 @@ public class BlockAST extends ArkoiASTNode
         this.getMarkerFactory().mark(this.getStartToken());
         
         if (this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.OPENING_BRACE) != null) {
-            this.blockType = BlockType.BLOCK;
+            this.setBlockType(BlockType.BLOCK);
             this.getSyntaxAnalyzer().nextToken();
             
             main_loop:
@@ -116,7 +116,7 @@ public class BlockAST extends ArkoiASTNode
                 this.skipToNextValidToken();
             }
         } else if (this.getSyntaxAnalyzer().matchesCurrentToken(OperatorType.EQUALS) != null) {
-            this.blockType = BlockType.INLINE;
+            this.setBlockType(BlockType.INLINE);
             this.getSyntaxAnalyzer().nextToken();
             
             if (!ExpressionAST.EXPRESSION_PARSER.canParse(this, this.getSyntaxAnalyzer()))

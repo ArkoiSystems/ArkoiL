@@ -160,9 +160,9 @@ Syntax Trees:
    │
    └── RootAST
        ├── factory:
-       │   ├── next: IMPORT, VARIABLE, VARIABLE, VARIABLE, FUNCTION
+       │   ├── next: IMPORT, VARIABLE, VARIABLE, VARIABLE, FUNCTION, FUNCTION, FUNCTION
        │   ├── start: 0
-       │   └── end: 563
+       │   └── end: 545
        │
        └── nodes: 
            ├── ImportAST
@@ -178,7 +178,7 @@ Syntax Trees:
            │   ├── factory:
            │   │   ├── next: IDENTIFIER_CALL
            │   │   ├── start: 23
-           │   │   └── end: 48
+           │   │   └── end: 51
            │   │
            │   ├── annotations: N/A
            │   │
@@ -188,7 +188,7 @@ Syntax Trees:
            │       ├── factory:
            │       │   ├── next: IDENTIFIER_CALL
            │       │   ├── start: 36
-           │       │   └── end: 48
+           │       │   └── end: 51
            │       │
            │       ├── fileLocal: false
            │       ├── identifier: test
@@ -197,31 +197,39 @@ Syntax Trees:
            │           ├── factory:
            │           │   ├── next: FUNCTION_CALL_PART
            │           │   ├── start: 41
-           │           │   └── end: 48
+           │           │   └── end: 51
            │           │
            │           ├── fileLocal: false
            │           ├── identifier: test
            │           ├── functionCall: 
            │           │   ├── factory:
-           │           │   │   ├── next: NUMBER
+           │           │   │   ├── next: NUMBER, NUMBER
            │           │   │   ├── start: 45
-           │           │   │   └── end: 48
+           │           │   │   └── end: 51
            │           │   │
            │           │   └── expressions: 
+           │           │       ├── NumberAST
+           │           │       │   ├── factory:
+           │           │       │   │   ├── next: 
+           │           │       │   │   ├── start: 46
+           │           │       │   │   └── end: 47
+           │           │       │   │
+           │           │       │   └── operable: 1
+           │           │       │
            │           │       └── NumberAST
            │           │           ├── factory:
            │           │           │   ├── next: 
-           │           │           │   ├── start: 46
-           │           │           │   └── end: 47
+           │           │           │   ├── start: 49
+           │           │           │   └── end: 50
            │           │           │
-           │           │           └── operable: 1
+           │           │           └── operable: 2
            │           └── nextCall: null
            │
            ├── VariableAST
            │   ├── factory:
            │   │   ├── next: IDENTIFIER_CALL
-           │   │   ├── start: 50
-           │   │   └── end: 78
+           │   │   ├── start: 53
+           │   │   └── end: 81
            │   │
            │   ├── annotations: N/A
            │   │
@@ -230,16 +238,16 @@ Syntax Trees:
            │   └── expression: 
            │       ├── factory:
            │       │   ├── next: FUNCTION_CALL_PART
-           │       │   ├── start: 63
-           │       │   └── end: 78
+           │       │   ├── start: 66
+           │       │   └── end: 81
            │       │
            │       ├── fileLocal: true
            │       ├── identifier: greeting
            │       ├── functionCall: 
            │       │   ├── factory:
            │       │   │   ├── next: 
-           │       │   │   ├── start: 76
-           │       │   │   └── end: 78
+           │       │   │   ├── start: 79
+           │       │   │   └── end: 81
            │       │   │
            │       │   └── expressions: NaN
            │       └── nextCall: null
@@ -247,8 +255,8 @@ Syntax Trees:
            ├── VariableAST
            │   ├── factory:
            │   │   ├── next: BINARY_EXPRESSION
-           │   │   ├── start: 80
-           │   │   └── end: 137
+           │   │   ├── start: 83
+           │   │   └── end: 140
            │   │
            │   ├── annotations: N/A
            │   │
@@ -257,36 +265,36 @@ Syntax Trees:
            │   └── expression: 
            │       ├── factory:
            │       │   ├── next: CAST_EXPRESSION, CAST_EXPRESSION
-           │       │   ├── start: 93
-           │       │   └── end: 137
+           │       │   ├── start: 96
+           │       │   └── end: 140
            │       │
            │       ├── left:
            │       │   └── CastExpressionAST
            │       │       ├── factory:
            │       │       │   ├── next: PARENTHESIZED_EXPRESSION
-           │       │       │   ├── start: 93
-           │       │       │   └── end: 132
+           │       │       │   ├── start: 96
+           │       │       │   └── end: 135
            │       │       │
            │       │       ├── left:
            │       │       │   └── ParenthesizedExpressionAST
            │       │       │       ├── factory:
            │       │       │       │   ├── next: BINARY_EXPRESSION
-           │       │       │       │   ├── start: 93
-           │       │       │       │   └── end: 131
+           │       │       │       │   ├── start: 96
+           │       │       │       │   └── end: 134
            │       │       │       │
            │       │       │       └── operable:
            │       │       │           └── BinaryExpressionAST
            │       │       │               ├── factory:
            │       │       │               │   ├── next: IDENTIFIER_CALL, BINARY_EXPRESSION
-           │       │       │               │   ├── start: 94
-           │       │       │               │   └── end: 130
+           │       │       │               │   ├── start: 97
+           │       │       │               │   └── end: 133
            │       │       │               │
            │       │       │               ├── left:
            │       │       │               │   └── IdentifierCallAST
            │       │       │               │       ├── factory:
            │       │       │               │       │   ├── next: 
-           │       │       │               │       │   ├── start: 94
-           │       │       │               │       │   └── end: 100
+           │       │       │               │       │   ├── start: 97
+           │       │       │               │       │   └── end: 103
            │       │       │               │       │
            │       │       │               │       ├── fileLocal: false
            │       │       │               │       ├── identifier: test_1
@@ -297,36 +305,36 @@ Syntax Trees:
            │       │       │                   └── BinaryExpressionAST
            │       │       │                       ├── factory:
            │       │       │                       │   ├── next: PARENTHESIZED_EXPRESSION, NUMBER
-           │       │       │                       │   ├── start: 103
-           │       │       │                       │   └── end: 130
+           │       │       │                       │   ├── start: 106
+           │       │       │                       │   └── end: 133
            │       │       │                       │
            │       │       │                       ├── left:
            │       │       │                       │   └── ParenthesizedExpressionAST
            │       │       │                       │       ├── factory:
            │       │       │                       │       │   ├── next: ASSIGNMENT_EXPRESSION
-           │       │       │                       │       │   ├── start: 103
-           │       │       │                       │       │   └── end: 126
+           │       │       │                       │       │   ├── start: 106
+           │       │       │                       │       │   └── end: 129
            │       │       │                       │       │
            │       │       │                       │       └── operable:
            │       │       │                       │           └── AssignmentExpressionAST
            │       │       │                       │               ├── factory:
            │       │       │                       │               │   ├── next: BINARY_EXPRESSION, BINARY_EXPRESSION
-           │       │       │                       │               │   ├── start: 104
-           │       │       │                       │               │   └── end: 125
+           │       │       │                       │               │   ├── start: 107
+           │       │       │                       │               │   └── end: 128
            │       │       │                       │               │
            │       │       │                       │               ├── left:
            │       │       │                       │               │   └── BinaryExpressionAST
            │       │       │                       │               │       ├── factory:
            │       │       │                       │               │       │   ├── next: IDENTIFIER_CALL, NUMBER
-           │       │       │                       │               │       │   ├── start: 104
-           │       │       │                       │               │       │   └── end: 114
+           │       │       │                       │               │       │   ├── start: 107
+           │       │       │                       │               │       │   └── end: 117
            │       │       │                       │               │       │
            │       │       │                       │               │       ├── left:
            │       │       │                       │               │       │   └── IdentifierCallAST
            │       │       │                       │               │       │       ├── factory:
            │       │       │                       │               │       │       │   ├── next: 
-           │       │       │                       │               │       │       │   ├── start: 104
-           │       │       │                       │               │       │       │   └── end: 110
+           │       │       │                       │               │       │       │   ├── start: 107
+           │       │       │                       │               │       │       │   └── end: 113
            │       │       │                       │               │       │       │
            │       │       │                       │               │       │       ├── fileLocal: false
            │       │       │                       │               │       │       ├── identifier: test_1
@@ -337,8 +345,8 @@ Syntax Trees:
            │       │       │                       │               │           └── NumberAST
            │       │       │                       │               │               ├── factory:
            │       │       │                       │               │               │   ├── next: 
-           │       │       │                       │               │               │   ├── start: 113
-           │       │       │                       │               │               │   └── end: 114
+           │       │       │                       │               │               │   ├── start: 116
+           │       │       │                       │               │               │   └── end: 117
            │       │       │                       │               │               │
            │       │       │                       │               │               └── operable: 2
            │       │       │                       │               ├── operator: ADD_ASSIGN
@@ -346,15 +354,15 @@ Syntax Trees:
            │       │       │                       │                   └── BinaryExpressionAST
            │       │       │                       │                       ├── factory:
            │       │       │                       │                       │   ├── next: NUMBER, PREFIX_EXPRESSION
-           │       │       │                       │                       │   ├── start: 118
-           │       │       │                       │                       │   └── end: 125
+           │       │       │                       │                       │   ├── start: 121
+           │       │       │                       │                       │   └── end: 128
            │       │       │                       │                       │
            │       │       │                       │                       ├── left:
            │       │       │                       │                       │   └── NumberAST
            │       │       │                       │                       │       ├── factory:
            │       │       │                       │                       │       │   ├── next: 
-           │       │       │                       │                       │       │   ├── start: 118
-           │       │       │                       │                       │       │   └── end: 119
+           │       │       │                       │                       │       │   ├── start: 121
+           │       │       │                       │                       │       │   └── end: 122
            │       │       │                       │                       │       │
            │       │       │                       │                       │       └── operable: 4
            │       │       │                       │                       ├── operator: ADDITION
@@ -362,16 +370,16 @@ Syntax Trees:
            │       │       │                       │                           └── PrefixExpressionAST
            │       │       │                       │                               ├── factory:
            │       │       │                       │                               │   ├── next: NUMBER
-           │       │       │                       │                               │   ├── start: 122
-           │       │       │                       │                               │   └── end: 125
+           │       │       │                       │                               │   ├── start: 125
+           │       │       │                       │                               │   └── end: 128
            │       │       │                       │                               │
            │       │       │                       │                               ├── operator: NEGATE
            │       │       │                       │                               └── right:
            │       │       │                       │                                   └── NumberAST
            │       │       │                       │                                       ├── factory:
            │       │       │                       │                                       │   ├── next: 
-           │       │       │                       │                                       │   ├── start: 123
-           │       │       │                       │                                       │   └── end: 125
+           │       │       │                       │                                       │   ├── start: 126
+           │       │       │                       │                                       │   └── end: 128
            │       │       │                       │                                       │
            │       │       │                       │                                       └── operable: 10
            │       │       │                       ├── operator: MULTIPLICATION
@@ -379,72 +387,181 @@ Syntax Trees:
            │       │       │                           └── NumberAST
            │       │       │                               ├── factory:
            │       │       │                               │   ├── next: 
-           │       │       │                               │   ├── start: 129
-           │       │       │                               │   └── end: 130
+           │       │       │                               │   ├── start: 132
+           │       │       │                               │   └── end: 133
            │       │       │                               │
            │       │       │                               └── operable: 5
-           │       │       └── typeKind: UNDEFINED
+           │       │       └── typeKind: INTEGER
            │       ├── operator: MULTIPLICATION
            │       └── right:
            │           └── CastExpressionAST
            │               ├── factory:
            │               │   ├── next: NUMBER
-           │               │   ├── start: 135
-           │               │   └── end: 137
+           │               │   ├── start: 138
+           │               │   └── end: 140
            │               │
            │               ├── left:
            │               │   └── NumberAST
            │               │       ├── factory:
            │               │       │   ├── next: 
-           │               │       │   ├── start: 135
-           │               │       │   └── end: 136
+           │               │       │   ├── start: 138
+           │               │       │   └── end: 139
            │               │       │
            │               │       └── operable: 2
-           │               └── typeKind: UNDEFINED
+           │               └── typeKind: FLOAT
+           │
+           ├── FunctionAST
+           │   ├── factory:
+           │   │   ├── next: TYPE, PARAMETER_LIST, BLOCK
+           │   │   ├── start: 199
+           │   │   └── end: 415
+           │   │
+           │   ├── annotations: 
+           │   │   ├── AnnotationAST
+           │   │   │   ├── factory:
+           │   │   │   │   ├── next: IDENTIFIER_CALL, FUNCTION
+           │   │   │   │   ├── start: 142
+           │   │   │   │   └── end: 153
+           │   │   │   │
+           │   │   │   ├── name: tests
+           │   │   │   └── arguments: N/A
+           │   │   │       ├── factory:
+           │   │   │       │   ├── next: 
+           │   │   │       │   ├── start: -1
+           │   │   │       │   └── end: -1
+           │   │   │       │
+           │   │   │       └── arguments: N/A
+           │   │   │
+           │   │   └── AnnotationAST
+           │   │       ├── factory:
+           │   │       │   ├── next: IDENTIFIER_CALL, FUNCTION
+           │   │       │   ├── start: 187
+           │   │       │   └── end: 198
+           │   │       │
+           │   │       ├── name: world
+           │   │       └── arguments: N/A
+           │   │           ├── factory:
+           │   │           │   ├── next: 
+           │   │           │   ├── start: -1
+           │   │           │   └── end: -1
+           │   │           │
+           │   │           └── arguments: N/A
+           │   │
+           │   ├── name: main
+           │   ├── type: 
+           │   │   ├── factory:
+           │   │   │   ├── next: 
+           │   │   │   ├── start: 208
+           │   │   │   └── end: 211
+           │   │   │
+           │   │   └── keyword: INTEGER
+           │   │
+           │   ├── parameters: 
+           │   │   ├── factory:
+           │   │   │   ├── next: PARAMETER
+           │   │   │   ├── start: 212
+           │   │   │   └── end: 228
+           │   │   │
+           │   │   └── parameters: 
+           │   │       └── ParameterAST
+           │   │           ├── factory:
+           │   │           │   ├── next: TYPE
+           │   │           │   ├── start: 213
+           │   │           │   └── end: 227
+           │   │           │
+           │   │           ├── name: args
+           │   │           └── type:
+           │   │               ├── factory:
+           │   │               │   ├── next: 
+           │   │               │   ├── start: 219
+           │   │               │   └── end: 227
+           │   │               │
+           │   │               └── keyword: STRING[]
+           │   │
+           │   └── block: 
+           │       ├── factory:
+           │       │   ├── next: 
+           │       │   ├── start: 208
+           │       │   └── end: 211
+           │       │
+           │       └── keyword: INTEGER
+           │
+           ├── FunctionAST
+           │   ├── factory:
+           │   │   ├── next: PARAMETER_LIST, BLOCK
+           │   │   ├── start: 417
+           │   │   └── end: 504
+           │   │
+           │   ├── annotations: N/A
+           │   │
+           │   ├── name: print_greet
+           │   ├── type: 
+           │   │   ├── factory:
+           │   │   │   ├── next: 
+           │   │   │   ├── start: -1
+           │   │   │   └── end: -1
+           │   │   │
+           │   │   └── keyword: VOID
+           │   │
+           │   ├── parameters: 
+           │   │   ├── factory:
+           │   │   │   ├── next: PARAMETER
+           │   │   │   ├── start: 434
+           │   │   │   └── end: 457
+           │   │   │
+           │   │   └── parameters: 
+           │   │       └── ParameterAST
+           │   │           ├── factory:
+           │   │           │   ├── next: TYPE
+           │   │           │   ├── start: 435
+           │   │           │   └── end: 456
+           │   │           │
+           │   │           ├── name: test_argument
+           │   │           └── type:
+           │   │               ├── factory:
+           │   │               │   ├── next: 
+           │   │               │   ├── start: 450
+           │   │               │   └── end: 456
+           │   │               │
+           │   │               └── keyword: STRING
+           │   │
+           │   └── block: 
+           │       ├── factory:
+           │       │   ├── next: 
+           │       │   ├── start: -1
+           │       │   └── end: -1
+           │       │
+           │       └── keyword: VOID
            │
            └── FunctionAST
                ├── factory:
-               │   ├── next: PARAMETER_LIST, BLOCK
-               │   ├── start: 433
-               │   └── end: 520
+               │   ├── next: TYPE, PARAMETER_LIST, BLOCK
+               │   ├── start: 506
+               │   └── end: 544
                │
                ├── annotations: N/A
                │
-               ├── name: print_greet
+               ├── name: greeting
                ├── type: 
                │   ├── factory:
                │   │   ├── next: 
-               │   │   ├── start: -1
-               │   │   └── end: -1
+               │   │   ├── start: 519
+               │   │   └── end: 525
                │   │
-               │   └── keyword: VOID
+               │   └── keyword: STRING
                │
-               ├── parameters: 
+               ├── parameters: N/A
                │   ├── factory:
-               │   │   ├── next: PARAMETER
-               │   │   ├── start: 450
-               │   │   └── end: 473
+               │   │   ├── next: 
+               │   │   ├── start: 526
+               │   │   └── end: 528
                │   │
-               │   └── parameters: 
-               │       └── ParameterAST
-               │           ├── factory:
-               │           │   ├── next: TYPE
-               │           │   ├── start: 451
-               │           │   └── end: 472
-               │           │
-               │           ├── name: test_argument
-               │           └── type:
-               │               ├── factory:
-               │               │   ├── next: 
-               │               │   ├── start: 466
-               │               │   └── end: 472
-               │               │
-               │               └── keyword: STRING
+               │   └── parameters: N/A
                │
                └── block: 
                    ├── factory:
                    │   ├── next: 
-                   │   ├── start: -1
-                   │   └── end: -1
+                   │   ├── start: 519
+                   │   └── end: 525
                    │
-                   └── keyword: VOID
+                   └── keyword: STRING

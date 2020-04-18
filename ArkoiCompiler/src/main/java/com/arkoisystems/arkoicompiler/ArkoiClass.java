@@ -65,13 +65,20 @@ public class ArkoiClass implements ICompilerClass
     
     @Getter
     @NotNull
-    private final SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer(this);
+    private final SemanticAnalyzer semanticAnalyzer;
     
     
-    public ArkoiClass(@NotNull final ArkoiCompiler arkoiCompiler, @NotNull final String filePath, @NotNull final byte[] content) {
+    @Getter
+    private final boolean detailed;
+    
+    
+    public ArkoiClass(@NotNull final ArkoiCompiler arkoiCompiler, @NotNull final String filePath, @NotNull final byte[] content, final boolean detailed) {
         this.arkoiCompiler = arkoiCompiler;
+        this.detailed = detailed;
         this.filePath = filePath;
     
+        this.semanticAnalyzer = new SemanticAnalyzer(this, detailed);
+        
         this.content = new String(content, StandardCharsets.UTF_8).toCharArray();
         this.isNative = false;
     }

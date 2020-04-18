@@ -25,7 +25,6 @@ import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.Identifi
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.KeywordType;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.SymbolType;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
-import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.visitors.ScopeVisitor;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.visitors.TypeVisitor;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxErrorType;
@@ -178,7 +177,12 @@ public class IdentifierCallAST extends OperableAST
     @NotNull
     public String getDescriptor() {
         Objects.requireNonNull(this.getCalledIdentifier(), "calledIdentifier must not be null.");
-        return this.getCalledIdentifier().getTokenContent() + (this.getCalledFunctionPart() != null ? "()" : "");
+        Objects.requireNonNull(this.getSyntaxAnalyzer(), "syntaxAnalyzer must not be null.");
+    
+        final StringBuilder descriptorBuilder = new StringBuilder(this.getCalledIdentifier().getTokenContent());
+        if (this.getCalledFunctionPart() != null)
+            descriptorBuilder.append("(").append(this.getCalledFunctionPart().getCalledExpressions().size()).append(")");
+        return descriptorBuilder.toString();
     }
     
     

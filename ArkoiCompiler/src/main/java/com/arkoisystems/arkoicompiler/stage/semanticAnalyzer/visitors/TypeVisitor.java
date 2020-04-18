@@ -35,6 +35,7 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.t
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
@@ -47,11 +48,16 @@ public class TypeVisitor implements IVisitor<TypeKind>, IFailed
     
     
     @Getter
+    private final boolean detailed;
+    
+    
+    @Getter
     private boolean failed;
     
     
-    public TypeVisitor(@NotNull final SemanticAnalyzer semanticAnalyzer) {
+    public TypeVisitor(@NotNull final SemanticAnalyzer semanticAnalyzer, final boolean detailed) {
         this.semanticAnalyzer = semanticAnalyzer;
+        this.detailed = detailed;
     }
     
     
@@ -171,6 +177,8 @@ public class TypeVisitor implements IVisitor<TypeKind>, IFailed
         final ScopeVisitor scopeVisitor = new ScopeVisitor(identifierCallAST.getSyntaxAnalyzer().getCompilerClass().getSemanticAnalyzer());
         scopeVisitor.visit(identifierCallAST.getSyntaxAnalyzer().getRootAST());
         final IASTNode resultNode = scopeVisitor.visit(identifierCallAST);
+        if(scopeVisitor.isFailed())
+            this.failed();
         if (resultNode != null)
             return this.visit(resultNode);
         return identifierCallAST.getTypeKind();
@@ -198,11 +206,21 @@ public class TypeVisitor implements IVisitor<TypeKind>, IFailed
         Objects.requireNonNull(assignmentExpressionAST.getLeftSideOperable(), "assignmentExpressionAST.leftSideOperable must not be null.");
         Objects.requireNonNull(assignmentExpressionAST.getRightSideOperable(), "assignmentExpressionAST.rightSideOperable must not be null.");
         Objects.requireNonNull(assignmentExpressionAST.getSyntaxAnalyzer(), "assignmentExpressionAST.syntaxAnalyzer must not be null.");
-        
-        // TODO: Type checking
-        
-        this.visit(assignmentExpressionAST.getRightSideOperable());
-        return this.visit(assignmentExpressionAST.getLeftSideOperable());
+    
+        final TypeKind
+                leftSideType = this.visit(assignmentExpressionAST.getLeftSideOperable()),
+                rightSideType = this.visit(assignmentExpressionAST.getRightSideOperable());
+        if (rightSideType == leftSideType)
+            return leftSideType;
+        if (!this.isDetailed() && (leftSideType == TypeKind.UNDEFINED || rightSideType == TypeKind.UNDEFINED))
+            return TypeKind.UNDEFINED;
+    
+        return this.addError(
+                TypeKind.UNDEFINED,
+                assignmentExpressionAST.getSyntaxAnalyzer().getCompilerClass(),
+                assignmentExpressionAST.getRightSideOperable(),
+                "Left type doesn't match the right one."
+        );
     }
     
     
@@ -210,26 +228,78 @@ public class TypeVisitor implements IVisitor<TypeKind>, IFailed
     public TypeKind visit(@NotNull final BinaryExpressionAST binaryExpressionAST) {
         Objects.requireNonNull(binaryExpressionAST.getLeftSideOperable(), "binaryExpressionAST.leftSideOperable must not be null.");
         Objects.requireNonNull(binaryExpressionAST.getRightSideOperable(), "binaryExpressionAST.rightSideOperable must not be null.");
+        Objects.requireNonNull(binaryExpressionAST.getBinaryOperatorType(), "binaryExpressionAST.binaryOperatorType must not be null.");
         Objects.requireNonNull(binaryExpressionAST.getSyntaxAnalyzer(), "binaryExpressionAST.syntaxAnalyzer must not be null.");
-        
-        final TypeKind leftSideType = this.visit(binaryExpressionAST.getLeftSideOperable()),
+    
+        final TypeKind
+                leftSideType = this.visit(binaryExpressionAST.getLeftSideOperable()),
                 rightSideType = this.visit(binaryExpressionAST.getRightSideOperable());
+    
+        switch (binaryExpressionAST.getBinaryOperatorType()) {
+            case MODULO:
+                if (leftSideType == TypeKind.STRING && rightSideType == TypeKind.COLLECTION)
+                    return TypeKind.STRING;
+                break;
+            case ADDITION:
+            case DIVISION:
+            case EXPONENTIAL:
+            case SUBTRACTION:
+            case MULTIPLICATION:
+                break;
+            default:
+                return this.addError(
+                        TypeKind.UNDEFINED,
         
-        // TODO: Type checking (if its a valid operation like String & Collection with the % operator or Number & Number with the + operator)
-        
-        if (leftSideType.isNumeric() && rightSideType.isNumeric()) {
-            if (leftSideType.getPrecision() > rightSideType.getPrecision())
-                return leftSideType;
-            else return rightSideType;
-        } else return TypeKind.UNDEFINED;
+                        binaryExpressionAST.getSyntaxAnalyzer().getCompilerClass(),
+                        binaryExpressionAST,
+                        "Unsupported binary operation for the semantic analysis."
+                );
+        }
+    
+        if (leftSideType.isNumeric() && rightSideType.isNumeric())
+            return leftSideType.getPrecision() > rightSideType.getPrecision() ? leftSideType : rightSideType;
+        if (!this.isDetailed() && (leftSideType == TypeKind.UNDEFINED || rightSideType == TypeKind.UNDEFINED))
+            return TypeKind.UNDEFINED;
+    
+        final String errorMessage;
+        final IASTNode targetNode;
+        if (!leftSideType.isNumeric() && !rightSideType.isNumeric()) {
+            targetNode = binaryExpressionAST;
+            errorMessage = "Both sides are not numeric.";
+        } else if (!leftSideType.isNumeric()) {
+            targetNode = binaryExpressionAST.getLeftSideOperable();
+            errorMessage = "Left side is not numeric.";
+        } else {
+            targetNode = binaryExpressionAST.getRightSideOperable();
+            errorMessage = "Right side is not numeric.";
+        }
+    
+        return this.addError(
+                TypeKind.UNDEFINED,
+                binaryExpressionAST.getSyntaxAnalyzer().getCompilerClass(),
+                targetNode,
+                errorMessage
+        );
     }
     
     
     @Override
     public TypeKind visit(@NotNull final CastExpressionAST castExpressionAST) {
         Objects.requireNonNull(castExpressionAST.getLeftSideOperable(), "castExpressionAST.leftSideOperable must not be null.");
+        Objects.requireNonNull(castExpressionAST.getSyntaxAnalyzer(), "castExpressionAST.syntaxAnalyzer must not be null.");
+    
+        final TypeKind leftSideType = this.visit(castExpressionAST.getLeftSideOperable());
+        if (!this.isDetailed() && leftSideType == TypeKind.UNDEFINED)
+            return TypeKind.UNDEFINED;
+        if (!leftSideType.isNumeric())
+            return this.addError(
+                    TypeKind.UNDEFINED,
         
-        this.visit(castExpressionAST.getLeftSideOperable());
+                    castExpressionAST.getSyntaxAnalyzer().getCompilerClass(),
+                    castExpressionAST.getLeftSideOperable(),
+                    "Left side is not numeric."
+            );
+    
         return castExpressionAST.getTypeKind();
     }
     
@@ -239,12 +309,34 @@ public class TypeVisitor implements IVisitor<TypeKind>, IFailed
         Objects.requireNonNull(equalityExpressionAST.getLeftSideOperable(), "equalityExpressionAST.leftSideOperable must not be null.");
         Objects.requireNonNull(equalityExpressionAST.getRightSideOperable(), "equalityExpressionAST.rightSideOperable must not be null.");
         Objects.requireNonNull(equalityExpressionAST.getSyntaxAnalyzer(), "equalityExpressionAST.syntaxAnalyzer must not be null.");
-        
-        // TODO: Type checking
-        
-        this.visit(equalityExpressionAST.getRightSideOperable());
-        this.visit(equalityExpressionAST.getLeftSideOperable());
-        return TypeKind.BOOLEAN;
+    
+        final TypeKind
+                leftSideType = this.visit(equalityExpressionAST.getLeftSideOperable()),
+                rightSideType = this.visit(equalityExpressionAST.getRightSideOperable());
+        if (leftSideType == TypeKind.BOOLEAN && rightSideType == TypeKind.BOOLEAN)
+            return TypeKind.BOOLEAN;
+        if (!this.isDetailed() && (leftSideType == TypeKind.UNDEFINED || rightSideType == TypeKind.UNDEFINED))
+            return TypeKind.UNDEFINED;
+    
+        final String errorMessage;
+        final IASTNode targetNode;
+        if (leftSideType != TypeKind.BOOLEAN && rightSideType != TypeKind.BOOLEAN) {
+            targetNode = equalityExpressionAST;
+            errorMessage = "Both sides are not a boolean.";
+        } else if (leftSideType != TypeKind.BOOLEAN) {
+            targetNode = equalityExpressionAST.getLeftSideOperable();
+            errorMessage = "Left side is not a boolean.";
+        } else {
+            targetNode = equalityExpressionAST.getRightSideOperable();
+            errorMessage = "Right side is not a boolean.";
+        }
+    
+        return this.addError(
+                TypeKind.UNDEFINED,
+                equalityExpressionAST.getSyntaxAnalyzer().getCompilerClass(),
+                targetNode,
+                errorMessage
+        );
     }
     
     
@@ -253,12 +345,34 @@ public class TypeVisitor implements IVisitor<TypeKind>, IFailed
         Objects.requireNonNull(logicalExpressionAST.getLeftSideOperable(), "logicalExpressionAST.leftSideOperable must not be null.");
         Objects.requireNonNull(logicalExpressionAST.getRightSideOperable(), "logicalExpressionAST.rightSideOperable must not be null.");
         Objects.requireNonNull(logicalExpressionAST.getSyntaxAnalyzer(), "logicalExpressionAST.syntaxAnalyzer must not be null.");
-        
-        // TODO: Type checking
-        
-        this.visit(logicalExpressionAST.getRightSideOperable());
-        this.visit(logicalExpressionAST.getLeftSideOperable());
-        return TypeKind.BOOLEAN;
+    
+        final TypeKind
+                leftSideType = this.visit(logicalExpressionAST.getLeftSideOperable()),
+                rightSideType = this.visit(logicalExpressionAST.getRightSideOperable());
+        if (leftSideType == TypeKind.BOOLEAN && rightSideType == TypeKind.BOOLEAN)
+            return TypeKind.BOOLEAN;
+        if (!this.isDetailed() && (leftSideType == TypeKind.UNDEFINED || rightSideType == TypeKind.UNDEFINED))
+            return TypeKind.UNDEFINED;
+    
+        final String errorMessage;
+        final IASTNode targetNode;
+        if (leftSideType != TypeKind.BOOLEAN && rightSideType != TypeKind.BOOLEAN) {
+            targetNode = logicalExpressionAST;
+            errorMessage = "Both sides are not a boolean.";
+        } else if (leftSideType != TypeKind.BOOLEAN) {
+            targetNode = logicalExpressionAST.getLeftSideOperable();
+            errorMessage = "Left side is not a boolean.";
+        } else {
+            targetNode = logicalExpressionAST.getRightSideOperable();
+            errorMessage = "Right side is not a boolean.";
+        }
+    
+        return this.addError(
+                TypeKind.UNDEFINED,
+                logicalExpressionAST.getSyntaxAnalyzer().getCompilerClass(),
+                targetNode,
+                errorMessage
+        );
     }
     
     
@@ -273,20 +387,39 @@ public class TypeVisitor implements IVisitor<TypeKind>, IFailed
     @Override
     public TypeKind visit(@NotNull final PostfixExpressionAST postfixExpressionAST) {
         Objects.requireNonNull(postfixExpressionAST.getLeftSideOperable(), "postfixExpressionAST.leftSideOperable must not be null.");
-        
-        // TODO: Type checking
-        
-        return this.visit(postfixExpressionAST.getLeftSideOperable());
+    
+        final TypeKind leftSideType = this.visit(postfixExpressionAST.getLeftSideOperable());
+        if (!this.isDetailed() && leftSideType == TypeKind.UNDEFINED)
+            return TypeKind.UNDEFINED;
+        if (leftSideType.isNumeric())
+            return leftSideType;
+    
+        return this.addError(
+                TypeKind.UNDEFINED,
+                postfixExpressionAST.getSyntaxAnalyzer().getCompilerClass(),
+                postfixExpressionAST,
+                "Left side is not numeric."
+        );
     }
     
     
     @Override
     public TypeKind visit(@NotNull final PrefixExpressionAST prefixExpressionAST) {
         Objects.requireNonNull(prefixExpressionAST.getRightSideOperable(), "prefixExpressionAST.rightSideOperable must not be null.");
+        Objects.requireNonNull(prefixExpressionAST.getPrefixOperatorType(), "prefixExpressionAST.prefixOperatorType must not be null.");
+    
+        final TypeKind rightTSideType = this.visit(prefixExpressionAST.getRightSideOperable());
+        if (!this.isDetailed() && rightTSideType == TypeKind.UNDEFINED)
+            return TypeKind.UNDEFINED;
+        if (rightTSideType.isNumeric())
+            return rightTSideType;
         
-        // TODO: Type checking
-        
-        return this.visit(prefixExpressionAST.getRightSideOperable());
+        return this.addError(
+                TypeKind.UNDEFINED,
+                prefixExpressionAST.getSyntaxAnalyzer().getCompilerClass(),
+                prefixExpressionAST,
+                "Right side is not numeric."
+        );
     }
     
     
@@ -295,12 +428,34 @@ public class TypeVisitor implements IVisitor<TypeKind>, IFailed
         Objects.requireNonNull(relationalExpressionAST.getLeftSideOperable(), "relationalExpressionAST.leftSideOperable must not be null.");
         Objects.requireNonNull(relationalExpressionAST.getRightSideOperable(), "relationalExpressionAST.rightSideOperable must not be null.");
         Objects.requireNonNull(relationalExpressionAST.getSyntaxAnalyzer(), "relationalExpressionAST.syntaxAnalyzer must not be null.");
-        
-        // TODO: Type checking
-        
-        this.visit(relationalExpressionAST.getRightSideOperable());
-        this.visit(relationalExpressionAST.getLeftSideOperable());
-        return TypeKind.BOOLEAN;
+    
+        final TypeKind
+                leftSideType = this.visit(relationalExpressionAST.getLeftSideOperable()),
+                rightSideType = this.visit(relationalExpressionAST.getRightSideOperable());
+        if (leftSideType == TypeKind.BOOLEAN && rightSideType == TypeKind.BOOLEAN)
+            return TypeKind.BOOLEAN;
+        if (!this.isDetailed() && (leftSideType == TypeKind.UNDEFINED || rightSideType == TypeKind.UNDEFINED))
+            return TypeKind.UNDEFINED;
+    
+        final String errorMessage;
+        final IASTNode targetNode;
+        if (leftSideType != TypeKind.BOOLEAN && rightSideType != TypeKind.BOOLEAN) {
+            targetNode = relationalExpressionAST;
+            errorMessage = "Both sides are not a boolean.";
+        } else if (leftSideType != TypeKind.BOOLEAN) {
+            targetNode = relationalExpressionAST.getLeftSideOperable();
+            errorMessage = "Left side is not a boolean.";
+        } else {
+            targetNode = relationalExpressionAST.getRightSideOperable();
+            errorMessage = "Right side is not a boolean.";
+        }
+    
+        return this.addError(
+                TypeKind.UNDEFINED,
+                relationalExpressionAST.getSyntaxAnalyzer().getCompilerClass(),
+                targetNode,
+                errorMessage
+        );
     }
     
     
@@ -310,10 +465,8 @@ public class TypeVisitor implements IVisitor<TypeKind>, IFailed
     }
     
     
-    public void addError(@NotNull final ICompilerClass compilerClass, @NotNull final IASTNode astNode, @NotNull final String message, @NotNull final Object... arguments) {
-        Objects.requireNonNull(this.getSemanticAnalyzer());
-        
-        this.getSemanticAnalyzer().getErrorHandler().addError(ArkoiError.builder()
+    public <E> E addError(@Nullable E errorSource, @NotNull final ICompilerClass compilerClass, @NotNull final IASTNode astNode, @NotNull final String message, @NotNull final Object... arguments) {
+        compilerClass.getSemanticAnalyzer().getErrorHandler().addError(ArkoiError.builder()
                 .compilerClass(compilerClass)
                 .positions(new int[][] { {
                         Objects.requireNonNull(astNode.getStartToken()).getStart(),
@@ -325,6 +478,7 @@ public class TypeVisitor implements IVisitor<TypeKind>, IFailed
         );
         
         this.failed();
+        return errorSource;
     }
     
 }

@@ -121,12 +121,6 @@ public class CastExpressionAST extends ExpressionAST
     }
     
     
-    @Override
-    public @NotNull TypeKind getTypeKind() {
-        return TypeKind.UNDEFINED;
-    }
-    
-    
     public static CastExpressionASTBuilder builder(@NotNull final SyntaxAnalyzer syntaxAnalyzer) {
         return new CastExpressionASTBuilder(syntaxAnalyzer);
     }
