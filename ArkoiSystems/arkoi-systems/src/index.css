@@ -1,0 +1,112 @@
+@import url("https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Space+Mono&display=swap");
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  background-color: #242428;
+}
+
+h1 {
+  color: white;
+}
+
+.navbar {
+  background-color: #242428;
+  padding: 20px;
+
+  padding-left: 8vw;
+  padding-right: 8vw;
+}
+
+.nav-item {
+  font-family: "Roboto Mono", sans-serif;
+  margin-left: 30px;
+}
+
+@media (max-width: 992px) {
+  .nav-item {
+    margin-left: 0px;
+  }
+}
+
+.active > a {
+  opacity: 0.3;
+}
+
+.nav-link {
+  text-decoration: none;
+  color: white;
+  opacity: 0.3;
+}
+
+.nav-link:hover {
+  color: white;
+  opacity: 0.5;
+}
+
+footer {
+  background-color: #242428;
+}
+
+.footer-hr {
+  width: 50%;
+  border-color: white;
+  opacity: 0.1;
+}
+
+.footer-item,
+.footer-copyright {
+  font-family: "Space Mono", sans-serif;
+  font-style: normal;
+  font-weight: normal;
+  font-size: 18px;
+  line-height: 27px;
+
+  margin-right: 0px;
+
+  text-decoration: none;
+  color: white;
+  opacity: 0.3;
+}
+
+.footer-item:hover {
+  text-decoration: none;
+  color: white;
+  opacity: 0.5;
+}
+
+.footer-copyright {
+  margin-top: 20px;
+  margin-bottom: 20px;
+  font-size: 15px;
+}
+
+.socialButton {
+  display: inline-block;
+  width: 35px;
+  height: 35px;
+  background-color: #33383b;
+  border-radius: 2px;
+  font-size: 20px;
+  color: #242428;
+  text-align: center;
+  line-height: 35px;
+  margin-left: 10px;
+  margin-right: 10px;
+  transition: all 0.25s;
+}
+
+@media (max-width: 576px) {
+  .socialButton {
+    margin-top: 20px;
+  }
+}
+
+.socialButton:hover {
+  color: white;
+  opacity: 0.5;
+}
