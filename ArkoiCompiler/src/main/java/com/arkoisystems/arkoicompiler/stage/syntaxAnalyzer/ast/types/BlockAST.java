@@ -33,11 +33,10 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.S
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.BlockType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.marker.ArkoiMarker;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.marker.MarkerFactory;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.parsers.BlockParser;
 import lombok.Builder;
 import lombok.Getter;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -74,12 +73,10 @@ public class BlockAST extends ArkoiASTNode
             @Nullable final IToken startToken,
             @Nullable final IToken endToken
     ) {
-        super(null, syntaxAnalyzer, ASTType.BLOCK, startToken, endToken);
+        super(syntaxAnalyzer, ASTType.BLOCK, startToken, endToken);
         
         this.astNodes = new ArrayList<>();
         this.blockType = blockType;
-        
-        this.setMarkerFactory(new MarkerFactory<>(new ArkoiMarker<>(this.getAstType()), this));
     }
     
     
@@ -91,62 +88,13 @@ public class BlockAST extends ArkoiASTNode
         this.startAST(this.getSyntaxAnalyzer().currentToken());
         
         if (this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.OPENING_BRACE) != null) {
-            this.blockType = BlockType.BLOCK;
-            this.getSyntaxAnalyzer().nextToken();
-            
-            main_loop:
-            while (this.getSyntaxAnalyzer().getPosition() < this.getSyntaxAnalyzer().getTokens().length) {
-                if (this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.CLOSING_BRACE) != null)
-                    break;
-    
-                for (final ISyntaxParser parser : BLOCK_PARSERS) {
-                    if (!parser.canParse(this, this.getSyntaxAnalyzer()))
-                        continue;
-    
-                    final IASTNode astNode = parser.parse(this, this.getSyntaxAnalyzer());
-                    this.getMarkerFactory().addFactory(astNode.getMarkerFactory());
-    
-                    if (astNode.isFailed()) {
-                        this.skipToNextValidToken();
-                        continue main_loop;
-                    }
-    
-                    this.getAstNodes().add(astNode);
-                    this.getSyntaxAnalyzer().nextToken();
-                    continue main_loop;
-                }
-    
-                this.addError(
-                        this,
-                        this.getSyntaxAnalyzer().getCompilerClass(),
-                        this.getSyntaxAnalyzer().currentToken(),
-                        SyntaxErrorType.BLOCK_NO_PARSER_FOUND
-                );
-                this.skipToNextValidToken();
-            }
+            final BlockAST blockAST = this.parseBlock();
+            if(blockAST != null)
+                return blockAST;
         } else if (this.getSyntaxAnalyzer().matchesCurrentToken(OperatorType.EQUALS) != null) {
-            this.blockType = BlockType.INLINE;
-            this.getSyntaxAnalyzer().nextToken();
-            
-            if (!ExpressionAST.EXPRESSION_PARSER.canParse(this, this.getSyntaxAnalyzer()))
-                return this.addError(
-                        this,
-                        this.getSyntaxAnalyzer().getCompilerClass(),
-                        this.getSyntaxAnalyzer().currentToken(),
-        
-                        SyntaxErrorType.SYNTAX_ERROR_TEMPLATE,
-                        "Block", "<expression>", this.getSyntaxAnalyzer().currentToken().getTokenContent()
-                );
-            
-            final OperableAST operableAST = ExpressionAST.EXPRESSION_PARSER.parse(this, this.getSyntaxAnalyzer());
-            this.getMarkerFactory().addFactory(operableAST.getMarkerFactory());
-            
-            if (operableAST.isFailed()) {
-                this.failed();
-                return this;
-            }
-            
-            this.getAstNodes().add(operableAST);
+            final BlockAST blockAST = this.parseInlinedBlock();
+            if(blockAST != null)
+                return blockAST;
         } else return this.addError(
                 this,
                 this.getSyntaxAnalyzer().getCompilerClass(),
@@ -158,6 +106,78 @@ public class BlockAST extends ArkoiASTNode
         
         this.endAST(this.getSyntaxAnalyzer().currentToken());
         return this;
+    }
+    
+    
+    @Nullable
+    private BlockAST parseBlock() {
+        Objects.requireNonNull(this.getSyntaxAnalyzer(), "syntaxAnalyzer must not be null.");
+        
+        this.blockType = BlockType.BLOCK;
+        this.getSyntaxAnalyzer().nextToken();
+    
+        main_loop:
+        while (this.getSyntaxAnalyzer().getPosition() < this.getSyntaxAnalyzer().getTokens().length) {
+            if (this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.CLOSING_BRACE) != null)
+                break;
+        
+            for (final ISyntaxParser parser : BLOCK_PARSERS) {
+                if (!parser.canParse(this, this.getSyntaxAnalyzer()))
+                    continue;
+            
+                final IASTNode astNode = parser.parse(this, this.getSyntaxAnalyzer());
+                this.getMarkerFactory().addFactory(astNode.getMarkerFactory());
+            
+                if (astNode.isFailed()) {
+                    this.skipToNextValidToken();
+                    continue main_loop;
+                }
+            
+                this.getAstNodes().add(astNode);
+                this.getSyntaxAnalyzer().nextToken();
+                continue main_loop;
+            }
+        
+            this.addError(
+                    this,
+                    this.getSyntaxAnalyzer().getCompilerClass(),
+                    this.getSyntaxAnalyzer().currentToken(),
+                    SyntaxErrorType.BLOCK_NO_PARSER_FOUND
+            );
+            this.skipToNextValidToken();
+        }
+        
+        return null;
+    }
+    
+    
+    @Nullable
+    private BlockAST parseInlinedBlock() {
+        Objects.requireNonNull(this.getSyntaxAnalyzer(), "syntaxAnalyzer must not be null.");
+        
+        this.blockType = BlockType.INLINE;
+        this.getSyntaxAnalyzer().nextToken();
+    
+        if (!ExpressionAST.EXPRESSION_PARSER.canParse(this, this.getSyntaxAnalyzer()))
+            return this.addError(
+                    this,
+                    this.getSyntaxAnalyzer().getCompilerClass(),
+                    this.getSyntaxAnalyzer().currentToken(),
+                
+                    SyntaxErrorType.SYNTAX_ERROR_TEMPLATE,
+                    "Block", "<expression>", this.getSyntaxAnalyzer().currentToken().getTokenContent()
+            );
+    
+        final OperableAST operableAST = ExpressionAST.EXPRESSION_PARSER.parse(this, this.getSyntaxAnalyzer());
+        this.getMarkerFactory().addFactory(operableAST.getMarkerFactory());
+    
+        if (operableAST.isFailed()) {
+            this.failed();
+            return this;
+        }
+    
+        this.getAstNodes().add(operableAST);
+        return null;
     }
     
     

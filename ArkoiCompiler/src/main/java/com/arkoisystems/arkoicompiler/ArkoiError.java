@@ -57,42 +57,79 @@ public class ArkoiError implements ICompilerError
     
     
     @Override
-    public @NotNull
-    String getFinalError() {
+    public String toString() {
         Objects.requireNonNull(this.getMessage(), "message must not be null.");
         Objects.requireNonNull(this.getPositions(), "positions must not be null.");
         Objects.requireNonNull(this.getCompilerClass(), "compilerClass must not be null.");
     
         final StringBuilder stringBuilder = new StringBuilder("[" + Variables.DATE_FORMAT.format(new Date()) + "/INFO] " + String.format(this.getMessage(), this.getArguments()));
         for (final ErrorPosition errorPosition : this.getPositions()) {
+            stringBuilder.append("\r\n");
+        
             Objects.requireNonNull(errorPosition.getLineRange(), "errorPosition.lineRange must not be null.");
-            Objects.requireNonNull(errorPosition.getLineRange().getSourceCode(), "errorPosition.lineRange.sourceCode must not be null.");
-            
-            stringBuilder.append("\r\n");
-    
+            Objects.requireNonNull(errorPosition.getLineRange().getSourceCode(), "errorPosition.lineRange.sourceLines must not be null.");
+        
             final int startLine = errorPosition.getLineRange().getStartLine(), endLine = errorPosition.getLineRange().getEndLine();
-            
+            final int biggestNumber = String.valueOf(endLine + 2).length();
             for (int lineIndex = Math.max(startLine - 2, 0); lineIndex < startLine; lineIndex++)
-                stringBuilder.append("  ").append(lineIndex).append(" │ ").append(ErrorPosition.LineRange.make(this.getCompilerClass(), lineIndex, lineIndex).getSourceCode());
+                stringBuilder.append("  ")
+                        .append(" ".repeat(biggestNumber - String.valueOf(lineIndex).length()))
+                        .append(lineIndex)
+                        .append(" │ ")
+                        .append(ErrorPosition.LineRange.make(this.getCompilerClass(), lineIndex, lineIndex).getSourceCode());
+        
+            final String[] sourceLines = errorPosition.getLineRange().getSourceCode().split(System.getProperty("line.separator"));
+            for (int lineIndex = startLine; lineIndex < startLine + sourceLines.length; lineIndex++) {
+                final ErrorPosition.LineRange lineRange = ErrorPosition.LineRange.make(this.getCompilerClass(), lineIndex, lineIndex);
+                Objects.requireNonNull(lineRange.getSourceCode(), "lineRange.sourceCode must not be null.");
+                final String sourceCode = lineRange.getSourceCode();
             
-            final String[] sourceCode = errorPosition.getLineRange().getSourceCode().split(System.getProperty("line.separator"));
-            for(int lineIndex = startLine; lineIndex < startLine + sourceCode.length; lineIndex++)
-                stringBuilder.append("> ").append(lineIndex).append(" │ ").append(ErrorPosition.LineRange.make(this.getCompilerClass(), lineIndex, lineIndex).getSourceCode());
-            stringBuilder.append("    │ ");
-            stringBuilder.append(" ".repeat(Math.max(0, errorPosition.getCharStart())));
-            stringBuilder.append("^".repeat(Math.max(1, errorPosition.getCharEnd() - errorPosition.getCharStart())));
-            stringBuilder.append("\r\n");
+                final int leadingSpaces = sourceCode.length() - sourceCode.replaceAll("^\\s+", "").length();
+                final int trailingSpaces = sourceCode.length() - sourceCode.replaceAll("\\s+$", "").length();
+                final int maxLength = Math.max(0, sourceCode.length() - (leadingSpaces + trailingSpaces));
+                if (maxLength == 0)
+                    continue;
             
+                final String numberReplacement = " ".repeat(String.valueOf(lineIndex).length());
+                final String whitespacePrefix = " ".repeat(biggestNumber - String.valueOf(lineIndex).length());
+            
+                stringBuilder.append("> ")
+                        .append(whitespacePrefix)
+                        .append(lineIndex)
+                        .append(" │ ")
+                        .append(sourceCode);
+                if (lineIndex == startLine) {
+                    stringBuilder.append(whitespacePrefix)
+                            .append(numberReplacement)
+                            .append("   │ ")
+                            .append(" ".repeat(errorPosition.getCharStart()))
+                            .append("^".repeat(startLine == endLine ? errorPosition.getCharEnd() - errorPosition.getCharStart() : (sourceCode.length() - errorPosition.getCharStart()) - trailingSpaces))
+                            .append("\r\n");
+                } else if (lineIndex == endLine) {
+                    stringBuilder.append(whitespacePrefix)
+                            .append(numberReplacement)
+                            .append("   │ ")
+                            .append(" ".repeat(leadingSpaces))
+                            .append("^".repeat(errorPosition.getCharEnd()))
+                            .append("\r\n");
+                } else {
+                    stringBuilder.append(whitespacePrefix)
+                            .append(numberReplacement)
+                            .append("   │ ")
+                            .append(" ".repeat(leadingSpaces))
+                            .append("^".repeat(maxLength))
+                            .append("\r\n");
+                }
+            }
+        
             for (int lineIndex = endLine + 1; lineIndex < endLine + 3; lineIndex++)
-                stringBuilder.append("  ").append(lineIndex).append(" │ ").append(ErrorPosition.LineRange.make(this.getCompilerClass(), lineIndex, lineIndex).getSourceCode());
+                stringBuilder.append("  ")
+                        .append(" ".repeat(biggestNumber - String.valueOf(lineIndex).length()))
+                        .append(lineIndex)
+                        .append(" │ ")
+                        .append(ErrorPosition.LineRange.make(this.getCompilerClass(), lineIndex, lineIndex).getSourceCode());
         }
         return stringBuilder.toString();
-    }
-    
-    
-    @Override
-    public String toString() {
-        return this.getFinalError();
     }
     
     

@@ -33,7 +33,6 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.t
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.types.VariableAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.marker.MarkerFactory;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.parsers.StatementParser;
 import lombok.Builder;
 import org.jetbrains.annotations.NotNull;
@@ -49,13 +48,12 @@ public class StatementAST extends ArkoiASTNode
     
     @Builder(builderMethodName = "statementBuilder")
     protected StatementAST(
-            @Nullable final MarkerFactory<? extends IASTNode, IToken, IToken> markerFactory,
             @Nullable final SyntaxAnalyzer syntaxAnalyzer,
             @NotNull final ASTType astType,
             @Nullable final IToken startToken,
             @Nullable final IToken endToken
     ) {
-        super(markerFactory, syntaxAnalyzer, astType, startToken, endToken);
+        super(syntaxAnalyzer, astType, startToken, endToken);
     }
     
     

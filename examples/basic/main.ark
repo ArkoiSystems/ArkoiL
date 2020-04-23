@@ -4,8 +4,9 @@ var test_1 = test.test(1, 2)
 
 var test_2 = this.greeting()
 
-var test_3 = (test_1 - (test_1 * 2
-        += 4 + -10) * 5)i * 2f
+var test_3 = (test_1 - 
+    (test_1 * 2 += 4 
++ -10) * 5)i * 2f
 
 @test.tests
 # this method gets invoked first

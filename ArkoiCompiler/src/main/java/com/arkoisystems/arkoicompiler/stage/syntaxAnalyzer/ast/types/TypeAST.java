@@ -29,13 +29,9 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxErrorType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.ArkoiASTNode;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.marker.ArkoiMarker;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.marker.MarkerFactory;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.parsers.TypeParser;
-import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -64,12 +60,10 @@ public class TypeAST extends ArkoiASTNode
             @Nullable final IToken endToken,
             final boolean isArray
     ) {
-        super(null, syntaxAnalyzer, ASTType.TYPE, startToken, endToken);
+        super(syntaxAnalyzer, ASTType.TYPE, startToken, endToken);
     
         this.typeKeywordToken = typeKeywordToken;
         this.isArray = isArray;
-        
-        this.setMarkerFactory(new MarkerFactory<>(new ArkoiMarker<>(this.getAstType()), this));
     }
     
     
@@ -89,14 +83,12 @@ public class TypeAST extends ArkoiASTNode
             );
         
         this.startAST(this.getSyntaxAnalyzer().currentToken());
-        
         this.typeKeywordToken = (TypeKeywordToken) this.getSyntaxAnalyzer().currentToken();
         
         if (this.getSyntaxAnalyzer().matchesPeekToken(1, SymbolType.OPENING_BRACKET) != null && this.getSyntaxAnalyzer().matchesPeekToken(2, SymbolType.CLOSING_BRACKET) != null) {
             this.getSyntaxAnalyzer().nextToken(2);
             this.isArray = true;
         }
-        
         this.endAST(this.getSyntaxAnalyzer().currentToken());
         return this;
     }

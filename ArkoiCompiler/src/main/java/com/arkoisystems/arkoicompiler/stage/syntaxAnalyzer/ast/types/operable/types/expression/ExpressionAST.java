@@ -33,12 +33,9 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.ty
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types.operators.PrefixOperatorType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.marker.MarkerFactory;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.parsers.ExpressionParser;
-import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -75,14 +72,13 @@ public class ExpressionAST extends OperableAST
     
     @Builder(builderMethodName = "expressionBuilder")
     public ExpressionAST(
-            @Nullable final MarkerFactory<? extends IASTNode, IToken, IToken> markerFactory,
             @Nullable final SyntaxAnalyzer syntaxAnalyzer,
             @Nullable final OperableAST operableAST,
             @NotNull final ASTType astType,
             @Nullable final IToken startToken,
             @Nullable final IToken endToken
     ) {
-        super(markerFactory, syntaxAnalyzer, astType, startToken, endToken);
+        super(syntaxAnalyzer, astType, startToken, endToken);
         
         this.operableAST = operableAST;
     }
@@ -105,6 +101,7 @@ public class ExpressionAST extends OperableAST
     }
     
     
+    @NotNull
     public OperableAST parseAssignment(@NotNull final IASTNode parentAST) {
         Objects.requireNonNull(this.getSyntaxAnalyzer(), "syntaxAnalyzer must not be null.");
         
@@ -165,6 +162,8 @@ public class ExpressionAST extends OperableAST
         }
     }
     
+    
+    @NotNull
     public OperableAST parseAdditive(@NotNull final IASTNode parentAST) {
         Objects.requireNonNull(this.getSyntaxAnalyzer(), "syntaxAnalyzer must not be null.");
         
@@ -193,6 +192,8 @@ public class ExpressionAST extends OperableAST
         }
     }
     
+    
+    @NotNull
     protected OperableAST parseMultiplicative(@NotNull final IASTNode parentAST) {
         Objects.requireNonNull(this.getSyntaxAnalyzer(), "syntaxAnalyzer must not be null.");
         
@@ -229,6 +230,8 @@ public class ExpressionAST extends OperableAST
         }
     }
     
+    
+    @NotNull
     private OperableAST parseExponential(@NotNull final IASTNode parentAST) {
         Objects.requireNonNull(this.getSyntaxAnalyzer(), "syntaxAnalyzer must not be null.");
         
@@ -251,6 +254,7 @@ public class ExpressionAST extends OperableAST
     
     
     // TODO: Change parenthesized expression and cast expression
+    @NotNull
     public OperableAST parseOperable(@NotNull final IASTNode parentAST) {
         Objects.requireNonNull(this.getSyntaxAnalyzer(), "syntaxAnalyzer must not be null.");
         
