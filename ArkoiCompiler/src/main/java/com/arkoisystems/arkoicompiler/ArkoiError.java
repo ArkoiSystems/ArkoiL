@@ -21,20 +21,23 @@ package com.arkoisystems.arkoicompiler;
 import com.arkoisystems.arkoicompiler.api.ICompilerClass;
 import com.arkoisystems.arkoicompiler.api.error.ICompilerError;
 import com.arkoisystems.arkoicompiler.utils.Variables;
-import lombok.Builder;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
+import lombok.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import java.util.Objects;
 
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Builder
 public class ArkoiError implements ICompilerError
 {
+    
+    @Getter
+    @Nullable
+    private final List<ErrorPosition> positions;
+    
     
     @Getter
     @NotNull
@@ -50,12 +53,6 @@ public class ArkoiError implements ICompilerError
     @EqualsAndHashCode.Include
     @Getter
     @Nullable
-    private final int[][] positions;
-    
-    
-    @EqualsAndHashCode.Include
-    @Getter
-    @Nullable
     private final String message;
     
     
@@ -65,37 +62,29 @@ public class ArkoiError implements ICompilerError
         Objects.requireNonNull(this.getMessage(), "message must not be null.");
         Objects.requireNonNull(this.getPositions(), "positions must not be null.");
         Objects.requireNonNull(this.getCompilerClass(), "compilerClass must not be null.");
-        
-        final StringBuilder stringBuilder = new StringBuilder("[" + Variables.DATE_FORMAT.format(new Date()) + "/INFO] " + String.format(this.getMessage(), this.getArguments()) + "\n");
-        for (int index = 0; index < this.getPositions().length; index++) {
-            final int[] position = this.getPositions()[index];
-            if (position.length != 2)
-                continue;
+    
+        final StringBuilder stringBuilder = new StringBuilder("[" + Variables.DATE_FORMAT.format(new Date()) + "/INFO] " + String.format(this.getMessage(), this.getArguments()));
+        for (final ErrorPosition errorPosition : this.getPositions()) {
+            Objects.requireNonNull(errorPosition.getLineRange(), "errorPosition.lineRange must not be null.");
+            Objects.requireNonNull(errorPosition.getLineRange().getSourceCode(), "errorPosition.lineRange.sourceCode must not be null.");
             
-            stringBuilder.append(" >>> ");
-            int startPosition = position[0], endPosition = position[1];
-            for (; startPosition > 0; startPosition--) {
-                if (this.getCompilerClass().getContent()[startPosition] != 0x0A)
-                    continue;
-                startPosition++;
-                break;
-            }
-            for (; endPosition < this.getCompilerClass().getContent().length; endPosition++) {
-                if (this.getCompilerClass().getContent()[endPosition] != 0x0A)
-                    continue;
-                break;
-            }
+            stringBuilder.append("\r\n");
+    
+            final int startLine = errorPosition.getLineRange().getStartLine(), endLine = errorPosition.getLineRange().getEndLine();
             
-            final String realLine = new String(Arrays.copyOfRange(this.getCompilerClass().getContent(), startPosition, endPosition));
-            final String line = realLine.replaceAll("\n", "");
-            final int difference = realLine.length() - line.length();
+            for (int lineIndex = Math.max(startLine - 2, 0); lineIndex < startLine; lineIndex++)
+                stringBuilder.append("  ").append(lineIndex).append(" │ ").append(ErrorPosition.LineRange.make(this.getCompilerClass(), lineIndex, lineIndex).getSourceCode());
             
-            stringBuilder.append(line).append("\n");
-            stringBuilder.append(" ".repeat(Math.max(0, 5 + (position[0] - startPosition))));
-            stringBuilder.append("^".repeat(Math.max(1, (position[1] - position[0]) - difference)));
+            final String[] sourceCode = errorPosition.getLineRange().getSourceCode().split(System.getProperty("line.separator"));
+            for(int lineIndex = startLine; lineIndex < startLine + sourceCode.length; lineIndex++)
+                stringBuilder.append("> ").append(lineIndex).append(" │ ").append(ErrorPosition.LineRange.make(this.getCompilerClass(), lineIndex, lineIndex).getSourceCode());
+            stringBuilder.append("    │ ");
+            stringBuilder.append(" ".repeat(Math.max(0, errorPosition.getCharStart())));
+            stringBuilder.append("^".repeat(Math.max(1, errorPosition.getCharEnd() - errorPosition.getCharStart())));
+            stringBuilder.append("\r\n");
             
-            if (index != this.getPositions().length - 1)
-                stringBuilder.append("\n");
+            for (int lineIndex = endLine + 1; lineIndex < endLine + 3; lineIndex++)
+                stringBuilder.append("  ").append(lineIndex).append(" │ ").append(ErrorPosition.LineRange.make(this.getCompilerClass(), lineIndex, lineIndex).getSourceCode());
         }
         return stringBuilder.toString();
     }
@@ -104,6 +93,55 @@ public class ArkoiError implements ICompilerError
     @Override
     public String toString() {
         return this.getFinalError();
+    }
+    
+    
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    @Builder
+    public static class ErrorPosition
+    {
+        
+        @Nullable
+        private final LineRange lineRange;
+        
+        
+        private final int charStart, charEnd;
+        
+        
+        @Getter
+        @Setter
+        @AllArgsConstructor
+        @Builder
+        public static class LineRange
+        {
+            
+            @Nullable
+            private final String sourceCode;
+            
+            
+            private final int startLine, endLine;
+            
+            
+            @NonNull
+            public static LineRange make(final ICompilerClass compilerClass, final int startLine, final int endLine) {
+                final String[] sourceSplit = new String(compilerClass.getContent()).split(System.getProperty("line.separator"));
+                final StringBuilder sourceBuilder = new StringBuilder();
+                for (int index = 0; index < sourceSplit.length; index++) {
+                    if (index < startLine) continue;
+                    if (index > endLine) break;
+                    sourceBuilder.append(sourceSplit[index]).append(System.getProperty("line.separator"));
+                }
+                return LineRange.builder()
+                        .sourceCode(sourceBuilder.toString())
+                        .startLine(startLine)
+                        .endLine(endLine)
+                        .build();
+            }
+            
+        }
+        
     }
     
 }

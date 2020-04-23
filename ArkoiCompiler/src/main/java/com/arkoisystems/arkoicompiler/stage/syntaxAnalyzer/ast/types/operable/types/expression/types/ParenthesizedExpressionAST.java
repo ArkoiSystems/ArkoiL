@@ -19,8 +19,8 @@
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types;
 
 import com.arkoisystems.arkoicompiler.api.IASTNode;
+import com.arkoisystems.arkoicompiler.api.IToken;
 import com.arkoisystems.arkoicompiler.api.IVisitor;
-import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.ArkoiToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.SymbolType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxErrorType;
@@ -28,7 +28,10 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.Op
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.ExpressionAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.marker.ArkoiMarker;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.marker.MarkerFactory;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
@@ -40,13 +43,22 @@ public class ParenthesizedExpressionAST extends ExpressionAST
 {
     
     @Getter
-    @Setter(AccessLevel.PROTECTED)
     @Nullable
     private OperableAST parenthesizedExpression;
     
     
-    protected ParenthesizedExpressionAST(@Nullable final SyntaxAnalyzer syntaxAnalyzer) {
-        super(syntaxAnalyzer, ASTType.PARENTHESIZED_EXPRESSION);
+    @Builder
+    public ParenthesizedExpressionAST(
+            @Nullable final OperableAST parenthesizedExpression,
+            @Nullable final SyntaxAnalyzer syntaxAnalyzer,
+            @Nullable final IToken startToken,
+            @Nullable final IToken endToken
+    ) {
+        super(null, syntaxAnalyzer, null, ASTType.PARENTHESIZED_EXPRESSION, startToken, endToken);
+    
+        this.parenthesizedExpression = parenthesizedExpression;
+        
+        this.setMarkerFactory(new MarkerFactory<>(new ArkoiMarker<>(this.getAstType()), this));
     }
     
     
@@ -65,8 +77,7 @@ public class ParenthesizedExpressionAST extends ExpressionAST
                     "Parenthesized expression", "'('", this.getSyntaxAnalyzer().currentToken().getTokenContent()
             );
         
-        this.setStartToken(this.getSyntaxAnalyzer().currentToken());
-        this.getMarkerFactory().mark(this.getStartToken());
+        this.startAST(this.getSyntaxAnalyzer().currentToken());
         
         this.getSyntaxAnalyzer().nextToken();
         
@@ -78,7 +89,7 @@ public class ParenthesizedExpressionAST extends ExpressionAST
             return this;
         }
         
-        this.setParenthesizedExpression(operableAST);
+        this.parenthesizedExpression = operableAST;
         
         if (this.getSyntaxAnalyzer().matchesPeekToken(1, SymbolType.CLOSING_PARENTHESIS) == null)
             return this.addError(
@@ -90,8 +101,7 @@ public class ParenthesizedExpressionAST extends ExpressionAST
                     "Parenthesized expression", "')'", this.getSyntaxAnalyzer().peekToken(1).getTokenContent()
             );
         
-        this.setEndToken(this.getSyntaxAnalyzer().nextToken());
-        this.getMarkerFactory().done(this.getEndToken());
+        this.endAST(this.getSyntaxAnalyzer().nextToken());
         return this;
     }
     
@@ -105,72 +115,6 @@ public class ParenthesizedExpressionAST extends ExpressionAST
     @Override
     public @NotNull TypeKind getTypeKind() {
         return TypeKind.UNDEFINED;
-    }
-    
-    
-    public static ParenthesizedExpressionASTBuilder builder(@NotNull final SyntaxAnalyzer syntaxAnalyzer) {
-        return new ParenthesizedExpressionASTBuilder(syntaxAnalyzer);
-    }
-    
-    
-    public static ParenthesizedExpressionASTBuilder builder() {
-        return new ParenthesizedExpressionASTBuilder();
-    }
-    
-    
-    public static class ParenthesizedExpressionASTBuilder
-    {
-        
-        @Nullable
-        private final SyntaxAnalyzer syntaxAnalyzer;
-    
-    
-        @Nullable
-        private OperableAST parenthesizedExpression;
-        
-        
-        private ArkoiToken startToken, endToken;
-    
-    
-        public ParenthesizedExpressionASTBuilder(@NotNull final SyntaxAnalyzer syntaxAnalyzer) {
-            this.syntaxAnalyzer = syntaxAnalyzer;
-        }
-    
-    
-        public ParenthesizedExpressionASTBuilder() {
-            this.syntaxAnalyzer = null;
-        }
-    
-    
-        public ParenthesizedExpressionASTBuilder expression(final OperableAST parenthesizedExpression) {
-            this.parenthesizedExpression = parenthesizedExpression;
-            return this;
-        }
-    
-    
-        public ParenthesizedExpressionASTBuilder start(final ArkoiToken startToken) {
-            this.startToken = startToken;
-            return this;
-        }
-        
-        
-        public ParenthesizedExpressionASTBuilder end(final ArkoiToken endToken) {
-            this.endToken = endToken;
-            return this;
-        }
-        
-        
-        public ParenthesizedExpressionAST build() {
-            final ParenthesizedExpressionAST parenthesizedExpressionAST = new ParenthesizedExpressionAST(this.syntaxAnalyzer);
-            if (this.parenthesizedExpression != null)
-                parenthesizedExpressionAST.setParenthesizedExpression(this.parenthesizedExpression);
-            parenthesizedExpressionAST.setStartToken(this.startToken);
-            parenthesizedExpressionAST.getMarkerFactory().getCurrentMarker().setStart(parenthesizedExpressionAST.getStartToken());
-            parenthesizedExpressionAST.setEndToken(this.endToken);
-            parenthesizedExpressionAST.getMarkerFactory().getCurrentMarker().setEnd(parenthesizedExpressionAST.getEndToken());
-            return parenthesizedExpressionAST;
-        }
-        
     }
     
 }

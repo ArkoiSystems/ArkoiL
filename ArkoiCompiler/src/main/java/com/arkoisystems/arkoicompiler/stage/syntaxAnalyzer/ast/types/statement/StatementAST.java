@@ -19,6 +19,7 @@
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement;
 
 import com.arkoisystems.arkoicompiler.api.IASTNode;
+import com.arkoisystems.arkoicompiler.api.IToken;
 import com.arkoisystems.arkoicompiler.api.IVisitor;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.ArkoiToken;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
@@ -32,7 +33,9 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.t
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.types.VariableAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.marker.MarkerFactory;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.parsers.StatementParser;
+import lombok.Builder;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -44,8 +47,15 @@ public class StatementAST extends ArkoiASTNode
     public static StatementParser STATEMENT_PARSER = new StatementParser();
     
     
-    public StatementAST(@Nullable final SyntaxAnalyzer syntaxAnalyzer, @NotNull final ASTType astType) {
-        super(syntaxAnalyzer, astType);
+    @Builder(builderMethodName = "statementBuilder")
+    protected StatementAST(
+            @Nullable final MarkerFactory<? extends IASTNode, IToken, IToken> markerFactory,
+            @Nullable final SyntaxAnalyzer syntaxAnalyzer,
+            @NotNull final ASTType astType,
+            @Nullable final IToken startToken,
+            @Nullable final IToken endToken
+    ) {
+        super(markerFactory, syntaxAnalyzer, astType, startToken, endToken);
     }
     
     
@@ -53,7 +63,7 @@ public class StatementAST extends ArkoiASTNode
     @Override
     public IASTNode parseAST(@NotNull final IASTNode parentAST) {
         Objects.requireNonNull(this.getSyntaxAnalyzer(), "syntaxAnalyzer must not be null.");
-    
+        
         final ArkoiToken currentToken = this.getSyntaxAnalyzer().currentToken();
         if (parentAST instanceof ExpressionAST) {
             switch (currentToken.getTokenContent()) {
@@ -65,35 +75,41 @@ public class StatementAST extends ArkoiASTNode
                             this,
                             this.getSyntaxAnalyzer().getCompilerClass(),
                             currentToken,
-        
+                
                             SyntaxErrorType.SYNTAX_ERROR_TEMPLATE,
                             "Statement", "<identifier call>", this.getSyntaxAnalyzer().currentToken().getTokenContent()
                     );
                 default:
-                    return IdentifierCallAST.builder(this.getSyntaxAnalyzer())
+                    return IdentifierCallAST.builder()
+                            .syntaxAnalyzer(this.getSyntaxAnalyzer())
                             .build()
                             .parseAST(parentAST);
             }
         } else {
             switch (currentToken.getTokenContent()) {
                 case "var":
-                    return VariableAST.builder(this.getSyntaxAnalyzer())
+                    return VariableAST.builder()
+                            .syntaxAnalyzer(this.getSyntaxAnalyzer())
                             .build()
                             .parseAST(parentAST);
                 case "import":
-                    return ImportAST.builder(this.getSyntaxAnalyzer())
+                    return ImportAST.builder()
+                            .syntaxAnalyzer(this.getSyntaxAnalyzer())
                             .build()
                             .parseAST(parentAST);
                 case "fun":
-                    return FunctionAST.builder(this.getSyntaxAnalyzer())
+                    return FunctionAST.builder()
+                            .syntaxAnalyzer(this.getSyntaxAnalyzer())
                             .build()
                             .parseAST(parentAST);
                 case "return":
-                    return ReturnAST.builder(this.getSyntaxAnalyzer())
+                    return ReturnAST.builder()
+                            .syntaxAnalyzer(this.getSyntaxAnalyzer())
                             .build()
                             .parseAST(parentAST);
                 default:
-                    return IdentifierCallAST.builder(this.getSyntaxAnalyzer())
+                    return IdentifierCallAST.builder()
+                            .syntaxAnalyzer(this.getSyntaxAnalyzer())
                             .build()
                             .parseAST(parentAST);
             }

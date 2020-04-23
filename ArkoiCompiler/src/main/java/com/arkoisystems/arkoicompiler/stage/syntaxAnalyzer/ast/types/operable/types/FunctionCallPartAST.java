@@ -19,8 +19,8 @@
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types;
 
 import com.arkoisystems.arkoicompiler.api.IASTNode;
+import com.arkoisystems.arkoicompiler.api.IToken;
 import com.arkoisystems.arkoicompiler.api.IVisitor;
-import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.ArkoiToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.SymbolType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxErrorType;
@@ -28,7 +28,10 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.Op
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.ExpressionAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.marker.ArkoiMarker;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.marker.MarkerFactory;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
@@ -42,13 +45,21 @@ public class FunctionCallPartAST extends OperableAST
 {
     
     @Getter
-    @Setter(AccessLevel.PROTECTED)
     @NotNull
-    private List<OperableAST> calledExpressions = new ArrayList<>();
+    private final List<OperableAST> calledExpressions;
     
     
-    protected FunctionCallPartAST(@Nullable final SyntaxAnalyzer syntaxAnalyzer) {
-        super(syntaxAnalyzer, ASTType.FUNCTION_CALL_PART);
+    @Builder
+    public FunctionCallPartAST(
+            @Nullable final SyntaxAnalyzer syntaxAnalyzer,
+            @Nullable final IToken startToken,
+            @Nullable final IToken endToken
+    ) {
+        super(null, syntaxAnalyzer, ASTType.FUNCTION_CALL_PART, startToken, endToken);
+    
+        this.calledExpressions = new ArrayList<>();
+    
+        this.setMarkerFactory(new MarkerFactory<>(new ArkoiMarker<>(this.getAstType()), this));
     }
     
     
@@ -56,28 +67,27 @@ public class FunctionCallPartAST extends OperableAST
     @Override
     public FunctionCallPartAST parseAST(@NotNull final IASTNode parentAST) {
         Objects.requireNonNull(this.getSyntaxAnalyzer(), "syntaxAnalyzer must not be null.");
-    
+        
         if (this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.OPENING_PARENTHESIS) == null)
             return this.addError(
                     this,
                     this.getSyntaxAnalyzer().getCompilerClass(),
                     this.getSyntaxAnalyzer().currentToken(),
-        
+                    
                     SyntaxErrorType.SYNTAX_ERROR_TEMPLATE,
                     "Function call", "'('", this.getSyntaxAnalyzer().currentToken().getTokenContent()
             );
-    
-        this.setStartToken(this.getSyntaxAnalyzer().currentToken());
-        this.getMarkerFactory().mark(this.getStartToken());
-    
+        
+        this.startAST(this.getSyntaxAnalyzer().currentToken());
+        
         this.getSyntaxAnalyzer().nextToken();
-    
+        
         while (this.getSyntaxAnalyzer().getPosition() < this.getSyntaxAnalyzer().getTokens().length) {
             if (this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.CLOSING_PARENTHESIS) != null)
                 break;
             if (!ExpressionAST.EXPRESSION_PARSER.canParse(this, getSyntaxAnalyzer()))
                 break;
-        
+            
             final OperableAST operableAST = ExpressionAST.EXPRESSION_PARSER.parse(this, getSyntaxAnalyzer());
             this.getMarkerFactory().addFactory(operableAST.getMarkerFactory());
         
@@ -92,19 +102,18 @@ public class FunctionCallPartAST extends OperableAST
                 break;
             this.getSyntaxAnalyzer().nextToken();
         }
-    
+        
         if (this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.CLOSING_PARENTHESIS) == null)
             return this.addError(
                     this,
                     this.getSyntaxAnalyzer().getCompilerClass(),
                     this.getSyntaxAnalyzer().currentToken(),
-        
+                    
                     SyntaxErrorType.SYNTAX_ERROR_TEMPLATE,
                     "Function call", "')'", this.getSyntaxAnalyzer().currentToken().getTokenContent()
             );
-    
-        this.setEndToken(this.getSyntaxAnalyzer().currentToken());
-        this.getMarkerFactory().done(this.getEndToken());
+        
+        this.endAST(this.getSyntaxAnalyzer().currentToken());
         return this;
     }
     
@@ -118,72 +127,6 @@ public class FunctionCallPartAST extends OperableAST
     @Override
     public @NotNull TypeKind getTypeKind() {
         return TypeKind.UNDEFINED;
-    }
-    
-    
-    public static FunctionCallPartASTBuilder builder(@NotNull final SyntaxAnalyzer syntaxAnalyzer) {
-        return new FunctionCallPartASTBuilder(syntaxAnalyzer);
-    }
-    
-    
-    public static FunctionCallPartASTBuilder builder() {
-        return new FunctionCallPartASTBuilder();
-    }
-    
-    
-    public static class FunctionCallPartASTBuilder
-    {
-        
-        @Nullable
-        private final SyntaxAnalyzer syntaxAnalyzer;
-        
-        
-        @Nullable
-        private List<OperableAST> calledExpressions;
-        
-        
-        private ArkoiToken startToken, endToken;
-        
-        
-        public FunctionCallPartASTBuilder(@NotNull final SyntaxAnalyzer syntaxAnalyzer) {
-            this.syntaxAnalyzer = syntaxAnalyzer;
-        }
-        
-        
-        public FunctionCallPartASTBuilder() {
-            this.syntaxAnalyzer = null;
-        }
-        
-        
-        public FunctionCallPartASTBuilder expressions(final List<OperableAST> expressions) {
-            this.calledExpressions = expressions;
-            return this;
-        }
-        
-        
-        public FunctionCallPartASTBuilder start(final ArkoiToken startToken) {
-            this.startToken = startToken;
-            return this;
-        }
-        
-        
-        public FunctionCallPartASTBuilder end(final ArkoiToken endToken) {
-            this.endToken = endToken;
-            return this;
-        }
-        
-        
-        public FunctionCallPartAST build() {
-            final FunctionCallPartAST functionCallPartAST = new FunctionCallPartAST(this.syntaxAnalyzer);
-            if (this.calledExpressions != null)
-                functionCallPartAST.setCalledExpressions(this.calledExpressions);
-            functionCallPartAST.setStartToken(this.startToken);
-            functionCallPartAST.getMarkerFactory().getCurrentMarker().setStart(functionCallPartAST.getStartToken());
-            functionCallPartAST.setEndToken(this.endToken);
-            functionCallPartAST.getMarkerFactory().getCurrentMarker().setEnd(functionCallPartAST.getEndToken());
-            return functionCallPartAST;
-        }
-        
     }
     
 }

@@ -21,7 +21,6 @@ package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast;
 import com.arkoisystems.arkoicompiler.api.IASTNode;
 import com.arkoisystems.arkoicompiler.api.IVisitor;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.*;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.OperableAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.*;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types.*;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.types.FunctionAST;
@@ -485,8 +484,8 @@ public class ArkoiASTPrinter implements IVisitor<IASTNode>
                 .map(markerFactory -> markerFactory.getCurrentMarker().getAstType().name())
                 .collect(Collectors.joining(", "))
         );
-        this.getPrintStream().printf("%s│   ├── start: %d%n", this.getIndents(), astNode.getMarkerFactory().getCurrentMarker().getStart().getStart());
-        this.getPrintStream().printf("%s│   └── end: %d%n", this.getIndents(), astNode.getMarkerFactory().getCurrentMarker().getEnd().getEnd());
+        this.getPrintStream().printf("%s│   ├── start: %d%n", this.getIndents(), astNode.getMarkerFactory().getCurrentMarker().getStart().getCharStart());
+        this.getPrintStream().printf("%s│   └── end: %d%n", this.getIndents(), astNode.getMarkerFactory().getCurrentMarker().getEnd().getCharEnd());
         this.getPrintStream().printf("%s│%n", this.getIndents());
     }
     

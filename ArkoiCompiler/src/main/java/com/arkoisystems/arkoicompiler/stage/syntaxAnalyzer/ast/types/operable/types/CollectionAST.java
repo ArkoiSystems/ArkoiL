@@ -19,8 +19,8 @@
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types;
 
 import com.arkoisystems.arkoicompiler.api.IASTNode;
+import com.arkoisystems.arkoicompiler.api.IToken;
 import com.arkoisystems.arkoicompiler.api.IVisitor;
-import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.ArkoiToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.SymbolType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxErrorType;
@@ -28,7 +28,10 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.Op
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.ExpressionAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.marker.ArkoiMarker;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.marker.MarkerFactory;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
@@ -42,13 +45,22 @@ public class CollectionAST extends OperableAST
 {
     
     @Getter
-    @Setter(AccessLevel.PROTECTED)
-    @NotNull
-    private List<OperableAST> collectionExpressions = new ArrayList<>();
+    @Nullable
+    private final List<OperableAST> collectionExpressions;
     
     
-    protected CollectionAST(final SyntaxAnalyzer syntaxAnalyzer) {
-        super(syntaxAnalyzer, ASTType.COLLECTION);
+    @Builder
+    public CollectionAST(
+            @Nullable final List<OperableAST> collectionExpressions,
+            @Nullable final SyntaxAnalyzer syntaxAnalyzer,
+            @Nullable final IToken startToken,
+            @Nullable final IToken endToken
+    ) {
+        super(null, syntaxAnalyzer, ASTType.COLLECTION, startToken, endToken);
+        
+        this.collectionExpressions = collectionExpressions;
+        
+        this.setMarkerFactory(new MarkerFactory<>(new ArkoiMarker<>(this.getAstType()), this));
     }
     
     
@@ -62,13 +74,12 @@ public class CollectionAST extends OperableAST
                     this,
                     this.getSyntaxAnalyzer().getCompilerClass(),
                     this.getSyntaxAnalyzer().currentToken(),
-        
+                    
                     SyntaxErrorType.SYNTAX_ERROR_TEMPLATE,
                     "Collection", "'['", this.getSyntaxAnalyzer().currentToken().getTokenContent()
             );
-    
-        this.setStartToken(this.getSyntaxAnalyzer().currentToken());
-        this.getMarkerFactory().mark(this.getStartToken());
+        
+        this.startAST(this.getSyntaxAnalyzer().currentToken());
         
         this.getSyntaxAnalyzer().nextToken();
         
@@ -77,7 +88,7 @@ public class CollectionAST extends OperableAST
                 break;
             if (!ExpressionAST.EXPRESSION_PARSER.canParse(this, this.getSyntaxAnalyzer()))
                 break;
-    
+            
             final OperableAST operableAST = ExpressionAST.EXPRESSION_PARSER.parse(this, this.getSyntaxAnalyzer());
             this.getMarkerFactory().addFactory(operableAST.getMarkerFactory());
     
@@ -104,8 +115,7 @@ public class CollectionAST extends OperableAST
             );
         }
         
-        this.setEndToken(this.getSyntaxAnalyzer().currentToken());
-        this.getMarkerFactory().done(this.getEndToken());
+        this.endAST(this.getSyntaxAnalyzer().currentToken());
         return this;
     }
     
@@ -119,72 +129,6 @@ public class CollectionAST extends OperableAST
     @Override
     public @NotNull TypeKind getTypeKind() {
         return TypeKind.COLLECTION;
-    }
-    
-    
-    public static CollectionASTBuilder builder(@NotNull final SyntaxAnalyzer syntaxAnalyzer) {
-        return new CollectionASTBuilder(syntaxAnalyzer);
-    }
-    
-    
-    public static CollectionASTBuilder builder() {
-        return new CollectionASTBuilder();
-    }
-    
-    
-    public static class CollectionASTBuilder
-    {
-        
-        @Nullable
-        private final SyntaxAnalyzer syntaxAnalyzer;
-    
-    
-        @Nullable
-        private List<OperableAST> collectionExpressions;
-        
-        
-        private ArkoiToken startToken, endToken;
-    
-    
-        public CollectionASTBuilder(@NotNull final SyntaxAnalyzer syntaxAnalyzer) {
-            this.syntaxAnalyzer = syntaxAnalyzer;
-        }
-    
-    
-        public CollectionASTBuilder() {
-            this.syntaxAnalyzer = null;
-        }
-    
-    
-        public CollectionASTBuilder expressions(final List<OperableAST> collectionExpressions) {
-            this.collectionExpressions = collectionExpressions;
-            return this;
-        }
-    
-    
-        public CollectionASTBuilder start(final ArkoiToken startToken) {
-            this.startToken = startToken;
-            return this;
-        }
-    
-    
-        public CollectionASTBuilder end(final ArkoiToken endToken) {
-            this.endToken = endToken;
-            return this;
-        }
-    
-    
-        public CollectionAST build() {
-            final CollectionAST collectionAST = new CollectionAST(this.syntaxAnalyzer);
-            if (this.collectionExpressions != null)
-                collectionAST.setCollectionExpressions(this.collectionExpressions);
-            collectionAST.setStartToken(this.startToken);
-            collectionAST.getMarkerFactory().getCurrentMarker().setStart(collectionAST.getStartToken());
-            collectionAST.setEndToken(this.endToken);
-            collectionAST.getMarkerFactory().getCurrentMarker().setEnd(collectionAST.getEndToken());
-            return collectionAST;
-        }
-    
     }
     
 }

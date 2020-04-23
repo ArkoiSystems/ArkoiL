@@ -18,8 +18,11 @@
  */
 package com.arkoisystems.arkoicompiler.api.error;
 
+import com.arkoisystems.arkoicompiler.ArkoiError;
 import com.arkoisystems.arkoicompiler.api.ICompilerClass;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.List;
 
 public interface ICompilerError
 {
@@ -29,7 +32,7 @@ public interface ICompilerError
     
     
     @NotNull
-    int[][] getPositions();
+    List<ArkoiError.ErrorPosition> getPositions();
     
     
     @NotNull

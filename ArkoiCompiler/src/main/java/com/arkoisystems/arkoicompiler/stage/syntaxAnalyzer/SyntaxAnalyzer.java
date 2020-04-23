@@ -49,7 +49,9 @@ public class SyntaxAnalyzer implements ICompilerStage
     
     @Getter
     @NotNull
-    private RootAST rootAST = new RootAST(this);
+    private RootAST rootAST = RootAST.builder()
+            .syntaxAnalyzer(this)
+            .build();
     
     
     @Getter
@@ -82,7 +84,9 @@ public class SyntaxAnalyzer implements ICompilerStage
     
     @Override
     public void reset() {
-        this.rootAST = new RootAST(this);
+        this.rootAST = RootAST.builder()
+                .syntaxAnalyzer(this)
+                .build();
         this.errorHandler = new SyntaxErrorHandler();
         this.tokens = new ArkoiToken[0];
         this.failed = false;

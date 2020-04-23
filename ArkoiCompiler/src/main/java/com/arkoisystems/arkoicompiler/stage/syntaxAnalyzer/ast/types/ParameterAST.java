@@ -19,8 +19,8 @@
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types;
 
 import com.arkoisystems.arkoicompiler.api.IASTNode;
+import com.arkoisystems.arkoicompiler.api.IToken;
 import com.arkoisystems.arkoicompiler.api.IVisitor;
-import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.ArkoiToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.IdentifierToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.SymbolType;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
@@ -29,10 +29,11 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxErrorType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.ArkoiASTNode;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.marker.ArkoiMarker;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.marker.MarkerFactory;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.parsers.ParameterParser;
-import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -45,19 +46,29 @@ public class ParameterAST extends ArkoiASTNode
     
     
     @Getter
-    @Setter(AccessLevel.PROTECTED)
     @Nullable
     private IdentifierToken parameterName;
     
     
     @Getter
-    @Setter(AccessLevel.PROTECTED)
     @Nullable
     private TypeAST parameterType;
     
     
-    protected ParameterAST(@Nullable final SyntaxAnalyzer syntaxAnalyzer) {
-        super(syntaxAnalyzer, ASTType.PARAMETER);
+    @Builder
+    private ParameterAST(
+            @Nullable final SyntaxAnalyzer syntaxAnalyzer,
+            @Nullable final IdentifierToken parameterName,
+            @Nullable final TypeAST parameterType,
+            @Nullable final IToken startToken,
+            @Nullable final IToken endToken
+    ) {
+        super(null, syntaxAnalyzer, ASTType.PARAMETER, startToken, endToken);
+        
+        this.parameterName = parameterName;
+        this.parameterType = parameterType;
+        
+        this.setMarkerFactory(new MarkerFactory<>(new ArkoiMarker<>(this.getAstType()), this));
     }
     
     
@@ -76,10 +87,9 @@ public class ParameterAST extends ArkoiASTNode
                     "Parameter", "<identifier>", this.getSyntaxAnalyzer().currentToken().getTokenContent()
             );
         
-        this.setStartToken(this.getSyntaxAnalyzer().currentToken());
-        this.getMarkerFactory().mark(this.getStartToken());
+        this.startAST(this.getSyntaxAnalyzer().currentToken());
         
-        this.setParameterName((IdentifierToken) this.getSyntaxAnalyzer().currentToken());
+        this.parameterName = (IdentifierToken) this.getSyntaxAnalyzer().currentToken();
         
         if (this.getSyntaxAnalyzer().matchesPeekToken(1, SymbolType.COLON) == null)
             return this.addError(
@@ -111,10 +121,9 @@ public class ParameterAST extends ArkoiASTNode
             return this;
         }
         
-        this.setParameterType(typeAST);
+        this.parameterType = typeAST;
         
-        this.setEndToken(this.getSyntaxAnalyzer().currentToken());
-        this.getMarkerFactory().done(this.getEndToken());
+        this.endAST(this.getSyntaxAnalyzer().currentToken());
         return this;
     }
     
@@ -130,84 +139,6 @@ public class ParameterAST extends ArkoiASTNode
         Objects.requireNonNull(this.getParameterType(), "parameterType must not be null.");
         
         return this.getParameterType().getTypeKind();
-    }
-    
-    
-    public static ParameterASTBuilder builder(@NotNull final SyntaxAnalyzer syntaxAnalyzer) {
-        return new ParameterASTBuilder(syntaxAnalyzer);
-    }
-    
-    
-    public static ParameterASTBuilder builder() {
-        return new ParameterASTBuilder();
-    }
-    
-    
-    public static class ParameterASTBuilder
-    {
-        
-        @Nullable
-        private final SyntaxAnalyzer syntaxAnalyzer;
-        
-        
-        @Nullable
-        private IdentifierToken argumentName;
-        
-        
-        @Nullable
-        private TypeAST argumentType;
-        
-        
-        private ArkoiToken startToken, endToken;
-        
-        
-        public ParameterASTBuilder(@NotNull final SyntaxAnalyzer syntaxAnalyzer) {
-            this.syntaxAnalyzer = syntaxAnalyzer;
-        }
-        
-        
-        public ParameterASTBuilder() {
-            this.syntaxAnalyzer = null;
-        }
-        
-        
-        public ParameterASTBuilder name(final IdentifierToken argumentName) {
-            this.argumentName = argumentName;
-            return this;
-        }
-        
-        
-        public ParameterASTBuilder type(final TypeAST argumentType) {
-            this.argumentType = argumentType;
-            return this;
-        }
-        
-        
-        public ParameterASTBuilder start(final ArkoiToken startToken) {
-            this.startToken = startToken;
-            return this;
-        }
-        
-        
-        public ParameterASTBuilder end(final ArkoiToken endToken) {
-            this.endToken = endToken;
-            return this;
-        }
-        
-        
-        public ParameterAST build() {
-            final ParameterAST parameterAST = new ParameterAST(this.syntaxAnalyzer);
-            if (this.argumentName != null)
-                parameterAST.setParameterName(this.argumentName);
-            if (this.argumentType != null)
-                parameterAST.setParameterType(this.argumentType);
-            parameterAST.setStartToken(this.startToken);
-            parameterAST.getMarkerFactory().getCurrentMarker().setStart(parameterAST.getStartToken());
-            parameterAST.setEndToken(this.endToken);
-            parameterAST.getMarkerFactory().getCurrentMarker().setEnd(parameterAST.getEndToken());
-            return parameterAST;
-        }
-        
     }
     
 }

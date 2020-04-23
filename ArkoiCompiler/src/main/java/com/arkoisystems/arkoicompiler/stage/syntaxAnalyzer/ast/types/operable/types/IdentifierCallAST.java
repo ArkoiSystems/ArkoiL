@@ -19,19 +19,20 @@
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types;
 
 import com.arkoisystems.arkoicompiler.api.IASTNode;
+import com.arkoisystems.arkoicompiler.api.IToken;
 import com.arkoisystems.arkoicompiler.api.IVisitor;
-import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.ArkoiToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.IdentifierToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.KeywordType;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.SymbolType;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
-import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.visitors.TypeVisitor;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxErrorType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.OperableAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
-import lombok.AccessLevel;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.marker.ArkoiMarker;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.marker.MarkerFactory;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
@@ -48,25 +49,38 @@ public class IdentifierCallAST extends OperableAST
     
     
     @Getter
-    @Setter(AccessLevel.PROTECTED)
     @Nullable
     private IdentifierToken calledIdentifier;
     
     
     @Getter
-    @Setter(AccessLevel.PROTECTED)
     @Nullable
     private FunctionCallPartAST calledFunctionPart;
     
     
     @Getter
-    @Setter
     @Nullable
     private IdentifierCallAST nextIdentifierCall;
     
     
-    protected IdentifierCallAST(@Nullable final SyntaxAnalyzer syntaxAnalyzer) {
-        super(syntaxAnalyzer, ASTType.IDENTIFIER_CALL);
+    @Builder
+    public IdentifierCallAST(
+            @Nullable final FunctionCallPartAST calledFunctionPart,
+            @Nullable final IdentifierCallAST nextIdentifierCall,
+            @Nullable final IdentifierToken calledIdentifier,
+            @Nullable final SyntaxAnalyzer syntaxAnalyzer,
+            @Nullable final IToken startToken,
+            @Nullable final IToken endToken,
+            final boolean isFileLocal
+    ) {
+        super(null, syntaxAnalyzer, ASTType.IDENTIFIER_CALL, startToken, endToken);
+        
+        this.calledFunctionPart = calledFunctionPart;
+        this.nextIdentifierCall = nextIdentifierCall;
+        this.calledIdentifier = calledIdentifier;
+        this.isFileLocal = isFileLocal;
+        
+        this.setMarkerFactory(new MarkerFactory<>(new ArkoiMarker<>(this.getAstType()), this));
     }
     
     
@@ -75,8 +89,7 @@ public class IdentifierCallAST extends OperableAST
     public IdentifierCallAST parseAST(@NotNull final IASTNode parentAST) {
         Objects.requireNonNull(this.getSyntaxAnalyzer(), "syntaxAnalyzer must not be null.");
         
-        this.setStartToken(this.getSyntaxAnalyzer().currentToken());
-        this.getMarkerFactory().mark(this.getStartToken());
+        this.startAST(this.getSyntaxAnalyzer().currentToken());
         
         if (this.getSyntaxAnalyzer().matchesCurrentToken(KeywordType.THIS) != null) {
             this.isFileLocal = true;
@@ -114,12 +127,15 @@ public class IdentifierCallAST extends OperableAST
                     "Identifier call", "<identifier>", this.getSyntaxAnalyzer().currentToken().getTokenContent()
             );
         
-        this.setCalledIdentifier((IdentifierToken) this.getSyntaxAnalyzer().currentToken());
+        this.calledIdentifier = (IdentifierToken) this.getSyntaxAnalyzer().currentToken();
         
         if (this.getSyntaxAnalyzer().matchesPeekToken(1, SymbolType.OPENING_PARENTHESIS) != null) {
             this.getSyntaxAnalyzer().nextToken();
     
-            final FunctionCallPartAST functionCallPartAST = new FunctionCallPartAST(this.getSyntaxAnalyzer()).parseAST(this);
+            final FunctionCallPartAST functionCallPartAST = FunctionCallPartAST.builder()
+                    .syntaxAnalyzer(this.getSyntaxAnalyzer())
+                    .build()
+                    .parseAST(this);
             this.getMarkerFactory().addFactory(functionCallPartAST.getMarkerFactory());
     
             if (functionCallPartAST.isFailed()) {
@@ -127,7 +143,7 @@ public class IdentifierCallAST extends OperableAST
                 return this;
             }
     
-            this.setCalledFunctionPart(functionCallPartAST);
+            this.calledFunctionPart = functionCallPartAST;
         }
         
         if (this.getSyntaxAnalyzer().matchesPeekToken(1, SymbolType.PERIOD) != null) {
@@ -138,26 +154,28 @@ public class IdentifierCallAST extends OperableAST
                         this,
                         this.getSyntaxAnalyzer().getCompilerClass(),
                         this.getSyntaxAnalyzer().peekToken(1),
-                
+        
                         SyntaxErrorType.SYNTAX_ERROR_TEMPLATE,
                         "Identifier call", "<identifier>", this.getSyntaxAnalyzer().peekToken(1).getTokenContent()
                 );
     
             this.getSyntaxAnalyzer().nextToken();
     
-            final IdentifierCallAST identifierCallAST = new IdentifierCallAST(this.getSyntaxAnalyzer()).parseAST(this);
+            final IdentifierCallAST identifierCallAST = IdentifierCallAST.builder()
+                    .syntaxAnalyzer(this.getSyntaxAnalyzer())
+                    .build()
+                    .parseAST(this);
             this.getMarkerFactory().addFactory(identifierCallAST.getMarkerFactory());
     
             if (identifierCallAST.isFailed()) {
                 this.failed();
                 return this;
             }
-            
-            this.setNextIdentifierCall(identifierCallAST);
+    
+            this.nextIdentifierCall = identifierCallAST;
         }
         
-        this.setEndToken(this.getSyntaxAnalyzer().currentToken());
-        this.getMarkerFactory().done(this.getEndToken());
+        this.endAST(this.getSyntaxAnalyzer().currentToken());
         return this;
     }
     
@@ -183,106 +201,6 @@ public class IdentifierCallAST extends OperableAST
         if (this.getCalledFunctionPart() != null)
             descriptorBuilder.append("(").append(this.getCalledFunctionPart().getCalledExpressions().size()).append(")");
         return descriptorBuilder.toString();
-    }
-    
-    
-    public static IdentifierCallASTBuilder builder(@NotNull final SyntaxAnalyzer syntaxAnalyzer) {
-        return new IdentifierCallASTBuilder(syntaxAnalyzer);
-    }
-    
-    
-    public static IdentifierCallASTBuilder builder() {
-        return new IdentifierCallASTBuilder();
-    }
-    
-    
-    public static class IdentifierCallASTBuilder
-    {
-        
-        @Nullable
-        private final SyntaxAnalyzer syntaxAnalyzer;
-        
-        
-        private boolean isFileLocal;
-        
-        
-        @Nullable
-        private IdentifierToken calledIdentifier;
-        
-        
-        @Nullable
-        private FunctionCallPartAST calledFunctionPart;
-        
-        
-        @Nullable
-        private IdentifierCallAST nextIdentifierCall;
-        
-        
-        private ArkoiToken startToken, endToken;
-        
-        
-        public IdentifierCallASTBuilder(@NotNull final SyntaxAnalyzer syntaxAnalyzer) {
-            this.syntaxAnalyzer = syntaxAnalyzer;
-        }
-        
-        
-        public IdentifierCallASTBuilder() {
-            this.syntaxAnalyzer = null;
-        }
-        
-        
-        public IdentifierCallASTBuilder fileLocal(final boolean isFileLocal) {
-            this.isFileLocal = isFileLocal;
-            return this;
-        }
-        
-        
-        public IdentifierCallASTBuilder called(final IdentifierToken calledIdentifier) {
-            this.calledIdentifier = calledIdentifier;
-            return this;
-        }
-        
-        
-        public IdentifierCallASTBuilder functionPart(final FunctionCallPartAST calledFunctionPart) {
-            this.calledFunctionPart = calledFunctionPart;
-            return this;
-        }
-        
-        
-        public IdentifierCallASTBuilder nextCall(final IdentifierCallAST nextIdentifierCall) {
-            this.nextIdentifierCall = nextIdentifierCall;
-            return this;
-        }
-        
-        
-        public IdentifierCallASTBuilder start(final ArkoiToken startToken) {
-            this.startToken = startToken;
-            return this;
-        }
-        
-        
-        public IdentifierCallASTBuilder end(final ArkoiToken endToken) {
-            this.endToken = endToken;
-            return this;
-        }
-        
-        
-        public IdentifierCallAST build() {
-            final IdentifierCallAST identifierCallAST = new IdentifierCallAST(this.syntaxAnalyzer);
-            identifierCallAST.setFileLocal(this.isFileLocal);
-            if (this.calledIdentifier != null)
-                identifierCallAST.setCalledIdentifier(this.calledIdentifier);
-            if (this.calledFunctionPart != null)
-                identifierCallAST.setCalledFunctionPart(this.calledFunctionPart);
-            if (this.nextIdentifierCall != null)
-                identifierCallAST.setNextIdentifierCall(this.nextIdentifierCall);
-            identifierCallAST.setStartToken(this.startToken);
-            identifierCallAST.getMarkerFactory().getCurrentMarker().setStart(identifierCallAST.getStartToken());
-            identifierCallAST.setEndToken(this.endToken);
-            identifierCallAST.getMarkerFactory().getCurrentMarker().setEnd(identifierCallAST.getEndToken());
-            return identifierCallAST;
-        }
-        
     }
     
 }

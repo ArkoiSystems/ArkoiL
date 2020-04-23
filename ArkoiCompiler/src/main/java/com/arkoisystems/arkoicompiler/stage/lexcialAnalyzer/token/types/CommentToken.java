@@ -21,114 +21,59 @@ package com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.LexicalAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.ArkoiToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
+import lombok.Builder;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Arrays;
 import java.util.Objects;
-import java.util.Optional;
 
 public class CommentToken extends ArkoiToken
 {
     
-    protected CommentToken(@Nullable final LexicalAnalyzer lexicalAnalyzer) {
-        super(lexicalAnalyzer, TokenType.COMMENT);
+    @Builder
+    public CommentToken(
+            @Nullable final LexicalAnalyzer lexicalAnalyzer,
+            @Nullable final String tokenContent,
+            final int startLine,
+            final int charStart,
+            final int endLine,
+            final int charEnd
+    ) {
+        super(lexicalAnalyzer, TokenType.COMMENT, tokenContent, startLine, charStart, endLine, charEnd);
     }
     
     
     @Override
     public @NotNull ArkoiToken parseToken() {
         Objects.requireNonNull(this.getLexicalAnalyzer(), "lexicalAnalyzer must not be null.");
-    
+        
         if (this.getLexicalAnalyzer().currentChar() != '#')
             return this.addError(
-                    BadToken.builder(this.getLexicalAnalyzer())
-                            .start(this.getLexicalAnalyzer().getPosition())
-                            .end(this.getLexicalAnalyzer().getPosition() + 1)
+                    BadToken.builder()
+                            .lexicalAnalyzer(this.getLexicalAnalyzer())
+                            .startLine(this.getLexicalAnalyzer().getLineIndex())
+                            .charStart(this.getLexicalAnalyzer().getCharIndex())
+                            .endLine(this.getLexicalAnalyzer().getLineIndex())
+                            .charEnd(this.getLexicalAnalyzer().getCharIndex() + 1)
                             .build()
                             .parseToken(),
-                
+                    
                     this.getLexicalAnalyzer().getCompilerClass(),
-                    this.getLexicalAnalyzer().getPosition(),
+                    
+                    this.getLexicalAnalyzer().getCharIndex(),
+                    this.getLexicalAnalyzer().getLineIndex(),
+                    
                     "Couldn't lex this comment because it doesn't start with an \"#\"."
             );
-    
-        this.setStart(this.getLexicalAnalyzer().getPosition());
-        while (this.getLexicalAnalyzer().getPosition() < this.getLexicalAnalyzer().getCompilerClass().getContent().length) {
-            final char currentChar = this.getLexicalAnalyzer().currentChar();
-            this.getLexicalAnalyzer().next();
         
-            if (currentChar == 0x0a)
+        this.setCharStart(this.getLexicalAnalyzer().getLineIndex(), this.getLexicalAnalyzer().getCharIndex());
+        while (this.getLexicalAnalyzer().getPosition() < this.getLexicalAnalyzer().getCompilerClass().getContent().length) {
+            this.getLexicalAnalyzer().next();
+            if (this.getLexicalAnalyzer().currentChar() == 0x0a)
                 break;
         }
-        this.setEnd(this.getLexicalAnalyzer().getPosition());
-    
-        this.setTokenContent(new String(Arrays.copyOfRange(this.getLexicalAnalyzer().getCompilerClass().getContent(), this.getStart(), this.getEnd())).intern());
+        this.setCharEnd(this.getLexicalAnalyzer().getLineIndex(), this.getLexicalAnalyzer().getCharIndex());
         return this;
-    }
-    
-    
-    public static CommentTokenBuilder builder(@NotNull final LexicalAnalyzer lexicalAnalyzer) {
-        return new CommentTokenBuilder(lexicalAnalyzer);
-    }
-    
-    
-    public static CommentTokenBuilder builder() {
-        return new CommentTokenBuilder();
-    }
-    
-    
-    public static class CommentTokenBuilder
-    {
-        
-        @Nullable
-        private final LexicalAnalyzer lexicalAnalyzer;
-        
-        
-        @Nullable
-        private String tokenContent;
-        
-        
-        private int start, end;
-        
-        
-        public CommentTokenBuilder(@NotNull final LexicalAnalyzer lexicalAnalyzer) {
-            this.lexicalAnalyzer = lexicalAnalyzer;
-        }
-        
-        
-        public CommentTokenBuilder() {
-            this.lexicalAnalyzer = null;
-        }
-        
-        
-        public CommentTokenBuilder content(final String tokenContent) {
-            this.tokenContent = tokenContent;
-            return this;
-        }
-        
-        
-        public CommentTokenBuilder start(final int start) {
-            this.start = start;
-            return this;
-        }
-        
-        
-        public CommentTokenBuilder end(final int end) {
-            this.end = end;
-            return this;
-        }
-        
-        
-        public CommentToken build() {
-            final CommentToken commentToken = new CommentToken(this.lexicalAnalyzer);
-            if (this.tokenContent != null)
-                commentToken.setTokenContent(this.tokenContent);
-            commentToken.setStart(this.start);
-            commentToken.setEnd(this.end);
-            return commentToken;
-        }
-        
     }
     
 }

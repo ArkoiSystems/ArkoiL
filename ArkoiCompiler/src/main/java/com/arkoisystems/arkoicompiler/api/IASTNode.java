@@ -18,6 +18,7 @@
  */
 package com.arkoisystems.arkoicompiler.api;
 
+import com.arkoisystems.arkoicompiler.ArkoiError;
 import com.arkoisystems.arkoicompiler.api.utils.IFailed;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.ArkoiToken;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
@@ -31,7 +32,7 @@ public interface IASTNode extends IFailed
 {
     
     @NotNull
-    MarkerFactory<? extends IASTNode, ArkoiToken, ArkoiToken> getMarkerFactory();
+    MarkerFactory<? extends IASTNode, IToken, IToken> getMarkerFactory();
     
     
     @Nullable
@@ -39,11 +40,15 @@ public interface IASTNode extends IFailed
     
     
     @Nullable
-    ArkoiToken getStartToken();
+    ArkoiError.ErrorPosition.LineRange getLineRange();
     
     
     @Nullable
-    ArkoiToken getEndToken();
+    IToken getStartToken();
+    
+    
+    @Nullable
+    IToken getEndToken();
     
     
     @NotNull
@@ -65,9 +70,6 @@ public interface IASTNode extends IFailed
     
     
     <E> E addError(@Nullable final E errorSource, @NotNull final ICompilerClass compilerClass, @NotNull final IASTNode astNode, @NotNull final String message, @NotNull final Object... arguments);
-    
-    
-    <E> E addError(@Nullable final E errorSource, @NotNull final ICompilerClass compilerClass, final int start, final int end, @NotNull final String message, @NotNull final Object... arguments);
     
     
     <E> E addError(@Nullable final E errorSource, @NotNull final ICompilerClass compilerClass, @NotNull final ArkoiToken arkoiToken, @NotNull final String message, @NotNull final Object... arguments);

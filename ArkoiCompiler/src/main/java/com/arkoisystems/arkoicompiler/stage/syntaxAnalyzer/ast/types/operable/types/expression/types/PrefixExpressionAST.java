@@ -19,17 +19,18 @@
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types;
 
 import com.arkoisystems.arkoicompiler.api.IASTNode;
+import com.arkoisystems.arkoicompiler.api.IToken;
 import com.arkoisystems.arkoicompiler.api.IVisitor;
-import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.ArkoiToken;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.OperableAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.ExpressionAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types.operators.PrefixOperatorType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
-import lombok.AccessLevel;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.marker.ArkoiMarker;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.marker.MarkerFactory;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -39,19 +40,29 @@ public class PrefixExpressionAST extends ExpressionAST
 {
     
     @Getter
-    @Setter(AccessLevel.PROTECTED)
     @Nullable
-    private PrefixOperatorType prefixOperatorType;
+    private final PrefixOperatorType prefixOperatorType;
     
     
     @Getter
-    @Setter(AccessLevel.PROTECTED)
     @Nullable
     private OperableAST rightSideOperable;
     
     
-    protected PrefixExpressionAST(@Nullable final SyntaxAnalyzer syntaxAnalyzer) {
-        super(syntaxAnalyzer, ASTType.PREFIX_EXPRESSION);
+    @Builder
+    public PrefixExpressionAST(
+            @Nullable final PrefixOperatorType prefixOperatorType,
+            @Nullable final OperableAST rightSideOperable,
+            @Nullable SyntaxAnalyzer syntaxAnalyzer,
+            @Nullable IToken startToken,
+            @Nullable IToken endToken
+    ) {
+        super(null, syntaxAnalyzer, null, ASTType.PREFIX_EXPRESSION, startToken, endToken);
+        
+        this.prefixOperatorType = prefixOperatorType;
+        this.rightSideOperable = rightSideOperable;
+        
+        this.setMarkerFactory(new MarkerFactory<>(new ArkoiMarker<>(this.getAstType()), this));
     }
     
     
@@ -60,8 +71,7 @@ public class PrefixExpressionAST extends ExpressionAST
     public PrefixExpressionAST parseAST(@NotNull final IASTNode parentAST) {
         Objects.requireNonNull(this.getSyntaxAnalyzer(), "syntaxAnalyzer must not be null.");
         
-        this.setStartToken(this.getSyntaxAnalyzer().currentToken());
-        this.getMarkerFactory().mark(this.getStartToken());
+        this.startAST(this.getSyntaxAnalyzer().currentToken());
         
         this.getSyntaxAnalyzer().nextToken(1);
         
@@ -73,10 +83,9 @@ public class PrefixExpressionAST extends ExpressionAST
             return this;
         }
         
-        this.setRightSideOperable(operableAST);
+        this.rightSideOperable = operableAST;
         
-        this.setEndToken(this.getRightSideOperable().getEndToken());
-        this.getMarkerFactory().done(this.getEndToken());
+        this.endAST(this.getRightSideOperable().getEndToken());
         return this;
     }
     
@@ -90,84 +99,6 @@ public class PrefixExpressionAST extends ExpressionAST
     @Override
     public @NotNull TypeKind getTypeKind() {
         return TypeKind.UNDEFINED;
-    }
-    
-    
-    public static PrefixExpressionASTBuilder builder(@NotNull final SyntaxAnalyzer syntaxAnalyzer) {
-        return new PrefixExpressionASTBuilder(syntaxAnalyzer);
-    }
-    
-    
-    public static PrefixExpressionASTBuilder builder() {
-        return new PrefixExpressionASTBuilder();
-    }
-    
-    
-    public static class PrefixExpressionASTBuilder
-    {
-        
-        @Nullable
-        private final SyntaxAnalyzer syntaxAnalyzer;
-        
-        
-        @Nullable
-        private PrefixOperatorType prefixOperatorType;
-        
-        
-        @Nullable
-        private OperableAST rightSideOperable;
-        
-        
-        private ArkoiToken startToken, endToken;
-        
-        
-        public PrefixExpressionASTBuilder(@NotNull final SyntaxAnalyzer syntaxAnalyzer) {
-            this.syntaxAnalyzer = syntaxAnalyzer;
-        }
-        
-        
-        public PrefixExpressionASTBuilder() {
-            this.syntaxAnalyzer = null;
-        }
-        
-        
-        public PrefixExpressionASTBuilder right(final OperableAST rightSideOperable) {
-            this.rightSideOperable = rightSideOperable;
-            return this;
-        }
-        
-        
-        public PrefixExpressionASTBuilder operator(final PrefixOperatorType prefixOperatorType) {
-            this.prefixOperatorType = prefixOperatorType;
-            return this;
-        }
-        
-        
-        public PrefixExpressionASTBuilder start(final ArkoiToken startToken) {
-            this.startToken = startToken;
-            return this;
-        }
-        
-        
-        public PrefixExpressionASTBuilder end(final ArkoiToken endToken) {
-            this.endToken = endToken;
-            return this;
-        }
-        
-        
-        public PrefixExpressionAST build() {
-            final PrefixExpressionAST prefixExpressionAST = new PrefixExpressionAST(this.syntaxAnalyzer);
-            if (this.rightSideOperable != null)
-                prefixExpressionAST.setRightSideOperable(this.rightSideOperable);
-            if (this.prefixOperatorType != null)
-                prefixExpressionAST.setPrefixOperatorType(this.prefixOperatorType);
-            prefixExpressionAST.setStartToken(this.startToken);
-            prefixExpressionAST.getMarkerFactory().getCurrentMarker().setStart(prefixExpressionAST.getStartToken());
-            prefixExpressionAST.setEndToken(this.endToken);
-            prefixExpressionAST.getMarkerFactory().getCurrentMarker().setEnd(prefixExpressionAST.getEndToken());
-            return prefixExpressionAST;
-        }
-        
     }
     
 }

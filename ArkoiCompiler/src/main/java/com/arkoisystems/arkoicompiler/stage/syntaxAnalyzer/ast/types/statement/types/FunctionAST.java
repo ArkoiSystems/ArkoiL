@@ -19,8 +19,8 @@
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.types;
 
 import com.arkoisystems.arkoicompiler.api.IASTNode;
+import com.arkoisystems.arkoicompiler.api.IToken;
 import com.arkoisystems.arkoicompiler.api.IVisitor;
-import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.ArkoiToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.BadToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.IdentifierToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.TypeKeywordToken;
@@ -29,14 +29,18 @@ import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.SymbolTy
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxErrorType;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.*;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.AnnotationAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.BlockAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.ParameterListAST;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.TypeAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.StatementAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.BlockType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
-import lombok.AccessLevel;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.marker.ArkoiMarker;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.marker.MarkerFactory;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -49,37 +53,50 @@ public class FunctionAST extends StatementAST
     
     
     @Getter
-    @Setter(AccessLevel.PROTECTED)
-    @NotNull
-    private List<AnnotationAST> functionAnnotations = new ArrayList<>();
+    @Nullable
+    private final List<AnnotationAST> functionAnnotations;
     
     
     @Getter
-    @Setter(AccessLevel.PROTECTED)
     @Nullable
     private IdentifierToken functionName;
     
     
     @Getter
-    @Setter(AccessLevel.PROTECTED)
     @Nullable
     private TypeAST functionReturnType;
     
     
     @Getter
-    @Setter(AccessLevel.PROTECTED)
     @Nullable
     private ParameterListAST functionParameters;
     
     
     @Getter
-    @Setter(AccessLevel.PROTECTED)
     @Nullable
     private BlockAST functionBlock;
     
     
-    protected FunctionAST(@Nullable final SyntaxAnalyzer syntaxAnalyzer) {
-        super(syntaxAnalyzer, ASTType.FUNCTION);
+    @Builder
+    protected FunctionAST(
+            @Nullable final List<AnnotationAST> functionAnnotations,
+            @Nullable final ParameterListAST functionParameters,
+            @Nullable final SyntaxAnalyzer syntaxAnalyzer,
+            @Nullable final IdentifierToken functionName,
+            @Nullable final TypeAST functionReturnType,
+            @Nullable final BlockAST functionBlock,
+            @Nullable final IToken startToken,
+            @Nullable final IToken endToken
+    ) {
+        super(null, syntaxAnalyzer, ASTType.FUNCTION, startToken, endToken);
+        
+        this.functionAnnotations = functionAnnotations;
+        this.functionParameters = functionParameters;
+        this.functionReturnType = functionReturnType;
+        this.functionBlock = functionBlock;
+        this.functionName = functionName;
+        
+        this.setMarkerFactory(new MarkerFactory<>(new ArkoiMarker<>(this.getAstType()), this));
     }
     
     
@@ -98,8 +115,7 @@ public class FunctionAST extends StatementAST
                     "Function", "'fun'", this.getSyntaxAnalyzer().currentToken().getTokenContent()
             );
         
-        this.setStartToken(this.getSyntaxAnalyzer().currentToken());
-        this.getMarkerFactory().mark(this.getStartToken());
+        this.startAST(this.getSyntaxAnalyzer().currentToken());
         
         if (this.getSyntaxAnalyzer().matchesPeekToken(1, TokenType.IDENTIFIER) == null)
             return this.addError(
@@ -111,7 +127,7 @@ public class FunctionAST extends StatementAST
                     "Function", "<identifier>", this.getSyntaxAnalyzer().currentToken().getTokenContent()
             );
         
-        this.setFunctionName((IdentifierToken) this.getSyntaxAnalyzer().nextToken());
+        this.functionName = (IdentifierToken) this.getSyntaxAnalyzer().nextToken();
         
         if (this.getSyntaxAnalyzer().matchesPeekToken(1, SymbolType.OPENING_ARROW) == null)
             return this.addError(
@@ -128,29 +144,31 @@ public class FunctionAST extends StatementAST
         if (TypeAST.TYPE_PARSER.canParse(this, this.getSyntaxAnalyzer())) {
             final TypeAST typeAST = TypeAST.TYPE_PARSER.parse(this, this.getSyntaxAnalyzer());
             this.getMarkerFactory().addFactory(typeAST.getMarkerFactory());
-            
+    
             if (typeAST.isFailed()) {
                 this.failed();
                 return this;
             }
-            
-            this.setFunctionReturnType(typeAST);
+    
+            this.functionReturnType = typeAST;
             this.getSyntaxAnalyzer().nextToken();
-        } else this.setFunctionReturnType(TypeAST.builder(this.getSyntaxAnalyzer())
-                .type(TypeKeywordToken.builder()
-                        .type(TypeKind.VOID)
-                        .build())
-                .start(BadToken.builder()
-                        .start(-1)
-                        .end(-1)
-                        .build())
-                .end(BadToken.builder()
-                        .start(-1)
-                        .end(-1)
-                        .build())
-                .array(false)
-                .build()
-        );
+        } else this.functionReturnType = TypeAST.builder()
+                .syntaxAnalyzer(this.getSyntaxAnalyzer())
+                .typeKeywordToken(TypeKeywordToken.builder()
+                        .lexicalAnalyzer(this.getSyntaxAnalyzer().getCompilerClass().getLexicalAnalyzer())
+                        .typeKind(TypeKind.VOID)
+                        .build()
+                )
+                .startToken(BadToken.builder()
+                        .lexicalAnalyzer(this.getSyntaxAnalyzer().getCompilerClass().getLexicalAnalyzer())
+                        .build()
+                )
+                .endToken(BadToken.builder()
+                        .lexicalAnalyzer(this.getSyntaxAnalyzer().getCompilerClass().getLexicalAnalyzer())
+                        .build()
+                )
+                .isArray(false)
+                .build();
         
         if (this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.CLOSING_ARROW) == null)
             return this.addError(
@@ -174,7 +192,8 @@ public class FunctionAST extends StatementAST
         
         this.getSyntaxAnalyzer().nextToken();
         
-        final ParameterListAST parameterListAST = ParameterListAST.builder(this.getSyntaxAnalyzer())
+        final ParameterListAST parameterListAST = ParameterListAST.builder()
+                .syntaxAnalyzer(this.getSyntaxAnalyzer())
                 .build()
                 .parseAST(this);
         this.getMarkerFactory().addFactory(parameterListAST.getMarkerFactory());
@@ -184,7 +203,7 @@ public class FunctionAST extends StatementAST
             return this;
         }
         
-        this.setFunctionParameters(parameterListAST);
+        this.functionParameters = parameterListAST;
         
         if (this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.CLOSING_PARENTHESIS) == null)
             return this.addError(
@@ -202,12 +221,12 @@ public class FunctionAST extends StatementAST
             this.setEndToken(this.getSyntaxAnalyzer().currentToken());
             this.getMarkerFactory().done(this.getEndToken());
     
-            this.setFunctionBlock(BlockAST.builder(this.getSyntaxAnalyzer())
-                    .type(BlockType.NATIVE)
-                    .start(this.getStartToken())
-                    .end(this.getEndToken())
-                    .build()
-            );
+            this.functionBlock = BlockAST.builder()
+                    .syntaxAnalyzer(this.getSyntaxAnalyzer())
+                    .blockType(BlockType.NATIVE)
+                    .startToken(this.getStartToken())
+                    .endToken(this.getEndToken())
+                    .build();
             return this;
         }
         
@@ -229,10 +248,9 @@ public class FunctionAST extends StatementAST
             return this;
         }
         
-        this.setFunctionBlock(blockAST);
+        this.functionBlock = blockAST;
         
-        this.setEndToken(this.getSyntaxAnalyzer().currentToken());
-        this.getMarkerFactory().done(this.getEndToken());
+        this.endAST(this.getSyntaxAnalyzer().currentToken());
         return this;
     }
     
@@ -267,120 +285,6 @@ public class FunctionAST extends StatementAST
                 return true;
         }
         return false;
-    }
-    
-    
-    public static FunctionASTBuilder builder(@NotNull final SyntaxAnalyzer syntaxAnalyzer) {
-        return new FunctionASTBuilder(syntaxAnalyzer);
-    }
-    
-    
-    public static FunctionASTBuilder builder() {
-        return new FunctionASTBuilder();
-    }
-    
-    
-    public static class FunctionASTBuilder
-    {
-        
-        @Nullable
-        private final SyntaxAnalyzer syntaxAnalyzer;
-        
-        
-        @Nullable
-        private List<AnnotationAST> functionAnnotations;
-        
-        
-        @Nullable
-        private IdentifierToken functionName;
-        
-        
-        @Nullable
-        private TypeAST functionReturnType;
-        
-        
-        @Nullable
-        private ParameterListAST functionParameterList;
-        
-        
-        @Nullable
-        private BlockAST functionBlock;
-        
-        
-        private ArkoiToken startToken, endToken;
-        
-        
-        public FunctionASTBuilder(@NotNull final SyntaxAnalyzer syntaxAnalyzer) {
-            this.syntaxAnalyzer = syntaxAnalyzer;
-        }
-        
-        
-        public FunctionASTBuilder() {
-            this.syntaxAnalyzer = null;
-        }
-        
-        
-        public FunctionASTBuilder annotations(final List<AnnotationAST> functionAnnotations) {
-            this.functionAnnotations = functionAnnotations;
-            return this;
-        }
-        
-        
-        public FunctionASTBuilder name(final IdentifierToken functionName) {
-            this.functionName = functionName;
-            return this;
-        }
-        
-        
-        public FunctionASTBuilder returnType(final TypeAST functionReturnType) {
-            this.functionReturnType = functionReturnType;
-            return this;
-        }
-        
-        
-        public FunctionASTBuilder parameters(final ParameterListAST functionParameterList) {
-            this.functionParameterList = functionParameterList;
-            return this;
-        }
-        
-        
-        public FunctionASTBuilder block(final BlockAST functionBlock) {
-            this.functionBlock = functionBlock;
-            return this;
-        }
-        
-        
-        public FunctionASTBuilder start(final ArkoiToken startToken) {
-            this.startToken = startToken;
-            return this;
-        }
-        
-        
-        public FunctionASTBuilder end(final ArkoiToken endToken) {
-            this.endToken = endToken;
-            return this;
-        }
-        
-        
-        public FunctionAST build() {
-            final FunctionAST functionAST = new FunctionAST(this.syntaxAnalyzer);
-            if (this.functionAnnotations != null)
-                functionAST.setFunctionAnnotations(this.functionAnnotations);
-            if (this.functionName != null)
-                functionAST.setFunctionName(this.functionName);
-            if (this.functionReturnType != null)
-                functionAST.setFunctionReturnType(this.functionReturnType);
-            if (this.functionParameterList != null)
-                functionAST.setFunctionParameters(this.functionParameterList);
-            if (this.functionBlock != null)
-                functionAST.setFunctionBlock(this.functionBlock);
-            functionAST.setStartToken(this.startToken);
-            functionAST.getMarkerFactory().getCurrentMarker().setStart(functionAST.getStartToken());
-            functionAST.setEndToken(this.endToken);
-            functionAST.getMarkerFactory().getCurrentMarker().setEnd(functionAST.getEndToken());
-            return functionAST;
-        }
-        
     }
     
 }

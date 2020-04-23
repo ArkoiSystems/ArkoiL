@@ -31,8 +31,8 @@ public class TypeParser implements ISyntaxParser
     @NotNull
     @Override
     public TypeAST parse(@NotNull final IASTNode parentAST, @NotNull final SyntaxAnalyzer syntaxAnalyzer) {
-        return TypeAST
-                .builder(syntaxAnalyzer)
+        return TypeAST.builder()
+                .syntaxAnalyzer(syntaxAnalyzer)
                 .build()
                 .parseAST(parentAST);
     }
