@@ -40,10 +40,9 @@ public abstract class ArkoiToken implements IToken
     
     
     @EqualsAndHashCode.Include
-    @Setter(AccessLevel.PROTECTED)
     @Getter
     @NotNull
-    private TokenType tokenType;
+    private final TokenType tokenType;
     
     
     @Getter
@@ -53,7 +52,7 @@ public abstract class ArkoiToken implements IToken
     @EqualsAndHashCode.Include
     @Setter
     @Getter
-    @Nullable
+    @NotNull
     private String tokenContent;
     
     
@@ -81,9 +80,9 @@ public abstract class ArkoiToken implements IToken
             final int charEnd
     ) {
         this.lexicalAnalyzer = lexicalAnalyzer;
+        this.tokenType = tokenType;
         
-        this.setTokenType(tokenType);
-        this.setTokenContent(tokenContent);
+        this.setTokenContent(tokenContent == null ? "" : tokenContent);
         this.setCharStart(startLine, charStart);
         this.setCharEnd(endLine, charEnd);
     }
@@ -136,33 +135,6 @@ public abstract class ArkoiToken implements IToken
                 this.getCharStart(),
                 this.getCharEnd()
         );
-    }
-    
-    public abstract static class ArkoiTokenBuilder<C, B>
-    {
-        //
-        //        public ArkoiTokenBuilder charStart(final int startLine, final int charStart) {
-        //            this.charStart = charStart;
-        //            this.startLine = startLine;
-        //            return this;
-        //        }
-        //
-        //        public ArkoiTokenBuilder charEnd(final int endLine, final int charEnd) {
-        //            Objects.requireNonNull(this.lexicalAnalyzer, "lexicalAnalyzer must not be null.");
-        //
-        //            this.charEnd = charEnd;
-        //            this.lineRange = ArkoiError.ErrorPosition.LineRange.make(this.lexicalAnalyzer.getCompilerClass(), this.startLine, endLine);
-        //
-        //            Objects.requireNonNull(this.lineRange, "lineRange must not be null.");
-        //            Objects.requireNonNull(this.lineRange.getSourceCode(), "lineRange.sourceCode must not be null.");
-        //
-        //            this.tokenContent = this.lineRange.getSourceCode().substring(
-        //                    this.charStart,
-        //                    this.charEnd
-        //            );
-        //            return this;
-        //        }
-        //
     }
     
 }

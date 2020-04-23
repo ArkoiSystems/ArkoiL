@@ -27,8 +27,6 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.ty
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types.operators.PrefixOperatorType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.marker.ArkoiMarker;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.marker.MarkerFactory;
 import lombok.Builder;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
@@ -57,12 +55,10 @@ public class PrefixExpressionAST extends ExpressionAST
             @Nullable IToken startToken,
             @Nullable IToken endToken
     ) {
-        super(null, syntaxAnalyzer, null, ASTType.PREFIX_EXPRESSION, startToken, endToken);
+        super(syntaxAnalyzer, null, ASTType.PREFIX_EXPRESSION, startToken, endToken);
         
         this.prefixOperatorType = prefixOperatorType;
         this.rightSideOperable = rightSideOperable;
-        
-        this.setMarkerFactory(new MarkerFactory<>(new ArkoiMarker<>(this.getAstType()), this));
     }
     
     
@@ -84,8 +80,7 @@ public class PrefixExpressionAST extends ExpressionAST
         }
         
         this.rightSideOperable = operableAST;
-        
-        this.endAST(this.getRightSideOperable().getEndToken());
+        this.endAST(this.rightSideOperable.getEndToken());
         return this;
     }
     

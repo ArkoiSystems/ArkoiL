@@ -27,8 +27,6 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.ty
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types.operators.BinaryOperatorType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.marker.ArkoiMarker;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.marker.MarkerFactory;
 import lombok.Builder;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
@@ -64,13 +62,11 @@ public class BinaryExpressionAST extends ExpressionAST
             @Nullable final IToken startToken,
             @Nullable final IToken endToken
     ) {
-        super(null, syntaxAnalyzer, null, ASTType.BINARY_EXPRESSION, startToken, endToken);
+        super(syntaxAnalyzer, null, ASTType.BINARY_EXPRESSION, startToken, endToken);
         
         this.binaryOperatorType = binaryOperatorType;
         this.rightSideOperable = rightSideOperable;
         this.leftSideOperable = leftSideOperable;
-        
-        this.setMarkerFactory(new MarkerFactory<>(new ArkoiMarker<>(this.getAstType()), this));
     }
     
     
@@ -94,8 +90,7 @@ public class BinaryExpressionAST extends ExpressionAST
         }
         
         this.rightSideOperable = operableAST;
-        
-        this.endAST(this.getRightSideOperable().getEndToken());
+        this.endAST(this.rightSideOperable.getEndToken());
         return this;
     }
     

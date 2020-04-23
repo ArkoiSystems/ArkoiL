@@ -37,8 +37,6 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.S
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.BlockType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.marker.ArkoiMarker;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.marker.MarkerFactory;
 import lombok.Builder;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
@@ -53,7 +51,7 @@ public class FunctionAST extends StatementAST
     
     
     @Getter
-    @Nullable
+    @NotNull
     private final List<AnnotationAST> functionAnnotations;
     
     
@@ -88,15 +86,13 @@ public class FunctionAST extends StatementAST
             @Nullable final IToken startToken,
             @Nullable final IToken endToken
     ) {
-        super(null, syntaxAnalyzer, ASTType.FUNCTION, startToken, endToken);
+        super(syntaxAnalyzer, ASTType.FUNCTION, startToken, endToken);
         
-        this.functionAnnotations = functionAnnotations;
+        this.functionAnnotations = functionAnnotations == null ? new ArrayList<>() : functionAnnotations;
         this.functionParameters = functionParameters;
         this.functionReturnType = functionReturnType;
         this.functionBlock = functionBlock;
         this.functionName = functionName;
-        
-        this.setMarkerFactory(new MarkerFactory<>(new ArkoiMarker<>(this.getAstType()), this));
     }
     
     

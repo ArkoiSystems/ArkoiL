@@ -30,8 +30,6 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxErrorType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.StatementAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.marker.ArkoiMarker;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.marker.MarkerFactory;
 import lombok.Builder;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
@@ -60,12 +58,10 @@ public class ImportAST extends StatementAST
             @Nullable final IToken startToken,
             @Nullable final IToken endToken
     ) {
-        super(null, syntaxAnalyzer, ASTType.IMPORT, startToken, endToken);
+        super(syntaxAnalyzer, ASTType.IMPORT, startToken, endToken);
         
         this.importFilePath = importFilePath;
         this.importName = importName;
-        
-        this.setMarkerFactory(new MarkerFactory<>(new ArkoiMarker<>(this.getAstType()), this));
     }
     
     

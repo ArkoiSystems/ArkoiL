@@ -27,8 +27,6 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.ty
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types.operators.PostfixOperatorType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.marker.ArkoiMarker;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.marker.MarkerFactory;
 import lombok.Builder;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
@@ -57,12 +55,10 @@ public class PostfixExpressionAST extends ExpressionAST
             @Nullable IToken startToken,
             @Nullable IToken endToken
     ) {
-        super(null, syntaxAnalyzer, null, ASTType.POSTFIX_EXPRESSION, startToken, endToken);
+        super(syntaxAnalyzer, null, ASTType.POSTFIX_EXPRESSION, startToken, endToken);
         
         this.postfixOperatorType = postfixOperatorType;
         this.leftSideOperable = leftSideOperable;
-        
-        this.setMarkerFactory(new MarkerFactory<>(new ArkoiMarker<>(this.getAstType()), this));
     }
     
     
@@ -73,11 +69,8 @@ public class PostfixExpressionAST extends ExpressionAST
         Objects.requireNonNull(this.getLeftSideOperable(), "leftSideOperable must not be null.");
         
         this.startAST(this.getLeftSideOperable().getStartToken());
-        
         this.getMarkerFactory().addFactory(this.getLeftSideOperable().getMarkerFactory());
-        
         this.getSyntaxAnalyzer().nextToken(2);
-        
         this.endAST(this.getSyntaxAnalyzer().currentToken());
         return this;
     }

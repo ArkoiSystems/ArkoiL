@@ -27,15 +27,23 @@ import java.util.List;
 public interface ICompilerError
 {
     
+    /**
+     * This method is used to get the {@link ICompilerClass} <b>everywhere</b> where the
+     * {@link ICompilerError} is used.
+     *
+     * @return the {@link ICompilerClass} in which the {@link ICompilerError} occurred.
+     */
     @NotNull
     ICompilerClass getCompilerClass();
     
     
+    /**
+     * This method returns a {@link List} of {@link ArkoiError.ErrorPosition}s which can
+     * be used to display the problematic sections.
+     *
+     * @return a {@link List} of {@link ArkoiError.ErrorPosition}s.
+     */
     @NotNull
     List<ArkoiError.ErrorPosition> getPositions();
-    
-    
-    @NotNull
-    String getFinalError();
     
 }

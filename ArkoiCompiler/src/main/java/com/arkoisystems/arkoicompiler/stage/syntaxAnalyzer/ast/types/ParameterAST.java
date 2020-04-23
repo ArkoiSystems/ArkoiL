@@ -29,8 +29,6 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxErrorType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.ArkoiASTNode;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.marker.ArkoiMarker;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.marker.MarkerFactory;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.parsers.ParameterParser;
 import lombok.Builder;
 import lombok.Getter;
@@ -63,12 +61,10 @@ public class ParameterAST extends ArkoiASTNode
             @Nullable final IToken startToken,
             @Nullable final IToken endToken
     ) {
-        super(null, syntaxAnalyzer, ASTType.PARAMETER, startToken, endToken);
+        super(syntaxAnalyzer, ASTType.PARAMETER, startToken, endToken);
         
         this.parameterName = parameterName;
         this.parameterType = parameterType;
-        
-        this.setMarkerFactory(new MarkerFactory<>(new ArkoiMarker<>(this.getAstType()), this));
     }
     
     
@@ -88,7 +84,6 @@ public class ParameterAST extends ArkoiASTNode
             );
         
         this.startAST(this.getSyntaxAnalyzer().currentToken());
-        
         this.parameterName = (IdentifierToken) this.getSyntaxAnalyzer().currentToken();
         
         if (this.getSyntaxAnalyzer().matchesPeekToken(1, SymbolType.COLON) == null)
@@ -122,7 +117,6 @@ public class ParameterAST extends ArkoiASTNode
         }
         
         this.parameterType = typeAST;
-        
         this.endAST(this.getSyntaxAnalyzer().currentToken());
         return this;
     }

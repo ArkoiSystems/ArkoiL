@@ -35,14 +35,13 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.t
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.types.VariableAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.marker.ArkoiMarker;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.marker.MarkerFactory;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.parsers.AnnotationParser;
 import lombok.Builder;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -53,7 +52,7 @@ public class AnnotationAST extends ArkoiASTNode
     
     
     @Getter
-    @Nullable
+    @NotNull
     private final List<AnnotationAST> annotationStorage;
     
     
@@ -76,13 +75,11 @@ public class AnnotationAST extends ArkoiASTNode
             @Nullable final IToken startToken,
             @Nullable final IToken endToken
     ) {
-        super(null, syntaxAnalyzer, ASTType.ANNOTATION, startToken, endToken);
-        
-        this.annotationStorage = annotationStorage;
+        super(syntaxAnalyzer, ASTType.ANNOTATION, startToken, endToken);
+    
+        this.annotationStorage = annotationStorage == null ? new ArrayList<>() : annotationStorage;
         this.annotationArguments = annotationArguments;
         this.annotationCall = annotationCall;
-        
-        this.setMarkerFactory(new MarkerFactory<>(new ArkoiMarker<>(this.getAstType()), this));
     }
     
     
@@ -144,6 +141,7 @@ public class AnnotationAST extends ArkoiASTNode
     
             this.annotationArguments = arguments;
         } else this.annotationArguments = ArgumentListAST.builder()
+                .syntaxAnalyzer(this.getSyntaxAnalyzer())
                 .startToken(BadToken.builder()
                         .lexicalAnalyzer(this.getSyntaxAnalyzer().getCompilerClass().getLexicalAnalyzer())
                         .build()

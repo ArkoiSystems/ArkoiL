@@ -25,6 +25,10 @@ import java.io.PrintStream;
 public interface IErrorHandler
 {
     
+    /**
+     *
+     * @param compilerError
+     */
     void addError(@NotNull final ICompilerError compilerError);
     
     

@@ -19,32 +19,25 @@
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.marker;
 
 import com.arkoisystems.arkoicompiler.api.ICompilerMarker;
-import com.arkoisystems.arkoicompiler.api.IASTNode;
 import lombok.Data;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 @Data
-public class MarkerFactory<T extends IASTNode, T1, T2>
+public class MarkerFactory<T1, T2>
 {
     
     @NotNull
-    private final List<MarkerFactory<? extends IASTNode, ?, ?>> nextMarkerFactories = new ArrayList<>();
+    private final List<MarkerFactory<?, ?>> nextMarkerFactories = new ArrayList<>();
     
     
     @NotNull
     private final ICompilerMarker<T1, T2> currentMarker;
     
     
-    @Nullable
-    private final T astNode;
-    
-    
-    public void addFactory(final MarkerFactory<? extends IASTNode, ?, ?> markerFactory) {
+    public void addFactory(final MarkerFactory<?, ?> markerFactory) {
         this.nextMarkerFactories.add(markerFactory);
     }
     
@@ -55,9 +48,6 @@ public class MarkerFactory<T extends IASTNode, T1, T2>
     
     
     public void error(final T1 start, final T2 end, final String message, final Object... arguments) {
-        Objects.requireNonNull(this.getAstNode(), "astNode must not be null.");
-        Objects.requireNonNull(this.getAstNode().getSyntaxAnalyzer(), "astNode.syntaxAnalyzer must not be null.");
-        
         this.currentMarker.setErrorMessage(message);
         this.currentMarker.setErrorArguments(arguments);
         

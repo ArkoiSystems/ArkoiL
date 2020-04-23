@@ -28,12 +28,8 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.Op
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.ExpressionAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.marker.ArkoiMarker;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.marker.MarkerFactory;
-import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -45,7 +41,7 @@ public class CollectionAST extends OperableAST
 {
     
     @Getter
-    @Nullable
+    @NotNull
     private final List<OperableAST> collectionExpressions;
     
     
@@ -56,11 +52,9 @@ public class CollectionAST extends OperableAST
             @Nullable final IToken startToken,
             @Nullable final IToken endToken
     ) {
-        super(null, syntaxAnalyzer, ASTType.COLLECTION, startToken, endToken);
+        super(syntaxAnalyzer, ASTType.COLLECTION, startToken, endToken);
         
-        this.collectionExpressions = collectionExpressions;
-        
-        this.setMarkerFactory(new MarkerFactory<>(new ArkoiMarker<>(this.getAstType()), this));
+        this.collectionExpressions = collectionExpressions == null ? new ArrayList<>() : collectionExpressions;
     }
     
     

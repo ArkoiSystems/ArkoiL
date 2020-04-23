@@ -34,7 +34,6 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.ty
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.StatementAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.marker.MarkerFactory;
 import lombok.Builder;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -47,13 +46,12 @@ public class OperableAST extends ArkoiASTNode
     
     @Builder(builderMethodName = "operableBuilder")
     public OperableAST(
-            @Nullable final MarkerFactory<? extends IASTNode, IToken, IToken> markerFactory,
             @Nullable final SyntaxAnalyzer syntaxAnalyzer,
             @NotNull final ASTType astType,
             @Nullable final IToken startToken,
             @Nullable final IToken endToken
     ) {
-        super(markerFactory, syntaxAnalyzer, astType, startToken, endToken);
+        super(syntaxAnalyzer, astType, startToken, endToken);
     }
     
     

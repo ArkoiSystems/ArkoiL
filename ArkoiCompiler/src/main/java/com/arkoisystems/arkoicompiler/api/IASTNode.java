@@ -32,7 +32,7 @@ public interface IASTNode extends IFailed
 {
     
     @NotNull
-    MarkerFactory<? extends IASTNode, IToken, IToken> getMarkerFactory();
+    MarkerFactory<IToken, IToken> getMarkerFactory();
     
     
     @Nullable

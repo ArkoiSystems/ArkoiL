@@ -27,6 +27,7 @@ import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.SymbolTy
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.marker.ArkoiMarker;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.marker.MarkerFactory;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -45,10 +46,9 @@ import java.util.stream.Collectors;
 public abstract class ArkoiASTNode implements IASTNode
 {
     
-    @Setter
     @Getter
-    @Nullable
-    private MarkerFactory<? extends IASTNode, IToken, IToken> markerFactory;
+    @NotNull
+    private final MarkerFactory<IToken, IToken> markerFactory;
     
     
     @Getter
@@ -83,19 +83,19 @@ public abstract class ArkoiASTNode implements IASTNode
     
     
     public ArkoiASTNode(
-            @Nullable final MarkerFactory<? extends IASTNode, IToken, IToken> markerFactory,
             @Nullable final SyntaxAnalyzer syntaxAnalyzer,
             @NotNull final ASTType astType,
             @Nullable final IToken startToken,
             @Nullable final IToken endToken
     ) {
-        this.markerFactory = markerFactory;
+        this.markerFactory = new MarkerFactory<>(new ArkoiMarker<>(astType));
+    
         this.syntaxAnalyzer = syntaxAnalyzer;
         this.astType = astType;
     
         this.startToken = startToken;
         this.endToken = endToken;
-        
+    
         this.startAST(startToken);
         this.endAST(endToken);
     }

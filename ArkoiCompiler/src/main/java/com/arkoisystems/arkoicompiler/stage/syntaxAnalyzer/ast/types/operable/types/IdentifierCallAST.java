@@ -30,8 +30,6 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxErrorType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.OperableAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.marker.ArkoiMarker;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.marker.MarkerFactory;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -73,14 +71,12 @@ public class IdentifierCallAST extends OperableAST
             @Nullable final IToken endToken,
             final boolean isFileLocal
     ) {
-        super(null, syntaxAnalyzer, ASTType.IDENTIFIER_CALL, startToken, endToken);
+        super(syntaxAnalyzer, ASTType.IDENTIFIER_CALL, startToken, endToken);
         
         this.calledFunctionPart = calledFunctionPart;
         this.nextIdentifierCall = nextIdentifierCall;
         this.calledIdentifier = calledIdentifier;
         this.isFileLocal = isFileLocal;
-        
-        this.setMarkerFactory(new MarkerFactory<>(new ArkoiMarker<>(this.getAstType()), this));
     }
     
     
