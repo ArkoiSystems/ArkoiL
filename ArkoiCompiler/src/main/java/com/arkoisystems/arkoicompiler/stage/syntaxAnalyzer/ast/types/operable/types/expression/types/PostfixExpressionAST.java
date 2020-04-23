@@ -19,17 +19,18 @@
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types;
 
 import com.arkoisystems.arkoicompiler.api.IASTNode;
+import com.arkoisystems.arkoicompiler.api.IToken;
 import com.arkoisystems.arkoicompiler.api.IVisitor;
-import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.ArkoiToken;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.OperableAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.ExpressionAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types.operators.PostfixOperatorType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
-import lombok.AccessLevel;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.marker.ArkoiMarker;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.marker.MarkerFactory;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -39,19 +40,29 @@ public class PostfixExpressionAST extends ExpressionAST
 {
     
     @Getter
-    @Setter(AccessLevel.PROTECTED)
     @Nullable
-    private PostfixOperatorType postfixOperatorType;
+    private final PostfixOperatorType postfixOperatorType;
     
     
     @Getter
-    @Setter(AccessLevel.PROTECTED)
     @Nullable
-    private OperableAST leftSideOperable;
+    private final OperableAST leftSideOperable;
     
     
-    protected PostfixExpressionAST(@Nullable final SyntaxAnalyzer syntaxAnalyzer) {
-        super(syntaxAnalyzer, ASTType.POSTFIX_EXPRESSION);
+    @Builder
+    public PostfixExpressionAST(
+            @Nullable final PostfixOperatorType postfixOperatorType,
+            @Nullable final OperableAST leftSideOperable,
+            @Nullable SyntaxAnalyzer syntaxAnalyzer,
+            @Nullable IToken startToken,
+            @Nullable IToken endToken
+    ) {
+        super(null, syntaxAnalyzer, null, ASTType.POSTFIX_EXPRESSION, startToken, endToken);
+        
+        this.postfixOperatorType = postfixOperatorType;
+        this.leftSideOperable = leftSideOperable;
+        
+        this.setMarkerFactory(new MarkerFactory<>(new ArkoiMarker<>(this.getAstType()), this));
     }
     
     
@@ -61,12 +72,13 @@ public class PostfixExpressionAST extends ExpressionAST
         Objects.requireNonNull(this.getSyntaxAnalyzer(), "syntaxAnalyzer must not be null.");
         Objects.requireNonNull(this.getLeftSideOperable(), "leftSideOperable must not be null.");
         
+        this.startAST(this.getLeftSideOperable().getStartToken());
+        
         this.getMarkerFactory().addFactory(this.getLeftSideOperable().getMarkerFactory());
         
         this.getSyntaxAnalyzer().nextToken(2);
         
-        this.setEndToken(this.getSyntaxAnalyzer().currentToken());
-        this.getMarkerFactory().done(this.getEndToken());
+        this.endAST(this.getSyntaxAnalyzer().currentToken());
         return this;
     }
     
@@ -80,84 +92,6 @@ public class PostfixExpressionAST extends ExpressionAST
     @Override
     public @NotNull TypeKind getTypeKind() {
         return TypeKind.UNDEFINED;
-    }
-    
-    
-    public static PostfixExpressionASTBuilder builder(@NotNull final SyntaxAnalyzer syntaxAnalyzer) {
-        return new PostfixExpressionASTBuilder(syntaxAnalyzer);
-    }
-    
-    
-    public static PostfixExpressionASTBuilder builder() {
-        return new PostfixExpressionASTBuilder();
-    }
-    
-    
-    public static class PostfixExpressionASTBuilder
-    {
-    
-        @Nullable
-        private final SyntaxAnalyzer syntaxAnalyzer;
-    
-    
-        @Nullable
-        private PostfixOperatorType postfixOperatorType;
-    
-    
-        @Nullable
-        private OperableAST leftSideOperable;
-    
-    
-        private ArkoiToken startToken, endToken;
-    
-    
-        public PostfixExpressionASTBuilder(@NotNull final SyntaxAnalyzer syntaxAnalyzer) {
-            this.syntaxAnalyzer = syntaxAnalyzer;
-        }
-    
-    
-        public PostfixExpressionASTBuilder() {
-            this.syntaxAnalyzer = null;
-        }
-    
-    
-        public PostfixExpressionASTBuilder left(final OperableAST leftSideOperable) {
-            this.leftSideOperable = leftSideOperable;
-            return this;
-        }
-    
-    
-        public PostfixExpressionASTBuilder operator(final PostfixOperatorType postfixOperatorType) {
-            this.postfixOperatorType = postfixOperatorType;
-            return this;
-        }
-    
-    
-        public PostfixExpressionASTBuilder start(final ArkoiToken startToken) {
-            this.startToken = startToken;
-            return this;
-        }
-    
-    
-        public PostfixExpressionASTBuilder end(final ArkoiToken endToken) {
-            this.endToken = endToken;
-            return this;
-        }
-    
-    
-        public PostfixExpressionAST build() {
-            final PostfixExpressionAST postfixExpressionAST = new PostfixExpressionAST(this.syntaxAnalyzer);
-            if (this.leftSideOperable != null)
-                postfixExpressionAST.setLeftSideOperable(this.leftSideOperable);
-            if (this.postfixOperatorType != null)
-                postfixExpressionAST.setPostfixOperatorType(this.postfixOperatorType);
-            postfixExpressionAST.setStartToken(this.startToken);
-            postfixExpressionAST.getMarkerFactory().getCurrentMarker().setStart(postfixExpressionAST.getStartToken());
-            postfixExpressionAST.setEndToken(this.endToken);
-            postfixExpressionAST.getMarkerFactory().getCurrentMarker().setEnd(postfixExpressionAST.getEndToken());
-            return postfixExpressionAST;
-        }
-        
     }
     
 }

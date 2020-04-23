@@ -21,18 +21,25 @@ package com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.LexicalAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.ArkoiToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
+import lombok.Builder;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Arrays;
 import java.util.Objects;
-import java.util.Optional;
 
 public class IdentifierToken extends ArkoiToken
 {
     
-    protected IdentifierToken(@Nullable final LexicalAnalyzer lexicalAnalyzer) {
-        super(lexicalAnalyzer, TokenType.IDENTIFIER);
+    @Builder
+    public IdentifierToken(
+            @Nullable final LexicalAnalyzer lexicalAnalyzer,
+            @Nullable final String tokenContent,
+            final int startLine,
+            final int charStart,
+            final int endLine,
+            final int charEnd
+    ) {
+        super(lexicalAnalyzer, TokenType.IDENTIFIER, tokenContent, startLine, charStart, endLine, charEnd);
     }
     
     
@@ -43,110 +50,52 @@ public class IdentifierToken extends ArkoiToken
         final char currentChar = this.getLexicalAnalyzer().currentChar();
         if (!Character.isJavaIdentifierStart(currentChar))
             return this.addError(
-                    BadToken.builder(this.getLexicalAnalyzer())
-                            .start(this.getLexicalAnalyzer().getPosition())
-                            .end(this.getLexicalAnalyzer().getPosition() + 1)
+                    BadToken.builder()
+                            .lexicalAnalyzer(this.getLexicalAnalyzer())
+                            .startLine(this.getLexicalAnalyzer().getLineIndex())
+                            .charStart(this.getLexicalAnalyzer().getCharIndex())
+                            .endLine(this.getLexicalAnalyzer().getLineIndex())
+                            .charEnd(this.getLexicalAnalyzer().getCharIndex() + 1)
                             .build()
                             .parseToken(),
-                
+                    
                     this.getLexicalAnalyzer().getCompilerClass(),
-                    this.getLexicalAnalyzer().getPosition(),
+                    
+                    this.getLexicalAnalyzer().getCharIndex(),
+                    this.getLexicalAnalyzer().getLineIndex(),
+                    
                     "Couldn't lex the Identifier because it doesn't start with an alphabetic char."
             );
         
-        this.getLexicalAnalyzer().next();
-    
-        this.setStart(this.getLexicalAnalyzer().getPosition() - 1);
+        this.setCharStart(this.getLexicalAnalyzer().getLineIndex(), this.getLexicalAnalyzer().getCharIndex());
         while (this.getLexicalAnalyzer().getPosition() < this.getLexicalAnalyzer().getCompilerClass().getContent().length) {
+            this.getLexicalAnalyzer().next();
             if (!Character.isUnicodeIdentifierPart(this.getLexicalAnalyzer().currentChar()))
                 break;
-            this.getLexicalAnalyzer().next();
         }
-    
-        this.setEnd(this.getLexicalAnalyzer().getPosition());
-        this.setTokenContent(new String(Arrays.copyOfRange(this.getLexicalAnalyzer().getCompilerClass().getContent(), this.getStart(), this.getEnd())).intern());
+        this.setCharEnd(this.getLexicalAnalyzer().getLineIndex(), this.getLexicalAnalyzer().getCharIndex());
         
-        final ArkoiToken optionalKeywordToken = KeywordToken.builder(this.getLexicalAnalyzer())
-                .content(this.getTokenContent())
-                .start(this.getStart())
-                .end(this.getEnd())
+        final ArkoiToken keywordToken = KeywordToken.builder()
+                .lexicalAnalyzer(this.getLexicalAnalyzer())
+                .startLine(this.getLexicalAnalyzer().getLineIndex())
+                .charStart(this.getCharStart())
+                .endLine(this.getLexicalAnalyzer().getLineIndex())
+                .charEnd(this.getCharEnd())
                 .build()
                 .parseToken();
-        if (optionalKeywordToken != null)
-            return optionalKeywordToken;
+        if (keywordToken != null)
+            return keywordToken;
         
-        final ArkoiToken optionalTypeKeywordToken = TypeKeywordToken.builder(this.getLexicalAnalyzer())
-                .content(this.getTokenContent())
-                .start(this.getStart())
-                .end(this.getEnd())
+        final ArkoiToken typeKeywordToken = TypeKeywordToken.builder()
+                .lexicalAnalyzer(this.getLexicalAnalyzer())
+                .startLine(this.getLexicalAnalyzer().getLineIndex())
+                .charStart(this.getCharStart())
+                .endLine(this.getLexicalAnalyzer().getLineIndex())
+                .charEnd(this.getCharEnd())
                 .build()
                 .parseToken();
-        if (optionalTypeKeywordToken != null)
-            return optionalTypeKeywordToken;
+        if (typeKeywordToken != null)
+            return typeKeywordToken;
         return this;
     }
-    
-    
-    public static IdentifierTokenBuilder builder(@NotNull final LexicalAnalyzer lexicalAnalyzer) {
-        return new IdentifierTokenBuilder(lexicalAnalyzer);
-    }
-    
-    
-    public static IdentifierTokenBuilder builder() {
-        return new IdentifierTokenBuilder();
-    }
-    
-    
-    public static class IdentifierTokenBuilder
-    {
-        
-        @Nullable
-        private final LexicalAnalyzer lexicalAnalyzer;
-        
-        
-        @Nullable
-        private String tokenContent;
-        
-        
-        private int start, end;
-        
-        
-        public IdentifierTokenBuilder(@NotNull final LexicalAnalyzer lexicalAnalyzer) {
-            this.lexicalAnalyzer = lexicalAnalyzer;
-        }
-        
-        public IdentifierTokenBuilder() {
-            this.lexicalAnalyzer = null;
-        }
-        
-        
-        public IdentifierTokenBuilder content(final String tokenContent) {
-            this.tokenContent = tokenContent;
-            return this;
-        }
-        
-        
-        public IdentifierTokenBuilder start(final int start) {
-            this.start = start;
-            return this;
-        }
-        
-        
-        public IdentifierTokenBuilder end(final int end) {
-            this.end = end;
-            return this;
-        }
-        
-        
-        public IdentifierToken build() {
-            final IdentifierToken identifierToken = new IdentifierToken(this.lexicalAnalyzer);
-            if (this.tokenContent != null)
-                identifierToken.setTokenContent(this.tokenContent);
-            identifierToken.setStart(this.start);
-            identifierToken.setEnd(this.end);
-            return identifierToken;
-        }
-        
-    }
-    
 }

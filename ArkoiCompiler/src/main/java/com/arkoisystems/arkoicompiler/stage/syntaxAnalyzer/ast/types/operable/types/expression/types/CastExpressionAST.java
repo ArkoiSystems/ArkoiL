@@ -19,8 +19,8 @@
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types;
 
 import com.arkoisystems.arkoicompiler.api.IASTNode;
+import com.arkoisystems.arkoicompiler.api.IToken;
 import com.arkoisystems.arkoicompiler.api.IVisitor;
-import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.ArkoiToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.IdentifierToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
@@ -29,7 +29,10 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.Op
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.ExpressionAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.marker.ArkoiMarker;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.marker.MarkerFactory;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
@@ -42,19 +45,29 @@ public class CastExpressionAST extends ExpressionAST
     
     
     @Getter
-    @Setter(AccessLevel.PROTECTED)
     @Nullable
     private TypeKind typeKind;
     
     
     @Getter
-    @Setter(AccessLevel.PROTECTED)
     @Nullable
-    private OperableAST leftSideOperable;
+    private final OperableAST leftSideOperable;
     
     
-    protected CastExpressionAST(@Nullable final SyntaxAnalyzer syntaxAnalyzer) {
-        super(syntaxAnalyzer, ASTType.CAST_EXPRESSION);
+    @Builder
+    public CastExpressionAST(
+            @Nullable final  SyntaxAnalyzer syntaxAnalyzer,
+            @Nullable final OperableAST leftSideOperable,
+            @Nullable final  IToken startToken,
+            @Nullable final TypeKind typeKind,
+            @Nullable final  IToken endToken
+    ) {
+        super(null, syntaxAnalyzer, null, ASTType.CAST_EXPRESSION, startToken, endToken);
+    
+        this.leftSideOperable = leftSideOperable;
+        this.typeKind = typeKind;
+    
+        this.setMarkerFactory(new MarkerFactory<>(new ArkoiMarker<>(this.getAstType()), this));
     }
     
     
@@ -63,15 +76,16 @@ public class CastExpressionAST extends ExpressionAST
     public CastExpressionAST parseAST(@NotNull final IASTNode parentAST) {
         Objects.requireNonNull(this.getSyntaxAnalyzer(), "syntaxAnalyzer must not be null.");
         Objects.requireNonNull(this.getLeftSideOperable(), "leftSideOperable must not be null.");
-        
+    
+        this.startAST(this.getSyntaxAnalyzer().currentToken());
         this.getMarkerFactory().addFactory(this.getLeftSideOperable().getMarkerFactory());
-        
+    
         if (this.getSyntaxAnalyzer().matchesPeekToken(1, TokenType.IDENTIFIER, false) == null)
             return this.addError(
                     this,
                     this.getSyntaxAnalyzer().getCompilerClass(),
                     this.getSyntaxAnalyzer().peekToken(1),
-        
+                
                     SyntaxErrorType.SYNTAX_ERROR_TEMPLATE,
                     "Cast expression", "<identifier>", this.getSyntaxAnalyzer().currentToken().getTokenContent()
             );
@@ -103,14 +117,13 @@ public class CastExpressionAST extends ExpressionAST
                         this,
                         this.getSyntaxAnalyzer().getCompilerClass(),
                         identifierToken,
-        
+                
                         SyntaxErrorType.SYNTAX_ERROR_TEMPLATE,
                         "Cast expression", "<cast type> (eg. i, S, d, B)", this.getSyntaxAnalyzer().currentToken().getTokenContent()
                 );
         }
-        
-        this.setEndToken(this.getSyntaxAnalyzer().currentToken());
-        this.getMarkerFactory().done(this.getEndToken());
+    
+        this.endAST(this.getSyntaxAnalyzer().currentToken());
         return this;
     }
     
@@ -118,84 +131,6 @@ public class CastExpressionAST extends ExpressionAST
     @Override
     public void accept(@NotNull final IVisitor<?> visitor) {
         visitor.visit(this);
-    }
-    
-    
-    public static CastExpressionASTBuilder builder(@NotNull final SyntaxAnalyzer syntaxAnalyzer) {
-        return new CastExpressionASTBuilder(syntaxAnalyzer);
-    }
-    
-    
-    public static CastExpressionASTBuilder builder() {
-        return new CastExpressionASTBuilder();
-    }
-    
-    
-    public static class CastExpressionASTBuilder
-    {
-        
-        @Nullable
-        private final SyntaxAnalyzer syntaxAnalyzer;
-        
-        
-        @Nullable
-        private TypeKind typeKind;
-        
-        
-        @Nullable
-        private OperableAST leftSideOperable;
-        
-        
-        private ArkoiToken startToken, endToken;
-        
-        
-        public CastExpressionASTBuilder(@NotNull final SyntaxAnalyzer syntaxAnalyzer) {
-            this.syntaxAnalyzer = syntaxAnalyzer;
-        }
-        
-        
-        public CastExpressionASTBuilder() {
-            this.syntaxAnalyzer = null;
-        }
-        
-        
-        public CastExpressionASTBuilder left(final OperableAST leftSideOperable) {
-            this.leftSideOperable = leftSideOperable;
-            return this;
-        }
-        
-        
-        public CastExpressionASTBuilder operator(final TypeKind typeKind) {
-            this.typeKind = typeKind;
-            return this;
-        }
-        
-        
-        public CastExpressionASTBuilder start(final ArkoiToken startToken) {
-            this.startToken = startToken;
-            return this;
-        }
-        
-        
-        public CastExpressionASTBuilder end(final ArkoiToken endToken) {
-            this.endToken = endToken;
-            return this;
-        }
-        
-        
-        public CastExpressionAST build() {
-            final CastExpressionAST castExpressionAST = new CastExpressionAST(this.syntaxAnalyzer);
-            if (this.leftSideOperable != null)
-                castExpressionAST.setLeftSideOperable(this.leftSideOperable);
-            if (this.typeKind != null)
-                castExpressionAST.setTypeKind(this.typeKind);
-            castExpressionAST.setStartToken(this.startToken);
-            castExpressionAST.getMarkerFactory().getCurrentMarker().setStart(castExpressionAST.getStartToken());
-            castExpressionAST.setEndToken(this.endToken);
-            castExpressionAST.getMarkerFactory().getCurrentMarker().setEnd(castExpressionAST.getEndToken());
-            return castExpressionAST;
-        }
-        
     }
     
 }

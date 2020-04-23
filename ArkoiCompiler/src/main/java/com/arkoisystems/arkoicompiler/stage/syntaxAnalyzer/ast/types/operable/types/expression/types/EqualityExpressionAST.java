@@ -19,6 +19,7 @@
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types;
 
 import com.arkoisystems.arkoicompiler.api.IASTNode;
+import com.arkoisystems.arkoicompiler.api.IToken;
 import com.arkoisystems.arkoicompiler.api.IVisitor;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.OperableAST;
@@ -26,9 +27,10 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.ty
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types.operators.EqualityOperatorType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
-import lombok.AccessLevel;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.marker.ArkoiMarker;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.marker.MarkerFactory;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -36,33 +38,36 @@ public class EqualityExpressionAST extends ExpressionAST
 {
     
     @Getter
-    @Setter(AccessLevel.PROTECTED)
     @Nullable
-    private OperableAST leftSideOperable;
+    private final OperableAST leftSideOperable;
     
     
     @Getter
-    @Setter(AccessLevel.PROTECTED)
     @Nullable
-    private EqualityOperatorType equalityOperatorType;
+    private final EqualityOperatorType equalityOperatorType;
     
     
     @Getter
-    @Setter(AccessLevel.PROTECTED)
     @Nullable
-    private OperableAST rightSideOperable;
+    private final OperableAST rightSideOperable;
     
     
-    public EqualityExpressionAST(@NotNull final SyntaxAnalyzer syntaxAnalyzer, @NotNull final OperableAST leftSideOperable, @NotNull final EqualityOperatorType equalityOperatorType) {
-        super(syntaxAnalyzer, ASTType.EQUALITY_EXPRESSION);
+    @Builder
+    public EqualityExpressionAST(
+            @Nullable final EqualityOperatorType equalityOperatorType,
+            @Nullable final OperableAST rightSideOperable,
+            @Nullable final SyntaxAnalyzer syntaxAnalyzer,
+            @Nullable final OperableAST leftSideOperable,
+            @Nullable final IToken startToken,
+            @Nullable final IToken endToken
+    ) {
+        super(null, syntaxAnalyzer, null, ASTType.EQUALITY_EXPRESSION, startToken, endToken);
         
         this.equalityOperatorType = equalityOperatorType;
+        this.rightSideOperable = rightSideOperable;
         this.leftSideOperable = leftSideOperable;
         
-        this.getMarkerFactory().addFactory(this.leftSideOperable.getMarkerFactory());
-        
-        this.setStartToken(this.leftSideOperable.getStartToken());
-        this.getMarkerFactory().mark(this.getStartToken());
+        this.setMarkerFactory(new MarkerFactory<>(new ArkoiMarker<>(this.getAstType()), this));
     }
     
     

@@ -19,6 +19,7 @@
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types;
 
 import com.arkoisystems.arkoicompiler.api.IASTNode;
+import com.arkoisystems.arkoicompiler.api.IToken;
 import com.arkoisystems.arkoicompiler.api.IVisitor;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.ArkoiToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.SymbolType;
@@ -27,7 +28,10 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxErrorType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.ArkoiASTNode;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.marker.ArkoiMarker;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.marker.MarkerFactory;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
@@ -41,13 +45,21 @@ public class ArgumentListAST extends ArkoiASTNode
 {
     
     @Getter
-    @Setter(AccessLevel.PROTECTED)
     @NotNull
-    private List<ArgumentAST> arguments = new ArrayList<>();
+    private final List<ArgumentAST> arguments;
     
     
-    public ArgumentListAST(@Nullable final SyntaxAnalyzer syntaxAnalyzer) {
-        super(syntaxAnalyzer, ASTType.ARGUMENT_LIST);
+    @Builder
+    private ArgumentListAST(
+            @Nullable final SyntaxAnalyzer syntaxAnalyzer,
+            @Nullable final IToken startToken,
+            @Nullable final IToken endToken
+    ) {
+        super(null, syntaxAnalyzer, ASTType.ARGUMENT_LIST, startToken, endToken);
+    
+        this.arguments = new ArrayList<>();
+    
+        this.setMarkerFactory(new MarkerFactory<>(new ArkoiMarker<>(this.getAstType()), this));
     }
     
     
@@ -66,8 +78,7 @@ public class ArgumentListAST extends ArkoiASTNode
                     "Argument list", "'['", this.getSyntaxAnalyzer().currentToken().getTokenContent()
             );
         
-        this.setStartToken(this.getSyntaxAnalyzer().currentToken());
-        this.getMarkerFactory().mark(this.getStartToken());
+        this.startAST(this.getSyntaxAnalyzer().currentToken());
         
         this.getSyntaxAnalyzer().nextToken();
         
@@ -100,8 +111,7 @@ public class ArgumentListAST extends ArkoiASTNode
                     "Argument list", "']'", this.getSyntaxAnalyzer().currentToken().getTokenContent()
             );
         
-        this.setEndToken(this.getSyntaxAnalyzer().currentToken());
-        this.getMarkerFactory().done(this.getEndToken());
+        this.endAST(this.getSyntaxAnalyzer().currentToken());
         return this;
     }
     
@@ -115,73 +125,6 @@ public class ArgumentListAST extends ArkoiASTNode
     @Override
     public @NotNull TypeKind getTypeKind() {
         return TypeKind.UNDEFINED;
-    }
-    
-    
-    public static ArgumentListASTBuilder builder(@NotNull final SyntaxAnalyzer syntaxAnalyzer) {
-        return new ArgumentListASTBuilder(syntaxAnalyzer);
-    }
-    
-    
-    public static ArgumentListASTBuilder builder() {
-        return new ArgumentListASTBuilder();
-    }
-    
-    
-    public static class ArgumentListASTBuilder
-    {
-        
-        
-        @Nullable
-        private final SyntaxAnalyzer syntaxAnalyzer;
-        
-        
-        @Nullable
-        private List<ArgumentAST> arguments;
-        
-        
-        private ArkoiToken startToken, endToken;
-        
-        
-        public ArgumentListASTBuilder(@NotNull final SyntaxAnalyzer syntaxAnalyzer) {
-            this.syntaxAnalyzer = syntaxAnalyzer;
-        }
-        
-        
-        public ArgumentListASTBuilder() {
-            this.syntaxAnalyzer = null;
-        }
-        
-        
-        public ArgumentListASTBuilder parameters(final List<ArgumentAST> arguments) {
-            this.arguments = arguments;
-            return this;
-        }
-        
-        
-        public ArgumentListASTBuilder start(final ArkoiToken startToken) {
-            this.startToken = startToken;
-            return this;
-        }
-        
-        
-        public ArgumentListASTBuilder end(final ArkoiToken endToken) {
-            this.endToken = endToken;
-            return this;
-        }
-        
-        
-        public ArgumentListAST build() {
-            final ArgumentListAST argumentListAST = new ArgumentListAST(this.syntaxAnalyzer);
-            if (this.arguments != null)
-                argumentListAST.setArguments(this.arguments);
-            argumentListAST.setStartToken(this.startToken);
-            argumentListAST.getMarkerFactory().getCurrentMarker().setStart(argumentListAST.getStartToken());
-            argumentListAST.setEndToken(this.endToken);
-            argumentListAST.getMarkerFactory().getCurrentMarker().setEnd(argumentListAST.getEndToken());
-            return argumentListAST;
-        }
-        
     }
     
 }

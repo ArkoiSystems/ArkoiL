@@ -19,6 +19,7 @@
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable;
 
 import com.arkoisystems.arkoicompiler.api.IASTNode;
+import com.arkoisystems.arkoicompiler.api.IToken;
 import com.arkoisystems.arkoicompiler.api.IVisitor;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.ArkoiToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.KeywordType;
@@ -33,6 +34,8 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.ty
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.StatementAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.marker.MarkerFactory;
+import lombok.Builder;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -42,8 +45,15 @@ public class OperableAST extends ArkoiASTNode
 {
     
     
-    public OperableAST(@Nullable final SyntaxAnalyzer syntaxAnalyzer, @NotNull final ASTType astType) {
-        super(syntaxAnalyzer, astType);
+    @Builder(builderMethodName = "operableBuilder")
+    public OperableAST(
+            @Nullable final MarkerFactory<? extends IASTNode, IToken, IToken> markerFactory,
+            @Nullable final SyntaxAnalyzer syntaxAnalyzer,
+            @NotNull final ASTType astType,
+            @Nullable final IToken startToken,
+            @Nullable final IToken endToken
+    ) {
+        super(markerFactory, syntaxAnalyzer, astType, startToken, endToken);
     }
     
     
@@ -51,15 +61,17 @@ public class OperableAST extends ArkoiASTNode
     @Override
     public OperableAST parseAST(@NotNull final IASTNode parentAST) {
         Objects.requireNonNull(this.getSyntaxAnalyzer(), "syntaxAnalyzer must not be null.");
-    
+        
         final ArkoiToken currentToken = this.getSyntaxAnalyzer().currentToken();
         switch (currentToken.getTokenType()) {
             case STRING_LITERAL:
-                return StringAST.builder(this.getSyntaxAnalyzer())
+                return StringAST.builder()
+                        .syntaxAnalyzer(this.getSyntaxAnalyzer())
                         .build()
                         .parseAST(parentAST);
             case NUMBER_LITERAL:
-                return NumberAST.builder(this.getSyntaxAnalyzer())
+                return NumberAST.builder()
+                        .syntaxAnalyzer(this.getSyntaxAnalyzer())
                         .build()
                         .parseAST(parentAST);
             case SYMBOL:
@@ -73,8 +85,8 @@ public class OperableAST extends ArkoiASTNode
                             "Operable", "'['", this.getSyntaxAnalyzer().currentToken().getTokenContent()
                     );
                 }
-                return CollectionAST
-                        .builder(this.getSyntaxAnalyzer())
+                return CollectionAST.builder()
+                        .syntaxAnalyzer(this.getSyntaxAnalyzer())
                         .build()
                         .parseAST(parentAST);
             case IDENTIFIER:
@@ -114,8 +126,8 @@ public class OperableAST extends ArkoiASTNode
                             "Function", "'this'", this.getSyntaxAnalyzer().currentToken().getTokenContent()
                     );
                 
-                return IdentifierCallAST
-                        .builder(this.getSyntaxAnalyzer())
+                return IdentifierCallAST.builder()
+                        .syntaxAnalyzer(this.getSyntaxAnalyzer())
                         .build()
                         .parseAST(parentAST);
             default:

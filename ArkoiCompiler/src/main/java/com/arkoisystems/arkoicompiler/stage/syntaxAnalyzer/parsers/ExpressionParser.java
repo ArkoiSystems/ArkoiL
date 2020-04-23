@@ -38,7 +38,10 @@ public class ExpressionParser implements ISyntaxParser
     @NotNull
     @Override
     public OperableAST parse(@NotNull final IASTNode parentAST, @NotNull final SyntaxAnalyzer syntaxAnalyzer) {
-        return new ExpressionAST(syntaxAnalyzer, ASTType.EXPRESSION)
+        return ExpressionAST.expressionBuilder()
+                .syntaxAnalyzer(syntaxAnalyzer)
+                .astType(ASTType.EXPRESSION)
+                .build()
                 .parseAST(parentAST);
     }
     

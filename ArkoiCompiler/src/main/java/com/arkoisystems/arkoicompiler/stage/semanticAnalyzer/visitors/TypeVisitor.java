@@ -37,6 +37,7 @@ import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Collections;
 import java.util.Objects;
 
 public class TypeVisitor implements IVisitor<TypeKind>, IFailed
@@ -468,10 +469,12 @@ public class TypeVisitor implements IVisitor<TypeKind>, IFailed
     public <E> E addError(@Nullable E errorSource, @NotNull final ICompilerClass compilerClass, @NotNull final IASTNode astNode, @NotNull final String message, @NotNull final Object... arguments) {
         compilerClass.getSemanticAnalyzer().getErrorHandler().addError(ArkoiError.builder()
                 .compilerClass(compilerClass)
-                .positions(new int[][] { {
-                        Objects.requireNonNull(astNode.getStartToken()).getStart(),
-                        Objects.requireNonNull(astNode.getEndToken()).getEnd()
-                } })
+                .positions(Collections.singletonList(ArkoiError.ErrorPosition.builder()
+                        .lineRange(astNode.getLineRange())
+                        .charStart(Objects.requireNonNull(astNode.getStartToken(), "astNode.startToken must not be null.").getCharStart())
+                        .charEnd(Objects.requireNonNull(astNode.getEndToken(), "astNode.endToken must not be null.").getCharEnd())
+                        .build())
+                )
                 .message(message)
                 .arguments(arguments)
                 .build()

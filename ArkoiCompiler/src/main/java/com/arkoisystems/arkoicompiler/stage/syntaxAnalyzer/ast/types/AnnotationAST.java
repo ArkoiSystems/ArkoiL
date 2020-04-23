@@ -19,8 +19,8 @@
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types;
 
 import com.arkoisystems.arkoicompiler.api.IASTNode;
+import com.arkoisystems.arkoicompiler.api.IToken;
 import com.arkoisystems.arkoicompiler.api.IVisitor;
-import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.ArkoiToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.BadToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.IdentifierToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.KeywordType;
@@ -35,14 +35,14 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.t
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.types.VariableAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.marker.ArkoiMarker;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.marker.MarkerFactory;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.parsers.AnnotationParser;
-import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -53,25 +53,36 @@ public class AnnotationAST extends ArkoiASTNode
     
     
     @Getter
-    @Setter(AccessLevel.PROTECTED)
-    @NotNull
-    private List<AnnotationAST> annotationStorage = new ArrayList<>();
+    @Nullable
+    private final List<AnnotationAST> annotationStorage;
     
     
     @Getter
-    @Setter(AccessLevel.PROTECTED)
     @Nullable
     private IdentifierCallAST annotationCall;
     
     
     @Getter
-    @Setter(AccessLevel.PROTECTED)
     @Nullable
     private ArgumentListAST annotationArguments;
     
     
-    protected AnnotationAST(final SyntaxAnalyzer syntaxAnalyzer) {
-        super(syntaxAnalyzer, ASTType.ANNOTATION);
+    @Builder
+    private AnnotationAST(
+            @Nullable final List<AnnotationAST> annotationStorage,
+            @Nullable final ArgumentListAST annotationArguments,
+            @Nullable final IdentifierCallAST annotationCall,
+            @Nullable final SyntaxAnalyzer syntaxAnalyzer,
+            @Nullable final IToken startToken,
+            @Nullable final IToken endToken
+    ) {
+        super(null, syntaxAnalyzer, ASTType.ANNOTATION, startToken, endToken);
+        
+        this.annotationStorage = annotationStorage;
+        this.annotationArguments = annotationArguments;
+        this.annotationCall = annotationCall;
+        
+        this.setMarkerFactory(new MarkerFactory<>(new ArkoiMarker<>(this.getAstType()), this));
     }
     
     
@@ -90,8 +101,7 @@ public class AnnotationAST extends ArkoiASTNode
                     "Annotation", "'@'", this.getSyntaxAnalyzer().currentToken().getTokenContent()
             );
         
-        this.setStartToken(this.getSyntaxAnalyzer().currentToken());
-        this.getMarkerFactory().mark(this.getStartToken());
+        this.startAST(this.getSyntaxAnalyzer().currentToken());
         
         if (this.getSyntaxAnalyzer().matchesPeekToken(1, TokenType.IDENTIFIER) == null)
             return this.addError(
@@ -105,7 +115,8 @@ public class AnnotationAST extends ArkoiASTNode
         
         this.getSyntaxAnalyzer().nextToken();
         
-        final IdentifierCallAST identifierCallAST = IdentifierCallAST.builder(this.getSyntaxAnalyzer())
+        final IdentifierCallAST identifierCallAST = IdentifierCallAST.builder()
+                .syntaxAnalyzer(this.getSyntaxAnalyzer())
                 .build()
                 .parseAST(this);
         this.getMarkerFactory().addFactory(identifierCallAST.getMarkerFactory());
@@ -115,32 +126,33 @@ public class AnnotationAST extends ArkoiASTNode
             return this;
         }
         
-        this.setAnnotationCall(identifierCallAST);
+        this.annotationCall = identifierCallAST;
         
         if (this.getSyntaxAnalyzer().matchesPeekToken(1, SymbolType.OPENING_BRACKET) != null) {
             this.getSyntaxAnalyzer().nextToken();
-            
-            final ArgumentListAST arguments = ArgumentListAST.builder(this.getSyntaxAnalyzer())
+    
+            final ArgumentListAST arguments = ArgumentListAST.builder()
+                    .syntaxAnalyzer(this.getSyntaxAnalyzer())
                     .build()
                     .parseAST(this);
             this.getMarkerFactory().addFactory(arguments.getMarkerFactory());
-            
+    
             if (arguments.isFailed()) {
                 this.failed();
                 return this;
             }
-            
-            this.setAnnotationArguments(arguments);
-        } else this.setAnnotationArguments(ArgumentListAST.builder()
-                .start(BadToken.builder()
-                        .start(-1)
-                        .end(-1)
-                        .build())
-                .end(BadToken.builder()
-                        .start(-1)
-                        .end(-1)
-                        .build())
-                .build());
+    
+            this.annotationArguments = arguments;
+        } else this.annotationArguments = ArgumentListAST.builder()
+                .startToken(BadToken.builder()
+                        .lexicalAnalyzer(this.getSyntaxAnalyzer().getCompilerClass().getLexicalAnalyzer())
+                        .build()
+                )
+                .endToken(BadToken.builder()
+                        .lexicalAnalyzer(this.getSyntaxAnalyzer().getCompilerClass().getLexicalAnalyzer())
+                        .build()
+                )
+                .build();
         
         this.setEndToken(this.getSyntaxAnalyzer().currentToken());
         this.getMarkerFactory().done(this.getEndToken());
@@ -149,8 +161,9 @@ public class AnnotationAST extends ArkoiASTNode
         this.getAnnotationStorage().add(this);
         
         if (ANNOTATION_PARSER.canParse(parentAST, this.getSyntaxAnalyzer())) {
-            final IASTNode astNode = AnnotationAST.builder(this.getSyntaxAnalyzer())
-                    .annotations(this.annotationStorage)
+            final IASTNode astNode = AnnotationAST.builder()
+                    .syntaxAnalyzer(this.getSyntaxAnalyzer())
+                    .annotationStorage(this.annotationStorage)
                     .build()
                     .parseAST(parentAST);
     
@@ -182,8 +195,9 @@ public class AnnotationAST extends ArkoiASTNode
                     "Annotation", "<function>, <variable> or <annotation>", this.getSyntaxAnalyzer().currentToken().getTokenContent()
             );
         } else if (this.getSyntaxAnalyzer().matchesCurrentToken(KeywordType.FUN) != null) {
-            final FunctionAST functionAST = FunctionAST.builder(this.getSyntaxAnalyzer())
-                    .annotations(this.getAnnotationStorage())
+            final FunctionAST functionAST = FunctionAST.builder()
+                    .syntaxAnalyzer(this.getSyntaxAnalyzer())
+                    .functionAnnotations(this.getAnnotationStorage())
                     .build()
                     .parseAST(parentAST);
     
@@ -194,15 +208,16 @@ public class AnnotationAST extends ArkoiASTNode
             this.failed();
             return this;
         } else {
-            final VariableAST variableAST = VariableAST.builder(this.getSyntaxAnalyzer())
-                    .annotations(this.getAnnotationStorage())
+            final VariableAST variableAST = VariableAST.builder()
+                    .syntaxAnalyzer(this.getSyntaxAnalyzer())
+                    .variableAnnotations(this.getAnnotationStorage())
                     .build()
                     .parseAST(parentAST);
-            
+    
             this.getMarkerFactory().addFactory(variableAST.getMarkerFactory());
             if (!variableAST.isFailed())
                 return variableAST;
-            
+    
             this.failed();
             return this;
         }
@@ -230,96 +245,6 @@ public class AnnotationAST extends ArkoiASTNode
         while (identifierCallAST.getNextIdentifierCall() != null)
             identifierCallAST = identifierCallAST.getNextIdentifierCall();
         return identifierCallAST.getCalledIdentifier();
-    }
-    
-    
-    public static AnnotationASTBuilder builder(@NotNull final SyntaxAnalyzer syntaxAnalyzer) {
-        return new AnnotationASTBuilder(syntaxAnalyzer);
-    }
-    
-    
-    public static AnnotationASTBuilder builder() {
-        return new AnnotationASTBuilder();
-    }
-    
-    
-    public static class AnnotationASTBuilder
-    {
-        
-        @Nullable
-        private final SyntaxAnalyzer syntaxAnalyzer;
-        
-        
-        @Nullable
-        private List<AnnotationAST> annotationStorage;
-        
-        
-        @Nullable
-        private ArgumentListAST annotationArguments;
-        
-        
-        @Nullable
-        private IdentifierCallAST annotationCall;
-        
-        
-        private ArkoiToken startToken, endToken;
-        
-        
-        public AnnotationASTBuilder(@NotNull final SyntaxAnalyzer syntaxAnalyzer) {
-            this.syntaxAnalyzer = syntaxAnalyzer;
-        }
-        
-        
-        public AnnotationASTBuilder() {
-            this.syntaxAnalyzer = null;
-        }
-        
-        
-        public AnnotationASTBuilder annotations(final List<AnnotationAST> annotationStorage) {
-            this.annotationStorage = annotationStorage;
-            return this;
-        }
-        
-        
-        public AnnotationASTBuilder call(final IdentifierCallAST annotationCall) {
-            this.annotationCall = annotationCall;
-            return this;
-        }
-        
-        
-        public AnnotationASTBuilder arguments(final ArgumentListAST annotationArguments) {
-            this.annotationArguments = annotationArguments;
-            return this;
-        }
-        
-        
-        public AnnotationASTBuilder start(final ArkoiToken startToken) {
-            this.startToken = startToken;
-            return this;
-        }
-        
-        
-        public AnnotationASTBuilder end(final ArkoiToken endToken) {
-            this.endToken = endToken;
-            return this;
-        }
-        
-        
-        public AnnotationAST build() {
-            final AnnotationAST annotationAST = new AnnotationAST(this.syntaxAnalyzer);
-            if (this.annotationStorage != null)
-                annotationAST.setAnnotationStorage(this.annotationStorage);
-            if (this.annotationCall != null)
-                annotationAST.setAnnotationCall(this.annotationCall);
-            if (this.annotationArguments != null)
-                annotationAST.setAnnotationArguments(this.annotationArguments);
-            annotationAST.setStartToken(this.startToken);
-            annotationAST.getMarkerFactory().getCurrentMarker().setStart(annotationAST.getStartToken());
-            annotationAST.setEndToken(this.endToken);
-            annotationAST.getMarkerFactory().getCurrentMarker().setEnd(annotationAST.getEndToken());
-            return annotationAST;
-        }
-        
     }
     
 }

@@ -340,7 +340,6 @@ public class ScopeVisitor implements IVisitor<IASTNode>, IFailed
             }
         }
         
-        
         if (identifierCallAST.getCalledFunctionPart() != null)
             this.visit(identifierCallAST.getCalledFunctionPart());
         
@@ -349,10 +348,12 @@ public class ScopeVisitor implements IVisitor<IASTNode>, IFailed
                     null,
                     identifierCallAST.getSyntaxAnalyzer().getCompilerClass(),
                     
-                    identifierCallAST.getCalledIdentifier().getStart(),
+                    identifierCallAST.getCalledIdentifier().getCharStart(),
                     identifierCallAST.getCalledFunctionPart() != null ?
-                            Objects.requireNonNull(identifierCallAST.getCalledFunctionPart().getEndToken(), "identifierCallAST.calledFunctionPart.endToken must not be null.").getEnd() :
-                            identifierCallAST.getCalledIdentifier().getEnd(),
+                            Objects.requireNonNull(identifierCallAST.getCalledFunctionPart().getEndToken(), "identifierCallAST.calledFunctionPart.endToken must not be null.").getCharEnd() :
+                            identifierCallAST.getCalledIdentifier().getCharEnd(),
+                    identifierCallAST.getCalledIdentifier().getLineRange(),
+                    
                     "Cannot resolve reference '%s'.", identifierCallAST.getCalledIdentifier().getTokenContent()
             );
         
@@ -530,10 +531,12 @@ public class ScopeVisitor implements IVisitor<IASTNode>, IFailed
     public <E> E addError(@Nullable E errorSource, @NotNull final ICompilerClass compilerClass, @NotNull final IASTNode astNode, @NotNull final String message, @NotNull final Object... arguments) {
         compilerClass.getSemanticAnalyzer().getErrorHandler().addError(ArkoiError.builder()
                 .compilerClass(compilerClass)
-                .positions(new int[][] { {
-                        Objects.requireNonNull(astNode.getStartToken()).getStart(),
-                        Objects.requireNonNull(astNode.getEndToken()).getEnd()
-                } })
+                .positions(Collections.singletonList(ArkoiError.ErrorPosition.builder()
+                        .lineRange(astNode.getLineRange())
+                        .charStart(Objects.requireNonNull(astNode.getStartToken(), "astNode.startToken must not be null.").getCharStart())
+                        .charEnd(Objects.requireNonNull(astNode.getEndToken(), "astNode.endToken must not be null.").getCharEnd())
+                        .build())
+                )
                 .message(message)
                 .arguments(arguments)
                 .build()
@@ -547,10 +550,12 @@ public class ScopeVisitor implements IVisitor<IASTNode>, IFailed
     public <E> E addError(@Nullable E errorSource, @NotNull final ICompilerClass compilerClass, @NotNull final ArkoiToken arkoiToken, @NotNull final String message, @NotNull final Object... arguments) {
         compilerClass.getSemanticAnalyzer().getErrorHandler().addError(ArkoiError.builder()
                 .compilerClass(compilerClass)
-                .positions(new int[][] { {
-                        arkoiToken.getStart(),
-                        arkoiToken.getEnd()
-                } })
+                .positions(Collections.singletonList(ArkoiError.ErrorPosition.builder()
+                        .lineRange(arkoiToken.getLineRange())
+                        .charStart(arkoiToken.getCharStart())
+                        .charEnd(arkoiToken.getCharEnd())
+                        .build())
+                )
                 .message(message)
                 .arguments(arguments)
                 .build()
@@ -561,10 +566,15 @@ public class ScopeVisitor implements IVisitor<IASTNode>, IFailed
     }
     
     
-    public <E> E addError(@Nullable E errorSource, @NotNull final ICompilerClass compilerClass, final int start, final int end, @NotNull final String message, @NotNull final Object... arguments) {
+    public <E> E addError(@Nullable E errorSource, @NotNull final ICompilerClass compilerClass, final int start, final int end, @Nullable final ArkoiError.ErrorPosition.LineRange lineRange, @NotNull final String message, @NotNull final Object... arguments) {
         compilerClass.getSemanticAnalyzer().getErrorHandler().addError(ArkoiError.builder()
                 .compilerClass(compilerClass)
-                .positions(new int[][] { { start, end } })
+                .positions(Collections.singletonList(ArkoiError.ErrorPosition.builder()
+                        .lineRange(lineRange)
+                        .charStart(start)
+                        .charEnd(end)
+                        .build())
+                )
                 .message(message)
                 .arguments(arguments)
                 .build()

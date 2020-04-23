@@ -22,12 +22,11 @@ import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.LexicalAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.ArkoiToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.SymbolType;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Arrays;
 import java.util.Objects;
 
 public class SymbolToken extends ArkoiToken
@@ -35,12 +34,23 @@ public class SymbolToken extends ArkoiToken
     
     @Getter
     @Setter(AccessLevel.PROTECTED)
-    @NotNull
+    @Nullable
     private SymbolType symbolType;
     
     
-    protected SymbolToken(@Nullable final LexicalAnalyzer lexicalAnalyzer) {
-        super(lexicalAnalyzer, TokenType.SYMBOL);
+    @Builder
+    public SymbolToken(
+            @Nullable final LexicalAnalyzer lexicalAnalyzer,
+            @NotNull final String tokenContent,
+            @Nullable final SymbolType symbolType,
+            final int startLine,
+            final int charStart,
+            final int endLine,
+            final int charEnd
+    ) {
+        super(lexicalAnalyzer, TokenType.SYMBOL, tokenContent, startLine, charStart, endLine, charEnd);
+        
+        this.setSymbolType(symbolType);
     }
     
     
@@ -48,112 +58,41 @@ public class SymbolToken extends ArkoiToken
     public @NotNull ArkoiToken parseToken() {
         Objects.requireNonNull(this.getLexicalAnalyzer(), "lexicalAnalyzer must not be null.");
         
+        this.setCharStart(this.getLexicalAnalyzer().getLineIndex(), this.getLexicalAnalyzer().getCharIndex());
+        this.setCharEnd(this.getLexicalAnalyzer().getLineIndex(), this.getLexicalAnalyzer().getCharIndex() + 1);
+        this.setTokenContent(Objects.requireNonNull(this.getLineRange().getSourceCode(), "lineRange.sourceCode must not be null.").substring(
+                this.getCharStart(),
+                this.getCharEnd()
+        ));
+        
         final char currentChar = this.getLexicalAnalyzer().currentChar();
-        this.setTokenContent(String.valueOf(currentChar));
         
-        SymbolType symbolType = null;
-        for (final SymbolType type : SymbolType.values()) {
-            if (type.getCharacter() != currentChar)
-                continue;
-            
-            symbolType = type;
-            break;
-        }
-        
+        final SymbolType symbolType = Arrays.stream(SymbolType.values())
+                .filter(typeToCheck -> typeToCheck.getCharacter() == currentChar)
+                .findAny()
+                .orElse(null);
         if (symbolType == null)
             return this.addError(
-                    BadToken.builder(this.getLexicalAnalyzer())
-                            .start(this.getLexicalAnalyzer().getPosition())
-                            .end(this.getLexicalAnalyzer().getPosition() + 1)
+                    BadToken.builder()
+                            .lexicalAnalyzer(this.getLexicalAnalyzer())
+                            .startLine(this.getLexicalAnalyzer().getLineIndex())
+                            .charStart(this.getLexicalAnalyzer().getCharIndex())
+                            .endLine(this.getLexicalAnalyzer().getLineIndex())
+                            .charEnd(this.getLexicalAnalyzer().getCharIndex() + 1)
                             .build()
                             .parseToken(),
-                
+                    
                     this.getLexicalAnalyzer().getCompilerClass(),
-                    this.getLexicalAnalyzer().getPosition(),
+                    
+                    this.getLexicalAnalyzer().getCharIndex(),
+                    this.getLexicalAnalyzer().getLineIndex(),
+                    
                     "Couldn't lex this symbol because it isn't supported."
             );
         
-        this.setSymbolType(symbolType);
-        this.setStart(this.getLexicalAnalyzer().getPosition());
-        this.setEnd(this.getLexicalAnalyzer().getPosition() + 1);
         this.getLexicalAnalyzer().next();
+        this.setSymbolType(symbolType);
         return this;
-    }
-    
-    
-    public static SymbolTokenBuilder builder(@NotNull final LexicalAnalyzer lexicalAnalyzer) {
-        return new SymbolTokenBuilder(lexicalAnalyzer);
-    }
-    
-    
-    public static SymbolTokenBuilder builder() {
-        return new SymbolTokenBuilder();
-    }
-    
-    
-    public static class SymbolTokenBuilder
-    {
-        
-        @Nullable
-        private final LexicalAnalyzer lexicalAnalyzer;
-        
-        
-        @Nullable
-        private SymbolType symbolType;
-        
-        
-        @Nullable
-        private String tokenContent;
-        
-        
-        private int start, end;
-        
-        
-        public SymbolTokenBuilder(@NotNull final LexicalAnalyzer lexicalAnalyzer) {
-            this.lexicalAnalyzer = lexicalAnalyzer;
-        }
-        
-        
-        public SymbolTokenBuilder() {
-            this.lexicalAnalyzer = null;
-        }
-        
-        
-        public SymbolTokenBuilder type(final SymbolType symbolType) {
-            this.symbolType = symbolType;
-            return this;
-        }
-        
-        
-        public SymbolTokenBuilder content(final String tokenContent) {
-            this.tokenContent = tokenContent;
-            return this;
-        }
-        
-        
-        public SymbolTokenBuilder start(final int start) {
-            this.start = start;
-            return this;
-        }
-        
-        
-        public SymbolTokenBuilder end(final int end) {
-            this.end = end;
-            return this;
-        }
-        
-        
-        public SymbolToken build() {
-            final SymbolToken symbolToken = new SymbolToken(this.lexicalAnalyzer);
-            if (this.tokenContent != null)
-                symbolToken.setTokenContent(this.tokenContent);
-            if (this.symbolType != null)
-                symbolToken.setSymbolType(this.symbolType);
-            symbolToken.setStart(this.start);
-            symbolToken.setEnd(this.end);
-            return symbolToken;
-        }
-        
     }
     
 }

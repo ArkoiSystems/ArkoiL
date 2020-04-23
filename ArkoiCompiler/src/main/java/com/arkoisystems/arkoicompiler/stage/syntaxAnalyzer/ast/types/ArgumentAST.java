@@ -19,8 +19,8 @@
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types;
 
 import com.arkoisystems.arkoicompiler.api.IASTNode;
+import com.arkoisystems.arkoicompiler.api.IToken;
 import com.arkoisystems.arkoicompiler.api.IVisitor;
-import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.ArkoiToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.IdentifierToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.OperatorType;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
@@ -31,13 +31,17 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.Op
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.ExpressionAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.marker.ArkoiMarker;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.marker.MarkerFactory;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.parsers.ArgumentParser;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.Objects;
 
 public class ArgumentAST extends ArkoiASTNode
@@ -47,19 +51,29 @@ public class ArgumentAST extends ArkoiASTNode
     
     
     @Getter
-    @Setter(AccessLevel.PROTECTED)
     @Nullable
     private IdentifierToken argumentName;
     
     
     @Getter
-    @Setter(AccessLevel.PROTECTED)
     @Nullable
     private OperableAST argumentExpression;
     
     
-    protected ArgumentAST(@Nullable final SyntaxAnalyzer syntaxAnalyzer) {
-        super(syntaxAnalyzer, ASTType.ARGUMENT);
+    @Builder
+    private ArgumentAST(
+            @Nullable final SyntaxAnalyzer syntaxAnalyzer,
+            @Nullable final OperableAST argumentExpression,
+            @Nullable final IdentifierToken argumentName,
+            @Nullable final IToken startToken,
+            @Nullable final IToken endToken
+    ) {
+        super(null, syntaxAnalyzer, ASTType.ARGUMENT, startToken, endToken);
+    
+        this.argumentExpression = argumentExpression;
+        this.argumentName = argumentName;
+    
+        this.setMarkerFactory(new MarkerFactory<>(new ArkoiMarker<>(this.getAstType()), this));
     }
     
     
@@ -78,10 +92,9 @@ public class ArgumentAST extends ArkoiASTNode
                     "Argument", "<identifier>", this.getSyntaxAnalyzer().currentToken().getTokenContent()
             );
         
-        this.setStartToken(this.getSyntaxAnalyzer().currentToken());
-        this.getMarkerFactory().mark(this.getStartToken());
+        this.startAST(this.getSyntaxAnalyzer().currentToken());
         
-        this.setArgumentName((IdentifierToken) this.getSyntaxAnalyzer().currentToken());
+        this.argumentName = (IdentifierToken) this.getSyntaxAnalyzer().currentToken();
         
         if (this.getSyntaxAnalyzer().matchesPeekToken(1, OperatorType.EQUALS) == null)
             return this.addError(
@@ -113,10 +126,9 @@ public class ArgumentAST extends ArkoiASTNode
             return this;
         }
         
-        this.setArgumentExpression(operableAST);
+        this.argumentExpression = operableAST;
         
-        this.setEndToken(this.getSyntaxAnalyzer().currentToken());
-        this.getMarkerFactory().done(this.getEndToken());
+        this.endAST(this.getSyntaxAnalyzer().currentToken());
         return this;
     }
     
@@ -132,84 +144,6 @@ public class ArgumentAST extends ArkoiASTNode
         Objects.requireNonNull(this.getArgumentExpression(), "argumentExpression must not be null.");
         
         return this.getArgumentExpression().getTypeKind();
-    }
-    
-    
-    public static ArgumentASTBuilder builder(@NotNull final SyntaxAnalyzer syntaxAnalyzer) {
-        return new ArgumentASTBuilder(syntaxAnalyzer);
-    }
-    
-    
-    public static ArgumentASTBuilder builder() {
-        return new ArgumentASTBuilder();
-    }
-    
-    
-    public static class ArgumentASTBuilder
-    {
-        
-        @Nullable
-        private final SyntaxAnalyzer syntaxAnalyzer;
-        
-        
-        @Nullable
-        private IdentifierToken argumentName;
-        
-        
-        @Nullable
-        private OperableAST argumentExpression;
-        
-        
-        private ArkoiToken startToken, endToken;
-        
-        
-        public ArgumentASTBuilder(@NotNull final SyntaxAnalyzer syntaxAnalyzer) {
-            this.syntaxAnalyzer = syntaxAnalyzer;
-        }
-        
-        
-        public ArgumentASTBuilder() {
-            this.syntaxAnalyzer = null;
-        }
-        
-        
-        public ArgumentASTBuilder name(final IdentifierToken argumentName) {
-            this.argumentName = argumentName;
-            return this;
-        }
-        
-        
-        public ArgumentASTBuilder expression(final OperableAST argumentExpression) {
-            this.argumentExpression = argumentExpression;
-            return this;
-        }
-        
-        
-        public ArgumentASTBuilder start(final ArkoiToken startToken) {
-            this.startToken = startToken;
-            return this;
-        }
-        
-        
-        public ArgumentASTBuilder end(final ArkoiToken endToken) {
-            this.endToken = endToken;
-            return this;
-        }
-        
-        
-        public ArgumentAST build() {
-            final ArgumentAST parameterAST = new ArgumentAST(this.syntaxAnalyzer);
-            if (this.argumentName != null)
-                parameterAST.setArgumentName(this.argumentName);
-            if (this.argumentExpression != null)
-                parameterAST.setArgumentExpression(this.argumentExpression);
-            parameterAST.setStartToken(this.startToken);
-            parameterAST.getMarkerFactory().getCurrentMarker().setStart(parameterAST.getStartToken());
-            parameterAST.setEndToken(this.endToken);
-            parameterAST.getMarkerFactory().getCurrentMarker().setEnd(parameterAST.getEndToken());
-            return parameterAST;
-        }
-        
     }
     
 }

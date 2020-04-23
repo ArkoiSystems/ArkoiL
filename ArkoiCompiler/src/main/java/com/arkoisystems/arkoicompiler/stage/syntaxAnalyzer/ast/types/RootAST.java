@@ -20,6 +20,7 @@ package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types;
 
 import com.arkoisystems.arkoicompiler.api.IASTNode;
 import com.arkoisystems.arkoicompiler.api.ISyntaxParser;
+import com.arkoisystems.arkoicompiler.api.IToken;
 import com.arkoisystems.arkoicompiler.api.IVisitor;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxErrorType;
@@ -27,14 +28,16 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.ArkoiASTNode;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.StatementAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.marker.ArkoiMarker;
+import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.marker.MarkerFactory;
+import lombok.Builder;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 public class RootAST extends ArkoiASTNode
 {
@@ -47,11 +50,19 @@ public class RootAST extends ArkoiASTNode
     
     @Getter
     @NotNull
-    private final List<IASTNode> astNodes = new ArrayList<>();
+    private final List<IASTNode> astNodes;
     
     
-    public RootAST(@NotNull final SyntaxAnalyzer syntaxAnalyzer) {
-        super(syntaxAnalyzer, ASTType.ROOT);
+    @Builder
+    private RootAST(
+            @Nullable final SyntaxAnalyzer syntaxAnalyzer,
+            @Nullable final IToken startToken,
+            @Nullable final IToken endToken
+    ) {
+        super(null, syntaxAnalyzer, ASTType.ROOT, startToken, endToken);
+        
+        this.astNodes = new ArrayList<>();
+        this.setMarkerFactory(new MarkerFactory<>(new ArkoiMarker<>(this.getAstType()), this));
     }
     
     
@@ -61,8 +72,7 @@ public class RootAST extends ArkoiASTNode
         Objects.requireNonNull(this.getSyntaxAnalyzer(), "syntaxAnalyzer must not be null.");
         Objects.requireNonNull(this.getMarkerFactory(), "markerFactory must not be null.");
         
-        this.setStartToken(this.getSyntaxAnalyzer().currentToken(false));
-        this.getMarkerFactory().mark(this.getStartToken());
+        this.startAST(this.getSyntaxAnalyzer().currentToken(false));
         
         main_loop:
         while (this.getSyntaxAnalyzer().getPosition() < this.getSyntaxAnalyzer().getTokens().length) {
@@ -82,7 +92,7 @@ public class RootAST extends ArkoiASTNode
                 this.getSyntaxAnalyzer().nextToken();
                 continue main_loop;
             }
-            
+    
             this.addError(
                     null,
                     this.getSyntaxAnalyzer().getCompilerClass(),
@@ -91,9 +101,8 @@ public class RootAST extends ArkoiASTNode
             );
             this.skipToNextValidToken();
         }
-    
-        this.setEndToken(this.getSyntaxAnalyzer().currentToken());
-        this.getMarkerFactory().done(this.getEndToken());
+        
+        this.endAST(this.getSyntaxAnalyzer().currentToken());
         return this;
     }
     
