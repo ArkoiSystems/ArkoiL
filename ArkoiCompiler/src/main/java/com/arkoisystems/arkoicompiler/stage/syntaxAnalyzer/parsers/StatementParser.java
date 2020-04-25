@@ -44,6 +44,9 @@ public class StatementParser implements ISyntaxParser
     @Override
     public boolean canParse(@NotNull final IASTNode parentAST, @NotNull final SyntaxAnalyzer syntaxAnalyzer) {
         final ArkoiToken currentToken = syntaxAnalyzer.currentToken();
+        if(currentToken == null)
+            return false;
+        
         if (parentAST instanceof ExpressionAST) {
             switch (currentToken.getTokenContent()) {
                 case "var":

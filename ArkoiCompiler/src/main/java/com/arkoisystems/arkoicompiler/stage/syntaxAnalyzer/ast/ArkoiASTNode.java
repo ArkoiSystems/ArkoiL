@@ -22,6 +22,7 @@ import com.arkoisystems.arkoicompiler.ArkoiError;
 import com.arkoisystems.arkoicompiler.api.IASTNode;
 import com.arkoisystems.arkoicompiler.api.ICompilerClass;
 import com.arkoisystems.arkoicompiler.api.IToken;
+import com.arkoisystems.arkoicompiler.api.IVisitor;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.ArkoiToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.SymbolType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
@@ -29,6 +30,7 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.marker.ArkoiMarker;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.marker.MarkerFactory;
+import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -43,7 +45,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public abstract class ArkoiASTNode implements IASTNode
+public class ArkoiASTNode implements IASTNode
 {
     
     @Getter
@@ -82,6 +84,7 @@ public abstract class ArkoiASTNode implements IASTNode
     private boolean failed;
     
     
+    @Builder(builderMethodName = "nodeBuilder")
     public ArkoiASTNode(
             @Nullable final SyntaxAnalyzer syntaxAnalyzer,
             @NotNull final ASTType astType,
@@ -89,13 +92,13 @@ public abstract class ArkoiASTNode implements IASTNode
             @Nullable final IToken endToken
     ) {
         this.markerFactory = new MarkerFactory<>(new ArkoiMarker<>(astType));
-    
+        
         this.syntaxAnalyzer = syntaxAnalyzer;
         this.astType = astType;
-    
+        
         this.startToken = startToken;
         this.endToken = endToken;
-    
+        
         this.startAST(startToken);
         this.endAST(endToken);
     }
@@ -130,19 +133,29 @@ public abstract class ArkoiASTNode implements IASTNode
     
     @NotNull
     @Override
-    public abstract IASTNode parseAST(@NotNull final IASTNode parentAST);
+    public IASTNode parseAST(final IASTNode parentAST) {
+        return this;
+    }
     
     
     @NotNull
-    public abstract TypeKind getTypeKind();
+    public TypeKind getTypeKind() {
+        return TypeKind.UNDEFINED;
+    }
     
     
     @Override
-    public <E> E addError(@Nullable final E errorSource, @NotNull final ICompilerClass compilerClass, @NotNull final IASTNode[] astNodes, @NotNull final String message, @NotNull final Object... arguments) {
+    public void accept(final @NotNull IVisitor<?> visitor) {
+    
+    }
+    
+    
+    @Override
+    public <E> E addError(@Nullable final E errorSource, @NotNull final ICompilerClass compilerClass, final @Nullable IASTNode[] astNodes, @NotNull final String message, @NotNull final Object... arguments) {
         compilerClass.getSyntaxAnalyzer().getErrorHandler().addError(ArkoiError.builder()
                 .compilerClass(compilerClass)
                 .positions(Arrays.stream(astNodes).map(astNode -> ArkoiError.ErrorPosition.builder()
-                                .lineRange(astNode.getLineRange())
+                                .lineRange(Objects.requireNonNull(astNode, "astNode must not be null.").getLineRange())
                                 .charStart(Objects.requireNonNull(astNode.getStartToken(), "astNode.startToken must not be null.").getCharStart())
                                 .charEnd(Objects.requireNonNull(astNode.getEndToken(), "astNode.endToken must not be null.").getCharEnd())
                                 .build()
@@ -160,13 +173,26 @@ public abstract class ArkoiASTNode implements IASTNode
     
     
     @Override
-    public <E> E addError(@Nullable final E errorSource, @NotNull final ICompilerClass compilerClass, @NotNull final IASTNode astNode, @NotNull final String message, @NotNull final Object... arguments) {
+    public <E> E addError(@Nullable final E errorSource, @NotNull final ICompilerClass compilerClass, final @Nullable IASTNode astNode, @NotNull final String message, @NotNull final Object... arguments) {
+        final ArkoiError.ErrorPosition.LineRange lineRange;
+        final int charStart, charEnd;
+        if (astNode != null) {
+            lineRange = astNode.getLineRange();
+            charStart = Objects.requireNonNull(astNode.getStartToken(), "astNode.startToken must not be null.").getCharStart();
+            charEnd = Objects.requireNonNull(astNode.getStartToken(), "astNode.startToken must not be null.").getCharEnd();
+        } else {
+            final String[] sourceSplit = new String(compilerClass.getContent()).split(System.getProperty("line.separator"));
+            lineRange = ArkoiError.ErrorPosition.LineRange.make(compilerClass, sourceSplit.length - 1, sourceSplit.length - 1);
+            charStart = sourceSplit[sourceSplit.length - 1].length() - 1;
+            charEnd = sourceSplit[sourceSplit.length - 1].length();
+        }
+        
         compilerClass.getSyntaxAnalyzer().getErrorHandler().addError(ArkoiError.builder()
                 .compilerClass(compilerClass)
                 .positions(Collections.singletonList(ArkoiError.ErrorPosition.builder()
-                        .lineRange(astNode.getLineRange())
-                        .charStart(Objects.requireNonNull(astNode.getStartToken(), "astNode.startToken must not be null.").getCharStart())
-                        .charEnd(Objects.requireNonNull(astNode.getEndToken(), "astNode.endToken must not be null.").getCharEnd())
+                        .lineRange(lineRange)
+                        .charStart(charStart)
+                        .charEnd(charEnd)
                         .build())
                 )
                 .message(message)
@@ -181,13 +207,26 @@ public abstract class ArkoiASTNode implements IASTNode
     
     
     @Override
-    public <E> E addError(@Nullable final E errorSource, @NotNull final ICompilerClass compilerClass, @NotNull final ArkoiToken arkoiToken, @NotNull final String message, @NotNull final Object... arguments) {
+    public <E> E addError(@Nullable final E errorSource, @NotNull final ICompilerClass compilerClass, final @Nullable ArkoiToken arkoiToken, @NotNull final String message, @NotNull final Object... arguments) {
+        final ArkoiError.ErrorPosition.LineRange lineRange;
+        final int charStart, charEnd;
+        if (arkoiToken != null) {
+            lineRange = arkoiToken.getLineRange();
+            charStart = arkoiToken.getCharStart();
+            charEnd = arkoiToken.getCharEnd();
+        } else {
+            final String[] sourceSplit = new String(compilerClass.getContent()).split(System.getProperty("line.separator"));
+            lineRange = ArkoiError.ErrorPosition.LineRange.make(compilerClass, sourceSplit.length - 1, sourceSplit.length - 1);
+            charStart = sourceSplit[sourceSplit.length - 1].length() - 1;
+            charEnd = sourceSplit[sourceSplit.length - 1].length();
+        }
+        
         compilerClass.getSyntaxAnalyzer().getErrorHandler().addError(ArkoiError.builder()
                 .compilerClass(compilerClass)
                 .positions(Collections.singletonList(ArkoiError.ErrorPosition.builder()
-                        .lineRange(arkoiToken.getLineRange())
-                        .charStart(arkoiToken.getCharStart())
-                        .charEnd(arkoiToken.getCharEnd())
+                        .lineRange(lineRange)
+                        .charStart(charStart)
+                        .charEnd(charEnd)
                         .build())
                 )
                 .message(message)

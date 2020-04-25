@@ -45,7 +45,7 @@ public class OperableAST extends ArkoiASTNode
     
     
     @Builder(builderMethodName = "operableBuilder")
-    public OperableAST(
+    protected OperableAST(
             @Nullable final SyntaxAnalyzer syntaxAnalyzer,
             @NotNull final ASTType astType,
             @Nullable final IToken startToken,
@@ -59,8 +59,19 @@ public class OperableAST extends ArkoiASTNode
     @Override
     public OperableAST parseAST(@NotNull final IASTNode parentAST) {
         Objects.requireNonNull(this.getSyntaxAnalyzer(), "syntaxAnalyzer must not be null.");
-        
+    
         final ArkoiToken currentToken = this.getSyntaxAnalyzer().currentToken();
+        if (currentToken == null) {
+            return this.addError(
+                    this,
+                    this.getSyntaxAnalyzer().getCompilerClass(),
+                    (@Nullable ArkoiToken) null,
+                
+                    SyntaxErrorType.SYNTAX_ERROR_TEMPLATE,
+                    "Operable", "<token>", "nothing"
+            );
+        }
+        
         switch (currentToken.getTokenType()) {
             case STRING_LITERAL:
                 return StringAST.builder()
@@ -73,31 +84,30 @@ public class OperableAST extends ArkoiASTNode
                         .build()
                         .parseAST(parentAST);
             case SYMBOL:
-                if (this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.OPENING_BRACKET) == null) {
+                if (this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.OPENING_BRACKET) == null)
                     return this.addError(
                             this,
                             this.getSyntaxAnalyzer().getCompilerClass(),
                             currentToken,
         
                             SyntaxErrorType.SYNTAX_ERROR_TEMPLATE,
-                            "Operable", "'['", this.getSyntaxAnalyzer().currentToken().getTokenContent()
+                            "Operable", "'['", currentToken.getTokenContent()
                     );
-                }
+                    
                 return CollectionAST.builder()
                         .syntaxAnalyzer(this.getSyntaxAnalyzer())
                         .build()
                         .parseAST(parentAST);
             case IDENTIFIER:
-                if (!StatementAST.STATEMENT_PARSER.canParse(parentAST, this.getSyntaxAnalyzer())) {
+                if (!StatementAST.STATEMENT_PARSER.canParse(parentAST, this.getSyntaxAnalyzer()))
                     return this.addError(
                             this,
                             this.getSyntaxAnalyzer().getCompilerClass(),
                             currentToken,
                 
                             SyntaxErrorType.SYNTAX_ERROR_TEMPLATE,
-                            "Operable", "<statement>", this.getSyntaxAnalyzer().currentToken().getTokenContent()
+                            "Operable", "<statement>", currentToken.getTokenContent()
                     );
-                }
     
                 final IASTNode astNode = StatementAST.STATEMENT_PARSER.parse(parentAST, this.getSyntaxAnalyzer());
                 this.getMarkerFactory().addFactory(astNode.getMarkerFactory());
@@ -111,7 +121,7 @@ public class OperableAST extends ArkoiASTNode
                         astNode,
             
                         SyntaxErrorType.SYNTAX_ERROR_TEMPLATE,
-                        "Function", "<identifier call>", this.getSyntaxAnalyzer().currentToken().getTokenContent()
+                        "Function", "<identifier call>", currentToken.getTokenContent()
                 );
             case KEYWORD:
                 if (this.getSyntaxAnalyzer().matchesCurrentToken(KeywordType.THIS) == null)
@@ -121,7 +131,7 @@ public class OperableAST extends ArkoiASTNode
                             currentToken,
                             
                             SyntaxErrorType.SYNTAX_ERROR_TEMPLATE,
-                            "Function", "'this'", this.getSyntaxAnalyzer().currentToken().getTokenContent()
+                            "Function", "'this'", currentToken.getTokenContent()
                     );
                 
                 return IdentifierCallAST.builder()

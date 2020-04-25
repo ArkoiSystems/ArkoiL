@@ -22,6 +22,7 @@ import com.arkoisystems.arkoicompiler.api.IASTNode;
 import com.arkoisystems.arkoicompiler.api.ISyntaxParser;
 import com.arkoisystems.arkoicompiler.api.IToken;
 import com.arkoisystems.arkoicompiler.api.IVisitor;
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.ArkoiToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.OperatorType;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.SymbolType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
@@ -36,7 +37,6 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.parsers.BlockParser;
 import lombok.Builder;
 import lombok.Getter;
-import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -93,16 +93,19 @@ public class BlockAST extends ArkoiASTNode
                 return blockAST;
         } else if (this.getSyntaxAnalyzer().matchesCurrentToken(OperatorType.EQUALS) != null) {
             final BlockAST blockAST = this.parseInlinedBlock();
-            if(blockAST != null)
+            if (blockAST != null)
                 return blockAST;
-        } else return this.addError(
-                this,
-                this.getSyntaxAnalyzer().getCompilerClass(),
-                this.getSyntaxAnalyzer().currentToken(),
-        
-                SyntaxErrorType.SYNTAX_ERROR_TEMPLATE,
-                "Parameter", "'{' or '='", this.getSyntaxAnalyzer().currentToken().getTokenContent()
-        );
+        } else {
+            final ArkoiToken currentToken = this.getSyntaxAnalyzer().currentToken();
+            return this.addError(
+                    this,
+                    this.getSyntaxAnalyzer().getCompilerClass(),
+                    currentToken,
+            
+                    SyntaxErrorType.SYNTAX_ERROR_TEMPLATE,
+                    "Parameter", "'{' or '='", currentToken != null ? currentToken.getTokenContent() : "nothing"
+            );
+        }
         
         this.endAST(this.getSyntaxAnalyzer().currentToken());
         return this;
@@ -154,19 +157,21 @@ public class BlockAST extends ArkoiASTNode
     @Nullable
     private BlockAST parseInlinedBlock() {
         Objects.requireNonNull(this.getSyntaxAnalyzer(), "syntaxAnalyzer must not be null.");
-        
+    
         this.blockType = BlockType.INLINE;
         this.getSyntaxAnalyzer().nextToken();
     
-        if (!ExpressionAST.EXPRESSION_PARSER.canParse(this, this.getSyntaxAnalyzer()))
+        if (!ExpressionAST.EXPRESSION_PARSER.canParse(this, this.getSyntaxAnalyzer())) {
+            final ArkoiToken currentToken = this.getSyntaxAnalyzer().currentToken();
             return this.addError(
                     this,
                     this.getSyntaxAnalyzer().getCompilerClass(),
-                    this.getSyntaxAnalyzer().currentToken(),
+                    currentToken,
                 
                     SyntaxErrorType.SYNTAX_ERROR_TEMPLATE,
-                    "Block", "<expression>", this.getSyntaxAnalyzer().currentToken().getTokenContent()
+                    "Block", "<expression>", currentToken != null ? currentToken.getTokenContent() : "nothing"
             );
+        }
     
         final OperableAST operableAST = ExpressionAST.EXPRESSION_PARSER.parse(this, this.getSyntaxAnalyzer());
         this.getMarkerFactory().addFactory(operableAST.getMarkerFactory());

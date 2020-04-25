@@ -51,7 +51,7 @@ public class LogicalExpressionAST extends ExpressionAST
     
     
     @Builder
-    public LogicalExpressionAST(
+    private LogicalExpressionAST(
             @Nullable final LogicalOperatorType logicalOperatorType,
             @Nullable final OperableAST rightSideOperable,
             @Nullable final SyntaxAnalyzer syntaxAnalyzer,

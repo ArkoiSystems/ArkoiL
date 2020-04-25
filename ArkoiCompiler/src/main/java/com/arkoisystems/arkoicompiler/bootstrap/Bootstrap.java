@@ -73,7 +73,7 @@ public class Bootstrap
             arkoiCompiler.addFile(targetPath, Boolean.parseBoolean(commandLine.getOptionValue("detailed")));
         }
         
-        if (!arkoiCompiler.compile()) {
+        if (!arkoiCompiler.compile(System.out)) {
             System.err.println("Couldn't compile the file. Please see the stacktrace for errors:");
             arkoiCompiler.printStackTrace(System.err);
         }

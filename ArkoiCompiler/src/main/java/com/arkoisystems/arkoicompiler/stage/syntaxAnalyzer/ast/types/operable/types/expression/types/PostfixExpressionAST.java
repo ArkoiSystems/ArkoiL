@@ -48,7 +48,7 @@ public class PostfixExpressionAST extends ExpressionAST
     
     
     @Builder
-    public PostfixExpressionAST(
+    private PostfixExpressionAST(
             @Nullable final PostfixOperatorType postfixOperatorType,
             @Nullable final OperableAST leftSideOperable,
             @Nullable SyntaxAnalyzer syntaxAnalyzer,

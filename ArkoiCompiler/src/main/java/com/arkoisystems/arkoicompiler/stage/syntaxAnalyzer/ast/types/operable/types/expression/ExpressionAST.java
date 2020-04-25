@@ -71,7 +71,7 @@ public class ExpressionAST extends OperableAST
     
     
     @Builder(builderMethodName = "expressionBuilder")
-    public ExpressionAST(
+    protected ExpressionAST(
             @Nullable final SyntaxAnalyzer syntaxAnalyzer,
             @Nullable final OperableAST operableAST,
             @NotNull final ASTType astType,

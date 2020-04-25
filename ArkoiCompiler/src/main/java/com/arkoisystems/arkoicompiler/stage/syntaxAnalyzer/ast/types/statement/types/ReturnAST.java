@@ -21,6 +21,7 @@ package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.
 import com.arkoisystems.arkoicompiler.api.IASTNode;
 import com.arkoisystems.arkoicompiler.api.IToken;
 import com.arkoisystems.arkoicompiler.api.IVisitor;
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.ArkoiToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.KeywordType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxErrorType;
@@ -45,7 +46,7 @@ public class ReturnAST extends StatementAST
     
     
     @Builder
-    public ReturnAST(
+    private ReturnAST(
             @Nullable final SyntaxAnalyzer syntaxAnalyzer,
             @Nullable final OperableAST returnExpression,
             @Nullable final IToken startToken,
@@ -59,33 +60,35 @@ public class ReturnAST extends StatementAST
     
     @NotNull
     @Override
-    public ReturnAST parseAST(@NotNull final IASTNode parentAST) {
+    public ReturnAST parseAST(@Nullable final IASTNode parentAST) {
         Objects.requireNonNull(this.getSyntaxAnalyzer(), "syntaxAnalyzer must not be null.");
         
         if (this.getSyntaxAnalyzer().matchesCurrentToken(KeywordType.RETURN) == null) {
+            final ArkoiToken currentToken = this.getSyntaxAnalyzer().currentToken();
             return this.addError(
                     this,
                     this.getSyntaxAnalyzer().getCompilerClass(),
-                    this.getSyntaxAnalyzer().currentToken(),
+                    currentToken,
                     
                     SyntaxErrorType.SYNTAX_ERROR_TEMPLATE,
-                    "Return", "'return'", this.getSyntaxAnalyzer().currentToken().getTokenContent()
+                    "Return", "'return'", currentToken != null ? currentToken.getTokenContent() : "nothing"
             );
         }
         
         this.startAST(this.getSyntaxAnalyzer().currentToken());
-        
         this.getSyntaxAnalyzer().nextToken();
         
-        if (!ExpressionAST.EXPRESSION_PARSER.canParse(this, this.getSyntaxAnalyzer()))
+        if (!ExpressionAST.EXPRESSION_PARSER.canParse(this, this.getSyntaxAnalyzer())) {
+            final ArkoiToken currentToken = this.getSyntaxAnalyzer().currentToken();
             return this.addError(
                     this,
                     this.getSyntaxAnalyzer().getCompilerClass(),
-                    this.getSyntaxAnalyzer().currentToken(),
-                    
+                    currentToken,
+            
                     SyntaxErrorType.SYNTAX_ERROR_TEMPLATE,
-                    "Return", "<expression>", this.getSyntaxAnalyzer().currentToken().getTokenContent()
+                    "Return", "<expression>", currentToken != null ? currentToken.getTokenContent() : "nothing"
             );
+        }
         
         final OperableAST operableAST = ExpressionAST.EXPRESSION_PARSER.parse(this, this.getSyntaxAnalyzer());
         this.getMarkerFactory().addFactory(operableAST.getMarkerFactory());
@@ -96,7 +99,6 @@ public class ReturnAST extends StatementAST
         }
         
         this.returnExpression = operableAST;
-        
         this.endAST(this.getSyntaxAnalyzer().currentToken());
         return this;
     }

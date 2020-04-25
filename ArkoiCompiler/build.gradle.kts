@@ -1,8 +1,6 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
 plugins {
 	java
-	kotlin("jvm") version "1.3.71"
+	groovy
 }
 
 group = "com.arkoisystems"
@@ -21,20 +19,11 @@ dependencies {
 	
 	compile("commons-cli", "commons-cli", "1.4")
 	
-	implementation(kotlin("stdlib-jdk8"))
+	compile("org.codehaus.groovy", "groovy-all", "2.4.8")
+	testCompile("org.spockframework", "spock-core", "1.1-groovy-2.4-rc-2")
 }
 
 configure<JavaPluginConvention> {
 	sourceCompatibility = JavaVersion.VERSION_11
 	targetCompatibility = JavaVersion.VERSION_11
-}
-
-val compileKotlin: KotlinCompile by tasks
-compileKotlin.kotlinOptions {
-	jvmTarget = "1.8"
-}
-
-val compileTestKotlin: KotlinCompile by tasks
-compileTestKotlin.kotlinOptions {
-	jvmTarget = "1.8"
 }

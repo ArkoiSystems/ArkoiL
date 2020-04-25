@@ -21,7 +21,10 @@ package com.arkoisystems.arkoicompiler;
 import com.arkoisystems.arkoicompiler.api.ICompilerClass;
 import com.arkoisystems.arkoicompiler.api.error.ICompilerError;
 import com.arkoisystems.arkoicompiler.utils.Variables;
-import lombok.*;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NonNull;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -34,6 +37,7 @@ import java.util.Objects;
 public class ArkoiError implements ICompilerError
 {
     
+    @EqualsAndHashCode.Include
     @Getter
     @Nullable
     private final List<ErrorPosition> positions;
@@ -65,25 +69,29 @@ public class ArkoiError implements ICompilerError
         final StringBuilder stringBuilder = new StringBuilder("[" + Variables.DATE_FORMAT.format(new Date()) + "/INFO] " + String.format(this.getMessage(), this.getArguments()));
         for (final ErrorPosition errorPosition : this.getPositions()) {
             stringBuilder.append("\r\n");
-        
+    
             Objects.requireNonNull(errorPosition.getLineRange(), "errorPosition.lineRange must not be null.");
             Objects.requireNonNull(errorPosition.getLineRange().getSourceCode(), "errorPosition.lineRange.sourceLines must not be null.");
-        
+    
             final int startLine = errorPosition.getLineRange().getStartLine(), endLine = errorPosition.getLineRange().getEndLine();
             final int biggestNumber = String.valueOf(endLine + 2).length();
-            for (int lineIndex = Math.max(startLine - 2, 0); lineIndex < startLine; lineIndex++)
+            for (int lineIndex = Math.max(startLine - 2, 0); lineIndex < startLine; lineIndex++) {
+                final ErrorPosition.LineRange lineRange = ErrorPosition.LineRange.make(this.getCompilerClass(), lineIndex, lineIndex);
+                Objects.requireNonNull(lineRange.getSourceCode(), "lineRange.sourceCode must not be null.");
                 stringBuilder.append("  ")
                         .append(" ".repeat(biggestNumber - String.valueOf(lineIndex).length()))
                         .append(lineIndex)
                         .append(" │ ")
-                        .append(ErrorPosition.LineRange.make(this.getCompilerClass(), lineIndex, lineIndex).getSourceCode());
-        
+                        .append(lineRange.getSourceCode().replace("\n", ""))
+                        .append("\r\n");
+            }
+    
             final String[] sourceLines = errorPosition.getLineRange().getSourceCode().split(System.getProperty("line.separator"));
             for (int lineIndex = startLine; lineIndex < startLine + sourceLines.length; lineIndex++) {
                 final ErrorPosition.LineRange lineRange = ErrorPosition.LineRange.make(this.getCompilerClass(), lineIndex, lineIndex);
                 Objects.requireNonNull(lineRange.getSourceCode(), "lineRange.sourceCode must not be null.");
-                final String sourceCode = lineRange.getSourceCode();
-            
+                final String sourceCode = lineRange.getSourceCode().replace("\n", "");
+        
                 final int leadingSpaces = sourceCode.length() - sourceCode.replaceAll("^\\s+", "").length();
                 final int trailingSpaces = sourceCode.length() - sourceCode.replaceAll("\\s+$", "").length();
                 final int maxLength = Math.max(0, sourceCode.length() - (leadingSpaces + trailingSpaces));
@@ -92,12 +100,13 @@ public class ArkoiError implements ICompilerError
             
                 final String numberReplacement = " ".repeat(String.valueOf(lineIndex).length());
                 final String whitespacePrefix = " ".repeat(biggestNumber - String.valueOf(lineIndex).length());
-            
+        
                 stringBuilder.append("> ")
                         .append(whitespacePrefix)
                         .append(lineIndex)
                         .append(" │ ")
-                        .append(sourceCode);
+                        .append(sourceCode)
+                        .append("\r\n");
                 if (lineIndex == startLine) {
                     stringBuilder.append(whitespacePrefix)
                             .append(numberReplacement)
@@ -122,42 +131,50 @@ public class ArkoiError implements ICompilerError
                 }
             }
         
-            for (int lineIndex = endLine + 1; lineIndex < endLine + 3; lineIndex++)
+            for (int lineIndex = endLine + 1; lineIndex < Math.min(endLine + 3, sourceLines.length - 1); lineIndex++) {
+                final ErrorPosition.LineRange lineRange = ErrorPosition.LineRange.make(this.getCompilerClass(), lineIndex, lineIndex);
+                Objects.requireNonNull(lineRange.getSourceCode(), "lineRange.sourceCode must not be null.");
                 stringBuilder.append("  ")
                         .append(" ".repeat(biggestNumber - String.valueOf(lineIndex).length()))
                         .append(lineIndex)
                         .append(" │ ")
-                        .append(ErrorPosition.LineRange.make(this.getCompilerClass(), lineIndex, lineIndex).getSourceCode());
+                        .append(lineRange.getSourceCode().replace("\n", ""))
+                        .append("\r\n");
+            }
         }
         return stringBuilder.toString();
     }
     
     
-    @Getter
-    @Setter
-    @AllArgsConstructor
+    @EqualsAndHashCode(onlyExplicitlyIncluded = true)
     @Builder
     public static class ErrorPosition
     {
         
+        @EqualsAndHashCode.Include
         @Nullable
+        @Getter
         private final LineRange lineRange;
         
         
+        @EqualsAndHashCode.Include
+        @Getter
         private final int charStart, charEnd;
         
         
-        @Getter
-        @Setter
-        @AllArgsConstructor
+        @EqualsAndHashCode(onlyExplicitlyIncluded = true)
         @Builder
         public static class LineRange
         {
             
+            @EqualsAndHashCode.Include
             @Nullable
+            @Getter
             private final String sourceCode;
             
             
+            @EqualsAndHashCode.Include
+            @Getter
             private final int startLine, endLine;
             
             

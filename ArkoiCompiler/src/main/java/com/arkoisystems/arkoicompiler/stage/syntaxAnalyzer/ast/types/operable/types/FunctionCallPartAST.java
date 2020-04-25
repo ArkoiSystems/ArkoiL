@@ -21,6 +21,7 @@ package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.t
 import com.arkoisystems.arkoicompiler.api.IASTNode;
 import com.arkoisystems.arkoicompiler.api.IToken;
 import com.arkoisystems.arkoicompiler.api.IVisitor;
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.ArkoiToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.SymbolType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxErrorType;
@@ -46,7 +47,7 @@ public class FunctionCallPartAST extends OperableAST
     
     
     @Builder
-    public FunctionCallPartAST(
+    private FunctionCallPartAST(
             @Nullable final SyntaxAnalyzer syntaxAnalyzer,
             @Nullable final IToken startToken,
             @Nullable final IToken endToken
@@ -62,15 +63,17 @@ public class FunctionCallPartAST extends OperableAST
     public FunctionCallPartAST parseAST(@NotNull final IASTNode parentAST) {
         Objects.requireNonNull(this.getSyntaxAnalyzer(), "syntaxAnalyzer must not be null.");
         
-        if (this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.OPENING_PARENTHESIS) == null)
+        if (this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.OPENING_PARENTHESIS) == null) {
+            final ArkoiToken currentToken = this.getSyntaxAnalyzer().currentToken();
             return this.addError(
                     this,
                     this.getSyntaxAnalyzer().getCompilerClass(),
-                    this.getSyntaxAnalyzer().currentToken(),
-                    
+                    currentToken,
+            
                     SyntaxErrorType.SYNTAX_ERROR_TEMPLATE,
-                    "Function call", "'('", this.getSyntaxAnalyzer().currentToken().getTokenContent()
+                    "Function call", "'('", currentToken != null ? currentToken.getTokenContent() : "nothing"
             );
+        }
         
         this.startAST(this.getSyntaxAnalyzer().currentToken());
         
@@ -97,15 +100,17 @@ public class FunctionCallPartAST extends OperableAST
             this.getSyntaxAnalyzer().nextToken();
         }
         
-        if (this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.CLOSING_PARENTHESIS) == null)
+        if (this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.CLOSING_PARENTHESIS) == null) {
+            final ArkoiToken currentToken = this.getSyntaxAnalyzer().currentToken();
             return this.addError(
                     this,
                     this.getSyntaxAnalyzer().getCompilerClass(),
-                    this.getSyntaxAnalyzer().currentToken(),
-                    
+                    currentToken,
+            
                     SyntaxErrorType.SYNTAX_ERROR_TEMPLATE,
-                    "Function call", "')'", this.getSyntaxAnalyzer().currentToken().getTokenContent()
+                    "Function call", "')'", currentToken != null ? currentToken.getTokenContent() : "nothing"
             );
+        }
         
         this.endAST(this.getSyntaxAnalyzer().currentToken());
         return this;

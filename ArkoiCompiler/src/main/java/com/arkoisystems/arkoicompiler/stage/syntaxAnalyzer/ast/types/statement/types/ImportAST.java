@@ -21,6 +21,7 @@ package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.
 import com.arkoisystems.arkoicompiler.api.IASTNode;
 import com.arkoisystems.arkoicompiler.api.IToken;
 import com.arkoisystems.arkoicompiler.api.IVisitor;
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.ArkoiToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.IdentifierToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.StringToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.KeywordType;
@@ -51,7 +52,7 @@ public class ImportAST extends StatementAST
     
     
     @Builder
-    protected ImportAST(
+    private ImportAST(
             @Nullable final SyntaxAnalyzer syntaxAnalyzer,
             @Nullable final StringToken importFilePath,
             @Nullable final IdentifierToken importName,
@@ -67,31 +68,34 @@ public class ImportAST extends StatementAST
     
     @NotNull
     @Override
-    public ImportAST parseAST(@NotNull final IASTNode parentAST) {
+    public ImportAST parseAST(@Nullable final IASTNode parentAST) {
         Objects.requireNonNull(this.getSyntaxAnalyzer(), "syntaxAnalyzer must not be null.");
         
         if (this.getSyntaxAnalyzer().matchesCurrentToken(KeywordType.IMPORT) == null) {
+            final ArkoiToken currentToken = this.getSyntaxAnalyzer().currentToken();
             return this.addError(
                     this,
                     this.getSyntaxAnalyzer().getCompilerClass(),
-                    this.getSyntaxAnalyzer().currentToken(),
+                    currentToken,
                     
                     SyntaxErrorType.SYNTAX_ERROR_TEMPLATE,
-                    "Import", "'import'", this.getSyntaxAnalyzer().currentToken().getTokenContent()
+                    "Import", "'import'", currentToken != null ? currentToken.getTokenContent() : "nothing"
             );
         }
         
         this.startAST(this.getSyntaxAnalyzer().currentToken());
         
-        if (this.getSyntaxAnalyzer().matchesPeekToken(1, TokenType.STRING_LITERAL) == null)
+        if (this.getSyntaxAnalyzer().matchesPeekToken(1, TokenType.STRING_LITERAL) == null) {
+            final ArkoiToken peekedToken = this.getSyntaxAnalyzer().peekToken(1);
             return this.addError(
                     this,
                     this.getSyntaxAnalyzer().getCompilerClass(),
-                    this.getSyntaxAnalyzer().currentToken(),
-                    
+                    peekedToken,
+            
                     SyntaxErrorType.SYNTAX_ERROR_TEMPLATE,
-                    "Import", "<string>", this.getSyntaxAnalyzer().currentToken().getTokenContent()
+                    "Import", "<string>", peekedToken != null ? peekedToken.getTokenContent() : "nothing"
             );
+        }
         
         this.importFilePath = (StringToken) this.getSyntaxAnalyzer().nextToken();
         
@@ -101,15 +105,17 @@ public class ImportAST extends StatementAST
         if (this.getSyntaxAnalyzer().matchesPeekToken(1, KeywordType.AS) != null) {
             this.getSyntaxAnalyzer().nextToken();
     
-            if (this.getSyntaxAnalyzer().matchesPeekToken(1, TokenType.IDENTIFIER) == null)
+            if (this.getSyntaxAnalyzer().matchesPeekToken(1, TokenType.IDENTIFIER) == null) {
+                final ArkoiToken peekedToken = this.getSyntaxAnalyzer().peekToken(1);
                 return this.addError(
                         this,
                         this.getSyntaxAnalyzer().getCompilerClass(),
-                        this.getSyntaxAnalyzer().currentToken(),
-                
+                        peekedToken,
+            
                         SyntaxErrorType.SYNTAX_ERROR_TEMPLATE,
-                        "Import", "<identifier>", this.getSyntaxAnalyzer().currentToken().getTokenContent()
+                        "Import", "<identifier>", peekedToken != null ? peekedToken.getTokenContent() : "nothing"
                 );
+            }
     
             this.importName = (IdentifierToken) this.getSyntaxAnalyzer().nextToken();
         } else if (this.getImportFilePath() != null) {

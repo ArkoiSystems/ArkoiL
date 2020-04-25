@@ -21,6 +21,7 @@ package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types;
 import com.arkoisystems.arkoicompiler.api.IASTNode;
 import com.arkoisystems.arkoicompiler.api.IToken;
 import com.arkoisystems.arkoicompiler.api.IVisitor;
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.ArkoiToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.SymbolType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxErrorType;
@@ -61,18 +62,19 @@ public class ArgumentListAST extends ArkoiASTNode
     public ArgumentListAST parseAST(@NotNull final IASTNode parentAST) {
         Objects.requireNonNull(this.getSyntaxAnalyzer(), "syntaxAnalyzer must not be null.");
         
-        if (this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.OPENING_BRACKET) == null)
+        if (this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.OPENING_BRACKET) == null) {
+            final ArkoiToken currentToken = this.getSyntaxAnalyzer().currentToken();
             return this.addError(
                     this,
                     this.getSyntaxAnalyzer().getCompilerClass(),
-                    this.getSyntaxAnalyzer().currentToken(),
-        
+                    currentToken,
+            
                     SyntaxErrorType.SYNTAX_ERROR_TEMPLATE,
-                    "Argument list", "'['", this.getSyntaxAnalyzer().currentToken().getTokenContent()
+                    "Argument list", "'['", currentToken != null ? currentToken.getTokenContent() : "nothing"
             );
+        }
         
         this.startAST(this.getSyntaxAnalyzer().currentToken());
-        
         this.getSyntaxAnalyzer().nextToken();
         
         while (this.getSyntaxAnalyzer().getPosition() < this.getSyntaxAnalyzer().getTokens().length) {
@@ -94,15 +96,17 @@ public class ArgumentListAST extends ArkoiASTNode
             else this.getSyntaxAnalyzer().nextToken();
         }
         
-        if (this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.CLOSING_BRACKET) == null)
+        if (this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.CLOSING_BRACKET) == null) {
+            final ArkoiToken currentToken = this.getSyntaxAnalyzer().currentToken();
             return this.addError(
                     this,
                     this.getSyntaxAnalyzer().getCompilerClass(),
-                    this.getSyntaxAnalyzer().currentToken(),
-        
+                    currentToken,
+            
                     SyntaxErrorType.SYNTAX_ERROR_TEMPLATE,
-                    "Argument list", "']'", this.getSyntaxAnalyzer().currentToken().getTokenContent()
+                    "Argument list", "']'", currentToken != null ? currentToken.getTokenContent() : "nothing"
             );
+        }
         
         this.endAST(this.getSyntaxAnalyzer().currentToken());
         return this;

@@ -21,6 +21,7 @@ package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.t
 import com.arkoisystems.arkoicompiler.api.IASTNode;
 import com.arkoisystems.arkoicompiler.api.IToken;
 import com.arkoisystems.arkoicompiler.api.IVisitor;
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.ArkoiToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.IdentifierToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
@@ -51,7 +52,7 @@ public class CastExpressionAST extends ExpressionAST
     
     
     @Builder
-    public CastExpressionAST(
+    private CastExpressionAST(
             @Nullable final  SyntaxAnalyzer syntaxAnalyzer,
             @Nullable final OperableAST leftSideOperable,
             @Nullable final  IToken startToken,
@@ -74,17 +75,30 @@ public class CastExpressionAST extends ExpressionAST
         this.startAST(this.getSyntaxAnalyzer().currentToken());
         this.getMarkerFactory().addFactory(this.getLeftSideOperable().getMarkerFactory());
     
-        if (this.getSyntaxAnalyzer().matchesPeekToken(1, TokenType.IDENTIFIER, false) == null)
+        if (this.getSyntaxAnalyzer().matchesPeekToken(1, TokenType.IDENTIFIER, false) == null) {
+            final ArkoiToken peekedToken = this.getSyntaxAnalyzer().peekToken(1);
             return this.addError(
                     this,
                     this.getSyntaxAnalyzer().getCompilerClass(),
-                    this.getSyntaxAnalyzer().peekToken(1),
-                
+                    peekedToken,
+            
                     SyntaxErrorType.SYNTAX_ERROR_TEMPLATE,
-                    "Cast expression", "<identifier>", this.getSyntaxAnalyzer().currentToken().getTokenContent()
+                    "Cast expression", "<identifier>", peekedToken != null ? peekedToken.getTokenContent() : "nothing"
             );
+        }
         
         final IdentifierToken identifierToken = (IdentifierToken) this.getSyntaxAnalyzer().nextToken(false);
+        if (identifierToken == null) {
+            return this.addError(
+                    this,
+                    this.getSyntaxAnalyzer().getCompilerClass(),
+                    (@Nullable ArkoiToken) null,
+                
+                    SyntaxErrorType.SYNTAX_ERROR_TEMPLATE,
+                    "Cast expression", "<identifier>", "nothing"
+            );
+        }
+        
         switch (identifierToken.getTokenContent()) {
             case "i":
             case "I":
@@ -113,7 +127,7 @@ public class CastExpressionAST extends ExpressionAST
                         identifierToken,
                 
                         SyntaxErrorType.SYNTAX_ERROR_TEMPLATE,
-                        "Cast expression", "<cast type> (eg. i, S, d, B)", this.getSyntaxAnalyzer().currentToken().getTokenContent()
+                        "Cast expression", "<cast type> (eg. i, S, d, B)", identifierToken.getTokenContent()
                 );
         }
     

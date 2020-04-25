@@ -51,7 +51,7 @@ public class EqualityExpressionAST extends ExpressionAST
     
     
     @Builder
-    public EqualityExpressionAST(
+    private EqualityExpressionAST(
             @Nullable final EqualityOperatorType equalityOperatorType,
             @Nullable final OperableAST rightSideOperable,
             @Nullable final SyntaxAnalyzer syntaxAnalyzer,

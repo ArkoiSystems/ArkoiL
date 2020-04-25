@@ -21,6 +21,7 @@ package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.
 import com.arkoisystems.arkoicompiler.api.IASTNode;
 import com.arkoisystems.arkoicompiler.api.IToken;
 import com.arkoisystems.arkoicompiler.api.IVisitor;
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.ArkoiToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.IdentifierToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.KeywordType;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.OperatorType;
@@ -61,7 +62,7 @@ public class VariableAST extends StatementAST
     
     
     @Builder
-    public VariableAST(
+    private VariableAST(
             @Nullable final List<AnnotationAST> variableAnnotations,
             @Nullable final OperableAST variableExpression,
             @Nullable final SyntaxAnalyzer syntaxAnalyzer,
@@ -79,54 +80,62 @@ public class VariableAST extends StatementAST
     
     @NotNull
     @Override
-    public VariableAST parseAST(@NotNull final IASTNode parentAST) {
+    public VariableAST parseAST(@Nullable final IASTNode parentAST) {
         Objects.requireNonNull(this.getSyntaxAnalyzer(), "syntaxAnalyzer must not be null.");
-        
-        if (this.getSyntaxAnalyzer().matchesCurrentToken(KeywordType.VAR) == null)
+    
+        if (this.getSyntaxAnalyzer().matchesCurrentToken(KeywordType.VAR) == null) {
+            final ArkoiToken currentToken = this.getSyntaxAnalyzer().currentToken();
             return this.addError(
                     this,
                     this.getSyntaxAnalyzer().getCompilerClass(),
-                    this.getSyntaxAnalyzer().currentToken(),
-                    
+                    currentToken,
+                
                     SyntaxErrorType.SYNTAX_ERROR_TEMPLATE,
-                    "Variable", "'var'", this.getSyntaxAnalyzer().currentToken().getTokenContent()
+                    "Variable", "'var'", currentToken != null ? currentToken.getTokenContent() : "nothing"
             );
+        }
         
         this.startAST(this.getSyntaxAnalyzer().currentToken());
         
-        if (this.getSyntaxAnalyzer().matchesPeekToken(1, TokenType.IDENTIFIER) == null)
+        if (this.getSyntaxAnalyzer().matchesPeekToken(1, TokenType.IDENTIFIER) == null) {
+            final ArkoiToken peekedToken = this.getSyntaxAnalyzer().peekToken(1);
             return this.addError(
                     this,
                     this.getSyntaxAnalyzer().getCompilerClass(),
-                    this.getSyntaxAnalyzer().peekToken(1),
-                    
+                    peekedToken,
+            
                     SyntaxErrorType.SYNTAX_ERROR_TEMPLATE,
-                    "Variable", "<identifier>", this.getSyntaxAnalyzer().peekToken(1).getTokenContent()
+                    "Variable", "<identifier>", peekedToken != null ? peekedToken.getTokenContent() : "nothing"
             );
+        }
         
         this.variableName = (IdentifierToken) this.getSyntaxAnalyzer().nextToken();
         
-        if (this.getSyntaxAnalyzer().matchesPeekToken(1, OperatorType.EQUALS) == null)
+        if (this.getSyntaxAnalyzer().matchesPeekToken(1, OperatorType.EQUALS) == null) {
+            final ArkoiToken peekedToken = this.getSyntaxAnalyzer().peekToken(1);
             return this.addError(
                     this,
                     this.getSyntaxAnalyzer().getCompilerClass(),
-                    this.getSyntaxAnalyzer().currentToken(),
-                    
+                    peekedToken,
+            
                     SyntaxErrorType.SYNTAX_ERROR_TEMPLATE,
-                    "Variable", "'='", this.getSyntaxAnalyzer().currentToken().getTokenContent()
+                    "Variable", "'='", peekedToken != null ? peekedToken.getTokenContent() : "nothing"
             );
+        }
         
         this.getSyntaxAnalyzer().nextToken(2);
         
-        if (!ExpressionAST.EXPRESSION_PARSER.canParse(this, this.getSyntaxAnalyzer()))
+        if (!ExpressionAST.EXPRESSION_PARSER.canParse(this, this.getSyntaxAnalyzer())) {
+            final ArkoiToken currentToken = this.getSyntaxAnalyzer().currentToken();
             return this.addError(
                     this,
                     this.getSyntaxAnalyzer().getCompilerClass(),
-                    this.getSyntaxAnalyzer().currentToken(),
-        
+                    currentToken,
+            
                     SyntaxErrorType.SYNTAX_ERROR_TEMPLATE,
-                    "Variable", "<expression>", this.getSyntaxAnalyzer().currentToken().getTokenContent()
+                    "Variable", "<expression>", currentToken != null ? currentToken.getTokenContent() : "nothing"
             );
+        }
         
         final OperableAST operableAST = ExpressionAST.EXPRESSION_PARSER.parse(this, this.getSyntaxAnalyzer());
         this.getMarkerFactory().addFactory(operableAST.getMarkerFactory());
@@ -137,7 +146,6 @@ public class VariableAST extends StatementAST
         }
         
         this.variableExpression = operableAST;
-        
         this.endAST(this.getSyntaxAnalyzer().currentToken());
         return this;
     }
