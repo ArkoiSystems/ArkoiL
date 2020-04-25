@@ -54,7 +54,7 @@ public class BinaryExpressionAST extends ExpressionAST
     
     
     @Builder
-    public BinaryExpressionAST(
+    private BinaryExpressionAST(
             @Nullable final BinaryOperatorType binaryOperatorType,
             @Nullable final OperableAST rightSideOperable,
             @Nullable final SyntaxAnalyzer syntaxAnalyzer,

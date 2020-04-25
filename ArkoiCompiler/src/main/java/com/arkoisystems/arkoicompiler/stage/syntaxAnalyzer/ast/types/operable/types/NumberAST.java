@@ -21,6 +21,7 @@ package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.t
 import com.arkoisystems.arkoicompiler.api.IASTNode;
 import com.arkoisystems.arkoicompiler.api.IToken;
 import com.arkoisystems.arkoicompiler.api.IVisitor;
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.ArkoiToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.NumberToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
@@ -44,7 +45,7 @@ public class NumberAST extends OperableAST
     
     
     @Builder
-    public NumberAST(
+    private NumberAST(
             @Nullable final SyntaxAnalyzer syntaxAnalyzer,
             @Nullable final NumberToken numberToken,
             @Nullable final IToken startToken,
@@ -61,15 +62,17 @@ public class NumberAST extends OperableAST
     public NumberAST parseAST(@NotNull final IASTNode parentAST) {
         Objects.requireNonNull(this.getSyntaxAnalyzer(), "syntaxAnalyzer must not be null.");
         
-        if (this.getSyntaxAnalyzer().matchesCurrentToken(TokenType.NUMBER_LITERAL) == null)
+        if (this.getSyntaxAnalyzer().matchesCurrentToken(TokenType.NUMBER_LITERAL) == null) {
+            final ArkoiToken currentToken = this.getSyntaxAnalyzer().currentToken();
             return this.addError(
                     this,
                     this.getSyntaxAnalyzer().getCompilerClass(),
-                    this.getSyntaxAnalyzer().currentToken(),
-                    
+                    currentToken,
+            
                     SyntaxErrorType.SYNTAX_ERROR_TEMPLATE,
-                    "Number", "<number>", this.getSyntaxAnalyzer().currentToken().getTokenContent()
+                    "Number", "<number>", currentToken != null ? currentToken.getTokenContent() : "nothing"
             );
+        }
         
         this.startAST(this.getSyntaxAnalyzer().currentToken());
         this.numberToken = (NumberToken) this.getSyntaxAnalyzer().currentToken();

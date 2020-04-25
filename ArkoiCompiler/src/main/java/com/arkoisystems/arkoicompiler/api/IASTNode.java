@@ -60,18 +60,18 @@ public interface IASTNode extends IFailed
     
     
     @NotNull
-    IASTNode parseAST(@NotNull final IASTNode parentAST);
+    IASTNode parseAST(final IASTNode parentAST);
     
     
     void accept(@NotNull final IVisitor<?> visitor);
     
     
-    <E> E addError(@Nullable final E errorSource, @NotNull final ICompilerClass compilerClass, @NotNull final IASTNode[] astNodes, @NotNull final String message, @NotNull final Object... arguments);
+    <E> E addError(@Nullable final E errorSource, @NotNull final ICompilerClass compilerClass, final @Nullable IASTNode[] astNodes, @NotNull final String message, @NotNull final Object... arguments);
     
     
-    <E> E addError(@Nullable final E errorSource, @NotNull final ICompilerClass compilerClass, @NotNull final IASTNode astNode, @NotNull final String message, @NotNull final Object... arguments);
+    <E> E addError(@Nullable final E errorSource, @NotNull final ICompilerClass compilerClass, final @Nullable IASTNode astNode, @NotNull final String message, @NotNull final Object... arguments);
     
     
-    <E> E addError(@Nullable final E errorSource, @NotNull final ICompilerClass compilerClass, @NotNull final ArkoiToken arkoiToken, @NotNull final String message, @NotNull final Object... arguments);
+    <E> E addError(@Nullable final E errorSource, @NotNull final ICompilerClass compilerClass, final @Nullable ArkoiToken arkoiToken, @NotNull final String message, @NotNull final Object... arguments);
     
 }

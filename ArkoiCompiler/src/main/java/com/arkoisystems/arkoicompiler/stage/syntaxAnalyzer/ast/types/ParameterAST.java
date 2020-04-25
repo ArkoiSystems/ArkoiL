@@ -21,6 +21,7 @@ package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types;
 import com.arkoisystems.arkoicompiler.api.IASTNode;
 import com.arkoisystems.arkoicompiler.api.IToken;
 import com.arkoisystems.arkoicompiler.api.IVisitor;
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.ArkoiToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.IdentifierToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.SymbolType;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
@@ -72,41 +73,47 @@ public class ParameterAST extends ArkoiASTNode
     @Override
     public ParameterAST parseAST(@NotNull final IASTNode parentAST) {
         Objects.requireNonNull(this.getSyntaxAnalyzer(), "syntaxAnalyzer must not be null.");
-        
-        if (this.getSyntaxAnalyzer().matchesCurrentToken(TokenType.IDENTIFIER) == null)
+    
+        if (this.getSyntaxAnalyzer().matchesCurrentToken(TokenType.IDENTIFIER) == null) {
+            final ArkoiToken currentToken = this.getSyntaxAnalyzer().currentToken();
             return this.addError(
                     this,
                     this.getSyntaxAnalyzer().getCompilerClass(),
-                    this.getSyntaxAnalyzer().currentToken(),
-        
+                    currentToken,
+                
                     SyntaxErrorType.SYNTAX_ERROR_TEMPLATE,
-                    "Parameter", "<identifier>", this.getSyntaxAnalyzer().currentToken().getTokenContent()
+                    "Parameter", "<identifier>", currentToken != null ? currentToken.getTokenContent() : "nothing"
             );
-        
+        }
+    
         this.startAST(this.getSyntaxAnalyzer().currentToken());
         this.parameterName = (IdentifierToken) this.getSyntaxAnalyzer().currentToken();
-        
-        if (this.getSyntaxAnalyzer().matchesPeekToken(1, SymbolType.COLON) == null)
+    
+        if (this.getSyntaxAnalyzer().matchesPeekToken(1, SymbolType.COLON) == null) {
+            final ArkoiToken peekedToken = this.getSyntaxAnalyzer().peekToken(1);
             return this.addError(
                     this,
                     this.getSyntaxAnalyzer().getCompilerClass(),
-                    this.getSyntaxAnalyzer().currentToken(),
-        
+                    peekedToken,
+                
                     SyntaxErrorType.SYNTAX_ERROR_TEMPLATE,
-                    "Parameter", "':'", this.getSyntaxAnalyzer().currentToken().getTokenContent()
+                    "Parameter", "':'", peekedToken != null ? peekedToken.getTokenContent() : "nothing"
             );
-        
+        }
+    
         this.getSyntaxAnalyzer().nextToken(2);
-        
-        if (!TypeAST.TYPE_PARSER.canParse(parentAST, this.getSyntaxAnalyzer()))
+    
+        if (!TypeAST.TYPE_PARSER.canParse(parentAST, this.getSyntaxAnalyzer())) {
+            final ArkoiToken currentToken = this.getSyntaxAnalyzer().currentToken();
             return this.addError(
                     this,
                     this.getSyntaxAnalyzer().getCompilerClass(),
-                    this.getSyntaxAnalyzer().currentToken(),
-        
+                    currentToken,
+            
                     SyntaxErrorType.SYNTAX_ERROR_TEMPLATE,
-                    "Parameter", "<type>", this.getSyntaxAnalyzer().currentToken().getTokenContent()
+                    "Parameter", "<type>", currentToken != null ? currentToken.getTokenContent() : "nothing"
             );
+        }
         
         final TypeAST typeAST = TypeAST.TYPE_PARSER.parse(this, this.getSyntaxAnalyzer());
         this.getMarkerFactory().addFactory(typeAST.getMarkerFactory());

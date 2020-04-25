@@ -21,6 +21,7 @@ package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types;
 import com.arkoisystems.arkoicompiler.api.IASTNode;
 import com.arkoisystems.arkoicompiler.api.IToken;
 import com.arkoisystems.arkoicompiler.api.IVisitor;
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.ArkoiToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.BadToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.IdentifierToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.KeywordType;
@@ -87,28 +88,32 @@ public class AnnotationAST extends ArkoiASTNode
     @Override
     public IASTNode parseAST(@NotNull final IASTNode parentAST) {
         Objects.requireNonNull(this.getSyntaxAnalyzer(), "syntaxAnalyzer must not be null.");
-        
-        if (this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.AT_SIGN) == null)
+    
+        if (this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.AT_SIGN) == null) {
+            final ArkoiToken currentToken = this.getSyntaxAnalyzer().currentToken();
             return this.addError(
                     this,
                     this.getSyntaxAnalyzer().getCompilerClass(),
-                    this.getSyntaxAnalyzer().currentToken(),
-                    
+                    currentToken,
+                
                     SyntaxErrorType.SYNTAX_ERROR_TEMPLATE,
-                    "Annotation", "'@'", this.getSyntaxAnalyzer().currentToken().getTokenContent()
+                    "Annotation", "'@'", currentToken != null ? currentToken.getTokenContent() : "nothing"
             );
-        
+        }
+    
         this.startAST(this.getSyntaxAnalyzer().currentToken());
-        
-        if (this.getSyntaxAnalyzer().matchesPeekToken(1, TokenType.IDENTIFIER) == null)
+    
+        if (this.getSyntaxAnalyzer().matchesPeekToken(1, TokenType.IDENTIFIER) == null) {
+            final ArkoiToken peekedToken = this.getSyntaxAnalyzer().peekToken(1);
             return this.addError(
                     this,
                     this.getSyntaxAnalyzer().getCompilerClass(),
-                    this.getSyntaxAnalyzer().currentToken(),
-                    
+                    peekedToken,
+                
                     SyntaxErrorType.SYNTAX_ERROR_TEMPLATE,
-                    "Annotation", "<identifier>", this.getSyntaxAnalyzer().currentToken().getTokenContent()
+                    "Annotation", "<identifier>", peekedToken != null ? peekedToken.getTokenContent() : "nothing"
             );
+        }
         
         this.getSyntaxAnalyzer().nextToken();
         
@@ -154,7 +159,7 @@ public class AnnotationAST extends ArkoiASTNode
         
         this.setEndToken(this.getSyntaxAnalyzer().currentToken());
         this.getMarkerFactory().done(this.getEndToken());
-        
+    
         this.getSyntaxAnalyzer().nextToken();
         this.getAnnotationStorage().add(this);
         
@@ -172,25 +177,28 @@ public class AnnotationAST extends ArkoiASTNode
             this.failed();
             return this;
         }
-        
-        if (!StatementAST.STATEMENT_PARSER.canParse(parentAST, this.getSyntaxAnalyzer()))
+    
+        if (!StatementAST.STATEMENT_PARSER.canParse(parentAST, this.getSyntaxAnalyzer())) {
+            final ArkoiToken currentToken = this.getSyntaxAnalyzer().currentToken();
             return this.addError(
                     this,
                     this.getSyntaxAnalyzer().getCompilerClass(),
-                    this.getSyntaxAnalyzer().currentToken(),
-                    
+                    currentToken,
+                
                     SyntaxErrorType.SYNTAX_ERROR_TEMPLATE,
-                    "Annotation", "<function>, <variable> or <annotation>", this.getSyntaxAnalyzer().currentToken().getTokenContent()
+                    "Annotation", "<function>, <variable> or <annotation>", currentToken != null ? currentToken.getTokenContent() : "nothing"
             );
-        
-        if (this.getSyntaxAnalyzer().matchesCurrentToken(KeywordType.FUN) != null && this.getSyntaxAnalyzer().matchesCurrentToken(KeywordType.VAR) != null) {
+        }
+    
+        if (this.getSyntaxAnalyzer().matchesCurrentToken(KeywordType.FUN) == null || this.getSyntaxAnalyzer().matchesCurrentToken(KeywordType.VAR) == null) {
+            final ArkoiToken currentToken = this.getSyntaxAnalyzer().currentToken();
             return this.addError(
                     this,
                     this.getSyntaxAnalyzer().getCompilerClass(),
-                    this.getSyntaxAnalyzer().currentToken(),
+                    currentToken,
         
                     SyntaxErrorType.SYNTAX_ERROR_TEMPLATE,
-                    "Annotation", "<function>, <variable> or <annotation>", this.getSyntaxAnalyzer().currentToken().getTokenContent()
+                    "Annotation", "<function>, <variable> or <annotation>", currentToken != null ? currentToken.getTokenContent() : "nothing"
             );
         } else if (this.getSyntaxAnalyzer().matchesCurrentToken(KeywordType.FUN) != null) {
             final FunctionAST functionAST = FunctionAST.builder()

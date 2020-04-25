@@ -21,6 +21,7 @@ package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.t
 import com.arkoisystems.arkoicompiler.api.IASTNode;
 import com.arkoisystems.arkoicompiler.api.IToken;
 import com.arkoisystems.arkoicompiler.api.IVisitor;
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.ArkoiToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.IdentifierToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.KeywordType;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.SymbolType;
@@ -62,7 +63,7 @@ public class IdentifierCallAST extends OperableAST
     
     
     @Builder
-    public IdentifierCallAST(
+    private IdentifierCallAST(
             @Nullable final FunctionCallPartAST calledFunctionPart,
             @Nullable final IdentifierCallAST nextIdentifierCall,
             @Nullable final IdentifierToken calledIdentifier,
@@ -82,7 +83,7 @@ public class IdentifierCallAST extends OperableAST
     
     @NotNull
     @Override
-    public IdentifierCallAST parseAST(@NotNull final IASTNode parentAST) {
+    public IdentifierCallAST parseAST(@Nullable final IASTNode parentAST) {
         Objects.requireNonNull(this.getSyntaxAnalyzer(), "syntaxAnalyzer must not be null.");
         
         this.startAST(this.getSyntaxAnalyzer().currentToken());
@@ -90,38 +91,44 @@ public class IdentifierCallAST extends OperableAST
         if (this.getSyntaxAnalyzer().matchesCurrentToken(KeywordType.THIS) != null) {
             this.isFileLocal = true;
             
-            if (this.getSyntaxAnalyzer().matchesPeekToken(1, SymbolType.PERIOD) == null)
+            if (this.getSyntaxAnalyzer().matchesPeekToken(1, SymbolType.PERIOD) == null) {
+                final ArkoiToken currentToken = this.getSyntaxAnalyzer().currentToken();
                 return this.addError(
                         this,
                         this.getSyntaxAnalyzer().getCompilerClass(),
-                        this.getSyntaxAnalyzer().currentToken(),
+                        currentToken,
                         
                         SyntaxErrorType.SYNTAX_ERROR_TEMPLATE,
-                        "Identifier call", "'.'", this.getSyntaxAnalyzer().currentToken().getTokenContent()
+                        "Identifier call", "'.'", currentToken != null ? currentToken.getTokenContent() : "nothing"
                 );
+            }
             
             this.getSyntaxAnalyzer().nextToken();
             
-            if (this.getSyntaxAnalyzer().matchesPeekToken(1, TokenType.IDENTIFIER) == null)
+            if (this.getSyntaxAnalyzer().matchesPeekToken(1, TokenType.IDENTIFIER) == null) {
+                final ArkoiToken currentToken = this.getSyntaxAnalyzer().currentToken();
                 return this.addError(
                         this,
                         this.getSyntaxAnalyzer().getCompilerClass(),
-                        this.getSyntaxAnalyzer().currentToken(),
+                        currentToken,
                         
                         SyntaxErrorType.SYNTAX_ERROR_TEMPLATE,
-                        "Identifier call", "<identifier>", this.getSyntaxAnalyzer().currentToken().getTokenContent()
+                        "Identifier call", "<identifier>", currentToken != null ? currentToken.getTokenContent() : "nothing"
                 );
+            }
             
             this.getSyntaxAnalyzer().nextToken();
-        } else if (this.getSyntaxAnalyzer().matchesCurrentToken(TokenType.IDENTIFIER) == null)
+        } else if (this.getSyntaxAnalyzer().matchesCurrentToken(TokenType.IDENTIFIER) == null) {
+            final ArkoiToken currentToken = this.getSyntaxAnalyzer().currentToken();
             return this.addError(
                     this,
                     this.getSyntaxAnalyzer().getCompilerClass(),
-                    this.getSyntaxAnalyzer().currentToken(),
+                    currentToken,
                     
                     SyntaxErrorType.SYNTAX_ERROR_TEMPLATE,
-                    "Identifier call", "<identifier>", this.getSyntaxAnalyzer().currentToken().getTokenContent()
+                    "Identifier call", "<identifier>", currentToken != null ? currentToken.getTokenContent() : "nothing"
             );
+        }
         
         this.calledIdentifier = (IdentifierToken) this.getSyntaxAnalyzer().currentToken();
         
@@ -145,15 +152,17 @@ public class IdentifierCallAST extends OperableAST
         if (this.getSyntaxAnalyzer().matchesPeekToken(1, SymbolType.PERIOD) != null) {
             this.getSyntaxAnalyzer().nextToken();
     
-            if (this.getSyntaxAnalyzer().matchesPeekToken(1, TokenType.IDENTIFIER) == null)
+            if (this.getSyntaxAnalyzer().matchesPeekToken(1, TokenType.IDENTIFIER) == null) {
+                final ArkoiToken peekedToken = this.getSyntaxAnalyzer().peekToken(1);
                 return this.addError(
                         this,
                         this.getSyntaxAnalyzer().getCompilerClass(),
-                        this.getSyntaxAnalyzer().peekToken(1),
-        
+                        peekedToken,
+                
                         SyntaxErrorType.SYNTAX_ERROR_TEMPLATE,
-                        "Identifier call", "<identifier>", this.getSyntaxAnalyzer().peekToken(1).getTokenContent()
+                        "Identifier call", "<identifier>", peekedToken != null ? peekedToken.getTokenContent() : "nothing"
                 );
+            }
     
             this.getSyntaxAnalyzer().nextToken();
     

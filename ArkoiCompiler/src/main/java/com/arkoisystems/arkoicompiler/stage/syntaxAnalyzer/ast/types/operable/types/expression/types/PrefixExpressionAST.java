@@ -48,7 +48,7 @@ public class PrefixExpressionAST extends ExpressionAST
     
     
     @Builder
-    public PrefixExpressionAST(
+    private PrefixExpressionAST(
             @Nullable final PrefixOperatorType prefixOperatorType,
             @Nullable final OperableAST rightSideOperable,
             @Nullable SyntaxAnalyzer syntaxAnalyzer,

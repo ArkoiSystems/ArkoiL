@@ -53,7 +53,7 @@ public class AssignmentExpressionAST extends ExpressionAST
     
     
     @Builder
-    public AssignmentExpressionAST(
+    private AssignmentExpressionAST(
             @Nullable final AssignmentOperatorType assignmentOperatorType,
             @Nullable final OperableAST rightSideOperable,
             @Nullable final SyntaxAnalyzer syntaxAnalyzer,

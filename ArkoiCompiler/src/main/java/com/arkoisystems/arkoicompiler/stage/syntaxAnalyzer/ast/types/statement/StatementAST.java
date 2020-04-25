@@ -59,10 +59,21 @@ public class StatementAST extends ArkoiASTNode
     
     @NotNull
     @Override
-    public IASTNode parseAST(@NotNull final IASTNode parentAST) {
+    public IASTNode parseAST(@Nullable final IASTNode parentAST) {
         Objects.requireNonNull(this.getSyntaxAnalyzer(), "syntaxAnalyzer must not be null.");
-        
+    
         final ArkoiToken currentToken = this.getSyntaxAnalyzer().currentToken();
+        if (currentToken == null) {
+            return this.addError(
+                    this,
+                    this.getSyntaxAnalyzer().getCompilerClass(),
+                    (@Nullable ArkoiToken) null,
+                    
+                    SyntaxErrorType.SYNTAX_ERROR_TEMPLATE,
+                    "Statement", "<token>", "nothing"
+            );
+        }
+    
         if (parentAST instanceof ExpressionAST) {
             switch (currentToken.getTokenContent()) {
                 case "var":
@@ -73,9 +84,9 @@ public class StatementAST extends ArkoiASTNode
                             this,
                             this.getSyntaxAnalyzer().getCompilerClass(),
                             currentToken,
-                
+                        
                             SyntaxErrorType.SYNTAX_ERROR_TEMPLATE,
-                            "Statement", "<identifier call>", this.getSyntaxAnalyzer().currentToken().getTokenContent()
+                            "Statement", "<identifier call>", currentToken.getTokenContent()
                     );
                 default:
                     return IdentifierCallAST.builder()

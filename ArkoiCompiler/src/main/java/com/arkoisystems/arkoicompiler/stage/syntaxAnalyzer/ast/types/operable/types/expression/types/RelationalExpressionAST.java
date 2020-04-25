@@ -51,7 +51,7 @@ public class RelationalExpressionAST extends ExpressionAST
     
     
     @Builder
-    public RelationalExpressionAST(
+    private RelationalExpressionAST(
             @Nullable final RelationalOperatorType relationalOperatorType,
             @Nullable final OperableAST rightSideOperable,
             @Nullable final SyntaxAnalyzer syntaxAnalyzer,

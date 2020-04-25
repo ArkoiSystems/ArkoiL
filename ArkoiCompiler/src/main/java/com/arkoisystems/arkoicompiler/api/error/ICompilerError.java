@@ -46,4 +46,13 @@ public interface ICompilerError
     @NotNull
     List<ArkoiError.ErrorPosition> getPositions();
     
+    
+    /**
+     * This method returns a message of the {@link ICompilerError} which describes the
+     * problem. It also can be formatted using arguments.
+     *
+     * @return a message of the {@link ICompilerError}
+     */
+    String getMessage();
+    
 }

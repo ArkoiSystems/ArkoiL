@@ -21,6 +21,7 @@ package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.
 import com.arkoisystems.arkoicompiler.api.IASTNode;
 import com.arkoisystems.arkoicompiler.api.IToken;
 import com.arkoisystems.arkoicompiler.api.IVisitor;
+import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.ArkoiToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.BadToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.IdentifierToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.TypeKeywordToken;
@@ -76,7 +77,7 @@ public class FunctionAST extends StatementAST
     
     
     @Builder
-    protected FunctionAST(
+    private FunctionAST(
             @Nullable final List<AnnotationAST> functionAnnotations,
             @Nullable final ParameterListAST functionParameters,
             @Nullable final SyntaxAnalyzer syntaxAnalyzer,
@@ -98,46 +99,52 @@ public class FunctionAST extends StatementAST
     
     @NotNull
     @Override
-    public FunctionAST parseAST(@NotNull final IASTNode parentAST) {
+    public FunctionAST parseAST(@Nullable final IASTNode parentAST) {
         Objects.requireNonNull(this.getSyntaxAnalyzer(), "syntaxAnalyzer must not be null.");
         
-        if (this.getSyntaxAnalyzer().matchesCurrentToken(KeywordType.FUN) == null)
+        if (this.getSyntaxAnalyzer().matchesCurrentToken(KeywordType.FUN) == null) {
+            final ArkoiToken currentToken = this.getSyntaxAnalyzer().currentToken();
             return this.addError(
                     this,
                     this.getSyntaxAnalyzer().getCompilerClass(),
-                    this.getSyntaxAnalyzer().currentToken(),
-                    
+                    currentToken,
+            
                     SyntaxErrorType.SYNTAX_ERROR_TEMPLATE,
-                    "Function", "'fun'", this.getSyntaxAnalyzer().currentToken().getTokenContent()
+                    "Function", "'fun'", currentToken != null ? currentToken.getTokenContent() : "nothing"
             );
+        }
         
         this.startAST(this.getSyntaxAnalyzer().currentToken());
         
-        if (this.getSyntaxAnalyzer().matchesPeekToken(1, TokenType.IDENTIFIER) == null)
+        if (this.getSyntaxAnalyzer().matchesPeekToken(1, TokenType.IDENTIFIER) == null) {
+            final ArkoiToken peekedToken = this.getSyntaxAnalyzer().peekToken(1);
             return this.addError(
                     this,
                     this.getSyntaxAnalyzer().getCompilerClass(),
-                    this.getSyntaxAnalyzer().currentToken(),
-                    
+                    peekedToken,
+            
                     SyntaxErrorType.SYNTAX_ERROR_TEMPLATE,
-                    "Function", "<identifier>", this.getSyntaxAnalyzer().currentToken().getTokenContent()
+                    "Function", "<identifier>", peekedToken != null ? peekedToken.getTokenContent() : "nothing"
             );
+        }
         
         this.functionName = (IdentifierToken) this.getSyntaxAnalyzer().nextToken();
         
-        if (this.getSyntaxAnalyzer().matchesPeekToken(1, SymbolType.OPENING_ARROW) == null)
+        if (this.getSyntaxAnalyzer().matchesPeekToken(1, SymbolType.OPENING_ARROW) == null) {
+            final ArkoiToken peekedToken = this.getSyntaxAnalyzer().peekToken(1);
             return this.addError(
                     this,
                     this.getSyntaxAnalyzer().getCompilerClass(),
-                    this.getSyntaxAnalyzer().currentToken(),
-                    
+                    peekedToken,
+            
                     SyntaxErrorType.SYNTAX_ERROR_TEMPLATE,
-                    "Function", "'<'", this.getSyntaxAnalyzer().currentToken().getTokenContent()
+                    "Function", "'<'", peekedToken != null ? peekedToken.getTokenContent() : "nothing"
             );
+        }
         
         this.getSyntaxAnalyzer().nextToken(2);
         
-        if (TypeAST.TYPE_PARSER.canParse(this, this.getSyntaxAnalyzer())) {
+        if (this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.CLOSING_ARROW) == null) {
             final TypeAST typeAST = TypeAST.TYPE_PARSER.parse(this, this.getSyntaxAnalyzer());
             this.getMarkerFactory().addFactory(typeAST.getMarkerFactory());
     
@@ -166,25 +173,29 @@ public class FunctionAST extends StatementAST
                 .isArray(false)
                 .build();
         
-        if (this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.CLOSING_ARROW) == null)
+        if (this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.CLOSING_ARROW) == null) {
+            final ArkoiToken currentToken = this.getSyntaxAnalyzer().currentToken();
             return this.addError(
                     this,
                     this.getSyntaxAnalyzer().getCompilerClass(),
-                    this.getSyntaxAnalyzer().currentToken(),
-                    
+                    currentToken,
+            
                     SyntaxErrorType.SYNTAX_ERROR_TEMPLATE,
-                    "Function", "'>'", this.getSyntaxAnalyzer().currentToken().getTokenContent()
+                    "Function", "'>'", currentToken != null ? currentToken.getTokenContent() : "nothing"
             );
+        }
         
-        if (this.getSyntaxAnalyzer().matchesPeekToken(1, SymbolType.OPENING_PARENTHESIS) == null)
+        if (this.getSyntaxAnalyzer().matchesPeekToken(1, SymbolType.OPENING_PARENTHESIS) == null) {
+            final ArkoiToken peekedToken = this.getSyntaxAnalyzer().peekToken(1);
             return this.addError(
                     this,
                     this.getSyntaxAnalyzer().getCompilerClass(),
-                    this.getSyntaxAnalyzer().currentToken(),
-                    
+                    peekedToken,
+            
                     SyntaxErrorType.SYNTAX_ERROR_TEMPLATE,
-                    "Function", "'('", this.getSyntaxAnalyzer().currentToken().getTokenContent()
+                    "Function", "'('", peekedToken != null ? peekedToken.getTokenContent() : "nothing"
             );
+        }
         
         this.getSyntaxAnalyzer().nextToken();
         
@@ -200,17 +211,6 @@ public class FunctionAST extends StatementAST
         }
         
         this.functionParameters = parameterListAST;
-        
-        if (this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.CLOSING_PARENTHESIS) == null)
-            return this.addError(
-                    this,
-                    this.getSyntaxAnalyzer().getCompilerClass(),
-                    this.getSyntaxAnalyzer().currentToken(),
-                    
-                    SyntaxErrorType.SYNTAX_ERROR_TEMPLATE,
-                    "Function", "')'", this.getSyntaxAnalyzer().currentToken().getTokenContent()
-            );
-        
         this.getSyntaxAnalyzer().nextToken();
         
         if (this.hasAnnotation("native")) {
@@ -226,15 +226,17 @@ public class FunctionAST extends StatementAST
             return this;
         }
         
-        if (!BlockAST.BLOCK_PARSER.canParse(this, this.getSyntaxAnalyzer()))
+        if (!BlockAST.BLOCK_PARSER.canParse(this, this.getSyntaxAnalyzer())) {
+            final ArkoiToken currentToken = this.getSyntaxAnalyzer().currentToken();
             return this.addError(
                     this,
                     this.getSyntaxAnalyzer().getCompilerClass(),
-                    this.getSyntaxAnalyzer().currentToken(),
-                    
+                    currentToken,
+            
                     SyntaxErrorType.SYNTAX_ERROR_TEMPLATE,
-                    "Function", "'block'", this.getSyntaxAnalyzer().currentToken().getTokenContent()
+                    "Function", "<block>", currentToken != null ? currentToken.getTokenContent() : "nothing"
             );
+        }
         
         final BlockAST blockAST = BlockAST.BLOCK_PARSER.parse(this, this.getSyntaxAnalyzer());
         this.getMarkerFactory().addFactory(blockAST.getMarkerFactory());
