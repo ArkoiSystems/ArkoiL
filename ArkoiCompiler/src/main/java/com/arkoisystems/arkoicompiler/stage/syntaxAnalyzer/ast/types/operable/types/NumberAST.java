@@ -19,6 +19,7 @@
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types;
 
 import com.arkoisystems.arkoicompiler.api.IASTNode;
+import com.arkoisystems.arkoicompiler.api.IToken;
 import com.arkoisystems.arkoicompiler.api.IVisitor;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.ArkoiToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.NumberToken;
@@ -28,9 +29,8 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxErrorType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.OperableAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
-import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -40,13 +40,20 @@ public class NumberAST extends OperableAST
 {
     
     @Getter
-    @Setter(AccessLevel.PROTECTED)
     @Nullable
     private NumberToken numberToken;
     
     
-    protected NumberAST(@Nullable final SyntaxAnalyzer syntaxAnalyzer) {
-        super(syntaxAnalyzer, ASTType.NUMBER);
+    @Builder
+    private NumberAST(
+            @Nullable final SyntaxAnalyzer syntaxAnalyzer,
+            @Nullable final NumberToken numberToken,
+            @Nullable final IToken startToken,
+            @Nullable final IToken endToken
+    ) {
+        super(syntaxAnalyzer, ASTType.NUMBER, startToken, endToken);
+    
+        this.numberToken = numberToken;
     }
     
     
@@ -55,23 +62,21 @@ public class NumberAST extends OperableAST
     public NumberAST parseAST(@NotNull final IASTNode parentAST) {
         Objects.requireNonNull(this.getSyntaxAnalyzer(), "syntaxAnalyzer must not be null.");
         
-        if (this.getSyntaxAnalyzer().matchesCurrentToken(TokenType.NUMBER_LITERAL) == null)
+        if (this.getSyntaxAnalyzer().matchesCurrentToken(TokenType.NUMBER_LITERAL) == null) {
+            final ArkoiToken currentToken = this.getSyntaxAnalyzer().currentToken();
             return this.addError(
                     this,
                     this.getSyntaxAnalyzer().getCompilerClass(),
-                    this.getSyntaxAnalyzer().currentToken(),
-        
+                    currentToken,
+            
                     SyntaxErrorType.SYNTAX_ERROR_TEMPLATE,
-                    "Number", "<number>", this.getSyntaxAnalyzer().currentToken().getTokenContent()
+                    "Number", "<number>", currentToken != null ? currentToken.getTokenContent() : "nothing"
             );
-    
-        this.setNumberToken((NumberToken) this.getSyntaxAnalyzer().currentToken());
+        }
         
-        this.setStartToken(this.getNumberToken());
-        this.getMarkerFactory().mark(this.getStartToken());
-        
-        this.setEndToken(this.getNumberToken());
-        this.getMarkerFactory().done(this.getEndToken());
+        this.startAST(this.getSyntaxAnalyzer().currentToken());
+        this.numberToken = (NumberToken) this.getSyntaxAnalyzer().currentToken();
+        this.endAST(this.getSyntaxAnalyzer().currentToken());
         return this;
     }
     
@@ -90,72 +95,6 @@ public class NumberAST extends OperableAST
         if(this.getNumberToken().getTokenContent().contains("."))
             return TypeKind.FLOAT;
         return TypeKind.DOUBLE;
-    }
-    
-    
-    public static NumberASTBuilder builder(@NotNull final SyntaxAnalyzer syntaxAnalyzer) {
-        return new NumberASTBuilder(syntaxAnalyzer);
-    }
-    
-    
-    public static NumberASTBuilder builder() {
-        return new NumberASTBuilder();
-    }
-    
-    
-    public static class NumberASTBuilder
-    {
-        
-        @Nullable
-        private final SyntaxAnalyzer syntaxAnalyzer;
-        
-        
-        @Nullable
-        private NumberToken numberToken;
-        
-        
-        private ArkoiToken startToken, endToken;
-        
-        
-        public NumberASTBuilder(@NotNull final SyntaxAnalyzer syntaxAnalyzer) {
-            this.syntaxAnalyzer = syntaxAnalyzer;
-        }
-        
-        
-        public NumberASTBuilder() {
-            this.syntaxAnalyzer = null;
-        }
-        
-        
-        public NumberASTBuilder literal(final NumberToken numberToken) {
-            this.numberToken = numberToken;
-            return this;
-        }
-    
-    
-        public NumberASTBuilder start(final ArkoiToken startToken) {
-            this.startToken = startToken;
-            return this;
-        }
-    
-    
-        public NumberASTBuilder end(final ArkoiToken endToken) {
-            this.endToken = endToken;
-            return this;
-        }
-    
-    
-        public NumberAST build() {
-            final NumberAST numberAST = new NumberAST(this.syntaxAnalyzer);
-            if (this.numberToken != null)
-                numberAST.setNumberToken(this.numberToken);
-            numberAST.setStartToken(this.startToken);
-            numberAST.getMarkerFactory().getCurrentMarker().setStart(numberAST.getStartToken());
-            numberAST.setEndToken(this.endToken);
-            numberAST.getMarkerFactory().getCurrentMarker().setEnd(numberAST.getEndToken());
-            return numberAST;
-        }
-    
     }
     
 }

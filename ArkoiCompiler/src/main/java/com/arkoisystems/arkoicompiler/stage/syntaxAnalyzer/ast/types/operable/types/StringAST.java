@@ -19,6 +19,7 @@
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types;
 
 import com.arkoisystems.arkoicompiler.api.IASTNode;
+import com.arkoisystems.arkoicompiler.api.IToken;
 import com.arkoisystems.arkoicompiler.api.IVisitor;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.ArkoiToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.StringToken;
@@ -28,9 +29,8 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxErrorType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.OperableAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
-import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -40,13 +40,20 @@ public class StringAST extends OperableAST
 {
     
     @Getter
-    @Setter(AccessLevel.PROTECTED)
     @Nullable
     private StringToken stringToken;
     
     
-    protected StringAST(@Nullable final SyntaxAnalyzer syntaxAnalyzer) {
-        super(syntaxAnalyzer, ASTType.STRING);
+    @Builder
+    private StringAST(
+            @Nullable final SyntaxAnalyzer syntaxAnalyzer,
+            @Nullable final StringToken stringToken,
+            @Nullable final IToken startToken,
+            @Nullable final IToken endToken
+    ) {
+        super(syntaxAnalyzer, ASTType.STRING, startToken, endToken);
+        
+        this.stringToken = stringToken;
     }
     
     
@@ -55,23 +62,21 @@ public class StringAST extends OperableAST
     public StringAST parseAST(@NotNull final IASTNode parentAST) {
         Objects.requireNonNull(this.getSyntaxAnalyzer(), "syntaxAnalyzer must not be null.");
         
-        if (this.getSyntaxAnalyzer().matchesCurrentToken(TokenType.STRING_LITERAL) == null)
+        if (this.getSyntaxAnalyzer().matchesCurrentToken(TokenType.STRING_LITERAL) == null) {
+            final ArkoiToken currentToken = this.getSyntaxAnalyzer().currentToken();
             return this.addError(
                     this,
                     this.getSyntaxAnalyzer().getCompilerClass(),
-                    this.getSyntaxAnalyzer().currentToken(),
-                    
+                    currentToken,
+            
                     SyntaxErrorType.SYNTAX_ERROR_TEMPLATE,
-                    "String", "<string>", this.getSyntaxAnalyzer().currentToken().getTokenContent()
+                    "String", "<string>", currentToken != null ? currentToken.getTokenContent() : "nothing"
             );
+        }
         
-        this.setStringToken((StringToken) this.getSyntaxAnalyzer().currentToken());
-    
-        this.setStartToken(this.getStringToken());
-        this.getMarkerFactory().mark(this.getStartToken());
-    
-        this.setEndToken(this.getStringToken());
-        this.getMarkerFactory().done(this.getEndToken());
+        this.startAST(this.getSyntaxAnalyzer().currentToken());
+        this.stringToken = (StringToken) this.getSyntaxAnalyzer().currentToken();
+        this.endAST(this.getSyntaxAnalyzer().currentToken());
         return this;
     }
     
@@ -85,72 +90,6 @@ public class StringAST extends OperableAST
     @Override
     public @NotNull TypeKind getTypeKind() {
         return TypeKind.STRING;
-    }
-    
-    
-    public static StringASTBuilder builder(@NotNull final SyntaxAnalyzer syntaxAnalyzer) {
-        return new StringASTBuilder(syntaxAnalyzer);
-    }
-    
-    
-    public static StringASTBuilder builder() {
-        return new StringASTBuilder();
-    }
-    
-    
-    public static class StringASTBuilder
-    {
-        
-        @Nullable
-        private final SyntaxAnalyzer syntaxAnalyzer;
-        
-        
-        @Nullable
-        private StringToken stringToken;
-        
-        
-        private ArkoiToken startToken, endToken;
-        
-        
-        public StringASTBuilder(@NotNull final SyntaxAnalyzer syntaxAnalyzer) {
-            this.syntaxAnalyzer = syntaxAnalyzer;
-        }
-        
-        
-        public StringASTBuilder() {
-            this.syntaxAnalyzer = null;
-        }
-        
-        
-        public StringASTBuilder literal(final StringToken stringToken) {
-            this.stringToken = stringToken;
-            return this;
-        }
-        
-        
-        public StringASTBuilder start(final ArkoiToken startToken) {
-            this.startToken = startToken;
-            return this;
-        }
-        
-        
-        public StringASTBuilder end(final ArkoiToken endToken) {
-            this.endToken = endToken;
-            return this;
-        }
-        
-        
-        public StringAST build() {
-            final StringAST stringAST = new StringAST(this.syntaxAnalyzer);
-            if (this.stringToken != null)
-                stringAST.setStringToken(this.stringToken);
-            stringAST.setStartToken(this.startToken);
-            stringAST.getMarkerFactory().getCurrentMarker().setStart(stringAST.getStartToken());
-            stringAST.setEndToken(this.endToken);
-            stringAST.getMarkerFactory().getCurrentMarker().setEnd(stringAST.getEndToken());
-            return stringAST;
-        }
-        
     }
     
 }

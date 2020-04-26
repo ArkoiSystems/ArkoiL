@@ -22,9 +22,7 @@ import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.LexicalAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.ArkoiToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -39,14 +37,30 @@ public class TypeKeywordToken extends ArkoiToken
     private TypeKind typeKind;
     
     
-    protected TypeKeywordToken(@Nullable final LexicalAnalyzer lexicalAnalyzer) {
-        super(lexicalAnalyzer, TokenType.TYPE_KEYWORD);
+    @Builder
+    public TypeKeywordToken(
+            @Nullable final LexicalAnalyzer lexicalAnalyzer,
+            @Nullable final String tokenContent,
+            @Nullable final TypeKind typeKind,
+            final int startLine,
+            final int charStart,
+            final int endLine,
+            final int charEnd
+    ) {
+        super(lexicalAnalyzer, TokenType.TYPE_KEYWORD, tokenContent, startLine, charStart, endLine, charEnd);
+        
+        this.setTypeKind(typeKind);
     }
     
     
     @Override
     public @Nullable TypeKeywordToken parseToken() {
         Objects.requireNonNull(this.getLexicalAnalyzer(), "lexicalAnalyzer must not be null.");
+        
+        this.setTokenContent(Objects.requireNonNull(this.getLineRange().getSourceCode(), "lineRange.sourceCode must not be null.").substring(
+                this.getCharStart(),
+                this.getCharEnd()
+        ));
         
         switch (this.getTokenContent()) {
             case "char":
@@ -73,82 +87,6 @@ public class TypeKeywordToken extends ArkoiToken
             default:
                 return null;
         }
-    }
-    
-    
-    public static TypeKeywordTokenBuilder builder(@NotNull final LexicalAnalyzer lexicalAnalyzer) {
-        return new TypeKeywordTokenBuilder(lexicalAnalyzer);
-    }
-    
-    
-    public static TypeKeywordTokenBuilder builder() {
-        return new TypeKeywordTokenBuilder();
-    }
-    
-    
-    public static class TypeKeywordTokenBuilder
-    {
-        
-        @Nullable
-        private final LexicalAnalyzer lexicalAnalyzer;
-        
-        
-        @Nullable
-        private TypeKind typeKind;
-        
-        
-        @Nullable
-        private String tokenContent;
-        
-        
-        private int start, end;
-        
-        
-        public TypeKeywordTokenBuilder(@NotNull final LexicalAnalyzer lexicalAnalyzer) {
-            this.lexicalAnalyzer = lexicalAnalyzer;
-        }
-        
-        
-        public TypeKeywordTokenBuilder() {
-            this.lexicalAnalyzer = null;
-        }
-        
-        
-        public TypeKeywordTokenBuilder content(final String tokenContent) {
-            this.tokenContent = tokenContent;
-            return this;
-        }
-        
-        
-        public TypeKeywordTokenBuilder type(final TypeKind typeKind) {
-            this.typeKind = typeKind;
-            return this;
-        }
-        
-        
-        public TypeKeywordTokenBuilder start(final int start) {
-            this.start = start;
-            return this;
-        }
-        
-        
-        public TypeKeywordTokenBuilder end(final int end) {
-            this.end = end;
-            return this;
-        }
-        
-        
-        public TypeKeywordToken build() {
-            final TypeKeywordToken keywordToken = new TypeKeywordToken(this.lexicalAnalyzer);
-            if (this.tokenContent != null)
-                keywordToken.setTokenContent(this.tokenContent);
-            if (this.typeKind != null)
-                keywordToken.setTypeKind(this.typeKind);
-            keywordToken.setStart(this.start);
-            keywordToken.setEnd(this.end);
-            return keywordToken;
-        }
-        
     }
     
 }

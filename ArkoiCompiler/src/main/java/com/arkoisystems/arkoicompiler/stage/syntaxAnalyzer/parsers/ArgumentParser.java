@@ -32,8 +32,8 @@ public class ArgumentParser implements ISyntaxParser
     @NotNull
     @Override
     public ArgumentAST parse(@NotNull final IASTNode parentAST, @NotNull final SyntaxAnalyzer syntaxAnalyzer) {
-        return ArgumentAST
-                .builder(syntaxAnalyzer)
+        return ArgumentAST.builder()
+                .syntaxAnalyzer(syntaxAnalyzer)
                 .build()
                 .parseAST(parentAST);
     }

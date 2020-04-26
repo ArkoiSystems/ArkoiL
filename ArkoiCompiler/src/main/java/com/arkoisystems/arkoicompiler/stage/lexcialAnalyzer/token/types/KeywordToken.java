@@ -22,9 +22,7 @@ import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.LexicalAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.ArkoiToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.KeywordType;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -33,17 +31,28 @@ public class KeywordToken extends ArkoiToken
     
     @Getter
     @Setter(AccessLevel.PROTECTED)
-    @NotNull
+    @Nullable
     private KeywordType keywordType;
     
     
-    protected KeywordToken(@Nullable final LexicalAnalyzer lexicalAnalyzer) {
-        super(lexicalAnalyzer, TokenType.KEYWORD);
+    @Builder
+    public KeywordToken(
+            @Nullable final LexicalAnalyzer lexicalAnalyzer,
+            @NotNull final String tokenContent,
+            @Nullable final KeywordType keywordType,
+            final int startLine,
+            final int charStart,
+            final int endLine,
+            final int charEnd
+    ) {
+        super(lexicalAnalyzer, TokenType.KEYWORD, tokenContent, startLine, charStart, endLine, charEnd);
+        
+        this.setKeywordType(keywordType);
     }
     
     
     @Override
-    public @Nullable ArkoiToken parseToken() {
+    public @Nullable KeywordToken parseToken() {
         switch (this.getTokenContent()) {
             case "this":
                 this.setKeywordType(KeywordType.THIS);
@@ -66,82 +75,6 @@ public class KeywordToken extends ArkoiToken
             default:
                 return null;
         }
-    }
-    
-    
-    public static KeywordTokenBuilder builder(@NotNull final LexicalAnalyzer lexicalAnalyzer) {
-        return new KeywordTokenBuilder(lexicalAnalyzer);
-    }
-    
-    
-    public static KeywordTokenBuilder builder() {
-        return new KeywordTokenBuilder();
-    }
-    
-    
-    public static class KeywordTokenBuilder
-    {
-        
-        @Nullable
-        private final LexicalAnalyzer lexicalAnalyzer;
-        
-        
-        @Nullable
-        private KeywordType keywordType;
-        
-        
-        @Nullable
-        private String tokenContent;
-        
-        
-        private int start, end;
-        
-        
-        public KeywordTokenBuilder(@NotNull final LexicalAnalyzer lexicalAnalyzer) {
-            this.lexicalAnalyzer = lexicalAnalyzer;
-        }
-        
-        
-        public KeywordTokenBuilder() {
-            this.lexicalAnalyzer = null;
-        }
-        
-        
-        public KeywordTokenBuilder content(final String tokenContent) {
-            this.tokenContent = tokenContent;
-            return this;
-        }
-        
-        
-        public KeywordTokenBuilder type(final KeywordType keywordType) {
-            this.keywordType = keywordType;
-            return this;
-        }
-        
-        
-        public KeywordTokenBuilder start(final int start) {
-            this.start = start;
-            return this;
-        }
-        
-        
-        public KeywordTokenBuilder end(final int end) {
-            this.end = end;
-            return this;
-        }
-        
-        
-        public KeywordToken build() {
-            final KeywordToken keywordToken = new KeywordToken(this.lexicalAnalyzer);
-            if (this.tokenContent != null)
-                keywordToken.setTokenContent(this.tokenContent);
-            if (this.keywordType != null)
-                keywordToken.setKeywordType(this.keywordType);
-            keywordToken.setStart(this.start);
-            keywordToken.setEnd(this.end);
-            return keywordToken;
-        }
-        
     }
     
 }

@@ -19,6 +19,7 @@
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types;
 
 import com.arkoisystems.arkoicompiler.api.IASTNode;
+import com.arkoisystems.arkoicompiler.api.IToken;
 import com.arkoisystems.arkoicompiler.api.IVisitor;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.OperableAST;
@@ -26,9 +27,8 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.ty
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types.operators.LogicalOperatorType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
-import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -36,33 +36,34 @@ public class LogicalExpressionAST extends ExpressionAST
 {
     
     @Getter
-    @Setter(AccessLevel.PROTECTED)
     @Nullable
-    private OperableAST leftSideOperable;
+    private final OperableAST leftSideOperable;
     
     
     @Getter
-    @Setter(AccessLevel.PROTECTED)
     @Nullable
-    private LogicalOperatorType logicalOperatorType;
+    private final LogicalOperatorType logicalOperatorType;
     
     
     @Getter
-    @Setter(AccessLevel.PROTECTED)
     @Nullable
-    private OperableAST rightSideOperable;
+    private final OperableAST rightSideOperable;
     
     
-    public LogicalExpressionAST(@NotNull final SyntaxAnalyzer syntaxAnalyzer, @NotNull final OperableAST leftSideOperable, @NotNull final LogicalOperatorType logicalOperatorType) {
-        super(syntaxAnalyzer, ASTType.LOGICAL_EXPRESSION);
-        
+    @Builder
+    private LogicalExpressionAST(
+            @Nullable final LogicalOperatorType logicalOperatorType,
+            @Nullable final OperableAST rightSideOperable,
+            @Nullable final SyntaxAnalyzer syntaxAnalyzer,
+            @Nullable final OperableAST leftSideOperable,
+            @Nullable final IToken startToken,
+            @Nullable final IToken endToken
+    ) {
+        super(syntaxAnalyzer, null, ASTType.LOGICAL_EXPRESSION, startToken, endToken);
+    
         this.logicalOperatorType = logicalOperatorType;
+        this.rightSideOperable = rightSideOperable;
         this.leftSideOperable = leftSideOperable;
-        
-        this.getMarkerFactory().addFactory(this.leftSideOperable.getMarkerFactory());
-        
-        this.setStartToken(this.leftSideOperable.getStartToken());
-        this.getMarkerFactory().mark(this.getStartToken());
     }
     
     

@@ -49,9 +49,12 @@ public class SyntaxAnalyzer implements ICompilerStage
     
     @Getter
     @NotNull
-    private RootAST rootAST = new RootAST(this);
+    private RootAST rootAST = RootAST.builder()
+            .syntaxAnalyzer(this)
+            .build();
     
     
+    @Setter
     @Getter
     @NotNull
     private ArkoiToken[] tokens = new ArkoiToken[0];
@@ -76,13 +79,18 @@ public class SyntaxAnalyzer implements ICompilerStage
         this.reset();
         
         this.tokens = this.compilerClass.getLexicalAnalyzer().getTokens();
+        if(this.tokens.length == 0)
+            return true;
+        
         return !this.rootAST.parseAST(this.rootAST).isFailed();
     }
     
     
     @Override
     public void reset() {
-        this.rootAST = new RootAST(this);
+        this.rootAST = RootAST.builder()
+                .syntaxAnalyzer(this)
+                .build();
         this.errorHandler = new SyntaxErrorHandler();
         this.tokens = new ArkoiToken[0];
         this.failed = false;
@@ -300,6 +308,8 @@ public class SyntaxAnalyzer implements ICompilerStage
     @Nullable
     public ArkoiToken matchesNextToken(@NotNull final TokenType tokenType, final boolean advance) {
         final ArkoiToken nextToken = this.nextToken(advance);
+        if(nextToken == null)
+            return null;
         if (nextToken.getTokenType() != tokenType)
             return null;
         return nextToken;
@@ -318,19 +328,21 @@ public class SyntaxAnalyzer implements ICompilerStage
             return this.matchesCurrentToken(tokenType, advance);
         
         final ArkoiToken peekToken = this.peekToken(offset, advance);
+        if(peekToken == null)
+            return null;
         if (peekToken.getTokenType() != tokenType)
             return null;
         return peekToken;
     }
     
     
-    @NotNull
+    @Nullable
     public ArkoiToken peekToken(final int offset) {
         return this.peekToken(offset, true);
     }
     
     
-    @NotNull
+    @Nullable
     public ArkoiToken peekToken(final int offset, final boolean advance) {
         ArkoiToken arkoiToken = this.nextToken(offset, advance);
         this.undoToken(offset, advance);
@@ -338,13 +350,13 @@ public class SyntaxAnalyzer implements ICompilerStage
     }
     
     
-    @NotNull
+    @Nullable
     public ArkoiToken currentToken() {
         return this.currentToken(true);
     }
     
     
-    @NotNull
+    @Nullable
     public ArkoiToken currentToken(final boolean advance) {
         if (advance) {
             while (this.position < this.tokens.length) {
@@ -355,7 +367,7 @@ public class SyntaxAnalyzer implements ICompilerStage
         }
         
         if (this.position >= this.tokens.length)
-            return this.tokens[this.tokens.length - 1];
+            return null;
         return this.tokens[position];
     }
     
@@ -366,7 +378,7 @@ public class SyntaxAnalyzer implements ICompilerStage
     }
     
     
-    @NotNull
+    @Nullable
     public ArkoiToken nextToken(final int offset, final boolean advance) {
         ArkoiToken arkoiToken = this.nextToken(advance);
         for (int index = 1; index < offset; index++)
@@ -375,13 +387,13 @@ public class SyntaxAnalyzer implements ICompilerStage
     }
     
     
-    @NotNull
+    @Nullable
     public ArkoiToken nextToken() {
         return this.nextToken(true);
     }
     
     
-    @NotNull
+    @Nullable
     public ArkoiToken nextToken(final boolean advance) {
         this.position++;
         
@@ -394,12 +406,12 @@ public class SyntaxAnalyzer implements ICompilerStage
         }
         
         if (this.position >= this.tokens.length)
-            return this.tokens[this.tokens.length - 1];
+            return null;
         return this.tokens[this.position];
     }
     
     
-    @NotNull
+    @Nullable
     public ArkoiToken undoToken(final boolean advance) {
         this.position--;
         
@@ -412,7 +424,7 @@ public class SyntaxAnalyzer implements ICompilerStage
         }
         
         if (this.position < 0)
-            return this.tokens[0];
+            return null;
         return this.tokens[this.position];
     }
     

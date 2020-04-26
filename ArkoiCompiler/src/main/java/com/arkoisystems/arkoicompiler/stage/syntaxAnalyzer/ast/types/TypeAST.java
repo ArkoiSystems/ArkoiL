@@ -19,6 +19,7 @@
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types;
 
 import com.arkoisystems.arkoicompiler.api.IASTNode;
+import com.arkoisystems.arkoicompiler.api.IToken;
 import com.arkoisystems.arkoicompiler.api.IVisitor;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.ArkoiToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.TypeKeywordToken;
@@ -30,9 +31,8 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.ArkoiASTNode;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.parsers.TypeParser;
-import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -45,48 +45,54 @@ public class TypeAST extends ArkoiASTNode
     
     
     @Getter
-    @Setter(AccessLevel.PROTECTED)
     @Nullable
     private TypeKeywordToken typeKeywordToken;
     
     
     @Getter
-    @Setter(AccessLevel.PROTECTED)
     private boolean isArray;
     
     
-    protected TypeAST(@Nullable final SyntaxAnalyzer syntaxAnalyzer) {
-        super(syntaxAnalyzer, ASTType.TYPE);
+    @Builder
+    private TypeAST(
+            @Nullable final SyntaxAnalyzer syntaxAnalyzer,
+            @Nullable final TypeKeywordToken typeKeywordToken,
+            @Nullable final IToken startToken,
+            @Nullable final IToken endToken,
+            final boolean isArray
+    ) {
+        super(syntaxAnalyzer, ASTType.TYPE, startToken, endToken);
+    
+        this.typeKeywordToken = typeKeywordToken;
+        this.isArray = isArray;
     }
     
     
     @NotNull
     @Override
-    public TypeAST parseAST(@NotNull final IASTNode parentAST) {
+    public TypeAST parseAST(@Nullable final IASTNode parentAST) {
         Objects.requireNonNull(this.getSyntaxAnalyzer(), "syntaxAnalyzer must not be null.");
         
-        if (this.getSyntaxAnalyzer().matchesCurrentToken(TokenType.TYPE_KEYWORD) == null)
+        if (this.getSyntaxAnalyzer().matchesCurrentToken(TokenType.TYPE_KEYWORD) == null) {
+            final ArkoiToken currentToken = this.getSyntaxAnalyzer().currentToken();
             return this.addError(
                     this,
                     this.getSyntaxAnalyzer().getCompilerClass(),
-                    this.getSyntaxAnalyzer().currentToken(),
+                    currentToken,
                     
                     SyntaxErrorType.SYNTAX_ERROR_TEMPLATE,
-                    "Type", "<type keyword>", this.getSyntaxAnalyzer().currentToken().getTokenContent()
+                    "Type", "<type keyword>", currentToken != null ? currentToken.getTokenContent() : "nothing"
             );
-    
-        this.setStartToken(this.getSyntaxAnalyzer().currentToken());
-        this.getMarkerFactory().mark(this.getStartToken());
+        }
         
-        this.setTypeKeywordToken((TypeKeywordToken) this.getSyntaxAnalyzer().currentToken());
-    
+        this.startAST(this.getSyntaxAnalyzer().currentToken());
+        this.typeKeywordToken = (TypeKeywordToken) this.getSyntaxAnalyzer().currentToken();
+        
         if (this.getSyntaxAnalyzer().matchesPeekToken(1, SymbolType.OPENING_BRACKET) != null && this.getSyntaxAnalyzer().matchesPeekToken(2, SymbolType.CLOSING_BRACKET) != null) {
             this.getSyntaxAnalyzer().nextToken(2);
             this.isArray = true;
         }
-        
-        this.setEndToken(this.getSyntaxAnalyzer().currentToken());
-        this.getMarkerFactory().done(this.getEndToken());
+        this.endAST(this.getSyntaxAnalyzer().currentToken());
         return this;
     }
     
@@ -103,83 +109,6 @@ public class TypeAST extends ArkoiASTNode
         Objects.requireNonNull(this.getTypeKeywordToken().getTypeKind(), "typeKeywordToken.typeKind must not be null.");
         
         return this.getTypeKeywordToken().getTypeKind();
-    }
-    
-    
-    public static TypeASTBuilder builder(@NotNull final SyntaxAnalyzer syntaxAnalyzer) {
-        return new TypeASTBuilder(syntaxAnalyzer);
-    }
-    
-    
-    public static TypeASTBuilder builder() {
-        return new TypeASTBuilder();
-    }
-    
-    
-    public static class TypeASTBuilder
-    {
-        
-        
-        @Nullable
-        private final SyntaxAnalyzer syntaxAnalyzer;
-        
-        
-        @Nullable
-        private TypeKeywordToken typeKeywordToken;
-        
-        
-        private boolean isArray;
-        
-        
-        private ArkoiToken startToken, endToken;
-        
-        
-        public TypeASTBuilder(@NotNull final SyntaxAnalyzer syntaxAnalyzer) {
-            this.syntaxAnalyzer = syntaxAnalyzer;
-        }
-        
-        
-        public TypeASTBuilder() {
-            this.syntaxAnalyzer = null;
-        }
-        
-        
-        public TypeASTBuilder array(final boolean isArray) {
-            this.isArray = isArray;
-            return this;
-        }
-        
-        
-        public TypeASTBuilder type(final TypeKeywordToken typeKeywordToken) {
-            this.typeKeywordToken = typeKeywordToken;
-            return this;
-        }
-        
-        
-        public TypeASTBuilder start(final ArkoiToken startToken) {
-            this.startToken = startToken;
-            return this;
-        }
-        
-        
-        public TypeASTBuilder end(final ArkoiToken endToken) {
-            this.endToken = endToken;
-            return this;
-        }
-        
-        
-        public TypeAST build() {
-            final TypeAST typeAST = new TypeAST(this.syntaxAnalyzer);
-            if (this.typeKeywordToken != null)
-                typeAST.setTypeKeywordToken(this.typeKeywordToken);
-            typeAST.setArray(this.isArray);
-            typeAST.setStartToken(this.startToken);
-            typeAST.getMarkerFactory().getCurrentMarker().setStart(typeAST.getStartToken());
-            typeAST.setEndToken(this.endToken);
-            typeAST.getMarkerFactory().getCurrentMarker().setEnd(typeAST.getEndToken());
-            return typeAST;
-        }
-        
     }
     
 }

@@ -19,6 +19,7 @@
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.types;
 
 import com.arkoisystems.arkoicompiler.api.IASTNode;
+import com.arkoisystems.arkoicompiler.api.IToken;
 import com.arkoisystems.arkoicompiler.api.IVisitor;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.ArkoiToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.IdentifierToken;
@@ -33,13 +34,11 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.ty
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.StatementAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
-import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -48,79 +47,95 @@ public class VariableAST extends StatementAST
     
     
     @Getter
-    @Setter(AccessLevel.PROTECTED)
-    @NotNull
-    private List<AnnotationAST> variableAnnotations = new ArrayList<>();
+    @Nullable
+    private final List<AnnotationAST> variableAnnotations;
     
     
     @Getter
-    @Setter(AccessLevel.PROTECTED)
     @Nullable
     private IdentifierToken variableName;
     
     
     @Getter
-    @Setter(AccessLevel.PROTECTED)
     @Nullable
     private OperableAST variableExpression;
     
     
-    protected VariableAST(@Nullable final SyntaxAnalyzer syntaxAnalyzer) {
-        super(syntaxAnalyzer, ASTType.VARIABLE);
+    @Builder
+    private VariableAST(
+            @Nullable final List<AnnotationAST> variableAnnotations,
+            @Nullable final OperableAST variableExpression,
+            @Nullable final SyntaxAnalyzer syntaxAnalyzer,
+            @Nullable final IdentifierToken variableName,
+            @Nullable final IToken startToken,
+            @Nullable final IToken endToken
+    ) {
+        super(syntaxAnalyzer, ASTType.VARIABLE, startToken, endToken);
+        
+        this.variableAnnotations = variableAnnotations;
+        this.variableExpression = variableExpression;
+        this.variableName = variableName;
     }
     
     
     @NotNull
     @Override
-    public VariableAST parseAST(@NotNull final IASTNode parentAST) {
+    public VariableAST parseAST(@Nullable final IASTNode parentAST) {
         Objects.requireNonNull(this.getSyntaxAnalyzer(), "syntaxAnalyzer must not be null.");
-        
-        if (this.getSyntaxAnalyzer().matchesCurrentToken(KeywordType.VAR) == null)
-            return this.addError(
-                    this,
-                    this.getSyntaxAnalyzer().getCompilerClass(),
-                    this.getSyntaxAnalyzer().currentToken(),
-                    
-                    SyntaxErrorType.SYNTAX_ERROR_TEMPLATE,
-                    "Variable", "'var'", this.getSyntaxAnalyzer().currentToken().getTokenContent()
-            );
     
-        this.setStartToken(this.getSyntaxAnalyzer().currentToken());
-        this.getMarkerFactory().mark(this.getStartToken());
-        
-        if (this.getSyntaxAnalyzer().matchesPeekToken(1, TokenType.IDENTIFIER) == null)
+        if (this.getSyntaxAnalyzer().matchesCurrentToken(KeywordType.VAR) == null) {
+            final ArkoiToken currentToken = this.getSyntaxAnalyzer().currentToken();
             return this.addError(
                     this,
                     this.getSyntaxAnalyzer().getCompilerClass(),
-                    this.getSyntaxAnalyzer().peekToken(1),
-                    
+                    currentToken,
+                
                     SyntaxErrorType.SYNTAX_ERROR_TEMPLATE,
-                    "Variable", "<identifier>", this.getSyntaxAnalyzer().peekToken(1).getTokenContent()
+                    "Variable", "'var'", currentToken != null ? currentToken.getTokenContent() : "nothing"
             );
+        }
         
-        this.setVariableName((IdentifierToken) this.getSyntaxAnalyzer().nextToken());
+        this.startAST(this.getSyntaxAnalyzer().currentToken());
         
-        if (this.getSyntaxAnalyzer().matchesPeekToken(1, OperatorType.EQUALS) == null)
+        if (this.getSyntaxAnalyzer().matchesPeekToken(1, TokenType.IDENTIFIER) == null) {
+            final ArkoiToken peekedToken = this.getSyntaxAnalyzer().peekToken(1);
             return this.addError(
                     this,
                     this.getSyntaxAnalyzer().getCompilerClass(),
-                    this.getSyntaxAnalyzer().currentToken(),
-                    
+                    peekedToken,
+            
                     SyntaxErrorType.SYNTAX_ERROR_TEMPLATE,
-                    "Variable", "'='", this.getSyntaxAnalyzer().currentToken().getTokenContent()
+                    "Variable", "<identifier>", peekedToken != null ? peekedToken.getTokenContent() : "nothing"
             );
+        }
+        
+        this.variableName = (IdentifierToken) this.getSyntaxAnalyzer().nextToken();
+        
+        if (this.getSyntaxAnalyzer().matchesPeekToken(1, OperatorType.EQUALS) == null) {
+            final ArkoiToken peekedToken = this.getSyntaxAnalyzer().peekToken(1);
+            return this.addError(
+                    this,
+                    this.getSyntaxAnalyzer().getCompilerClass(),
+                    peekedToken,
+            
+                    SyntaxErrorType.SYNTAX_ERROR_TEMPLATE,
+                    "Variable", "'='", peekedToken != null ? peekedToken.getTokenContent() : "nothing"
+            );
+        }
         
         this.getSyntaxAnalyzer().nextToken(2);
         
-        if (!ExpressionAST.EXPRESSION_PARSER.canParse(this, this.getSyntaxAnalyzer()))
+        if (!ExpressionAST.EXPRESSION_PARSER.canParse(this, this.getSyntaxAnalyzer())) {
+            final ArkoiToken currentToken = this.getSyntaxAnalyzer().currentToken();
             return this.addError(
                     this,
                     this.getSyntaxAnalyzer().getCompilerClass(),
-                    this.getSyntaxAnalyzer().currentToken(),
-        
+                    currentToken,
+            
                     SyntaxErrorType.SYNTAX_ERROR_TEMPLATE,
-                    "Variable", "<expression>", this.getSyntaxAnalyzer().currentToken().getTokenContent()
+                    "Variable", "<expression>", currentToken != null ? currentToken.getTokenContent() : "nothing"
             );
+        }
         
         final OperableAST operableAST = ExpressionAST.EXPRESSION_PARSER.parse(this, this.getSyntaxAnalyzer());
         this.getMarkerFactory().addFactory(operableAST.getMarkerFactory());
@@ -130,10 +145,8 @@ public class VariableAST extends StatementAST
             return this;
         }
         
-        this.setVariableExpression(operableAST);
-        
-        this.setEndToken(this.getSyntaxAnalyzer().currentToken());
-        this.getMarkerFactory().done(this.getEndToken());
+        this.variableExpression = operableAST;
+        this.endAST(this.getSyntaxAnalyzer().currentToken());
         return this;
     }
     
@@ -149,96 +162,6 @@ public class VariableAST extends StatementAST
         Objects.requireNonNull(this.getVariableExpression(), "variableExpression must not be null.");
         
         return this.getVariableExpression().getTypeKind();
-    }
-    
-    
-    public static VariableASTBuilder builder(@NotNull final SyntaxAnalyzer syntaxAnalyzer) {
-        return new VariableASTBuilder(syntaxAnalyzer);
-    }
-    
-    
-    public static VariableASTBuilder builder() {
-        return new VariableASTBuilder();
-    }
-    
-    
-    public static class VariableASTBuilder
-    {
-        
-        @Nullable
-        private final SyntaxAnalyzer syntaxAnalyzer;
-        
-        
-        @Nullable
-        private List<AnnotationAST> variableAnnotations;
-        
-        
-        @Nullable
-        private IdentifierToken variableName;
-        
-        
-        @Nullable
-        private OperableAST variableExpression;
-        
-        
-        private ArkoiToken startToken, endToken;
-        
-        
-        public VariableASTBuilder(@NotNull final SyntaxAnalyzer syntaxAnalyzer) {
-            this.syntaxAnalyzer = syntaxAnalyzer;
-        }
-        
-        
-        public VariableASTBuilder() {
-            this.syntaxAnalyzer = null;
-        }
-        
-        
-        public VariableASTBuilder annotations(final List<AnnotationAST> variableAnnotations) {
-            this.variableAnnotations = variableAnnotations;
-            return this;
-        }
-        
-        
-        public VariableASTBuilder name(final IdentifierToken variableName) {
-            this.variableName = variableName;
-            return this;
-        }
-        
-        
-        public VariableASTBuilder expression(final OperableAST variableExpression) {
-            this.variableExpression = variableExpression;
-            return this;
-        }
-        
-        
-        public VariableASTBuilder start(final ArkoiToken startToken) {
-            this.startToken = startToken;
-            return this;
-        }
-        
-        
-        public VariableASTBuilder end(final ArkoiToken endToken) {
-            this.endToken = endToken;
-            return this;
-        }
-        
-        
-        public VariableAST build() {
-            final VariableAST variableAST = new VariableAST(this.syntaxAnalyzer);
-            if (this.variableAnnotations != null)
-                variableAST.setVariableAnnotations(this.variableAnnotations);
-            if (this.variableName != null)
-                variableAST.setVariableName(this.variableName);
-            if (this.variableExpression != null)
-                variableAST.setVariableExpression(this.variableExpression);
-            variableAST.setStartToken(this.startToken);
-            variableAST.getMarkerFactory().getCurrentMarker().setStart(variableAST.getStartToken());
-            variableAST.setEndToken(this.endToken);
-            variableAST.getMarkerFactory().getCurrentMarker().setEnd(variableAST.getEndToken());
-            return variableAST;
-        }
-        
     }
     
 }

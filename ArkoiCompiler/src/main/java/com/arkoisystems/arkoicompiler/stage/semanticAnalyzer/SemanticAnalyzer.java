@@ -40,11 +40,16 @@ public class SemanticAnalyzer implements ICompilerStage
     
     
     @Getter
+    private final boolean detailed;
+    
+    
+    @Getter
     private boolean failed;
     
     
-    public SemanticAnalyzer(@NotNull final ICompilerClass compilerClass) {
+    public SemanticAnalyzer(@NotNull final ICompilerClass compilerClass, final boolean detailed) {
         this.compilerClass = compilerClass;
+        this.detailed = detailed;
     }
     
     
@@ -56,7 +61,7 @@ public class SemanticAnalyzer implements ICompilerStage
         final ScopeVisitor scopeVisitor = new ScopeVisitor(this);
         scopeVisitor.visit(this.getCompilerClass().getSyntaxAnalyzer().getRootAST());
     
-        final TypeVisitor typeVisitor = new TypeVisitor(this);
+        final TypeVisitor typeVisitor = new TypeVisitor(this, this.isDetailed());
         typeVisitor.visit(this.getCompilerClass().getSyntaxAnalyzer().getRootAST());
     
         return !scopeVisitor.isFailed() && !typeVisitor.isFailed();

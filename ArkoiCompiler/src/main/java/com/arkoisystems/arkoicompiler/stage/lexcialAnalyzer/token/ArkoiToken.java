@@ -23,13 +23,11 @@ import com.arkoisystems.arkoicompiler.api.ICompilerClass;
 import com.arkoisystems.arkoicompiler.api.IToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.LexicalAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
-import lombok.AccessLevel;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Collections;
 import java.util.Objects;
 
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
@@ -42,10 +40,9 @@ public abstract class ArkoiToken implements IToken
     
     
     @EqualsAndHashCode.Include
-    @Setter(AccessLevel.PROTECTED)
     @Getter
     @NotNull
-    private TokenType tokenType;
+    private final TokenType tokenType;
     
     
     @Getter
@@ -60,14 +57,34 @@ public abstract class ArkoiToken implements IToken
     
     
     @EqualsAndHashCode.Include
-    @Setter
     @Getter
-    private int start, end;
+    private ArkoiError.ErrorPosition.LineRange lineRange;
     
     
-    public ArkoiToken(@Nullable final LexicalAnalyzer lexicalAnalyzer, @NotNull final TokenType tokenType) {
+    @EqualsAndHashCode.Include
+    @Getter
+    private int charStart, charEnd;
+    
+    
+    @Getter
+    private int startLine;
+    
+    
+    public ArkoiToken(
+            @Nullable final LexicalAnalyzer lexicalAnalyzer,
+            @NotNull final TokenType tokenType,
+            @Nullable final String tokenContent,
+            final int startLine,
+            final int charStart,
+            final int endLine,
+            final int charEnd
+    ) {
         this.lexicalAnalyzer = lexicalAnalyzer;
         this.tokenType = tokenType;
+        
+        this.setTokenContent(tokenContent == null ? "" : tokenContent);
+        this.setCharStart(startLine, charStart);
+        this.setCharEnd(endLine, charEnd);
     }
     
     
@@ -80,12 +97,15 @@ public abstract class ArkoiToken implements IToken
     }
     
     
-    public <E> E addError(@Nullable E errorSource, @NotNull final ICompilerClass compilerClass, final int position, @NotNull final String message, final Object... arguments) {
-        Objects.requireNonNull(this.getLexicalAnalyzer(), "lexicalAnalyzer must not be null.");
-        
-        this.getLexicalAnalyzer().getErrorHandler().addError(ArkoiError.builder()
+    @Override
+    public <E> E addError(@Nullable E errorSource, @NotNull final ICompilerClass compilerClass, final int charIndex, final int lineNumber, @NotNull final String message, final Object... arguments) {
+        compilerClass.getLexicalAnalyzer().getErrorHandler().addError(ArkoiError.builder()
                 .compilerClass(compilerClass)
-                .positions(new int[][] { { position, position + 1 } })
+                .positions(Collections.singletonList(ArkoiError.ErrorPosition.builder()
+                        .lineRange(ArkoiError.ErrorPosition.LineRange.make(compilerClass, lineNumber, lineNumber))
+                        .charStart(charIndex)
+                        .charEnd(charIndex + 1)
+                        .build()))
                 .message(message)
                 .arguments(arguments)
                 .build()
@@ -96,19 +116,25 @@ public abstract class ArkoiToken implements IToken
     }
     
     
-    public <E> E addError(@Nullable final E errorSource, @NotNull final ICompilerClass compilerClass, final int start, final int end, @NotNull final String message, final Object... arguments) {
+    public void setCharStart(final int startLine, final int charStart) {
+        this.startLine = startLine;
+        this.charStart = charStart;
+    }
+    
+    
+    public void setCharEnd(final int endLine, final int charEnd) {
         Objects.requireNonNull(this.getLexicalAnalyzer(), "lexicalAnalyzer must not be null.");
         
-        this.getLexicalAnalyzer().getErrorHandler().addError(ArkoiError.builder()
-                .compilerClass(compilerClass)
-                .positions(new int[][] { { start, end } })
-                .message(message)
-                .arguments(arguments)
-                .build()
-        );
+        this.charEnd = charEnd;
+        this.lineRange = ArkoiError.ErrorPosition.LineRange.make(this.getLexicalAnalyzer().getCompilerClass(), this.startLine, endLine);
         
-        this.failed();
-        return errorSource;
+        Objects.requireNonNull(this.getLineRange(), "lineRange must not be null.");
+        Objects.requireNonNull(this.getLineRange().getSourceCode(), "lineRange.sourceCode must not be null.");
+        
+        this.tokenContent = this.getLineRange().getSourceCode().substring(
+                this.getCharStart(),
+                this.getCharEnd()
+        );
     }
     
 }

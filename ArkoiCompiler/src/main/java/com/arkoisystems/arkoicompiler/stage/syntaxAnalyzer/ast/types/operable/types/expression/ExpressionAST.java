@@ -19,6 +19,7 @@
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression;
 
 import com.arkoisystems.arkoicompiler.api.IASTNode;
+import com.arkoisystems.arkoicompiler.api.IToken;
 import com.arkoisystems.arkoicompiler.api.IVisitor;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.OperatorType;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.SymbolType;
@@ -33,9 +34,8 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.ty
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.parsers.ExpressionParser;
-import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -66,13 +66,21 @@ public class ExpressionAST extends OperableAST
     
     
     @Getter
-    @Setter(AccessLevel.PROTECTED)
     @Nullable
-    private OperableAST operableAST;
+    private final OperableAST operableAST;
     
     
-    public ExpressionAST(@Nullable final SyntaxAnalyzer syntaxAnalyzer, @NotNull final ASTType astType) {
-        super(syntaxAnalyzer, astType);
+    @Builder(builderMethodName = "expressionBuilder")
+    protected ExpressionAST(
+            @Nullable final SyntaxAnalyzer syntaxAnalyzer,
+            @Nullable final OperableAST operableAST,
+            @NotNull final ASTType astType,
+            @Nullable final IToken startToken,
+            @Nullable final IToken endToken
+    ) {
+        super(syntaxAnalyzer, astType, startToken, endToken);
+        
+        this.operableAST = operableAST;
     }
     
     
@@ -93,6 +101,7 @@ public class ExpressionAST extends OperableAST
     }
     
     
+    @NotNull
     public OperableAST parseAssignment(@NotNull final IASTNode parentAST) {
         Objects.requireNonNull(this.getSyntaxAnalyzer(), "syntaxAnalyzer must not be null.");
         
@@ -102,51 +111,59 @@ public class ExpressionAST extends OperableAST
         
         while (true) {
             if (this.getSyntaxAnalyzer().matchesPeekToken(1, OperatorType.EQUALS) != null) {
-                operableAST = AssignmentExpressionAST.builder(this.getSyntaxAnalyzer())
-                        .left(operableAST)
-                        .operator(AssignmentOperatorType.ASSIGN)
-                        .start(operableAST.getStartToken())
+                operableAST = AssignmentExpressionAST.builder()
+                        .syntaxAnalyzer(this.getSyntaxAnalyzer())
+                        .leftSideOperable(operableAST)
+                        .assignmentOperatorType(AssignmentOperatorType.ASSIGN)
+                        .startToken(operableAST.getStartToken())
                         .build()
                         .parseAST(parentAST);
             } else if (this.getSyntaxAnalyzer().matchesPeekToken(1, OperatorType.PLUS_EQUALS) != null) {
-                operableAST = AssignmentExpressionAST.builder(this.getSyntaxAnalyzer())
-                        .left(operableAST)
-                        .operator(AssignmentOperatorType.ADD_ASSIGN)
-                        .start(operableAST.getStartToken())
+                operableAST = AssignmentExpressionAST.builder()
+                        .syntaxAnalyzer(this.getSyntaxAnalyzer())
+                        .leftSideOperable(operableAST)
+                        .assignmentOperatorType(AssignmentOperatorType.ADD_ASSIGN)
+                        .startToken(operableAST.getStartToken())
                         .build()
                         .parseAST(parentAST);
             } else if (this.getSyntaxAnalyzer().matchesPeekToken(1, OperatorType.MINUS_EQUALS) != null) {
-                operableAST = AssignmentExpressionAST.builder(this.getSyntaxAnalyzer())
-                        .left(operableAST)
-                        .operator(AssignmentOperatorType.SUB_ASSIGN)
-                        .start(operableAST.getStartToken())
+                operableAST = AssignmentExpressionAST.builder()
+                        .syntaxAnalyzer(this.getSyntaxAnalyzer())
+                        .leftSideOperable(operableAST)
+                        .assignmentOperatorType(AssignmentOperatorType.SUB_ASSIGN)
+                        .startToken(operableAST.getStartToken())
                         .build()
                         .parseAST(parentAST);
             } else if (this.getSyntaxAnalyzer().matchesPeekToken(1, OperatorType.ASTERISK_EQUALS) != null) {
-                operableAST = AssignmentExpressionAST.builder(this.getSyntaxAnalyzer())
-                        .left(operableAST)
-                        .operator(AssignmentOperatorType.MUL_ASSIGN)
-                        .start(operableAST.getStartToken())
+                operableAST = AssignmentExpressionAST.builder()
+                        .syntaxAnalyzer(this.getSyntaxAnalyzer())
+                        .leftSideOperable(operableAST)
+                        .assignmentOperatorType(AssignmentOperatorType.MUL_ASSIGN)
+                        .startToken(operableAST.getStartToken())
                         .build()
                         .parseAST(parentAST);
             } else if (this.getSyntaxAnalyzer().matchesPeekToken(1, OperatorType.DIV_EQUALS) != null) {
-                operableAST = AssignmentExpressionAST.builder(this.getSyntaxAnalyzer())
-                        .left(operableAST)
-                        .operator(AssignmentOperatorType.DIV_ASSIGN)
-                        .start(operableAST.getStartToken())
+                operableAST = AssignmentExpressionAST.builder()
+                        .syntaxAnalyzer(this.getSyntaxAnalyzer())
+                        .leftSideOperable(operableAST)
+                        .assignmentOperatorType(AssignmentOperatorType.DIV_ASSIGN)
+                        .startToken(operableAST.getStartToken())
                         .build()
                         .parseAST(parentAST);
             } else if (this.getSyntaxAnalyzer().matchesPeekToken(1, OperatorType.PERCENT_EQUALS) != null) {
-                operableAST = AssignmentExpressionAST.builder(this.getSyntaxAnalyzer())
-                        .left(operableAST)
-                        .operator(AssignmentOperatorType.MOD_ASSIGN)
-                        .start(operableAST.getStartToken())
+                operableAST = AssignmentExpressionAST.builder()
+                        .syntaxAnalyzer(this.getSyntaxAnalyzer())
+                        .leftSideOperable(operableAST)
+                        .assignmentOperatorType(AssignmentOperatorType.MOD_ASSIGN)
+                        .startToken(operableAST.getStartToken())
                         .build()
                         .parseAST(parentAST);
             } else return operableAST;
         }
     }
     
+    
+    @NotNull
     public OperableAST parseAdditive(@NotNull final IASTNode parentAST) {
         Objects.requireNonNull(this.getSyntaxAnalyzer(), "syntaxAnalyzer must not be null.");
         
@@ -156,23 +173,27 @@ public class ExpressionAST extends OperableAST
         
         while (true) {
             if (this.getSyntaxAnalyzer().matchesPeekToken(1, OperatorType.PLUS) != null) {
-                operableAST = BinaryExpressionAST.builder(this.getSyntaxAnalyzer())
-                        .left(operableAST)
-                        .operator(BinaryOperatorType.ADDITION)
-                        .start(operableAST.getStartToken())
+                operableAST = BinaryExpressionAST.builder()
+                        .syntaxAnalyzer(this.getSyntaxAnalyzer())
+                        .leftSideOperable(operableAST)
+                        .binaryOperatorType(BinaryOperatorType.ADDITION)
+                        .startToken(operableAST.getStartToken())
                         .build()
                         .parseAST(parentAST);
             } else if (this.getSyntaxAnalyzer().matchesPeekToken(1, OperatorType.MINUS) != null) {
-                operableAST = BinaryExpressionAST.builder(this.getSyntaxAnalyzer())
-                        .left(operableAST)
-                        .operator(BinaryOperatorType.SUBTRACTION)
-                        .start(operableAST.getStartToken())
+                operableAST = BinaryExpressionAST.builder()
+                        .syntaxAnalyzer(this.getSyntaxAnalyzer())
+                        .leftSideOperable(operableAST)
+                        .binaryOperatorType(BinaryOperatorType.SUBTRACTION)
+                        .startToken(operableAST.getStartToken())
                         .build()
                         .parseAST(parentAST);
             } else return operableAST;
         }
     }
     
+    
+    @NotNull
     protected OperableAST parseMultiplicative(@NotNull final IASTNode parentAST) {
         Objects.requireNonNull(this.getSyntaxAnalyzer(), "syntaxAnalyzer must not be null.");
         
@@ -182,30 +203,35 @@ public class ExpressionAST extends OperableAST
         
         while (true) {
             if (this.getSyntaxAnalyzer().matchesPeekToken(1, OperatorType.ASTERISK) != null) {
-                operableAST = BinaryExpressionAST.builder(this.getSyntaxAnalyzer())
-                        .left(operableAST)
-                        .operator(BinaryOperatorType.MULTIPLICATION)
-                        .start(operableAST.getStartToken())
+                operableAST = BinaryExpressionAST.builder()
+                        .syntaxAnalyzer(this.getSyntaxAnalyzer())
+                        .leftSideOperable(operableAST)
+                        .binaryOperatorType(BinaryOperatorType.MULTIPLICATION)
+                        .startToken(operableAST.getStartToken())
                         .build()
                         .parseAST(parentAST);
             } else if (this.getSyntaxAnalyzer().matchesPeekToken(1, OperatorType.DIV) != null) {
-                operableAST = BinaryExpressionAST.builder(this.getSyntaxAnalyzer())
-                        .left(operableAST)
-                        .operator(BinaryOperatorType.DIVISION)
-                        .start(operableAST.getStartToken())
+                operableAST = BinaryExpressionAST.builder()
+                        .syntaxAnalyzer(this.getSyntaxAnalyzer())
+                        .leftSideOperable(operableAST)
+                        .binaryOperatorType(BinaryOperatorType.DIVISION)
+                        .startToken(operableAST.getStartToken())
                         .build()
                         .parseAST(parentAST);
             } else if (this.getSyntaxAnalyzer().matchesPeekToken(1, OperatorType.PERCENT) != null) {
-                operableAST = BinaryExpressionAST.builder(this.getSyntaxAnalyzer())
-                        .left(operableAST)
-                        .operator(BinaryOperatorType.MODULO)
-                        .start(operableAST.getStartToken())
+                operableAST = BinaryExpressionAST.builder()
+                        .syntaxAnalyzer(this.getSyntaxAnalyzer())
+                        .leftSideOperable(operableAST)
+                        .binaryOperatorType(BinaryOperatorType.MODULO)
+                        .startToken(operableAST.getStartToken())
                         .build()
                         .parseAST(parentAST);
             } else return operableAST;
         }
     }
     
+    
+    @NotNull
     private OperableAST parseExponential(@NotNull final IASTNode parentAST) {
         Objects.requireNonNull(this.getSyntaxAnalyzer(), "syntaxAnalyzer must not be null.");
         
@@ -215,10 +241,11 @@ public class ExpressionAST extends OperableAST
         
         while (true) {
             if (this.getSyntaxAnalyzer().matchesPeekToken(1, OperatorType.ASTERISK_ASTERISK) != null) {
-                operableAST = BinaryExpressionAST.builder(this.getSyntaxAnalyzer())
-                        .left(operableAST)
-                        .operator(BinaryOperatorType.EXPONENTIAL)
-                        .start(operableAST.getStartToken())
+                operableAST = BinaryExpressionAST.builder()
+                        .syntaxAnalyzer(this.getSyntaxAnalyzer())
+                        .leftSideOperable(operableAST)
+                        .binaryOperatorType(BinaryOperatorType.EXPONENTIAL)
+                        .startToken(operableAST.getStartToken())
                         .build()
                         .parseAST(parentAST);
             } else return operableAST;
@@ -227,60 +254,72 @@ public class ExpressionAST extends OperableAST
     
     
     // TODO: Change parenthesized expression and cast expression
+    @NotNull
     public OperableAST parseOperable(@NotNull final IASTNode parentAST) {
         Objects.requireNonNull(this.getSyntaxAnalyzer(), "syntaxAnalyzer must not be null.");
         
         OperableAST operableAST = null;
         if (this.getSyntaxAnalyzer().matchesCurrentToken(OperatorType.MINUS_MINUS) != null)
-            operableAST = PrefixExpressionAST.builder(this.getSyntaxAnalyzer())
-                    .operator(PrefixOperatorType.PREFIX_SUB)
+            operableAST = PrefixExpressionAST.builder()
+                    .syntaxAnalyzer(this.getSyntaxAnalyzer())
+                    .prefixOperatorType(PrefixOperatorType.PREFIX_SUB)
                     .build()
                     .parseAST(parentAST);
         else if (this.getSyntaxAnalyzer().matchesCurrentToken(OperatorType.PLUS_PLUS) != null)
-            operableAST = PrefixExpressionAST.builder(this.getSyntaxAnalyzer())
-                    .operator(PrefixOperatorType.PREFIX_ADD)
+            operableAST = PrefixExpressionAST.builder()
+                    .syntaxAnalyzer(this.getSyntaxAnalyzer())
+                    .prefixOperatorType(PrefixOperatorType.PREFIX_ADD)
                     .build()
                     .parseAST(parentAST);
         else if (this.getSyntaxAnalyzer().matchesCurrentToken(OperatorType.MINUS) != null)
-            operableAST = PrefixExpressionAST.builder(this.getSyntaxAnalyzer())
-                    .operator(PrefixOperatorType.NEGATE)
+            operableAST = PrefixExpressionAST.builder()
+                    .syntaxAnalyzer(this.getSyntaxAnalyzer())
+                    .prefixOperatorType(PrefixOperatorType.NEGATE)
                     .build()
                     .parseAST(parentAST);
         else if (this.getSyntaxAnalyzer().matchesCurrentToken(OperatorType.PLUS) != null)
-            operableAST = PrefixExpressionAST.builder(this.getSyntaxAnalyzer())
-                    .operator(PrefixOperatorType.AFFIRM)
+            operableAST = PrefixExpressionAST.builder()
+                    .syntaxAnalyzer(this.getSyntaxAnalyzer())
+                    .prefixOperatorType(PrefixOperatorType.AFFIRM)
                     .build()
                     .parseAST(parentAST);
         else if (this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.OPENING_PARENTHESIS) != null) {
-            operableAST = ParenthesizedExpressionAST
-                    .builder(this.getSyntaxAnalyzer())
+            operableAST = ParenthesizedExpressionAST.builder()
+                    .syntaxAnalyzer(this.getSyntaxAnalyzer())
                     .build()
                     .parseAST(parentAST);
         }
         
         if (operableAST == null)
-            operableAST = new OperableAST(this.getSyntaxAnalyzer(), ASTType.OPERABLE).parseAST(parentAST);
+            operableAST = OperableAST.operableBuilder()
+                    .syntaxAnalyzer(this.getSyntaxAnalyzer())
+                    .astType(ASTType.OPERABLE)
+                    .build()
+                    .parseAST(parentAST);
         if (operableAST.isFailed())
             return operableAST;
         
         if (this.getSyntaxAnalyzer().matchesPeekToken(1, OperatorType.MINUS_MINUS) != null) {
-            return PostfixExpressionAST.builder(this.getSyntaxAnalyzer())
-                    .left(operableAST)
-                    .operator(PostfixOperatorType.POSTFIX_SUB)
-                    .start(operableAST.getStartToken())
+            return PostfixExpressionAST.builder()
+                    .syntaxAnalyzer(this.getSyntaxAnalyzer())
+                    .leftSideOperable(operableAST)
+                    .postfixOperatorType(PostfixOperatorType.POSTFIX_SUB)
+                    .startToken(operableAST.getStartToken())
                     .build()
                     .parseAST(parentAST);
         } else if (this.getSyntaxAnalyzer().matchesPeekToken(1, OperatorType.PLUS_PLUS) != null) {
-            return PostfixExpressionAST.builder(this.getSyntaxAnalyzer())
-                    .left(operableAST)
-                    .operator(PostfixOperatorType.POSTFIX_ADD)
-                    .start(operableAST.getStartToken())
+            return PostfixExpressionAST.builder()
+                    .syntaxAnalyzer(this.getSyntaxAnalyzer())
+                    .leftSideOperable(operableAST)
+                    .postfixOperatorType(PostfixOperatorType.POSTFIX_ADD)
+                    .startToken(operableAST.getStartToken())
                     .build()
                     .parseAST(parentAST);
         } else if (this.getSyntaxAnalyzer().matchesPeekToken(1, TokenType.IDENTIFIER, false) != null) {
-            return CastExpressionAST.builder(this.getSyntaxAnalyzer())
-                    .left(operableAST)
-                    .start(operableAST.getStartToken())
+            return CastExpressionAST.builder()
+                    .syntaxAnalyzer(this.getSyntaxAnalyzer())
+                    .leftSideOperable(operableAST)
+                    .startToken(operableAST.getStartToken())
                     .build()
                     .parseAST(parentAST);
         }

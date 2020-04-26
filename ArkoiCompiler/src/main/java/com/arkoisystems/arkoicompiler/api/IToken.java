@@ -18,10 +18,11 @@
  */
 package com.arkoisystems.arkoicompiler.api;
 
+import com.arkoisystems.arkoicompiler.ArkoiError;
 import com.arkoisystems.arkoicompiler.api.utils.IFailed;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.LexicalAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
-import lombok.Getter;
+import lombok.EqualsAndHashCode;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -40,21 +41,16 @@ public interface IToken extends IFailed
     String getTokenContent();
     
     
-    int getStart();
+    @EqualsAndHashCode.Include
+    ArkoiError.ErrorPosition.LineRange getLineRange();
     
     
-    void setStart(int start);
+    int getCharStart();
     
     
-    int getEnd();
+    int getCharEnd();
     
     
-    void setEnd(int end);
-    
-    
-    <E> E addError(@Nullable E errorSource, @NotNull final ICompilerClass compilerClass, final int position, @NotNull final String message, final Object... arguments);
-    
-    
-    <E> E addError(@Nullable final E errorSource, @NotNull final ICompilerClass compilerClass, final int start, final int end, @NotNull final String message, final Object... arguments);
+    <E> E addError(@Nullable E errorSource, @NotNull final ICompilerClass compilerClass, final int charIndex, final int lineNumber, @NotNull final String message, final Object... arguments);
     
 }

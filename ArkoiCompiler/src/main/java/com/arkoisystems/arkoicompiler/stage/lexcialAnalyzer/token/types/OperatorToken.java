@@ -23,12 +23,12 @@ import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.ArkoiToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.OperatorType;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.TokenType;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Arrays;
 import java.util.Objects;
 
 public class OperatorToken extends ArkoiToken
@@ -36,12 +36,22 @@ public class OperatorToken extends ArkoiToken
     
     @Getter
     @Setter(AccessLevel.PROTECTED)
-    @NotNull
+    @Nullable
     private OperatorType operatorType;
     
     
-    protected OperatorToken(@Nullable final LexicalAnalyzer lexicalAnalyzer) {
-        super(lexicalAnalyzer, TokenType.OPERATOR);
+    @Builder
+    public OperatorToken(
+            @Nullable final LexicalAnalyzer lexicalAnalyzer,
+            @NotNull final String tokenContent,
+            @NotNull final OperatorType operatorType,
+            final int startLine,
+            final int charStart,
+            final int endLine,
+            final int charEnd) {
+        super(lexicalAnalyzer, TokenType.OPERATOR, tokenContent, startLine, charStart, endLine, charEnd);
+        
+        this.setOperatorType(operatorType);
     }
     
     
@@ -49,13 +59,11 @@ public class OperatorToken extends ArkoiToken
     public @NotNull ArkoiToken parseToken() {
         Objects.requireNonNull(this.getLexicalAnalyzer(), "lexicalAnalyzer must not be null.");
         
+        this.setCharStart(this.getLexicalAnalyzer().getLineIndex(), this.getLexicalAnalyzer().getCharIndex());
         if (this.getLexicalAnalyzer().currentChar() == '=') {
             this.setOperatorType(OperatorType.EQUALS);
-            this.setStart(this.getLexicalAnalyzer().getPosition());
-            this.setEnd(this.getLexicalAnalyzer().getPosition() + 1);
+            this.setCharEnd(this.getLexicalAnalyzer().getLineIndex(), this.getLexicalAnalyzer().getCharIndex() + 1);
         } else if (this.getLexicalAnalyzer().currentChar() == '+') {
-            this.setStart(this.getLexicalAnalyzer().getPosition());
-            
             if (this.getLexicalAnalyzer().peekChar(1) == '=') {
                 this.getLexicalAnalyzer().next();
                 this.setOperatorType(OperatorType.PLUS_EQUALS);
@@ -64,10 +72,8 @@ public class OperatorToken extends ArkoiToken
                 this.setOperatorType(OperatorType.PLUS_PLUS);
             } else this.setOperatorType(OperatorType.PLUS);
             
-            this.setEnd(this.getLexicalAnalyzer().getPosition() + 1);
+            this.setCharEnd(this.getLexicalAnalyzer().getLineIndex(), this.getLexicalAnalyzer().getCharIndex() + 1);
         } else if (this.getLexicalAnalyzer().currentChar() == '-') {
-            this.setStart(this.getLexicalAnalyzer().getPosition());
-            
             if (this.getLexicalAnalyzer().peekChar(1) == '=') {
                 this.getLexicalAnalyzer().next();
                 this.setOperatorType(OperatorType.MINUS_EQUALS);
@@ -76,10 +82,8 @@ public class OperatorToken extends ArkoiToken
                 this.setOperatorType(OperatorType.MINUS_MINUS);
             } else this.setOperatorType(OperatorType.MINUS);
             
-            this.setEnd(this.getLexicalAnalyzer().getPosition() + 1);
+            this.setCharEnd(this.getLexicalAnalyzer().getLineIndex(), this.getLexicalAnalyzer().getCharIndex() + 1);
         } else if (this.getLexicalAnalyzer().currentChar() == '*') {
-            this.setStart(this.getLexicalAnalyzer().getPosition());
-            
             if (this.getLexicalAnalyzer().peekChar(1) == '=') {
                 this.getLexicalAnalyzer().next();
                 this.setOperatorType(OperatorType.ASTERISK_EQUALS);
@@ -88,116 +92,41 @@ public class OperatorToken extends ArkoiToken
                 this.setOperatorType(OperatorType.ASTERISK_ASTERISK);
             } else this.setOperatorType(OperatorType.ASTERISK);
             
-            this.setEnd(this.getLexicalAnalyzer().getPosition() + 1);
+            this.setCharEnd(this.getLexicalAnalyzer().getLineIndex(), this.getLexicalAnalyzer().getCharIndex() + 1);
         } else if (this.getLexicalAnalyzer().currentChar() == '/') {
-            this.setStart(this.getLexicalAnalyzer().getPosition());
-            
             if (this.getLexicalAnalyzer().peekChar(1) == '=') {
                 this.getLexicalAnalyzer().next();
                 this.setOperatorType(OperatorType.DIV_EQUALS);
             } else this.setOperatorType(OperatorType.DIV);
             
-            this.setEnd(this.getLexicalAnalyzer().getPosition() + 1);
+            this.setCharEnd(this.getLexicalAnalyzer().getLineIndex(), this.getLexicalAnalyzer().getCharIndex() + 1);
         } else if (this.getLexicalAnalyzer().currentChar() == '%') {
-            this.setStart(this.getLexicalAnalyzer().getPosition());
-    
             if (this.getLexicalAnalyzer().peekChar(1) == '=') {
                 this.getLexicalAnalyzer().next();
                 this.setOperatorType(OperatorType.PERCENT_EQUALS);
             } else this.setOperatorType(OperatorType.PERCENT);
-    
-            this.setEnd(this.getLexicalAnalyzer().getPosition() + 1);
+            
+            this.setCharEnd(this.getLexicalAnalyzer().getLineIndex(), this.getLexicalAnalyzer().getCharIndex() + 1);
         } else return this.addError(
-                BadToken.builder(this.getLexicalAnalyzer())
-                        .start(this.getLexicalAnalyzer().getPosition())
-                        .end(this.getLexicalAnalyzer().getPosition() + 1)
+                BadToken.builder()
+                        .lexicalAnalyzer(this.getLexicalAnalyzer())
+                        .startLine(this.getLexicalAnalyzer().getLineIndex())
+                        .charStart(this.getLexicalAnalyzer().getCharIndex())
+                        .endLine(this.getLexicalAnalyzer().getLineIndex())
+                        .charEnd(this.getLexicalAnalyzer().getCharIndex() + 1)
                         .build()
                         .parseToken(),
-        
+                
                 this.getLexicalAnalyzer().getCompilerClass(),
-                this.getLexicalAnalyzer().getPosition(),
+                
+                this.getLexicalAnalyzer().getCharIndex(),
+                this.getLexicalAnalyzer().getLineIndex(),
+                
                 "Couldn't lex this operator because the character is unknown."
         );
     
-        this.setTokenContent(new String(Arrays.copyOfRange(this.getLexicalAnalyzer().getCompilerClass().getContent(), this.getStart(), this.getEnd())).intern());
         this.getLexicalAnalyzer().next();
         return this;
-    }
-    
-    
-    public static OperatorTokenBuilder builder(@NotNull final LexicalAnalyzer lexicalAnalyzer) {
-        return new OperatorTokenBuilder(lexicalAnalyzer);
-    }
-    
-    
-    public static OperatorTokenBuilder builder() {
-        return new OperatorTokenBuilder();
-    }
-    
-    
-    public static class OperatorTokenBuilder
-    {
-        
-        @Nullable
-        private final LexicalAnalyzer lexicalAnalyzer;
-        
-        
-        @Nullable
-        private OperatorType operatorType;
-        
-        
-        @Nullable
-        private String tokenContent;
-        
-        
-        private int start, end;
-        
-        
-        public OperatorTokenBuilder(@NotNull final LexicalAnalyzer lexicalAnalyzer) {
-            this.lexicalAnalyzer = lexicalAnalyzer;
-        }
-        
-        
-        public OperatorTokenBuilder() {
-            this.lexicalAnalyzer = null;
-        }
-        
-        
-        public OperatorTokenBuilder type(final OperatorType operatorType) {
-            this.operatorType = operatorType;
-            return this;
-        }
-        
-        
-        public OperatorTokenBuilder content(final String tokenContent) {
-            this.tokenContent = tokenContent;
-            return this;
-        }
-        
-        
-        public OperatorTokenBuilder start(final int start) {
-            this.start = start;
-            return this;
-        }
-        
-        
-        public OperatorTokenBuilder end(final int end) {
-            this.end = end;
-            return this;
-        }
-        
-        
-        public OperatorToken build() {
-            final OperatorToken operatorToken = new OperatorToken(this.lexicalAnalyzer);
-            if (this.tokenContent != null)
-                operatorToken.setTokenContent(this.tokenContent);
-            if (this.operatorType != null)
-                operatorToken.setOperatorType(this.operatorType);
-            operatorToken.setStart(this.start);
-            operatorToken.setEnd(this.end);
-            return operatorToken;
-        }
-        
     }
     
 }

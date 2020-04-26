@@ -18,21 +18,41 @@
  */
 package com.arkoisystems.arkoicompiler.api.error;
 
+import com.arkoisystems.arkoicompiler.ArkoiError;
 import com.arkoisystems.arkoicompiler.api.ICompilerClass;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.List;
 
 public interface ICompilerError
 {
     
+    /**
+     * This method is used to get the {@link ICompilerClass} <b>everywhere</b> where the
+     * {@link ICompilerError} is used.
+     *
+     * @return the {@link ICompilerClass} in which the {@link ICompilerError} occurred.
+     */
     @NotNull
     ICompilerClass getCompilerClass();
     
     
+    /**
+     * This method returns a {@link List} of {@link ArkoiError.ErrorPosition}s which can
+     * be used to display the problematic sections.
+     *
+     * @return a {@link List} of {@link ArkoiError.ErrorPosition}s.
+     */
     @NotNull
-    int[][] getPositions();
+    List<ArkoiError.ErrorPosition> getPositions();
     
     
-    @NotNull
-    String getFinalError();
+    /**
+     * This method returns a message of the {@link ICompilerError} which describes the
+     * problem. It also can be formatted using arguments.
+     *
+     * @return a message of the {@link ICompilerError}
+     */
+    String getMessage();
     
 }

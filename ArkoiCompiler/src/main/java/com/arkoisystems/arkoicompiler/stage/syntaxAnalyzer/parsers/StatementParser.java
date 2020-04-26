@@ -33,7 +33,10 @@ public class StatementParser implements ISyntaxParser
     @Override
     public @NotNull
     IASTNode parse(@NotNull final IASTNode parentAST, @NotNull final SyntaxAnalyzer syntaxAnalyzer) {
-        return new StatementAST(syntaxAnalyzer, ASTType.STATEMENT)
+        return StatementAST.statementBuilder()
+                .syntaxAnalyzer(syntaxAnalyzer)
+                .astType(ASTType.STATEMENT)
+                .build()
                 .parseAST(parentAST);
     }
     
@@ -41,6 +44,9 @@ public class StatementParser implements ISyntaxParser
     @Override
     public boolean canParse(@NotNull final IASTNode parentAST, @NotNull final SyntaxAnalyzer syntaxAnalyzer) {
         final ArkoiToken currentToken = syntaxAnalyzer.currentToken();
+        if(currentToken == null)
+            return false;
+        
         if (parentAST instanceof ExpressionAST) {
             switch (currentToken.getTokenContent()) {
                 case "var":
