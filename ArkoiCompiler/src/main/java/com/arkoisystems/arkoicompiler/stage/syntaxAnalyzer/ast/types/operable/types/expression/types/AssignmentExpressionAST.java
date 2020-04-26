@@ -19,17 +19,16 @@
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types;
 
 import com.arkoisystems.arkoicompiler.api.IASTNode;
+import com.arkoisystems.arkoicompiler.api.IToken;
 import com.arkoisystems.arkoicompiler.api.IVisitor;
-import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.ArkoiToken;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.OperableAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.ExpressionAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types.operators.AssignmentOperatorType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
-import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -39,25 +38,34 @@ public class AssignmentExpressionAST extends ExpressionAST
 {
     
     @Getter
-    @Setter(AccessLevel.PROTECTED)
     @Nullable
-    private OperableAST leftSideOperable;
+    private final OperableAST leftSideOperable;
     
     
     @Getter
-    @Setter(AccessLevel.PROTECTED)
     @Nullable
-    private AssignmentOperatorType assignmentOperatorType;
+    private final AssignmentOperatorType assignmentOperatorType;
     
     
     @Getter
-    @Setter(AccessLevel.PROTECTED)
     @Nullable
     private OperableAST rightSideOperable;
     
     
-    protected AssignmentExpressionAST(@Nullable final SyntaxAnalyzer syntaxAnalyzer) {
-        super(syntaxAnalyzer, ASTType.ASSIGNMENT_EXPRESSION);
+    @Builder
+    private AssignmentExpressionAST(
+            @Nullable final AssignmentOperatorType assignmentOperatorType,
+            @Nullable final OperableAST rightSideOperable,
+            @Nullable final SyntaxAnalyzer syntaxAnalyzer,
+            @Nullable final OperableAST leftSideOperable,
+            @Nullable final IToken startToken,
+            @Nullable final IToken endToken
+    ) {
+        super(syntaxAnalyzer, null, ASTType.ASSIGNMENT_EXPRESSION, startToken, endToken);
+        
+        this.assignmentOperatorType = assignmentOperatorType;
+        this.rightSideOperable = rightSideOperable;
+        this.leftSideOperable = leftSideOperable;
     }
     
     
@@ -66,23 +74,22 @@ public class AssignmentExpressionAST extends ExpressionAST
     public AssignmentExpressionAST parseAST(@NotNull final IASTNode parentAST) {
         Objects.requireNonNull(this.getSyntaxAnalyzer(), "syntaxAnalyzer must not be null.");
         Objects.requireNonNull(this.getLeftSideOperable(), "leftSideOperable must not be null.");
-    
+        
+        this.startAST(this.getLeftSideOperable().getStartToken());
         this.getMarkerFactory().addFactory(this.getLeftSideOperable().getMarkerFactory());
-    
+        
         this.getSyntaxAnalyzer().nextToken(2);
-    
+        
         final OperableAST operableAST = this.parseAdditive(parentAST);
         this.getMarkerFactory().addFactory(operableAST.getMarkerFactory());
-    
+        
         if (operableAST.isFailed()) {
             this.failed();
             return this;
         }
         
-        this.setRightSideOperable(operableAST);
-    
-        this.setEndToken(this.getRightSideOperable().getEndToken());
-        this.getMarkerFactory().done(this.getEndToken());
+        this.rightSideOperable = operableAST;
+        this.endAST(this.rightSideOperable.getEndToken());
         return this;
     }
     
@@ -96,96 +103,6 @@ public class AssignmentExpressionAST extends ExpressionAST
     @Override
     public @NotNull TypeKind getTypeKind() {
         return TypeKind.UNDEFINED;
-    }
-    
-    
-    public static AssignmentExpressionASTBuilder builder(@NotNull final SyntaxAnalyzer syntaxAnalyzer) {
-        return new AssignmentExpressionASTBuilder(syntaxAnalyzer);
-    }
-    
-    
-    public static AssignmentExpressionASTBuilder builder() {
-        return new AssignmentExpressionASTBuilder();
-    }
-    
-    
-    public static class AssignmentExpressionASTBuilder
-    {
-        
-        @Nullable
-        private final SyntaxAnalyzer syntaxAnalyzer;
-        
-        
-        @Nullable
-        private OperableAST leftSideOperable;
-        
-        
-        @Nullable
-        private AssignmentOperatorType assignmentOperatorType;
-        
-        
-        @Nullable
-        private OperableAST rightSideOperable;
-        
-        
-        private ArkoiToken startToken, endToken;
-        
-        
-        public AssignmentExpressionASTBuilder(@NotNull final SyntaxAnalyzer syntaxAnalyzer) {
-            this.syntaxAnalyzer = syntaxAnalyzer;
-        }
-        
-        
-        public AssignmentExpressionASTBuilder() {
-            this.syntaxAnalyzer = null;
-        }
-        
-        
-        public AssignmentExpressionASTBuilder left(final OperableAST leftSideOperable) {
-            this.leftSideOperable = leftSideOperable;
-            return this;
-        }
-        
-        
-        public AssignmentExpressionASTBuilder operator(final AssignmentOperatorType assignmentOperatorType) {
-            this.assignmentOperatorType = assignmentOperatorType;
-            return this;
-        }
-        
-        
-        public AssignmentExpressionASTBuilder right(final OperableAST rightSideOperable) {
-            this.rightSideOperable = rightSideOperable;
-            return this;
-        }
-        
-        
-        public AssignmentExpressionASTBuilder start(final ArkoiToken startToken) {
-            this.startToken = startToken;
-            return this;
-        }
-        
-        
-        public AssignmentExpressionASTBuilder end(final ArkoiToken endToken) {
-            this.endToken = endToken;
-            return this;
-        }
-        
-        
-        public AssignmentExpressionAST build() {
-            final AssignmentExpressionAST assignmentExpressionAST = new AssignmentExpressionAST(this.syntaxAnalyzer);
-            if (this.leftSideOperable != null)
-                assignmentExpressionAST.setLeftSideOperable(this.leftSideOperable);
-            if (this.assignmentOperatorType != null)
-                assignmentExpressionAST.setAssignmentOperatorType(this.assignmentOperatorType);
-            if (this.rightSideOperable != null)
-                assignmentExpressionAST.setRightSideOperable(this.rightSideOperable);
-            assignmentExpressionAST.setStartToken(this.startToken);
-            assignmentExpressionAST.getMarkerFactory().getCurrentMarker().setStart(assignmentExpressionAST.getStartToken());
-            assignmentExpressionAST.setEndToken(this.endToken);
-            assignmentExpressionAST.getMarkerFactory().getCurrentMarker().setEnd(assignmentExpressionAST.getEndToken());
-            return assignmentExpressionAST;
-        }
-        
     }
     
 }

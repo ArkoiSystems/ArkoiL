@@ -19,6 +19,7 @@
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types;
 
 import com.arkoisystems.arkoicompiler.api.IASTNode;
+import com.arkoisystems.arkoicompiler.api.IToken;
 import com.arkoisystems.arkoicompiler.api.IVisitor;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.ArkoiToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.SymbolType;
@@ -27,9 +28,8 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxErrorType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.ArkoiASTNode;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
-import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -41,13 +41,19 @@ public class ParameterListAST extends ArkoiASTNode
 {
     
     @Getter
-    @Setter(AccessLevel.PROTECTED)
     @NotNull
-    private List<ParameterAST> parameters = new ArrayList<>();
+    private final List<ParameterAST> parameters;
     
     
-    protected ParameterListAST(@Nullable final SyntaxAnalyzer syntaxAnalyzer) {
-        super(syntaxAnalyzer, ASTType.PARAMETER_LIST);
+    @Builder
+    private ParameterListAST(
+            @Nullable final SyntaxAnalyzer syntaxAnalyzer,
+            @Nullable final IToken startToken,
+            @Nullable final IToken endToken
+    ) {
+        super(syntaxAnalyzer, ASTType.PARAMETER_LIST, startToken, endToken);
+    
+        this.parameters = new ArrayList<>();
     }
     
     
@@ -56,21 +62,21 @@ public class ParameterListAST extends ArkoiASTNode
     public ParameterListAST parseAST(@NotNull final IASTNode parentAST) {
         Objects.requireNonNull(this.getSyntaxAnalyzer(), "syntaxAnalyzer must not be null.");
         
-        if (this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.OPENING_PARENTHESIS) == null)
+        if (this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.OPENING_PARENTHESIS) == null) {
+            final ArkoiToken currentToken = this.getSyntaxAnalyzer().currentToken();
             return this.addError(
                     this,
                     this.getSyntaxAnalyzer().getCompilerClass(),
-                    this.getSyntaxAnalyzer().currentToken(),
-        
+                    currentToken,
+            
                     SyntaxErrorType.SYNTAX_ERROR_TEMPLATE,
-                    "Parameter list", "'('", this.getSyntaxAnalyzer().currentToken().getTokenContent()
+                    "Parameter list", "'('", currentToken != null ? currentToken.getTokenContent() : "nothing"
             );
+        }
         
-        this.setStartToken(this.getSyntaxAnalyzer().currentToken());
-        this.getMarkerFactory().mark(this.getStartToken());
-    
+        this.startAST(this.getSyntaxAnalyzer().currentToken());
         this.getSyntaxAnalyzer().nextToken();
-    
+        
         while (this.getSyntaxAnalyzer().getPosition() < this.getSyntaxAnalyzer().getTokens().length) {
             if (!ParameterAST.PARAMETER_DEFINITION_PARSER.canParse(parentAST, this.getSyntaxAnalyzer()))
                 break;
@@ -90,18 +96,19 @@ public class ParameterListAST extends ArkoiASTNode
             this.getSyntaxAnalyzer().nextToken();
         }
         
-        if (this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.CLOSING_PARENTHESIS) == null)
+        if (this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.CLOSING_PARENTHESIS) == null) {
+            final ArkoiToken currentToken = this.getSyntaxAnalyzer().currentToken();
             return this.addError(
                     this,
                     this.getSyntaxAnalyzer().getCompilerClass(),
-                    this.getSyntaxAnalyzer().currentToken(),
+                    currentToken,
         
                     SyntaxErrorType.SYNTAX_ERROR_TEMPLATE,
-                    "Parameter list", "')'", this.getSyntaxAnalyzer().currentToken().getTokenContent()
+                    "Parameter list", "')'", currentToken != null ? currentToken.getTokenContent() : "nothing"
             );
+        }
         
-        this.setEndToken(this.getSyntaxAnalyzer().currentToken());
-        this.getMarkerFactory().done(this.getEndToken());
+        this.endAST(this.getSyntaxAnalyzer().currentToken());
         return this;
     }
     
@@ -115,73 +122,6 @@ public class ParameterListAST extends ArkoiASTNode
     @Override
     public @NotNull TypeKind getTypeKind() {
         return TypeKind.UNDEFINED;
-    }
-    
-    
-    public static ParameterListASTBuilder builder(@NotNull final SyntaxAnalyzer syntaxAnalyzer) {
-        return new ParameterListASTBuilder(syntaxAnalyzer);
-    }
-    
-    
-    public static ParameterListASTBuilder builder() {
-        return new ParameterListASTBuilder();
-    }
-    
-    
-    public static class ParameterListASTBuilder
-    {
-    
-    
-        @Nullable
-        private final SyntaxAnalyzer syntaxAnalyzer;
-    
-    
-        @Nullable
-        private List<ParameterAST> parameters;
-    
-    
-        private ArkoiToken startToken, endToken;
-    
-    
-        public ParameterListASTBuilder(@NotNull final SyntaxAnalyzer syntaxAnalyzer) {
-            this.syntaxAnalyzer = syntaxAnalyzer;
-        }
-    
-    
-        public ParameterListASTBuilder() {
-            this.syntaxAnalyzer = null;
-        }
-        
-        
-        public ParameterListASTBuilder parameters(final List<ParameterAST> parameters) {
-            this.parameters = parameters;
-            return this;
-        }
-    
-    
-        public ParameterListASTBuilder start(final ArkoiToken startToken) {
-            this.startToken = startToken;
-            return this;
-        }
-    
-    
-        public ParameterListASTBuilder end(final ArkoiToken endToken) {
-            this.endToken = endToken;
-            return this;
-        }
-        
-        
-        public ParameterListAST build() {
-            final ParameterListAST parameterListAST = new ParameterListAST(this.syntaxAnalyzer);
-            if (this.parameters != null)
-                parameterListAST.setParameters(this.parameters);
-            parameterListAST.setStartToken(this.startToken);
-            parameterListAST.getMarkerFactory().getCurrentMarker().setStart(parameterListAST.getStartToken());
-            parameterListAST.setEndToken(this.endToken);
-            parameterListAST.getMarkerFactory().getCurrentMarker().setEnd(parameterListAST.getEndToken());
-            return parameterListAST;
-        }
-        
     }
     
 }

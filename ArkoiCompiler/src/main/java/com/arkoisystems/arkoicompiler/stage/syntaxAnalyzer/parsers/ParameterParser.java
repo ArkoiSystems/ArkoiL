@@ -32,8 +32,8 @@ public class ParameterParser implements ISyntaxParser
     @NotNull
     @Override
     public ParameterAST parse(@NotNull final IASTNode parentAST, @NotNull final SyntaxAnalyzer syntaxAnalyzer) {
-        return ParameterAST
-                .builder(syntaxAnalyzer)
+        return ParameterAST.builder()
+                .syntaxAnalyzer(syntaxAnalyzer)
                 .build()
                 .parseAST(parentAST);
     }

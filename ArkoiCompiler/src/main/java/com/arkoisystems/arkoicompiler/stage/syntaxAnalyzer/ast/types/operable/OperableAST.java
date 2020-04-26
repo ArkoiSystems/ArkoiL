@@ -19,6 +19,7 @@
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable;
 
 import com.arkoisystems.arkoicompiler.api.IASTNode;
+import com.arkoisystems.arkoicompiler.api.IToken;
 import com.arkoisystems.arkoicompiler.api.IVisitor;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.ArkoiToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.KeywordType;
@@ -33,6 +34,7 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.ty
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.StatementAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
+import lombok.Builder;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -42,8 +44,14 @@ public class OperableAST extends ArkoiASTNode
 {
     
     
-    public OperableAST(@Nullable final SyntaxAnalyzer syntaxAnalyzer, @NotNull final ASTType astType) {
-        super(syntaxAnalyzer, astType);
+    @Builder(builderMethodName = "operableBuilder")
+    protected OperableAST(
+            @Nullable final SyntaxAnalyzer syntaxAnalyzer,
+            @NotNull final ASTType astType,
+            @Nullable final IToken startToken,
+            @Nullable final IToken endToken
+    ) {
+        super(syntaxAnalyzer, astType, startToken, endToken);
     }
     
     
@@ -53,41 +61,53 @@ public class OperableAST extends ArkoiASTNode
         Objects.requireNonNull(this.getSyntaxAnalyzer(), "syntaxAnalyzer must not be null.");
     
         final ArkoiToken currentToken = this.getSyntaxAnalyzer().currentToken();
+        if (currentToken == null) {
+            return this.addError(
+                    this,
+                    this.getSyntaxAnalyzer().getCompilerClass(),
+                    (@Nullable ArkoiToken) null,
+                
+                    SyntaxErrorType.SYNTAX_ERROR_TEMPLATE,
+                    "Operable", "<token>", "nothing"
+            );
+        }
+        
         switch (currentToken.getTokenType()) {
             case STRING_LITERAL:
-                return StringAST.builder(this.getSyntaxAnalyzer())
+                return StringAST.builder()
+                        .syntaxAnalyzer(this.getSyntaxAnalyzer())
                         .build()
                         .parseAST(parentAST);
             case NUMBER_LITERAL:
-                return NumberAST.builder(this.getSyntaxAnalyzer())
+                return NumberAST.builder()
+                        .syntaxAnalyzer(this.getSyntaxAnalyzer())
                         .build()
                         .parseAST(parentAST);
             case SYMBOL:
-                if (this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.OPENING_BRACKET) == null) {
+                if (this.getSyntaxAnalyzer().matchesCurrentToken(SymbolType.OPENING_BRACKET) == null)
                     return this.addError(
                             this,
                             this.getSyntaxAnalyzer().getCompilerClass(),
                             currentToken,
         
                             SyntaxErrorType.SYNTAX_ERROR_TEMPLATE,
-                            "Operable", "'['", this.getSyntaxAnalyzer().currentToken().getTokenContent()
+                            "Operable", "'['", currentToken.getTokenContent()
                     );
-                }
-                return CollectionAST
-                        .builder(this.getSyntaxAnalyzer())
+                    
+                return CollectionAST.builder()
+                        .syntaxAnalyzer(this.getSyntaxAnalyzer())
                         .build()
                         .parseAST(parentAST);
             case IDENTIFIER:
-                if (!StatementAST.STATEMENT_PARSER.canParse(parentAST, this.getSyntaxAnalyzer())) {
+                if (!StatementAST.STATEMENT_PARSER.canParse(parentAST, this.getSyntaxAnalyzer()))
                     return this.addError(
                             this,
                             this.getSyntaxAnalyzer().getCompilerClass(),
                             currentToken,
                 
                             SyntaxErrorType.SYNTAX_ERROR_TEMPLATE,
-                            "Operable", "<statement>", this.getSyntaxAnalyzer().currentToken().getTokenContent()
+                            "Operable", "<statement>", currentToken.getTokenContent()
                     );
-                }
     
                 final IASTNode astNode = StatementAST.STATEMENT_PARSER.parse(parentAST, this.getSyntaxAnalyzer());
                 this.getMarkerFactory().addFactory(astNode.getMarkerFactory());
@@ -101,7 +121,7 @@ public class OperableAST extends ArkoiASTNode
                         astNode,
             
                         SyntaxErrorType.SYNTAX_ERROR_TEMPLATE,
-                        "Function", "<identifier call>", this.getSyntaxAnalyzer().currentToken().getTokenContent()
+                        "Function", "<identifier call>", currentToken.getTokenContent()
                 );
             case KEYWORD:
                 if (this.getSyntaxAnalyzer().matchesCurrentToken(KeywordType.THIS) == null)
@@ -111,11 +131,11 @@ public class OperableAST extends ArkoiASTNode
                             currentToken,
                             
                             SyntaxErrorType.SYNTAX_ERROR_TEMPLATE,
-                            "Function", "'this'", this.getSyntaxAnalyzer().currentToken().getTokenContent()
+                            "Function", "'this'", currentToken.getTokenContent()
                     );
                 
-                return IdentifierCallAST
-                        .builder(this.getSyntaxAnalyzer())
+                return IdentifierCallAST.builder()
+                        .syntaxAnalyzer(this.getSyntaxAnalyzer())
                         .build()
                         .parseAST(parentAST);
             default:

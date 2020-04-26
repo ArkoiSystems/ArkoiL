@@ -31,8 +31,8 @@ public class AnnotationParser implements ISyntaxParser
     @NotNull
     @Override
     public IASTNode parse(@NotNull final IASTNode parentAST, @NotNull final SyntaxAnalyzer syntaxAnalyzer) {
-        return AnnotationAST
-                .builder(syntaxAnalyzer)
+        return AnnotationAST.builder()
+                .syntaxAnalyzer(syntaxAnalyzer)
                 .build()
                 .parseAST(parentAST);
     }

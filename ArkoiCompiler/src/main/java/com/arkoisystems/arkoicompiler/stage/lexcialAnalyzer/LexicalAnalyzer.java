@@ -31,6 +31,7 @@ import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class LexicalAnalyzer implements ICompilerStage
@@ -49,6 +50,11 @@ public class LexicalAnalyzer implements ICompilerStage
     @Getter
     @NotNull
     private ArkoiToken[] tokens = new ArkoiToken[0];
+    
+    
+    @Getter
+    @Setter
+    private int lineIndex, charIndex;
     
     
     @Getter
@@ -77,76 +83,96 @@ public class LexicalAnalyzer implements ICompilerStage
     @Override
     public boolean processStage() {
         this.reset();
-    
         final List<ArkoiToken> tokens = new ArrayList<>();
         while (this.position < this.getCompilerClass().getContent().length) {
             final char currentChar = this.currentChar();
             if (Character.isWhitespace(currentChar)) {
-                final WhitespaceToken whitespaceToken = WhitespaceToken.builder(this)
+                final WhitespaceToken whitespaceToken = WhitespaceToken.builder()
+                        .lexicalAnalyzer(this)
                         .build()
                         .parseToken();
                 tokens.add(whitespaceToken);
+    
+                if (currentChar == '\n') {
+                    this.charIndex = 0;
+                    this.lineIndex++;
+                }
             } else if (currentChar == '#') {
-                final ArkoiToken commentToken = CommentToken.builder(this)
+                final ArkoiToken commentToken = CommentToken.builder()
+                        .lexicalAnalyzer(this)
                         .build()
                         .parseToken();
                 if (commentToken instanceof BadToken)
                     this.errorRoutine.run();
                 tokens.add(commentToken);
             } else if (currentChar == '"') {
-                final ArkoiToken stringToken = StringToken.builder(this)
+                final ArkoiToken stringToken = StringToken.builder()
+                        .lexicalAnalyzer(this)
                         .build()
                         .parseToken();
                 if (stringToken instanceof BadToken)
                     this.errorRoutine.run();
                 tokens.add(stringToken);
             } else if (Character.isDigit(currentChar) || currentChar == '.') {
-                final ArkoiToken numberToken = NumberToken.builder(this)
+                final ArkoiToken numberToken = NumberToken.builder()
+                        .lexicalAnalyzer(this)
                         .build()
                         .parseToken();
                 if (!(numberToken instanceof BadToken)) {
                     tokens.add(numberToken);
                     continue;
                 }
-            
-                final ArkoiToken symbolToken = SymbolToken.builder(this)
+    
+                final ArkoiToken symbolToken = SymbolToken.builder()
+                        .lexicalAnalyzer(this)
                         .build()
                         .parseToken();
                 if (symbolToken instanceof BadToken)
                     this.errorRoutine.run();
                 tokens.add(symbolToken);
             } else if (Character.isJavaIdentifierStart(currentChar)) {
-                final ArkoiToken identifierToken = IdentifierToken.builder(this)
+                final ArkoiToken identifierToken = IdentifierToken.builder()
+                        .lexicalAnalyzer(this)
                         .build()
                         .parseToken();
                 if (identifierToken instanceof BadToken)
                     this.errorRoutine.run();
                 tokens.add(identifierToken);
             } else if (this.isOperatorChar(currentChar)) {
-                final ArkoiToken operatorToken = OperatorToken.builder(this)
+                final ArkoiToken operatorToken = OperatorToken.builder()
+                        .lexicalAnalyzer(this)
                         .build()
                         .parseToken();
                 if (operatorToken instanceof BadToken)
                     this.errorRoutine.run();
                 tokens.add(operatorToken);
             } else if (this.isSymbolChar(currentChar)) {
-                final ArkoiToken symbolToken = SymbolToken.builder(this)
+                final ArkoiToken symbolToken = SymbolToken.builder()
+                        .lexicalAnalyzer(this)
                         .build()
                         .parseToken();
                 if (symbolToken instanceof BadToken)
                     this.errorRoutine.run();
                 tokens.add(symbolToken);
             } else {
-                tokens.add(BadToken.builder(this)
-                        .start(this.getPosition())
-                        .end(this.getPosition() + 1)
+                tokens.add(BadToken.builder()
+                        .lexicalAnalyzer(this)
+                        .startLine(this.getLineIndex())
+                        .charStart(this.getCharIndex())
+                        .endLine(this.getLineIndex())
+                        .charEnd(this.getCharIndex() + 1)
                         .build()
                         .parseToken()
                 );
     
                 this.getErrorHandler().addError(ArkoiError.builder()
                         .compilerClass(this.getCompilerClass())
-                        .positions(new int[][] { { this.position, this.position + 1 } })
+                        .positions(Collections.singletonList(ArkoiError.ErrorPosition.builder()
+                                .lineRange(ArkoiError.ErrorPosition.LineRange.make(this.getCompilerClass(), lineIndex, lineIndex))
+                                .charStart(this.getCharIndex())
+                                .charEnd(this.getCharIndex() + 1)
+                                .build()
+                        ))
                         .message("The defined character is unknown for the lexical analyzer:")
                         .build()
                 );
@@ -216,16 +242,22 @@ public class LexicalAnalyzer implements ICompilerStage
     
     
     public void next(final int positions) {
+        this.charIndex += positions;
         this.position += positions;
-        
+    
+        if (this.position >= this.getCompilerClass().getContent().length)
+            this.charIndex = this.getCompilerClass().getContent().length;
         if (this.position >= this.getCompilerClass().getContent().length)
             this.position = this.getCompilerClass().getContent().length;
     }
     
     
     public void next() {
+        this.charIndex++;
         this.position++;
-        
+    
+        if (this.position >= this.getCompilerClass().getContent().length)
+            this.charIndex = this.getCompilerClass().getContent().length;
         if (this.position >= this.getCompilerClass().getContent().length)
             this.position = this.getCompilerClass().getContent().length;
     }
@@ -246,7 +278,11 @@ public class LexicalAnalyzer implements ICompilerStage
     
     
     public void undo() {
+        this.charIndex--;
         this.position--;
+    
+        if (this.charIndex < 0)
+            this.charIndex = 0;
         if (this.position < 0)
             this.position = 0;
     }

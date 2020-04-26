@@ -19,6 +19,7 @@
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.types;
 
 import com.arkoisystems.arkoicompiler.api.IASTNode;
+import com.arkoisystems.arkoicompiler.api.IToken;
 import com.arkoisystems.arkoicompiler.api.IVisitor;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.ArkoiToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.types.IdentifierToken;
@@ -30,9 +31,8 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxErrorType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.StatementAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
-import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -42,80 +42,91 @@ public class ImportAST extends StatementAST
 {
     
     @Getter
-    @Setter(AccessLevel.PROTECTED)
     @Nullable
     private StringToken importFilePath;
     
     
     @Getter
-    @Setter(AccessLevel.PROTECTED)
     @Nullable
     private IdentifierToken importName;
     
     
-    protected ImportAST(@Nullable final SyntaxAnalyzer syntaxAnalyzer) {
-        super(syntaxAnalyzer, ASTType.IMPORT);
+    @Builder
+    private ImportAST(
+            @Nullable final SyntaxAnalyzer syntaxAnalyzer,
+            @Nullable final StringToken importFilePath,
+            @Nullable final IdentifierToken importName,
+            @Nullable final IToken startToken,
+            @Nullable final IToken endToken
+    ) {
+        super(syntaxAnalyzer, ASTType.IMPORT, startToken, endToken);
+        
+        this.importFilePath = importFilePath;
+        this.importName = importName;
     }
     
     
     @NotNull
     @Override
-    public ImportAST parseAST(@NotNull final IASTNode parentAST) {
+    public ImportAST parseAST(@Nullable final IASTNode parentAST) {
         Objects.requireNonNull(this.getSyntaxAnalyzer(), "syntaxAnalyzer must not be null.");
         
         if (this.getSyntaxAnalyzer().matchesCurrentToken(KeywordType.IMPORT) == null) {
+            final ArkoiToken currentToken = this.getSyntaxAnalyzer().currentToken();
             return this.addError(
                     this,
                     this.getSyntaxAnalyzer().getCompilerClass(),
-                    this.getSyntaxAnalyzer().currentToken(),
+                    currentToken,
                     
                     SyntaxErrorType.SYNTAX_ERROR_TEMPLATE,
-                    "Import", "'import'", this.getSyntaxAnalyzer().currentToken().getTokenContent()
+                    "Import", "'import'", currentToken != null ? currentToken.getTokenContent() : "nothing"
             );
         }
         
-        this.setStartToken(this.getSyntaxAnalyzer().currentToken());
-        this.getMarkerFactory().mark(this.getStartToken());
+        this.startAST(this.getSyntaxAnalyzer().currentToken());
         
-        if (this.getSyntaxAnalyzer().matchesPeekToken(1, TokenType.STRING_LITERAL) == null)
+        if (this.getSyntaxAnalyzer().matchesPeekToken(1, TokenType.STRING_LITERAL) == null) {
+            final ArkoiToken peekedToken = this.getSyntaxAnalyzer().peekToken(1);
             return this.addError(
                     this,
                     this.getSyntaxAnalyzer().getCompilerClass(),
-                    this.getSyntaxAnalyzer().currentToken(),
-                    
+                    peekedToken,
+            
                     SyntaxErrorType.SYNTAX_ERROR_TEMPLATE,
-                    "Import", "<string>", this.getSyntaxAnalyzer().currentToken().getTokenContent()
+                    "Import", "<string>", peekedToken != null ? peekedToken.getTokenContent() : "nothing"
             );
+        }
         
-        this.setImportFilePath((StringToken) this.getSyntaxAnalyzer().nextToken());
+        this.importFilePath = (StringToken) this.getSyntaxAnalyzer().nextToken();
         
         if (this.getImportFilePath() != null && this.getImportFilePath().getTokenContent().endsWith(".ark"))
             this.getImportFilePath().setTokenContent(this.getImportFilePath().getTokenContent().substring(0, this.getImportFilePath().getTokenContent().length() - 4));
         
         if (this.getSyntaxAnalyzer().matchesPeekToken(1, KeywordType.AS) != null) {
             this.getSyntaxAnalyzer().nextToken();
-            
-            if (this.getSyntaxAnalyzer().matchesPeekToken(1, TokenType.IDENTIFIER) == null)
+    
+            if (this.getSyntaxAnalyzer().matchesPeekToken(1, TokenType.IDENTIFIER) == null) {
+                final ArkoiToken peekedToken = this.getSyntaxAnalyzer().peekToken(1);
                 return this.addError(
                         this,
                         this.getSyntaxAnalyzer().getCompilerClass(),
-                        this.getSyntaxAnalyzer().currentToken(),
-                        
-                        SyntaxErrorType.SYNTAX_ERROR_TEMPLATE,
-                        "Import", "<identifier>", this.getSyntaxAnalyzer().currentToken().getTokenContent()
-                );
+                        peekedToken,
             
-            this.setImportName((IdentifierToken) this.getSyntaxAnalyzer().nextToken());
+                        SyntaxErrorType.SYNTAX_ERROR_TEMPLATE,
+                        "Import", "<identifier>", peekedToken != null ? peekedToken.getTokenContent() : "nothing"
+                );
+            }
+    
+            this.importName = (IdentifierToken) this.getSyntaxAnalyzer().nextToken();
         } else if (this.getImportFilePath() != null) {
             final String[] split = this.getImportFilePath().getTokenContent().split("/");
-            this.setImportName(IdentifierToken.builder()
-                    .content(split[split.length - 1].replace(".ark", ""))
-                    .build()
-            );
+            this.importName = IdentifierToken.builder()
+                    .lexicalAnalyzer(this.getSyntaxAnalyzer().getCompilerClass().getLexicalAnalyzer())
+                    .tokenContent(split[split.length - 1].replace(".ark", ""))
+                    .build();
         }
         
-        this.setEndToken(this.getSyntaxAnalyzer().currentToken());
-        this.getMarkerFactory().done(this.getEndToken());
+        this.endAST(this.getSyntaxAnalyzer().currentToken());
         return this;
     }
     
@@ -129,84 +140,6 @@ public class ImportAST extends StatementAST
     @Override
     public @NotNull TypeKind getTypeKind() {
         return TypeKind.UNDEFINED;
-    }
-    
-    
-    public static ImportASTBuilder builder(@NotNull final SyntaxAnalyzer syntaxAnalyzer) {
-        return new ImportASTBuilder(syntaxAnalyzer);
-    }
-    
-    
-    public static ImportASTBuilder builder() {
-        return new ImportASTBuilder();
-    }
-    
-    
-    public static class ImportASTBuilder
-    {
-        
-        @Nullable
-        private final SyntaxAnalyzer syntaxAnalyzer;
-        
-        
-        @Nullable
-        private StringToken importFilePath;
-        
-        
-        @Nullable
-        private IdentifierToken importName;
-        
-        
-        private ArkoiToken startToken, endToken;
-        
-        
-        public ImportASTBuilder(@NotNull final SyntaxAnalyzer syntaxAnalyzer) {
-            this.syntaxAnalyzer = syntaxAnalyzer;
-        }
-        
-        
-        public ImportASTBuilder() {
-            this.syntaxAnalyzer = null;
-        }
-        
-        
-        public ImportASTBuilder name(final IdentifierToken importName) {
-            this.importName = importName;
-            return this;
-        }
-        
-        
-        public ImportASTBuilder filePath(final StringToken importFilePath) {
-            this.importFilePath = importFilePath;
-            return this;
-        }
-        
-        
-        public ImportASTBuilder start(final ArkoiToken startToken) {
-            this.startToken = startToken;
-            return this;
-        }
-        
-        
-        public ImportASTBuilder end(final ArkoiToken endToken) {
-            this.endToken = endToken;
-            return this;
-        }
-        
-        
-        public ImportAST build() {
-            final ImportAST importAST = new ImportAST(this.syntaxAnalyzer);
-            if (this.importFilePath != null)
-                importAST.setImportFilePath(this.importFilePath);
-            if (this.importName != null)
-                importAST.setImportName(this.importName);
-            importAST.setStartToken(this.startToken);
-            importAST.getMarkerFactory().getCurrentMarker().setStart(importAST.getStartToken());
-            importAST.setEndToken(this.endToken);
-            importAST.getMarkerFactory().getCurrentMarker().setEnd(importAST.getEndToken());
-            return importAST;
-        }
-        
     }
     
 }

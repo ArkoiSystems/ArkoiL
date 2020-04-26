@@ -19,6 +19,7 @@
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types;
 
 import com.arkoisystems.arkoicompiler.api.IASTNode;
+import com.arkoisystems.arkoicompiler.api.IToken;
 import com.arkoisystems.arkoicompiler.api.IVisitor;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.OperableAST;
@@ -26,9 +27,8 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.ty
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types.operators.RelationalOperatorType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
-import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -36,35 +36,35 @@ public class RelationalExpressionAST extends ExpressionAST
 {
     
     @Getter
-    @Setter(AccessLevel.PROTECTED)
     @Nullable
-    private OperableAST leftSideOperable;
+    private final OperableAST leftSideOperable;
     
     
     @Getter
-    @Setter(AccessLevel.PROTECTED)
     @Nullable
-    private RelationalOperatorType relationalOperatorType;
+    private final RelationalOperatorType relationalOperatorType;
     
     
     @Getter
-    @Setter(AccessLevel.PROTECTED)
     @Nullable
-    private OperableAST rightSideOperable;
+    private final OperableAST rightSideOperable;
     
     
-    public RelationalExpressionAST(@Nullable final SyntaxAnalyzer syntaxAnalyzer, @NotNull final OperableAST leftSideOperable, @NotNull final RelationalOperatorType relationalOperatorType) {
-        super(syntaxAnalyzer, ASTType.RELATIONAL_EXPRESSION);
+    @Builder
+    private RelationalExpressionAST(
+            @Nullable final RelationalOperatorType relationalOperatorType,
+            @Nullable final OperableAST rightSideOperable,
+            @Nullable final SyntaxAnalyzer syntaxAnalyzer,
+            @Nullable final OperableAST leftSideOperable,
+            @Nullable final IToken startToken,
+            @Nullable final IToken endToken
+    ) {
+        super(syntaxAnalyzer, null, ASTType.RELATIONAL_EXPRESSION, startToken, endToken);
         
         this.relationalOperatorType = relationalOperatorType;
+        this.rightSideOperable = rightSideOperable;
         this.leftSideOperable = leftSideOperable;
-        
-        this.getMarkerFactory().addFactory(this.leftSideOperable.getMarkerFactory());
-        
-        this.setStartToken(this.leftSideOperable.getStartToken());
-        this.getMarkerFactory().mark(this.getStartToken());
     }
-    
     
     @NotNull
     @Override

@@ -32,8 +32,8 @@ public class BlockParser implements ISyntaxParser
     @NotNull
     @Override
     public BlockAST parse(@NotNull final IASTNode parentAST, @NotNull final SyntaxAnalyzer syntaxAnalyzer) {
-        return BlockAST
-                .builder(syntaxAnalyzer)
+        return BlockAST.builder()
+                .syntaxAnalyzer(syntaxAnalyzer)
                 .build()
                 .parseAST(parentAST);
     }

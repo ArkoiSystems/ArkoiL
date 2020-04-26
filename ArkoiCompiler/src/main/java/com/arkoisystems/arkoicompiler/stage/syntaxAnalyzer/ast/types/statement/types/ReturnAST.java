@@ -19,6 +19,7 @@
 package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.types;
 
 import com.arkoisystems.arkoicompiler.api.IASTNode;
+import com.arkoisystems.arkoicompiler.api.IToken;
 import com.arkoisystems.arkoicompiler.api.IVisitor;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.ArkoiToken;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils.KeywordType;
@@ -29,9 +30,8 @@ import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.ty
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.StatementAST;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
-import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -41,46 +41,54 @@ public class ReturnAST extends StatementAST
 {
     
     @Getter
-    @Setter(AccessLevel.PROTECTED)
     @Nullable
     private OperableAST returnExpression;
     
     
-    protected ReturnAST(@Nullable final SyntaxAnalyzer syntaxAnalyzer) {
-        super(syntaxAnalyzer, ASTType.RETURN);
+    @Builder
+    private ReturnAST(
+            @Nullable final SyntaxAnalyzer syntaxAnalyzer,
+            @Nullable final OperableAST returnExpression,
+            @Nullable final IToken startToken,
+            @Nullable final IToken endToken
+    ) {
+        super(syntaxAnalyzer, ASTType.RETURN, startToken, endToken);
+    
+        this.returnExpression = returnExpression;
     }
     
     
     @NotNull
     @Override
-    public ReturnAST parseAST(@NotNull final IASTNode parentAST) {
+    public ReturnAST parseAST(@Nullable final IASTNode parentAST) {
         Objects.requireNonNull(this.getSyntaxAnalyzer(), "syntaxAnalyzer must not be null.");
         
         if (this.getSyntaxAnalyzer().matchesCurrentToken(KeywordType.RETURN) == null) {
+            final ArkoiToken currentToken = this.getSyntaxAnalyzer().currentToken();
             return this.addError(
                     this,
                     this.getSyntaxAnalyzer().getCompilerClass(),
-                    this.getSyntaxAnalyzer().currentToken(),
+                    currentToken,
                     
                     SyntaxErrorType.SYNTAX_ERROR_TEMPLATE,
-                    "Return", "'return'", this.getSyntaxAnalyzer().currentToken().getTokenContent()
+                    "Return", "'return'", currentToken != null ? currentToken.getTokenContent() : "nothing"
             );
         }
         
-        this.setStartToken(this.getSyntaxAnalyzer().currentToken());
-        this.getMarkerFactory().mark(this.getStartToken());
-        
+        this.startAST(this.getSyntaxAnalyzer().currentToken());
         this.getSyntaxAnalyzer().nextToken();
         
-        if (!ExpressionAST.EXPRESSION_PARSER.canParse(this, this.getSyntaxAnalyzer()))
+        if (!ExpressionAST.EXPRESSION_PARSER.canParse(this, this.getSyntaxAnalyzer())) {
+            final ArkoiToken currentToken = this.getSyntaxAnalyzer().currentToken();
             return this.addError(
                     this,
                     this.getSyntaxAnalyzer().getCompilerClass(),
-                    this.getSyntaxAnalyzer().currentToken(),
-                    
+                    currentToken,
+            
                     SyntaxErrorType.SYNTAX_ERROR_TEMPLATE,
-                    "Return", "<expression>", this.getSyntaxAnalyzer().currentToken().getTokenContent()
+                    "Return", "<expression>", currentToken != null ? currentToken.getTokenContent() : "nothing"
             );
+        }
         
         final OperableAST operableAST = ExpressionAST.EXPRESSION_PARSER.parse(this, this.getSyntaxAnalyzer());
         this.getMarkerFactory().addFactory(operableAST.getMarkerFactory());
@@ -90,10 +98,8 @@ public class ReturnAST extends StatementAST
             return this;
         }
         
-        this.setReturnExpression(operableAST);
-        
-        this.setEndToken(this.getSyntaxAnalyzer().currentToken());
-        this.getMarkerFactory().done(this.getEndToken());
+        this.returnExpression = operableAST;
+        this.endAST(this.getSyntaxAnalyzer().currentToken());
         return this;
     }
     
@@ -109,72 +115,6 @@ public class ReturnAST extends StatementAST
         Objects.requireNonNull(this.getReturnExpression(), "returnExpression must not be null.");
         
         return this.getReturnExpression().getTypeKind();
-    }
-    
-    
-    public static ReturnASTBuilder builder(@NotNull final SyntaxAnalyzer syntaxAnalyzer) {
-        return new ReturnASTBuilder(syntaxAnalyzer);
-    }
-    
-    
-    public static ReturnASTBuilder builder() {
-        return new ReturnASTBuilder();
-    }
-    
-    
-    public static class ReturnASTBuilder
-    {
-        
-        @Nullable
-        private final SyntaxAnalyzer syntaxAnalyzer;
-        
-        
-        @Nullable
-        private OperableAST operableAST;
-        
-        
-        private ArkoiToken startToken, endToken;
-        
-        
-        public ReturnASTBuilder(@NotNull final SyntaxAnalyzer syntaxAnalyzer) {
-            this.syntaxAnalyzer = syntaxAnalyzer;
-        }
-        
-        
-        public ReturnASTBuilder() {
-            this.syntaxAnalyzer = null;
-        }
-        
-        
-        public ReturnASTBuilder operable(final OperableAST operableAST) {
-            this.operableAST = operableAST;
-            return this;
-        }
-        
-        
-        public ReturnASTBuilder start(final ArkoiToken startToken) {
-            this.startToken = startToken;
-            return this;
-        }
-        
-        
-        public ReturnASTBuilder end(final ArkoiToken endToken) {
-            this.endToken = endToken;
-            return this;
-        }
-        
-        
-        public ReturnAST build() {
-            final ReturnAST returnAST = new ReturnAST(this.syntaxAnalyzer);
-            if (this.operableAST != null)
-                returnAST.setReturnExpression(this.operableAST);
-            returnAST.setStartToken(this.startToken);
-            returnAST.getMarkerFactory().getCurrentMarker().setStart(returnAST.getStartToken());
-            returnAST.setEndToken(this.endToken);
-            returnAST.getMarkerFactory().getCurrentMarker().setEnd(returnAST.getEndToken());
-            return returnAST;
-        }
-        
     }
     
 }
