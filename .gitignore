@@ -1,11 +1,1 @@
-backups/
-
-ArkoiCompiler/build/
-ArkoiCompiler/.gradle/
-ArkoiCompiler/.idea/
-ArkoiCompiler/out/
-
-ArkoiIntegration/build/
-ArkoiIntegration/.gradle/
-ArkoiIntegration/.idea/
-ArkoiIntegration/out/
+/backups/
