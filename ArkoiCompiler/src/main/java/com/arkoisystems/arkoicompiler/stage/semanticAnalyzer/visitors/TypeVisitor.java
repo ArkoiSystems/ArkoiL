@@ -48,8 +48,8 @@ public class TypeVisitor implements IVisitor<TypeKind>, IFailed
     private final SemanticAnalyzer semanticAnalyzer;
     
     
-    @Getter
-    private final boolean detailed;
+//    @Getter
+//    private final boolean detailed;
     
     
     @Getter
@@ -58,7 +58,7 @@ public class TypeVisitor implements IVisitor<TypeKind>, IFailed
     
     public TypeVisitor(@NotNull final SemanticAnalyzer semanticAnalyzer, final boolean detailed) {
         this.semanticAnalyzer = semanticAnalyzer;
-        this.detailed = detailed;
+//        this.detailed = detailed;
     }
     
     
@@ -213,8 +213,8 @@ public class TypeVisitor implements IVisitor<TypeKind>, IFailed
                 rightSideType = this.visit(assignmentExpressionAST.getRightSideOperable());
         if (rightSideType == leftSideType)
             return leftSideType;
-        if (!this.isDetailed() && (leftSideType == TypeKind.UNDEFINED || rightSideType == TypeKind.UNDEFINED))
-            return TypeKind.UNDEFINED;
+//        if (!this.isDetailed() && (leftSideType == TypeKind.UNDEFINED || rightSideType == TypeKind.UNDEFINED))
+//            return TypeKind.UNDEFINED;
     
         return this.addError(
                 TypeKind.UNDEFINED,
@@ -259,8 +259,8 @@ public class TypeVisitor implements IVisitor<TypeKind>, IFailed
     
         if (leftSideType.isNumeric() && rightSideType.isNumeric())
             return leftSideType.getPrecision() > rightSideType.getPrecision() ? leftSideType : rightSideType;
-        if (!this.isDetailed() && (leftSideType == TypeKind.UNDEFINED || rightSideType == TypeKind.UNDEFINED))
-            return TypeKind.UNDEFINED;
+//        if (!this.isDetailed() && (leftSideType == TypeKind.UNDEFINED || rightSideType == TypeKind.UNDEFINED))
+//            return TypeKind.UNDEFINED;
     
         final String errorMessage;
         final IASTNode targetNode;
@@ -290,8 +290,8 @@ public class TypeVisitor implements IVisitor<TypeKind>, IFailed
         Objects.requireNonNull(castExpressionAST.getSyntaxAnalyzer(), "castExpressionAST.syntaxAnalyzer must not be null.");
     
         final TypeKind leftSideType = this.visit(castExpressionAST.getLeftSideOperable());
-        if (!this.isDetailed() && leftSideType == TypeKind.UNDEFINED)
-            return TypeKind.UNDEFINED;
+//        if (!this.isDetailed() && leftSideType == TypeKind.UNDEFINED)
+//            return TypeKind.UNDEFINED;
         if (!leftSideType.isNumeric())
             return this.addError(
                     TypeKind.UNDEFINED,
@@ -316,8 +316,8 @@ public class TypeVisitor implements IVisitor<TypeKind>, IFailed
                 rightSideType = this.visit(equalityExpressionAST.getRightSideOperable());
         if (leftSideType == TypeKind.BOOLEAN && rightSideType == TypeKind.BOOLEAN)
             return TypeKind.BOOLEAN;
-        if (!this.isDetailed() && (leftSideType == TypeKind.UNDEFINED || rightSideType == TypeKind.UNDEFINED))
-            return TypeKind.UNDEFINED;
+//        if (!this.isDetailed() && (leftSideType == TypeKind.UNDEFINED || rightSideType == TypeKind.UNDEFINED))
+//            return TypeKind.UNDEFINED;
     
         final String errorMessage;
         final IASTNode targetNode;
@@ -352,8 +352,8 @@ public class TypeVisitor implements IVisitor<TypeKind>, IFailed
                 rightSideType = this.visit(logicalExpressionAST.getRightSideOperable());
         if (leftSideType == TypeKind.BOOLEAN && rightSideType == TypeKind.BOOLEAN)
             return TypeKind.BOOLEAN;
-        if (!this.isDetailed() && (leftSideType == TypeKind.UNDEFINED || rightSideType == TypeKind.UNDEFINED))
-            return TypeKind.UNDEFINED;
+//        if (!this.isDetailed() && (leftSideType == TypeKind.UNDEFINED || rightSideType == TypeKind.UNDEFINED))
+//            return TypeKind.UNDEFINED;
     
         final String errorMessage;
         final IASTNode targetNode;
@@ -388,10 +388,11 @@ public class TypeVisitor implements IVisitor<TypeKind>, IFailed
     @Override
     public TypeKind visit(@NotNull final PostfixExpressionAST postfixExpressionAST) {
         Objects.requireNonNull(postfixExpressionAST.getLeftSideOperable(), "postfixExpressionAST.leftSideOperable must not be null.");
+        Objects.requireNonNull(postfixExpressionAST.getSyntaxAnalyzer(), "postfixExpressionAST.syntaxAnalyzer must not be null.");
     
         final TypeKind leftSideType = this.visit(postfixExpressionAST.getLeftSideOperable());
-        if (!this.isDetailed() && leftSideType == TypeKind.UNDEFINED)
-            return TypeKind.UNDEFINED;
+//        if (!this.isDetailed() && leftSideType == TypeKind.UNDEFINED)
+//            return TypeKind.UNDEFINED;
         if (leftSideType.isNumeric())
             return leftSideType;
     
@@ -408,10 +409,11 @@ public class TypeVisitor implements IVisitor<TypeKind>, IFailed
     public TypeKind visit(@NotNull final PrefixExpressionAST prefixExpressionAST) {
         Objects.requireNonNull(prefixExpressionAST.getRightSideOperable(), "prefixExpressionAST.rightSideOperable must not be null.");
         Objects.requireNonNull(prefixExpressionAST.getPrefixOperatorType(), "prefixExpressionAST.prefixOperatorType must not be null.");
+        Objects.requireNonNull(prefixExpressionAST.getSyntaxAnalyzer(), "prefixExpressionAST.syntaxAnalyzer must not be null.");
     
         final TypeKind rightTSideType = this.visit(prefixExpressionAST.getRightSideOperable());
-        if (!this.isDetailed() && rightTSideType == TypeKind.UNDEFINED)
-            return TypeKind.UNDEFINED;
+//        if (!this.isDetailed() && rightTSideType == TypeKind.UNDEFINED)
+//            return TypeKind.UNDEFINED;
         if (rightTSideType.isNumeric())
             return rightTSideType;
         
@@ -435,8 +437,8 @@ public class TypeVisitor implements IVisitor<TypeKind>, IFailed
                 rightSideType = this.visit(relationalExpressionAST.getRightSideOperable());
         if (leftSideType == TypeKind.BOOLEAN && rightSideType == TypeKind.BOOLEAN)
             return TypeKind.BOOLEAN;
-        if (!this.isDetailed() && (leftSideType == TypeKind.UNDEFINED || rightSideType == TypeKind.UNDEFINED))
-            return TypeKind.UNDEFINED;
+//        if (!this.isDetailed() && (leftSideType == TypeKind.UNDEFINED || rightSideType == TypeKind.UNDEFINED))
+//            return TypeKind.UNDEFINED;
     
         final String errorMessage;
         final IASTNode targetNode;

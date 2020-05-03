@@ -131,7 +131,7 @@ public class ArkoiError implements ICompilerError
                 }
             }
         
-            for (int lineIndex = endLine + 1; lineIndex < Math.min(endLine + 3, sourceLines.length - 1); lineIndex++) {
+            for (int lineIndex = endLine + 1; lineIndex < Math.max(endLine + 3, sourceLines.length - 1); lineIndex++) {
                 final ErrorPosition.LineRange lineRange = ErrorPosition.LineRange.make(this.getCompilerClass(), lineIndex, lineIndex);
                 Objects.requireNonNull(lineRange.getSourceCode(), "lineRange.sourceCode must not be null.");
                 stringBuilder.append("  ")

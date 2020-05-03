@@ -1,0 +1,23 @@
+fun main<int>(args: string[]) {
+  val u = Vector(-10, 12)
+  val w = Vector(5, -10)
+  val uw = u + v
+
+  assert(uw, Vector(-5, 2))
+}
+
+class Vector {
+   
+   val x, y;
+
+   fun add<Vector>(left: Vector, right: Vector) = Vector(left.x + right.x, left.y + right.y)
+
+   fun sub<Vector>(left: Vector, right: Vector) = Vector(left.x - right.x, left.y - right.y)
+
+   fun mul<Vector>(left: Vector, right: Vector) = Vector(left.x * right.x, left.y * right.y)
+
+   fun div<Vector>(left: Vector, right: Vector) = Vector(left.x / right.x, left.y / right.y)
+
+   fun exp<Vector>(left: Vector, right: Vector) = Vector(left.x ** right.x, left.y ** right.y)
+
+}

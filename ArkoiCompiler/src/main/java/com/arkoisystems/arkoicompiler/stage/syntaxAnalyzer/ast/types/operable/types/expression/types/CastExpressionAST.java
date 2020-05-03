@@ -72,7 +72,7 @@ public class CastExpressionAST extends ExpressionAST
         Objects.requireNonNull(this.getSyntaxAnalyzer(), "syntaxAnalyzer must not be null.");
         Objects.requireNonNull(this.getLeftSideOperable(), "leftSideOperable must not be null.");
     
-        this.startAST(this.getSyntaxAnalyzer().currentToken());
+        this.startAST(this.getLeftSideOperable().getStartToken());
         this.getMarkerFactory().addFactory(this.getLeftSideOperable().getMarkerFactory());
     
         if (this.getSyntaxAnalyzer().matchesPeekToken(1, TokenType.IDENTIFIER, false) == null) {
