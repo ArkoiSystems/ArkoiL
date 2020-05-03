@@ -19,14 +19,12 @@
 package com.arkoisystems.arkoicompiler.bootstrap;
 
 import com.arkoisystems.arkoicompiler.ArkoiCompiler;
-import com.arkoisystems.arkoicompiler.api.ICompilerClass;
 import com.arkoisystems.arkoicompiler.utils.FileUtils;
 import lombok.SneakyThrows;
 import org.apache.commons.cli.*;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
-import java.io.PrintStream;
 
 public class Bootstrap
 {
@@ -55,8 +53,13 @@ public class Bootstrap
             new HelpFormatter().printHelp("arkoi-compiler", options);
             return;
         }
-        
-        final File targetPath = new File(commandLine.getOptionValue("inputPath"));
+    
+        compile(commandLine.getOptionValue("inputPath"), Boolean.parseBoolean(commandLine.getOptionValue("detailed")));
+    }
+    
+    @SneakyThrows
+    public static boolean compile(@NotNull final String inputPath, final boolean detailed) {
+        final File targetPath = new File(inputPath);
         if (!targetPath.exists())
             throw new NullPointerException("The given \"inputPath\" doesn't exists. Please correct the path to a valid file or directory.");
         
@@ -65,25 +68,20 @@ public class Bootstrap
             for (final File file : FileUtils.getAllFiles(targetPath)) {
                 if (!file.getName().endsWith(".ark"))
                     continue;
-                arkoiCompiler.addFile(file, Boolean.parseBoolean(commandLine.getOptionValue("detailed")));
+                arkoiCompiler.addFile(file, detailed);
             }
         } else {
             if (!targetPath.getName().endsWith(".ark"))
                 throw new NullPointerException("Couldn't compile this file because it doesn't has the Arkoi file extension \".ark\".");
-            arkoiCompiler.addFile(targetPath, Boolean.parseBoolean(commandLine.getOptionValue("detailed")));
+            arkoiCompiler.addFile(targetPath, detailed);
         }
         
-        if (!arkoiCompiler.compile(System.out)) {
-            System.err.println("Couldn't compile the file. Please see the stacktrace for errors:");
-            arkoiCompiler.printStackTrace(System.err);
-        }
+        if (arkoiCompiler.compile(System.out))
+            return true;
         
-        try (final PrintStream printStream = new PrintStream(new File(commandLine.getOptionValue("outputFile")))) {
-            for (final ICompilerClass arkoiClass : arkoiCompiler.getArkoiClasses())
-                printStream.print(arkoiClass);
-        } catch (final Exception ex) {
-            ex.printStackTrace();
-        }
+        System.err.println("Couldn't compile the file. Please see the stacktrace for errors:");
+        arkoiCompiler.printStackTrace(System.err);
+        return false;
     }
     
 }

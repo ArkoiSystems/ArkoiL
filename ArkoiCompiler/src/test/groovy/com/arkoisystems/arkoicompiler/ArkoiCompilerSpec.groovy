@@ -18,6 +18,7 @@
  */
 package com.arkoisystems.arkoicompiler
 
+import com.arkoisystems.arkoicompiler.bootstrap.Bootstrap
 import com.arkoisystems.arkoicompiler.utils.FileUtils
 import spock.lang.Specification
 
@@ -41,6 +42,11 @@ class ArkoiCompilerSpec extends Specification {
 		
 		expect:
 		arkoiCompiler.compile(new PrintStream(new ByteArrayOutputStream()))
+	}
+	
+	def "can pass basic test"() {
+		expect:
+		Bootstrap.compile("../examples/basic", false)
 	}
 	
 }

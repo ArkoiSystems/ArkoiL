@@ -190,7 +190,7 @@ public class AnnotationAST extends ArkoiASTNode
             );
         }
     
-        if (this.getSyntaxAnalyzer().matchesCurrentToken(KeywordType.FUN) == null || this.getSyntaxAnalyzer().matchesCurrentToken(KeywordType.VAR) == null) {
+        if (this.getSyntaxAnalyzer().matchesCurrentToken(KeywordType.FUN) == null && this.getSyntaxAnalyzer().matchesCurrentToken(KeywordType.VAR) == null) {
             final ArkoiToken currentToken = this.getSyntaxAnalyzer().currentToken();
             return this.addError(
                     this,
