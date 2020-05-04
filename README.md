@@ -1,4 +1,4 @@
-# <img src="https://github.com/Excse/ArkoiL/assets/logo.png" height="28px" /> Arkoi Language
+# <img src="assets/logo.png" height="28px" /> Arkoi Language
 
 This repository contains the ``compiler``, ``integrations`` of the language and ``examples``
 for the Arkoi Language. For more information about ArkoiL, including downloads and documentation
