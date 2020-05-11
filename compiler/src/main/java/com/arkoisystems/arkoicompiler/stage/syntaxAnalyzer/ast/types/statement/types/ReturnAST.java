@@ -44,7 +44,6 @@ public class ReturnAST extends StatementAST
     @Nullable
     private OperableAST returnExpression;
     
-    
     @Builder
     private ReturnAST(
             @Nullable final SyntaxAnalyzer syntaxAnalyzer,
@@ -56,7 +55,6 @@ public class ReturnAST extends StatementAST
     
         this.returnExpression = returnExpression;
     }
-    
     
     @NotNull
     @Override
@@ -103,12 +101,10 @@ public class ReturnAST extends StatementAST
         return this;
     }
     
-    
     @Override
     public void accept(@NotNull final IVisitor<?> visitor) {
         visitor.visit(this);
     }
-    
     
     @Override
     public @NotNull TypeKind getTypeKind() {

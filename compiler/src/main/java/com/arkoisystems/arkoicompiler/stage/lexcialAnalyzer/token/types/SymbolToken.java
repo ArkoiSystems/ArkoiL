@@ -37,7 +37,6 @@ public class SymbolToken extends ArkoiToken
     @Nullable
     private SymbolType symbolType;
     
-    
     @Builder
     public SymbolToken(
             @Nullable final LexicalAnalyzer lexicalAnalyzer,
@@ -52,7 +51,6 @@ public class SymbolToken extends ArkoiToken
         
         this.setSymbolType(symbolType);
     }
-    
     
     @Override
     public @NotNull ArkoiToken parseToken() {

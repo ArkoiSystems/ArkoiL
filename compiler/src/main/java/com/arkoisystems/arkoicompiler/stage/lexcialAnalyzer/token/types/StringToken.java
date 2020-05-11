@@ -42,7 +42,6 @@ public class StringToken extends ArkoiToken
         super(lexicalAnalyzer, TokenType.STRING_LITERAL, tokenContent, startLine, charStart, endLine, charEnd);
     }
     
-    
     // TODO: Working but theres a better and safer way..
     @Override
     public @NotNull ArkoiToken parseToken() {

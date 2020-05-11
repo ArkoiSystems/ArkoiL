@@ -46,21 +46,17 @@ public class IdentifierCallAST extends OperableAST
     @Setter
     private boolean isFileLocal;
     
-    
     @Getter
     @Nullable
     private IdentifierToken calledIdentifier;
-    
     
     @Getter
     @Nullable
     private FunctionCallPartAST calledFunctionPart;
     
-    
     @Getter
     @Nullable
     private IdentifierCallAST nextIdentifierCall;
-    
     
     @Builder
     private IdentifierCallAST(
@@ -79,7 +75,6 @@ public class IdentifierCallAST extends OperableAST
         this.calledIdentifier = calledIdentifier;
         this.isFileLocal = isFileLocal;
     }
-    
     
     @NotNull
     @Override
@@ -184,18 +179,15 @@ public class IdentifierCallAST extends OperableAST
         return this;
     }
     
-    
     @Override
     public void accept(@NotNull final IVisitor<?> visitor) {
         visitor.visit(this);
     }
     
-    
     @Override
     public @NotNull TypeKind getTypeKind() {
         return TypeKind.UNDEFINED;
     }
-    
     
     @NotNull
     public String getDescriptor() {

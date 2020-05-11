@@ -23,7 +23,6 @@ public interface IFailed
     
     boolean isFailed();
     
-    
     void failed();
     
 }

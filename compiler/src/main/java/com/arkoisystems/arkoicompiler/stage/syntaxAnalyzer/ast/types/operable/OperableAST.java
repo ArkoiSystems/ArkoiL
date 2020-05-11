@@ -43,7 +43,6 @@ import java.util.Objects;
 public class OperableAST extends ArkoiASTNode
 {
     
-    
     @Builder(builderMethodName = "operableBuilder")
     protected OperableAST(
             @Nullable final SyntaxAnalyzer syntaxAnalyzer,
@@ -53,7 +52,6 @@ public class OperableAST extends ArkoiASTNode
     ) {
         super(syntaxAnalyzer, astType, startToken, endToken);
     }
-    
     
     @NotNull
     @Override
@@ -149,10 +147,8 @@ public class OperableAST extends ArkoiASTNode
         }
     }
     
-    
     @Override
     public void accept(@NotNull final IVisitor<?> visitor) { }
-    
     
     @Override
     public @NotNull TypeKind getTypeKind() {

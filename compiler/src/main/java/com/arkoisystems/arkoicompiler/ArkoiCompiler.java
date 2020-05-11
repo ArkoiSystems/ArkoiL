@@ -40,21 +40,17 @@ public class ArkoiCompiler
     @NonNull
     private final List<ICompilerClass> arkoiClasses = new ArrayList<>();
     
-    
     public ArkoiCompiler() throws IOException {
         this.addNativeFiles();
     }
-    
     
     public void addFile(@NotNull final File file, final boolean detailed) throws IOException {
         this.getArkoiClasses().add(new ArkoiClass(this, file.getCanonicalPath(), Files.readAllBytes(file.toPath()), detailed));
     }
     
-    
     public void addClass(@NotNull final ArkoiClass arkoiClass) {
         this.getArkoiClasses().add(arkoiClass);
     }
-    
     
     public void printStackTrace(@NotNull final PrintStream errorStream) {
         for (final ICompilerClass arkoiClass : this.getArkoiClasses()) {
@@ -63,7 +59,6 @@ public class ArkoiCompiler
             arkoiClass.getSemanticAnalyzer().getErrorHandler().printStackTrace(errorStream, false);
         }
     }
-    
     
     public boolean compile(final PrintStream printStream) {
         final long compileStart = System.nanoTime();
@@ -94,11 +89,19 @@ public class ArkoiCompiler
             if (semanticFailed != null)
                 return false;
             printStream.printf("The semantic analysis took %sms for all classes (%s in total)\n", (System.nanoTime() - semanticStart) / 1_000_000D, this.getArkoiClasses().size());
+            
+            final long codeGenTime = System.nanoTime();
+            final ICompilerClass codeGenFailed = this.getArkoiClasses().stream()
+                    .filter(compilerClass -> !compilerClass.getCodeGen().processStage())
+                    .findFirst()
+                    .orElse(null);
+            if (codeGenFailed != null)
+                return false;
+            printStream.printf("The code generation took %sms for all classes (%s in total)\n", (System.nanoTime() - codeGenTime) / 1_000_000D, this.getArkoiClasses().size());
         }
         printStream.printf("The compilation took %sms for all classes (%s in total)\n", (System.nanoTime() - compileStart) / 1_000_000D, this.getArkoiClasses().size());
         return true;
     }
-    
     
     private void addNativeFiles() throws IOException {
         final File nativeDirectory = new File("../natives");
@@ -112,7 +115,6 @@ public class ArkoiCompiler
             this.getArkoiClasses().add(arkoiClass);
         }
     }
-    
     
     public void printSyntaxTree(@NotNull final PrintStream printStream) throws NullPointerException {
         final List<RootAST> roots = new ArrayList<>();

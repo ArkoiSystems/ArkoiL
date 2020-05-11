@@ -39,7 +39,6 @@ public class OperatorToken extends ArkoiToken
     @Nullable
     private OperatorType operatorType;
     
-    
     @Builder
     public OperatorToken(
             @Nullable final LexicalAnalyzer lexicalAnalyzer,
@@ -53,7 +52,6 @@ public class OperatorToken extends ArkoiToken
         
         this.setOperatorType(operatorType);
     }
-    
     
     @Override
     public @NotNull ArkoiToken parseToken() {

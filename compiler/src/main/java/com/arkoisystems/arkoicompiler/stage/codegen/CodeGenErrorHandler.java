@@ -16,19 +16,35 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.arkoisystems.arkoicompiler.api;
+package com.arkoisystems.arkoicompiler.stage.codegen;
 
+import com.arkoisystems.arkoicompiler.api.error.ICompilerError;
 import com.arkoisystems.arkoicompiler.api.error.IErrorHandler;
-import com.arkoisystems.arkoicompiler.api.utils.IFailed;
-import com.arkoisystems.arkoicompiler.api.utils.IResettable;
+import lombok.Getter;
+import lombok.NonNull;
 import org.jetbrains.annotations.NotNull;
 
-public interface ICompilerStage extends IFailed, IResettable
+import java.io.PrintStream;
+import java.util.HashSet;
+
+
+public class CodeGenErrorHandler implements IErrorHandler
 {
     
-    @NotNull
-    IErrorHandler getErrorHandler();
+    @Getter
+    @NonNull
+    private final HashSet<ICompilerError> compilerErrors = new HashSet<>();
     
-    boolean processStage();
+    
+    public void addError(@NotNull final ICompilerError compilerError) {
+        this.compilerErrors.add(compilerError);
+    }
+    
+    
+    @Override
+    public void printStackTrace(@NotNull final PrintStream printStream, boolean testing) {
+        for (final ICompilerError arkoiError : this.compilerErrors)
+            printStream.println(testing ? arkoiError.toString().substring(arkoiError.toString().indexOf(' ') + 1) : arkoiError.toString());
+    }
     
 }

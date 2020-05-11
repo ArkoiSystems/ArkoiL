@@ -31,18 +31,14 @@ public class ArkoiMarker<T1, T2> implements ICompilerMarker<T1, T2>
     @Nullable
     private T1 start;
     
-    
     @Nullable
     private T2 end;
-    
     
     @Nullable
     private Object[] errorArguments;
     
-    
     @NotNull
     private final ASTType astType;
-    
     
     @Nullable
     private String errorMessage;

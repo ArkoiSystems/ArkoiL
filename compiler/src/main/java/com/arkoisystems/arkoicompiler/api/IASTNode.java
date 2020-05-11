@@ -34,43 +34,32 @@ public interface IASTNode extends IFailed
     @NotNull
     MarkerFactory<IToken, IToken> getMarkerFactory();
     
-    
     @Nullable
     SyntaxAnalyzer getSyntaxAnalyzer();
-    
     
     @Nullable
     ArkoiError.ErrorPosition.LineRange getLineRange();
     
-    
     @Nullable
     IToken getStartToken();
-    
     
     @Nullable
     IToken getEndToken();
     
-    
     @NotNull
     ASTType getAstType();
-    
     
     @NotNull
     TypeKind getTypeKind();
     
-    
     @NotNull
     IASTNode parseAST(final IASTNode parentAST);
     
-    
     void accept(@NotNull final IVisitor<?> visitor);
-    
     
     <E> E addError(@Nullable final E errorSource, @NotNull final ICompilerClass compilerClass, final @Nullable IASTNode[] astNodes, @NotNull final String message, @NotNull final Object... arguments);
     
-    
     <E> E addError(@Nullable final E errorSource, @NotNull final ICompilerClass compilerClass, final @Nullable IASTNode astNode, @NotNull final String message, @NotNull final Object... arguments);
-    
     
     <E> E addError(@Nullable final E errorSource, @NotNull final ICompilerClass compilerClass, final @Nullable ArkoiToken arkoiToken, @NotNull final String message, @NotNull final Object... arguments);
     

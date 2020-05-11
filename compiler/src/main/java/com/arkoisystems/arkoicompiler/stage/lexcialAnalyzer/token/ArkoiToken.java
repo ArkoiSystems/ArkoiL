@@ -38,16 +38,13 @@ public abstract class ArkoiToken implements IToken
     @Nullable
     private final LexicalAnalyzer lexicalAnalyzer;
     
-    
     @EqualsAndHashCode.Include
     @Getter
     @NotNull
     private final TokenType tokenType;
     
-    
     @Getter
     private boolean failed;
-    
     
     @EqualsAndHashCode.Include
     @Setter
@@ -55,20 +52,16 @@ public abstract class ArkoiToken implements IToken
     @NotNull
     private String tokenContent;
     
-    
     @EqualsAndHashCode.Include
     @Getter
     private ArkoiError.ErrorPosition.LineRange lineRange;
-    
     
     @EqualsAndHashCode.Include
     @Getter
     private int charStart, charEnd;
     
-    
     @Getter
     private int startLine;
-    
     
     public ArkoiToken(
             @Nullable final LexicalAnalyzer lexicalAnalyzer,
@@ -87,15 +80,12 @@ public abstract class ArkoiToken implements IToken
         this.setCharEnd(endLine, charEnd);
     }
     
-    
     public abstract @Nullable ArkoiToken parseToken();
-    
     
     @Override
     public void failed() {
         this.failed = true;
     }
-    
     
     @Override
     public <E> E addError(@Nullable E errorSource, @NotNull final ICompilerClass compilerClass, final int charIndex, final int lineNumber, @NotNull final String message, final Object... arguments) {
@@ -115,12 +105,10 @@ public abstract class ArkoiToken implements IToken
         return errorSource;
     }
     
-    
     public void setCharStart(final int startLine, final int charStart) {
         this.startLine = startLine;
         this.charStart = charStart;
     }
-    
     
     public void setCharEnd(final int endLine, final int charEnd) {
         Objects.requireNonNull(this.getLexicalAnalyzer(), "lexicalAnalyzer must not be null.");

@@ -34,12 +34,10 @@ public class SemanticErrorHandler implements IErrorHandler
     @Getter
     private final HashSet<ICompilerError> compileErrors = new HashSet<>();
     
-    
     @Override
     public void addError(@NotNull final ICompilerError compilerError) {
         this.compileErrors.add(compilerError);
     }
-    
     
     @Override
     public void printStackTrace(@NotNull final PrintStream printStream, boolean testing) {

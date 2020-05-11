@@ -40,7 +40,6 @@ public class StatementParser implements ISyntaxParser
                 .parseAST(parentAST);
     }
     
-    
     @Override
     public boolean canParse(@NotNull final IASTNode parentAST, @NotNull final SyntaxAnalyzer syntaxAnalyzer) {
         final ArkoiToken currentToken = syntaxAnalyzer.currentToken();

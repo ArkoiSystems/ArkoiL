@@ -41,7 +41,6 @@ public class WhitespaceToken extends ArkoiToken
         super(lexicalAnalyzer, TokenType.WHITESPACE, tokenContent, startLine, charStart, endLine, charEnd);
     }
     
-    
     @Override
     public @NotNull WhitespaceToken parseToken() {
         Objects.requireNonNull(this.getLexicalAnalyzer(), "lexicalAnalyzer must not be null.");

@@ -39,16 +39,13 @@ public class RelationalExpressionAST extends ExpressionAST
     @Nullable
     private final OperableAST leftSideOperable;
     
-    
     @Getter
     @Nullable
     private final RelationalOperatorType relationalOperatorType;
     
-    
     @Getter
     @Nullable
     private final OperableAST rightSideOperable;
-    
     
     @Builder
     private RelationalExpressionAST(
@@ -72,12 +69,10 @@ public class RelationalExpressionAST extends ExpressionAST
         return null;
     }
     
-    
     @Override
     public void accept(@NotNull final IVisitor<?> visitor) {
         visitor.visit(this);
     }
-    
     
     @Override
     public @NotNull TypeKind getTypeKind() {

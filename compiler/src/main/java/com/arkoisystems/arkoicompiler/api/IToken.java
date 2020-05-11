@@ -32,24 +32,18 @@ public interface IToken extends IFailed
     @Nullable
     LexicalAnalyzer getLexicalAnalyzer();
     
-    
     @NotNull
     TokenType getTokenType();
-    
     
     @NotNull
     String getTokenContent();
     
-    
     @EqualsAndHashCode.Include
     ArkoiError.ErrorPosition.LineRange getLineRange();
     
-    
     int getCharStart();
     
-    
     int getCharEnd();
-    
     
     <E> E addError(@Nullable E errorSource, @NotNull final ICompilerClass compilerClass, final int charIndex, final int lineNumber, @NotNull final String message, final Object... arguments);
     

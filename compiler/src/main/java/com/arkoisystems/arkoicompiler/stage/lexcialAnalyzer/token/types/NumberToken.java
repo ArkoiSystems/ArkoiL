@@ -42,7 +42,6 @@ public class NumberToken extends ArkoiToken
         super(lexicalAnalyzer, TokenType.NUMBER_LITERAL, tokenContent, startLine, charStart, endLine, charEnd);
     }
     
-    
     @Override
     public @NotNull ArkoiToken parseToken() {
         Objects.requireNonNull(this.getLexicalAnalyzer(), "lexicalAnalyzer must not be null.");

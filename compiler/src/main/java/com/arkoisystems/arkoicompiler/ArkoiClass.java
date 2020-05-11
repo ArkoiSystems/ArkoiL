@@ -19,6 +19,7 @@
 package com.arkoisystems.arkoicompiler;
 
 import com.arkoisystems.arkoicompiler.api.ICompilerClass;
+import com.arkoisystems.arkoicompiler.stage.codegen.CodeGen;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.LexicalAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.SemanticAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
@@ -35,42 +36,38 @@ public class ArkoiClass implements ICompilerClass
     @NotNull
     private final ArkoiCompiler arkoiCompiler;
     
-    
     @Getter
     @Setter
     @NotNull
     private char[] content;
     
-    
     @Getter
     @Setter
     private boolean isNative;
-    
     
     @Getter
     @Setter
     @NotNull
     private String filePath;
     
-    
     @Getter
     @NotNull
     private final LexicalAnalyzer lexicalAnalyzer = new LexicalAnalyzer(this);
-    
     
     @Getter
     @NotNull
     private final SyntaxAnalyzer syntaxAnalyzer = new SyntaxAnalyzer(this);
     
+    @Getter
+    @NotNull
+    private final CodeGen codeGen = new CodeGen(this);
     
     @Getter
     @NotNull
     private final SemanticAnalyzer semanticAnalyzer;
     
-    
     @Getter
     private final boolean detailed;
-    
     
     public ArkoiClass(@NotNull final ArkoiCompiler arkoiCompiler, @NotNull final String filePath, @NotNull final byte[] content, final boolean detailed) {
         this.arkoiCompiler = arkoiCompiler;

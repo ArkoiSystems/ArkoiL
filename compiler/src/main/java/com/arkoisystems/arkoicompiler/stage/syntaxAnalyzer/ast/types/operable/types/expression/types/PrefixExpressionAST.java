@@ -41,11 +41,9 @@ public class PrefixExpressionAST extends ExpressionAST
     @Nullable
     private final PrefixOperatorType prefixOperatorType;
     
-    
     @Getter
     @Nullable
     private OperableAST rightSideOperable;
-    
     
     @Builder
     private PrefixExpressionAST(
@@ -60,7 +58,6 @@ public class PrefixExpressionAST extends ExpressionAST
         this.prefixOperatorType = prefixOperatorType;
         this.rightSideOperable = rightSideOperable;
     }
-    
     
     @NotNull
     @Override
@@ -84,12 +81,10 @@ public class PrefixExpressionAST extends ExpressionAST
         return this;
     }
     
-    
     @Override
     public void accept(@NotNull final IVisitor<?> visitor) {
         visitor.visit(this);
     }
-    
     
     @Override
     public @NotNull TypeKind getTypeKind() {

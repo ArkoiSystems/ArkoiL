@@ -41,11 +41,9 @@ public class PostfixExpressionAST extends ExpressionAST
     @Nullable
     private final PostfixOperatorType postfixOperatorType;
     
-    
     @Getter
     @Nullable
     private final OperableAST leftSideOperable;
-    
     
     @Builder
     private PostfixExpressionAST(
@@ -61,7 +59,6 @@ public class PostfixExpressionAST extends ExpressionAST
         this.leftSideOperable = leftSideOperable;
     }
     
-    
     @NotNull
     @Override
     public PostfixExpressionAST parseAST(@NotNull final IASTNode parentAST) {
@@ -75,12 +72,10 @@ public class PostfixExpressionAST extends ExpressionAST
         return this;
     }
     
-    
     @Override
     public void accept(@NotNull final IVisitor<?> visitor) {
         visitor.visit(this);
     }
-    
     
     @Override
     public @NotNull TypeKind getTypeKind() {

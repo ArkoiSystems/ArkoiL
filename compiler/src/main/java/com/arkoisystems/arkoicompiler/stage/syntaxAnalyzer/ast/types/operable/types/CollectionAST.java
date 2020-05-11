@@ -45,7 +45,6 @@ public class CollectionAST extends OperableAST
     @NotNull
     private final List<OperableAST> collectionExpressions;
     
-    
     @Builder
     private CollectionAST(
             @Nullable final List<OperableAST> collectionExpressions,
@@ -57,7 +56,6 @@ public class CollectionAST extends OperableAST
         
         this.collectionExpressions = collectionExpressions == null ? new ArrayList<>() : collectionExpressions;
     }
-    
     
     @NotNull
     @Override
@@ -117,12 +115,10 @@ public class CollectionAST extends OperableAST
         return this;
     }
     
-    
     @Override
     public void accept(@NotNull final IVisitor<?> visitor) {
         visitor.visit(this);
     }
-    
     
     @Override
     public @NotNull TypeKind getTypeKind() {

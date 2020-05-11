@@ -35,11 +35,9 @@ public class LexicalErrorHandler implements IErrorHandler
     @NonNull
     private final HashSet<ICompilerError> compilerErrors = new HashSet<>();
     
-    
     public void addError(@NotNull final ICompilerError compilerError) {
         this.compilerErrors.add(compilerError);
     }
-    
     
     @Override
     public void printStackTrace(@NotNull final PrintStream printStream, boolean testing) {

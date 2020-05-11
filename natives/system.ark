@@ -1,2 +1,8 @@
-@native[default = true]
+@native[default: true]
 fun println<>(message: string)
+
+# @native
+# fun printf<int>(message: string, ...)
+
+# @default
+# fun println<int>(message: string, ...) = printf("%s\n" % message, ...)

@@ -45,11 +45,9 @@ public class RootAST extends ArkoiASTNode
             StatementAST.STATEMENT_PARSER,
     };
     
-    
     @Getter
     @NotNull
     private final List<IASTNode> astNodes;
-    
     
     @Builder
     private RootAST(
@@ -61,7 +59,6 @@ public class RootAST extends ArkoiASTNode
         
         this.astNodes = new ArrayList<>();
     }
-    
     
     @NotNull
     @Override
@@ -103,12 +100,10 @@ public class RootAST extends ArkoiASTNode
         return this;
     }
     
-    
     @Override
     public void accept(@NotNull final IVisitor<?> visitor) {
         visitor.visit(this);
     }
-    
     
     @Override
     public @NotNull TypeKind getTypeKind() {

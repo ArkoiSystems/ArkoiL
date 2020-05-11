@@ -41,30 +41,24 @@ public class LexicalAnalyzer implements ICompilerStage
     @NonNull
     private final ICompilerClass compilerClass;
     
-    
     @Getter
     @NotNull
     private LexicalErrorHandler errorHandler = new LexicalErrorHandler();
-    
     
     @Getter
     @NotNull
     private ArkoiToken[] tokens = new ArkoiToken[0];
     
-    
     @Getter
     @Setter
     private int lineIndex, charIndex;
     
-    
     @Getter
     private boolean failed;
-    
     
     @Getter
     @Setter
     private int position;
-    
     
     @Getter
     @NotNull
@@ -73,11 +67,9 @@ public class LexicalAnalyzer implements ICompilerStage
         this.next();
     };
     
-    
     public LexicalAnalyzer(@NotNull final ICompilerClass compilerClass) {
         this.compilerClass = compilerClass;
     }
-    
     
     @SneakyThrows
     @Override
@@ -185,7 +177,6 @@ public class LexicalAnalyzer implements ICompilerStage
         return !this.isFailed();
     }
     
-    
     @Override
     public void reset() {
         this.errorHandler = new LexicalErrorHandler();
@@ -194,12 +185,10 @@ public class LexicalAnalyzer implements ICompilerStage
         this.position = 0;
     }
     
-    
     @Override
     public void failed() {
         this.failed = true;
     }
-    
     
     @NotNull
     public TokenType[] getTokenTypes(final boolean whitespaces) {
@@ -212,7 +201,6 @@ public class LexicalAnalyzer implements ICompilerStage
         return tokenTypes.toArray(new TokenType[] { });
     }
     
-    
     private boolean isOperatorChar(final char currentChar) {
         return currentChar == '+' ||
                 currentChar == '-' ||
@@ -222,7 +210,6 @@ public class LexicalAnalyzer implements ICompilerStage
                 currentChar == '!' ||
                 currentChar == '=';
     }
-    
     
     private boolean isSymbolChar(final char currentChar) {
         return currentChar == '@' ||
@@ -240,7 +227,6 @@ public class LexicalAnalyzer implements ICompilerStage
                 currentChar == '>';
     }
     
-    
     public void next(final int positions) {
         this.charIndex += positions;
         this.position += positions;
@@ -250,7 +236,6 @@ public class LexicalAnalyzer implements ICompilerStage
         if (this.position >= this.getCompilerClass().getContent().length)
             this.position = this.getCompilerClass().getContent().length;
     }
-    
     
     public void next() {
         this.charIndex++;
@@ -262,20 +247,17 @@ public class LexicalAnalyzer implements ICompilerStage
             this.position = this.getCompilerClass().getContent().length;
     }
     
-    
     public char peekChar(final int offset) {
         if (this.position + offset >= this.getCompilerClass().getContent().length)
             return this.getCompilerClass().getContent()[this.getCompilerClass().getContent().length - 1];
         return this.getCompilerClass().getContent()[this.position + offset];
     }
     
-    
     public char currentChar() {
         if (this.position >= this.getCompilerClass().getContent().length)
             return this.getCompilerClass().getContent()[this.getCompilerClass().getContent().length - 1];
         return this.getCompilerClass().getContent()[this.position];
     }
-    
     
     public void undo() {
         this.charIndex--;

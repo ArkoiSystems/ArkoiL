@@ -43,15 +43,12 @@ public class TypeAST extends ArkoiASTNode
     
     public static TypeParser TYPE_PARSER = new TypeParser();
     
-    
     @Getter
     @Nullable
     private TypeKeywordToken typeKeywordToken;
     
-    
     @Getter
     private boolean isArray;
-    
     
     @Builder
     private TypeAST(
@@ -66,7 +63,6 @@ public class TypeAST extends ArkoiASTNode
         this.typeKeywordToken = typeKeywordToken;
         this.isArray = isArray;
     }
-    
     
     @NotNull
     @Override
@@ -96,12 +92,10 @@ public class TypeAST extends ArkoiASTNode
         return this;
     }
     
-    
     @Override
     public void accept(@NotNull final IVisitor<?> visitor) {
         visitor.visit(this);
     }
-    
     
     @Override
     public @NotNull TypeKind getTypeKind() {

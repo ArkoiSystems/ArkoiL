@@ -36,7 +36,6 @@ public class TypeKeywordToken extends ArkoiToken
     @Nullable
     private TypeKind typeKind;
     
-    
     @Builder
     public TypeKeywordToken(
             @Nullable final LexicalAnalyzer lexicalAnalyzer,
@@ -51,7 +50,6 @@ public class TypeKeywordToken extends ArkoiToken
         
         this.setTypeKind(typeKind);
     }
-    
     
     @Override
     public @Nullable TypeKeywordToken parseToken() {

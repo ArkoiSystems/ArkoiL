@@ -33,12 +33,10 @@ public class SyntaxErrorHandler implements IErrorHandler
     @NotNull
     private final HashSet<ICompilerError> compilerErrors = new HashSet<>();
     
-    
     @Override
     public void addError(@NotNull final ICompilerError compilerError) {
         this.compilerErrors.add(compilerError);
     }
-    
     
     @Override
     public void printStackTrace(@NotNull final PrintStream printStream, boolean testing) {

@@ -43,7 +43,6 @@ public class NumberAST extends OperableAST
     @Nullable
     private NumberToken numberToken;
     
-    
     @Builder
     private NumberAST(
             @Nullable final SyntaxAnalyzer syntaxAnalyzer,
@@ -55,7 +54,6 @@ public class NumberAST extends OperableAST
     
         this.numberToken = numberToken;
     }
-    
     
     @NotNull
     @Override
@@ -80,12 +78,10 @@ public class NumberAST extends OperableAST
         return this;
     }
     
-    
     @Override
     public void accept(@NotNull final IVisitor<?> visitor) {
         visitor.visit(this);
     }
-    
     
     // TODO: More advanced TypeKind checking
     @Override

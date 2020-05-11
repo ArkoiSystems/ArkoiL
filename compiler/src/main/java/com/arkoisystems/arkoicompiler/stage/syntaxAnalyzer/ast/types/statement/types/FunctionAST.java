@@ -50,31 +50,25 @@ import java.util.Objects;
 public class FunctionAST extends StatementAST
 {
     
-    
     @Getter
     @NotNull
     private final List<AnnotationAST> functionAnnotations;
-    
     
     @Getter
     @Nullable
     private IdentifierToken functionName;
     
-    
     @Getter
     @Nullable
     private TypeAST functionReturnType;
-    
     
     @Getter
     @Nullable
     private ParameterListAST functionParameters;
     
-    
     @Getter
     @Nullable
     private BlockAST functionBlock;
-    
     
     @Builder
     private FunctionAST(
@@ -95,7 +89,6 @@ public class FunctionAST extends StatementAST
         this.functionBlock = functionBlock;
         this.functionName = functionName;
     }
-    
     
     @NotNull
     @Override
@@ -252,12 +245,10 @@ public class FunctionAST extends StatementAST
         return this;
     }
     
-    
     @Override
     public void accept(@NotNull final IVisitor<?> visitor) {
         visitor.visit(this);
     }
-    
     
     @Override
     public @NotNull TypeKind getTypeKind() {
@@ -266,14 +257,12 @@ public class FunctionAST extends StatementAST
         return this.getFunctionReturnType().getTypeKind();
     }
     
-    
     public String getFunctionDescription() {
         Objects.requireNonNull(this.getFunctionName(), "functionName must not be null.");
         Objects.requireNonNull(this.getFunctionParameters(), "functionParameters must not be null.");
         
         return this.getFunctionName().getTokenContent() + "(" + this.getFunctionParameters().getParameters().size() + ")";
     }
-    
     
     public boolean hasAnnotation(@NotNull final String annotationName) {
         for (final AnnotationAST annotationAST : this.functionAnnotations) {

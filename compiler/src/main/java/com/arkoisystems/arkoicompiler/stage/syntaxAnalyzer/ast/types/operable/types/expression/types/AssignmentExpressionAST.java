@@ -41,16 +41,13 @@ public class AssignmentExpressionAST extends ExpressionAST
     @Nullable
     private final OperableAST leftSideOperable;
     
-    
     @Getter
     @Nullable
     private final AssignmentOperatorType assignmentOperatorType;
     
-    
     @Getter
     @Nullable
     private OperableAST rightSideOperable;
-    
     
     @Builder
     private AssignmentExpressionAST(
@@ -67,7 +64,6 @@ public class AssignmentExpressionAST extends ExpressionAST
         this.rightSideOperable = rightSideOperable;
         this.leftSideOperable = leftSideOperable;
     }
-    
     
     @NotNull
     @Override
@@ -93,12 +89,10 @@ public class AssignmentExpressionAST extends ExpressionAST
         return this;
     }
     
-    
     @Override
     public void accept(@NotNull final IVisitor<?> visitor) {
         visitor.visit(this);
     }
-    
     
     @Override
     public @NotNull TypeKind getTypeKind() {

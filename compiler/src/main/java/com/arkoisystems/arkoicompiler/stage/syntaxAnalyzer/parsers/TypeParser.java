@@ -37,7 +37,6 @@ public class TypeParser implements ISyntaxParser
                 .parseAST(parentAST);
     }
     
-    
     @Override
     public boolean canParse(@NotNull final IASTNode parentAST, @NotNull final SyntaxAnalyzer syntaxAnalyzer) {
         return syntaxAnalyzer.currentToken().getTokenType() == TokenType.TYPE_KEYWORD;

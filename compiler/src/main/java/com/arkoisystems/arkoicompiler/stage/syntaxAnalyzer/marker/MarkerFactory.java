@@ -32,20 +32,16 @@ public class MarkerFactory<T1, T2>
     @NotNull
     private final List<MarkerFactory<?, ?>> nextMarkerFactories = new ArrayList<>();
     
-    
     @NotNull
     private final ICompilerMarker<T1, T2> currentMarker;
-    
     
     public void addFactory(final MarkerFactory<?, ?> markerFactory) {
         this.nextMarkerFactories.add(markerFactory);
     }
     
-    
     public void mark(final T1 start) {
         this.currentMarker.setStart(start);
     }
-    
     
     public void error(final T1 start, final T2 end, final String message, final Object... arguments) {
         this.currentMarker.setErrorMessage(message);
@@ -54,7 +50,6 @@ public class MarkerFactory<T1, T2>
         this.mark(start);
         this.done(end);
     }
-    
     
     public void done(final T2 end) {
         this.currentMarker.setEnd(end);

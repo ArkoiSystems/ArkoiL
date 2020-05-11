@@ -50,11 +50,9 @@ public class ArgumentAST extends ArkoiASTNode
     @Nullable
     private IdentifierToken argumentName;
     
-    
     @Getter
     @Nullable
     private OperableAST argumentExpression;
-    
     
     @Builder
     private ArgumentAST(
@@ -69,7 +67,6 @@ public class ArgumentAST extends ArkoiASTNode
         this.argumentExpression = argumentExpression;
         this.argumentName = argumentName;
     }
-    
     
     @NotNull
     @Override
@@ -130,12 +127,10 @@ public class ArgumentAST extends ArkoiASTNode
         return this;
     }
     
-    
     @Override
     public void accept(@NotNull final IVisitor<?> visitor) {
         visitor.visit(this);
     }
-    
     
     @Override
     public @NotNull TypeKind getTypeKind() {

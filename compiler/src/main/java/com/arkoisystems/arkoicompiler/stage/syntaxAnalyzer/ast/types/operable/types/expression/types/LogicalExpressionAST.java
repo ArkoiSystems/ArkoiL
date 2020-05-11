@@ -39,16 +39,13 @@ public class LogicalExpressionAST extends ExpressionAST
     @Nullable
     private final OperableAST leftSideOperable;
     
-    
     @Getter
     @Nullable
     private final LogicalOperatorType logicalOperatorType;
     
-    
     @Getter
     @Nullable
     private final OperableAST rightSideOperable;
-    
     
     @Builder
     private LogicalExpressionAST(
@@ -66,19 +63,16 @@ public class LogicalExpressionAST extends ExpressionAST
         this.leftSideOperable = leftSideOperable;
     }
     
-    
     @NotNull
     @Override
     public LogicalExpressionAST parseAST(@NotNull final IASTNode parentAST) {
         return null;
     }
     
-    
     @Override
     public void accept(@NotNull final IVisitor<?> visitor) {
         visitor.visit(this);
     }
-    
     
     @Override
     public @NotNull TypeKind getTypeKind() {
