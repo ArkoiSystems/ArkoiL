@@ -44,7 +44,6 @@ public class ArgumentListAST extends ArkoiASTNode
     @NotNull
     private final List<ArgumentAST> arguments;
     
-    
     @Builder
     private ArgumentListAST(
             @Nullable final SyntaxAnalyzer syntaxAnalyzer,
@@ -55,7 +54,6 @@ public class ArgumentListAST extends ArkoiASTNode
     
         this.arguments = new ArrayList<>();
     }
-    
     
     @NotNull
     @Override
@@ -112,12 +110,10 @@ public class ArgumentListAST extends ArkoiASTNode
         return this;
     }
     
-    
     @Override
     public void accept(@NotNull final IVisitor<?> visitor) {
         visitor.visit(this);
     }
-    
     
     @Override
     public @NotNull TypeKind getTypeKind() {

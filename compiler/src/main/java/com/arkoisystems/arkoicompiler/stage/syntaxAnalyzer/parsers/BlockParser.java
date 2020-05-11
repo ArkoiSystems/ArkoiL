@@ -38,7 +38,6 @@ public class BlockParser implements ISyntaxParser
                 .parseAST(parentAST);
     }
     
-    
     @Override
     public boolean canParse(@NotNull final IASTNode parentAST, @NotNull final SyntaxAnalyzer syntaxAnalyzer) {
         return syntaxAnalyzer.matchesCurrentToken(SymbolType.OPENING_BRACE) != null || syntaxAnalyzer.matchesCurrentToken(OperatorType.EQUALS) != null;

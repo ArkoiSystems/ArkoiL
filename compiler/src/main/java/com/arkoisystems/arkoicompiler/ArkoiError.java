@@ -42,23 +42,19 @@ public class ArkoiError implements ICompilerError
     @Nullable
     private final List<ErrorPosition> positions;
     
-    
     @Getter
     @NotNull
     private final ICompilerClass compilerClass;
-    
     
     @EqualsAndHashCode.Include
     @Getter
     @Nullable
     private final Object[] arguments;
     
-    
     @EqualsAndHashCode.Include
     @Getter
     @Nullable
     private final String message;
-    
     
     @Override
     public String toString() {
@@ -145,7 +141,6 @@ public class ArkoiError implements ICompilerError
         return stringBuilder.toString();
     }
     
-    
     @EqualsAndHashCode(onlyExplicitlyIncluded = true)
     @Builder
     public static class ErrorPosition
@@ -156,11 +151,9 @@ public class ArkoiError implements ICompilerError
         @Getter
         private final LineRange lineRange;
         
-        
         @EqualsAndHashCode.Include
         @Getter
         private final int charStart, charEnd;
-        
         
         @EqualsAndHashCode(onlyExplicitlyIncluded = true)
         @Builder
@@ -172,11 +165,9 @@ public class ArkoiError implements ICompilerError
             @Getter
             private final String sourceCode;
             
-            
             @EqualsAndHashCode.Include
             @Getter
             private final int startLine, endLine;
-            
             
             @NonNull
             public static LineRange make(final ICompilerClass compilerClass, final int startLine, final int endLine) {

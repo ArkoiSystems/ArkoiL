@@ -1,6 +1,7 @@
 package com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.utils;
 
 import lombok.Getter;
+import org.jetbrains.annotations.NotNull;
 
 public enum SymbolType
 {

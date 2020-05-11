@@ -45,21 +45,17 @@ import java.util.Objects;
 public class VariableAST extends StatementAST
 {
     
-    
     @Getter
     @Nullable
     private final List<AnnotationAST> variableAnnotations;
-    
     
     @Getter
     @Nullable
     private IdentifierToken variableName;
     
-    
     @Getter
     @Nullable
     private OperableAST variableExpression;
-    
     
     @Builder
     private VariableAST(
@@ -76,7 +72,6 @@ public class VariableAST extends StatementAST
         this.variableExpression = variableExpression;
         this.variableName = variableName;
     }
-    
     
     @NotNull
     @Override
@@ -150,12 +145,10 @@ public class VariableAST extends StatementAST
         return this;
     }
     
-    
     @Override
     public void accept(@NotNull final IVisitor<?> visitor) {
         visitor.visit(this);
     }
-    
     
     @Override
     public @NotNull TypeKind getTypeKind() {

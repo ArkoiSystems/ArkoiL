@@ -45,7 +45,6 @@ public class StatementAST extends ArkoiASTNode
     
     public static StatementParser STATEMENT_PARSER = new StatementParser();
     
-    
     @Builder(builderMethodName = "statementBuilder")
     protected StatementAST(
             @Nullable final SyntaxAnalyzer syntaxAnalyzer,
@@ -55,7 +54,6 @@ public class StatementAST extends ArkoiASTNode
     ) {
         super(syntaxAnalyzer, astType, startToken, endToken);
     }
-    
     
     @NotNull
     @Override
@@ -125,10 +123,8 @@ public class StatementAST extends ArkoiASTNode
         }
     }
     
-    
     @Override
     public void accept(@NotNull final IVisitor<?> visitor) { }
-    
     
     @Override
     public @NotNull TypeKind getTypeKind() {

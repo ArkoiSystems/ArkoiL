@@ -42,7 +42,6 @@ public class CommentToken extends ArkoiToken
         super(lexicalAnalyzer, TokenType.COMMENT, tokenContent, startLine, charStart, endLine, charEnd);
     }
     
-    
     @Override
     public @NotNull ArkoiToken parseToken() {
         Objects.requireNonNull(this.getLexicalAnalyzer(), "lexicalAnalyzer must not be null.");

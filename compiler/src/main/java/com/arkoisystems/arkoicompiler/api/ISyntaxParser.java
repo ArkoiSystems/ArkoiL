@@ -27,7 +27,6 @@ public interface ISyntaxParser
     @NotNull
     IASTNode parse(@NotNull final IASTNode parentAST, @NotNull final SyntaxAnalyzer syntaxAnalyzer);
     
-    
     boolean canParse(@NotNull final IASTNode parentAST, @NotNull final SyntaxAnalyzer syntaxAnalyzer);
     
 }

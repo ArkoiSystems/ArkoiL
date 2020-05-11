@@ -49,22 +49,18 @@ public class BlockAST extends ArkoiASTNode
     
     public static BlockParser BLOCK_PARSER = new BlockParser();
     
-    
     private static final ISyntaxParser[] BLOCK_PARSERS = new ISyntaxParser[] {
             StatementAST.STATEMENT_PARSER,
             BlockAST.BLOCK_PARSER,
     };
     
-    
     @Getter
     @NotNull
     private final List<IASTNode> astNodes;
     
-    
     @Getter
     @Nullable
     private BlockType blockType;
-    
     
     @Builder
     private BlockAST(
@@ -78,7 +74,6 @@ public class BlockAST extends ArkoiASTNode
         this.astNodes = new ArrayList<>();
         this.blockType = blockType;
     }
-    
     
     @NotNull
     @Override
@@ -110,7 +105,6 @@ public class BlockAST extends ArkoiASTNode
         this.endAST(this.getSyntaxAnalyzer().currentToken());
         return this;
     }
-    
     
     @Nullable
     private BlockAST parseBlock() {
@@ -153,7 +147,6 @@ public class BlockAST extends ArkoiASTNode
         return null;
     }
     
-    
     @Nullable
     private BlockAST parseInlinedBlock() {
         Objects.requireNonNull(this.getSyntaxAnalyzer(), "syntaxAnalyzer must not be null.");
@@ -185,12 +178,10 @@ public class BlockAST extends ArkoiASTNode
         return null;
     }
     
-    
     @Override
     public void accept(@NotNull final IVisitor<?> visitor) {
         visitor.visit(this);
     }
-    
     
     @Override
     public @NotNull TypeKind getTypeKind() {

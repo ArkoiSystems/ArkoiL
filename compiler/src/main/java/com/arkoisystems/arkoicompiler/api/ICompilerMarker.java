@@ -28,31 +28,23 @@ public interface ICompilerMarker<T1, T2>
     @Nullable
     T1 getStart();
     
-    
     void setStart(T1 start);
-    
     
     @Nullable
     T2 getEnd();
     
-    
     void setEnd(T2 end);
-    
     
     @Nullable
     Object[] getErrorArguments();
     
-    
     void setErrorArguments(@NotNull Object[] errorArguments);
-    
     
     @NotNull
     ASTType getAstType();
     
-    
     @Nullable
     String getErrorMessage();
-    
     
     void setErrorMessage(@NotNull String errorMessage);
     

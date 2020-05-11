@@ -42,7 +42,6 @@ public class IdentifierToken extends ArkoiToken
         super(lexicalAnalyzer, TokenType.IDENTIFIER, tokenContent, startLine, charStart, endLine, charEnd);
     }
     
-    
     @Override
     public @NotNull ArkoiToken parseToken() {
         Objects.requireNonNull(this.getLexicalAnalyzer(), "lexicalAnalyzer must not be null.");

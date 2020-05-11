@@ -44,7 +44,6 @@ public class ParameterListAST extends ArkoiASTNode
     @NotNull
     private final List<ParameterAST> parameters;
     
-    
     @Builder
     private ParameterListAST(
             @Nullable final SyntaxAnalyzer syntaxAnalyzer,
@@ -55,7 +54,6 @@ public class ParameterListAST extends ArkoiASTNode
     
         this.parameters = new ArrayList<>();
     }
-    
     
     @NotNull
     @Override
@@ -112,12 +110,10 @@ public class ParameterListAST extends ArkoiASTNode
         return this;
     }
     
-    
     @Override
     public void accept(@NotNull final IVisitor<?> visitor) {
         visitor.visit(this);
     }
-    
     
     @Override
     public @NotNull TypeKind getTypeKind() {

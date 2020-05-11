@@ -45,11 +45,9 @@ public class ImportAST extends StatementAST
     @Nullable
     private StringToken importFilePath;
     
-    
     @Getter
     @Nullable
     private IdentifierToken importName;
-    
     
     @Builder
     private ImportAST(
@@ -64,7 +62,6 @@ public class ImportAST extends StatementAST
         this.importFilePath = importFilePath;
         this.importName = importName;
     }
-    
     
     @NotNull
     @Override
@@ -130,12 +127,10 @@ public class ImportAST extends StatementAST
         return this;
     }
     
-    
     @Override
     public void accept(@NotNull final IVisitor<?> visitor) {
         visitor.visit(this);
     }
-    
     
     @Override
     public @NotNull TypeKind getTypeKind() {

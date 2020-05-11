@@ -34,7 +34,6 @@ public class KeywordToken extends ArkoiToken
     @Nullable
     private KeywordType keywordType;
     
-    
     @Builder
     public KeywordToken(
             @Nullable final LexicalAnalyzer lexicalAnalyzer,
@@ -49,7 +48,6 @@ public class KeywordToken extends ArkoiToken
         
         this.setKeywordType(keywordType);
     }
-    
     
     @Override
     public @Nullable KeywordToken parseToken() {

@@ -45,11 +45,9 @@ public class CastExpressionAST extends ExpressionAST
     @Nullable
     private TypeKind typeKind;
     
-    
     @Getter
     @Nullable
     private final OperableAST leftSideOperable;
-    
     
     @Builder
     private CastExpressionAST(
@@ -64,7 +62,6 @@ public class CastExpressionAST extends ExpressionAST
         this.leftSideOperable = leftSideOperable;
         this.typeKind = typeKind;
     }
-    
     
     @NotNull
     @Override
@@ -134,7 +131,6 @@ public class CastExpressionAST extends ExpressionAST
         this.endAST(this.getSyntaxAnalyzer().currentToken());
         return this;
     }
-    
     
     @Override
     public void accept(@NotNull final IVisitor<?> visitor) {

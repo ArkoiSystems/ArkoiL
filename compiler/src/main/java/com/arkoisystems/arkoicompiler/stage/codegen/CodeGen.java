@@ -1,6 +1,6 @@
 /*
  * Copyright © 2019-2020 ArkoiSystems (https://www.arkoisystems.com/) All Rights Reserved.
- * Created ArkoiCompiler on February 15, 2020
+ * Created ArkoiCompiler on May 11, 2020
  * Author єхcsє#5543 aka timo
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,61 +16,48 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.arkoisystems.arkoicompiler.stage.semanticAnalyzer;
+package com.arkoisystems.arkoicompiler.stage.codegen;
 
 import com.arkoisystems.arkoicompiler.api.ICompilerClass;
 import com.arkoisystems.arkoicompiler.api.ICompilerStage;
-import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.visitors.ScopeVisitor;
-import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.visitors.TypeVisitor;
+import com.arkoisystems.llvm4j.api.core.modules.Module;
 import lombok.Getter;
-import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
 
-public class SemanticAnalyzer implements ICompilerStage
+public class CodeGen implements ICompilerStage
 {
     
     @Getter
-    @NotNull
     private final ICompilerClass compilerClass;
     
     @Getter
-    @NotNull
-    private SemanticErrorHandler errorHandler = new SemanticErrorHandler();
-    
-    @Getter
-    private final boolean detailed;
+    private CodeGenErrorHandler errorHandler;
     
     @Getter
     private boolean failed;
     
-    public SemanticAnalyzer(@NotNull final ICompilerClass compilerClass, final boolean detailed) {
+    public CodeGen(final @NotNull ICompilerClass compilerClass) {
         this.compilerClass = compilerClass;
-        this.detailed = detailed;
     }
     
-    @SneakyThrows
     @Override
     public boolean processStage() {
-        this.reset();
-    
-        final ScopeVisitor scopeVisitor = new ScopeVisitor(this);
-        scopeVisitor.visit(this.getCompilerClass().getSyntaxAnalyzer().getRootAST());
-    
-        final TypeVisitor typeVisitor = new TypeVisitor(this);
-        typeVisitor.visit(this.getCompilerClass().getSyntaxAnalyzer().getRootAST());
-    
-        return !scopeVisitor.isFailed() && !typeVisitor.isFailed();
+        final CodeGenVisitor visitor = new CodeGenVisitor();
+        final Module module = visitor.visit(this.getCompilerClass().getSyntaxAnalyzer().getRootAST());
+        module.dumpModule();
+        return module != null;
     }
     
-    @Override
-    public void reset() {
-        this.errorHandler = new SemanticErrorHandler();
-        this.failed = false;
-    }
     
     @Override
     public void failed() {
         this.failed = true;
+    }
+    
+    
+    @Override
+    public void reset() {
+        this.errorHandler = new CodeGenErrorHandler();
     }
     
 }

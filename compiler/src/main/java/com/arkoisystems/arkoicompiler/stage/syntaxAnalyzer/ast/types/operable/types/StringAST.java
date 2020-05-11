@@ -43,7 +43,6 @@ public class StringAST extends OperableAST
     @Nullable
     private StringToken stringToken;
     
-    
     @Builder
     private StringAST(
             @Nullable final SyntaxAnalyzer syntaxAnalyzer,
@@ -55,7 +54,6 @@ public class StringAST extends OperableAST
         
         this.stringToken = stringToken;
     }
-    
     
     @NotNull
     @Override
@@ -80,12 +78,10 @@ public class StringAST extends OperableAST
         return this;
     }
     
-    
     @Override
     public void accept(@NotNull final IVisitor<?> visitor) {
         visitor.visit(this);
     }
-    
     
     @Override
     public @NotNull TypeKind getTypeKind() {

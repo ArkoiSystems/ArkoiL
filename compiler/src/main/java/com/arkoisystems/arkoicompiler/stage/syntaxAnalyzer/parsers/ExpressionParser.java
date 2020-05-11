@@ -45,7 +45,6 @@ public class ExpressionParser implements ISyntaxParser
                 .parseAST(parentAST);
     }
     
-    
     @Override
     public boolean canParse(@NotNull final IASTNode parentAST, @NotNull final SyntaxAnalyzer syntaxAnalyzer) {
         switch (syntaxAnalyzer.currentToken().getTokenType()) {

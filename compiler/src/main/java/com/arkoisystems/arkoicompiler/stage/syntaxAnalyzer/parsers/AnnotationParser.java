@@ -37,7 +37,6 @@ public class AnnotationParser implements ISyntaxParser
                 .parseAST(parentAST);
     }
     
-    
     @Override
     public boolean canParse(@NotNull final IASTNode parentAST, @NotNull final SyntaxAnalyzer syntaxAnalyzer) {
         return syntaxAnalyzer.matchesCurrentToken(SymbolType.AT_SIGN) != null;

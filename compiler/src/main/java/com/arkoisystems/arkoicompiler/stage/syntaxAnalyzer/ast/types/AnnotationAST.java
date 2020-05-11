@@ -51,21 +51,17 @@ public class AnnotationAST extends ArkoiASTNode
     
     public static AnnotationParser ANNOTATION_PARSER = new AnnotationParser();
     
-    
     @Getter
     @NotNull
     private final List<AnnotationAST> annotationStorage;
-    
     
     @Getter
     @Nullable
     private IdentifierCallAST annotationCall;
     
-    
     @Getter
     @Nullable
     private ArgumentListAST annotationArguments;
-    
     
     @Builder
     private AnnotationAST(
@@ -82,7 +78,6 @@ public class AnnotationAST extends ArkoiASTNode
         this.annotationArguments = annotationArguments;
         this.annotationCall = annotationCall;
     }
-    
     
     @NotNull
     @Override
@@ -229,18 +224,15 @@ public class AnnotationAST extends ArkoiASTNode
         }
     }
     
-    
     @Override
     public void accept(@NotNull final IVisitor<?> visitor) {
         visitor.visit(this);
     }
     
-    
     @Override
     public @NotNull TypeKind getTypeKind() {
         return TypeKind.UNDEFINED;
     }
-    
     
     @Nullable
     public IdentifierToken getAnnotationName() {

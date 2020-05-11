@@ -48,42 +48,36 @@ import java.util.*;
 public class ScopeVisitor implements IVisitor<IASTNode>, IFailed
 {
     
-    
     @NotNull
     @Getter
     private final List<HashMap<String, IASTNode>> scopeStack = new ArrayList<>();
-    
     
     @Getter
     @NotNull
     private final HashMap<Integer, Integer> scopeIndexes = new HashMap<>();
     
-    
     @NotNull
     @Getter
     private final SemanticAnalyzer semanticAnalyzer;
-    
     
     @Getter
     @Setter
     private int currentIndex;
     
-    
     @Getter
     private boolean failed;
-    
     
     public ScopeVisitor(@NotNull final SemanticAnalyzer semanticAnalyzer) {
         this.semanticAnalyzer = semanticAnalyzer;
     }
     
-    
+    @NotNull
     @Override
     public TypeAST visit(@NotNull final TypeAST typeAST) {
         return typeAST;
     }
     
-    
+    @NotNull
     @Override
     public RootAST visit(@NotNull final RootAST rootAST) {
         this.getScopeStack().add(new HashMap<>());
@@ -103,7 +97,7 @@ public class ScopeVisitor implements IVisitor<IASTNode>, IFailed
         return rootAST;
     }
     
-    
+    @NotNull
     @Override
     public ParameterListAST visit(@NotNull final ParameterListAST parameterListAST) {
         for (final ParameterAST parameterAST : parameterListAST.getParameters())
@@ -111,7 +105,7 @@ public class ScopeVisitor implements IVisitor<IASTNode>, IFailed
         return parameterListAST;
     }
     
-    
+    @NotNull
     @Override
     public ParameterAST visit(@NotNull final ParameterAST parameterAST) {
         Objects.requireNonNull(parameterAST.getParameterName(), "parameterAST.parameterName must not be null.");
@@ -136,7 +130,7 @@ public class ScopeVisitor implements IVisitor<IASTNode>, IFailed
         return parameterAST;
     }
     
-    
+    @NotNull
     @Override
     public BlockAST visit(@NotNull final BlockAST blockAST) {
         for (final IASTNode astNode : blockAST.getAstNodes()) {
@@ -147,7 +141,7 @@ public class ScopeVisitor implements IVisitor<IASTNode>, IFailed
         return blockAST;
     }
     
-    
+    @NotNull
     @Override
     public ArgumentListAST visit(@NotNull final ArgumentListAST argumentListAST) {
         for (final ArgumentAST argumentAST : argumentListAST.getArguments())
@@ -155,7 +149,7 @@ public class ScopeVisitor implements IVisitor<IASTNode>, IFailed
         return argumentListAST;
     }
     
-    
+    @NotNull
     @Override
     public ArgumentAST visit(@NotNull final ArgumentAST argumentAST) {
         Objects.requireNonNull(argumentAST.getArgumentName(), "argumentAST.argumentName must not be null.");
@@ -180,7 +174,7 @@ public class ScopeVisitor implements IVisitor<IASTNode>, IFailed
         return argumentAST;
     }
     
-    
+    @NotNull
     @Override
     public AnnotationAST visit(@NotNull final AnnotationAST annotationAST) {
         Objects.requireNonNull(annotationAST.getAnnotationArguments(), "annotationAST.annotationArguments must not be null.");
@@ -193,7 +187,6 @@ public class ScopeVisitor implements IVisitor<IASTNode>, IFailed
         this.visit(annotationAST.getAnnotationArguments());
         return annotationAST;
     }
-    
     
     public void preVisit(@NotNull final FunctionAST functionAST) {
         Objects.requireNonNull(functionAST.getFunctionName(), "functionAST.functionName must not be null.");
@@ -211,7 +204,7 @@ public class ScopeVisitor implements IVisitor<IASTNode>, IFailed
         } else rootScope.put(functionAST.getFunctionDescription(), functionAST);
     }
     
-    
+    @NotNull
     @Override
     public FunctionAST visit(@NotNull final FunctionAST functionAST) {
         Objects.requireNonNull(functionAST.getFunctionParameters(), "functionAST.functionParameters must not be null.");
@@ -226,7 +219,6 @@ public class ScopeVisitor implements IVisitor<IASTNode>, IFailed
         this.visit(functionAST.getFunctionBlock());
         return functionAST;
     }
-    
     
     public void preVisit(@NotNull final ImportAST importAST) {
         Objects.requireNonNull(importAST.getImportName(), "importAST.importName must not be null.");
@@ -244,13 +236,13 @@ public class ScopeVisitor implements IVisitor<IASTNode>, IFailed
         } else rootScope.put(importAST.getImportName().getTokenContent(), importAST);
     }
     
-    
+    @NotNull
     @Override
     public ImportAST visit(@NotNull final ImportAST importAST) {
         return importAST;
     }
     
-    
+    @NotNull
     @Override
     public ReturnAST visit(@NotNull final ReturnAST returnAST) {
         Objects.requireNonNull(returnAST.getReturnExpression(), "returnAST.returnExpression must not be null.");
@@ -258,7 +250,6 @@ public class ScopeVisitor implements IVisitor<IASTNode>, IFailed
         this.visit(returnAST.getReturnExpression());
         return returnAST;
     }
-    
     
     public void preVisit(@NotNull final VariableAST variableAST) {
         Objects.requireNonNull(variableAST.getVariableName(), "variableAST.variableName must not be null.");
@@ -282,7 +273,7 @@ public class ScopeVisitor implements IVisitor<IASTNode>, IFailed
             currentScope.put(variableAST.getVariableName().getTokenContent(), variableAST);
     }
     
-    
+    @NotNull
     @Override
     public VariableAST visit(@NotNull final VariableAST variableAST) {
         Objects.requireNonNull(variableAST.getVariableExpression(), "variableAST.variableExpression must not be null.");
@@ -291,18 +282,17 @@ public class ScopeVisitor implements IVisitor<IASTNode>, IFailed
         return variableAST;
     }
     
-    
+    @NotNull
     @Override
     public StringAST visit(@NotNull final StringAST stringAST) {
         return stringAST;
     }
     
-    
+    @NotNull
     @Override
     public NumberAST visit(@NotNull final NumberAST numberAST) {
         return numberAST;
     }
-    
     
     @Nullable
     @Override
@@ -374,7 +364,6 @@ public class ScopeVisitor implements IVisitor<IASTNode>, IFailed
         return this.visit(foundAST);
     }
     
-    
     @SneakyThrows
     @Nullable
     private ICompilerClass resolveClass(@NotNull final IASTNode foundAST) {
@@ -414,7 +403,7 @@ public class ScopeVisitor implements IVisitor<IASTNode>, IFailed
         return null;
     }
     
-    
+    @NotNull
     @Override
     public FunctionCallPartAST visit(@NotNull final FunctionCallPartAST functionCallPartAST) {
         for (final OperableAST operableAST : functionCallPartAST.getCalledExpressions())
@@ -422,7 +411,7 @@ public class ScopeVisitor implements IVisitor<IASTNode>, IFailed
         return functionCallPartAST;
     }
     
-    
+    @NotNull
     @Override
     public CollectionAST visit(@NotNull final CollectionAST collectionAST) {
         for (final OperableAST operableAST : collectionAST.getCollectionExpressions())
@@ -430,7 +419,7 @@ public class ScopeVisitor implements IVisitor<IASTNode>, IFailed
         return collectionAST;
     }
     
-    
+    @NotNull
     @Override
     public AssignmentExpressionAST visit(@NotNull final AssignmentExpressionAST assignmentExpressionAST) {
         Objects.requireNonNull(assignmentExpressionAST.getLeftSideOperable(), "assignmentExpressionAST.leftSideOperable must not be null.");
@@ -441,7 +430,7 @@ public class ScopeVisitor implements IVisitor<IASTNode>, IFailed
         return assignmentExpressionAST;
     }
     
-    
+    @NotNull
     @Override
     public BinaryExpressionAST visit(@NotNull final BinaryExpressionAST binaryExpressionAST) {
         Objects.requireNonNull(binaryExpressionAST.getLeftSideOperable(), "binaryExpressionAST.leftSideOperable must not be null.");
@@ -452,7 +441,7 @@ public class ScopeVisitor implements IVisitor<IASTNode>, IFailed
         return binaryExpressionAST;
     }
     
-    
+    @NotNull
     @Override
     public CastExpressionAST visit(@NotNull final CastExpressionAST castExpressionAST) {
         Objects.requireNonNull(castExpressionAST.getLeftSideOperable(), "castExpressionAST.leftSideOperable must not be null.");
@@ -461,7 +450,7 @@ public class ScopeVisitor implements IVisitor<IASTNode>, IFailed
         return castExpressionAST;
     }
     
-    
+    @NotNull
     @Override
     public EqualityExpressionAST visit(@NotNull final EqualityExpressionAST equalityExpressionAST) {
         Objects.requireNonNull(equalityExpressionAST.getLeftSideOperable(), "equalityExpressionAST.leftSideOperable must not be null.");
@@ -472,7 +461,7 @@ public class ScopeVisitor implements IVisitor<IASTNode>, IFailed
         return equalityExpressionAST;
     }
     
-    
+    @NotNull
     @Override
     public LogicalExpressionAST visit(@NotNull final LogicalExpressionAST logicalExpressionAST) {
         Objects.requireNonNull(logicalExpressionAST.getLeftSideOperable(), "logicalExpressionAST.leftSideOperable must not be null.");
@@ -483,7 +472,7 @@ public class ScopeVisitor implements IVisitor<IASTNode>, IFailed
         return logicalExpressionAST;
     }
     
-    
+    @NotNull
     @Override
     public ParenthesizedExpressionAST visit(@NotNull final ParenthesizedExpressionAST parenthesizedExpressionAST) {
         Objects.requireNonNull(parenthesizedExpressionAST.getParenthesizedExpression(), "parenthesizedExpressionAST.parenthesizedExpression must not be null.");
@@ -492,7 +481,7 @@ public class ScopeVisitor implements IVisitor<IASTNode>, IFailed
         return parenthesizedExpressionAST;
     }
     
-    
+    @NotNull
     @Override
     public PostfixExpressionAST visit(@NotNull final PostfixExpressionAST postfixExpressionAST) {
         Objects.requireNonNull(postfixExpressionAST.getLeftSideOperable(), "postfixExpressionAST.leftSideOperable must not be null.");
@@ -501,7 +490,7 @@ public class ScopeVisitor implements IVisitor<IASTNode>, IFailed
         return postfixExpressionAST;
     }
     
-    
+    @NotNull
     @Override
     public PrefixExpressionAST visit(@NotNull final PrefixExpressionAST prefixExpressionAST) {
         Objects.requireNonNull(prefixExpressionAST.getRightSideOperable(), "prefixExpressionAST.rightSideOperable must not be null.");
@@ -510,7 +499,7 @@ public class ScopeVisitor implements IVisitor<IASTNode>, IFailed
         return prefixExpressionAST;
     }
     
-    
+    @NotNull
     @Override
     public RelationalExpressionAST visit(@NotNull final RelationalExpressionAST relationalExpressionAST) {
         Objects.requireNonNull(relationalExpressionAST.getLeftSideOperable(), "relationalExpressionAST.leftSideOperable must not be null.");
@@ -521,13 +510,12 @@ public class ScopeVisitor implements IVisitor<IASTNode>, IFailed
         return relationalExpressionAST;
     }
     
-    
     @Override
     public void failed() {
         this.failed = true;
     }
     
-    
+    @Nullable
     public <E> E addError(@Nullable E errorSource, @NotNull final ICompilerClass compilerClass, @NotNull final IASTNode astNode, @NotNull final String message, @NotNull final Object... arguments) {
         compilerClass.getSemanticAnalyzer().getErrorHandler().addError(ArkoiError.builder()
                 .compilerClass(compilerClass)
@@ -546,7 +534,7 @@ public class ScopeVisitor implements IVisitor<IASTNode>, IFailed
         return errorSource;
     }
     
-    
+    @Nullable
     public <E> E addError(@Nullable E errorSource, @NotNull final ICompilerClass compilerClass, @NotNull final ArkoiToken arkoiToken, @NotNull final String message, @NotNull final Object... arguments) {
         compilerClass.getSemanticAnalyzer().getErrorHandler().addError(ArkoiError.builder()
                 .compilerClass(compilerClass)
@@ -565,7 +553,7 @@ public class ScopeVisitor implements IVisitor<IASTNode>, IFailed
         return errorSource;
     }
     
-    
+    @Nullable
     public <E> E addError(@Nullable E errorSource, @NotNull final ICompilerClass compilerClass, final int start, final int end, @Nullable final ArkoiError.ErrorPosition.LineRange lineRange, @NotNull final String message, @NotNull final Object... arguments) {
         compilerClass.getSemanticAnalyzer().getErrorHandler().addError(ArkoiError.builder()
                 .compilerClass(compilerClass)

@@ -43,12 +43,11 @@ public class ArkoiASTPrinter implements IVisitor<IASTNode>
     @Getter
     private final PrintStream printStream;
     
-    
     @Getter
     @Setter
     private String indents;
     
-    
+    @NotNull
     @Override
     public TypeAST visit(@NotNull final TypeAST typeAST) {
         Objects.requireNonNull(typeAST.getTypeKeywordToken(), "typeAST.typeKeywordToken must not be null.");
@@ -59,7 +58,7 @@ public class ArkoiASTPrinter implements IVisitor<IASTNode>
         return typeAST;
     }
     
-    
+    @NotNull
     @Override
     public RootAST visit(@NotNull final RootAST rootAST) {
         this.printFactory(rootAST);
@@ -78,7 +77,7 @@ public class ArkoiASTPrinter implements IVisitor<IASTNode>
         return rootAST;
     }
     
-    
+    @NotNull
     @Override
     public ParameterListAST visit(@NotNull final ParameterListAST parameterListAST) {
         this.printFactory(parameterListAST);
@@ -97,7 +96,7 @@ public class ArkoiASTPrinter implements IVisitor<IASTNode>
         return parameterListAST;
     }
     
-    
+    @NotNull
     @Override
     public ParameterAST visit(@NotNull final ParameterAST parameterAST) {
         Objects.requireNonNull(parameterAST.getParameterName(), "parameterAST.parameterName must not be null.");
@@ -110,7 +109,7 @@ public class ArkoiASTPrinter implements IVisitor<IASTNode>
         return parameterAST;
     }
     
-    
+    @NotNull
     @Override
     public BlockAST visit(@NotNull final BlockAST blockAST) {
         this.printFactory(blockAST);
@@ -131,7 +130,7 @@ public class ArkoiASTPrinter implements IVisitor<IASTNode>
         return blockAST;
     }
     
-    
+    @NotNull
     @Override
     public ArgumentListAST visit(@NotNull final ArgumentListAST argumentListAST) {
         this.printFactory(argumentListAST);
@@ -150,7 +149,7 @@ public class ArkoiASTPrinter implements IVisitor<IASTNode>
         return argumentListAST;
     }
     
-    
+    @NotNull
     @Override
     public ArgumentAST visit(@NotNull final ArgumentAST argumentAST) {
         Objects.requireNonNull(argumentAST.getArgumentName(), "argumentAST.argumentName must not be null.");
@@ -163,7 +162,7 @@ public class ArkoiASTPrinter implements IVisitor<IASTNode>
         return argumentAST;
     }
     
-    
+    @NotNull
     @Override
     public AnnotationAST visit(@NotNull final AnnotationAST annotationAST) {
         Objects.requireNonNull(annotationAST.getAnnotationName(), "annotationAST.annotationName must not be null.");
@@ -176,7 +175,7 @@ public class ArkoiASTPrinter implements IVisitor<IASTNode>
         return annotationAST;
     }
     
-    
+    @NotNull
     @Override
     public FunctionAST visit(@NotNull final FunctionAST functionAST) {
         Objects.requireNonNull(functionAST.getFunctionParameters(), "functionAST.functionParameters must not be null.");
@@ -209,7 +208,7 @@ public class ArkoiASTPrinter implements IVisitor<IASTNode>
         return functionAST;
     }
     
-    
+    @NotNull
     @Override
     public ImportAST visit(@NotNull final ImportAST importAST) {
         Objects.requireNonNull(importAST.getImportName(), "importAST.importName must not be null.");
@@ -221,7 +220,7 @@ public class ArkoiASTPrinter implements IVisitor<IASTNode>
         return importAST;
     }
     
-    
+    @NotNull
     @Override
     public ReturnAST visit(@NotNull final ReturnAST returnAST) {
         Objects.requireNonNull(returnAST.getReturnExpression(), "returnAST.returnExpression must not be null.");
@@ -232,7 +231,7 @@ public class ArkoiASTPrinter implements IVisitor<IASTNode>
         return returnAST;
     }
     
-    
+    @NotNull
     @Override
     public VariableAST visit(@NotNull final VariableAST variableAST) {
         Objects.requireNonNull(variableAST.getVariableName(), "variableAST.variableName must not be null.");
@@ -259,7 +258,7 @@ public class ArkoiASTPrinter implements IVisitor<IASTNode>
         return variableAST;
     }
     
-    
+    @NotNull
     @Override
     public StringAST visit(@NotNull final StringAST stringAST) {
         Objects.requireNonNull(stringAST.getStringToken(), "stringAST.stringToken must not be null.");
@@ -269,7 +268,7 @@ public class ArkoiASTPrinter implements IVisitor<IASTNode>
         return stringAST;
     }
     
-    
+    @NotNull
     @Override
     public NumberAST visit(@NotNull final NumberAST numberAST) {
         Objects.requireNonNull(numberAST.getNumberToken(), "numberAST.numberToken must not be null.");
@@ -279,7 +278,7 @@ public class ArkoiASTPrinter implements IVisitor<IASTNode>
         return numberAST;
     }
     
-    
+    @NotNull
     @Override
     public IdentifierCallAST visit(@NotNull final IdentifierCallAST identifierCallAST) {
         Objects.requireNonNull(identifierCallAST.getCalledIdentifier(), "identifierCallAST.calledIdentifier must not be null.");
@@ -296,7 +295,7 @@ public class ArkoiASTPrinter implements IVisitor<IASTNode>
         return identifierCallAST;
     }
     
-    
+    @NotNull
     @Override
     public FunctionCallPartAST visit(@NotNull final FunctionCallPartAST functionCallPartAST) {
         this.printFactory(functionCallPartAST);
@@ -315,7 +314,7 @@ public class ArkoiASTPrinter implements IVisitor<IASTNode>
         return functionCallPartAST;
     }
     
-    
+    @NotNull
     @Override
     public CollectionAST visit(@NotNull final CollectionAST collectionAST) {
         this.printFactory(collectionAST);
@@ -334,7 +333,7 @@ public class ArkoiASTPrinter implements IVisitor<IASTNode>
         return collectionAST;
     }
     
-    
+    @NotNull
     @Override
     public AssignmentExpressionAST visit(@NotNull final AssignmentExpressionAST assignmentExpressionAST) {
         Objects.requireNonNull(assignmentExpressionAST.getLeftSideOperable(), "assignmentExpressionAST.leftSideOperable must not be null.");
@@ -351,7 +350,7 @@ public class ArkoiASTPrinter implements IVisitor<IASTNode>
         return assignmentExpressionAST;
     }
     
-    
+    @NotNull
     @Override
     public BinaryExpressionAST visit(@NotNull final BinaryExpressionAST binaryExpressionAST) {
         Objects.requireNonNull(binaryExpressionAST.getLeftSideOperable(), "binaryExpressionAST.leftSideOperable must not be null.");
@@ -368,7 +367,7 @@ public class ArkoiASTPrinter implements IVisitor<IASTNode>
         return binaryExpressionAST;
     }
     
-    
+    @NotNull
     @Override
     public CastExpressionAST visit(@NotNull final CastExpressionAST castExpressionAST) {
         Objects.requireNonNull(castExpressionAST.getLeftSideOperable(), "castExpressionAST.leftSideOperable must not be null.");
@@ -381,7 +380,7 @@ public class ArkoiASTPrinter implements IVisitor<IASTNode>
         return castExpressionAST;
     }
     
-    
+    @NotNull
     @Override
     public EqualityExpressionAST visit(@NotNull final EqualityExpressionAST equalityExpressionAST) {
         Objects.requireNonNull(equalityExpressionAST.getLeftSideOperable(), "equalityExpressionAST.leftSideOperable must not be null.");
@@ -398,7 +397,7 @@ public class ArkoiASTPrinter implements IVisitor<IASTNode>
         return equalityExpressionAST;
     }
     
-    
+    @NotNull
     @Override
     public LogicalExpressionAST visit(@NotNull final LogicalExpressionAST logicalExpressionAST) {
         Objects.requireNonNull(logicalExpressionAST.getLeftSideOperable(), "logicalExpressionAST.leftSideOperable must not be null.");
@@ -417,7 +416,7 @@ public class ArkoiASTPrinter implements IVisitor<IASTNode>
         return logicalExpressionAST;
     }
     
-    
+    @NotNull
     @Override
     public ParenthesizedExpressionAST visit(@NotNull final ParenthesizedExpressionAST parenthesizedExpressionAST) {
         Objects.requireNonNull(parenthesizedExpressionAST.getParenthesizedExpression(), "parenthesizedExpressionAST.parenthesizedExpression must not be null.");
@@ -429,7 +428,7 @@ public class ArkoiASTPrinter implements IVisitor<IASTNode>
         return parenthesizedExpressionAST;
     }
     
-    
+    @NotNull
     @Override
     public PostfixExpressionAST visit(@NotNull final PostfixExpressionAST postfixExpressionAST) {
         Objects.requireNonNull(postfixExpressionAST.getLeftSideOperable(), "postfixExpressionAST.leftSideOperable must not be null.");
@@ -442,7 +441,7 @@ public class ArkoiASTPrinter implements IVisitor<IASTNode>
         return postfixExpressionAST;
     }
     
-    
+    @NotNull
     @Override
     public PrefixExpressionAST visit(@NotNull final PrefixExpressionAST prefixExpressionAST) {
         Objects.requireNonNull(prefixExpressionAST.getRightSideOperable(), "prefixExpressionAST.rightSideOperable must not be null.");
@@ -455,7 +454,7 @@ public class ArkoiASTPrinter implements IVisitor<IASTNode>
         return prefixExpressionAST;
     }
     
-    
+    @NotNull
     @Override
     public RelationalExpressionAST visit(@NotNull final RelationalExpressionAST relationalExpressionAST) {
         Objects.requireNonNull(relationalExpressionAST.getLeftSideOperable(), "relationalExpressionAST.leftSideOperable must not be null.");
@@ -472,7 +471,6 @@ public class ArkoiASTPrinter implements IVisitor<IASTNode>
         return relationalExpressionAST;
     }
     
-    
     private void printFactory(@NotNull final IASTNode astNode) {
         Objects.requireNonNull(astNode.getMarkerFactory().getCurrentMarker().getStart(), "astNode.markerFactory.currentMarker.start must not be null.");
         Objects.requireNonNull(astNode.getMarkerFactory().getCurrentMarker().getEnd(), "astNode.markerFactory.currentMarker.end must not be null.");
@@ -488,7 +486,6 @@ public class ArkoiASTPrinter implements IVisitor<IASTNode>
         this.getPrintStream().printf("%s│   └── end: %d%n", this.getIndents(), astNode.getMarkerFactory().getCurrentMarker().getEnd().getCharEnd());
         this.getPrintStream().printf("%s│%n", this.getIndents());
     }
-    
     
     private void tempIndent(final String startIndent, final String newIndent, final Runnable runnable) {
         this.setIndents(newIndent);

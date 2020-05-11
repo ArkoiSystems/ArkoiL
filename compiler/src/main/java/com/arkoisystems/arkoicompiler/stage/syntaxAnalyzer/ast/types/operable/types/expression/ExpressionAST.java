@@ -64,11 +64,9 @@ public class ExpressionAST extends OperableAST
     
     public static ExpressionParser EXPRESSION_PARSER = new ExpressionParser();
     
-    
     @Getter
     @Nullable
     private final OperableAST operableAST;
-    
     
     @Builder(builderMethodName = "expressionBuilder")
     protected ExpressionAST(
@@ -83,23 +81,19 @@ public class ExpressionAST extends OperableAST
         this.operableAST = operableAST;
     }
     
-    
     @NotNull
     @Override
     public OperableAST parseAST(@NotNull final IASTNode parentAST) {
         return this.parseAssignment(parentAST);
     }
     
-    
     @Override
     public void accept(@NotNull final IVisitor<?> visitor) { }
-    
     
     @Override
     public @NotNull TypeKind getTypeKind() {
         throw new NullPointerException(this.toString());
     }
-    
     
     @NotNull
     public OperableAST parseAssignment(@NotNull final IASTNode parentAST) {
@@ -162,7 +156,6 @@ public class ExpressionAST extends OperableAST
         }
     }
     
-    
     @NotNull
     public OperableAST parseAdditive(@NotNull final IASTNode parentAST) {
         Objects.requireNonNull(this.getSyntaxAnalyzer(), "syntaxAnalyzer must not be null.");
@@ -191,7 +184,6 @@ public class ExpressionAST extends OperableAST
             } else return operableAST;
         }
     }
-    
     
     @NotNull
     protected OperableAST parseMultiplicative(@NotNull final IASTNode parentAST) {
@@ -230,7 +222,6 @@ public class ExpressionAST extends OperableAST
         }
     }
     
-    
     @NotNull
     private OperableAST parseExponential(@NotNull final IASTNode parentAST) {
         Objects.requireNonNull(this.getSyntaxAnalyzer(), "syntaxAnalyzer must not be null.");
@@ -251,7 +242,6 @@ public class ExpressionAST extends OperableAST
             } else return operableAST;
         }
     }
-    
     
     // TODO: Change parenthesized expression and cast expression
     @NotNull

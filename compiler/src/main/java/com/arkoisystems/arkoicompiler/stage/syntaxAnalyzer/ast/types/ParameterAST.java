@@ -43,16 +43,13 @@ public class ParameterAST extends ArkoiASTNode
     
     public static ParameterParser PARAMETER_DEFINITION_PARSER = new ParameterParser();
     
-    
     @Getter
     @Nullable
     private IdentifierToken parameterName;
     
-    
     @Getter
     @Nullable
     private TypeAST parameterType;
-    
     
     @Builder
     private ParameterAST(
@@ -67,7 +64,6 @@ public class ParameterAST extends ArkoiASTNode
         this.parameterName = parameterName;
         this.parameterType = parameterType;
     }
-    
     
     @NotNull
     @Override
@@ -128,12 +124,10 @@ public class ParameterAST extends ArkoiASTNode
         return this;
     }
     
-    
     @Override
     public void accept(@NotNull final IVisitor<?> visitor) {
         visitor.visit(this);
     }
-    
     
     @Override
     public @NotNull TypeKind getTypeKind() {

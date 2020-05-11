@@ -47,27 +47,20 @@ public class TypeVisitor implements IVisitor<TypeKind>, IFailed
     @Getter
     private final SemanticAnalyzer semanticAnalyzer;
     
-    
-//    @Getter
-//    private final boolean detailed;
-    
-    
     @Getter
     private boolean failed;
     
-    
-    public TypeVisitor(@NotNull final SemanticAnalyzer semanticAnalyzer, final boolean detailed) {
+    public TypeVisitor(@NotNull final SemanticAnalyzer semanticAnalyzer) {
         this.semanticAnalyzer = semanticAnalyzer;
-//        this.detailed = detailed;
     }
     
-    
+    @NotNull
     @Override
     public TypeKind visit(@NotNull final TypeAST typeAST) {
         return typeAST.getTypeKind();
     }
     
-    
+    @NotNull
     @Override
     public TypeKind visit(@NotNull final RootAST rootAST) {
         for (final IASTNode astNode : rootAST.getAstNodes())
@@ -75,7 +68,7 @@ public class TypeVisitor implements IVisitor<TypeKind>, IFailed
         return rootAST.getTypeKind();
     }
     
-    
+    @NotNull
     @Override
     public TypeKind visit(@NotNull final ParameterListAST parameterListAST) {
         for (final ParameterAST parameterAST : parameterListAST.getParameters())
@@ -83,7 +76,7 @@ public class TypeVisitor implements IVisitor<TypeKind>, IFailed
         return parameterListAST.getTypeKind();
     }
     
-    
+    @NotNull
     @Override
     public TypeKind visit(@NotNull final ParameterAST parameterAST) {
         Objects.requireNonNull(parameterAST.getParameterType(), "parameterAST.parameterType must not be null.");
@@ -91,7 +84,7 @@ public class TypeVisitor implements IVisitor<TypeKind>, IFailed
         return this.visit(parameterAST.getParameterType());
     }
     
-    
+    @NotNull
     @Override
     public TypeKind visit(@NotNull final BlockAST blockAST) {
         for (final IASTNode astNode : blockAST.getAstNodes())
@@ -99,7 +92,7 @@ public class TypeVisitor implements IVisitor<TypeKind>, IFailed
         return blockAST.getTypeKind();
     }
     
-    
+    @NotNull
     @Override
     public TypeKind visit(@NotNull final ArgumentListAST argumentListAST) {
         for(final ArgumentAST argumentAST : argumentListAST.getArguments())
@@ -107,7 +100,7 @@ public class TypeVisitor implements IVisitor<TypeKind>, IFailed
         return argumentListAST.getTypeKind();
     }
     
-    
+    @NotNull
     @Override
     public TypeKind visit(@NotNull final ArgumentAST argumentAST) {
         Objects.requireNonNull(argumentAST.getArgumentExpression(), "argumentAST.argumentExpression must not be null.");
@@ -115,7 +108,7 @@ public class TypeVisitor implements IVisitor<TypeKind>, IFailed
         return this.visit(argumentAST.getArgumentExpression());
     }
     
-    
+    @NotNull
     @Override
     public TypeKind visit(@NotNull final AnnotationAST annotationAST) {
         Objects.requireNonNull(annotationAST.getAnnotationArguments(), "annotationAST.annotationArguments must not be null.");
@@ -123,7 +116,7 @@ public class TypeVisitor implements IVisitor<TypeKind>, IFailed
         return this.visit(annotationAST.getAnnotationArguments());
     }
     
-    
+    @NotNull
     @Override
     public TypeKind visit(@NotNull final FunctionAST functionAST) {
         Objects.requireNonNull(functionAST.getFunctionBlock(), "functionAST.functionBlock must not be null.");
@@ -133,13 +126,13 @@ public class TypeVisitor implements IVisitor<TypeKind>, IFailed
         return functionAST.getFunctionReturnType().getTypeKind();
     }
     
-    
+    @NotNull
     @Override
     public TypeKind visit(@NotNull final ImportAST importAST) {
         return importAST.getTypeKind();
     }
     
-    
+    @NotNull
     @Override
     public TypeKind visit(@NotNull final ReturnAST returnAST) {
         Objects.requireNonNull(returnAST.getReturnExpression(), "returnAST.returnExpression must not be null.");
@@ -147,7 +140,7 @@ public class TypeVisitor implements IVisitor<TypeKind>, IFailed
         return this.visit(returnAST.getReturnExpression());
     }
     
-    
+    @NotNull
     @Override
     public TypeKind visit(@NotNull final VariableAST variableAST) {
         Objects.requireNonNull(variableAST.getVariableExpression(), "variableAST.variableExpression must not be null.");
@@ -155,19 +148,19 @@ public class TypeVisitor implements IVisitor<TypeKind>, IFailed
         return this.visit(variableAST.getVariableExpression());
     }
     
-    
+    @NotNull
     @Override
     public TypeKind visit(@NotNull final StringAST stringAST) {
         return stringAST.getTypeKind();
     }
     
-    
+    @NotNull
     @Override
     public TypeKind visit(@NotNull final NumberAST numberAST) {
         return numberAST.getTypeKind();
     }
     
-    
+    @NotNull
     @Override
     public TypeKind visit(@NotNull final IdentifierCallAST identifierCallAST) {
         Objects.requireNonNull(identifierCallAST.getSyntaxAnalyzer(), "identifierCallAST.syntaxAnalyzer must not be null.");
@@ -185,7 +178,7 @@ public class TypeVisitor implements IVisitor<TypeKind>, IFailed
         return identifierCallAST.getTypeKind();
     }
     
-    
+    @NotNull
     @Override
     public TypeKind visit(@NotNull final FunctionCallPartAST functionCallPartAST) {
         for (final OperableAST operableAST : functionCallPartAST.getCalledExpressions())
@@ -193,7 +186,7 @@ public class TypeVisitor implements IVisitor<TypeKind>, IFailed
         return functionCallPartAST.getTypeKind();
     }
     
-    
+    @NotNull
     @Override
     public TypeKind visit(@NotNull final CollectionAST collectionAST) {
         for (final OperableAST operableAST : collectionAST.getCollectionExpressions())
@@ -201,7 +194,7 @@ public class TypeVisitor implements IVisitor<TypeKind>, IFailed
         return collectionAST.getTypeKind();
     }
     
-    
+    @Nullable
     @Override
     public TypeKind visit(@NotNull final AssignmentExpressionAST assignmentExpressionAST) {
         Objects.requireNonNull(assignmentExpressionAST.getLeftSideOperable(), "assignmentExpressionAST.leftSideOperable must not be null.");
@@ -224,7 +217,7 @@ public class TypeVisitor implements IVisitor<TypeKind>, IFailed
         );
     }
     
-    
+    @Nullable
     @Override
     public TypeKind visit(@NotNull final BinaryExpressionAST binaryExpressionAST) {
         Objects.requireNonNull(binaryExpressionAST.getLeftSideOperable(), "binaryExpressionAST.leftSideOperable must not be null.");
@@ -283,7 +276,7 @@ public class TypeVisitor implements IVisitor<TypeKind>, IFailed
         );
     }
     
-    
+    @Nullable
     @Override
     public TypeKind visit(@NotNull final CastExpressionAST castExpressionAST) {
         Objects.requireNonNull(castExpressionAST.getLeftSideOperable(), "castExpressionAST.leftSideOperable must not be null.");
@@ -304,7 +297,7 @@ public class TypeVisitor implements IVisitor<TypeKind>, IFailed
         return castExpressionAST.getTypeKind();
     }
     
-    
+    @Nullable
     @Override
     public TypeKind visit(@NotNull final EqualityExpressionAST equalityExpressionAST) {
         Objects.requireNonNull(equalityExpressionAST.getLeftSideOperable(), "equalityExpressionAST.leftSideOperable must not be null.");
@@ -340,7 +333,7 @@ public class TypeVisitor implements IVisitor<TypeKind>, IFailed
         );
     }
     
-    
+    @Nullable
     @Override
     public TypeKind visit(@NotNull final LogicalExpressionAST logicalExpressionAST) {
         Objects.requireNonNull(logicalExpressionAST.getLeftSideOperable(), "logicalExpressionAST.leftSideOperable must not be null.");
@@ -376,7 +369,7 @@ public class TypeVisitor implements IVisitor<TypeKind>, IFailed
         );
     }
     
-    
+    @NotNull
     @Override
     public TypeKind visit(@NotNull final ParenthesizedExpressionAST parenthesizedExpressionAST) {
         Objects.requireNonNull(parenthesizedExpressionAST.getParenthesizedExpression(), "parenthesizedExpressionAST.parenthesizedExpression must not be null.");
@@ -384,7 +377,7 @@ public class TypeVisitor implements IVisitor<TypeKind>, IFailed
         return this.visit(parenthesizedExpressionAST.getParenthesizedExpression());
     }
     
-    
+    @Nullable
     @Override
     public TypeKind visit(@NotNull final PostfixExpressionAST postfixExpressionAST) {
         Objects.requireNonNull(postfixExpressionAST.getLeftSideOperable(), "postfixExpressionAST.leftSideOperable must not be null.");
@@ -404,7 +397,7 @@ public class TypeVisitor implements IVisitor<TypeKind>, IFailed
         );
     }
     
-    
+    @Nullable
     @Override
     public TypeKind visit(@NotNull final PrefixExpressionAST prefixExpressionAST) {
         Objects.requireNonNull(prefixExpressionAST.getRightSideOperable(), "prefixExpressionAST.rightSideOperable must not be null.");
@@ -425,7 +418,7 @@ public class TypeVisitor implements IVisitor<TypeKind>, IFailed
         );
     }
     
-    
+    @Nullable
     @Override
     public TypeKind visit(@NotNull final RelationalExpressionAST relationalExpressionAST) {
         Objects.requireNonNull(relationalExpressionAST.getLeftSideOperable(), "relationalExpressionAST.leftSideOperable must not be null.");
@@ -461,13 +454,12 @@ public class TypeVisitor implements IVisitor<TypeKind>, IFailed
         );
     }
     
-    
     @Override
     public void failed() {
         this.failed = true;
     }
     
-    
+    @Nullable
     public <E> E addError(@Nullable E errorSource, @NotNull final ICompilerClass compilerClass, @NotNull final IASTNode astNode, @NotNull final String message, @NotNull final Object... arguments) {
         compilerClass.getSemanticAnalyzer().getErrorHandler().addError(ArkoiError.builder()
                 .compilerClass(compilerClass)

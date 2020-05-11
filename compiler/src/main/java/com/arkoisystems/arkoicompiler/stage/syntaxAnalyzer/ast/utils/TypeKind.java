@@ -21,6 +21,7 @@ package com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils;
 import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.ArkoiToken;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public enum TypeKind
 {
@@ -40,19 +41,15 @@ public enum TypeKind
     VOID("void", false, 0),
     UNDEFINED("undefined", false, 0);
     
-    
     @NotNull
     @Getter
     private final String name;
     
-    
     @Getter
     private final boolean isNumeric;
-    
  
     @Getter
     private final double precision;
-    
     
     TypeKind(@NotNull final String name, final boolean isNumeric, final double precision) {
         this.isNumeric = isNumeric;
@@ -60,7 +57,7 @@ public enum TypeKind
         this.name = name;
     }
     
-    
+    @Nullable
     public static TypeKind getTypeKind(final ArkoiToken arkoiToken) {
         for (final TypeKind typeKind : TypeKind.values()) {
             if (typeKind == COLLECTION || typeKind == UNDEFINED)

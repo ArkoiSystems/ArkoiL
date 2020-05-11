@@ -1,6 +1,6 @@
 import "test" as test
 
-var test_1 = test.test(1, 2)
+var test_1 = 1
 
 var test_2 = this.greeting()
 

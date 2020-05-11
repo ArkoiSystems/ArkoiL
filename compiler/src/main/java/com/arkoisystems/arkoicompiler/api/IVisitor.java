@@ -87,81 +87,55 @@ public interface IVisitor<T>
             throw new NullPointerException(astNode.getClass().getSimpleName() + ", " + astNode.getAstType().name());
     }
     
-    
     T visit(@NotNull final TypeAST typeAST);
-    
     
     T visit(@NotNull final RootAST rootAST);
     
-    
     T visit(@NotNull final ParameterListAST parameterListAST);
-    
     
     T visit(@NotNull final ParameterAST parameterAST);
     
-    
     T visit(@NotNull final BlockAST blockAST);
-    
     
     T visit(@NotNull final ArgumentListAST argumentListAST);
     
-    
     T visit(@NotNull final ArgumentAST argumentAST);
-    
     
     T visit(@NotNull final AnnotationAST annotationAST);
     
-    
     T visit(@NotNull final FunctionAST functionAST);
-    
     
     T visit(@NotNull final ImportAST importAST);
     
-    
     T visit(@NotNull final ReturnAST returnAST);
-    
     
     T visit(@NotNull final VariableAST variableAST);
     
-    
     T visit(@NotNull final StringAST stringAST);
-    
     
     T visit(@NotNull final NumberAST numberAST);
     
-    
     T visit(@NotNull final IdentifierCallAST identifierCallAST);
-    
     
     T visit(@NotNull final FunctionCallPartAST functionCallPartAST);
     
-    
     T visit(@NotNull final CollectionAST collectionAST);
-    
     
     T visit(@NotNull final AssignmentExpressionAST assignmentExpressionAST);
     
-    
     T visit(@NotNull final BinaryExpressionAST binaryExpressionAST);
-    
     
     T visit(@NotNull final CastExpressionAST castExpressionAST);
     
-    
     T visit(@NotNull final EqualityExpressionAST equalityExpressionAST);
-    
     
     T visit(@NotNull final LogicalExpressionAST logicalExpressionAST);
     
-    
     T visit(@NotNull final ParenthesizedExpressionAST parenthesizedExpressionAST);
-    
     
     T visit(@NotNull final PostfixExpressionAST postfixExpressionAST);
     
-    
     T visit(@NotNull final PrefixExpressionAST prefixExpressionAST);
-    
     
     T visit(@NotNull final RelationalExpressionAST relationalExpressionAST);
     

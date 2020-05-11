@@ -36,7 +36,6 @@ public interface ICompilerError
     @NotNull
     ICompilerClass getCompilerClass();
     
-    
     /**
      * This method returns a {@link List} of {@link ArkoiError.ErrorPosition}s which can
      * be used to display the problematic sections.
@@ -45,7 +44,6 @@ public interface ICompilerError
      */
     @NotNull
     List<ArkoiError.ErrorPosition> getPositions();
-    
     
     /**
      * This method returns a message of the {@link ICompilerError} which describes the

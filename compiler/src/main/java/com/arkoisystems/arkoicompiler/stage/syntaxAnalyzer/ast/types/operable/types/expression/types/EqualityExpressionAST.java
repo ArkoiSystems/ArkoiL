@@ -39,16 +39,13 @@ public class EqualityExpressionAST extends ExpressionAST
     @Nullable
     private final OperableAST leftSideOperable;
     
-    
     @Getter
     @Nullable
     private final EqualityOperatorType equalityOperatorType;
     
-    
     @Getter
     @Nullable
     private final OperableAST rightSideOperable;
-    
     
     @Builder
     private EqualityExpressionAST(
@@ -66,19 +63,16 @@ public class EqualityExpressionAST extends ExpressionAST
         this.leftSideOperable = leftSideOperable;
     }
     
-    
     @NotNull
     @Override
     public EqualityExpressionAST parseAST(@NotNull final IASTNode parentAST) {
         return null;
     }
     
-    
     @Override
     public void accept(@NotNull final IVisitor<?> visitor) {
         visitor.visit(this);
     }
-    
     
     @Override
     public @NotNull TypeKind getTypeKind() {

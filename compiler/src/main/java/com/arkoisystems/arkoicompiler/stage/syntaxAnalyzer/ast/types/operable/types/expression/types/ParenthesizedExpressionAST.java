@@ -43,7 +43,6 @@ public class ParenthesizedExpressionAST extends ExpressionAST
     @Nullable
     private OperableAST parenthesizedExpression;
     
-    
     @Builder
     private ParenthesizedExpressionAST(
             @Nullable final OperableAST parenthesizedExpression,
@@ -55,7 +54,6 @@ public class ParenthesizedExpressionAST extends ExpressionAST
     
         this.parenthesizedExpression = parenthesizedExpression;
     }
-    
     
     @NotNull
     @Override
@@ -103,12 +101,10 @@ public class ParenthesizedExpressionAST extends ExpressionAST
         return this;
     }
     
-    
     @Override
     public void accept(@NotNull final IVisitor<?> visitor) {
         visitor.visit(this);
     }
-    
     
     @Override
     public @NotNull TypeKind getTypeKind() {

@@ -52,22 +52,18 @@ public class ArkoiASTNode implements IASTNode
     @NotNull
     private final MarkerFactory<IToken, IToken> markerFactory;
     
-    
     @Getter
     @Nullable
     private final SyntaxAnalyzer syntaxAnalyzer;
-    
     
     @EqualsAndHashCode.Include
     @Getter
     @NotNull
     private final ASTType astType;
     
-    
     @Getter
     @Nullable
     private ArkoiError.ErrorPosition.LineRange lineRange;
-    
     
     @EqualsAndHashCode.Include
     @Getter
@@ -75,14 +71,11 @@ public class ArkoiASTNode implements IASTNode
     @Nullable
     private IToken startToken, endToken;
     
-    
     @Getter
     private int startLine;
     
-    
     @Getter
     private boolean failed;
-    
     
     @Builder(builderMethodName = "nodeBuilder")
     public ArkoiASTNode(
@@ -103,7 +96,6 @@ public class ArkoiASTNode implements IASTNode
         this.endAST(endToken);
     }
     
-    
     public void startAST(@Nullable final IToken token) {
         if(token == null)
             return;
@@ -112,7 +104,6 @@ public class ArkoiASTNode implements IASTNode
         this.getMarkerFactory().mark(this.getStartToken());
         this.startLine = token.getLineRange().getStartLine();
     }
-    
     
     public void endAST(@Nullable final IToken token) {
         if(token == null)
@@ -130,25 +121,21 @@ public class ArkoiASTNode implements IASTNode
         );
     }
     
-    
     @NotNull
     @Override
     public IASTNode parseAST(final IASTNode parentAST) {
         return this;
     }
     
-    
     @NotNull
     public TypeKind getTypeKind() {
         return TypeKind.UNDEFINED;
     }
     
-    
     @Override
     public void accept(final @NotNull IVisitor<?> visitor) {
     
     }
-    
     
     @Override
     public <E> E addError(@Nullable final E errorSource, @NotNull final ICompilerClass compilerClass, final @Nullable IASTNode[] astNodes, @NotNull final String message, @NotNull final Object... arguments) {
@@ -170,7 +157,6 @@ public class ArkoiASTNode implements IASTNode
         this.failed();
         return errorSource;
     }
-    
     
     @Override
     public <E> E addError(@Nullable final E errorSource, @NotNull final ICompilerClass compilerClass, final @Nullable IASTNode astNode, @NotNull final String message, @NotNull final Object... arguments) {
@@ -205,7 +191,6 @@ public class ArkoiASTNode implements IASTNode
         return errorSource;
     }
     
-    
     @Override
     public <E> E addError(@Nullable final E errorSource, @NotNull final ICompilerClass compilerClass, final @Nullable ArkoiToken arkoiToken, @NotNull final String message, @NotNull final Object... arguments) {
         final ArkoiError.ErrorPosition.LineRange lineRange;
@@ -239,7 +224,6 @@ public class ArkoiASTNode implements IASTNode
         return errorSource;
     }
     
-    
     @Override
     public void failed() {
         Objects.requireNonNull(this.getSyntaxAnalyzer(), "syntaxAnalyzer must not be null.");
@@ -247,7 +231,6 @@ public class ArkoiASTNode implements IASTNode
         this.endAST(this.getSyntaxAnalyzer().currentToken());
         this.failed = true;
     }
-    
     
     protected void skipToNextValidToken() {
         this.failed();
@@ -267,7 +250,6 @@ public class ArkoiASTNode implements IASTNode
             this.getSyntaxAnalyzer().nextToken();
         }
     }
-    
     
     @Override
     public String toString() {
