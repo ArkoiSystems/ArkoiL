@@ -168,10 +168,10 @@ public class ArkoiError implements ICompilerError
             @EqualsAndHashCode.Include
             @Getter
             private final int startLine, endLine;
-            
+    
             @NonNull
             public static LineRange make(final ICompilerClass compilerClass, final int startLine, final int endLine) {
-                final String[] sourceSplit = new String(compilerClass.getContent()).split(System.getProperty("line.separator"));
+                final String[] sourceSplit = compilerClass.getContent().split(System.getProperty("line.separator"));
                 final StringBuilder sourceBuilder = new StringBuilder();
                 for (int index = 0; index < sourceSplit.length; index++) {
                     if (index < startLine) continue;

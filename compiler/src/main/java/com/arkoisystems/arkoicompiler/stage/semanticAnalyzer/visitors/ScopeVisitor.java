@@ -25,16 +25,17 @@ import com.arkoisystems.arkoicompiler.api.IASTNode;
 import com.arkoisystems.arkoicompiler.api.ICompilerClass;
 import com.arkoisystems.arkoicompiler.api.IVisitor;
 import com.arkoisystems.arkoicompiler.api.utils.IFailed;
-import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.ArkoiToken;
+import com.arkoisystems.arkoicompiler.stage.lexer.ArkoiLexer;
+import com.arkoisystems.arkoicompiler.stage.lexer.token.ArkoiToken;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.SemanticAnalyzer;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.*;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.OperableAST;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.*;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types.*;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.types.FunctionAST;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.types.ImportAST;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.types.ReturnAST;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.types.VariableAST;
+import com.arkoisystems.arkoicompiler.stage.parser.ast.types.*;
+import com.arkoisystems.arkoicompiler.stage.parser.ast.types.operable.OperableAST;
+import com.arkoisystems.arkoicompiler.stage.parser.ast.types.operable.types.*;
+import com.arkoisystems.arkoicompiler.stage.parser.ast.types.operable.types.expression.types.*;
+import com.arkoisystems.arkoicompiler.stage.parser.ast.types.statement.types.FunctionAST;
+import com.arkoisystems.arkoicompiler.stage.parser.ast.types.statement.types.ImportAST;
+import com.arkoisystems.arkoicompiler.stage.parser.ast.types.statement.types.ReturnAST;
+import com.arkoisystems.arkoicompiler.stage.parser.ast.types.statement.types.VariableAST;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.SneakyThrows;
@@ -117,16 +118,16 @@ public class ScopeVisitor implements IVisitor<IASTNode>, IFailed
         if(!this.getScopeIndexes().containsKey(parameterAST.hashCode()))
             this.getScopeIndexes().put(parameterAST.hashCode(), this.getCurrentIndex());
         
-        if (currentScope.containsKey(parameterAST.getParameterName().getTokenContent())) {
+        if (currentScope.containsKey(parameterAST.getParameterName().getData())) {
             this.addError(
                     parameterAST,
                     parameterAST.getSyntaxAnalyzer().getCompilerClass(),
                     
                     parameterAST.getParameterName(),
-                    "Variable '%s' is already defined in the scope.", parameterAST.getParameterName().getTokenContent()
+                    "Variable '%s' is already defined in the scope.", parameterAST.getParameterName().getData()
             );
         } else
-            currentScope.put(parameterAST.getParameterName().getTokenContent(), parameterAST);
+            currentScope.put(parameterAST.getParameterName().getData(), parameterAST);
         return parameterAST;
     }
     
@@ -161,16 +162,16 @@ public class ScopeVisitor implements IVisitor<IASTNode>, IFailed
         if(!this.getScopeIndexes().containsKey(argumentAST.hashCode()))
             this.getScopeIndexes().put(argumentAST.hashCode(), this.getCurrentIndex());
         
-        if (currentScope.containsKey(argumentAST.getArgumentName().getTokenContent())) {
+        if (currentScope.containsKey(argumentAST.getArgumentName().getData())) {
             this.addError(
                     argumentAST,
                     argumentAST.getSyntaxAnalyzer().getCompilerClass(),
                     
                     argumentAST.getArgumentName(),
-                    "Variable '%s' is already defined in the scope.", argumentAST.getArgumentName().getTokenContent()
+                    "Variable '%s' is already defined in the scope.", argumentAST.getArgumentName().getData()
             );
         } else
-            currentScope.put(argumentAST.getArgumentName().getTokenContent(), argumentAST);
+            currentScope.put(argumentAST.getArgumentName().getData(), argumentAST);
         return argumentAST;
     }
     
@@ -225,15 +226,15 @@ public class ScopeVisitor implements IVisitor<IASTNode>, IFailed
         Objects.requireNonNull(importAST.getSyntaxAnalyzer(), "importAST.syntaxAnalyzer must not be null.");
         
         final HashMap<String, IASTNode> rootScope = this.getScopeStack().get(0);
-        if (rootScope.containsKey(importAST.getImportName().getTokenContent())) {
+        if (rootScope.containsKey(importAST.getImportName().getData())) {
             this.addError(
                     importAST,
                     importAST.getSyntaxAnalyzer().getCompilerClass(),
                     
                     importAST.getImportName(),
-                    "Variable '%s' is already defined in the scope.", importAST.getImportName().getTokenContent()
+                    "Variable '%s' is already defined in the scope.", importAST.getImportName().getData()
             );
-        } else rootScope.put(importAST.getImportName().getTokenContent(), importAST);
+        } else rootScope.put(importAST.getImportName().getData(), importAST);
     }
     
     @NotNull
@@ -261,16 +262,16 @@ public class ScopeVisitor implements IVisitor<IASTNode>, IFailed
         if(!this.getScopeIndexes().containsKey(variableAST.hashCode()))
             this.getScopeIndexes().put(variableAST.hashCode(), this.getCurrentIndex());
         
-        if (currentScope.containsKey(variableAST.getVariableName().getTokenContent())) {
+        if (currentScope.containsKey(variableAST.getVariableName().getData())) {
             this.addError(
                     variableAST,
                     variableAST.getSyntaxAnalyzer().getCompilerClass(),
                     
                     variableAST.getVariableName(),
-                    "Variable '%s' is already defined in the scope.", variableAST.getVariableName().getTokenContent()
+                    "Variable '%s' is already defined in the scope.", variableAST.getVariableName().getData()
             );
         } else
-            currentScope.put(variableAST.getVariableName().getTokenContent(), variableAST);
+            currentScope.put(variableAST.getVariableName().getData(), variableAST);
     }
     
     @NotNull
@@ -344,7 +345,7 @@ public class ScopeVisitor implements IVisitor<IASTNode>, IFailed
                             identifierCallAST.getCalledIdentifier().getCharEnd(),
                     identifierCallAST.getCalledIdentifier().getLineRange(),
                     
-                    "Cannot resolve reference '%s'.", identifierCallAST.getCalledIdentifier().getTokenContent()
+                    "Cannot resolve reference '%s'.", identifierCallAST.getCalledIdentifier().getData()
             );
         
         if (identifierCallAST.getNextIdentifierCall() == null)
@@ -375,7 +376,7 @@ public class ScopeVisitor implements IVisitor<IASTNode>, IFailed
             Objects.requireNonNull(importAST.getImportFilePath(), "importAST.importFilePath must not be null.");
             Objects.requireNonNull(importAST.getSyntaxAnalyzer(), "importAST.syntaxAnalyzer must not be null.");
             
-            File file = new File(importAST.getImportFilePath().getTokenContent() + ".ark");
+            File file = new File(importAST.getImportFilePath().getData() + ".ark");
             if (!file.isAbsolute())
                 file = new File(new File(this.getSemanticAnalyzer().getCompilerClass().getFilePath()).getParent(), file.getPath());
             
@@ -385,7 +386,7 @@ public class ScopeVisitor implements IVisitor<IASTNode>, IFailed
                         importAST.getSyntaxAnalyzer().getCompilerClass(),
                         
                         importAST.getImportFilePath(),
-                        "Path doesn't lead to file '%s'.", importAST.getImportFilePath().getTokenContent()
+                        "Path doesn't lead to file '%s'.", importAST.getImportFilePath().getData()
                 );
             
             final ArkoiCompiler arkoiCompiler = this.getSemanticAnalyzer().getCompilerClass().getArkoiCompiler();
@@ -395,7 +396,7 @@ public class ScopeVisitor implements IVisitor<IASTNode>, IFailed
             
             final ArkoiClass arkoiClass = new ArkoiClass(arkoiCompiler, file.getCanonicalPath(), Files.readAllBytes(file.toPath()), this.getSemanticAnalyzer().getCompilerClass().isDetailed());
             arkoiCompiler.addClass(arkoiClass);
-            arkoiClass.getLexicalAnalyzer().processStage();
+            arkoiClass.getLanguageTools().getLexer().processStage();
             arkoiClass.getSyntaxAnalyzer().processStage();
             arkoiClass.getSemanticAnalyzer().processStage();
             return arkoiClass;

@@ -44,7 +44,6 @@ public class CodeGen implements ICompilerStage
     public boolean processStage() {
         final CodeGenVisitor visitor = new CodeGenVisitor();
         final Module module = visitor.visit(this.getCompilerClass().getSyntaxAnalyzer().getRootAST());
-        module.dumpModule();
         return module != null;
     }
     

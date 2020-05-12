@@ -18,7 +18,7 @@
  */
 package com.arkoisystems.arkoicompiler.api;
 
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
+import com.arkoisystems.arkoicompiler.stage.parser.SyntaxAnalyzer;
 import org.jetbrains.annotations.NotNull;
 
 public interface ISyntaxParser

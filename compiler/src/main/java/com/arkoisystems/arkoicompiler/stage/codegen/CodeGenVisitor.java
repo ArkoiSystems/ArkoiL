@@ -19,25 +19,26 @@
 package com.arkoisystems.arkoicompiler.stage.codegen;
 
 import com.arkoisystems.arkoicompiler.api.IVisitor;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.*;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.*;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types.*;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.types.FunctionAST;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.types.ImportAST;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.types.ReturnAST;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.types.VariableAST;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
-import com.arkoisystems.llvm4j.api.core.basicBlock.BasicBlock;
+import com.arkoisystems.arkoicompiler.stage.parser.ast.types.*;
+import com.arkoisystems.arkoicompiler.stage.parser.ast.types.operable.types.*;
+import com.arkoisystems.arkoicompiler.stage.parser.ast.types.operable.types.expression.types.*;
+import com.arkoisystems.arkoicompiler.stage.parser.ast.types.statement.types.FunctionAST;
+import com.arkoisystems.arkoicompiler.stage.parser.ast.types.statement.types.ImportAST;
+import com.arkoisystems.arkoicompiler.stage.parser.ast.types.statement.types.ReturnAST;
+import com.arkoisystems.arkoicompiler.stage.parser.ast.types.statement.types.VariableAST;
+import com.arkoisystems.arkoicompiler.stage.lexer.token.enums.TypeKind;
+import com.arkoisystems.llvm4j.api.builder.Builder;
 import com.arkoisystems.llvm4j.api.core.modules.Module;
 import com.arkoisystems.llvm4j.api.core.types.Type;
 import com.arkoisystems.llvm4j.api.core.types.modules.FloatingType;
 import com.arkoisystems.llvm4j.api.core.types.modules.FunctionType;
 import com.arkoisystems.llvm4j.api.core.types.modules.IntegerType;
 import com.arkoisystems.llvm4j.api.core.types.modules.VoidType;
-import com.arkoisystems.llvm4j.api.core.types.modules.sequential.ArrayType;
+import com.arkoisystems.llvm4j.api.core.types.modules.sequential.PointerType;
 import com.arkoisystems.llvm4j.api.core.values.constants.function.Function;
 import com.arkoisystems.llvm4j.utils.PointerArray;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -45,11 +46,15 @@ import org.jetbrains.annotations.Nullable;
 import java.io.File;
 import java.util.Objects;
 
+@Getter
+@Setter
 public class CodeGenVisitor implements IVisitor<Object>
 {
     
-    @Getter
-    @Setter
+    @NotNull
+    private Builder builder;
+    
+    @NotNull
     private Module module;
     
     @Nullable
@@ -58,7 +63,7 @@ public class CodeGenVisitor implements IVisitor<Object>
         switch (typeAST.getTypeKind()) {
             case FLOAT:
                 return FloatingType.createFloatType();
-            case BOOLEAN:
+            case BOOL:
                 return IntegerType.createInt1Type();
             case BYTE:
                 return IntegerType.createInt8Type();
@@ -66,7 +71,7 @@ public class CodeGenVisitor implements IVisitor<Object>
                 return IntegerType.createInt16Type();
             case DOUBLE:
                 return FloatingType.createDoubleType();
-            case INTEGER:
+            case INT:
                 return IntegerType.createInt32Type();
             case LONG:
                 return IntegerType.createInt64Type();
@@ -74,7 +79,7 @@ public class CodeGenVisitor implements IVisitor<Object>
                 return VoidType.createVoidType();
             case STRING:
                 // TODO: 5/11/20 Idk how this works
-                return ArrayType.createArrayType(IntegerType.createInt16Type(), 0);
+                return PointerType.createPointerType(IntegerType.createInt8Type(), 0);
             default:
                 System.err.println("Unhandled type: " + typeAST.getTypeKind().name());
                 return null;
@@ -87,6 +92,7 @@ public class CodeGenVisitor implements IVisitor<Object>
         
         final File file = new File(rootAST.getSyntaxAnalyzer().getCompilerClass().getFilePath());
         final Module module = Module.createWithName(file.getName());
+        this.setBuilder(Builder.createBuilder());
         this.setModule(module);
         
         return rootAST.getAstNodes().stream()
@@ -150,14 +156,15 @@ public class CodeGenVisitor implements IVisitor<Object>
             return null;
         
         final Function function = this.getModule().addFunction(
-                functionAST.getFunctionName().getTokenContent(),
+                functionAST.getFunctionName().getData(),
                 FunctionType.createFunctionType(
                         returnType,
                         parameters,
                         false
                 )
         );
-        function.appendBasicBlock("entry");
+        this.getBuilder().setInsertPositionAtEnd(function.appendBasicBlock("entry"));
+        
         return function;
     }
     

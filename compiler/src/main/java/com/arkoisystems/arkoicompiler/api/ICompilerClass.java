@@ -18,13 +18,15 @@
  */
 package com.arkoisystems.arkoicompiler.api;
 
+import com.arkoisystems.alt.ArkoiLT;
+import com.arkoisystems.alt.api.ILexer;
 import com.arkoisystems.arkoicompiler.ArkoiClass;
 import com.arkoisystems.arkoicompiler.ArkoiCompiler;
 import com.arkoisystems.arkoicompiler.ArkoiError;
 import com.arkoisystems.arkoicompiler.stage.codegen.CodeGen;
-import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.LexicalAnalyzer;
+import com.arkoisystems.arkoicompiler.stage.lexer.ArkoiLexer;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.SemanticAnalyzer;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
+import com.arkoisystems.arkoicompiler.stage.parser.SyntaxAnalyzer;
 import org.jetbrains.annotations.NotNull;
 
 public interface ICompilerClass
@@ -39,14 +41,8 @@ public interface ICompilerClass
     @NotNull
     SyntaxAnalyzer getSyntaxAnalyzer();
     
-    /**
-     * This method is used to get the {@link LexicalAnalyzer} <b>everywhere</b> where the
-     * {@link ICompilerClass} is used.
-     *
-     * @return the {@link LexicalAnalyzer} of this {@link ICompilerClass}.
-     */
     @NotNull
-    LexicalAnalyzer getLexicalAnalyzer();
+    ArkoiLT<ArkoiLexer> getLanguageTools();
     
     /**
      * This method is used to get the {@link SemanticAnalyzer} <b>everywhere</b> where the
@@ -68,13 +64,13 @@ public interface ICompilerClass
     
     /**
      * This method is used to get the content of the file as a {@code char[]}, which is
-     * necessary for later usage in the {@link LexicalAnalyzer} or even in the official
+     * necessary for later usage in the {@link ArkoiLexer} or even in the official
      * <b>Arkoi-Plugin</b>.
      *
      * @return the content of the file as a {@code char[]}.
      */
     @NotNull
-    char[] getContent();
+    String getContent();
     
     /**
      * This method is used to get the file path to the object which contained the {@link

@@ -24,24 +24,12 @@ import spock.lang.Specification
 
 class ArkoiCompilerSpec extends Specification {
 	
-	def "are natives loaded"() {
-		given:
-		def arkoiCompiler = new ArkoiCompiler()
-		
-		expect:
-		!arkoiCompiler.getArkoiClasses().isEmpty()
-		arkoiCompiler.getArkoiClasses().size() == files
-		
-		where:
-		files = FileUtils.getAllFiles(new File("../natives")).size()
-	}
-	
 	def "are natives compilable"() {
 		given:
 		def arkoiCompiler = new ArkoiCompiler()
 		
 		expect:
-		arkoiCompiler.compile(new PrintStream(new ByteArrayOutputStream()))
+		arkoiCompiler.compile(System.out)
 	}
 	
 	def "can pass basic test"() {

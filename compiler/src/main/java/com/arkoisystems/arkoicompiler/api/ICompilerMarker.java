@@ -18,7 +18,7 @@
  */
 package com.arkoisystems.arkoicompiler.api;
 
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
+import com.arkoisystems.arkoicompiler.stage.parser.ast.utils.ASTType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

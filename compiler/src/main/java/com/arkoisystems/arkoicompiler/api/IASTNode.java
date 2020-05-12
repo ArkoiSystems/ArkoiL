@@ -20,11 +20,11 @@ package com.arkoisystems.arkoicompiler.api;
 
 import com.arkoisystems.arkoicompiler.ArkoiError;
 import com.arkoisystems.arkoicompiler.api.utils.IFailed;
-import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.token.ArkoiToken;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.ASTType;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.marker.MarkerFactory;
+import com.arkoisystems.arkoicompiler.stage.lexer.token.ArkoiToken;
+import com.arkoisystems.arkoicompiler.stage.parser.SyntaxAnalyzer;
+import com.arkoisystems.arkoicompiler.stage.parser.ast.utils.ASTType;
+import com.arkoisystems.arkoicompiler.stage.lexer.token.enums.TypeKind;
+import com.arkoisystems.arkoicompiler.stage.parser.marker.MarkerFactory;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -32,7 +32,7 @@ public interface IASTNode extends IFailed
 {
     
     @NotNull
-    MarkerFactory<IToken, IToken> getMarkerFactory();
+    MarkerFactory<ArkoiToken, ArkoiToken> getMarkerFactory();
     
     @Nullable
     SyntaxAnalyzer getSyntaxAnalyzer();
@@ -41,10 +41,10 @@ public interface IASTNode extends IFailed
     ArkoiError.ErrorPosition.LineRange getLineRange();
     
     @Nullable
-    IToken getStartToken();
+    ArkoiToken getStartToken();
     
     @Nullable
-    IToken getEndToken();
+    ArkoiToken getEndToken();
     
     @NotNull
     ASTType getAstType();
