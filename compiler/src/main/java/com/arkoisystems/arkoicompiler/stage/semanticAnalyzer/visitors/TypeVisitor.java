@@ -24,15 +24,15 @@ import com.arkoisystems.arkoicompiler.api.ICompilerClass;
 import com.arkoisystems.arkoicompiler.api.IVisitor;
 import com.arkoisystems.arkoicompiler.api.utils.IFailed;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.SemanticAnalyzer;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.*;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.OperableAST;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.*;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types.*;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.types.FunctionAST;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.types.ImportAST;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.types.ReturnAST;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.types.VariableAST;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.utils.TypeKind;
+import com.arkoisystems.arkoicompiler.stage.parser.ast.types.*;
+import com.arkoisystems.arkoicompiler.stage.parser.ast.types.operable.OperableAST;
+import com.arkoisystems.arkoicompiler.stage.parser.ast.types.operable.types.*;
+import com.arkoisystems.arkoicompiler.stage.parser.ast.types.operable.types.expression.types.*;
+import com.arkoisystems.arkoicompiler.stage.parser.ast.types.statement.types.FunctionAST;
+import com.arkoisystems.arkoicompiler.stage.parser.ast.types.statement.types.ImportAST;
+import com.arkoisystems.arkoicompiler.stage.parser.ast.types.statement.types.ReturnAST;
+import com.arkoisystems.arkoicompiler.stage.parser.ast.types.statement.types.VariableAST;
+import com.arkoisystems.arkoicompiler.stage.lexer.token.enums.TypeKind;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -307,17 +307,17 @@ public class TypeVisitor implements IVisitor<TypeKind>, IFailed
         final TypeKind
                 leftSideType = this.visit(equalityExpressionAST.getLeftSideOperable()),
                 rightSideType = this.visit(equalityExpressionAST.getRightSideOperable());
-        if (leftSideType == TypeKind.BOOLEAN && rightSideType == TypeKind.BOOLEAN)
-            return TypeKind.BOOLEAN;
+        if (leftSideType == TypeKind.BOOL && rightSideType == TypeKind.BOOL)
+            return TypeKind.BOOL;
 //        if (!this.isDetailed() && (leftSideType == TypeKind.UNDEFINED || rightSideType == TypeKind.UNDEFINED))
 //            return TypeKind.UNDEFINED;
     
         final String errorMessage;
         final IASTNode targetNode;
-        if (leftSideType != TypeKind.BOOLEAN && rightSideType != TypeKind.BOOLEAN) {
+        if (leftSideType != TypeKind.BOOL && rightSideType != TypeKind.BOOL) {
             targetNode = equalityExpressionAST;
             errorMessage = "Both sides are not a boolean.";
-        } else if (leftSideType != TypeKind.BOOLEAN) {
+        } else if (leftSideType != TypeKind.BOOL) {
             targetNode = equalityExpressionAST.getLeftSideOperable();
             errorMessage = "Left side is not a boolean.";
         } else {
@@ -343,17 +343,17 @@ public class TypeVisitor implements IVisitor<TypeKind>, IFailed
         final TypeKind
                 leftSideType = this.visit(logicalExpressionAST.getLeftSideOperable()),
                 rightSideType = this.visit(logicalExpressionAST.getRightSideOperable());
-        if (leftSideType == TypeKind.BOOLEAN && rightSideType == TypeKind.BOOLEAN)
-            return TypeKind.BOOLEAN;
+        if (leftSideType == TypeKind.BOOL && rightSideType == TypeKind.BOOL)
+            return TypeKind.BOOL;
 //        if (!this.isDetailed() && (leftSideType == TypeKind.UNDEFINED || rightSideType == TypeKind.UNDEFINED))
 //            return TypeKind.UNDEFINED;
     
         final String errorMessage;
         final IASTNode targetNode;
-        if (leftSideType != TypeKind.BOOLEAN && rightSideType != TypeKind.BOOLEAN) {
+        if (leftSideType != TypeKind.BOOL && rightSideType != TypeKind.BOOL) {
             targetNode = logicalExpressionAST;
             errorMessage = "Both sides are not a boolean.";
-        } else if (leftSideType != TypeKind.BOOLEAN) {
+        } else if (leftSideType != TypeKind.BOOL) {
             targetNode = logicalExpressionAST.getLeftSideOperable();
             errorMessage = "Left side is not a boolean.";
         } else {
@@ -428,17 +428,17 @@ public class TypeVisitor implements IVisitor<TypeKind>, IFailed
         final TypeKind
                 leftSideType = this.visit(relationalExpressionAST.getLeftSideOperable()),
                 rightSideType = this.visit(relationalExpressionAST.getRightSideOperable());
-        if (leftSideType == TypeKind.BOOLEAN && rightSideType == TypeKind.BOOLEAN)
-            return TypeKind.BOOLEAN;
+        if (leftSideType == TypeKind.BOOL && rightSideType == TypeKind.BOOL)
+            return TypeKind.BOOL;
 //        if (!this.isDetailed() && (leftSideType == TypeKind.UNDEFINED || rightSideType == TypeKind.UNDEFINED))
 //            return TypeKind.UNDEFINED;
     
         final String errorMessage;
         final IASTNode targetNode;
-        if (leftSideType != TypeKind.BOOLEAN && rightSideType != TypeKind.BOOLEAN) {
+        if (leftSideType != TypeKind.BOOL && rightSideType != TypeKind.BOOL) {
             targetNode = relationalExpressionAST;
             errorMessage = "Both sides are not a boolean.";
-        } else if (leftSideType != TypeKind.BOOLEAN) {
+        } else if (leftSideType != TypeKind.BOOL) {
             targetNode = relationalExpressionAST.getLeftSideOperable();
             errorMessage = "Left side is not a boolean.";
         } else {

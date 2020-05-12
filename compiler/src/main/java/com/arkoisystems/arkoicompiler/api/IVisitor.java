@@ -18,13 +18,13 @@
  */
 package com.arkoisystems.arkoicompiler.api;
 
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.*;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.*;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.operable.types.expression.types.*;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.types.FunctionAST;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.types.ImportAST;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.types.ReturnAST;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.statement.types.VariableAST;
+import com.arkoisystems.arkoicompiler.stage.parser.ast.types.*;
+import com.arkoisystems.arkoicompiler.stage.parser.ast.types.operable.types.*;
+import com.arkoisystems.arkoicompiler.stage.parser.ast.types.operable.types.expression.types.*;
+import com.arkoisystems.arkoicompiler.stage.parser.ast.types.statement.types.FunctionAST;
+import com.arkoisystems.arkoicompiler.stage.parser.ast.types.statement.types.ImportAST;
+import com.arkoisystems.arkoicompiler.stage.parser.ast.types.statement.types.ReturnAST;
+import com.arkoisystems.arkoicompiler.stage.parser.ast.types.statement.types.VariableAST;
 import org.jetbrains.annotations.NotNull;
 
 public interface IVisitor<T>

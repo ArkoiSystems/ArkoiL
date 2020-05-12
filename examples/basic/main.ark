@@ -10,7 +10,7 @@ var test_3 = (test_1 - (test_1 * 2 += 4 + -10) * 5)i * 2f
 # this method gets invoked first
 @test.world
 fun main<int>(args: string[]) {
-    var test_1 = "Hello\n Worlds\""
+    var test_1 = "Hello\n Worlds\"
     var test_3 = this.test.test()
     var test_6 = 1
  

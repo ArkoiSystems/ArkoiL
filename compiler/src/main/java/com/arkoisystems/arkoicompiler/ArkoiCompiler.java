@@ -19,8 +19,9 @@
 package com.arkoisystems.arkoicompiler;
 
 import com.arkoisystems.arkoicompiler.api.ICompilerClass;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.ArkoiASTPrinter;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.ast.types.RootAST;
+import com.arkoisystems.arkoicompiler.stage.lexer.ArkoiLexer;
+import com.arkoisystems.arkoicompiler.stage.parser.ast.ArkoiASTPrinter;
+import com.arkoisystems.arkoicompiler.stage.parser.ast.types.RootAST;
 import com.arkoisystems.arkoicompiler.utils.FileUtils;
 import lombok.Getter;
 import lombok.NonNull;
@@ -54,7 +55,7 @@ public class ArkoiCompiler
     
     public void printStackTrace(@NotNull final PrintStream errorStream) {
         for (final ICompilerClass arkoiClass : this.getArkoiClasses()) {
-            arkoiClass.getLexicalAnalyzer().getErrorHandler().printStackTrace(errorStream, false);
+            arkoiClass.getLanguageTools().getLexer().getErrorHandler().printStackTrace(errorStream, false);
             arkoiClass.getSyntaxAnalyzer().getErrorHandler().printStackTrace(errorStream, false);
             arkoiClass.getSemanticAnalyzer().getErrorHandler().printStackTrace(errorStream, false);
         }
@@ -65,7 +66,7 @@ public class ArkoiCompiler
         {
             final long lexicalStart = System.nanoTime();
             final ICompilerClass lexicalFailed = this.getArkoiClasses().stream()
-                    .filter(compilerClass -> !compilerClass.getLexicalAnalyzer().processStage())
+                    .filter(compilerClass -> !compilerClass.getLanguageTools().getLexer().processStage())
                     .findFirst()
                     .orElse(null);
             if (lexicalFailed != null)

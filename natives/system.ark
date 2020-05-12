@@ -1,4 +1,4 @@
-@native[default: true]
+@native[default = true]
 fun println<>(message: string)
 
 # @native

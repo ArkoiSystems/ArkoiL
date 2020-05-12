@@ -18,11 +18,13 @@
  */
 package com.arkoisystems.arkoicompiler;
 
+import com.arkoisystems.alt.ArkoiLT;
 import com.arkoisystems.arkoicompiler.api.ICompilerClass;
 import com.arkoisystems.arkoicompiler.stage.codegen.CodeGen;
-import com.arkoisystems.arkoicompiler.stage.lexcialAnalyzer.LexicalAnalyzer;
+import com.arkoisystems.arkoicompiler.stage.lexer.ArkoiLexer;
+import com.arkoisystems.arkoicompiler.stage.parser.ArkoiParser;
+import com.arkoisystems.arkoicompiler.stage.parser.SyntaxAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.SemanticAnalyzer;
-import com.arkoisystems.arkoicompiler.stage.syntaxAnalyzer.SyntaxAnalyzer;
 import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
@@ -39,7 +41,7 @@ public class ArkoiClass implements ICompilerClass
     @Getter
     @Setter
     @NotNull
-    private char[] content;
+    private String content;
     
     @Getter
     @Setter
@@ -52,15 +54,15 @@ public class ArkoiClass implements ICompilerClass
     
     @Getter
     @NotNull
-    private final LexicalAnalyzer lexicalAnalyzer = new LexicalAnalyzer(this);
-    
-    @Getter
-    @NotNull
     private final SyntaxAnalyzer syntaxAnalyzer = new SyntaxAnalyzer(this);
     
     @Getter
     @NotNull
     private final CodeGen codeGen = new CodeGen(this);
+    
+    @Getter
+    @NotNull
+    private final ArkoiLT<ArkoiLexer> languageTools;
     
     @Getter
     @NotNull
@@ -73,10 +75,13 @@ public class ArkoiClass implements ICompilerClass
         this.arkoiCompiler = arkoiCompiler;
         this.detailed = detailed;
         this.filePath = filePath;
-    
+        
+        this.languageTools = ArkoiLT.makeLanguage(ArkoiLexer.class, ArkoiParser.class);
+        this.getLanguageTools().getLexer().setCompilerClass(this);
+        
         this.semanticAnalyzer = new SemanticAnalyzer(this, detailed);
         
-        this.content = new String(content, StandardCharsets.UTF_8).toCharArray();
+        this.content = new String(content, StandardCharsets.UTF_8);
         this.isNative = false;
     }
     
