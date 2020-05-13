@@ -1,0 +1,63 @@
+# Program rules
+	program = { global_statement };
+
+	global_statement = function_declaration |
+	                   variable_declaration |
+	                     import_declaration ;
+
+# Statement rules
+	function_declaration = FUN, IDENTIFIER, function_return, function_arguments, block;
+
+	variable_declaration = VAR, IDENTIFIER, EQUALS, [ expression ];
+
+	import_declaration = IMPORT, STRING_LITERAL, [ NAMED, IDENTIFIER ];
+
+	return_declaration = RETURN, expression;
+
+# Function rules
+	function_return = OPENING_ARROW, [ return_type ], CLOSING_ARROW;
+
+	function_arguments = OPENING_PARENTHESIS, [ function_argument ], { COMMA, function_argument }, CLOSING_PARENTHESIS;
+
+	function_argument = IDENTIFIER, COLON, type;
+
+# Block rules
+	block = inline_block | brace_block;
+
+	inline_block = EQUALS, expression, SEMICOLON;
+
+	brace_block = OPENING_BRACE, { block_statement }, CLOSING_BRACE;
+
+	block_statement = variable_declaration |
+					    return_declaration |
+	                       identifier_call ;
+
+# Expression rules
+	expression = assignment_expression;
+
+	assignment_expression = additive_expression, [ { ( EQUALS |
+	                                              PLUS_EQUALS |
+	                                             MINUS_EQUALS |
+	                                          ASTERISK_EQUALS |
+	                                             SLASH_EQUALS |
+	                                           PERCENT_EQUALS ), assignment_expression } ];
+
+	additive_expression = multiplicative_expression, { ( PLUS | MINUS ), additive_expression };
+
+	multiplicative_expression = exponential_expression, [ { ( ASTERISK |
+	                                                             SLASH |
+	                                                           PERCENT ), multiplicative_expression } ];
+
+	exponential_expression = operable_expression, [ { ASTERISK_ASTERISK, exponential_expression } ];
+
+	operable_expression = [ prefix_expression ], ( parenthesized_expression |
+	                                                               operable ), [ postfix_expression ];
+
+	prefix_expression = PLUS_PLUS | MINUS_MINUS | PLUS | MINUS;
+
+	postfix_expression = PLUS_PLUS | MINUS_MINUS;
+
+	parenthesized_expression = OPENING_PARENTHESIS, expression, CLOSING_PARENTHESIS;
+
+# General rules
+	type = CHAR | BOOL | BYTE | INT | LONG | SHORT | STRING | FLOAT | DOUBLE;

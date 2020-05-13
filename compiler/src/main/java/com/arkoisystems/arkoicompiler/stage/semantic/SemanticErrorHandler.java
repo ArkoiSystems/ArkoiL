@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.arkoisystems.arkoicompiler.stage.semanticAnalyzer;
+package com.arkoisystems.arkoicompiler.stage.semantic;
 
 import com.arkoisystems.arkoicompiler.api.error.ICompilerError;
 import com.arkoisystems.arkoicompiler.api.error.IErrorHandler;
@@ -24,9 +24,7 @@ import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.PrintStream;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 
 public class SemanticErrorHandler implements IErrorHandler
 {

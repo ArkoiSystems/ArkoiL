@@ -16,12 +16,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.arkoisystems.arkoicompiler.stage.semanticAnalyzer;
+package com.arkoisystems.arkoicompiler.stage.semantic;
 
 import com.arkoisystems.arkoicompiler.api.ICompilerClass;
 import com.arkoisystems.arkoicompiler.api.ICompilerStage;
-import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.visitors.ScopeVisitor;
-import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.visitors.TypeVisitor;
+import com.arkoisystems.arkoicompiler.stage.semantic.visitors.ScopeVisitor;
+import com.arkoisystems.arkoicompiler.stage.semantic.visitors.TypeVisitor;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;

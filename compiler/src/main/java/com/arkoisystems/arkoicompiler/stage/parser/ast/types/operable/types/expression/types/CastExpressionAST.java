@@ -82,9 +82,7 @@ public class CastExpressionAST extends ExpressionAST
             );
         }
     
-        System.out.println(this.getSyntaxAnalyzer().currentToken());
         final ArkoiToken identifierToken = this.getSyntaxAnalyzer().nextToken(false);
-        System.out.println(identifierToken);
         if (identifierToken == null) {
             return this.addError(
                     this,

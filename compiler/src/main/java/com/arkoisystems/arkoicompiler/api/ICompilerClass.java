@@ -19,13 +19,12 @@
 package com.arkoisystems.arkoicompiler.api;
 
 import com.arkoisystems.alt.ArkoiLT;
-import com.arkoisystems.alt.api.ILexer;
 import com.arkoisystems.arkoicompiler.ArkoiClass;
 import com.arkoisystems.arkoicompiler.ArkoiCompiler;
 import com.arkoisystems.arkoicompiler.ArkoiError;
 import com.arkoisystems.arkoicompiler.stage.codegen.CodeGen;
 import com.arkoisystems.arkoicompiler.stage.lexer.ArkoiLexer;
-import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.SemanticAnalyzer;
+import com.arkoisystems.arkoicompiler.stage.semantic.SemanticAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.parser.SyntaxAnalyzer;
 import org.jetbrains.annotations.NotNull;
 

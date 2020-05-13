@@ -21,3 +21,27 @@ fun main<int>(args: string[]) {
 fun print_greet<>(test_argument: string) = println("%s , %s" % [test_2, test_argument])
 
 fun greeting<string>() = "Hello World"
+
+# import "test" as test
+# 
+# const test_1: int = 1
+# 
+# const test_2: string = this.greeting()
+# 
+# const test_3: float = (test_1 - (test_1 * 2 += 4 + -10) * 5)i * 2f
+# 
+# @test.tests
+# this method gets invoked first
+# @test.world
+# fun main(args: string[]): int {
+#     var test_1 = "Hello\n Worlds\"
+#     var test_3 = this.test.test()
+#     var test_6 = 1
+#  
+#     this.print_greet(test_1)
+#     return (20++ + -10 * 5f) * 2 ** 3 ** 4 + (test_6 += 1 * 2)
+# }
+# 
+# fun print_greet(test_argument: string) = println("%s , %s" % [test_2, test_argument])
+# 
+# fun greeting(): string = "Hello World"

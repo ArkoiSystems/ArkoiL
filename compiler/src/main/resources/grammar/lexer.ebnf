@@ -1,0 +1,64 @@
+# Whitespaces and newlines presence
+	NEWLINE             = `\n`;
+	OTHERS              = `\s`;
+
+# Comments
+	COMMENT             = `#[^\r\n]+`;
+
+# Operators
+	EQUALS              = `=`;
+	PLUS_EQUALS         = `\+=`;
+	PLUS_PLUS           = `\+\+`;
+	PLUS                = `\+`;
+	MINUS_EQUALS        = `-=`;
+	MINUS_MINUS         = `--`;
+	MINUS               = `-`;
+	ASTERISK_EQUALS     = `\*=`;
+	ASTERISK_ASTERISK   = `\*\*`;
+	ASTERISK            = `\*`;
+	SLASH_EQUALS        = `/=`;
+	SLASH               = `=`;
+	PERCENT_EQUALS      = `%=`;
+	PERCENT             = `%`;
+
+# Symbols
+	AT_SIGN             = `@`;
+	CARET               = `\^`;
+	COLON               = `:`;
+	OPENING_BRACE       = `\{`;
+	CLOSING_BRACE       = `\}`;
+	OPENING_PARENTHESIS = `\(`;
+	CLOSING_PARENTHESIS = `\)`;
+	OPENING_BRACKET     = `\[`;
+	CLOSING_BRACKET     = `\]`;
+	COMMA               = `,`;
+	PERIOD              = `\.`;
+	OPENING_ARROW       = `<`;
+	CLOSING_ARROW       = `>`;
+
+# Keywords
+	THIS                = `this`;
+	VAR                 = `var`;
+	RETURN              = `return`;
+	FUN                 = `fun`;
+	AS                  = `as`;
+	IMPORT              = `import`;
+
+# Types
+	CHAR                = `char`;
+	BOOL                = `bool`;
+	BYTE                = `byte`;
+	INT                 = `int`;
+	LONG                = `long`;
+	SHORT               = `short`;
+	STRING              = `string`;
+	FLOAT               = `float`;
+	DOUBLE              = `double`;
+
+#Literals
+	NUMBER_LITERAL      = `(?:(?<hex>0[xX][a-zA-Z0-9]+)|(?:(?<fp>\d\.\d*)|(?<int>\d+))(?<sn>E[-+]\d+)?)`;
+	STRING_LITERAL      = `\"(?:\"|[^\"]*[^\\]\"?)`;
+	CHARACTER_LITERAL   = `'(?:'|[^']*[^\\]')`;
+
+# Identifier
+	IDENTIFIER          = `[a-zA-Z][a-zA-Z0-9_]*`;
