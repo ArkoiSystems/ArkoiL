@@ -23,6 +23,8 @@ import com.arkoisystems.arkoicompiler.stage.lexer.ArkoiLexer;
 import com.arkoisystems.arkoicompiler.stage.parser.ast.ArkoiASTPrinter;
 import com.arkoisystems.arkoicompiler.stage.parser.ast.types.RootAST;
 import com.arkoisystems.arkoicompiler.utils.FileUtils;
+import com.arkoisystems.llvm4j.api.LLVMAPI;
+import com.sun.jna.Native;
 import lombok.Getter;
 import lombok.NonNull;
 import org.jetbrains.annotations.NotNull;

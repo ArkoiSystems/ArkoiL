@@ -18,11 +18,11 @@
  */
 package com.arkoisystems.arkoicompiler.stage.lexer;
 
+import com.arkoisystems.alt.api.IError;
 import com.arkoisystems.alt.api.ILexer;
 import com.arkoisystems.alt.api.IToken;
 import com.arkoisystems.alt.api.annotations.Token;
 import com.arkoisystems.alt.lexer.LexerToken;
-import com.arkoisystems.arkoicompiler.ArkoiError;
 import com.arkoisystems.arkoicompiler.api.ICompilerClass;
 import com.arkoisystems.arkoicompiler.api.ICompilerStage;
 import com.arkoisystems.arkoicompiler.stage.lexer.token.ArkoiToken;
@@ -32,7 +32,9 @@ import com.arkoisystems.arkoicompiler.stage.lexer.token.types.OperatorToken;
 import com.arkoisystems.arkoicompiler.stage.lexer.token.types.SymbolToken;
 import com.arkoisystems.arkoicompiler.stage.lexer.token.types.TypeToken;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.Setter;
+import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -44,6 +46,12 @@ public class ArkoiLexer implements ICompilerStage, ILexer
 {
     
     @NotNull
+    private final List<IToken> tokens;
+    
+    @NonNull
+    private final String lexerEBNF;
+    
+    @NotNull
     private ICompilerClass compilerClass;
     
     @NotNull
@@ -51,36 +59,32 @@ public class ArkoiLexer implements ICompilerStage, ILexer
     
     private int line, startChar;
     
-    @NotNull
-    private List<IToken> tokens;
-    
     private boolean failed;
     
     @NotNull
     private String input;
     
+    @SneakyThrows
     public ArkoiLexer() {
+        this.tokens = new ArrayList<>();
+        this.lexerEBNF = new String(ArkoiLexer.class.getResourceAsStream("/grammar/lexer.ebnf")
+                .readAllBytes());
         this.reset();
     }
     
     @Override
     public boolean processStage() {
         this.reset();
-        this.setTokens(this.getCompilerClass().getLanguageTools().getLexerEvaluator().getTokens(
+        this.getTokens().addAll(this.getCompilerClass().getLanguageTools().getTokens(
                 this.getCompilerClass().getContent()
         ));
-        if(!this.getCompilerClass().getLanguageTools().getLexerEvaluator().getErrors().isEmpty()) {
-            System.out.println(this.getCompilerClass().getLanguageTools().getLexerEvaluator().getErrors());
-            // TODO: 5/12/20 Add errors to the list.
-            this.failed();
-        }
         return !this.isFailed();
     }
     
     @Override
     public void reset() {
         this.setErrorHandler(new LexerErrorHandler());
-        this.setTokens(new ArrayList<>());
+        this.getTokens().clear();
         this.setFailed(false);
         this.setStartChar(0);
         this.setLine(0);
@@ -91,12 +95,9 @@ public class ArkoiLexer implements ICompilerStage, ILexer
         this.failed = true;
     }
     
-    @Token(ebnf = "NEWLINE = `\\n`;" +
-            "      OTHERS  = `\\s`;",
-            precedence = 7
-    )
+    @Token(tokens = { "NEWLINE", "OTHERS" })
     @NotNull
-    public ArkoiToken checkWhiteSpace(@NotNull final LexerToken token) {
+    public ArkoiToken onWhiteSpace(@NotNull final LexerToken token) {
         if (token.getType().equals("NEWLINE")) {
             this.startChar = token.getCharStart();
             this.line++;
@@ -104,107 +105,108 @@ public class ArkoiLexer implements ICompilerStage, ILexer
         return new ArkoiToken(this, TokenType.WHITESPACE, token);
     }
     
-    @Token(ebnf = "COMMENT = `#[^\\r\\n]+`;", precedence = 6)
+    @Token(tokens = "COMMENT")
     @NotNull
-    public ArkoiToken checkComment(@NotNull final LexerToken token) {
+    public ArkoiToken onComment(@NotNull final LexerToken token) {
         return new ArkoiToken(this, TokenType.COMMENT, token);
     }
     
-    @Token(ebnf = "EQUALS            = `=`;" +
-            "      PLUS_EQUALS       = `\\+=`;" +
-            "      PLUS_PLUS         = `\\+\\+`;" +
-            "      PLUS              = `\\+`;" +
-            "      MINUS_EQUALS      = `-=`;" +
-            "      MINUS_MINUS       = `--`;" +
-            "      MINUS             = `-`;" +
-            "      ASTERISK_EQUALS   = `\\*=`;" +
-            "      ASTERISK_ASTERISK = `\\*\\*`;" +
-            "      ASTERISK          = `\\*`;" +
-            "      SLASH_EQUALS      = `/=`;" +
-            "      SLASH             = `=`;" +
-            "      PERCENT_EQUALS    = `%=`;" +
-            "      PERCENT           = `%`;",
-            precedence = 5
-    )
+    @Token(tokens = {
+            "EQUALS",
+            "PLUS_EQUALS", "PLUS_PLUS", "PLUS",
+            "MINUS_EQUALS", "MINUS_MINUS", "MINUS",
+            "ASTERISK_EQUALS", "ASTERISK_ASTERISK", "ASTERISK",
+            "SLASH_EQUALS", "SLASH",
+            "PERCENT_EQUALS", "PERCENT"
+    })
     @NotNull
-    public ArkoiToken checkOperator(@NotNull final LexerToken token) {
+    public ArkoiToken onOperator(@NotNull final LexerToken token) {
         return new OperatorToken(this, TokenType.OPERATOR, token);
     }
     
-    @Token(ebnf = "AT_SIGN             = `@`;" +
-            "      CARET               = `\\^`;" +
-            "      COLON               = `:`;" +
-            "      OPENING_BRACE       = `\\{`;" +
-            "      CLOSING_BRACE       = `\\}`;" +
-            "      OPENING_PARENTHESIS = `\\(`;" +
-            "      CLOSING_PARENTHESIS = `\\)`;" +
-            "      OPENING_BRACKET     = `\\[`;" +
-            "      CLOSING_BRACKET     = `\\]`;" +
-            "      COMMA               = `,`;" +
-            "      PERIOD              = `\\.`;" +
-            "      OPENING_ARROW       = `<`;" +
-            "      CLOSING_ARROW       = `>`;",
-            precedence = 4
-    )
+    @Token(tokens = {
+            "AT_SIGN",
+            "CARET",
+            "COLON",
+            "OPENING_BRACE", "CLOSING_BRACE",
+            "OPENING_PARENTHESIS", "CLOSING_PARENTHESIS",
+            "OPENING_BRACKET", "CLOSING_BRACKET",
+            "COMMA", "PERIOD",
+            "OPENING_ARROW", "CLOSING_ARROW"
+    })
     @NotNull
-    public ArkoiToken checkSymbol(@NotNull final LexerToken token) {
+    public ArkoiToken onSymbol(@NotNull final LexerToken token) {
         return new SymbolToken(this, TokenType.SYMBOL, token);
     }
     
-    @Token(ebnf = "THIS   = `this`;" +
-            "      VAR    = `var`;" +
-            "      RETURN = `return`;" +
-            "      FUN    = `fun`;" +
-            "      AS     = `as`;" +
-            "      IMPORT = `import`;",
-            precedence = 3
-    )
+    @Token(tokens = {
+            "THIS",
+            "VAR",
+            "RETURN",
+            "FUN",
+            "AS",
+            "IMPORT"
+    })
     @NotNull
-    public ArkoiToken checkKeyword(@NotNull final LexerToken token) {
+    public ArkoiToken onKeyword(@NotNull final LexerToken token) {
         return new KeywordToken(this, TokenType.KEYWORD, token);
     }
     
-    @Token(ebnf = "CHAR   = `char`;" +
-            "      BOOL   = `bool`;" +
-            "      BYTE   = `byte`;" +
-            "      INT    = `int`;" +
-            "      LONG   = `long`;" +
-            "      SHORT  = `short`;" +
-            "      STRING = `string`;",
-            precedence = 2
-    )
+    @Token(tokens = {
+            "STRING", "CHAR",
+            "BOOL",
+            "INT", "BYTE", "LONG", "SHORT",
+            "FLOAT", "DOUBLE"
+    })
     @NotNull
-    public ArkoiToken checkToken(@NotNull final LexerToken token) {
+    public ArkoiToken onToken(@NotNull final LexerToken token) {
         return new TypeToken(this, TokenType.TYPE, token);
     }
     
-    @Token(ebnf = "NUMBER_LITERAL    = `(?:(?<hex>0[xX][a-zA-Z0-9]+)|(?:(?<fp>\\d\\.\\d*)|(?<int>\\d+))(?<sn>E[-+]\\d+)?)`;" + // Return different types
-            "      STRING_LITERAL    = `\"(?:\"|[^\"]*[^\\\\]\"?)`;" +
-            "      CHARACTER_LITERAL = `'(?:'|[^']*[^\\\\]')`;", // Check that just one character is inside
-            precedence = 1
-    )
-    @NotNull
-    public ArkoiToken checkLiteral(@NotNull final LexerToken token) {
-        switch (token.getType()) {
-            case "NUMBER_LITERAL":
-                return new ArkoiToken(this, TokenType.NUMBER_LITERAL, token);
-            case "STRING_LITERAL":
-                if(token.getData().endsWith("\"") && token.getData().endsWith("\\\"")) {
-                    // TODO: 5/12/20 Handle error here
-                    this.failed();
-                    System.out.println(token.getData());
-                }
-                token.setData(token.getData().substring(1, token.getData().length() - 1));
-                return new ArkoiToken(this, TokenType.STRING_LITERAL, token);
-            default:
-                throw new NullPointerException("Not implemented.");
-        }
+    @Token(tokens = {
+            "NUMBER_LITERAL",
+            "STRING_LITERAL",
+            "CHARACTER_LITERAL"
+    })
+    @NonNull
+    public ArkoiToken onLiteral(@NotNull final LexerToken token) {
+        if (token.getType().equals("NUMBER_LITERAL")) {
+            return new ArkoiToken(this, TokenType.NUMBER_LITERAL, token);
+        } else if (token.getType().equals("STRING_LITERAL")) {
+            if (token.getData().endsWith("\"") && token.getData().endsWith("\\\"")) {
+                // TODO: 5/12/20 Handle error here
+                //                    this.onError(ArkoiError.builder()
+                //                            .message("The string has an invalid ending.")
+                //                            .compilerClass(this.getCompilerClass())
+                //                            .positions(List.of(ArkoiError.ErrorPosition.builder()
+                //                                    .lineRange(ArkoiError.ErrorPosition.LineRange.builder()
+                //                                            .sourceCode("Lelek")
+                //                                            .startLine(0)
+                //                                            .endLine(0)
+                //                                            .build())
+                //                                    .charStart(token.getCharStart())
+                //                                    .charEnd(token.getCharEnd())
+                //                                    .build()))
+                //                            .build());
+                // System.out.println(token.getData());
+            }
+            
+            token.setData(token.getData().substring(1, token.getData().length() - 1));
+            return new ArkoiToken(this, TokenType.STRING_LITERAL, token);
+        } else throw new NullPointerException("Not implemented.");
     }
     
-    @Token(ebnf = "IDENTIFIER = `[a-zA-Z][a-zA-Z0-9_]+`;")
+    @Token(tokens = "IDENTIFIER")
     @NotNull
-    public ArkoiToken checkIdentifier(@NotNull final LexerToken token) {
+    public ArkoiToken onIdentifier(@NotNull final LexerToken token) {
         return new ArkoiToken(this, TokenType.IDENTIFIER, token);
+    }
+    
+    @Override
+    public void onError(@NonNull final IError error) {
+        // TODO: 5/13/20 Add to error list
+        System.out.println(error);
+        this.failed();
     }
     
 }

@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.visitors;
+package com.arkoisystems.arkoicompiler.stage.semantic.visitors;
 
 import com.arkoisystems.arkoicompiler.ArkoiClass;
 import com.arkoisystems.arkoicompiler.ArkoiCompiler;
@@ -25,9 +25,8 @@ import com.arkoisystems.arkoicompiler.api.IASTNode;
 import com.arkoisystems.arkoicompiler.api.ICompilerClass;
 import com.arkoisystems.arkoicompiler.api.IVisitor;
 import com.arkoisystems.arkoicompiler.api.utils.IFailed;
-import com.arkoisystems.arkoicompiler.stage.lexer.ArkoiLexer;
 import com.arkoisystems.arkoicompiler.stage.lexer.token.ArkoiToken;
-import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.SemanticAnalyzer;
+import com.arkoisystems.arkoicompiler.stage.semantic.SemanticAnalyzer;
 import com.arkoisystems.arkoicompiler.stage.parser.ast.types.*;
 import com.arkoisystems.arkoicompiler.stage.parser.ast.types.operable.OperableAST;
 import com.arkoisystems.arkoicompiler.stage.parser.ast.types.operable.types.*;

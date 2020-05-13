@@ -24,7 +24,7 @@ import com.arkoisystems.arkoicompiler.stage.codegen.CodeGen;
 import com.arkoisystems.arkoicompiler.stage.lexer.ArkoiLexer;
 import com.arkoisystems.arkoicompiler.stage.parser.ArkoiParser;
 import com.arkoisystems.arkoicompiler.stage.parser.SyntaxAnalyzer;
-import com.arkoisystems.arkoicompiler.stage.semanticAnalyzer.SemanticAnalyzer;
+import com.arkoisystems.arkoicompiler.stage.semantic.SemanticAnalyzer;
 import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
