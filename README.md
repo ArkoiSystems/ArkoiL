@@ -1,4 +1,8 @@
-# <img src="assets/logo-dark.png" height="28px" /> Arkoi Language
+# Arkoi Language
+[![](https://jitpack.io/v/ArkoiSystems/ArkoiL.svg)](https://jitpack.io/#ArkoiSystems/ArkoiL)
+![GitHub repo size](https://img.shields.io/github/repo-size/ArkoiSystems/ArkoiL)
+![GitHub](https://img.shields.io/github/license/ArkoiSystems/ArkoiL)
+![GitHub commit activity](https://img.shields.io/github/commit-activity/w/ArkoiSystems/ArkoiL)
 
 This repository contains the ``compiler``, ``integrations`` of the language and ``examples``
 for the Arkoi Language. For more information about ArkoiL, including downloads and documentation
