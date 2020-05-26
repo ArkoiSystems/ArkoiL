@@ -1,6 +1,6 @@
 /*
  * Copyright © 2019-2020 ArkoiSystems (https://www.arkoisystems.com/) All Rights Reserved.
- * Created ArkoiCompiler on May 12, 2020
+ * Created ArkoiCompiler on May 25, 2020
  * Author єхcsє#5543 aka timo
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,21 +18,32 @@
  */
 package com.arkoisystems.arkoicompiler.stage.lexer.token.enums;
 
+import com.arkoisystems.arkoicompiler.stage.lexer.token.ArkoiToken;
+import com.arkoisystems.arkoicompiler.stage.lexer.token.types.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import org.jetbrains.annotations.NotNull;
+
+@AllArgsConstructor
+@Getter
 public enum TokenType
 {
     
-    WHITESPACE,
-    COMMENT,
-    BAD,
+    NEWLINE("\\n", NewlineToken.class),
+    WHITESPACE("\\s", WhitespaceToken.class),
+    COMMENT("#[^\\r\\n]*", CommentToken.class),
+    KEYWORD("(this|var|return|fun|as|import|const)", KeywordToken.class),
+    TYPE("(char|bool|byte|int|long|short|string|float|double|\\.\\.\\.)", TypeToken.class),
+    OPERATOR("(=|\\+=|\\+\\+|\\+|-=|--|-|\\*=|\\*\\*|\\*|/=|\\/|%=|%)", OperatorToken.class),
+    SYMBOL("(@|^|:|\\{|\\}|\\(|\\)|\\[|\\]|,|\\.|<|>)", SymbolToken.class),
+    STRING("\\\"(?:\\\"|[^\\\"]*[^\\\\]\\\"?)", StringToken.class),
+    NUMBER("(?:(?<hex>0[xX][a-zA-Z0-9]*)|(?:(?<fp>(?:\\d_|\\d)*\\.\\d*)|(?<int>(?:\\d_|\\d)+))(?<sn>E[-+]\\d+)?)", NumberToken.class),
+    IDENTIFIER("[a-zA-Z][a-zA-Z0-9_]*", IdentifierToken.class),
+    UNDEFINED(".", UndefinedToken.class);
     
-    SYMBOL,
-    OPERATOR,
-    KEYWORD,
-    TYPE,
+    @NotNull
+    private final String regex;
     
-    STRING_LITERAL,
-    NUMBER_LITERAL,
-    
-    IDENTIFIER
+    private final Class<? extends ArkoiToken> tokenClass;
     
 }

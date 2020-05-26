@@ -18,140 +18,132 @@
  */
 package com.arkoisystems.arkoicompiler.stage.parser.ast.types.statement.types
 
-import com.arkoisystems.arkoicompiler.ArkoiError
-import com.arkoisystems.arkoicompiler.stage.parser.SyntaxErrorType
+import com.arkoisystems.arkoicompiler.error.ArkoiError
+import com.arkoisystems.arkoicompiler.stage.parser.ParserErrorType
 import com.arkoisystems.arkoicompiler.stage.parser.ast.ArkoiASTNodeSpec
 
 class FunctionASTSpec extends ArkoiASTNodeSpec {
 	
 	def "#1 'fun' expected"() {
 		given:
-		def syntaxAnalyzer = this.createSyntaxAnalyzer("main<int>() = 0", false)
+		def parser = this.createSyntaxAnalyzer("main<int>() = 0", false)
 		def errors = new HashSet([
 				ArkoiError.builder()
-						.compilerClass(syntaxAnalyzer.getCompilerClass())
-						.message(SyntaxErrorType.SYNTAX_ERROR_TEMPLATE)
+						.compilerClass(parser.getCompilerClass())
+						.message(ParserErrorType.SYNTAX_ERROR_TEMPLATE)
 						.arguments("Function", "'fun'", "main")
 						.positions([
 								ArkoiError.ErrorPosition.builder()
-										.lineRange(ArkoiError.ErrorPosition.LineRange.make(
-												syntaxAnalyzer.getCompilerClass(),
-												0, 0
-										))
+										.lineRange(LineRange.make(
+												parser.getCompilerClass(),
+												0, 0))
 										.charStart(0)
 										.charEnd(4)
-										.build()
-						])
+										.build()])
 						.build()
 		])
 		
 		expect:
-		FunctionAST.builder()
-				.syntaxAnalyzer(syntaxAnalyzer)
+		FunctionNode.builder()
+				.parser(parser)
 				.build()
 				.parseAST(null)
-		syntaxAnalyzer.getErrorHandler().getCompilerErrors() == errors
+		parser.getErrorHandler().getCompilerErrors() == errors
 	}
 	
 	def "#2 <identifier> expected"() {
 		given:
-		def syntaxAnalyzer = this.createSyntaxAnalyzer("fun .<int>() = 0", false)
+		def parser = this.createSyntaxAnalyzer("fun .<int>() = 0", false)
 		def errors = new HashSet([
 				ArkoiError.builder()
-						.compilerClass(syntaxAnalyzer.getCompilerClass())
-						.message(SyntaxErrorType.SYNTAX_ERROR_TEMPLATE)
+						.compilerClass(parser.getCompilerClass())
+						.message(ParserErrorType.SYNTAX_ERROR_TEMPLATE)
 						.arguments("Function", "<identifier>", ".")
 						.positions([
 								ArkoiError.ErrorPosition.builder()
-										.lineRange(ArkoiError.ErrorPosition.LineRange.make(
-												syntaxAnalyzer.getCompilerClass(),
-												0, 0
-										))
+										.lineRange(LineRange.make(
+												parser.getCompilerClass(),
+												0, 0))
 										.charStart(4)
 										.charEnd(5)
-										.build()
-						])
+										.build()])
 						.build()
 		])
 		
 		expect:
-		FunctionAST.builder()
-				.syntaxAnalyzer(syntaxAnalyzer)
+		FunctionNode.builder()
+				.parser(parser)
 				.build()
 				.parseAST(null)
-		syntaxAnalyzer.getErrorHandler().getCompilerErrors() == errors
+		parser.getErrorHandler().getCompilerErrors() == errors
 	}
 	
 	def "#3 '<' expected"() {
 		given:
-		def syntaxAnalyzer = this.createSyntaxAnalyzer("fun main int>() = 0", false)
+		def parser = this.createSyntaxAnalyzer("fun main int>() = 0", false)
 		def errors = new HashSet([
 				ArkoiError.builder()
-						.compilerClass(syntaxAnalyzer.getCompilerClass())
-						.message(SyntaxErrorType.SYNTAX_ERROR_TEMPLATE)
+						.compilerClass(parser.getCompilerClass())
+						.message(ParserErrorType.SYNTAX_ERROR_TEMPLATE)
 						.arguments("Function", "'<'", "int")
 						.positions([
 								ArkoiError.ErrorPosition.builder()
-										.lineRange(ArkoiError.ErrorPosition.LineRange.make(
-												syntaxAnalyzer.getCompilerClass(),
-												0, 0
-										))
+										.lineRange(LineRange.make(
+												parser.getCompilerClass(),
+												0, 0))
 										.charStart(9)
 										.charEnd(12)
-										.build()
-						])
+										.build()])
 						.build()
 		])
 		
 		expect:
-		FunctionAST.builder()
-				.syntaxAnalyzer(syntaxAnalyzer)
+		FunctionNode.builder()
+				.parser(parser)
 				.build()
 				.parseAST(null)
-		syntaxAnalyzer.getErrorHandler().getCompilerErrors() == errors
+		parser.getErrorHandler().getCompilerErrors() == errors
 	}
 	
 	def "#4 '>' expected"() {
 		given:
-		def syntaxAnalyzer = this.createSyntaxAnalyzer("fun main<int() = 0", false)
+		def parser = this.createSyntaxAnalyzer("fun main<int() = 0", false)
 		def errors = new HashSet([
 				ArkoiError.builder()
-						.compilerClass(syntaxAnalyzer.getCompilerClass())
-						.message(SyntaxErrorType.SYNTAX_ERROR_TEMPLATE)
+						.compilerClass(parser.getCompilerClass())
+						.message(ParserErrorType.SYNTAX_ERROR_TEMPLATE)
 						.arguments("Function", "'>'", "(")
 						.positions([
 								ArkoiError.ErrorPosition.builder()
-										.lineRange(ArkoiError.ErrorPosition.LineRange.make(
-												syntaxAnalyzer.getCompilerClass(),
-												0, 0
-										))
+										.lineRange(LineRange.make(
+												parser.getCompilerClass(),
+												0, 0))
 										.charStart(12)
 										.charEnd(13)
-										.build()
-						])
+										.build()])
 						.build()
 		])
 		
 		expect:
-		FunctionAST.builder()
-				.syntaxAnalyzer(syntaxAnalyzer)
+		FunctionNode.builder()
+				.parser(parser)
 				.build()
 				.parseAST(null)
-		syntaxAnalyzer.getErrorHandler().getCompilerErrors() == errors
+		parser.getErrorHandler().getCompilerErrors() == errors
 	}
 	
 	def "#5 '(' expected"() {
 		given:
-		def syntaxAnalyzer = this.createSyntaxAnalyzer("fun main<int>) = 0", false)
+		def parser = this.createSyntaxAnalyzer("fun main<int>) = 0", false)
 		def errors = new HashSet([
 				ArkoiError.builder()
-						.compilerClass(syntaxAnalyzer.getCompilerClass())
-						.message(SyntaxErrorType.SYNTAX_ERROR_TEMPLATE)
+						.compilerClass(parser.getCompilerClass())
+						.message(ParserErrorType.SYNTAX_ERROR_TEMPLATE)
 						.arguments("Function", "'('", ")")
 						.positions([
 								ArkoiError.ErrorPosition.builder()
-										.lineRange(ArkoiError.ErrorPosition.LineRange.make(
-												syntaxAnalyzer.getCompilerClass(),
+										.lineRange(LineRange.make(
+												parser.getCompilerClass(),
 												0, 0
 										))
 										.charStart(13)
@@ -162,25 +154,25 @@ class FunctionASTSpec extends ArkoiASTNodeSpec {
 		])
 		
 		expect:
-		FunctionAST.builder()
-				.syntaxAnalyzer(syntaxAnalyzer)
+		FunctionNode.builder()
+				.parser(parser)
 				.build()
 				.parseAST(null)
-		syntaxAnalyzer.getErrorHandler().getCompilerErrors() == errors
+		parser.getErrorHandler().getCompilerErrors() == errors
 	}
 	
 	def "#6 <block> expected"() {
 		given:
-		def syntaxAnalyzer = this.createSyntaxAnalyzer("fun main<int>() . 0", false)
+		def parser = this.createSyntaxAnalyzer("fun main<int>() . 0", false)
 		def errors = new HashSet([
 				ArkoiError.builder()
-						.compilerClass(syntaxAnalyzer.getCompilerClass())
-						.message(SyntaxErrorType.SYNTAX_ERROR_TEMPLATE)
+						.compilerClass(parser.getCompilerClass())
+						.message(ParserErrorType.SYNTAX_ERROR_TEMPLATE)
 						.arguments("Function", "<block>", ".")
 						.positions([
 								ArkoiError.ErrorPosition.builder()
-										.lineRange(ArkoiError.ErrorPosition.LineRange.make(
-												syntaxAnalyzer.getCompilerClass(),
+										.lineRange(LineRange.make(
+												parser.getCompilerClass(),
 												0, 0
 										))
 										.charStart(16)
@@ -191,11 +183,11 @@ class FunctionASTSpec extends ArkoiASTNodeSpec {
 		])
 		
 		expect:
-		FunctionAST.builder()
-				.syntaxAnalyzer(syntaxAnalyzer)
+		FunctionNode.builder()
+				.parser(parser)
 				.build()
 				.parseAST(null)
-		syntaxAnalyzer.getErrorHandler().getCompilerErrors() == errors
+		parser.getErrorHandler().getCompilerErrors() == errors
 	}
 	
 }

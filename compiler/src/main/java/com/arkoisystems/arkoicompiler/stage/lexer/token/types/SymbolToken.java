@@ -1,6 +1,6 @@
 /*
  * Copyright © 2019-2020 ArkoiSystems (https://www.arkoisystems.com/) All Rights Reserved.
- * Created ArkoiCompiler on May 12, 2020
+ * Created ArkoiCompiler on May 25, 2020
  * Author єхcsє#5543 aka timo
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,33 +18,55 @@
  */
 package com.arkoisystems.arkoicompiler.stage.lexer.token.types;
 
-import com.arkoisystems.alt.lexer.LexerToken;
-import com.arkoisystems.arkoicompiler.stage.lexer.ArkoiLexer;
+import com.arkoisystems.arkoicompiler.stage.lexer.Lexer;
 import com.arkoisystems.arkoicompiler.stage.lexer.token.ArkoiToken;
-import com.arkoisystems.arkoicompiler.stage.lexer.token.enums.TokenType;
 import com.arkoisystems.arkoicompiler.stage.lexer.token.enums.SymbolType;
+import com.arkoisystems.arkoicompiler.stage.lexer.token.enums.TokenType;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
+@Getter
+@Setter
 public class SymbolToken extends ArkoiToken
 {
     
-    @Getter
-    private final SymbolType symbolType;
+    @NotNull
+    private SymbolType symbolType;
+    
+    @Builder
+    public SymbolToken(
+            final @NotNull Lexer lexer,
+            final @NotNull SymbolType symbolType,
+            final int startLine,
+            final int endLine,
+            final int charStart,
+            final int charEnd
+    ) {
+        super(lexer, TokenType.SYMBOL, startLine, endLine, charStart, charEnd);
+        
+        this.symbolType = symbolType;
+    }
     
     public SymbolToken(
-            final @NotNull ArkoiLexer lexer,
-            final @NotNull TokenType tokenType,
-            final @NotNull LexerToken lexerToken
+            final @NotNull Lexer lexer,
+            final int startLine,
+            final int endLine,
+            final int charStart,
+            final int charEnd
     ) {
-        super(lexer, tokenType, lexerToken);
+        super(lexer, TokenType.SYMBOL, startLine, endLine, charStart, charEnd);
         
-        this.symbolType = Objects.requireNonNull(
-                SymbolType.valueOf(lexerToken.getType()),
-                "symbolType must not be null."
-        );
+        for (final SymbolType symbolType : SymbolType.values())
+            if (symbolType.getName().equals(this.getTokenContent())) {
+                this.symbolType = symbolType;
+                break;
+            }
+        
+        Objects.requireNonNull(this.getSymbolType(), "symbolType must not be null.");
     }
     
 }

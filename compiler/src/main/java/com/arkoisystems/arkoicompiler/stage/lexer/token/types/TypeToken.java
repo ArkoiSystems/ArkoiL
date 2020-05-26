@@ -1,6 +1,6 @@
 /*
  * Copyright © 2019-2020 ArkoiSystems (https://www.arkoisystems.com/) All Rights Reserved.
- * Created ArkoiCompiler on May 12, 2020
+ * Created ArkoiCompiler on May 25, 2020
  * Author єхcsє#5543 aka timo
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,42 +18,55 @@
  */
 package com.arkoisystems.arkoicompiler.stage.lexer.token.types;
 
-import com.arkoisystems.alt.lexer.LexerToken;
-import com.arkoisystems.arkoicompiler.stage.lexer.ArkoiLexer;
+import com.arkoisystems.arkoicompiler.stage.lexer.Lexer;
 import com.arkoisystems.arkoicompiler.stage.lexer.token.ArkoiToken;
 import com.arkoisystems.arkoicompiler.stage.lexer.token.enums.TokenType;
-import com.arkoisystems.arkoicompiler.stage.lexer.token.enums.TypeKind;
+import com.arkoisystems.arkoicompiler.stage.parser.ast.utils.TypeKind;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
+@Getter
+@Setter
 public class TypeToken extends ArkoiToken
 {
     
-    @Getter
-    private final TypeKind typeKind;
+    @NotNull
+    private TypeKind typeKind;
     
+    @Builder
     public TypeToken(
-            @NotNull final ArkoiLexer arkoiLexer,
-            @NotNull final TypeKind typeKind
+            final @NotNull Lexer lexer,
+            final @NotNull TypeKind typeKind,
+            final int startLine,
+            final int endLine,
+            final int charStart,
+            final int charEnd
     ) {
-        super(arkoiLexer, TokenType.TYPE);
+        super(lexer, TokenType.TYPE, startLine, endLine, charStart, charEnd);
         
         this.typeKind = typeKind;
     }
     
     public TypeToken(
-            final @NotNull ArkoiLexer lexer,
-            final @NotNull TokenType tokenType,
-            final @NotNull LexerToken lexerToken
+            final @NotNull Lexer lexer,
+            final int startLine,
+            final int endLine,
+            final int charStart,
+            final int charEnd
     ) {
-        super(lexer, tokenType, lexerToken);
+        super(lexer, TokenType.TYPE, startLine, endLine, charStart, charEnd);
         
-        this.typeKind = Objects.requireNonNull(
-                TypeKind.valueOf(lexerToken.getType()),
-                "typeKind must not be null."
-        );
+        for (final TypeKind typeKind : TypeKind.values())
+            if (typeKind.getName().equals(this.getTokenContent())) {
+                this.typeKind = typeKind;
+                break;
+            }
+        
+        Objects.requireNonNull(this.getTypeKind(), "typeKind must not be null. ");
     }
     
 }

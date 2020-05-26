@@ -18,8 +18,8 @@
  */
 package com.arkoisystems.arkoicompiler.stage.semantic;
 
-import com.arkoisystems.arkoicompiler.api.error.ICompilerError;
-import com.arkoisystems.arkoicompiler.api.error.IErrorHandler;
+import com.arkoisystems.arkoicompiler.api.IErrorHandler;
+import com.arkoisystems.arkoicompiler.error.ArkoiError;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
@@ -30,17 +30,17 @@ public class SemanticErrorHandler implements IErrorHandler
 {
     
     @Getter
-    private final HashSet<ICompilerError> compileErrors = new HashSet<>();
+    private final HashSet<ArkoiError> compileErrors = new HashSet<>();
     
     @Override
-    public void addError(@NotNull final ICompilerError compilerError) {
+    public void addError(final @NotNull ArkoiError compilerError) {
         this.compileErrors.add(compilerError);
     }
     
     @Override
-    public void printStackTrace(@NotNull final PrintStream printStream, boolean testing) {
-        for (final ICompilerError arkoiError : this.getCompileErrors())
-            printStream.println(testing ? arkoiError.toString().substring(arkoiError.toString().indexOf(' ') + 1) : arkoiError.toString());
+    public void printStackTrace(final @NotNull PrintStream printStream) {
+        for (final ArkoiError error : this.getCompileErrors())
+            printStream.println(error.toString());
     }
     
 }

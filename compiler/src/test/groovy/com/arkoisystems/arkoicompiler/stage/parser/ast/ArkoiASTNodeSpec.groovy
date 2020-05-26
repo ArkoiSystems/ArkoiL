@@ -26,11 +26,11 @@ class ArkoiASTNodeSpec extends Specification {
 	
 	def createSyntaxAnalyzer(final String code, final boolean detailed) {
 		def arkoiClass = new ArkoiClass(new ArkoiCompiler(), "", code.getBytes(), detailed)
-		if (!arkoiClass.getArkoiLexer().processStage())
+		if (!arkoiClass.getLexer().processStage())
 			return null
-		arkoiClass.getSyntaxAnalyzer().reset()
-		arkoiClass.getSyntaxAnalyzer().setTokens(arkoiClass.getArkoiLexer().getTokens());
-		return arkoiClass.getSyntaxAnalyzer()
+		arkoiClass.getParser().reset()
+		arkoiClass.getParser().setTokens(arkoiClass.getLexer().getTokens());
+		return arkoiClass.getParser()
 	}
 	
 }

@@ -88,3 +88,4 @@ All the subprojects of this repository are licensed under the Apache 2.0 license
 explicitly permitted to develop commericial applications using ArkoiL.
 
 You can read more about the license [here](http://www.apache.org/licenses/LICENSE-2.0).
+

@@ -18,20 +18,17 @@
  */
 package com.arkoisystems.arkoicompiler;
 
-import com.arkoisystems.alt.ArkoiLT;
-import com.arkoisystems.arkoicompiler.api.ICompilerClass;
 import com.arkoisystems.arkoicompiler.stage.codegen.CodeGen;
-import com.arkoisystems.arkoicompiler.stage.lexer.ArkoiLexer;
-import com.arkoisystems.arkoicompiler.stage.parser.ArkoiParser;
-import com.arkoisystems.arkoicompiler.stage.parser.SyntaxAnalyzer;
-import com.arkoisystems.arkoicompiler.stage.semantic.SemanticAnalyzer;
+import com.arkoisystems.arkoicompiler.stage.lexer.Lexer;
+import com.arkoisystems.arkoicompiler.stage.parser.Parser;
+import com.arkoisystems.arkoicompiler.stage.semantic.Semantic;
 import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.charset.StandardCharsets;
 
-public class ArkoiClass implements ICompilerClass
+public class ArkoiClass
 {
     
     @Getter
@@ -41,7 +38,7 @@ public class ArkoiClass implements ICompilerClass
     @Getter
     @Setter
     @NotNull
-    private String content;
+    private char[] content;
     
     @Getter
     @Setter
@@ -54,7 +51,11 @@ public class ArkoiClass implements ICompilerClass
     
     @Getter
     @NotNull
-    private final SyntaxAnalyzer syntaxAnalyzer = new SyntaxAnalyzer(this);
+    private final Lexer lexer = new Lexer(this);
+    
+    @Getter
+    @NotNull
+    private final Parser parser = new Parser(this);
     
     @Getter
     @NotNull
@@ -62,26 +63,19 @@ public class ArkoiClass implements ICompilerClass
     
     @Getter
     @NotNull
-    private final ArkoiLT<ArkoiLexer> languageTools;
-    
-    @Getter
-    @NotNull
-    private final SemanticAnalyzer semanticAnalyzer;
+    private final Semantic semantic;
     
     @Getter
     private final boolean detailed;
     
-    public ArkoiClass(@NotNull final ArkoiCompiler arkoiCompiler, @NotNull final String filePath, @NotNull final byte[] content, final boolean detailed) {
+    public ArkoiClass(final @NotNull ArkoiCompiler arkoiCompiler, final @NotNull String filePath, final @NotNull byte[] content, final boolean detailed) {
         this.arkoiCompiler = arkoiCompiler;
         this.detailed = detailed;
         this.filePath = filePath;
+    
+        this.semantic = new Semantic(this, detailed);
         
-        this.languageTools = ArkoiLT.makeLanguage(ArkoiLexer.class, ArkoiParser.class);
-        this.getLanguageTools().getLexer().setCompilerClass(this);
-        
-        this.semanticAnalyzer = new SemanticAnalyzer(this, detailed);
-        
-        this.content = new String(content, StandardCharsets.UTF_8);
+        this.content = new String(content, StandardCharsets.UTF_8).toCharArray();
         this.isNative = false;
     }
     

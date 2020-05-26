@@ -18,125 +18,118 @@
  */
 package com.arkoisystems.arkoicompiler.api;
 
+import com.arkoisystems.arkoicompiler.stage.parser.ast.ArkoiNode;
 import com.arkoisystems.arkoicompiler.stage.parser.ast.types.*;
 import com.arkoisystems.arkoicompiler.stage.parser.ast.types.operable.types.*;
 import com.arkoisystems.arkoicompiler.stage.parser.ast.types.operable.types.expression.types.*;
-import com.arkoisystems.arkoicompiler.stage.parser.ast.types.statement.types.FunctionAST;
-import com.arkoisystems.arkoicompiler.stage.parser.ast.types.statement.types.ImportAST;
-import com.arkoisystems.arkoicompiler.stage.parser.ast.types.statement.types.ReturnAST;
-import com.arkoisystems.arkoicompiler.stage.parser.ast.types.statement.types.VariableAST;
+import com.arkoisystems.arkoicompiler.stage.parser.ast.types.statement.types.FunctionNode;
+import com.arkoisystems.arkoicompiler.stage.parser.ast.types.statement.types.ImportNode;
+import com.arkoisystems.arkoicompiler.stage.parser.ast.types.statement.types.ReturnNode;
+import com.arkoisystems.arkoicompiler.stage.parser.ast.types.statement.types.VariableNode;
 import org.jetbrains.annotations.NotNull;
 
 public interface IVisitor<T>
 {
     
-    default T visit(@NotNull final IASTNode astNode) {
-        if (astNode instanceof IdentifierCallAST)
-            return this.visit((IdentifierCallAST) astNode);
-        else if (astNode instanceof TypeAST)
-            return this.visit((TypeAST) astNode);
-        else if (astNode instanceof RootAST)
-            return this.visit((RootAST) astNode);
-        else if (astNode instanceof ParameterListAST)
-            return this.visit((ParameterListAST) astNode);
-        else if (astNode instanceof ParameterAST)
-            return this.visit((ParameterAST) astNode);
-        else if (astNode instanceof BlockAST)
-            return this.visit((BlockAST) astNode);
-        else if (astNode instanceof ArgumentListAST)
-            return this.visit((ArgumentListAST) astNode);
-        else if (astNode instanceof ArgumentAST)
-            return this.visit((ArgumentAST) astNode);
-        else if (astNode instanceof AnnotationAST)
-            return this.visit((AnnotationAST) astNode);
-        else if (astNode instanceof FunctionAST)
-            return this.visit((FunctionAST) astNode);
-        else if (astNode instanceof ImportAST)
-            return this.visit((ImportAST) astNode);
-        else if (astNode instanceof ReturnAST)
-            return this.visit((ReturnAST) astNode);
-        else if (astNode instanceof VariableAST)
-            return this.visit((VariableAST) astNode);
-        else if (astNode instanceof StringAST)
-            return this.visit((StringAST) astNode);
-        else if (astNode instanceof NumberAST)
-            return this.visit((NumberAST) astNode);
-        else if (astNode instanceof FunctionCallPartAST)
-            return this.visit((FunctionCallPartAST) astNode);
-        else if (astNode instanceof CollectionAST)
-            return this.visit((CollectionAST) astNode);
-        else if (astNode instanceof AssignmentExpressionAST)
-            return this.visit((AssignmentExpressionAST) astNode);
-        else if (astNode instanceof CastExpressionAST)
-            return this.visit((CastExpressionAST) astNode);
-        else if (astNode instanceof EqualityExpressionAST)
-            return this.visit((EqualityExpressionAST) astNode);
-        else if (astNode instanceof LogicalExpressionAST)
-            return this.visit((LogicalExpressionAST) astNode);
-        else if (astNode instanceof BinaryExpressionAST)
-            return this.visit((BinaryExpressionAST) astNode);
-        else if (astNode instanceof ParenthesizedExpressionAST)
-            return this.visit((ParenthesizedExpressionAST) astNode);
-        else if (astNode instanceof PostfixExpressionAST)
-            return this.visit((PostfixExpressionAST) astNode);
-        else if (astNode instanceof PrefixExpressionAST)
-            return this.visit((PrefixExpressionAST) astNode);
-        else if (astNode instanceof RelationalExpressionAST)
-            return this.visit((RelationalExpressionAST) astNode);
+    default T visit(final @NotNull ArkoiNode astNode) {
+        if (astNode instanceof IdentifierCallNode)
+            return this.visit((IdentifierCallNode) astNode);
+        else if (astNode instanceof TypeNode)
+            return this.visit((TypeNode) astNode);
+        else if (astNode instanceof RootNode)
+            return this.visit((RootNode) astNode);
+        else if (astNode instanceof ParameterListNode)
+            return this.visit((ParameterListNode) astNode);
+        else if (astNode instanceof ParameterNode)
+            return this.visit((ParameterNode) astNode);
+        else if (astNode instanceof BlockNode)
+            return this.visit((BlockNode) astNode);
+        else if (astNode instanceof ArgumentListNode)
+            return this.visit((ArgumentListNode) astNode);
+        else if (astNode instanceof ArgumentNode)
+            return this.visit((ArgumentNode) astNode);
+        else if (astNode instanceof FunctionNode)
+            return this.visit((FunctionNode) astNode);
+        else if (astNode instanceof ImportNode)
+            return this.visit((ImportNode) astNode);
+        else if (astNode instanceof ReturnNode)
+            return this.visit((ReturnNode) astNode);
+        else if (astNode instanceof VariableNode)
+            return this.visit((VariableNode) astNode);
+        else if (astNode instanceof StringNode)
+            return this.visit((StringNode) astNode);
+        else if (astNode instanceof NumberNode)
+            return this.visit((NumberNode) astNode);
+        else if (astNode instanceof FunctionCallPartNode)
+            return this.visit((FunctionCallPartNode) astNode);
+        else if (astNode instanceof CollectionNode)
+            return this.visit((CollectionNode) astNode);
+        else if (astNode instanceof AssignmentExpressionNode)
+            return this.visit((AssignmentExpressionNode) astNode);
+        else if (astNode instanceof EqualityExpressionNode)
+            return this.visit((EqualityExpressionNode) astNode);
+        else if (astNode instanceof LogicalExpressionNode)
+            return this.visit((LogicalExpressionNode) astNode);
+        else if (astNode instanceof BinaryExpressionNode)
+            return this.visit((BinaryExpressionNode) astNode);
+        else if (astNode instanceof ParenthesizedExpressionNode)
+            return this.visit((ParenthesizedExpressionNode) astNode);
+        else if (astNode instanceof PostfixExpressionNode)
+            return this.visit((PostfixExpressionNode) astNode);
+        else if (astNode instanceof PrefixExpressionNode)
+            return this.visit((PrefixExpressionNode) astNode);
+        else if (astNode instanceof RelationalExpressionNode)
+            return this.visit((RelationalExpressionNode) astNode);
         else
             throw new NullPointerException(astNode.getClass().getSimpleName() + ", " + astNode.getAstType().name());
     }
     
-    T visit(@NotNull final TypeAST typeAST);
+    T visit(final @NotNull TypeNode typeAST);
     
-    T visit(@NotNull final RootAST rootAST);
+    T visit(final @NotNull RootNode rootAST);
     
-    T visit(@NotNull final ParameterListAST parameterListAST);
+    T visit(final @NotNull ParameterListNode parameterListAST);
     
-    T visit(@NotNull final ParameterAST parameterAST);
+    T visit(final @NotNull ParameterNode parameterAST);
     
-    T visit(@NotNull final BlockAST blockAST);
+    T visit(final @NotNull BlockNode blockAST);
     
-    T visit(@NotNull final ArgumentListAST argumentListAST);
+    T visit(final @NotNull ArgumentListNode argumentListAST);
     
-    T visit(@NotNull final ArgumentAST argumentAST);
+    T visit(final @NotNull ArgumentNode argumentAST);
     
-    T visit(@NotNull final AnnotationAST annotationAST);
+    T visit(final @NotNull FunctionNode functionAST);
     
-    T visit(@NotNull final FunctionAST functionAST);
+    T visit(final @NotNull ImportNode importAST);
     
-    T visit(@NotNull final ImportAST importAST);
+    T visit(final @NotNull ReturnNode returnAST);
     
-    T visit(@NotNull final ReturnAST returnAST);
+    T visit(final @NotNull VariableNode variableAST);
     
-    T visit(@NotNull final VariableAST variableAST);
+    T visit(final @NotNull StringNode stringAST);
     
-    T visit(@NotNull final StringAST stringAST);
+    T visit(final @NotNull NumberNode numberAST);
     
-    T visit(@NotNull final NumberAST numberAST);
+    T visit(final @NotNull IdentifierCallNode identifierCallAST);
     
-    T visit(@NotNull final IdentifierCallAST identifierCallAST);
+    T visit(final @NotNull FunctionCallPartNode functionCallPartAST);
     
-    T visit(@NotNull final FunctionCallPartAST functionCallPartAST);
+    T visit(final @NotNull CollectionNode collectionAST);
     
-    T visit(@NotNull final CollectionAST collectionAST);
+    T visit(final @NotNull AssignmentExpressionNode assignmentExpressionAST);
     
-    T visit(@NotNull final AssignmentExpressionAST assignmentExpressionAST);
+    T visit(final @NotNull BinaryExpressionNode binaryExpressionAST);
     
-    T visit(@NotNull final BinaryExpressionAST binaryExpressionAST);
+    T visit(final @NotNull EqualityExpressionNode equalityExpressionAST);
     
-    T visit(@NotNull final CastExpressionAST castExpressionAST);
+    T visit(final @NotNull LogicalExpressionNode logicalExpressionAST);
     
-    T visit(@NotNull final EqualityExpressionAST equalityExpressionAST);
+    T visit(final @NotNull ParenthesizedExpressionNode parenthesizedExpressionAST);
     
-    T visit(@NotNull final LogicalExpressionAST logicalExpressionAST);
+    T visit(final @NotNull PostfixExpressionNode postfixExpressionAST);
     
-    T visit(@NotNull final ParenthesizedExpressionAST parenthesizedExpressionAST);
+    T visit(final @NotNull PrefixExpressionNode prefixExpressionAST);
     
-    T visit(@NotNull final PostfixExpressionAST postfixExpressionAST);
-    
-    T visit(@NotNull final PrefixExpressionAST prefixExpressionAST);
-    
-    T visit(@NotNull final RelationalExpressionAST relationalExpressionAST);
+    T visit(final @NotNull RelationalExpressionNode relationalExpressionAST);
     
 }

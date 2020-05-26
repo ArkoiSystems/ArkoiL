@@ -18,10 +18,15 @@
  */
 package com.arkoisystems.arkoicompiler.stage.parser.ast.types.statement
 
-import com.arkoisystems.arkoicompiler.ArkoiError
-import com.arkoisystems.arkoicompiler.stage.parser.SyntaxErrorType
+import com.arkoisystems.arkoicompiler.error.ArkoiError
+import com.arkoisystems.arkoicompiler.stage.parser.ParserErrorType
 import com.arkoisystems.arkoicompiler.stage.parser.ast.ArkoiASTNodeSpec
-import com.arkoisystems.arkoicompiler.stage.parser.ast.types.operable.types.expression.ExpressionAST
+import com.arkoisystems.arkoicompiler.stage.parser.ast.types.operable.types.IdentifierCallNode
+import com.arkoisystems.arkoicompiler.stage.parser.ast.types.operable.types.expression.ExpressionNode
+import com.arkoisystems.arkoicompiler.stage.parser.ast.types.statement.types.FunctionNode
+import com.arkoisystems.arkoicompiler.stage.parser.ast.types.statement.types.ImportNode
+import com.arkoisystems.arkoicompiler.stage.parser.ast.types.statement.types.ReturnNode
+import com.arkoisystems.arkoicompiler.stage.parser.ast.types.statement.types.VariableNode
 import com.arkoisystems.arkoicompiler.stage.parser.ast.utils.ASTType
 import spock.lang.Unroll
 
@@ -30,57 +35,54 @@ class StatementASTSpec extends ArkoiASTNodeSpec {
 	@Unroll
 	def "#1 variable ast expected | #name"() {
 		given:
-		def syntaxAnalyzer = this.createSyntaxAnalyzer(code, false)
+		def parser = this.createSyntaxAnalyzer(code, false)
 		
 		expect:
-		StatementAST.statementBuilder()
-				.syntaxAnalyzer(syntaxAnalyzer)
+		StatementNode.statementBuilder()
+				.parser(parser)
 				.astType(ASTType.STATEMENT)
 				.build()
 				.parseAST(null).getClass() == ast
 		
 		where:
 		name     | code                                || ast
-		"var"    | "var test = 0"                      || VariableAST.class
-		"import" | "import \"test\""                   || ImportAST.class
-		"fun"    | "fun main<int>(args: string[]) = 0" || FunctionAST.class
-		"return" | "return 0"                          || ReturnAST.class
-		"test"   | "test"                              || IdentifierCallAST.class
+		"var"    | "var test = 0"                      || VariableNode.class
+		"import" | "import \"test\""                   || ImportNode.class
+		"fun"    | "fun main<int>(args: string[]) = 0" || FunctionNode.class
+		"return" | "return 0"                          || ReturnNode.class
+		"test"   | "test"                              || IdentifierCallNode.class
 	}
 	
 	@Unroll
 	def "#2 <identifier call> expected | #name"() {
 		given:
-		def syntaxAnalyzer = this.createSyntaxAnalyzer(code, false)
+		def parser = this.createSyntaxAnalyzer(code, false)
 		def errors = useErrors ? new HashSet([
 				ArkoiError.builder()
-						.compilerClass(syntaxAnalyzer.getCompilerClass())
-						.message(SyntaxErrorType.SYNTAX_ERROR_TEMPLATE)
+						.compilerClass(parser.getCompilerClass())
+						.message(ParserErrorType.SYNTAX_ERROR_TEMPLATE)
 						.arguments("Statement", "<identifier call>", name)
 						.positions([
 								ArkoiError.ErrorPosition.builder()
-										.lineRange(ArkoiError.ErrorPosition.LineRange.make(
-												syntaxAnalyzer.getCompilerClass(),
-												0, 0
-										))
+										.lineRange(LineRange.make(
+												parser.getCompilerClass(),
+												0, 0))
 										.charStart(0)
 										.charEnd(name.length())
-										.build()
-						])
+										.build()])
 						.build()
 		]) : new HashSet<>()
 		
 		expect:
-		StatementAST.statementBuilder()
-				.syntaxAnalyzer(syntaxAnalyzer)
+		StatementNode.statementBuilder()
+				.parser(parser)
 				.astType(ASTType.STATEMENT)
 				.build()
-				.parseAST(ExpressionAST.expressionBuilder()
-						.syntaxAnalyzer(syntaxAnalyzer)
+				.parseAST(ExpressionNode.expressionBuilder()
+						.parser(parser)
 						.astType(ASTType.EXPRESSION)
-						.build()
-				)
-		syntaxAnalyzer.getErrorHandler().getCompilerErrors() == errors
+						.build())
+		parser.getErrorHandler().getCompilerErrors() == errors
 		
 		where:
 		name     | code                  || useErrors

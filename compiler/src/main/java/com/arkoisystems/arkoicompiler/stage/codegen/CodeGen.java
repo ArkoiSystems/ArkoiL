@@ -18,41 +18,37 @@
  */
 package com.arkoisystems.arkoicompiler.stage.codegen;
 
-import com.arkoisystems.arkoicompiler.api.ICompilerClass;
-import com.arkoisystems.arkoicompiler.api.ICompilerStage;
+import com.arkoisystems.arkoicompiler.ArkoiClass;
+import com.arkoisystems.arkoicompiler.api.IStage;
 import com.arkoisystems.llvm4j.api.core.modules.Module;
 import lombok.Getter;
+import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 
-public class CodeGen implements ICompilerStage
+public class CodeGen implements IStage
 {
     
     @Getter
-    private final ICompilerClass compilerClass;
+    private final ArkoiClass compilerClass;
     
     @Getter
     private CodeGenErrorHandler errorHandler;
     
     @Getter
+    @Setter
     private boolean failed;
     
-    public CodeGen(final @NotNull ICompilerClass compilerClass) {
+    public CodeGen(final @NotNull ArkoiClass compilerClass) {
         this.compilerClass = compilerClass;
     }
     
     @Override
     public boolean processStage() {
         final CodeGenVisitor visitor = new CodeGenVisitor();
-        final Module module = visitor.visit(this.getCompilerClass().getSyntaxAnalyzer().getRootAST());
+        final Module module = visitor.visit(this.getCompilerClass().getParser().getRootAST());
+        module.dumpModule();
         return module != null;
     }
-    
-    
-    @Override
-    public void failed() {
-        this.failed = true;
-    }
-    
     
     @Override
     public void reset() {

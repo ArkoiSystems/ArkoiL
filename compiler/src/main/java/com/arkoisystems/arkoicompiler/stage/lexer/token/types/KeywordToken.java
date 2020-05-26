@@ -1,6 +1,6 @@
 /*
  * Copyright © 2019-2020 ArkoiSystems (https://www.arkoisystems.com/) All Rights Reserved.
- * Created ArkoiCompiler on May 12, 2020
+ * Created ArkoiCompiler on May 25, 2020
  * Author єхcsє#5543 aka timo
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,33 +18,55 @@
  */
 package com.arkoisystems.arkoicompiler.stage.lexer.token.types;
 
-import com.arkoisystems.alt.lexer.LexerToken;
-import com.arkoisystems.arkoicompiler.stage.lexer.ArkoiLexer;
+import com.arkoisystems.arkoicompiler.stage.lexer.Lexer;
 import com.arkoisystems.arkoicompiler.stage.lexer.token.ArkoiToken;
-import com.arkoisystems.arkoicompiler.stage.lexer.token.enums.TokenType;
 import com.arkoisystems.arkoicompiler.stage.lexer.token.enums.KeywordType;
+import com.arkoisystems.arkoicompiler.stage.lexer.token.enums.TokenType;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
+@Getter
+@Setter
 public class KeywordToken extends ArkoiToken
 {
     
-    @Getter
-    private final KeywordType keywordType;
+    @NotNull
+    private KeywordType keywordType;
+    
+    @Builder
+    public KeywordToken(
+            final @NotNull Lexer lexer,
+            final @NotNull KeywordType keywordType,
+            final int startLine,
+            final int endLine,
+            final int charStart,
+            final int charEnd
+    ) {
+        super(lexer, TokenType.KEYWORD, startLine, endLine, charStart, charEnd);
+        
+        this.keywordType = keywordType;
+    }
     
     public KeywordToken(
-            final @NotNull ArkoiLexer lexer,
-            final @NotNull TokenType tokenType,
-            final @NotNull LexerToken lexerToken
+            final @NotNull Lexer lexer,
+            final int startLine,
+            final int endLine,
+            final int charStart,
+            final int charEnd
     ) {
-        super(lexer, tokenType, lexerToken);
+        super(lexer, TokenType.KEYWORD, startLine, endLine, charStart, charEnd);
         
-        this.keywordType = Objects.requireNonNull(
-                KeywordType.valueOf(lexerToken.getType()),
-                "keywordType must not be null."
-        );
+        for (final KeywordType keywordType : KeywordType.values())
+            if (keywordType.getName().equals(this.getTokenContent())) {
+                this.keywordType = keywordType;
+                break;
+            }
+        
+        Objects.requireNonNull(this.getKeywordType(), "keywordType must not be null.");
     }
     
 }
