@@ -18,54 +18,51 @@
  */
 package com.arkoisystems.arkoicompiler.stage.parser.ast.types.statement.types
 
-import com.arkoisystems.arkoicompiler.ArkoiError
-import com.arkoisystems.arkoicompiler.stage.parser.SyntaxErrorType
+import com.arkoisystems.arkoicompiler.error.ArkoiError
+import com.arkoisystems.arkoicompiler.stage.parser.ParserErrorType
 import com.arkoisystems.arkoicompiler.stage.parser.ast.ArkoiASTNodeSpec
 
 class ImportASTSpec extends ArkoiASTNodeSpec {
 	
-	// TODO: Fixing StringToken (getting Test instead of "Test")
 	def "#1 'import' expected"() {
 		given:
-		def syntaxAnalyzer = this.createSyntaxAnalyzer("\"Test\"", false)
+		def parser = this.createSyntaxAnalyzer("\"Test\"", false)
 		def errors = new HashSet([
 				ArkoiError.builder()
-						.compilerClass(syntaxAnalyzer.getCompilerClass())
-						.message(SyntaxErrorType.SYNTAX_ERROR_TEMPLATE)
+						.compilerClass(parser.getCompilerClass())
+						.message(ParserErrorType.SYNTAX_ERROR_TEMPLATE)
 						.arguments("Import", "'import'", "Test")
 						.positions([
 								ArkoiError.ErrorPosition.builder()
-										.lineRange(ArkoiError.ErrorPosition.LineRange.make(
-												syntaxAnalyzer.getCompilerClass(),
-												0, 0
-										))
+										.lineRange(LineRange.make(
+												parser.getCompilerClass(),
+												0, 0))
 										.charStart(1)
 										.charEnd(5)
-										.build()
-						])
+										.build()])
 						.build()
 		])
 		
 		expect:
-		ImportAST.builder()
-				.syntaxAnalyzer(syntaxAnalyzer)
+		ImportNode.builder()
+				.parser(parser)
 				.build()
 				.parseAST(null)
-		syntaxAnalyzer.getErrorHandler().getCompilerErrors() == errors
+		parser.getErrorHandler().getCompilerErrors() == errors
 	}
 	
 	def "#2 <string> expected"() {
 		given:
-		def syntaxAnalyzer = this.createSyntaxAnalyzer("import 2", false)
+		def parser = this.createSyntaxAnalyzer("import 2", false)
 		def errors = new HashSet([
 				ArkoiError.builder()
-						.compilerClass(syntaxAnalyzer.getCompilerClass())
-						.message(SyntaxErrorType.SYNTAX_ERROR_TEMPLATE)
+						.compilerClass(parser.getCompilerClass())
+						.message(ParserErrorType.SYNTAX_ERROR_TEMPLATE)
 						.arguments("Import", "<string>", "2")
 						.positions([
 								ArkoiError.ErrorPosition.builder()
-										.lineRange(ArkoiError.ErrorPosition.LineRange.make(
-												syntaxAnalyzer.getCompilerClass(),
+										.lineRange(LineRange.make(
+												parser.getCompilerClass(),
 												0, 0
 										))
 										.charStart(7)
@@ -76,25 +73,25 @@ class ImportASTSpec extends ArkoiASTNodeSpec {
 		])
 		
 		expect:
-		ImportAST.builder()
-				.syntaxAnalyzer(syntaxAnalyzer)
+		ImportNode.builder()
+				.parser(parser)
 				.build()
 				.parseAST(null)
-		syntaxAnalyzer.getErrorHandler().getCompilerErrors() == errors
+		parser.getErrorHandler().getCompilerErrors() == errors
 	}
 	
 	def "#3 <identifier> expected"() {
 		given:
-		def syntaxAnalyzer = this.createSyntaxAnalyzer("import \"Test\" as 2", false)
+		def parser = this.createSyntaxAnalyzer("import \"Test\" as 2", false)
 		def errors = new HashSet([
 				ArkoiError.builder()
-						.compilerClass(syntaxAnalyzer.getCompilerClass())
-						.message(SyntaxErrorType.SYNTAX_ERROR_TEMPLATE)
+						.compilerClass(parser.getCompilerClass())
+						.message(ParserErrorType.SYNTAX_ERROR_TEMPLATE)
 						.arguments("Import", "<identifier>", "2")
 						.positions([
 								ArkoiError.ErrorPosition.builder()
-										.lineRange(ArkoiError.ErrorPosition.LineRange.make(
-												syntaxAnalyzer.getCompilerClass(),
+										.lineRange(LineRange.make(
+												parser.getCompilerClass(),
 												0, 0
 										))
 										.charStart(17)
@@ -105,11 +102,11 @@ class ImportASTSpec extends ArkoiASTNodeSpec {
 		])
 		
 		expect:
-		ImportAST.builder()
-				.syntaxAnalyzer(syntaxAnalyzer)
+		ImportNode.builder()
+				.parser(parser)
 				.build()
 				.parseAST(null)
-		syntaxAnalyzer.getErrorHandler().getCompilerErrors() == errors
+		parser.getErrorHandler().getCompilerErrors() == errors
 	}
 	
 }

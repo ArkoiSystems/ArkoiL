@@ -1,6 +1,6 @@
 /*
  * Copyright © 2019-2020 ArkoiSystems (https://www.arkoisystems.com/) All Rights Reserved.
- * Created ArkoiCompiler on May 12, 2020
+ * Created ArkoiCompiler on May 25, 2020
  * Author єхcsє#5543 aka timo
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,10 +18,8 @@
  */
 package com.arkoisystems.arkoicompiler.stage.lexer.token;
 
-import com.arkoisystems.alt.api.IToken;
-import com.arkoisystems.alt.lexer.LexerToken;
-import com.arkoisystems.arkoicompiler.ArkoiError;
-import com.arkoisystems.arkoicompiler.stage.lexer.ArkoiLexer;
+import com.arkoisystems.arkoicompiler.error.LineRange;
+import com.arkoisystems.arkoicompiler.stage.lexer.Lexer;
 import com.arkoisystems.arkoicompiler.stage.lexer.token.enums.TokenType;
 import lombok.Getter;
 import lombok.Setter;
@@ -29,11 +27,8 @@ import org.jetbrains.annotations.NotNull;
 
 @Getter
 @Setter
-public class ArkoiToken implements IToken
+public class ArkoiToken
 {
-    
-    @NotNull
-    private final ArkoiError.ErrorPosition.LineRange lineRange;
     
     private final int charStart, charEnd;
     
@@ -41,40 +36,32 @@ public class ArkoiToken implements IToken
     private final TokenType tokenType;
     
     @NotNull
-    private String data;
+    private final LineRange lineRange;
+    
+    @NotNull
+    private final Lexer lexer;
+    
+    @NotNull
+    private String tokenContent;
+    
+    private boolean failed;
     
     public ArkoiToken(
-            @NotNull final ArkoiLexer lexer,
-            @NotNull final TokenType tokenType
+            final @NotNull Lexer lexer,
+            final @NotNull TokenType tokenType,
+            final int startLine,
+            final int endLine,
+            final int charStart,
+            final int charEnd
     ) {
         this.tokenType = tokenType;
+        this.charStart = charStart;
+        this.charEnd = charEnd;
+        this.lexer = lexer;
         
-        this.lineRange = ArkoiError.ErrorPosition.LineRange.make(
-                lexer.getCompilerClass(),
-                lexer.getLine(),
-                lexer.getLine()
-        );
-        this.charStart = 0;
-        this.charEnd = 0;
-        this.data = "";
-    }
-    
-    public ArkoiToken(
-            @NotNull final ArkoiLexer lexer,
-            @NotNull final TokenType tokenType,
-            @NotNull final LexerToken lexerToken
-    ) {
-        this.tokenType = tokenType;
-        
-        this.charStart = lexerToken.getCharStart() - lexer.getStartChar();
-        this.charEnd = lexerToken.getCharEnd() - lexer.getStartChar();
-        this.data = lexerToken.getData();
-        
-        this.lineRange = ArkoiError.ErrorPosition.LineRange.make(
-                lexer.getCompilerClass(),
-                lexer.getLine(),
-                lexer.getLine()
-        );
+        this.lineRange = LineRange.make(this.getLexer().getCompilerClass(), startLine, endLine);
+        this.tokenContent = this.getLineRange().getSourceCode().substring(charStart, charEnd);
+        this.failed = false;
     }
     
 }

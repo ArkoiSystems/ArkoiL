@@ -18,10 +18,9 @@
  */
 package com.arkoisystems.arkoicompiler.stage.codegen;
 
-import com.arkoisystems.arkoicompiler.api.error.ICompilerError;
-import com.arkoisystems.arkoicompiler.api.error.IErrorHandler;
+import com.arkoisystems.arkoicompiler.api.IErrorHandler;
+import com.arkoisystems.arkoicompiler.error.ArkoiError;
 import lombok.Getter;
-import lombok.NonNull;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.PrintStream;
@@ -32,19 +31,17 @@ public class CodeGenErrorHandler implements IErrorHandler
 {
     
     @Getter
-    @NonNull
-    private final HashSet<ICompilerError> compilerErrors = new HashSet<>();
+    @NotNull
+    private final HashSet<ArkoiError> compilerErrors = new HashSet<>();
     
-    
-    public void addError(@NotNull final ICompilerError compilerError) {
+    public void addError(final @NotNull ArkoiError compilerError) {
         this.compilerErrors.add(compilerError);
     }
     
-    
     @Override
-    public void printStackTrace(@NotNull final PrintStream printStream, boolean testing) {
-        for (final ICompilerError arkoiError : this.compilerErrors)
-            printStream.println(testing ? arkoiError.toString().substring(arkoiError.toString().indexOf(' ') + 1) : arkoiError.toString());
+    public void printStackTrace(final @NotNull PrintStream printStream) {
+        for (final ArkoiError error : this.compilerErrors)
+            printStream.println(error.toString());
     }
     
 }

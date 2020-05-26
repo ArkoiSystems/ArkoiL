@@ -18,126 +18,118 @@
  */
 package com.arkoisystems.arkoicompiler.stage.parser.ast.types
 
-import com.arkoisystems.arkoicompiler.ArkoiError
-import com.arkoisystems.arkoicompiler.stage.parser.SyntaxErrorType
+import com.arkoisystems.arkoicompiler.error.ArkoiError
+import com.arkoisystems.arkoicompiler.stage.parser.ParserErrorType
 import com.arkoisystems.arkoicompiler.stage.parser.ast.ArkoiASTNodeSpec
 
 class AnnotationASTSpec extends ArkoiASTNodeSpec {
 	
 	def "#1 '@' expected"() {
 		given:
-		def syntaxAnalyzer = this.createSyntaxAnalyzer("hello[world = true]", false)
+		def parser = this.createSyntaxAnalyzer("hello[world = true]", false)
 		def errors = new HashSet([
 				ArkoiError.builder()
-						.compilerClass(syntaxAnalyzer.getCompilerClass())
-						.message(SyntaxErrorType.SYNTAX_ERROR_TEMPLATE)
+						.compilerClass(parser.getCompilerClass())
+						.message(ParserErrorType.SYNTAX_ERROR_TEMPLATE)
 						.arguments("Annotation", "'@'", "hello")
 						.positions([
 								ArkoiError.ErrorPosition.builder()
-										.lineRange(ArkoiError.ErrorPosition.LineRange.make(
-												syntaxAnalyzer.getCompilerClass(),
-												0, 0
-										))
+										.lineRange(LineRange.make(
+												parser.getCompilerClass(),
+												0, 0))
 										.charStart(0)
 										.charEnd(5)
-										.build()
-						])
+										.build()])
 						.build()
 		])
 		
 		expect:
 		AnnotationAST.builder()
-				.syntaxAnalyzer(syntaxAnalyzer)
+				.getParser(parser)
 				.build()
 				.parseAST(null)
-		syntaxAnalyzer.getErrorHandler().getCompilerErrors() == errors
+		parser.getErrorHandler().getCompilerErrors() == errors
 	}
 	
 	def "#2 <identifier> expected"() {
 		given:
-		def syntaxAnalyzer = this.createSyntaxAnalyzer("@2[world = true]", false)
+		def parser = this.createSyntaxAnalyzer("@2[world = true]", false)
 		def errors = new HashSet([
 				ArkoiError.builder()
-						.compilerClass(syntaxAnalyzer.getCompilerClass())
-						.message(SyntaxErrorType.SYNTAX_ERROR_TEMPLATE)
+						.compilerClass(parser.getCompilerClass())
+						.message(ParserErrorType.SYNTAX_ERROR_TEMPLATE)
 						.arguments("Annotation", "<identifier>", "2")
 						.positions([
 								ArkoiError.ErrorPosition.builder()
-										.lineRange(ArkoiError.ErrorPosition.LineRange.make(
-												syntaxAnalyzer.getCompilerClass(),
-												0, 0
-										))
+										.lineRange(LineRange.make(
+												parser.getCompilerClass(),
+												0, 0))
 										.charStart(1)
 										.charEnd(2)
-										.build()
-						])
+										.build()])
 						.build()
 		])
 		
 		expect:
 		AnnotationAST.builder()
-				.syntaxAnalyzer(syntaxAnalyzer)
+				.getParser(parser)
 				.build()
 				.parseAST(null)
-		syntaxAnalyzer.getErrorHandler().getCompilerErrors() == errors
+		parser.getErrorHandler().getCompilerErrors() == errors
 	}
 	
 	def "#3 <function>, <variable> or <annotation> expected"() {
 		given:
-		def syntaxAnalyzer = this.createSyntaxAnalyzer("@hello[world = true]", false)
+		def parser = this.createSyntaxAnalyzer("@hello[world = true]", false)
 		def errors = new HashSet([
 				ArkoiError.builder()
-						.compilerClass(syntaxAnalyzer.getCompilerClass())
-						.message(SyntaxErrorType.SYNTAX_ERROR_TEMPLATE)
+						.compilerClass(parser.getCompilerClass())
+						.message(ParserErrorType.SYNTAX_ERROR_TEMPLATE)
 						.arguments("Annotation", "<function>, <variable> or <annotation>", "nothing")
 						.positions([
 								ArkoiError.ErrorPosition.builder()
-										.lineRange(ArkoiError.ErrorPosition.LineRange.make(
-												syntaxAnalyzer.getCompilerClass(),
-												0, 0
-										))
+										.lineRange(LineRange.make(
+												parser.getCompilerClass(),
+												0, 0))
 										.charStart(19)
 										.charEnd(20)
-										.build()
-						])
+										.build()])
 						.build()
 		])
 		
 		expect:
 		AnnotationAST.builder()
-				.syntaxAnalyzer(syntaxAnalyzer)
+				.getParser(parser)
 				.build()
 				.parseAST(null)
-		syntaxAnalyzer.getErrorHandler().getCompilerErrors() == errors
+		parser.getErrorHandler().getCompilerErrors() == errors
 	}
 	
 	def "#4 <function>, <variable> or <annotation> expected"() {
 		given:
-		def syntaxAnalyzer = this.createSyntaxAnalyzer("@hello[world = true]\nimport \"Test\"", false)
+		def parser = this.createSyntaxAnalyzer("@hello[world = true]\nimport \"Test\"", false)
 		def errors = new HashSet([
 				ArkoiError.builder()
-						.compilerClass(syntaxAnalyzer.getCompilerClass())
-						.message(SyntaxErrorType.SYNTAX_ERROR_TEMPLATE)
+						.compilerClass(parser.getCompilerClass())
+						.message(ParserErrorType.SYNTAX_ERROR_TEMPLATE)
 						.arguments("Annotation", "<function>, <variable> or <annotation>", "import")
 						.positions([
 								ArkoiError.ErrorPosition.builder()
-										.lineRange(ArkoiError.ErrorPosition.LineRange.make(
-												syntaxAnalyzer.getCompilerClass(),
-												1, 1
-										))
+										.lineRange(LineRange.make(
+												parser.getCompilerClass(),
+												1, 1))
 										.charStart(0)
 										.charEnd(6)
-										.build()
-						])
+										.build()])
 						.build()
 		])
 		
 		expect:
 		AnnotationAST.builder()
-				.syntaxAnalyzer(syntaxAnalyzer)
+				.getParser(parser)
 				.build()
 				.parseAST(null)
-		syntaxAnalyzer.getErrorHandler().getCompilerErrors() == errors
+		parser.getErrorHandler().getCompilerErrors() == errors
 	}
 	
 }

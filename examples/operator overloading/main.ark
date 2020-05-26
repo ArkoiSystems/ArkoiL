@@ -1,23 +1,42 @@
-fun main<int>(args: string[]) {
-  val u = Vector(-10, 12)
-  val w = Vector(5, -10)
-  val uw = u + v
+fun main(args: string[]): int {
+  const u := Vector(-10, 12)
+  const w := Vector(5, -10)
+  const uw := u + v
 
-  assert(uw, Vector(-5, 2))
+  assert uw == Vector(-5, 2)
+  
+  return 0
 }
 
-class Vector {
+struct Vector {
    
-   val x, y;
+   # Constant values which are used to to specify the vector.
+   const _x, _y: int
+   
+   # Through the pointer '->' you can set the target variable for the parameter.
+   # This just works for constructors, because it will make some code smaller.
+   Vector(x -> _x, y -> _y: int) := println("Created struct")
+   
+   # The '~' declares an destructor, which is called when the object get destroyed. 
+   ~Vector() := println("Destroyed struct")
 
-   fun add<Vector>(left: Vector, right: Vector) = Vector(left.x + right.x, left.y + right.y)
+   # With 'overloaded functions' you can do stuff called "operator overloading".
+   # These functions will help to improve / make the code more readable.
+   #    For more informations: https://en.wikipedia.org/wiki/Operator_overloading
+   #
+   # These functions require an additional parameter which is used to declares
+   # the LHS (left hand side) of the operation. The type for the parameter is not
+   # predefined so several functions with different LHS types can be used.
+   overload add(rhs: Vector) := Vector(this._x + rhs._x, this._y + rhs._y)
 
-   fun sub<Vector>(left: Vector, right: Vector) = Vector(left.x - right.x, left.y - right.y)
+   overload sub(rhs: Vector) := Vector(this._x - rhs._x, this._y - rhs._y)
 
-   fun mul<Vector>(left: Vector, right: Vector) = Vector(left.x * right.x, left.y * right.y)
+   overload mul(rhs: Vector) := Vector(this._x * rhs._x, this._y * rhs._y)
 
-   fun div<Vector>(left: Vector, right: Vector) = Vector(left.x / right.x, left.y / right.y)
+   overload div(rhs: Vector) := Vector(this._x / rhs._x, this._y / rhs._y)
 
-   fun exp<Vector>(left: Vector, right: Vector) = Vector(left.x ** right.x, left.y ** right.y)
-
+   overload pow(rhs: Vector) := Vector(this._x ** rhs._x, this._y ** rhs._y)
+   
+   overload equ(rhs: Vector) := this._x == rhs._x && this._y == rhs._y
+   
 }

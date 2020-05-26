@@ -1,6 +1,4 @@
 # Hello World
-fun test<string>() = "Hello World"
+fun test(): string = "Hello World"
 
-fun iksdeh<>() {
-
-}
+fun iksdeh() { }

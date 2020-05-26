@@ -28,7 +28,7 @@ class ArkoiClassSpec extends Specification {
 		
 		expect:
 		arkoiClass.detailed == detailed
-		arkoiClass.semanticAnalyzer.detailed == detailed
+		arkoiClass.semantic.detailed == detailed
 		
 		where:
 		arkoiClass                                            || detailed

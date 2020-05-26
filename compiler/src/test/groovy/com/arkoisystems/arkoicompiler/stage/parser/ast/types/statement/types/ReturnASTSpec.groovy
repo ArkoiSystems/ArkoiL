@@ -18,24 +18,24 @@
  */
 package com.arkoisystems.arkoicompiler.stage.parser.ast.types.statement.types
 
-import com.arkoisystems.arkoicompiler.ArkoiError
-import com.arkoisystems.arkoicompiler.stage.parser.SyntaxErrorType
+import com.arkoisystems.arkoicompiler.error.ArkoiError
+import com.arkoisystems.arkoicompiler.stage.parser.ParserErrorType
 import com.arkoisystems.arkoicompiler.stage.parser.ast.ArkoiASTNodeSpec
 
 class ReturnASTSpec extends ArkoiASTNodeSpec {
 	
 	def "#1 'return' expected"() {
 		given:
-		def syntaxAnalyzer = this.createSyntaxAnalyzer("0", false)
+		def parser = this.createSyntaxAnalyzer("0", false)
 		def errors = new HashSet([
 				ArkoiError.builder()
-						.compilerClass(syntaxAnalyzer.getCompilerClass())
-						.message(SyntaxErrorType.SYNTAX_ERROR_TEMPLATE)
+						.compilerClass(parser.getCompilerClass())
+						.message(ParserErrorType.SYNTAX_ERROR_TEMPLATE)
 						.arguments("Return", "'return'", "0")
 						.positions([
 								ArkoiError.ErrorPosition.builder()
-										.lineRange(ArkoiError.ErrorPosition.LineRange.make(
-												syntaxAnalyzer.getCompilerClass(),
+										.lineRange(LineRange.make(
+												parser.getCompilerClass(),
 												0, 0
 										))
 										.charStart(0)
@@ -46,25 +46,25 @@ class ReturnASTSpec extends ArkoiASTNodeSpec {
 		])
 		
 		expect:
-		ReturnAST.builder()
-				.syntaxAnalyzer(syntaxAnalyzer)
+		ReturnNode.builder()
+				.parser(parser)
 				.build()
 				.parseAST(null)
-		syntaxAnalyzer.getErrorHandler().getCompilerErrors() == errors
+		parser.getErrorHandler().getCompilerErrors() == errors
 	}
 	
 	def "#2 <expression> expected"() {
 		given:
-		def syntaxAnalyzer = this.createSyntaxAnalyzer("return .", false)
+		def parser = this.createSyntaxAnalyzer("return .", false)
 		def errors = new HashSet([
 				ArkoiError.builder()
-						.compilerClass(syntaxAnalyzer.getCompilerClass())
-						.message(SyntaxErrorType.SYNTAX_ERROR_TEMPLATE)
+						.compilerClass(parser.getCompilerClass())
+						.message(ParserErrorType.SYNTAX_ERROR_TEMPLATE)
 						.arguments("Return", "<expression>", ".")
 						.positions([
 								ArkoiError.ErrorPosition.builder()
-										.lineRange(ArkoiError.ErrorPosition.LineRange.make(
-												syntaxAnalyzer.getCompilerClass(),
+										.lineRange(LineRange.make(
+												parser.getCompilerClass(),
 												0, 0
 										))
 										.charStart(7)
@@ -75,11 +75,11 @@ class ReturnASTSpec extends ArkoiASTNodeSpec {
 		])
 		
 		expect:
-		ReturnAST.builder()
-				.syntaxAnalyzer(syntaxAnalyzer)
+		ReturnNode.builder()
+				.parser(parser)
 				.build()
 				.parseAST(null)
-		syntaxAnalyzer.getErrorHandler().getCompilerErrors() == errors
+		parser.getErrorHandler().getCompilerErrors() == errors
 	}
 	
 }

@@ -1,6 +1,6 @@
 /*
  * Copyright © 2019-2020 ArkoiSystems (https://www.arkoisystems.com/) All Rights Reserved.
- * Created ArkoiCompiler on May 12, 2020
+ * Created ArkoiCompiler on May 25, 2020
  * Author єхcsє#5543 aka timo
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,33 +18,55 @@
  */
 package com.arkoisystems.arkoicompiler.stage.lexer.token.types;
 
-import com.arkoisystems.alt.lexer.LexerToken;
-import com.arkoisystems.arkoicompiler.stage.lexer.ArkoiLexer;
+import com.arkoisystems.arkoicompiler.stage.lexer.Lexer;
 import com.arkoisystems.arkoicompiler.stage.lexer.token.ArkoiToken;
-import com.arkoisystems.arkoicompiler.stage.lexer.token.enums.TokenType;
 import com.arkoisystems.arkoicompiler.stage.lexer.token.enums.OperatorType;
+import com.arkoisystems.arkoicompiler.stage.lexer.token.enums.TokenType;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
+@Getter
+@Setter
 public class OperatorToken extends ArkoiToken
 {
     
-    @Getter
-    private final OperatorType operatorType;
+    @NotNull
+    private OperatorType operatorType;
+    
+    @Builder
+    public OperatorToken(
+            final @NotNull Lexer lexer,
+            final @NotNull OperatorType operatorType,
+            final int startLine,
+            final int endLine,
+            final int charStart,
+            final int charEnd
+    ) {
+        super(lexer, TokenType.OPERATOR, startLine, endLine, charStart, charEnd);
+        
+        this.operatorType = operatorType;
+    }
     
     public OperatorToken(
-            final @NotNull ArkoiLexer lexer,
-            final @NotNull TokenType tokenType,
-            final @NotNull LexerToken lexerToken
+            final @NotNull Lexer lexer,
+            final int startLine,
+            final int endLine,
+            final int charStart,
+            final int charEnd
     ) {
-        super(lexer, tokenType, lexerToken);
+        super(lexer, TokenType.OPERATOR, startLine, endLine, charStart, charEnd);
         
-        this.operatorType = Objects.requireNonNull(
-                OperatorType.valueOf(lexerToken.getType()),
-                "operatorType must not be null."
-        );
+        for (final OperatorType operatorType : OperatorType.values())
+            if (operatorType.getName().equals(this.getTokenContent())) {
+                this.operatorType = operatorType;
+                break;
+            }
+        
+        Objects.requireNonNull(this.getOperatorType(), "operatorType must not be null.");
     }
     
 }

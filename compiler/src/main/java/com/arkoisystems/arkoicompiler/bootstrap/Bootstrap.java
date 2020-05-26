@@ -19,7 +19,7 @@
 package com.arkoisystems.arkoicompiler.bootstrap;
 
 import com.arkoisystems.arkoicompiler.ArkoiCompiler;
-import com.arkoisystems.arkoicompiler.utils.FileUtils;
+import com.arkoisystems.utils.general.FileUtils;
 import lombok.SneakyThrows;
 import org.apache.commons.cli.*;
 import org.jetbrains.annotations.NotNull;
@@ -30,7 +30,7 @@ public class Bootstrap
 {
     
     @SneakyThrows
-    public static void main(@NotNull final String[] args) {
+    public static void main(final @NotNull String[] args) {
         final Options options = new Options();
         {
             final Option inputDirectory = new Option("ip", "inputPath", true, "target source directory or file");
@@ -40,9 +40,6 @@ public class Bootstrap
             final Option outputFile = new Option("of", "outputFile", true, "output path for the compilation");
             outputFile.setRequired(true);
             options.addOption(outputFile);
-            
-            final Option detailed = new Option("d", "detailed", false, "prints a detailed error stack trace");
-            options.addOption(detailed);
         }
         
         final CommandLine commandLine;
@@ -58,18 +55,15 @@ public class Bootstrap
     }
     
     @SneakyThrows
-    public static boolean compile(@NotNull final String inputPath, final boolean detailed) {
+    public static boolean compile(final @NotNull String inputPath, final boolean detailed) {
         final File targetPath = new File(inputPath);
         if (!targetPath.exists())
             throw new NullPointerException("The given \"inputPath\" doesn't exists. Please correct the path to a valid file or directory.");
         
         final ArkoiCompiler arkoiCompiler = new ArkoiCompiler();
         if (targetPath.isDirectory()) {
-            for (final File file : FileUtils.getAllFiles(targetPath)) {
-                if (!file.getName().endsWith(".ark"))
-                    continue;
+            for (final File file : FileUtils.getAllFiles(targetPath, ".ark"))
                 arkoiCompiler.addFile(file, detailed);
-            }
         } else {
             if (!targetPath.getName().endsWith(".ark"))
                 throw new NullPointerException("Couldn't compile this file because it doesn't has the Arkoi file extension \".ark\".");

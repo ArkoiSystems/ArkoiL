@@ -18,19 +18,19 @@
  */
 package com.arkoisystems.arkoicompiler.stage.parser.ast.types
 
-import com.arkoisystems.arkoicompiler.ArkoiError
-import com.arkoisystems.arkoicompiler.stage.parser.SyntaxErrorType
+import com.arkoisystems.arkoicompiler.error.ArkoiError
+import com.arkoisystems.arkoicompiler.stage.parser.ParserErrorType
 import com.arkoisystems.arkoicompiler.stage.parser.ast.ArkoiASTNodeSpec
 
 class TypeASTSpec extends ArkoiASTNodeSpec {
 	
 	def "#1 type kind not null"() {
 		given:
-		def syntaxAnalyzer = this.createSyntaxAnalyzer("int[]", false)
+		def parser = this.createSyntaxAnalyzer("int[]", false)
 		
 		expect:
-		def typeAST = TypeAST.builder()
-				.syntaxAnalyzer(syntaxAnalyzer)
+		def typeAST = TypeNode.builder()
+				.parser(parser)
 				.build()
 				.parseAST(null)
 		typeAST.getTypeKind() != null
@@ -39,31 +39,29 @@ class TypeASTSpec extends ArkoiASTNodeSpec {
 	
 	def "#2 <type keyword> expected"() {
 		given:
-		def syntaxAnalyzer = this.createSyntaxAnalyzer("ints", false)
+		def parser = this.createSyntaxAnalyzer("ints", false)
 		def errors = new HashSet([
 				ArkoiError.builder()
-						.compilerClass(syntaxAnalyzer.getCompilerClass())
-						.message(SyntaxErrorType.SYNTAX_ERROR_TEMPLATE)
+						.compilerClass(parser.getCompilerClass())
+						.message(ParserErrorType.SYNTAX_ERROR_TEMPLATE)
 						.arguments("Type", "<type keyword>", "ints")
 						.positions([
 								ArkoiError.ErrorPosition.builder()
-										.lineRange(ArkoiError.ErrorPosition.LineRange.make(
-												syntaxAnalyzer.getCompilerClass(),
-												0, 0
-										))
+										.lineRange(LineRange.make(
+												parser.getCompilerClass(),
+												0, 0))
 										.charStart(0)
 										.charEnd(4)
-										.build()
-						])
+										.build()])
 						.build()
 		])
 		
 		expect:
-		TypeAST.builder()
-				.syntaxAnalyzer(syntaxAnalyzer)
+		TypeNode.builder()
+				.parser(parser)
 				.build()
 				.parseAST(null)
-		syntaxAnalyzer.getErrorHandler().getCompilerErrors() == errors
+		parser.getErrorHandler().getCompilerErrors() == errors
 	}
 	
 }

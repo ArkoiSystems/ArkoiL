@@ -18,24 +18,24 @@
  */
 package com.arkoisystems.arkoicompiler.stage.parser.ast.types.statement.types
 
-import com.arkoisystems.arkoicompiler.ArkoiError
-import com.arkoisystems.arkoicompiler.stage.parser.SyntaxErrorType
+import com.arkoisystems.arkoicompiler.error.ArkoiError
+import com.arkoisystems.arkoicompiler.stage.parser.ParserErrorType
 import com.arkoisystems.arkoicompiler.stage.parser.ast.ArkoiASTNodeSpec
 
 class VariableASTSpec extends ArkoiASTNodeSpec {
 	
 	def "#1 'var' expected"() {
 		given:
-		def syntaxAnalyzer = this.createSyntaxAnalyzer("test = 0", false)
+		def parser = this.createSyntaxAnalyzer("test = 0", false)
 		def errors = new HashSet([
 				ArkoiError.builder()
-						.compilerClass(syntaxAnalyzer.getCompilerClass())
-						.message(SyntaxErrorType.SYNTAX_ERROR_TEMPLATE)
+						.compilerClass(parser.getCompilerClass())
+						.message(ParserErrorType.SYNTAX_ERROR_TEMPLATE)
 						.arguments("Variable", "'var'", "test")
 						.positions([
 								ArkoiError.ErrorPosition.builder()
-										.lineRange(ArkoiError.ErrorPosition.LineRange.make(
-												syntaxAnalyzer.getCompilerClass(),
+										.lineRange(LineRange.make(
+												parser.getCompilerClass(),
 												0, 0
 										))
 										.charStart(0)
@@ -46,25 +46,25 @@ class VariableASTSpec extends ArkoiASTNodeSpec {
 		])
 		
 		expect:
-		VariableAST.builder()
-				.syntaxAnalyzer(syntaxAnalyzer)
+		VariableNode.builder()
+				.parser(parser)
 				.build()
 				.parseAST(null)
-		syntaxAnalyzer.getErrorHandler().getCompilerErrors() == errors
+		parser.getErrorHandler().getCompilerErrors() == errors
 	}
 	
 	def "#2 <identifier> expected"() {
 		given:
-		def syntaxAnalyzer = this.createSyntaxAnalyzer("var 2 = 0", false)
+		def parser = this.createSyntaxAnalyzer("var 2 = 0", false)
 		def errors = new HashSet([
 				ArkoiError.builder()
-						.compilerClass(syntaxAnalyzer.getCompilerClass())
-						.message(SyntaxErrorType.SYNTAX_ERROR_TEMPLATE)
+						.compilerClass(parser.getCompilerClass())
+						.message(ParserErrorType.SYNTAX_ERROR_TEMPLATE)
 						.arguments("Variable", "<identifier>", "2")
 						.positions([
 								ArkoiError.ErrorPosition.builder()
-										.lineRange(ArkoiError.ErrorPosition.LineRange.make(
-												syntaxAnalyzer.getCompilerClass(),
+										.lineRange(LineRange.make(
+												parser.getCompilerClass(),
 												0, 0
 										))
 										.charStart(4)
@@ -75,25 +75,25 @@ class VariableASTSpec extends ArkoiASTNodeSpec {
 		])
 		
 		expect:
-		VariableAST.builder()
-				.syntaxAnalyzer(syntaxAnalyzer)
+		VariableNode.builder()
+				.parser(parser)
 				.build()
 				.parseAST(null)
-		syntaxAnalyzer.getErrorHandler().getCompilerErrors() == errors
+		parser.getErrorHandler().getCompilerErrors() == errors
 	}
 	
 	def "#3 '=' expected"() {
 		given:
-		def syntaxAnalyzer = this.createSyntaxAnalyzer("var test 0", false)
+		def parser = this.createSyntaxAnalyzer("var test 0", false)
 		def errors = new HashSet([
 				ArkoiError.builder()
-						.compilerClass(syntaxAnalyzer.getCompilerClass())
-						.message(SyntaxErrorType.SYNTAX_ERROR_TEMPLATE)
+						.compilerClass(parser.getCompilerClass())
+						.message(ParserErrorType.SYNTAX_ERROR_TEMPLATE)
 						.arguments("Variable", "'='", "0")
 						.positions([
 								ArkoiError.ErrorPosition.builder()
-										.lineRange(ArkoiError.ErrorPosition.LineRange.make(
-												syntaxAnalyzer.getCompilerClass(),
+										.lineRange(LineRange.make(
+												parser.getCompilerClass(),
 												0, 0
 										))
 										.charStart(9)
@@ -104,25 +104,25 @@ class VariableASTSpec extends ArkoiASTNodeSpec {
 		])
 		
 		expect:
-		VariableAST.builder()
-				.syntaxAnalyzer(syntaxAnalyzer)
+		VariableNode.builder()
+				.parser(parser)
 				.build()
 				.parseAST(null)
-		syntaxAnalyzer.getErrorHandler().getCompilerErrors() == errors
+		parser.getErrorHandler().getCompilerErrors() == errors
 	}
 	
 	def "#4 <expression> expected"() {
 		given:
-		def syntaxAnalyzer = this.createSyntaxAnalyzer("var test = .", false)
+		def parser = this.createSyntaxAnalyzer("var test = .", false)
 		def errors = new HashSet([
 				ArkoiError.builder()
-						.compilerClass(syntaxAnalyzer.getCompilerClass())
-						.message(SyntaxErrorType.SYNTAX_ERROR_TEMPLATE)
+						.compilerClass(parser.getCompilerClass())
+						.message(ParserErrorType.SYNTAX_ERROR_TEMPLATE)
 						.arguments("Variable", "<expression>", ".")
 						.positions([
 								ArkoiError.ErrorPosition.builder()
-										.lineRange(ArkoiError.ErrorPosition.LineRange.make(
-												syntaxAnalyzer.getCompilerClass(),
+										.lineRange(LineRange.make(
+												parser.getCompilerClass(),
 												0, 0
 										))
 										.charStart(11)
@@ -133,10 +133,10 @@ class VariableASTSpec extends ArkoiASTNodeSpec {
 		])
 		
 		expect:
-		VariableAST.builder()
-				.syntaxAnalyzer(syntaxAnalyzer)
+		VariableNode.builder()
+				.parser(parser)
 				.build()
 				.parseAST(null)
-		syntaxAnalyzer.getErrorHandler().getCompilerErrors() == errors
+		parser.getErrorHandler().getCompilerErrors() == errors
 	}
 }
