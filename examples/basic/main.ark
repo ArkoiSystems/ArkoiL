@@ -1,4 +1,5 @@
 import "test" as test
+import "system"
  
 const test_1 = 1
  
@@ -9,7 +10,7 @@ const test_3 = (test_1 - (test_1 * 2 += 4 + -10) * 5) * 2
 #this method gets invoked first
 fun main(args: string[]): int {
     var test_1 = "Hello\n Worlds\""
-    var test_3 = this.test.test()
+    var test_3 = test.test()
     var test_6 = 1
   
     this.print_greet(test_1)

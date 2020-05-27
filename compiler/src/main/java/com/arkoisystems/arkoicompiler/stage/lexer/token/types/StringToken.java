@@ -18,11 +18,16 @@
  */
 package com.arkoisystems.arkoicompiler.stage.lexer.token.types;
 
+import com.arkoisystems.arkoicompiler.error.ArkoiError;
+import com.arkoisystems.arkoicompiler.error.ErrorPosition;
+import com.arkoisystems.arkoicompiler.error.LineRange;
 import com.arkoisystems.arkoicompiler.stage.lexer.Lexer;
 import com.arkoisystems.arkoicompiler.stage.lexer.token.ArkoiToken;
 import com.arkoisystems.arkoicompiler.stage.lexer.token.enums.TokenType;
 import lombok.Builder;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Collections;
 
 public class StringToken extends ArkoiToken
 {
@@ -37,6 +42,18 @@ public class StringToken extends ArkoiToken
     ) {
         super(lexer, TokenType.STRING, startLine, endLine, charStart, charEnd);
     
+        if(this.getTokenContent().endsWith("\\\"")) {
+            this.getLexer().getErrorHandler().addError(ArkoiError.builder()
+                    .compilerClass(this.getLexer().getCompilerClass())
+                    .positions(Collections.singletonList(ErrorPosition.builder()
+                            .lineRange(this.getLineRange())
+                            .charStart(this.getCharStart())
+                            .charEnd(this.getCharEnd())
+                            .build()))
+                    .message("A string must be terminated with a \".")
+                    .build());
+        }
+        
         this.setTokenContent(this.getTokenContent().substring(1, this.getTokenContent().length() - 1));
     }
     

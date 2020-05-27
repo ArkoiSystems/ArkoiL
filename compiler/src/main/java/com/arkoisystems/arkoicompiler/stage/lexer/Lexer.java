@@ -69,25 +69,32 @@ public class Lexer implements IStage
             patternBuffer.append(String.format("|(?<%s>%s)", tokenType.name().replace("_", ""), tokenType.getRegex()));
         final Pattern tokenPatterns = Pattern.compile(patternBuffer.substring(1));
         
-        final String content = new String(this.getCompilerClass().getContent());
-        final Matcher matcher = tokenPatterns.matcher(content);
+        final Matcher matcher = tokenPatterns.matcher(this.getCompilerClass().getContent());
         int lastPosition = 0;
         while (matcher.find()) {
             for (final TokenType tokenType : TokenType.values()) {
                 if (matcher.group(tokenType.name().replace("_", "")) == null) continue;
-                
-                if (lastPosition != matcher.start())
+    
+                if (tokenType == TokenType.UNDEFINED) {
                     this.getErrorHandler().addError(ArkoiError.builder()
                             .compilerClass(compilerClass)
                             .positions(Collections.singletonList(ErrorPosition.builder()
                                     .lineRange(LineRange.make(this.getCompilerClass(), this.getLineIndex(), this.getLineIndex()))
-                                    .charStart(matcher.start())
-                                    .charEnd(matcher.end())
+                                    .charStart(this.charIndex + matcher.start() - lastPosition)
+                                    .charEnd(this.charIndex + matcher.end() - lastPosition)
                                     .build()))
                             .message("This character is unknown to the lexer: %s")
-                            .arguments(new Object[] { content.substring(lastPosition, matcher.start()).trim() })
+                            .arguments(new Object[] {
+                                    this.getCompilerClass().getContent().substring(
+                                            matcher.start(),
+                                            matcher.end()
+                                    ).trim()
+                            })
                             .build()
                     );
+                    lastPosition = matcher.end();
+                    break;
+                }
                 
                 this.getTokens().add(tokenType.getTokenClass().getConstructor(
                         Lexer.class, int.class, int.class, int.class, int.class
@@ -106,7 +113,7 @@ public class Lexer implements IStage
                 } else this.charIndex += matcher.end() - matcher.start();
             }
         }
-        return !this.isFailed();
+        return true;
     }
     
     @Override

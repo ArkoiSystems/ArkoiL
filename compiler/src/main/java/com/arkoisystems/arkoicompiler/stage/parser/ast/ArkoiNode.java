@@ -30,7 +30,9 @@ import com.arkoisystems.arkoicompiler.stage.parser.Parser;
 import com.arkoisystems.arkoicompiler.stage.parser.ast.utils.ASTType;
 import com.arkoisystems.arkoicompiler.stage.parser.ast.utils.TypeKind;
 import com.arkoisystems.utils.printer.annotations.Printable;
-import lombok.*;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -142,11 +144,11 @@ public class ArkoiNode implements IFailed, Cloneable
         final LineRange lineRange;
         final int charStart, charEnd;
         if (astNode != null) {
-            lineRange = astNode.getLineRange();
+            lineRange = Objects.requireNonNull(astNode.getLineRange(), "astNode.lineRange must not be null.");
             charStart = Objects.requireNonNull(astNode.getStartToken(), "astNode.startToken must not be null.").getCharStart();
             charEnd = Objects.requireNonNull(astNode.getStartToken(), "astNode.startToken must not be null.").getCharEnd();
         } else {
-            final String[] sourceSplit = new String(compilerClass.getContent()).split(System.getProperty("line.separator"));
+            final String[] sourceSplit = compilerClass.getContent().split(System.getProperty("line.separator"));
             lineRange = LineRange.make(compilerClass, sourceSplit.length - 1, sourceSplit.length - 1);
             charStart = sourceSplit[sourceSplit.length - 1].length() - 1;
             charEnd = sourceSplit[sourceSplit.length - 1].length();
@@ -176,7 +178,7 @@ public class ArkoiNode implements IFailed, Cloneable
             charStart = arkoiToken.getCharStart();
             charEnd = arkoiToken.getCharEnd();
         } else {
-            final String[] sourceSplit = new String(compilerClass.getContent()).split(System.getProperty("line.separator"));
+            final String[] sourceSplit = compilerClass.getContent().split(System.getProperty("line.separator"));
             lineRange = LineRange.make(compilerClass, sourceSplit.length - 1, sourceSplit.length - 1);
             charStart = sourceSplit[sourceSplit.length - 1].length() - 1;
             charEnd = sourceSplit[sourceSplit.length - 1].length();
@@ -217,8 +219,9 @@ public class ArkoiNode implements IFailed, Cloneable
         }
     }
     
+    @SafeVarargs
     @Nullable
-    public <T extends ArkoiNode> T getValidNode(final @NotNull T... nodes) {
+    public final <T extends ArkoiNode> T getValidNode(final @NotNull T... nodes) {
         Objects.requireNonNull(this.getParser(), "parser must not be null");
         
         for (final T node : nodes)

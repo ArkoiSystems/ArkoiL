@@ -39,15 +39,11 @@ public class Semantic implements IStage
     private SemanticErrorHandler errorHandler = new SemanticErrorHandler();
     
     @Getter
-    private final boolean detailed;
-    
-    @Getter
     @Setter
     private boolean failed;
     
-    public Semantic(final @NotNull ArkoiClass compilerClass, final boolean detailed) {
+    public Semantic(final @NotNull ArkoiClass compilerClass) {
         this.compilerClass = compilerClass;
-        this.detailed = detailed;
     }
     
     @SneakyThrows
