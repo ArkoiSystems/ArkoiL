@@ -41,7 +41,7 @@ class ArkoiCompilerSpec extends Specification {
 		def arkoiCompiler = new ArkoiCompiler()
 		
 		expect:
-		arkoiCompiler.compile(new PrintStream(new ByteArrayOutputStream()))
+		arkoiCompiler.compile(System.out)
 	}
 	
 	def "can pass basic test"() {

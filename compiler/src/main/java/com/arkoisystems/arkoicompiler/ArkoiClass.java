@@ -28,54 +28,42 @@ import org.jetbrains.annotations.NotNull;
 
 import java.nio.charset.StandardCharsets;
 
+@Getter
+@Setter
 public class ArkoiClass
 {
     
-    @Getter
     @NotNull
-    private final ArkoiCompiler arkoiCompiler;
+    private final ArkoiCompiler compiler;
     
-    @Getter
-    @Setter
     @NotNull
-    private char[] content;
+    private final Semantic semantic = new Semantic(this);
     
-    @Getter
-    @Setter
-    private boolean isNative;
-    
-    @Getter
-    @Setter
-    @NotNull
-    private String filePath;
-    
-    @Getter
-    @NotNull
-    private final Lexer lexer = new Lexer(this);
-    
-    @Getter
-    @NotNull
-    private final Parser parser = new Parser(this);
-    
-    @Getter
     @NotNull
     private final CodeGen codeGen = new CodeGen(this);
     
-    @Getter
     @NotNull
-    private final Semantic semantic;
+    private final Parser parser = new Parser(this);
     
-    @Getter
+    @NotNull
+    private final Lexer lexer = new Lexer(this);
+    
     private final boolean detailed;
     
-    public ArkoiClass(final @NotNull ArkoiCompiler arkoiCompiler, final @NotNull String filePath, final @NotNull byte[] content, final boolean detailed) {
-        this.arkoiCompiler = arkoiCompiler;
+    private boolean isNative;
+    
+    @NotNull
+    private String filePath;
+    
+    @NotNull
+    private String content;
+    
+    public ArkoiClass(final @NotNull ArkoiCompiler compiler, final @NotNull String filePath, final @NotNull byte[] content, final boolean detailed) {
+        this.compiler = compiler;
         this.detailed = detailed;
         this.filePath = filePath;
-    
-        this.semantic = new Semantic(this, detailed);
         
-        this.content = new String(content, StandardCharsets.UTF_8).toCharArray();
+        this.content = new String(content, StandardCharsets.UTF_8);
         this.isNative = false;
     }
     

@@ -20,8 +20,8 @@ package com.arkoisystems.arkoicompiler.stage.semantic.routines;
 
 import com.arkoisystems.arkoicompiler.ArkoiClass;
 import com.arkoisystems.arkoicompiler.ArkoiCompiler;
-import com.arkoisystems.arkoicompiler.api.IVisitor;
 import com.arkoisystems.arkoicompiler.api.IFailed;
+import com.arkoisystems.arkoicompiler.api.IVisitor;
 import com.arkoisystems.arkoicompiler.error.ArkoiError;
 import com.arkoisystems.arkoicompiler.error.ErrorPosition;
 import com.arkoisystems.arkoicompiler.error.LineRange;
@@ -291,55 +291,61 @@ public class ScopeVisitor implements IVisitor<ArkoiNode>, IFailed
         final HashMap<String, ArkoiNode> currentScope = this.getScopeIndexes().containsKey(identifierCallAST.hashCode()) ?
                 this.getScopeStack().get(this.getScopeIndexes().get(identifierCallAST.hashCode())) :
                 this.getScopeStack().get(this.getCurrentIndex());
-        if(!this.getScopeIndexes().containsKey(identifierCallAST.hashCode()))
+        if (!this.getScopeIndexes().containsKey(identifierCallAST.hashCode()))
             this.getScopeIndexes().put(identifierCallAST.hashCode(), this.getCurrentIndex());
-        
+    
         ArkoiNode foundAST = null;
         if (!identifierCallAST.isFileLocal() && currentScope.containsKey(identifierCallAST.getDescriptor()))
             foundAST = currentScope.get(identifierCallAST.getDescriptor());
         if (foundAST == null && this.getScopeStack().get(0).containsKey(identifierCallAST.getDescriptor()))
             foundAST = this.getScopeStack().get(0).get(identifierCallAST.getDescriptor());
-        if (foundAST == null) {
-            final ArkoiClass[] compilerClasses = this.getSemantic().getCompilerClass().getArkoiCompiler().getArkoiClasses().stream()
-                    .filter(ArkoiClass::isNative)
-                    .filter(compilerClass -> compilerClass != getSemantic().getCompilerClass())
-                    .toArray(ArkoiClass[]::new);
-            
-            for (final ArkoiClass compilerClass : compilerClasses) {
-                final ScopeVisitor scopeVisitor = new ScopeVisitor(compilerClass.getSemantic());
-                scopeVisitor.visit(compilerClass.getParser().getRootAST());
-                if (scopeVisitor.isFailed())
-                    this.setFailed(true);
-                if (!scopeVisitor.getScopeStack().get(0).containsKey(identifierCallAST.getDescriptor()))
-                    continue;
     
-                foundAST = scopeVisitor.getScopeStack().get(0).get(identifierCallAST.getDescriptor());
-                break;
+        // TODO: 5/27/20 Do better resolving (variadic)
+        if (foundAST == null) {
+            final LineRange lineRange;
+            final int charStart, charEnd;
+        
+            if (identifierCallAST.getFunctionPart() != null) {
+                Objects.requireNonNull(identifierCallAST.getFunctionPart().getLineRange(), "identifierCallAST.functionPart.lineRange must not be null.");
+                Objects.requireNonNull(identifierCallAST.getFunctionPart().getEndToken(), "identifierCallAST.functionPart.endToken must not be null.");
+            
+                lineRange = LineRange.make(
+                        identifierCallAST.getParser().getCompilerClass(),
+                        identifierCallAST.getIdentifier().getLineRange().getStartLine(),
+                        Objects.requireNonNull(
+                                identifierCallAST.getFunctionPart().getLineRange(),
+                                "identifierCallAST.functionPart.lineRange must not be null."
+                        ).getEndLine()
+                );
+                charStart = identifierCallAST.getIdentifier().getCharStart();
+                charEnd = identifierCallAST.getFunctionPart().getEndToken().getCharEnd();
+            } else {
+                Objects.requireNonNull(identifierCallAST.getLineRange(), "identifierCallAST.lineRange must not be null.");
+            
+                lineRange = identifierCallAST.getLineRange();
+                charStart = identifierCallAST.getIdentifier().getCharStart();
+                charEnd = identifierCallAST.getIdentifier().getCharEnd();
             }
+        
+            return this.addError(
+                    null,
+                    identifierCallAST.getParser().getCompilerClass(),
+                
+                    charStart,
+                    charEnd,
+                    lineRange,
+                
+                    "Cannot resolve reference '%s'.", identifierCallAST.getIdentifier().getTokenContent()
+            );
         }
         
         if (identifierCallAST.getFunctionPart() != null)
             this.visit(identifierCallAST.getFunctionPart());
     
-        // TODO: 5/27/20 Do better resolving (variadic)
-        if (foundAST == null)
-            return this.addError(
-                    null,
-                    identifierCallAST.getParser().getCompilerClass(),
-        
-                    identifierCallAST.getIdentifier().getCharStart(),
-                    identifierCallAST.getFunctionPart() != null ?
-                            Objects.requireNonNull(identifierCallAST.getFunctionPart().getEndToken(), "identifierCallAST.calledFunctionPart.endToken must not be null.").getCharEnd() :
-                            identifierCallAST.getIdentifier().getCharEnd(),
-                    identifierCallAST.getIdentifier().getLineRange(),
-        
-                    "Cannot resolve reference '%s'.", identifierCallAST.getIdentifier().getTokenContent()
-            );
-    
         if (identifierCallAST.getNextIdentifierCall() == null)
             return foundAST;
     
-        final ArkoiClass resolvedClass = this.resolveClass(foundAST);
+        ArkoiClass resolvedClass = this.resolveClass(foundAST);
         if (resolvedClass == null)
             return foundAST;
     
@@ -364,26 +370,38 @@ public class ScopeVisitor implements IVisitor<ArkoiNode>, IFailed
             Objects.requireNonNull(importAST.getFilePath(), "importAST.importFilePath must not be null.");
             Objects.requireNonNull(importAST.getParser(), "importAST.parser must not be null.");
     
-            File file = new File(importAST.getFilePath().getTokenContent() + ".ark");
-            if (!file.isAbsolute())
-                file = new File(new File(this.getSemantic().getCompilerClass().getFilePath()).getParent(), file.getPath());
+            File targetFile = new File(importAST.getFilePath().getTokenContent() + ".ark");
+            if (!targetFile.isAbsolute()) {
+                targetFile = new File(new File(this.getSemantic().getCompilerClass().getFilePath()).getParent(), importAST.getFilePath().getTokenContent() + ".ark");
+                
+                if (!targetFile.exists()) {
+                    for (final File libraryDirectory : this.getSemantic().getCompilerClass().getCompiler().getLibraryPaths()) {
+                        final File file = new File(libraryDirectory.getPath(), importAST.getFilePath().getTokenContent() + ".ark");
+                        if (!file.exists())
+                            continue;
     
-            if (!file.exists())
+                        targetFile = file;
+                        break;
+                    }
+                }
+            }
+    
+            if (!targetFile.exists())
                 return this.addError(
                         null,
                         importAST.getParser().getCompilerClass(),
-                
                         importAST.getFilePath(),
                         "Path doesn't lead to file '%s'.", importAST.getFilePath().getTokenContent()
                 );
     
-            final ArkoiCompiler arkoiCompiler = this.getSemantic().getCompilerClass().getArkoiCompiler();
+            final ArkoiCompiler arkoiCompiler = this.getSemantic().getCompilerClass().getCompiler();
             for (final ArkoiClass compilerClass : arkoiCompiler.getArkoiClasses())
-                if (compilerClass.getFilePath().equals(file.getCanonicalPath()))
+                if (compilerClass.getFilePath().equals(targetFile.getCanonicalPath()))
                     return compilerClass;
     
-            final ArkoiClass arkoiClass = new ArkoiClass(arkoiCompiler, file.getCanonicalPath(), Files.readAllBytes(file.toPath()), this.getSemantic().getCompilerClass().isDetailed());
-            arkoiCompiler.addClass(arkoiClass);
+            final ArkoiClass arkoiClass = new ArkoiClass(arkoiCompiler, targetFile.getCanonicalPath(), Files.readAllBytes(targetFile.toPath()), this.getSemantic().getCompilerClass().isDetailed());
+            arkoiCompiler.getArkoiClasses().add(arkoiClass);
+    
             arkoiClass.getLexer().processStage();
             arkoiClass.getParser().processStage();
             arkoiClass.getSemantic().processStage();
@@ -492,6 +510,8 @@ public class ScopeVisitor implements IVisitor<ArkoiNode>, IFailed
     
     @Nullable
     public <E> E addError(@Nullable E errorSource, final @NotNull ArkoiClass compilerClass, final @NotNull ArkoiNode astNode, final @NotNull String message, final @NotNull Object... arguments) {
+        Objects.requireNonNull(astNode.getLineRange(), "astNode.lineRange must not be null.");
+        
         compilerClass.getSemantic().getErrorHandler().addError(ArkoiError.builder()
                 .compilerClass(compilerClass)
                 .positions(Collections.singletonList(ErrorPosition.builder()

@@ -19,37 +19,33 @@
 package com.arkoisystems.arkoicompiler;
 
 import com.arkoisystems.utils.general.FileUtils;
-import com.arkoisystems.utils.printer.TreePrinter;
-import com.arkoisystems.utils.printer.annotations.Printable;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.lang.annotation.Annotation;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
+@Getter
 public class ArkoiCompiler
 {
     
-    @Getter
     @NotNull
     private final List<ArkoiClass> arkoiClasses = new ArrayList<>();
     
+    @NotNull
+    private final List<File> libraryPaths = new ArrayList<>();
+    
     public ArkoiCompiler() throws IOException {
+        this.getLibraryPaths().add(new File("../natives"));
         this.addNativeFiles();
     }
     
     public void addFile(final @NotNull File file, final boolean detailed) throws IOException {
         this.getArkoiClasses().add(new ArkoiClass(this, file.getCanonicalPath(), Files.readAllBytes(file.toPath()), detailed));
-    }
-    
-    public void addClass(final @NotNull ArkoiClass arkoiClass) {
-        this.getArkoiClasses().add(arkoiClass);
     }
     
     public void printStackTrace(final @NotNull PrintStream errorStream) {
@@ -71,7 +67,7 @@ public class ArkoiCompiler
             if (lexerFailed != null)
                 return false;
             printStream.printf("The lexical analysis took %sms for all classes (%s in total)\n", (System.nanoTime() - lexerStart) / 1_000_000D, this.arkoiClasses.size());
-    
+            
             final long parserStart = System.nanoTime();
             final ArkoiClass syntaxFailed = this.getArkoiClasses().stream()
                     .filter(compilerClass -> !compilerClass.getParser().processStage())
@@ -80,7 +76,7 @@ public class ArkoiCompiler
             if (syntaxFailed != null)
                 return false;
             printStream.printf("The syntax analysis took %sms for all classes (%s in total)\n", (System.nanoTime() - parserStart) / 1_000_000D, this.getArkoiClasses().size());
-    
+            
             final long semanticStart = System.nanoTime();
             final ArkoiClass semanticFailed = this.getArkoiClasses().stream()
                     .filter(compilerClass -> !compilerClass.getSemantic().processStage())
@@ -89,7 +85,7 @@ public class ArkoiCompiler
             if (semanticFailed != null)
                 return false;
             printStream.printf("The semantic analysis took %sms for all classes (%s in total)\n", (System.nanoTime() - semanticStart) / 1_000_000D, this.getArkoiClasses().size());
-    
+            
             final long codeGenTime = System.nanoTime();
             final ArkoiClass codeGenFailed = this.getArkoiClasses().stream()
                     .filter(compilerClass -> !compilerClass.getCodeGen().processStage())
@@ -114,25 +110,6 @@ public class ArkoiCompiler
             arkoiClass.setNative(true);
             this.getArkoiClasses().add(arkoiClass);
         }
-    }
-    
-    public void printSyntaxTree(final @NotNull PrintStream printStream) {
-        TreePrinter.printTree(printStream, "", new Printable()
-        {
-            
-            @Override
-            public Class<? extends Annotation> annotationType() {
-                return Printable.class;
-            }
-            
-            @Override
-            public String name() {
-                return "Program Trees";
-            }
-            
-        }, this.getArkoiClasses().stream()
-                .map(clazz -> clazz.getParser().getCompilerClass())
-                .collect(Collectors.toList()));
     }
     
 }

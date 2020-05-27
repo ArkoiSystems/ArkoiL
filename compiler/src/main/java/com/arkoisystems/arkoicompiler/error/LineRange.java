@@ -26,7 +26,7 @@ public class LineRange
             final int startLine,
             final int endLine
     ) {
-        final String[] sourceSplit = new String(compilerClass.getContent()).split(System.getProperty("line.separator"));
+        final String[] sourceSplit = compilerClass.getContent().split(System.getProperty("line.separator"));
         final StringBuilder sourceBuilder = new StringBuilder();
         for (int index = 0; index < sourceSplit.length; index++) {
             if (index < startLine) continue;

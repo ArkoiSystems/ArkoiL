@@ -260,7 +260,7 @@ public class Parser implements IStage
     @Nullable
     public ArkoiToken matchesCurrentToken(final @NotNull TokenType tokenType, final boolean advance) {
         final ArkoiToken currentToken = this.currentToken(advance);
-        if (currentToken.getTokenType() != tokenType)
+        if (currentToken == null || currentToken.getTokenType() != tokenType)
             return null;
         return currentToken;
     }
