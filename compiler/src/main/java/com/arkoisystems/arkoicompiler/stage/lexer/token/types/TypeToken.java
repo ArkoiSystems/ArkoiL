@@ -21,7 +21,7 @@ package com.arkoisystems.arkoicompiler.stage.lexer.token.types;
 import com.arkoisystems.arkoicompiler.stage.lexer.Lexer;
 import com.arkoisystems.arkoicompiler.stage.lexer.token.ArkoiToken;
 import com.arkoisystems.arkoicompiler.stage.lexer.token.enums.TokenType;
-import com.arkoisystems.arkoicompiler.stage.parser.ast.utils.TypeKind;
+import com.arkoisystems.arkoicompiler.stage.parser.ast.enums.TypeKind;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
