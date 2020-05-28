@@ -28,7 +28,7 @@ import com.arkoisystems.arkoicompiler.stage.lexer.token.enums.TokenType;
 import com.arkoisystems.arkoicompiler.stage.lexer.token.types.KeywordToken;
 import com.arkoisystems.arkoicompiler.stage.lexer.token.types.OperatorToken;
 import com.arkoisystems.arkoicompiler.stage.lexer.token.types.SymbolToken;
-import com.arkoisystems.arkoicompiler.stage.parser.ast.types.RootNode;
+import com.arkoisystems.arkoicompiler.stage.parser.ast.types.Root;
 import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
@@ -47,7 +47,7 @@ public class Parser implements IStage
     
     @Getter
     @NotNull
-    private RootNode rootAST = RootNode.builder()
+    private Root rootAST = Root.builder()
             .parser(this)
             .build();
     
@@ -81,7 +81,7 @@ public class Parser implements IStage
     
     @Override
     public void reset() {
-        this.rootAST = RootNode.builder()
+        this.rootAST = Root.builder()
                 .parser(this)
                 .build();
         this.errorHandler = new ParserErrorHandler();

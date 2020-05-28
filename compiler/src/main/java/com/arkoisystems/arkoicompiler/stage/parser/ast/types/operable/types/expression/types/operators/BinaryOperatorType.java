@@ -3,11 +3,11 @@ package com.arkoisystems.arkoicompiler.stage.parser.ast.types.operable.types.exp
 public enum BinaryOperatorType
 {
     
-    ADDITION,
-    SUBTRACTION,
-    MULTIPLICATION,
-    DIVISION,
-    EXPONENTIAL,
-    MODULO
+    ADD,
+    SUB,
+    MUL,
+    DIV,
+    EXP,
+    MOD
     
 }

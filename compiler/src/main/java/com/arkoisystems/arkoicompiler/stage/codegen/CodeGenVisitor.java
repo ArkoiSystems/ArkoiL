@@ -20,22 +20,27 @@ package com.arkoisystems.arkoicompiler.stage.codegen;
 
 import com.arkoisystems.arkoicompiler.api.IVisitor;
 import com.arkoisystems.arkoicompiler.stage.parser.ast.types.*;
+import com.arkoisystems.arkoicompiler.stage.parser.ast.types.argument.Argument;
+import com.arkoisystems.arkoicompiler.stage.parser.ast.types.argument.ArgumentList;
 import com.arkoisystems.arkoicompiler.stage.parser.ast.types.operable.types.*;
+import com.arkoisystems.arkoicompiler.stage.parser.ast.types.operable.types.NumberOperable;
+import com.arkoisystems.arkoicompiler.stage.parser.ast.types.operable.types.StringOperable;
+import com.arkoisystems.arkoicompiler.stage.parser.ast.types.operable.types.expression.ExpressionList;
 import com.arkoisystems.arkoicompiler.stage.parser.ast.types.operable.types.expression.types.*;
-import com.arkoisystems.arkoicompiler.stage.parser.ast.types.statement.types.FunctionNode;
-import com.arkoisystems.arkoicompiler.stage.parser.ast.types.statement.types.ImportNode;
-import com.arkoisystems.arkoicompiler.stage.parser.ast.types.statement.types.ReturnNode;
-import com.arkoisystems.arkoicompiler.stage.parser.ast.types.statement.types.VariableNode;
-import com.arkoisystems.arkoicompiler.stage.parser.ast.utils.BlockType;
-import com.arkoisystems.arkoicompiler.stage.parser.ast.utils.TypeKind;
+import com.arkoisystems.arkoicompiler.stage.parser.ast.types.parameter.Parameter;
+import com.arkoisystems.arkoicompiler.stage.parser.ast.types.parameter.ParameterList;
+import com.arkoisystems.arkoicompiler.stage.parser.ast.types.statement.types.FunctionStatement;
+import com.arkoisystems.arkoicompiler.stage.parser.ast.types.statement.types.ImportStatement;
+import com.arkoisystems.arkoicompiler.stage.parser.ast.types.statement.types.ReturnStatement;
+import com.arkoisystems.arkoicompiler.stage.parser.ast.types.statement.types.VariableStatement;
+import com.arkoisystems.arkoicompiler.stage.parser.ast.enums.BlockType;
+import com.arkoisystems.arkoicompiler.stage.parser.ast.enums.TypeKind;
 import com.arkoisystems.llvm4j.api.core.modules.Module;
-import com.arkoisystems.llvm4j.api.core.types.Type;
 import com.arkoisystems.llvm4j.api.core.types.modules.FloatingType;
 import com.arkoisystems.llvm4j.api.core.types.modules.FunctionType;
 import com.arkoisystems.llvm4j.api.core.types.modules.IntegerType;
 import com.arkoisystems.llvm4j.api.core.types.modules.VoidType;
 import com.arkoisystems.llvm4j.api.core.types.modules.sequential.PointerType;
-import com.arkoisystems.llvm4j.api.core.values.constants.function.Function;
 import com.arkoisystems.llvm4j.utils.PointerArray;
 import lombok.Getter;
 import lombok.Setter;
@@ -56,7 +61,7 @@ public class CodeGenVisitor implements IVisitor<Object>
     
     @Nullable
     @Override
-    public Type visit(final @NotNull TypeNode typeAST) {
+    public com.arkoisystems.llvm4j.api.core.types.Type visit(final @NotNull Type typeAST) {
         switch (typeAST.getTypeKind()) {
             case FLOAT:
                 return FloatingType.createFloatType();
@@ -84,7 +89,7 @@ public class CodeGenVisitor implements IVisitor<Object>
     
     
     @Override
-    public Module visit(final @NotNull RootNode rootAST) {
+    public Module visit(final @NotNull Root rootAST) {
         Objects.requireNonNull(rootAST.getParser(), "rootAST.parser must not be null.");
         
         final File file = new File(rootAST.getParser().getCompilerClass().getFilePath());
@@ -97,64 +102,64 @@ public class CodeGenVisitor implements IVisitor<Object>
     
     @Nullable
     @Override
-    public PointerArray<Type> visit(final @NotNull ParameterListNode parameterListAST) {
-        final List<Type> parameterTypes = new ArrayList<>();
-        for (final ParameterNode parameter : parameterListAST.getParameters()) {
+    public PointerArray<com.arkoisystems.llvm4j.api.core.types.Type> visit(final @NotNull ParameterList parameterListAST) {
+        final List<com.arkoisystems.llvm4j.api.core.types.Type> parameterTypes = new ArrayList<>();
+        for (final Parameter parameter : parameterListAST.getParameters()) {
             if (parameter.getTypeKind() == TypeKind.VARIADIC)
                 continue;
-            final Type parameterType = this.visit(parameter);
+            final com.arkoisystems.llvm4j.api.core.types.Type parameterType = this.visit(parameter);
             if (parameterType == null)
                 return null;
             parameterTypes.add(parameterType);
         }
-        return new PointerArray<>(parameterTypes.toArray(Type[]::new));
+        return new PointerArray<>(parameterTypes.toArray(com.arkoisystems.llvm4j.api.core.types.Type[]::new));
     }
     
     @Nullable
     @Override
-    public Type visit(final @NotNull ParameterNode parameterAST) {
+    public com.arkoisystems.llvm4j.api.core.types.Type visit(final @NotNull Parameter parameterAST) {
         Objects.requireNonNull(parameterAST.getType(), "parameterAST.parameterType must not be null.");
         return this.visit(parameterAST.getType());
     }
     
     @Override
-    public Object visit(final @NotNull BlockNode blockAST) {
+    public Object visit(final @NotNull Block blockAST) {
         return null;
     }
     
     @Override
-    public Object visit(final @NotNull ArgumentListNode argumentListAST) {
+    public Object visit(final @NotNull ArgumentList argumentListAST) {
         return null;
     }
     
     @Override
-    public Object visit(final @NotNull ArgumentNode argumentAST) {
+    public Object visit(final @NotNull Argument argumentAST) {
         return null;
     }
     
     @Override
-    public Function visit(final @NotNull FunctionNode functionAST) {
-        Objects.requireNonNull(functionAST.getParser(), "functionAST.parser must not be null.");
-        Objects.requireNonNull(functionAST.getReturnType(), "functionAST.returnType must not be null.");
-        Objects.requireNonNull(functionAST.getParameters(), "functionAST.parameters must not be null.");
-        Objects.requireNonNull(functionAST.getName(), "functionAST.name must not be null.");
-        Objects.requireNonNull(functionAST.getBlock(), "functionAST.block must not be null.");
+    public com.arkoisystems.llvm4j.api.core.values.constants.function.Function visit(final @NotNull FunctionStatement functionStatement) {
+        Objects.requireNonNull(functionStatement.getParser(), "functionAST.parser must not be null.");
+        Objects.requireNonNull(functionStatement.getReturnType(), "functionAST.returnType must not be null.");
+        Objects.requireNonNull(functionStatement.getParameters(), "functionAST.parameters must not be null.");
+        Objects.requireNonNull(functionStatement.getName(), "functionAST.name must not be null.");
+        Objects.requireNonNull(functionStatement.getBlock(), "functionAST.block must not be null.");
         Objects.requireNonNull(this.getModule(), "module must not be null.");
     
-        final Type returnType = this.visit(functionAST.getReturnType());
+        final com.arkoisystems.llvm4j.api.core.types.Type returnType = this.visit(functionStatement.getReturnType());
         if (returnType == null)
             return null;
     
-        final PointerArray<Type> parameters = this.visit(functionAST.getParameters());
+        final PointerArray<com.arkoisystems.llvm4j.api.core.types.Type> parameters = this.visit(functionStatement.getParameters());
         if (parameters == null)
             return null;
     
-        final boolean isVariadic = functionAST.getParameters().getParameters()
+        final boolean isVariadic = functionStatement.getParameters().getParameters()
                 .stream()
                 .anyMatch(parameter -> parameter.getTypeKind() == TypeKind.VARIADIC);
     
-        final Function function = this.getModule().addFunction(
-                functionAST.getName().getTokenContent(),
+        final com.arkoisystems.llvm4j.api.core.values.constants.function.Function function = this.getModule().addFunction(
+                functionStatement.getName().getTokenContent(),
                 FunctionType.createFunctionType(
                         returnType,
                         parameters,
@@ -162,88 +167,88 @@ public class CodeGenVisitor implements IVisitor<Object>
                 )
         );
     
-        if (functionAST.getBlock().getBlockType() != BlockType.NATIVE)
+        if (functionStatement.getBlock().getBlockType() != BlockType.NATIVE)
             function.appendBasicBlock("entry");
         return function;
     }
     
     @Override
-    public TypeKind visit(final @NotNull ImportNode importAST) {
+    public TypeKind visit(final @NotNull ImportStatement importStatement) {
         return TypeKind.UNDEFINED;
     }
     
     @Override
-    public Object visit(final @NotNull ReturnNode returnAST) {
+    public Object visit(final @NotNull ReturnStatement returnStatement) {
         return null;
     }
     
     @Override
-    public TypeKind visit(final @NotNull VariableNode variableAST) {
+    public TypeKind visit(final @NotNull VariableStatement variableStatement) {
         return TypeKind.UNDEFINED;
     }
     
     @Override
-    public Object visit(final @NotNull StringNode stringAST) {
+    public Object visit(final @NotNull StringOperable stringOperable) {
         return null;
     }
     
     @Override
-    public Object visit(final @NotNull NumberNode numberAST) {
+    public Object visit(final @NotNull NumberOperable numberOperable) {
         return null;
     }
     
     @Override
-    public Object visit(final @NotNull IdentifierCallNode identifierCallAST) {
+    public Object visit(final @NotNull IdentifierOperable identifierOperable) {
         return null;
     }
     
     @Override
-    public Object visit(final @NotNull FunctionCallPartNode functionCallPartAST) {
+    public Object visit(final @NotNull CollectionOperable collectionOperable) {
         return null;
     }
     
     @Override
-    public Object visit(final @NotNull CollectionNode collectionAST) {
+    public Object visit(final @NotNull ExpressionList expressionList) {
         return null;
     }
     
     @Override
-    public Object visit(final @NotNull AssignmentExpressionNode assignmentExpressionAST) {
+    public Object visit(final @NotNull AssignmentExpression assignmentExpressionAST) {
         return null;
     }
     
     @Override
-    public Object visit(final @NotNull BinaryExpressionNode binaryExpressionAST) {
+    public Object visit(final @NotNull BinaryExpression binaryExpressionAST) {
         return null;
     }
     
     @Override
-    public Object visit(final @NotNull EqualityExpressionNode equalityExpressionAST) {
+    public Object visit(final @NotNull EqualityExpression equalityExpressionAST) {
         return null;
     }
     
     @Override
-    public Object visit(final @NotNull LogicalExpressionNode logicalExpressionAST) {
+    public Object visit(final @NotNull LogicalExpression logicalExpressionAST) {
         return null;
     }
     
     @Override
-    public Object visit(final @NotNull ParenthesizedExpressionNode parenthesizedExpressionAST) {
+    public Object visit(final @NotNull ParenthesizedExpression parenthesizedExpressionAST) {
         return null;
     }
     
     @Override
-    public Object visit(final @NotNull PostfixExpressionNode postfixExpressionAST) {
+    public Object visit(final @NotNull PostfixExpression postfixExpressionAST) {
         return null;
     }
     
     @Override
-    public Object visit(final @NotNull PrefixExpressionNode prefixExpressionAST) {
+    public Object visit(final @NotNull PrefixExpression prefixExpressionAST) {
         return null;
     }
     
     @Override
-    public Object visit(final @NotNull RelationalExpressionNode relationalExpressionAST) {
+    public Object visit(final @NotNull RelationalExpression relationalExpressionAST) {
         return null;
     }
     

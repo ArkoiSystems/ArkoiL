@@ -27,8 +27,8 @@ import com.arkoisystems.arkoicompiler.error.LineRange;
 import com.arkoisystems.arkoicompiler.stage.lexer.token.ArkoiToken;
 import com.arkoisystems.arkoicompiler.stage.lexer.token.enums.SymbolType;
 import com.arkoisystems.arkoicompiler.stage.parser.Parser;
-import com.arkoisystems.arkoicompiler.stage.parser.ast.utils.ASTType;
-import com.arkoisystems.arkoicompiler.stage.parser.ast.utils.TypeKind;
+import com.arkoisystems.arkoicompiler.stage.parser.ast.enums.ASTType;
+import com.arkoisystems.arkoicompiler.stage.parser.ast.enums.TypeKind;
 import com.arkoisystems.utils.printer.annotations.Printable;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -43,6 +43,9 @@ import java.util.Objects;
 @Getter
 public class ArkoiNode implements IFailed, Cloneable
 {
+    
+    @Getter(lazy = true)
+    private final TypeKind typeKind = this.initializeTypeKind();
     
     @Printable(name = "type")
     @EqualsAndHashCode.Include
@@ -76,6 +79,8 @@ public class ArkoiNode implements IFailed, Cloneable
         
         this.startToken = startToken;
         this.endToken = endToken;
+    
+//        System.out.println(this.getClass().getSimpleName() + ", " + startToken + ", " + endToken);
         
         this.startAST(startToken);
         this.endAST(endToken);
@@ -95,7 +100,7 @@ public class ArkoiNode implements IFailed, Cloneable
     }
     
     @NotNull
-    public TypeKind getTypeKind() {
+    protected TypeKind initializeTypeKind() {
         throw new NullPointerException("Not implemented.");
     }
     
@@ -121,7 +126,7 @@ public class ArkoiNode implements IFailed, Cloneable
         if (token == null)
             return;
         
-        this.setStartToken(token);
+        this.startToken = token;
         this.startLine = token.getLineRange().getStartLine();
     }
     
@@ -131,8 +136,7 @@ public class ArkoiNode implements IFailed, Cloneable
         
         Objects.requireNonNull(this.getParser(), "parser must not be null.");
         
-        this.setEndToken(token);
-        
+        this.endToken = token;
         this.lineRange = LineRange.make(
                 this.getParser().getCompilerClass(),
                 this.startLine,

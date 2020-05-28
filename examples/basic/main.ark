@@ -1,6 +1,8 @@
 import "test" as test
 import "system"
- 
+
+import "hello"
+
 const test_1 = 1
  
 const test_2 = this.greeting()

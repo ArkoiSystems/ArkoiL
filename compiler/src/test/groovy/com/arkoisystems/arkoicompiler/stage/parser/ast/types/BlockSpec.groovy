@@ -1,6 +1,6 @@
 /*
  * Copyright © 2019-2020 ArkoiSystems (https://www.arkoisystems.com/) All Rights Reserved.
- * Created ArkoiCompiler on March 27, 2020
+ * Created ArkoiCompiler on April 25, 2020
  * Author єхcsє#5543 aka timo
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,33 +16,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.arkoisystems.arkoicompiler.stage.lexer.token.enums;
+package com.arkoisystems.arkoicompiler.stage.parser.ast.types
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import org.jetbrains.annotations.NotNull;
+import com.arkoisystems.arkoicompiler.stage.parser.ast.ArkoiNodeSpec
 
-@AllArgsConstructor
-@Getter
-public enum OperatorType
-{
-    
-    PLUS_PLUS("++"),
-    PLUS_EQUALS("+="),
-    PLUS("+"),
-    MINUS_EQUALS("-="),
-    MINUS_MINUS("--"),
-    MINUS("-"),
-    EQUALS("="),
-    ASTERISK_EQUALS("*="),
-    ASTERISK_ASTERISK("**"),
-    ASTERISK("*"),
-    SLASH_EQUALS("/="),
-    SLASH("/"),
-    PERCENT_EQUALS("%="),
-    PERCENT("%");
-    
-    @NotNull
-    private final String name;
-    
+class BlockSpec extends ArkoiNodeSpec {
+	
+	// TODO: Make tests
+	
 }
