@@ -198,7 +198,7 @@ public class IdentifierOperable extends Operable
     
     @Override
     protected @NotNull TypeKind initializeTypeKind() {
-        // TODO: 5/28/20 HEYY
+        // TODO: 5/28/20 Resolve
         return TypeKind.UNDEFINED;
     }
     

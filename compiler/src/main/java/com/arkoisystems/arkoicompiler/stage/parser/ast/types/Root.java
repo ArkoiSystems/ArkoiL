@@ -107,7 +107,7 @@ public class Root extends ArkoiNode
     
     @Override
     protected @NotNull TypeKind initializeTypeKind() {
-        return TypeKind.UNDEFINED;
+        return TypeKind.ERROR;
     }
     
 }

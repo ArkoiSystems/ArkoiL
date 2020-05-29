@@ -61,8 +61,8 @@ public class CodeGenVisitor implements IVisitor<Object>
     
     @Nullable
     @Override
-    public com.arkoisystems.llvm4j.api.core.types.Type visit(final @NotNull Type typeAST) {
-        switch (typeAST.getTypeKind()) {
+    public com.arkoisystems.llvm4j.api.core.types.Type visit(final @NotNull Type type) {
+        switch (type.getTypeKind()) {
             case FLOAT:
                 return FloatingType.createFloatType();
             case BOOLEAN:
@@ -82,29 +82,29 @@ public class CodeGenVisitor implements IVisitor<Object>
             case STRING:
                 return PointerType.createPointerType(IntegerType.createInt8Type(), 0);
             default:
-                System.err.println("Unhandled type: " + typeAST.getTypeKind().name());
+                System.err.println("Unhandled type: " + type.getTypeKind().name());
                 return null;
         }
     }
     
     
     @Override
-    public Module visit(final @NotNull Root rootAST) {
-        Objects.requireNonNull(rootAST.getParser(), "rootAST.parser must not be null.");
+    public Module visit(final @NotNull Root root) {
+        Objects.requireNonNull(root.getParser(), "rootAST.parser must not be null.");
         
-        final File file = new File(rootAST.getParser().getCompilerClass().getFilePath());
+        final File file = new File(root.getParser().getCompilerClass().getFilePath());
         final Module module = Module.createWithName(file.getName());
         this.setModule(module);
         
-        return rootAST.getNodes().stream()
+        return root.getNodes().stream()
                 .anyMatch(node -> this.visit(node) == null) ? null : module;
     }
     
     @Nullable
     @Override
-    public PointerArray<com.arkoisystems.llvm4j.api.core.types.Type> visit(final @NotNull ParameterList parameterListAST) {
+    public PointerArray<com.arkoisystems.llvm4j.api.core.types.Type> visit(final @NotNull ParameterList parameterList) {
         final List<com.arkoisystems.llvm4j.api.core.types.Type> parameterTypes = new ArrayList<>();
-        for (final Parameter parameter : parameterListAST.getParameters()) {
+        for (final Parameter parameter : parameterList.getParameters()) {
             if (parameter.getTypeKind() == TypeKind.VARIADIC)
                 continue;
             final com.arkoisystems.llvm4j.api.core.types.Type parameterType = this.visit(parameter);
@@ -117,23 +117,23 @@ public class CodeGenVisitor implements IVisitor<Object>
     
     @Nullable
     @Override
-    public com.arkoisystems.llvm4j.api.core.types.Type visit(final @NotNull Parameter parameterAST) {
-        Objects.requireNonNull(parameterAST.getType(), "parameterAST.parameterType must not be null.");
-        return this.visit(parameterAST.getType());
+    public com.arkoisystems.llvm4j.api.core.types.Type visit(final @NotNull Parameter parameter) {
+        Objects.requireNonNull(parameter.getType(), "parameterAST.parameterType must not be null.");
+        return this.visit(parameter.getType());
     }
     
     @Override
-    public Object visit(final @NotNull Block blockAST) {
+    public Object visit(final @NotNull Block block) {
         return null;
     }
     
     @Override
-    public Object visit(final @NotNull ArgumentList argumentListAST) {
+    public Object visit(final @NotNull ArgumentList argumentList) {
         return null;
     }
     
     @Override
-    public Object visit(final @NotNull Argument argumentAST) {
+    public Object visit(final @NotNull Argument argument) {
         return null;
     }
     
@@ -213,42 +213,42 @@ public class CodeGenVisitor implements IVisitor<Object>
     }
     
     @Override
-    public Object visit(final @NotNull AssignmentExpression assignmentExpressionAST) {
+    public Object visit(final @NotNull AssignmentExpression assignmentExpression) {
         return null;
     }
     
     @Override
-    public Object visit(final @NotNull BinaryExpression binaryExpressionAST) {
+    public Object visit(final @NotNull BinaryExpression binaryExpression) {
         return null;
     }
     
     @Override
-    public Object visit(final @NotNull EqualityExpression equalityExpressionAST) {
+    public Object visit(final @NotNull EqualityExpression equalityExpression) {
         return null;
     }
     
     @Override
-    public Object visit(final @NotNull LogicalExpression logicalExpressionAST) {
+    public Object visit(final @NotNull LogicalExpression logicalExpression) {
         return null;
     }
     
     @Override
-    public Object visit(final @NotNull ParenthesizedExpression parenthesizedExpressionAST) {
+    public Object visit(final @NotNull ParenthesizedExpression parenthesizedExpression) {
         return null;
     }
     
     @Override
-    public Object visit(final @NotNull PostfixExpression postfixExpressionAST) {
+    public Object visit(final @NotNull PostfixExpression postfixExpression) {
         return null;
     }
     
     @Override
-    public Object visit(final @NotNull PrefixExpression prefixExpressionAST) {
+    public Object visit(final @NotNull PrefixExpression prefixExpression) {
         return null;
     }
     
     @Override
-    public Object visit(final @NotNull RelationalExpression relationalExpressionAST) {
+    public Object visit(final @NotNull RelationalExpression relationalExpression) {
         return null;
     }
     

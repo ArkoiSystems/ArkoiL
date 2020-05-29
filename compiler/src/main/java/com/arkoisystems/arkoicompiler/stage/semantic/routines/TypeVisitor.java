@@ -74,17 +74,23 @@ public class TypeVisitor implements IVisitor<TypeKind>, IFailed
     @NotNull
     @Override
     public TypeKind visit(final @NotNull Root root) {
-        for (final ArkoiNode astNode : root.getNodes())
-            this.visit(astNode);
-        return root.getTypeKind();
+        TypeKind typeKind = root.getTypeKind();
+        for (final ArkoiNode astNode : root.getNodes()) {
+            if (this.visit(astNode) == TypeKind.ERROR)
+                typeKind = TypeKind.ERROR;
+        }
+        return typeKind;
     }
     
     @NotNull
     @Override
     public TypeKind visit(final @NotNull ParameterList parameterList) {
-        for (final Parameter parameterAST : parameterList.getParameters())
-            this.visit(parameterAST);
-        return parameterList.getTypeKind();
+        TypeKind typeKind = parameterList.getTypeKind();
+        for (final Parameter parameter : parameterList.getParameters()) {
+            if (this.visit(parameter) == TypeKind.ERROR)
+                typeKind = TypeKind.ERROR;
+        }
+        return typeKind;
     }
     
     @NotNull
@@ -96,24 +102,31 @@ public class TypeVisitor implements IVisitor<TypeKind>, IFailed
     @NotNull
     @Override
     public TypeKind visit(final @NotNull Block block) {
-        for (final ArkoiNode node : block.getNodes())
-            this.visit(node);
-        return block.getTypeKind();
+        TypeKind typeKind = block.getTypeKind();
+        for (final ArkoiNode node : block.getNodes()) {
+            if (this.visit(node) == TypeKind.ERROR)
+                typeKind = TypeKind.ERROR;
+        }
+        return typeKind;
     }
     
     @NotNull
     @Override
     public TypeKind visit(final @NotNull ArgumentList argumentList) {
-        for (final Argument argumentAST : argumentList.getArguments())
-            this.visit(argumentAST);
-        return argumentList.getTypeKind();
+        TypeKind typeKind = argumentList.getTypeKind();
+        for (final Argument argument : argumentList.getArguments()) {
+            if (this.visit(argument) == TypeKind.ERROR)
+                typeKind = TypeKind.ERROR;
+        }
+        return typeKind;
     }
     
     @NotNull
     @Override
     public TypeKind visit(final @NotNull Argument argument) {
         Objects.requireNonNull(argument.getExpression(), "argumentNode.argumentExpression must not be null.");
-        this.visit(argument.getExpression());
+        if (this.visit(argument.getExpression()) == TypeKind.ERROR)
+            return TypeKind.ERROR;
         return argument.getTypeKind();
     }
     
@@ -124,20 +137,22 @@ public class TypeVisitor implements IVisitor<TypeKind>, IFailed
         Objects.requireNonNull(functionStatement.getBlock(), "functionNode.block must not be null.");
         Objects.requireNonNull(functionStatement.getReturnType(), "functionNode.returnType must not be null.");
         Objects.requireNonNull(functionStatement.getParameters(), "functionNode.parameters must not be null.");
-        
+    
         this.visit(functionStatement.getParameters());
-        
+    
         final TypeKind expectedType = this.visit(functionStatement.getReturnType());
         final TypeKind givenType = this.visit(functionStatement.getBlock());
-        
+        if (expectedType == TypeKind.ERROR || givenType == TypeKind.ERROR)
+            return TypeKind.ERROR;
+    
         if (functionStatement.getBlock().getBlockType() != BlockType.NATIVE && expectedType != givenType)
             return this.addError(
-                    TypeKind.UNDEFINED,
+                    TypeKind.ERROR,
                     functionStatement.getParser().getCompilerClass(),
                     functionStatement.getBlock(),
                     "The block return type doesn't match that of the function."
             );
-        
+    
         return functionStatement.getTypeKind();
     }
     
@@ -150,8 +165,8 @@ public class TypeVisitor implements IVisitor<TypeKind>, IFailed
     @NotNull
     @Override
     public TypeKind visit(final @NotNull ReturnStatement returnStatement) {
-        if (returnStatement.getExpression() != null)
-            this.visit(returnStatement.getExpression());
+        if (returnStatement.getExpression() != null && this.visit(returnStatement.getExpression()) == TypeKind.ERROR)
+            return TypeKind.ERROR;
         return returnStatement.getTypeKind();
     }
     
@@ -159,7 +174,8 @@ public class TypeVisitor implements IVisitor<TypeKind>, IFailed
     @Override
     public TypeKind visit(final @NotNull VariableStatement variableStatement) {
         Objects.requireNonNull(variableStatement.getExpression(), "variableNode.variableExpression must not be null.");
-        this.visit(variableStatement.getExpression());
+        if (this.visit(variableStatement.getExpression()) == TypeKind.ERROR)
+            return TypeKind.ERROR;
         return variableStatement.getTypeKind();
     }
     
@@ -184,6 +200,8 @@ public class TypeVisitor implements IVisitor<TypeKind>, IFailed
             Objects.requireNonNull(identifierOperable.getExpressionList(), "identifierOperable.expressionList must not be null.");
             this.visit(identifierOperable.getExpressionList());
         }
+    
+        // TODO: 5/30/20 Make it working :(
         
         final ScopeVisitor scopeVisitor = new ScopeVisitor(identifierOperable.getParser().getCompilerClass().getSemantic());
         scopeVisitor.visit(identifierOperable.getParser().getRootAST());
@@ -191,75 +209,99 @@ public class TypeVisitor implements IVisitor<TypeKind>, IFailed
         if (scopeVisitor.isFailed())
             this.setFailed(true);
         if (resultNode != null)
-            this.visit(resultNode);
-        
-        return identifierOperable.getTypeKind();
+            return this.visit(resultNode);
+        return TypeKind.ERROR;
     }
     
     @NotNull
     @Override
     public TypeKind visit(final @NotNull CollectionOperable collectionOperable) {
-        for (final Operable operable : collectionOperable.getExpressions())
-            this.visit(operable);
-        return collectionOperable.getTypeKind();
+        TypeKind typeKind = collectionOperable.getTypeKind();
+        for (final Operable operable : collectionOperable.getExpressions()) {
+            if (this.visit(operable) == TypeKind.ERROR)
+                typeKind = TypeKind.ERROR;
+        }
+        return typeKind;
     }
     
     @Override
     public TypeKind visit(final @NotNull ExpressionList expressionList) {
-        for (final Operable operable : expressionList.getExpressions())
-            this.visit(operable);
-        return expressionList.getTypeKind();
+        TypeKind typeKind = expressionList.getTypeKind();
+        for (final Operable operable : expressionList.getExpressions()) {
+            if (this.visit(operable) == TypeKind.ERROR)
+                typeKind = TypeKind.ERROR;
+        }
+        return typeKind;
     }
     
     @Nullable
     @Override
-    public TypeKind visit(final @NotNull AssignmentExpression assignmentExpressionNode) {
-        Objects.requireNonNull(assignmentExpressionNode.getLeftHandSide(), "assignmentExpressionNode.leftSideOperable must not be null.");
-        Objects.requireNonNull(assignmentExpressionNode.getRightHandSide(), "assignmentExpressionNode.rightSideOperable must not be null.");
-        Objects.requireNonNull(assignmentExpressionNode.getParser(), "assignmentExpressionNode.parser must not be null.");
+    public TypeKind visit(final @NotNull AssignmentExpression assignmentExpression) {
+        Objects.requireNonNull(assignmentExpression.getLeftHandSide(), "assignmentExpression.leftSideOperable must not be null.");
+        Objects.requireNonNull(assignmentExpression.getRightHandSide(), "assignmentExpression.rightSideOperable must not be null.");
+        Objects.requireNonNull(assignmentExpression.getParser(), "assignmentExpression.parser must not be null.");
         
-        final TypeKind leftHandSide = this.visit(assignmentExpressionNode.getLeftHandSide());
-        final TypeKind rightHandSide = this.visit(assignmentExpressionNode.getRightHandSide());
+        if (!(assignmentExpression.getLeftHandSide() instanceof IdentifierOperable) ||
+                ((IdentifierOperable) assignmentExpression.getLeftHandSide()).isFunctionCall()) {
+            // TODO: 5/29/20 Check if its mutable or not
+            return this.addError(
+                    TypeKind.ERROR,
+                    assignmentExpression.getParser().getCompilerClass(),
+                    assignmentExpression.getLeftHandSide(),
+                    "Left hand side it not an identifier operable which can be re-assigned."
+            );
+        }
+        
+        final TypeKind leftHandSide = this.visit(assignmentExpression.getLeftHandSide());
+        final TypeKind rightHandSide = this.visit(assignmentExpression.getRightHandSide());
+        if (leftHandSide == TypeKind.ERROR || rightHandSide == TypeKind.ERROR)
+            return TypeKind.ERROR;
+        
         if (rightHandSide != leftHandSide)
             return this.addError(
-                    TypeKind.UNDEFINED,
-                    assignmentExpressionNode.getParser().getCompilerClass(),
-                    assignmentExpressionNode.getRightHandSide(),
+                    TypeKind.ERROR,
+                    assignmentExpression.getParser().getCompilerClass(),
+                    assignmentExpression.getRightHandSide(),
                     "Left type doesn't match the right one."
             );
+    
+        System.out.println(assignmentExpression.getTypeKind() + ", " + assignmentExpression.getLeftHandSide().getClass().getSimpleName());
         
-        return assignmentExpressionNode.getTypeKind();
+        return assignmentExpression.getTypeKind();
     }
     
     @Nullable
     @Override
-    public TypeKind visit(final @NotNull BinaryExpression binaryExpressionNode) {
-        Objects.requireNonNull(binaryExpressionNode.getLeftHandSide(), "binaryExpressionNode.leftSideOperable must not be null.");
-        Objects.requireNonNull(binaryExpressionNode.getRightHandSide(), "binaryExpressionNode.rightSideOperable must not be null.");
-        Objects.requireNonNull(binaryExpressionNode.getOperatorType(), "binaryExpressionNode.binaryOperatorType must not be null.");
-        Objects.requireNonNull(binaryExpressionNode.getParser(), "binaryExpressionNode.parser must not be null.");
+    public TypeKind visit(final @NotNull BinaryExpression binaryExpression) {
+        Objects.requireNonNull(binaryExpression.getLeftHandSide(), "binaryExpressionNode.leftSideOperable must not be null.");
+        Objects.requireNonNull(binaryExpression.getRightHandSide(), "binaryExpressionNode.rightSideOperable must not be null.");
+        Objects.requireNonNull(binaryExpression.getOperatorType(), "binaryExpressionNode.binaryOperatorType must not be null.");
+        Objects.requireNonNull(binaryExpression.getParser(), "binaryExpressionNode.parser must not be null.");
         
-        final TypeKind leftSideType = this.visit(binaryExpressionNode.getLeftHandSide());
-        final TypeKind rightSideType = this.visit(binaryExpressionNode.getRightHandSide());
-        if (leftSideType.isNumeric() && rightSideType.isNumeric())
-            return binaryExpressionNode.getTypeKind();
+        final TypeKind leftHandSide = this.visit(binaryExpression.getLeftHandSide());
+        final TypeKind rightHandSide = this.visit(binaryExpression.getRightHandSide());
+        if (leftHandSide == TypeKind.ERROR || rightHandSide == TypeKind.ERROR)
+            return TypeKind.ERROR;
         
-        final java.lang.String errorMessage;
+        if (leftHandSide.isNumeric() && rightHandSide.isNumeric())
+            return binaryExpression.getTypeKind();
+        
+        final String errorMessage;
         final ArkoiNode targetNode;
-        if (!leftSideType.isNumeric() && !rightSideType.isNumeric()) {
-            targetNode = binaryExpressionNode;
+        if (!leftHandSide.isNumeric() && !rightHandSide.isNumeric()) {
+            targetNode = binaryExpression;
             errorMessage = "Both sides are not numeric.";
-        } else if (!leftSideType.isNumeric()) {
-            targetNode = binaryExpressionNode.getLeftHandSide();
+        } else if (!leftHandSide.isNumeric()) {
+            targetNode = binaryExpression.getLeftHandSide();
             errorMessage = "Left side is not numeric.";
         } else {
-            targetNode = binaryExpressionNode.getRightHandSide();
+            targetNode = binaryExpression.getRightHandSide();
             errorMessage = "Right side is not numeric.";
         }
         
         return this.addError(
-                TypeKind.UNDEFINED,
-                binaryExpressionNode.getParser().getCompilerClass(),
+                TypeKind.ERROR,
+                binaryExpression.getParser().getCompilerClass(),
                 targetNode,
                 errorMessage
         );
@@ -267,32 +309,35 @@ public class TypeVisitor implements IVisitor<TypeKind>, IFailed
     
     @Nullable
     @Override
-    public TypeKind visit(final @NotNull EqualityExpression equalityExpressionNode) {
-        Objects.requireNonNull(equalityExpressionNode.getLeftHandSide(), "equalityExpressionNode.leftSideOperable must not be null.");
-        Objects.requireNonNull(equalityExpressionNode.getRightHandSide(), "equalityExpressionNode.rightSideOperable must not be null.");
-        Objects.requireNonNull(equalityExpressionNode.getParser(), "equalityExpressionNode.parser must not be null.");
+    public TypeKind visit(final @NotNull EqualityExpression equalityExpression) {
+        Objects.requireNonNull(equalityExpression.getLeftHandSide(), "equalityExpressionNode.leftSideOperable must not be null.");
+        Objects.requireNonNull(equalityExpression.getRightHandSide(), "equalityExpressionNode.rightSideOperable must not be null.");
+        Objects.requireNonNull(equalityExpression.getParser(), "equalityExpressionNode.parser must not be null.");
         
-        final TypeKind leftSideType = this.visit(equalityExpressionNode.getLeftHandSide());
-        final TypeKind rightSideType = this.visit(equalityExpressionNode.getRightHandSide());
-        if (leftSideType == TypeKind.BOOLEAN && rightSideType == TypeKind.BOOLEAN)
-            return equalityExpressionNode.getTypeKind();
+        final TypeKind leftHandSide = this.visit(equalityExpression.getLeftHandSide());
+        final TypeKind rightHandSide = this.visit(equalityExpression.getRightHandSide());
+        if (leftHandSide == TypeKind.ERROR || rightHandSide == TypeKind.ERROR)
+            return TypeKind.ERROR;
         
-        final java.lang.String errorMessage;
+        if (leftHandSide == TypeKind.BOOLEAN && rightHandSide == TypeKind.BOOLEAN)
+            return equalityExpression.getTypeKind();
+        
+        final String errorMessage;
         final ArkoiNode targetNode;
-        if (leftSideType != TypeKind.BOOLEAN && rightSideType != TypeKind.BOOLEAN) {
-            targetNode = equalityExpressionNode;
+        if (leftHandSide != TypeKind.BOOLEAN && rightHandSide != TypeKind.BOOLEAN) {
+            targetNode = equalityExpression;
             errorMessage = "Both sides are not a boolean.";
-        } else if (leftSideType != TypeKind.BOOLEAN) {
-            targetNode = equalityExpressionNode.getLeftHandSide();
+        } else if (leftHandSide != TypeKind.BOOLEAN) {
+            targetNode = equalityExpression.getLeftHandSide();
             errorMessage = "Left side is not a boolean.";
         } else {
-            targetNode = equalityExpressionNode.getRightHandSide();
+            targetNode = equalityExpression.getRightHandSide();
             errorMessage = "Right side is not a boolean.";
         }
         
         return this.addError(
-                TypeKind.UNDEFINED,
-                equalityExpressionNode.getParser().getCompilerClass(),
+                TypeKind.ERROR,
+                equalityExpression.getParser().getCompilerClass(),
                 targetNode,
                 errorMessage
         );
@@ -300,32 +345,35 @@ public class TypeVisitor implements IVisitor<TypeKind>, IFailed
     
     @Nullable
     @Override
-    public TypeKind visit(final @NotNull LogicalExpression logicalExpressionNode) {
-        Objects.requireNonNull(logicalExpressionNode.getLeftHandSide(), "logicalExpressionNode.leftSideOperable must not be null.");
-        Objects.requireNonNull(logicalExpressionNode.getRightHandSide(), "logicalExpressionNode.rightSideOperable must not be null.");
-        Objects.requireNonNull(logicalExpressionNode.getParser(), "logicalExpressionNode.parser must not be null.");
+    public TypeKind visit(final @NotNull LogicalExpression logicalExpression) {
+        Objects.requireNonNull(logicalExpression.getLeftHandSide(), "logicalExpressionNode.leftSideOperable must not be null.");
+        Objects.requireNonNull(logicalExpression.getRightHandSide(), "logicalExpressionNode.rightSideOperable must not be null.");
+        Objects.requireNonNull(logicalExpression.getParser(), "logicalExpressionNode.parser must not be null.");
         
-        final TypeKind leftSideType = this.visit(logicalExpressionNode.getLeftHandSide());
-        final TypeKind rightSideType = this.visit(logicalExpressionNode.getRightHandSide());
-        if (leftSideType == TypeKind.BOOLEAN && rightSideType == TypeKind.BOOLEAN)
-            return logicalExpressionNode.getTypeKind();
+        final TypeKind leftHandSide = this.visit(logicalExpression.getLeftHandSide());
+        final TypeKind rightHandSide = this.visit(logicalExpression.getRightHandSide());
+        if (leftHandSide == TypeKind.ERROR || rightHandSide == TypeKind.ERROR)
+            return TypeKind.ERROR;
         
-        final java.lang.String errorMessage;
+        if (leftHandSide == TypeKind.BOOLEAN && rightHandSide == TypeKind.BOOLEAN)
+            return logicalExpression.getTypeKind();
+        
+        final String errorMessage;
         final ArkoiNode targetNode;
-        if (leftSideType != TypeKind.BOOLEAN && rightSideType != TypeKind.BOOLEAN) {
-            targetNode = logicalExpressionNode;
+        if (leftHandSide != TypeKind.BOOLEAN && rightHandSide != TypeKind.BOOLEAN) {
+            targetNode = logicalExpression;
             errorMessage = "Both sides are not a boolean.";
-        } else if (leftSideType != TypeKind.BOOLEAN) {
-            targetNode = logicalExpressionNode.getLeftHandSide();
+        } else if (leftHandSide != TypeKind.BOOLEAN) {
+            targetNode = logicalExpression.getLeftHandSide();
             errorMessage = "Left side is not a boolean.";
         } else {
-            targetNode = logicalExpressionNode.getRightHandSide();
+            targetNode = logicalExpression.getRightHandSide();
             errorMessage = "Right side is not a boolean.";
         }
         
         return this.addError(
-                TypeKind.UNDEFINED,
-                logicalExpressionNode.getParser().getCompilerClass(),
+                TypeKind.ERROR,
+                logicalExpression.getParser().getCompilerClass(),
                 targetNode,
                 errorMessage
         );
@@ -333,83 +381,93 @@ public class TypeVisitor implements IVisitor<TypeKind>, IFailed
     
     @NotNull
     @Override
-    public TypeKind visit(final @NotNull ParenthesizedExpression parenthesizedExpressionNode) {
-        Objects.requireNonNull(parenthesizedExpressionNode.getExpression(), "parenthesizedExpressionNode.expression must not be null.");
-        this.visit(parenthesizedExpressionNode.getExpression());
-        return parenthesizedExpressionNode.getTypeKind();
+    public TypeKind visit(final @NotNull ParenthesizedExpression parenthesizedExpression) {
+        Objects.requireNonNull(parenthesizedExpression.getExpression(), "parenthesizedExpressionNode.expression must not be null.");
+        if (this.visit(parenthesizedExpression.getExpression()) == TypeKind.ERROR)
+            return TypeKind.ERROR;
+        return parenthesizedExpression.getTypeKind();
     }
     
     @Nullable
     @Override
-    public TypeKind visit(final @NotNull PostfixExpression postfixExpressionNode) {
-        Objects.requireNonNull(postfixExpressionNode.getLeftHandSide(), "postfixExpressionNode.leftSideOperable must not be null.");
-        Objects.requireNonNull(postfixExpressionNode.getParser(), "postfixExpressionNode.parser must not be null.");
+    public TypeKind visit(final @NotNull PostfixExpression postfixExpression) {
+        Objects.requireNonNull(postfixExpression.getLeftHandSide(), "postfixExpressionNode.leftSideOperable must not be null.");
+        Objects.requireNonNull(postfixExpression.getParser(), "postfixExpressionNode.parser must not be null.");
         
-        final TypeKind leftSideType = this.visit(postfixExpressionNode.getLeftHandSide());
-        if (!leftSideType.isNumeric())
+        final TypeKind leftHandSide = this.visit(postfixExpression.getLeftHandSide());
+        if (leftHandSide == TypeKind.ERROR)
+            return TypeKind.ERROR;
+        
+        if (!leftHandSide.isNumeric())
             return this.addError(
-                    TypeKind.UNDEFINED,
-                    postfixExpressionNode.getParser().getCompilerClass(),
-                    postfixExpressionNode,
+                    TypeKind.ERROR,
+                    postfixExpression.getParser().getCompilerClass(),
+                    postfixExpression,
                     "Left side is not numeric."
             );
         
-        return postfixExpressionNode.getTypeKind();
+        return postfixExpression.getTypeKind();
     }
     
     @Nullable
     @Override
-    public TypeKind visit(final @NotNull PrefixExpression prefixExpressionNode) {
-        Objects.requireNonNull(prefixExpressionNode.getRightHandSide(), "prefixExpressionNode.rightSideOperable must not be null.");
-        Objects.requireNonNull(prefixExpressionNode.getOperatorType(), "prefixExpressionNode.prefixOperatorType must not be null.");
-        Objects.requireNonNull(prefixExpressionNode.getParser(), "prefixExpressionNode.parser must not be null.");
+    public TypeKind visit(final @NotNull PrefixExpression prefixExpression) {
+        Objects.requireNonNull(prefixExpression.getRightHandSide(), "prefixExpressionNode.rightSideOperable must not be null.");
+        Objects.requireNonNull(prefixExpression.getOperatorType(), "prefixExpressionNode.prefixOperatorType must not be null.");
+        Objects.requireNonNull(prefixExpression.getParser(), "prefixExpressionNode.parser must not be null.");
         
-        final TypeKind rightHandSide = this.visit(prefixExpressionNode.getRightHandSide());
+        final TypeKind rightHandSide = this.visit(prefixExpression.getRightHandSide());
+        if (rightHandSide == TypeKind.ERROR)
+            return TypeKind.ERROR;
+        
         if (!rightHandSide.isNumeric())
             return this.addError(
-                    TypeKind.UNDEFINED,
-                    prefixExpressionNode.getParser().getCompilerClass(),
-                    prefixExpressionNode,
+                    TypeKind.ERROR,
+                    prefixExpression.getParser().getCompilerClass(),
+                    prefixExpression,
                     "Right side is not numeric."
             );
         
-        return prefixExpressionNode.getTypeKind();
+        return prefixExpression.getTypeKind();
     }
     
     @Nullable
     @Override
-    public TypeKind visit(final @NotNull RelationalExpression relationalExpressionNode) {
-        Objects.requireNonNull(relationalExpressionNode.getLeftHandSide(), "relationalExpressionNode.leftSideOperable must not be null.");
-        Objects.requireNonNull(relationalExpressionNode.getRightHandSide(), "relationalExpressionNode.rightSideOperable must not be null.");
-        Objects.requireNonNull(relationalExpressionNode.getParser(), "relationalExpressionNode.parser must not be null.");
+    public TypeKind visit(final @NotNull RelationalExpression relationalExpression) {
+        Objects.requireNonNull(relationalExpression.getLeftHandSide(), "relationalExpressionNode.leftSideOperable must not be null.");
+        Objects.requireNonNull(relationalExpression.getRightHandSide(), "relationalExpressionNode.rightSideOperable must not be null.");
+        Objects.requireNonNull(relationalExpression.getParser(), "relationalExpressionNode.parser must not be null.");
         
-        final TypeKind leftSideType = this.visit(relationalExpressionNode.getLeftHandSide());
-        final TypeKind rightSideType = this.visit(relationalExpressionNode.getRightHandSide());
-        if (leftSideType == TypeKind.BOOLEAN && rightSideType == TypeKind.BOOLEAN)
+        final TypeKind leftHandSide = this.visit(relationalExpression.getLeftHandSide());
+        final TypeKind rightHandSide = this.visit(relationalExpression.getRightHandSide());
+        if (leftHandSide == TypeKind.ERROR || rightHandSide == TypeKind.ERROR)
+            return TypeKind.ERROR;
+        
+        if (leftHandSide == TypeKind.BOOLEAN && rightHandSide == TypeKind.BOOLEAN)
             return TypeKind.BOOLEAN;
         
-        final java.lang.String errorMessage;
+        final String errorMessage;
         final ArkoiNode targetNode;
-        if (leftSideType != TypeKind.BOOLEAN && rightSideType != TypeKind.BOOLEAN) {
-            targetNode = relationalExpressionNode;
+        if (leftHandSide != TypeKind.BOOLEAN && rightHandSide != TypeKind.BOOLEAN) {
+            targetNode = relationalExpression;
             errorMessage = "Both sides are not a boolean.";
-        } else if (leftSideType != TypeKind.BOOLEAN) {
-            targetNode = relationalExpressionNode.getLeftHandSide();
+        } else if (leftHandSide != TypeKind.BOOLEAN) {
+            targetNode = relationalExpression.getLeftHandSide();
             errorMessage = "Left side is not a boolean.";
         } else {
-            targetNode = relationalExpressionNode.getRightHandSide();
+            targetNode = relationalExpression.getRightHandSide();
             errorMessage = "Right side is not a boolean.";
         }
         
         return this.addError(
-                TypeKind.UNDEFINED,
-                relationalExpressionNode.getParser().getCompilerClass(),
+                TypeKind.ERROR,
+                relationalExpression.getParser().getCompilerClass(),
                 targetNode,
                 errorMessage
         );
     }
     
-    public <E> E addError(@Nullable E errorSource, final @NotNull ArkoiClass compilerClass, final @NotNull ArkoiNode astNode, final @NotNull java.lang.String message, final @NotNull Object... arguments) {
+    public <E> E addError(@Nullable E errorSource, final @NotNull ArkoiClass compilerClass, final @NotNull ArkoiNode astNode, final @NotNull String message, final @NotNull Object... arguments) {
         compilerClass.getSemantic().getErrorHandler().addError(ArkoiError.builder()
                 .compilerClass(compilerClass)
                 .positions(Collections.singletonList(ErrorPosition.builder()

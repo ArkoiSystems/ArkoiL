@@ -21,6 +21,7 @@ package com.arkoisystems.arkoicompiler.stage.lexer.token;
 import com.arkoisystems.arkoicompiler.error.LineRange;
 import com.arkoisystems.arkoicompiler.stage.lexer.Lexer;
 import com.arkoisystems.arkoicompiler.stage.lexer.token.enums.TokenType;
+import com.arkoisystems.utils.printer.annotations.Printable;
 import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
@@ -32,6 +33,7 @@ public class ArkoiToken
     
     private final int charStart, charEnd;
     
+    @Printable(name = "type")
     @NotNull
     private final TokenType tokenType;
     
@@ -41,6 +43,7 @@ public class ArkoiToken
     @NotNull
     private final Lexer lexer;
     
+    @Printable(name = "content")
     @NotNull
     private String tokenContent;
     
