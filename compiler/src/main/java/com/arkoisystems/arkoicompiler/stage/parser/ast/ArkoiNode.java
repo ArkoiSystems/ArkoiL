@@ -79,8 +79,6 @@ public class ArkoiNode implements IFailed, Cloneable
         
         this.startToken = startToken;
         this.endToken = endToken;
-    
-//        System.out.println(this.getClass().getSimpleName() + ", " + startToken + ", " + endToken);
         
         this.startAST(startToken);
         this.endAST(endToken);

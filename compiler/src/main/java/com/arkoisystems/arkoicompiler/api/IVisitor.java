@@ -91,19 +91,19 @@ public interface IVisitor<T>
             throw new NullPointerException(astNode.getClass().getSimpleName() + ", " + astNode.getAstType().name());
     }
     
-    T visit(final @NotNull Type typeAST);
+    T visit(final @NotNull Type type);
     
-    T visit(final @NotNull Root rootAST);
+    T visit(final @NotNull Root root);
     
-    T visit(final @NotNull ParameterList parameterListAST);
+    T visit(final @NotNull ParameterList parameterList);
     
-    T visit(final @NotNull Parameter parameterAST);
+    T visit(final @NotNull Parameter parameter);
     
-    T visit(final @NotNull Block blockAST);
+    T visit(final @NotNull Block block);
     
-    T visit(final @NotNull ArgumentList argumentListAST);
+    T visit(final @NotNull ArgumentList argumentList);
     
-    T visit(final @NotNull Argument argumentAST);
+    T visit(final @NotNull Argument argument);
     
     T visit(final @NotNull FunctionStatement functionStatement);
     
@@ -123,20 +123,20 @@ public interface IVisitor<T>
     
     T visit(final @NotNull ExpressionList expressionList);
     
-    T visit(final @NotNull AssignmentExpression assignmentExpressionAST);
+    T visit(final @NotNull AssignmentExpression assignmentExpression);
     
-    T visit(final @NotNull BinaryExpression binaryExpressionAST);
+    T visit(final @NotNull BinaryExpression binaryExpression);
     
-    T visit(final @NotNull EqualityExpression equalityExpressionAST);
+    T visit(final @NotNull EqualityExpression equalityExpression);
     
-    T visit(final @NotNull LogicalExpression logicalExpressionAST);
+    T visit(final @NotNull LogicalExpression logicalExpression);
     
-    T visit(final @NotNull ParenthesizedExpression parenthesizedExpressionAST);
+    T visit(final @NotNull ParenthesizedExpression parenthesizedExpression);
     
-    T visit(final @NotNull PostfixExpression postfixExpressionAST);
+    T visit(final @NotNull PostfixExpression postfixExpression);
     
-    T visit(final @NotNull PrefixExpression prefixExpressionAST);
+    T visit(final @NotNull PrefixExpression prefixExpression);
     
-    T visit(final @NotNull RelationalExpression relationalExpressionAST);
+    T visit(final @NotNull RelationalExpression relationalExpression);
     
 }

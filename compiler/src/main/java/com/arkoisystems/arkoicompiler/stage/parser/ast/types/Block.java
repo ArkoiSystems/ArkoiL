@@ -40,9 +40,7 @@ import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @Getter
 public class Block extends ArkoiNode
@@ -186,8 +184,22 @@ public class Block extends ArkoiNode
     
     @Override
     protected @NotNull TypeKind initializeTypeKind() {
-        if(this.getBlockType() == BlockType.INLINE)
+        if (this.getBlockType() == BlockType.INLINE) {
             return this.getNodes().get(0).getTypeKind();
+        } else if (this.getBlockType() == BlockType.BLOCK) {
+            final HashMap<TypeKind, Integer> kinds = new HashMap<>();
+            this.getNodes().stream()
+                    .filter(node -> node instanceof ReturnStatement)
+                    .forEach(statement -> {
+                        final int count = kinds.getOrDefault(statement.getTypeKind(), 0);
+                        kinds.put(statement.getTypeKind(), count + 1);
+                    });
+        
+            if (kinds.size() == 0)
+                return TypeKind.VOID;
+            
+            return Collections.max(kinds.entrySet(), Comparator.comparingInt(Map.Entry::getValue)).getKey();
+        }
         return TypeKind.UNDEFINED;
     }
     

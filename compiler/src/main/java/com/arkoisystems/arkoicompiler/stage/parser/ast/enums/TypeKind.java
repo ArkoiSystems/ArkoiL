@@ -40,7 +40,9 @@ public enum TypeKind
     COLLECTION("[]", false, 0),
     VOID("void", false, 0),
     VARIADIC("...", false, 0),
-    UNDEFINED("undefined", false, 0);
+    
+    UNDEFINED("undefined", false, 0),
+    ERROR("error", false, 0);
     
     @NotNull
     @Getter

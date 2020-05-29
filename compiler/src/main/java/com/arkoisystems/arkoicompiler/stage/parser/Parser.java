@@ -29,6 +29,7 @@ import com.arkoisystems.arkoicompiler.stage.lexer.token.types.KeywordToken;
 import com.arkoisystems.arkoicompiler.stage.lexer.token.types.OperatorToken;
 import com.arkoisystems.arkoicompiler.stage.lexer.token.types.SymbolToken;
 import com.arkoisystems.arkoicompiler.stage.parser.ast.types.Root;
+import com.arkoisystems.utils.printer.TreePrinter;
 import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
@@ -75,7 +76,7 @@ public class Parser implements IStage
         this.tokens = this.compilerClass.getLexer().getTokens().toArray(ArkoiToken[]::new);
         if (this.tokens.length == 0)
             return true;
-    
+        
         return !this.rootAST.parseAST(this.rootAST).isFailed();
     }
     

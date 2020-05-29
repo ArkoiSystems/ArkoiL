@@ -34,7 +34,7 @@ public class SemanticErrorHandler implements IErrorHandler
     
     @Override
     public void addError(final @NotNull ArkoiError compilerError) {
-        this.compileErrors.add(compilerError);
+        this.getCompileErrors().add(compilerError);
     }
     
     @Override
