@@ -8,6 +8,9 @@ This repository contains the ``compiler``, ``integrations`` of the language and 
 for the Arkoi Language. For more information about ArkoiL, including downloads and documentation
 for the latest release, check out [ArkoiL's website](https://lang.arkoisystems.com/).
 
+### Structure:
+![compiler structure](https://github.com/ArkoiSystems/ArkoiL/assets/structure.png "General structure of the Compiler" | width=610)
+
 ## Getting Started
 
 To build and test this repository you'll need JDK 11 or higher. Eventually this project will
