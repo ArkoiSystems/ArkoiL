@@ -268,34 +268,37 @@ public class TypeVisitor implements IVisitor<TypeKind>, IFailed
         Objects.requireNonNull(binaryExpression.getRightHandSide(), "binaryExpressionNode.rightSideOperable must not be null.");
         Objects.requireNonNull(binaryExpression.getOperatorType(), "binaryExpressionNode.binaryOperatorType must not be null.");
         Objects.requireNonNull(binaryExpression.getParser(), "binaryExpressionNode.parser must not be null.");
-        
+    
         final TypeKind leftHandSide = this.visit(binaryExpression.getLeftHandSide());
         final TypeKind rightHandSide = this.visit(binaryExpression.getRightHandSide());
         if (leftHandSide == TypeKind.ERROR || rightHandSide == TypeKind.ERROR)
             return TypeKind.ERROR;
-        
-        if (leftHandSide.isNumeric() && rightHandSide.isNumeric())
-            return binaryExpression.getTypeKind();
-        
-        final String errorMessage;
-        final ArkoiNode targetNode;
-        if (!leftHandSide.isNumeric() && !rightHandSide.isNumeric()) {
-            targetNode = binaryExpression;
-            errorMessage = "Both sides are not numeric.";
-        } else if (!leftHandSide.isNumeric()) {
-            targetNode = binaryExpression.getLeftHandSide();
-            errorMessage = "Left side is not numeric.";
-        } else {
-            targetNode = binaryExpression.getRightHandSide();
-            errorMessage = "Right side is not numeric.";
-        }
-        
-        return this.addError(
-                TypeKind.ERROR,
-                binaryExpression.getParser().getCompilerClass(),
-                targetNode,
-                errorMessage
-        );
+    
+        if (!leftHandSide.isNumeric() && !rightHandSide.isNumeric())
+            return this.addError(
+                    TypeKind.ERROR,
+                    binaryExpression.getParser().getCompilerClass(),
+                    binaryExpression,
+                    "Both sides are not numeric."
+            );
+    
+        if (!leftHandSide.isNumeric())
+            return this.addError(
+                    TypeKind.ERROR,
+                    binaryExpression.getParser().getCompilerClass(),
+                    binaryExpression.getLeftHandSide(),
+                    "Left side is not numeric."
+            );
+    
+        if (!rightHandSide.isNumeric())
+            return this.addError(
+                    TypeKind.ERROR,
+                    binaryExpression.getParser().getCompilerClass(),
+                    binaryExpression.getRightHandSide(),
+                    "Right side is not numeric."
+            );
+    
+        return binaryExpression.getTypeKind();
     }
     
     @Nullable
@@ -304,34 +307,37 @@ public class TypeVisitor implements IVisitor<TypeKind>, IFailed
         Objects.requireNonNull(equalityExpression.getLeftHandSide(), "equalityExpressionNode.leftSideOperable must not be null.");
         Objects.requireNonNull(equalityExpression.getRightHandSide(), "equalityExpressionNode.rightSideOperable must not be null.");
         Objects.requireNonNull(equalityExpression.getParser(), "equalityExpressionNode.parser must not be null.");
-        
+    
         final TypeKind leftHandSide = this.visit(equalityExpression.getLeftHandSide());
         final TypeKind rightHandSide = this.visit(equalityExpression.getRightHandSide());
         if (leftHandSide == TypeKind.ERROR || rightHandSide == TypeKind.ERROR)
             return TypeKind.ERROR;
-        
-        if (leftHandSide == TypeKind.BOOLEAN && rightHandSide == TypeKind.BOOLEAN)
-            return equalityExpression.getTypeKind();
-        
-        final String errorMessage;
-        final ArkoiNode targetNode;
-        if (leftHandSide != TypeKind.BOOLEAN && rightHandSide != TypeKind.BOOLEAN) {
-            targetNode = equalityExpression;
-            errorMessage = "Both sides are not a boolean.";
-        } else if (leftHandSide != TypeKind.BOOLEAN) {
-            targetNode = equalityExpression.getLeftHandSide();
-            errorMessage = "Left side is not a boolean.";
-        } else {
-            targetNode = equalityExpression.getRightHandSide();
-            errorMessage = "Right side is not a boolean.";
-        }
-        
-        return this.addError(
-                TypeKind.ERROR,
-                equalityExpression.getParser().getCompilerClass(),
-                targetNode,
-                errorMessage
-        );
+    
+        if (leftHandSide != TypeKind.BOOLEAN && rightHandSide != TypeKind.BOOLEAN)
+            return this.addError(
+                    TypeKind.ERROR,
+                    equalityExpression.getParser().getCompilerClass(),
+                    equalityExpression,
+                    "Both sides are not a boolean."
+            );
+    
+        if (leftHandSide != TypeKind.BOOLEAN)
+            return this.addError(
+                    TypeKind.ERROR,
+                    equalityExpression.getParser().getCompilerClass(),
+                    equalityExpression.getLeftHandSide(),
+                    "Left side is not a boolean."
+            );
+    
+        if (rightHandSide != TypeKind.BOOLEAN)
+            return this.addError(
+                    TypeKind.ERROR,
+                    equalityExpression.getParser().getCompilerClass(),
+                    equalityExpression.getRightHandSide(),
+                    "Right side is not a boolean."
+            );
+    
+        return equalityExpression.getTypeKind();
     }
     
     @Nullable
@@ -340,34 +346,37 @@ public class TypeVisitor implements IVisitor<TypeKind>, IFailed
         Objects.requireNonNull(logicalExpression.getLeftHandSide(), "logicalExpressionNode.leftSideOperable must not be null.");
         Objects.requireNonNull(logicalExpression.getRightHandSide(), "logicalExpressionNode.rightSideOperable must not be null.");
         Objects.requireNonNull(logicalExpression.getParser(), "logicalExpressionNode.parser must not be null.");
-        
+    
         final TypeKind leftHandSide = this.visit(logicalExpression.getLeftHandSide());
         final TypeKind rightHandSide = this.visit(logicalExpression.getRightHandSide());
         if (leftHandSide == TypeKind.ERROR || rightHandSide == TypeKind.ERROR)
             return TypeKind.ERROR;
-        
-        if (leftHandSide == TypeKind.BOOLEAN && rightHandSide == TypeKind.BOOLEAN)
-            return logicalExpression.getTypeKind();
-        
-        final String errorMessage;
-        final ArkoiNode targetNode;
-        if (leftHandSide != TypeKind.BOOLEAN && rightHandSide != TypeKind.BOOLEAN) {
-            targetNode = logicalExpression;
-            errorMessage = "Both sides are not a boolean.";
-        } else if (leftHandSide != TypeKind.BOOLEAN) {
-            targetNode = logicalExpression.getLeftHandSide();
-            errorMessage = "Left side is not a boolean.";
-        } else {
-            targetNode = logicalExpression.getRightHandSide();
-            errorMessage = "Right side is not a boolean.";
-        }
-        
-        return this.addError(
-                TypeKind.ERROR,
-                logicalExpression.getParser().getCompilerClass(),
-                targetNode,
-                errorMessage
-        );
+    
+        if (leftHandSide != TypeKind.BOOLEAN && rightHandSide != TypeKind.BOOLEAN)
+            return this.addError(
+                    TypeKind.ERROR,
+                    logicalExpression.getParser().getCompilerClass(),
+                    logicalExpression,
+                    "Both sides are not a boolean."
+            );
+    
+        if (leftHandSide != TypeKind.BOOLEAN)
+            return this.addError(
+                    TypeKind.ERROR,
+                    logicalExpression.getParser().getCompilerClass(),
+                    logicalExpression.getLeftHandSide(),
+                    "Left side is not a boolean."
+            );
+    
+        if (rightHandSide != TypeKind.BOOLEAN)
+            return this.addError(
+                    TypeKind.ERROR,
+                    logicalExpression.getParser().getCompilerClass(),
+                    logicalExpression.getRightHandSide(),
+                    "Right side is not a boolean."
+            );
+    
+        return logicalExpression.getTypeKind();
     }
     
     @NotNull
@@ -428,37 +437,40 @@ public class TypeVisitor implements IVisitor<TypeKind>, IFailed
         Objects.requireNonNull(relationalExpression.getLeftHandSide(), "relationalExpressionNode.leftSideOperable must not be null.");
         Objects.requireNonNull(relationalExpression.getRightHandSide(), "relationalExpressionNode.rightSideOperable must not be null.");
         Objects.requireNonNull(relationalExpression.getParser(), "relationalExpressionNode.parser must not be null.");
-        
+    
         final TypeKind leftHandSide = this.visit(relationalExpression.getLeftHandSide());
         final TypeKind rightHandSide = this.visit(relationalExpression.getRightHandSide());
         if (leftHandSide == TypeKind.ERROR || rightHandSide == TypeKind.ERROR)
             return TypeKind.ERROR;
-        
-        if (leftHandSide == TypeKind.BOOLEAN && rightHandSide == TypeKind.BOOLEAN)
-            return TypeKind.BOOLEAN;
-        
-        final String errorMessage;
-        final ArkoiNode targetNode;
-        if (leftHandSide != TypeKind.BOOLEAN && rightHandSide != TypeKind.BOOLEAN) {
-            targetNode = relationalExpression;
-            errorMessage = "Both sides are not a boolean.";
-        } else if (leftHandSide != TypeKind.BOOLEAN) {
-            targetNode = relationalExpression.getLeftHandSide();
-            errorMessage = "Left side is not a boolean.";
-        } else {
-            targetNode = relationalExpression.getRightHandSide();
-            errorMessage = "Right side is not a boolean.";
-        }
-        
-        return this.addError(
-                TypeKind.ERROR,
-                relationalExpression.getParser().getCompilerClass(),
-                targetNode,
-                errorMessage
-        );
+    
+        if (leftHandSide != TypeKind.BOOLEAN && rightHandSide != TypeKind.BOOLEAN)
+            return this.addError(
+                    TypeKind.ERROR,
+                    relationalExpression.getParser().getCompilerClass(),
+                    relationalExpression,
+                    "Both sides are not a boolean."
+            );
+    
+        if (leftHandSide != TypeKind.BOOLEAN)
+            return this.addError(
+                    TypeKind.ERROR,
+                    relationalExpression.getParser().getCompilerClass(),
+                    relationalExpression.getLeftHandSide(),
+                    "Left side is not a boolean."
+            );
+    
+        if (rightHandSide != TypeKind.BOOLEAN)
+            return this.addError(
+                    TypeKind.ERROR,
+                    relationalExpression.getParser().getCompilerClass(),
+                    relationalExpression.getRightHandSide(),
+                    "Right side is not a boolean."
+            );
+    
+        return relationalExpression.getTypeKind();
     }
     
-    public <E> E addError(@Nullable E errorSource, final @NotNull ArkoiClass compilerClass, final @NotNull ArkoiNode astNode, final @NotNull String message, final @NotNull Object... arguments) {
+    public <E> E addError(final @Nullable E errorSource, final @NotNull ArkoiClass compilerClass, final @NotNull ArkoiNode astNode, final @NotNull String message, final @NotNull Object... arguments) {
         compilerClass.getSemantic().getErrorHandler().addError(ArkoiError.builder()
                 .compilerClass(compilerClass)
                 .positions(Collections.singletonList(ErrorPosition.builder()

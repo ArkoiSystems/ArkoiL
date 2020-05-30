@@ -1,24 +1,22 @@
 import "test" as test
 import "system"
 
-import "hello"
-
 const test_1 = 1
  
 const test_2 = this.greeting()
 
-const test_3 = (test_1 - (test_1 * 2 += 4 + -10) * 5) * 2
+const test_3 = (test_1 - (test_1 += 4 + -10) * 5) * 2
 
 #this method gets invoked first
 fun main(args: string[]): int {
-    var test_1 = "Hello\n Worlds\""
-    var test_3 = test.test()
-    var test_6 = 1
+    const test_1 = "Hello\n Worlds\""
+    const test_3 = test.test()
+    const test_6 = 1
   
     this.print_greet(test_1)
     return (20++ + -10 * 5) * 2 ** 3 ** 4 + (test_6 += 1 * 2)
 }
 
-fun print_greet(test_argument: string) = println("%s , %s" % [test_2, test_argument])
+fun print_greet(test_argument: string) = println("$test_2, $test_argument")
  
 fun greeting() = "Hello World"
