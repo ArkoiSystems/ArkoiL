@@ -36,7 +36,7 @@ public enum TokenType
     TYPE("(char|bool|byte|int|long|short|string|float|double|\\.\\.\\.)", TypeToken.class),
     OPERATOR("(=|\\+=|\\+\\+|\\+|-=|--|-|\\*=|\\*\\*|\\*|/=|\\/|%=|%)", OperatorToken.class),
     SYMBOL("(@|^|:|\\{|\\}|\\(|\\)|\\[|\\]|,|\\.|<|>)", SymbolToken.class),
-    STRING("\\\"(?:\\\"|[^\\\"]*[^\\\\]\\\"?)", StringToken.class),
+    STRING("\"(?:\\\\\"|[^\\n\"])*\\\"?", StringToken.class),
     NUMBER("(?:(?<hex>0[xX][a-zA-Z0-9]*)|(?:(?<fp>(?:\\d_|\\d)*\\.\\d*)|(?<int>(?:\\d_|\\d)+))(?<sn>E[-+]\\d+)?)", NumberToken.class),
     IDENTIFIER("[a-zA-Z][a-zA-Z0-9_]*", IdentifierToken.class),
     UNDEFINED(".", UndefinedToken.class);

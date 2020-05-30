@@ -113,7 +113,7 @@ public class Lexer implements IStage
                 } else this.charIndex += matcher.end() - matcher.start();
             }
         }
-        return true;
+        return !this.isFailed();
     }
     
     @Override

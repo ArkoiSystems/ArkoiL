@@ -124,7 +124,8 @@ public class ArgumentList extends ArkoiNode
     }
     
     @Override
-    protected @NotNull TypeKind initializeTypeKind() {
+    @NotNull
+    public TypeKind getTypeKind() {
         return TypeKind.UNDEFINED;
     }
     

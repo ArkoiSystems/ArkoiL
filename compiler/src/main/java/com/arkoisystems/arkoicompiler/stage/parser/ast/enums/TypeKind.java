@@ -42,7 +42,8 @@ public enum TypeKind
     VARIADIC("...", false, 0),
     
     UNDEFINED("undefined", false, 0),
-    ERROR("error", false, 0);
+    ERROR("error", false, 0),
+    AUTO("auto", false, 0);
     
     @NotNull
     @Getter

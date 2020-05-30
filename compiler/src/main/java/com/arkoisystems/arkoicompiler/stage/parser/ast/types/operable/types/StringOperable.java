@@ -92,7 +92,8 @@ public class StringOperable extends Operable
     }
     
     @Override
-    protected @NotNull TypeKind initializeTypeKind() {
+    @NotNull
+    public TypeKind getTypeKind() {
         return TypeKind.STRING;
     }
     

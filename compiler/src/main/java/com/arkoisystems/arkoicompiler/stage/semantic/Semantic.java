@@ -54,7 +54,7 @@ public class Semantic implements IStage
         final ScopeVisitor scopeVisitor = new ScopeVisitor(this);
         scopeVisitor.visit(this.getCompilerClass().getParser().getRootAST());
     
-        final TypeVisitor typeVisitor = new TypeVisitor(this);
+        final TypeVisitor typeVisitor = new TypeVisitor(this, scopeVisitor);
         typeVisitor.visit(this.getCompilerClass().getParser().getRootAST());
     
         return !scopeVisitor.isFailed() && !typeVisitor.isFailed();

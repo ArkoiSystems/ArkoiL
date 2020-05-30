@@ -92,7 +92,8 @@ public class NumberOperable extends Operable
     }
     
     @Override
-    protected @NotNull TypeKind initializeTypeKind() {
+    @NotNull
+    public TypeKind getTypeKind() {
         Objects.requireNonNull(this.getNumberToken(), "numberToken must not be null.");
         return this.getNumberToken().getTypeKind();
     }

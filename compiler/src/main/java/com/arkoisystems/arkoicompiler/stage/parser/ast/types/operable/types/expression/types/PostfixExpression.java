@@ -97,7 +97,7 @@ public class PostfixExpression extends Expression
     
     // TODO: 5/28/20 Think about it if it's right or not.
     @Override
-    public @NotNull TypeKind initializeTypeKind() {
+    public @NotNull TypeKind getTypeKind() {
         Objects.requireNonNull(this.getLeftHandSide(), "leftHandSide must not be null.");
         return this.getLeftHandSide().getTypeKind();
     }

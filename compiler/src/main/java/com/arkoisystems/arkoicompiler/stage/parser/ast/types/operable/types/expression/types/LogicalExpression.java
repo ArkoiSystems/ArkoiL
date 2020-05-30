@@ -33,8 +33,6 @@ import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Objects;
-
 @Getter
 public class LogicalExpression extends Expression
 {
@@ -86,7 +84,7 @@ public class LogicalExpression extends Expression
     }
     
     @Override
-    public @NotNull TypeKind initializeTypeKind() {
+    public @NotNull TypeKind getTypeKind() {
         return TypeKind.BOOLEAN;
     }
     

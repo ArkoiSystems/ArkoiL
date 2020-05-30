@@ -131,7 +131,7 @@ public class ParenthesizedExpression extends Expression
     
     // TODO: 5/28/20 Think about it if it's right or not.
     @Override
-    public @NotNull TypeKind initializeTypeKind() {
+    public @NotNull TypeKind getTypeKind() {
         Objects.requireNonNull(this.getExpression(), "expression must not be null.");
         return this.getExpression().getTypeKind();
     }

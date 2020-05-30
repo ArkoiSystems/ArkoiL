@@ -27,10 +27,11 @@ import com.arkoisystems.arkoicompiler.stage.lexer.token.types.IdentifierToken;
 import com.arkoisystems.arkoicompiler.stage.parser.Parser;
 import com.arkoisystems.arkoicompiler.stage.parser.ParserErrorType;
 import com.arkoisystems.arkoicompiler.stage.parser.ast.ArkoiNode;
-import com.arkoisystems.arkoicompiler.stage.parser.ast.types.operable.Operable;
 import com.arkoisystems.arkoicompiler.stage.parser.ast.enums.ASTType;
 import com.arkoisystems.arkoicompiler.stage.parser.ast.enums.TypeKind;
+import com.arkoisystems.arkoicompiler.stage.parser.ast.types.operable.Operable;
 import com.arkoisystems.arkoicompiler.stage.parser.ast.types.operable.types.expression.ExpressionList;
+import com.arkoisystems.arkoicompiler.stage.semantic.routines.ScopeVisitor;
 import com.arkoisystems.utils.printer.annotations.Printable;
 import lombok.Builder;
 import lombok.Getter;
@@ -63,11 +64,11 @@ public class IdentifierOperable extends Operable
     
     @Printable(name = "next call")
     @Nullable
-    private IdentifierOperable identifierOperable;
+    private IdentifierOperable nextIdentifier;
     
     @Builder
     protected IdentifierOperable(
-            final @Nullable IdentifierOperable identifierOperable,
+            final @Nullable IdentifierOperable nextIdentifier,
             final @Nullable ExpressionList expressionList,
             final @Nullable IdentifierToken identifier,
             final @Nullable Parser parser,
@@ -76,8 +77,8 @@ public class IdentifierOperable extends Operable
             final boolean isFileLocal
     ) {
         super(parser, ASTType.IDENTIFIER_CALL, startToken, endToken);
-        
-        this.identifierOperable = identifierOperable;
+    
+        this.nextIdentifier = nextIdentifier;
         this.expressionList = expressionList;
         this.isFileLocal = isFileLocal;
         this.identifier = identifier;
@@ -166,9 +167,9 @@ public class IdentifierOperable extends Operable
                         "Identifier call", "<identifier call>", peekedToken != null ? peekedToken.getTokenContent() : "nothing"
                 );
             }
-            
+    
             this.getParser().nextToken();
-            
+    
             final IdentifierOperable identifierOperable = IdentifierOperable.builder()
                     .parser(this.getParser())
                     .build()
@@ -177,8 +178,8 @@ public class IdentifierOperable extends Operable
                 this.setFailed(true);
                 return this;
             }
-            
-            this.identifierOperable = identifierOperable;
+    
+            this.nextIdentifier = identifierOperable;
         }
         
         this.endAST(this.getParser().currentToken());
@@ -197,8 +198,18 @@ public class IdentifierOperable extends Operable
     }
     
     @Override
-    protected @NotNull TypeKind initializeTypeKind() {
-        // TODO: 5/28/20 Resolve
+    @NotNull
+    public TypeKind getTypeKind() {
+        Objects.requireNonNull(this.getParser(), "parser must not be null.");
+    
+        final ScopeVisitor scopeVisitor = new ScopeVisitor(this.getParser().getCompilerClass().getSemantic());
+        scopeVisitor.visit(this.getParser().getRootAST());
+        
+        final ArkoiNode resultNode = scopeVisitor.visit(this);
+        if (scopeVisitor.isFailed())
+            this.setFailed(true);
+        if (resultNode != null)
+            return resultNode.getTypeKind();
         return TypeKind.UNDEFINED;
     }
     
@@ -210,7 +221,6 @@ public class IdentifierOperable extends Operable
         final StringBuilder descriptorBuilder = new StringBuilder(this.getIdentifier().getTokenContent());
         if (this.isFunctionCall()) {
             Objects.requireNonNull(this.getExpressionList(), "expressionList must not be null.");
-            
             descriptorBuilder.append("(").append(this.getExpressionList().getExpressions().size()).append(")");
         }
         
