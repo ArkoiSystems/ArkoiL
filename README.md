@@ -9,7 +9,7 @@ for the Arkoi Language. For more information about ArkoiL, including downloads a
 for the latest release, check out [ArkoiL's website](https://lang.arkoisystems.com/).
 
 ### Structure:
-![compiler structure](https://github.com/ArkoiSystems/ArkoiL/assets/structure.png "General structure of the Compiler" | width=610)
+![compiler structure](assets/structure.png "General structure of the Compiler")
 
 ## Getting Started
 
