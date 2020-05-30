@@ -141,7 +141,8 @@ public class ImportStatement extends Statement
     }
     
     @Override
-    protected @NotNull TypeKind initializeTypeKind() {
+    @NotNull
+    public TypeKind getTypeKind() {
         return TypeKind.UNDEFINED;
     }
     

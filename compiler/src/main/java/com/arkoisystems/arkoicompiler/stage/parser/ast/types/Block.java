@@ -183,7 +183,8 @@ public class Block extends ArkoiNode
     }
     
     @Override
-    protected @NotNull TypeKind initializeTypeKind() {
+    @NotNull
+    public TypeKind getTypeKind() {
         if (this.getBlockType() == BlockType.INLINE) {
             return this.getNodes().get(0).getTypeKind();
         } else if (this.getBlockType() == BlockType.BLOCK) {
@@ -197,7 +198,7 @@ public class Block extends ArkoiNode
         
             if (kinds.size() == 0)
                 return TypeKind.VOID;
-            
+        
             return Collections.max(kinds.entrySet(), Comparator.comparingInt(Map.Entry::getValue)).getKey();
         }
         return TypeKind.UNDEFINED;

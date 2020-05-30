@@ -172,7 +172,7 @@ public class FunctionStatement extends Statement
                 .parser(this.getParser())
                 .typeToken(TypeToken.builder()
                         .lexer(this.getParser().getCompilerClass().getLexer())
-                        .typeKind(TypeKind.VOID)
+                        .typeKind(TypeKind.AUTO)
                         .build())
                 .startToken(UndefinedToken.builder()
                         .lexer(this.getParser().getCompilerClass().getLexer())
@@ -218,7 +218,8 @@ public class FunctionStatement extends Statement
     }
     
     @Override
-    protected @NotNull TypeKind initializeTypeKind() {
+    @NotNull
+    public TypeKind getTypeKind() {
         Objects.requireNonNull(this.getReturnType(), "returnType must not be null.");
         return this.getReturnType().getTypeKind();
     }

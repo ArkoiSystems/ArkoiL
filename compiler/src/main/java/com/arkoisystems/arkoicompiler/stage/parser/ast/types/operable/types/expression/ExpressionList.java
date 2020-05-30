@@ -27,7 +27,6 @@ import com.arkoisystems.arkoicompiler.stage.parser.ast.ArkoiNode;
 import com.arkoisystems.arkoicompiler.stage.parser.ast.enums.ASTType;
 import com.arkoisystems.arkoicompiler.stage.parser.ast.enums.TypeKind;
 import com.arkoisystems.arkoicompiler.stage.parser.ast.types.operable.Operable;
-import com.arkoisystems.arkoicompiler.stage.parser.ast.types.parameter.Parameter;
 import com.arkoisystems.utils.printer.annotations.Printable;
 import lombok.Builder;
 import lombok.Getter;
@@ -128,7 +127,8 @@ public class ExpressionList extends ArkoiNode
     }
     
     @Override
-    protected @NotNull TypeKind initializeTypeKind() {
+    @NotNull
+    public TypeKind getTypeKind() {
         return TypeKind.UNDEFINED;
     }
     

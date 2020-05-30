@@ -44,9 +44,6 @@ import java.util.Objects;
 public class ArkoiNode implements IFailed, Cloneable
 {
     
-    @Getter(lazy = true)
-    private final TypeKind typeKind = this.initializeTypeKind();
-    
     @Printable(name = "type")
     @EqualsAndHashCode.Include
     @NotNull
@@ -98,7 +95,7 @@ public class ArkoiNode implements IFailed, Cloneable
     }
     
     @NotNull
-    protected TypeKind initializeTypeKind() {
+    public TypeKind getTypeKind() {
         throw new NullPointerException("Not implemented.");
     }
     

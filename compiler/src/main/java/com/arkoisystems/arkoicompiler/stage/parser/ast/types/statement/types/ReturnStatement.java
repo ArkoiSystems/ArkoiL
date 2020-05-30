@@ -108,7 +108,8 @@ public class ReturnStatement extends Statement
     }
     
     @Override
-    protected @NotNull TypeKind initializeTypeKind() {
+    @NotNull
+    public TypeKind getTypeKind() {
         if(this.getExpression() != null) {
             Objects.requireNonNull(this.getExpression(), "expression must not be null.");
             return this.getExpression().getTypeKind();

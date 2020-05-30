@@ -155,7 +155,8 @@ public class VariableStatement extends Statement
     }
     
     @Override
-    protected @NotNull TypeKind initializeTypeKind() {
+    @NotNull
+    public TypeKind getTypeKind() {
         Objects.requireNonNull(this.getExpression(), "expression must not be null.");
         return this.getExpression().getTypeKind();
     }

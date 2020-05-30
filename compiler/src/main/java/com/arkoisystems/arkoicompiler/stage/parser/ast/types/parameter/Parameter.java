@@ -136,7 +136,8 @@ public class Parameter extends ArkoiNode
     }
     
     @Override
-    protected @NotNull TypeKind initializeTypeKind() {
+    @NotNull
+    public TypeKind getTypeKind() {
         Objects.requireNonNull(this.getType(), "type must not be null.");
         return this.getType().getTypeKind();
     }

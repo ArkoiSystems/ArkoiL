@@ -63,6 +63,9 @@ public class TypeVisitor implements IVisitor<TypeKind>, IFailed
     @NotNull
     private final Semantic semantic;
     
+    @NotNull
+    private final ScopeVisitor scopeVisitor;
+    
     private boolean failed;
     
     @NotNull
@@ -145,7 +148,8 @@ public class TypeVisitor implements IVisitor<TypeKind>, IFailed
         if (expectedType == TypeKind.ERROR || givenType == TypeKind.ERROR)
             return TypeKind.ERROR;
     
-        if (functionStatement.getBlock().getBlockType() != BlockType.NATIVE && expectedType != givenType)
+        if ((expectedType != TypeKind.AUTO && functionStatement.getBlock().getBlockType() != BlockType.NATIVE) &&
+                expectedType != givenType)
             return this.addError(
                     TypeKind.ERROR,
                     functionStatement.getParser().getCompilerClass(),
@@ -194,23 +198,12 @@ public class TypeVisitor implements IVisitor<TypeKind>, IFailed
     @NotNull
     @Override
     public TypeKind visit(final @NotNull IdentifierOperable identifierOperable) {
-        Objects.requireNonNull(identifierOperable.getParser(), "identifierCallNode.parser must not be null.");
-        
         if (identifierOperable.isFunctionCall()) {
             Objects.requireNonNull(identifierOperable.getExpressionList(), "identifierOperable.expressionList must not be null.");
             this.visit(identifierOperable.getExpressionList());
         }
     
-        // TODO: 5/30/20 Make it working :(
-        
-        final ScopeVisitor scopeVisitor = new ScopeVisitor(identifierOperable.getParser().getCompilerClass().getSemantic());
-        scopeVisitor.visit(identifierOperable.getParser().getRootAST());
-        final ArkoiNode resultNode = scopeVisitor.visit(identifierOperable);
-        if (scopeVisitor.isFailed())
-            this.setFailed(true);
-        if (resultNode != null)
-            return this.visit(resultNode);
-        return TypeKind.ERROR;
+        return identifierOperable.getTypeKind();
     }
     
     @NotNull
@@ -265,8 +258,6 @@ public class TypeVisitor implements IVisitor<TypeKind>, IFailed
                     "Left type doesn't match the right one."
             );
     
-        System.out.println(assignmentExpression.getTypeKind() + ", " + assignmentExpression.getLeftHandSide().getClass().getSimpleName());
-        
         return assignmentExpression.getTypeKind();
     }
     

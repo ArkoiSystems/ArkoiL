@@ -354,7 +354,7 @@ public class ScopeVisitor implements IVisitor<ArkoiNode>, IFailed
             this.visit(identifierOperable.getExpressionList());
         }
         
-        if (identifierOperable.getIdentifierOperable() == null)
+        if (identifierOperable.getNextIdentifier() == null)
             return foundAST;
         
         ArkoiClass resolvedClass = this.resolveClass(foundAST);
@@ -363,7 +363,7 @@ public class ScopeVisitor implements IVisitor<ArkoiNode>, IFailed
         
         final ScopeVisitor scopeVisitor = new ScopeVisitor(resolvedClass.getSemantic());
         scopeVisitor.visit(resolvedClass.getParser().getRootAST());
-        foundAST = scopeVisitor.visit(identifierOperable.getIdentifierOperable());
+        foundAST = scopeVisitor.visit(identifierOperable.getNextIdentifier());
         if (scopeVisitor.isFailed())
             this.setFailed(true);
         if (foundAST == null)

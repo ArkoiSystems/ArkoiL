@@ -42,7 +42,8 @@ public class StringToken extends ArkoiToken
     ) {
         super(lexer, TokenType.STRING, startLine, endLine, charStart, charEnd);
     
-        if(this.getTokenContent().endsWith("\\\"")) {
+        if(this.getTokenContent().length() < 2 || this.getTokenContent().endsWith("\\\"") || !this.getTokenContent().endsWith("\"")) {
+            this.getLexer().setFailed(true);
             this.getLexer().getErrorHandler().addError(ArkoiError.builder()
                     .compilerClass(this.getLexer().getCompilerClass())
                     .positions(Collections.singletonList(ErrorPosition.builder()
@@ -50,8 +51,9 @@ public class StringToken extends ArkoiToken
                             .charStart(this.getCharStart())
                             .charEnd(this.getCharEnd())
                             .build()))
-                    .message("A string must be terminated with a \".")
+                    .message("A string must be terminated correctly.")
                     .build());
+            return;
         }
         
         this.setTokenContent(this.getTokenContent().substring(1, this.getTokenContent().length() - 1));

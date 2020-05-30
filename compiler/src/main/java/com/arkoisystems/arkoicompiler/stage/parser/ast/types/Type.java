@@ -102,7 +102,8 @@ public class Type extends ArkoiNode
     }
     
     @Override
-    protected @NotNull TypeKind initializeTypeKind() {
+    @NotNull
+    public TypeKind getTypeKind() {
         Objects.requireNonNull(this.getTypeToken(), "typeToken must not be null.");
         return this.getTypeToken().getTypeKind();
     }

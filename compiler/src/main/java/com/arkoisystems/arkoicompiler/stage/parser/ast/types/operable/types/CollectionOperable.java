@@ -130,7 +130,8 @@ public class CollectionOperable extends Operable
     }
     
     @Override
-    protected @NotNull TypeKind initializeTypeKind() {
+    @NotNull
+    public TypeKind getTypeKind() {
         return TypeKind.COLLECTION;
     }
     
