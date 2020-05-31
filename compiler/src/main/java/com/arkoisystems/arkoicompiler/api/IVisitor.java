@@ -18,125 +18,111 @@
  */
 package com.arkoisystems.arkoicompiler.api;
 
-import com.arkoisystems.arkoicompiler.stages.parser.ast.ParserNode;
-import com.arkoisystems.arkoicompiler.stages.parser.ast.types.*;
-import com.arkoisystems.arkoicompiler.stages.parser.ast.types.argument.Argument;
-import com.arkoisystems.arkoicompiler.stages.parser.ast.types.argument.ArgumentList;
-import com.arkoisystems.arkoicompiler.stages.parser.ast.types.operable.types.*;
-import com.arkoisystems.arkoicompiler.stages.parser.ast.types.operable.types.NumberOperable;
-import com.arkoisystems.arkoicompiler.stages.parser.ast.types.operable.types.StringOperable;
-import com.arkoisystems.arkoicompiler.stages.parser.ast.types.operable.types.expression.ExpressionList;
-import com.arkoisystems.arkoicompiler.stages.parser.ast.types.operable.types.expression.types.*;
-import com.arkoisystems.arkoicompiler.stages.parser.ast.types.parameter.Parameter;
-import com.arkoisystems.arkoicompiler.stages.parser.ast.types.parameter.ParameterList;
-import com.arkoisystems.arkoicompiler.stages.parser.ast.types.statement.types.FunctionStatement;
-import com.arkoisystems.arkoicompiler.stages.parser.ast.types.statement.types.ImportStatement;
-import com.arkoisystems.arkoicompiler.stages.parser.ast.types.statement.types.ReturnStatement;
-import com.arkoisystems.arkoicompiler.stages.parser.ast.types.statement.types.VariableStatement;
+import com.arkoisystems.arkoicompiler.phases.parser.ast.ParserNode;
+import com.arkoisystems.arkoicompiler.phases.parser.ast.types.BlockNode;
+import com.arkoisystems.arkoicompiler.phases.parser.ast.types.RootNode;
+import com.arkoisystems.arkoicompiler.phases.parser.ast.types.TypeNode;
+import com.arkoisystems.arkoicompiler.phases.parser.ast.types.argument.ArgumentNode;
+import com.arkoisystems.arkoicompiler.phases.parser.ast.types.argument.ArgumentListNode;
+import com.arkoisystems.arkoicompiler.phases.parser.ast.types.operable.types.IdentifierNode;
+import com.arkoisystems.arkoicompiler.phases.parser.ast.types.operable.types.NumberNode;
+import com.arkoisystems.arkoicompiler.phases.parser.ast.types.operable.types.StringNode;
+import com.arkoisystems.arkoicompiler.phases.parser.ast.types.operable.types.expression.ExpressionListNode;
+import com.arkoisystems.arkoicompiler.phases.parser.ast.types.operable.types.expression.types.*;
+import com.arkoisystems.arkoicompiler.phases.parser.ast.types.parameter.ParameterNode;
+import com.arkoisystems.arkoicompiler.phases.parser.ast.types.parameter.ParameterListNode;
+import com.arkoisystems.arkoicompiler.phases.parser.ast.types.statement.types.FunctionNode;
+import com.arkoisystems.arkoicompiler.phases.parser.ast.types.statement.types.ImportNode;
+import com.arkoisystems.arkoicompiler.phases.parser.ast.types.statement.types.ReturnNode;
+import com.arkoisystems.arkoicompiler.phases.parser.ast.types.statement.types.VariableNode;
 import org.jetbrains.annotations.NotNull;
 
 public interface IVisitor<T>
 {
     
     default T visit(final @NotNull ParserNode astNode) {
-        if (astNode instanceof IdentifierOperable)
-            return this.visit((IdentifierOperable) astNode);
-        else if (astNode instanceof Type)
-            return this.visit((Type) astNode);
-        else if (astNode instanceof Root)
-            return this.visit((Root) astNode);
-        else if (astNode instanceof ParameterList)
-            return this.visit((ParameterList) astNode);
-        else if (astNode instanceof Parameter)
-            return this.visit((Parameter) astNode);
-        else if (astNode instanceof Block)
-            return this.visit((Block) astNode);
-        else if (astNode instanceof ArgumentList)
-            return this.visit((ArgumentList) astNode);
-        else if (astNode instanceof Argument)
-            return this.visit((Argument) astNode);
-        else if (astNode instanceof FunctionStatement)
-            return this.visit((FunctionStatement) astNode);
-        else if (astNode instanceof ImportStatement)
-            return this.visit((ImportStatement) astNode);
-        else if (astNode instanceof ReturnStatement)
-            return this.visit((ReturnStatement) astNode);
-        else if (astNode instanceof VariableStatement)
-            return this.visit((VariableStatement) astNode);
-        else if (astNode instanceof StringOperable)
-            return this.visit((StringOperable) astNode);
-        else if (astNode instanceof NumberOperable)
-            return this.visit((NumberOperable) astNode);
-        else if (astNode instanceof CollectionOperable)
-            return this.visit((CollectionOperable) astNode);
-        else if (astNode instanceof ExpressionList)
-            return this.visit((ExpressionList) astNode);
-        else if (astNode instanceof AssignmentExpression)
-            return this.visit((AssignmentExpression) astNode);
-        else if (astNode instanceof EqualityExpression)
-            return this.visit((EqualityExpression) astNode);
-        else if (astNode instanceof LogicalExpression)
-            return this.visit((LogicalExpression) astNode);
-        else if (astNode instanceof BinaryExpression)
-            return this.visit((BinaryExpression) astNode);
-        else if (astNode instanceof ParenthesizedExpression)
-            return this.visit((ParenthesizedExpression) astNode);
-        else if (astNode instanceof PostfixExpression)
-            return this.visit((PostfixExpression) astNode);
-        else if (astNode instanceof PrefixExpression)
-            return this.visit((PrefixExpression) astNode);
-        else if (astNode instanceof RelationalExpression)
-            return this.visit((RelationalExpression) astNode);
-        else
-            throw new NullPointerException(astNode.getClass().getSimpleName() + ", " + astNode.getAstType().name());
+        if (astNode instanceof IdentifierNode)
+            return this.visit((IdentifierNode) astNode);
+        else if (astNode instanceof TypeNode)
+            return this.visit((TypeNode) astNode);
+        else if (astNode instanceof RootNode)
+            return this.visit((RootNode) astNode);
+        else if (astNode instanceof ParameterListNode)
+            return this.visit((ParameterListNode) astNode);
+        else if (astNode instanceof ParameterNode)
+            return this.visit((ParameterNode) astNode);
+        else if (astNode instanceof BlockNode)
+            return this.visit((BlockNode) astNode);
+        else if (astNode instanceof ArgumentListNode)
+            return this.visit((ArgumentListNode) astNode);
+        else if (astNode instanceof ArgumentNode)
+            return this.visit((ArgumentNode) astNode);
+        else if (astNode instanceof FunctionNode)
+            return this.visit((FunctionNode) astNode);
+        else if (astNode instanceof ImportNode)
+            return this.visit((ImportNode) astNode);
+        else if (astNode instanceof ReturnNode)
+            return this.visit((ReturnNode) astNode);
+        else if (astNode instanceof VariableNode)
+            return this.visit((VariableNode) astNode);
+        else if (astNode instanceof StringNode)
+            return this.visit((StringNode) astNode);
+        else if (astNode instanceof NumberNode)
+            return this.visit((NumberNode) astNode);
+        else if (astNode instanceof ExpressionListNode)
+            return this.visit((ExpressionListNode) astNode);
+        else if (astNode instanceof AssignmentNode)
+            return this.visit((AssignmentNode) astNode);
+        else if (astNode instanceof BinaryNode)
+            return this.visit((BinaryNode) astNode);
+        else if (astNode instanceof ParenthesizedNode)
+            return this.visit((ParenthesizedNode) astNode);
+        else if (astNode instanceof PostfixNode)
+            return this.visit((PostfixNode) astNode);
+        else if (astNode instanceof PrefixNode)
+            return this.visit((PrefixNode) astNode);
+        
+        throw new NullPointerException(astNode.getClass().getSimpleName() + ", " + astNode.getClass().getSimpleName());
     }
     
-    T visit(final @NotNull Type type);
+    T visit(final @NotNull TypeNode typeNode);
     
-    T visit(final @NotNull Root root);
+    T visit(final @NotNull RootNode rootNode);
     
-    T visit(final @NotNull ParameterList parameterList);
+    T visit(final @NotNull ParameterListNode parameterListNode);
     
-    T visit(final @NotNull Parameter parameter);
+    T visit(final @NotNull ParameterNode parameter);
     
-    T visit(final @NotNull Block block);
+    T visit(final @NotNull BlockNode blockNode);
     
-    T visit(final @NotNull ArgumentList argumentList);
+    T visit(final @NotNull ArgumentListNode argumentListNode);
     
-    T visit(final @NotNull Argument argument);
+    T visit(final @NotNull ArgumentNode argumentNode);
     
-    T visit(final @NotNull FunctionStatement functionStatement);
+    T visit(final @NotNull FunctionNode functionNode);
     
-    T visit(final @NotNull ImportStatement importStatement);
+    T visit(final @NotNull ImportNode importNode);
     
-    T visit(final @NotNull ReturnStatement returnStatement);
+    T visit(final @NotNull ReturnNode returnNode);
     
-    T visit(final @NotNull VariableStatement variableStatement);
+    T visit(final @NotNull VariableNode variableNode);
     
-    T visit(final @NotNull StringOperable stringOperable);
+    T visit(final @NotNull StringNode stringNode);
     
-    T visit(final @NotNull NumberOperable numberOperable);
+    T visit(final @NotNull NumberNode numberNode);
     
-    T visit(final @NotNull IdentifierOperable identifierOperable);
+    T visit(final @NotNull IdentifierNode identifierNode);
     
-    T visit(final @NotNull CollectionOperable collectionOperable);
+    T visit(final @NotNull ExpressionListNode expressionListNode);
     
-    T visit(final @NotNull ExpressionList expressionList);
+    T visit(final @NotNull AssignmentNode assignmentNode);
     
-    T visit(final @NotNull AssignmentExpression assignmentExpression);
+    T visit(final @NotNull BinaryNode binaryNode);
     
-    T visit(final @NotNull BinaryExpression binaryExpression);
+    T visit(final @NotNull ParenthesizedNode parenthesizedNode);
     
-    T visit(final @NotNull EqualityExpression equalityExpression);
+    T visit(final @NotNull PostfixNode postfixNode);
     
-    T visit(final @NotNull LogicalExpression logicalExpression);
-    
-    T visit(final @NotNull ParenthesizedExpression parenthesizedExpression);
-    
-    T visit(final @NotNull PostfixExpression postfixExpression);
-    
-    T visit(final @NotNull PrefixExpression prefixExpression);
-    
-    T visit(final @NotNull RelationalExpression relationalExpression);
+    T visit(final @NotNull PrefixNode prefixNode);
     
 }
