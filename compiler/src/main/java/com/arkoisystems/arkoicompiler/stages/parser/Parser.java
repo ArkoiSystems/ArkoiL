@@ -18,9 +18,9 @@
  */
 package com.arkoisystems.arkoicompiler.stages.parser;
 
-import com.arkoisystems.arkoicompiler.ArkoiClass;
+import com.arkoisystems.arkoicompiler.CompilerClass;
 import com.arkoisystems.arkoicompiler.api.IStage;
-import com.arkoisystems.arkoicompiler.stages.lexer.token.ArkoiToken;
+import com.arkoisystems.arkoicompiler.stages.lexer.token.LexerToken;
 import com.arkoisystems.arkoicompiler.stages.lexer.token.enums.KeywordType;
 import com.arkoisystems.arkoicompiler.stages.lexer.token.enums.OperatorType;
 import com.arkoisystems.arkoicompiler.stages.lexer.token.enums.SymbolType;
@@ -34,37 +34,28 @@ import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+@Getter
 public class Parser implements IStage
 {
     
-    @Getter
     @NotNull
-    private final ArkoiClass compilerClass;
+    private final CompilerClass compilerClass;
     
-    @Getter
-    @NotNull
-    private ParserErrorHandler errorHandler = new ParserErrorHandler();
-    
-    @Getter
     @NotNull
     private Root rootAST = Root.builder()
             .parser(this)
             .build();
     
     @Setter
-    @Getter
     @NotNull
-    private ArkoiToken[] tokens = new ArkoiToken[0];
+    private LexerToken[] tokens;
     
-    @Getter
     @Setter
     private boolean failed;
     
-    @Getter
-    @Setter
     private int position;
     
-    public Parser(final @NotNull ArkoiClass compilerClass) {
+    public Parser(final @NotNull CompilerClass compilerClass) {
         this.compilerClass = compilerClass;
     }
     
@@ -72,7 +63,7 @@ public class Parser implements IStage
     public boolean processStage() {
         this.reset();
     
-        this.tokens = this.compilerClass.getLexer().getTokens().toArray(ArkoiToken[]::new);
+        this.tokens = this.compilerClass.getLexer().getTokens().toArray(LexerToken[]::new);
         if (this.tokens.length == 0)
             return true;
         
@@ -84,8 +75,7 @@ public class Parser implements IStage
         this.rootAST = Root.builder()
                 .parser(this)
                 .build();
-        this.errorHandler = new ParserErrorHandler();
-        this.tokens = new ArkoiToken[0];
+        this.tokens = new LexerToken[0];
         this.failed = false;
         this.position = 0;
     }
@@ -97,7 +87,7 @@ public class Parser implements IStage
     
     @Nullable
     public SymbolToken matchesCurrentToken(final @NotNull SymbolType symbolType, final boolean advance) {
-        final ArkoiToken currentToken = this.currentToken(advance);
+        final LexerToken currentToken = this.currentToken(advance);
         if (!(currentToken instanceof SymbolToken))
             return null;
         
@@ -114,7 +104,7 @@ public class Parser implements IStage
     
     @Nullable
     public SymbolToken matchesNextToken(final @NotNull SymbolType symbolType, final boolean advance) {
-        final ArkoiToken nextToken = this.nextToken(advance);
+        final LexerToken nextToken = this.nextToken(advance);
         if (!(nextToken instanceof SymbolToken))
             return null;
         
@@ -134,7 +124,7 @@ public class Parser implements IStage
         if (offset == 0)
             return this.matchesCurrentToken(symbolType, advance);
         
-        final ArkoiToken peekToken = this.peekToken(offset, advance);
+        final LexerToken peekToken = this.peekToken(offset, advance);
         if (!(peekToken instanceof SymbolToken))
             return null;
         
@@ -151,7 +141,7 @@ public class Parser implements IStage
     
     @Nullable
     public OperatorToken matchesCurrentToken(final @NotNull OperatorType operatorType, final boolean advance) {
-        final ArkoiToken currentToken = this.currentToken(advance);
+        final LexerToken currentToken = this.currentToken(advance);
         if (!(currentToken instanceof OperatorToken))
             return null;
         
@@ -168,7 +158,7 @@ public class Parser implements IStage
     
     @Nullable
     public OperatorToken matchesNextToken(final @NotNull OperatorType operatorType, final boolean advance) {
-        final ArkoiToken nextToken = this.nextToken(advance);
+        final LexerToken nextToken = this.nextToken(advance);
         if (!(nextToken instanceof OperatorToken))
             return null;
         
@@ -188,7 +178,7 @@ public class Parser implements IStage
         if (offset == 0)
             return this.matchesCurrentToken(operatorType, advance);
         
-        final ArkoiToken peekToken = this.peekToken(offset, advance);
+        final LexerToken peekToken = this.peekToken(offset, advance);
         if (!(peekToken instanceof OperatorToken))
             return null;
         
@@ -205,7 +195,7 @@ public class Parser implements IStage
     
     @Nullable
     public KeywordToken matchesCurrentToken(final @NotNull KeywordType keywordType, final boolean advance) {
-        final ArkoiToken currentToken = this.currentToken(advance);
+        final LexerToken currentToken = this.currentToken(advance);
         if (!(currentToken instanceof KeywordToken))
             return null;
         
@@ -222,7 +212,7 @@ public class Parser implements IStage
     
     @Nullable
     public KeywordToken matchesNextToken(final @NotNull KeywordType keywordType, final boolean advance) {
-        final ArkoiToken nextToken = this.nextToken(advance);
+        final LexerToken nextToken = this.nextToken(advance);
         if (!(nextToken instanceof KeywordToken))
             return null;
         
@@ -242,7 +232,7 @@ public class Parser implements IStage
         if (offset == 0)
             return this.matchesCurrentToken(keywordType, advance);
         
-        final ArkoiToken peekToken = this.peekToken(offset, advance);
+        final LexerToken peekToken = this.peekToken(offset, advance);
         if (!(peekToken instanceof KeywordToken))
             return null;
         
@@ -253,26 +243,26 @@ public class Parser implements IStage
     }
     
     @Nullable
-    public ArkoiToken matchesCurrentToken(final @NotNull TokenType tokenType) {
+    public LexerToken matchesCurrentToken(final @NotNull TokenType tokenType) {
         return this.matchesCurrentToken(tokenType, true);
     }
     
     @Nullable
-    public ArkoiToken matchesCurrentToken(final @NotNull TokenType tokenType, final boolean advance) {
-        final ArkoiToken currentToken = this.currentToken(advance);
+    public LexerToken matchesCurrentToken(final @NotNull TokenType tokenType, final boolean advance) {
+        final LexerToken currentToken = this.currentToken(advance);
         if (currentToken == null || currentToken.getTokenType() != tokenType)
             return null;
         return currentToken;
     }
     
     @Nullable
-    public ArkoiToken matchesNextToken(final @NotNull TokenType tokenType) {
+    public LexerToken matchesNextToken(final @NotNull TokenType tokenType) {
         return this.matchesNextToken(tokenType, true);
     }
     
     @Nullable
-    public ArkoiToken matchesNextToken(final @NotNull TokenType tokenType, final boolean advance) {
-        final ArkoiToken nextToken = this.nextToken(advance);
+    public LexerToken matchesNextToken(final @NotNull TokenType tokenType, final boolean advance) {
+        final LexerToken nextToken = this.nextToken(advance);
         if(nextToken == null)
             return null;
         if (nextToken.getTokenType() != tokenType)
@@ -281,16 +271,16 @@ public class Parser implements IStage
     }
     
     @Nullable
-    public ArkoiToken matchesPeekToken(final int offset, final @NotNull TokenType tokenType) {
+    public LexerToken matchesPeekToken(final int offset, final @NotNull TokenType tokenType) {
         return this.matchesPeekToken(offset, tokenType, true);
     }
     
     @Nullable
-    public ArkoiToken matchesPeekToken(final int offset, final @NotNull TokenType tokenType, final boolean advance) {
+    public LexerToken matchesPeekToken(final int offset, final @NotNull TokenType tokenType, final boolean advance) {
         if (offset == 0)
             return this.matchesCurrentToken(tokenType, advance);
         
-        final ArkoiToken peekToken = this.peekToken(offset, advance);
+        final LexerToken peekToken = this.peekToken(offset, advance);
         if(peekToken == null)
             return null;
         if (peekToken.getTokenType() != tokenType)
@@ -299,24 +289,24 @@ public class Parser implements IStage
     }
     
     @Nullable
-    public ArkoiToken peekToken(final int offset) {
+    public LexerToken peekToken(final int offset) {
         return this.peekToken(offset, true);
     }
     
     @Nullable
-    public ArkoiToken peekToken(final int offset, final boolean advance) {
-        ArkoiToken arkoiToken = this.nextToken(offset, advance);
+    public LexerToken peekToken(final int offset, final boolean advance) {
+        LexerToken lexerToken = this.nextToken(offset, advance);
         this.undoToken(offset, advance);
-        return arkoiToken;
+        return lexerToken;
     }
     
     @Nullable
-    public ArkoiToken currentToken() {
+    public LexerToken currentToken() {
         return this.currentToken(true);
     }
     
     @Nullable
-    public ArkoiToken currentToken(final boolean advance) {
+    public LexerToken currentToken(final boolean advance) {
         if (advance) {
             while (this.position < this.tokens.length) {
                 if (this.tokens[this.position].getTokenType() != TokenType.WHITESPACE && this.tokens[this.position].getTokenType() != TokenType.COMMENT)
@@ -331,25 +321,25 @@ public class Parser implements IStage
     }
     
     @Nullable
-    public ArkoiToken nextToken(final int offset) {
+    public LexerToken nextToken(final int offset) {
         return this.nextToken(offset, true);
     }
     
     @Nullable
-    public ArkoiToken nextToken(final int offset, final boolean advance) {
-        ArkoiToken arkoiToken = this.nextToken(advance);
+    public LexerToken nextToken(final int offset, final boolean advance) {
+        LexerToken lexerToken = this.nextToken(advance);
         for (int index = 1; index < offset; index++)
-            arkoiToken = this.nextToken(advance);
-        return arkoiToken;
+            lexerToken = this.nextToken(advance);
+        return lexerToken;
     }
     
     @Nullable
-    public ArkoiToken nextToken() {
+    public LexerToken nextToken() {
         return this.nextToken(true);
     }
     
     @Nullable
-    public ArkoiToken nextToken(final boolean advance) {
+    public LexerToken nextToken(final boolean advance) {
         this.position++;
         
         if (advance) {
@@ -366,7 +356,7 @@ public class Parser implements IStage
     }
     
     @Nullable
-    public ArkoiToken undoToken(final boolean advance) {
+    public LexerToken undoToken(final boolean advance) {
         this.position--;
         
         if (advance) {
@@ -383,11 +373,11 @@ public class Parser implements IStage
     }
     
     @Nullable
-    public ArkoiToken undoToken(final int offset, final boolean advance) {
-        ArkoiToken arkoiToken = null;
+    public LexerToken undoToken(final int offset, final boolean advance) {
+        LexerToken lexerToken = null;
         for (int index = 0; index < offset; index++)
-            arkoiToken = this.undoToken(advance);
-        return arkoiToken;
+            lexerToken = this.undoToken(advance);
+        return lexerToken;
     }
     
 }

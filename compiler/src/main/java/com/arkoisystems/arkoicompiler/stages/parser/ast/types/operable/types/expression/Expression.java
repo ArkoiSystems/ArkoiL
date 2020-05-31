@@ -18,10 +18,10 @@
  */
 package com.arkoisystems.arkoicompiler.stages.parser.ast.types.operable.types.expression;
 
-import com.arkoisystems.arkoicompiler.stages.lexer.token.ArkoiToken;
+import com.arkoisystems.arkoicompiler.stages.lexer.token.LexerToken;
 import com.arkoisystems.arkoicompiler.stages.parser.Parser;
 import com.arkoisystems.arkoicompiler.stages.parser.ParserErrorType;
-import com.arkoisystems.arkoicompiler.stages.parser.ast.ArkoiNode;
+import com.arkoisystems.arkoicompiler.stages.parser.ast.ParserNode;
 import com.arkoisystems.arkoicompiler.stages.parser.ast.types.operable.Operable;
 import com.arkoisystems.arkoicompiler.stages.parser.ast.types.operable.types.CollectionOperable;
 import com.arkoisystems.arkoicompiler.stages.parser.ast.types.operable.types.IdentifierOperable;
@@ -57,8 +57,8 @@ public class Expression extends Operable
             final @Nullable Parser parser,
             final @Nullable Operable operableAST,
             final @NotNull ASTType astType,
-            final @Nullable ArkoiToken startToken,
-            final @Nullable ArkoiToken endToken
+            final @Nullable LexerToken startToken,
+            final @Nullable LexerToken endToken
     ) {
         super(parser, astType, startToken, endToken);
         
@@ -67,7 +67,7 @@ public class Expression extends Operable
     
     @NotNull
     @Override
-    public Operable parseAST(final @NotNull ArkoiNode parentAST) {
+    public Operable parseAST(final @NotNull ParserNode parentAST) {
         return this.parseAssignment(parentAST);
     }
     
@@ -82,7 +82,7 @@ public class Expression extends Operable
     }
     
     @NotNull
-    public Operable parseAssignment(final @NotNull ArkoiNode parentAST) {
+    public Operable parseAssignment(final @NotNull ParserNode parentAST) {
         Objects.requireNonNull(this.getParser(), "parser must not be null.");
         
         Operable operableAST = this.parseAdditive(parentAST);
@@ -143,7 +143,7 @@ public class Expression extends Operable
     }
     
     @NotNull
-    public Operable parseAdditive(final @NotNull ArkoiNode parentAST) {
+    public Operable parseAdditive(final @NotNull ParserNode parentAST) {
         Objects.requireNonNull(this.getParser(), "parser must not be null.");
         
         Operable operableAST = this.parseMultiplicative(parentAST);
@@ -172,7 +172,7 @@ public class Expression extends Operable
     }
     
     @NotNull
-    protected Operable parseMultiplicative(final @NotNull ArkoiNode parentAST) {
+    protected Operable parseMultiplicative(final @NotNull ParserNode parentAST) {
         Objects.requireNonNull(this.getParser(), "parser must not be null.");
         
         Operable operableAST = this.parseExponential(parentAST);
@@ -209,7 +209,7 @@ public class Expression extends Operable
     }
     
     @NotNull
-    private Operable parseExponential(final @NotNull ArkoiNode parentAST) {
+    private Operable parseExponential(final @NotNull ParserNode parentAST) {
         Objects.requireNonNull(this.getParser(), "parser must not be null.");
         
         Operable operableAST = this.parseOperable(parentAST);
@@ -231,7 +231,7 @@ public class Expression extends Operable
     
     @SneakyThrows
     @NotNull
-    public Operable parseOperable(final @NotNull ArkoiNode parentAST) {
+    public Operable parseOperable(final @NotNull ParserNode parentAST) {
         Objects.requireNonNull(this.getParser(), "parser must not be null.");
         
         Operable operableAST = null;

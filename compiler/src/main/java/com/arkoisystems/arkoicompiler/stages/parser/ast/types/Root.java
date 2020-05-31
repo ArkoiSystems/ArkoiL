@@ -19,10 +19,10 @@
 package com.arkoisystems.arkoicompiler.stages.parser.ast.types;
 
 import com.arkoisystems.arkoicompiler.api.IVisitor;
-import com.arkoisystems.arkoicompiler.stages.lexer.token.ArkoiToken;
+import com.arkoisystems.arkoicompiler.stages.lexer.token.LexerToken;
 import com.arkoisystems.arkoicompiler.stages.parser.Parser;
 import com.arkoisystems.arkoicompiler.stages.parser.ParserErrorType;
-import com.arkoisystems.arkoicompiler.stages.parser.ast.ArkoiNode;
+import com.arkoisystems.arkoicompiler.stages.parser.ast.ParserNode;
 import com.arkoisystems.arkoicompiler.stages.parser.ast.types.statement.types.FunctionStatement;
 import com.arkoisystems.arkoicompiler.stages.parser.ast.types.statement.types.ImportStatement;
 import com.arkoisystems.arkoicompiler.stages.parser.ast.types.statement.types.VariableStatement;
@@ -40,18 +40,18 @@ import java.util.List;
 import java.util.Objects;
 
 @Getter
-public class Root extends ArkoiNode
+public class Root extends ParserNode
 {
     
     @Printable(name = "nodes")
     @NotNull
-    private final List<ArkoiNode> nodes;
+    private final List<ParserNode> nodes;
     
     @Builder
     protected Root(
             final @Nullable Parser parser,
-            final @Nullable ArkoiToken startToken,
-            final @Nullable ArkoiToken endToken
+            final @Nullable LexerToken startToken,
+            final @Nullable LexerToken endToken
     ) {
         super(parser, ASTType.ROOT, startToken, endToken);
         
@@ -61,12 +61,12 @@ public class Root extends ArkoiNode
     @SneakyThrows
     @NotNull
     @Override
-    public Root parseAST(@NotNull ArkoiNode parentAST) {
+    public Root parseAST(@NotNull ParserNode parentAST) {
         Objects.requireNonNull(this.getParser(), "parser must not be null.");
         
         this.startAST(this.getParser().currentToken(false));
         while (this.getParser().getPosition() < this.getParser().getTokens().length) {
-            final ArkoiNode foundNode = this.getValidNode(
+            final ParserNode foundNode = this.getValidNode(
                     FunctionStatement.GLOBAL_NODE,
                     ImportStatement.GLOBAL_NODE,
                     VariableStatement.GLOBAL_NODE
@@ -83,7 +83,7 @@ public class Root extends ArkoiNode
                 continue;
             }
             
-            ArkoiNode astNode = foundNode.clone();
+            ParserNode astNode = foundNode.clone();
             astNode.setParser(this.getParser());
             astNode = astNode.parseAST(this);
             

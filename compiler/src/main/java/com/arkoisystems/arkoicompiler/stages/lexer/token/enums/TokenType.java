@@ -18,7 +18,7 @@
  */
 package com.arkoisystems.arkoicompiler.stages.lexer.token.enums;
 
-import com.arkoisystems.arkoicompiler.stages.lexer.token.ArkoiToken;
+import com.arkoisystems.arkoicompiler.stages.lexer.token.LexerToken;
 import com.arkoisystems.arkoicompiler.stages.lexer.token.types.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -44,6 +44,6 @@ public enum TokenType
     @NotNull
     private final String regex;
     
-    private final Class<? extends ArkoiToken> tokenClass;
+    private final Class<? extends LexerToken> tokenClass;
     
 }

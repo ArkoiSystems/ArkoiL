@@ -28,7 +28,7 @@ import org.jetbrains.annotations.NotNull;
 
 @Getter
 @Setter
-public class ArkoiToken
+public class LexerToken
 {
     
     private final int charStart, charEnd;
@@ -49,7 +49,7 @@ public class ArkoiToken
     
     private boolean failed;
     
-    public ArkoiToken(
+    public LexerToken(
             final @NotNull Lexer lexer,
             final @NotNull TokenType tokenType,
             final int startLine,

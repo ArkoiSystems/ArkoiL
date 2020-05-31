@@ -19,13 +19,13 @@
 package com.arkoisystems.arkoicompiler.stages.parser.ast.types;
 
 import com.arkoisystems.arkoicompiler.api.IVisitor;
-import com.arkoisystems.arkoicompiler.stages.lexer.token.ArkoiToken;
+import com.arkoisystems.arkoicompiler.stages.lexer.token.LexerToken;
 import com.arkoisystems.arkoicompiler.stages.lexer.token.enums.SymbolType;
 import com.arkoisystems.arkoicompiler.stages.lexer.token.enums.TokenType;
 import com.arkoisystems.arkoicompiler.stages.lexer.token.types.TypeToken;
 import com.arkoisystems.arkoicompiler.stages.parser.Parser;
 import com.arkoisystems.arkoicompiler.stages.parser.ParserErrorType;
-import com.arkoisystems.arkoicompiler.stages.parser.ast.ArkoiNode;
+import com.arkoisystems.arkoicompiler.stages.parser.ast.ParserNode;
 import com.arkoisystems.arkoicompiler.stages.parser.ast.enums.ASTType;
 import com.arkoisystems.arkoicompiler.stages.parser.ast.enums.TypeKind;
 import com.arkoisystems.utils.printer.annotations.Printable;
@@ -37,7 +37,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Objects;
 
 @Getter
-public class Type extends ArkoiNode
+public class Type extends ParserNode
 {
     
     public static Type GLOBAL_NODE = new Type(null, null, null, null, false);
@@ -53,8 +53,8 @@ public class Type extends ArkoiNode
     protected Type(
             final @Nullable Parser parser,
             final @Nullable TypeToken typeToken,
-            final @Nullable ArkoiToken startToken,
-            final @Nullable ArkoiToken endToken,
+            final @Nullable LexerToken startToken,
+            final @Nullable LexerToken endToken,
             final boolean isArray
     ) {
         super(parser, ASTType.TYPE, startToken, endToken);
@@ -65,11 +65,11 @@ public class Type extends ArkoiNode
     
     @NotNull
     @Override
-    public Type parseAST(final @Nullable ArkoiNode parentAST) {
+    public Type parseAST(final @Nullable ParserNode parentAST) {
         Objects.requireNonNull(this.getParser(), "parser must not be null.");
         
         if (this.getParser().matchesCurrentToken(TokenType.TYPE) == null) {
-            final ArkoiToken currentToken = this.getParser().currentToken();
+            final LexerToken currentToken = this.getParser().currentToken();
             return this.addError(
                     this,
                     this.getParser().getCompilerClass(),

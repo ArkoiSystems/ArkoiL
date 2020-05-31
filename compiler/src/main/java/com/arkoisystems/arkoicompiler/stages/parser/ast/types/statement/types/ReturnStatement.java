@@ -19,11 +19,11 @@
 package com.arkoisystems.arkoicompiler.stages.parser.ast.types.statement.types;
 
 import com.arkoisystems.arkoicompiler.api.IVisitor;
-import com.arkoisystems.arkoicompiler.stages.lexer.token.ArkoiToken;
+import com.arkoisystems.arkoicompiler.stages.lexer.token.LexerToken;
 import com.arkoisystems.arkoicompiler.stages.lexer.token.enums.KeywordType;
 import com.arkoisystems.arkoicompiler.stages.parser.Parser;
 import com.arkoisystems.arkoicompiler.stages.parser.ParserErrorType;
-import com.arkoisystems.arkoicompiler.stages.parser.ast.ArkoiNode;
+import com.arkoisystems.arkoicompiler.stages.parser.ast.ParserNode;
 import com.arkoisystems.arkoicompiler.stages.parser.ast.types.operable.Operable;
 import com.arkoisystems.arkoicompiler.stages.parser.ast.types.operable.types.expression.Expression;
 import com.arkoisystems.arkoicompiler.stages.parser.ast.types.statement.Statement;
@@ -51,8 +51,8 @@ public class ReturnStatement extends Statement
     protected ReturnStatement(
             final @Nullable Parser parser,
             final @Nullable Operable expression,
-            final @Nullable ArkoiToken startToken,
-            final @Nullable ArkoiToken endToken
+            final @Nullable LexerToken startToken,
+            final @Nullable LexerToken endToken
     ) {
         super(parser, ASTType.RETURN, startToken, endToken);
         
@@ -61,11 +61,11 @@ public class ReturnStatement extends Statement
     
     @NotNull
     @Override
-    public ReturnStatement parseAST(final @Nullable ArkoiNode parentAST) {
+    public ReturnStatement parseAST(final @Nullable ParserNode parentAST) {
         Objects.requireNonNull(this.getParser(), "parser must not be null.");
         
         if (this.getParser().matchesCurrentToken(KeywordType.RETURN) == null) {
-            final ArkoiToken currentToken = this.getParser().currentToken();
+            final LexerToken currentToken = this.getParser().currentToken();
             return this.addError(
                     this,
                     this.getParser().getCompilerClass(),

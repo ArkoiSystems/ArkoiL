@@ -19,12 +19,12 @@
 package com.arkoisystems.arkoicompiler.stages.parser.ast.types;
 
 import com.arkoisystems.arkoicompiler.api.IVisitor;
-import com.arkoisystems.arkoicompiler.stages.lexer.token.ArkoiToken;
+import com.arkoisystems.arkoicompiler.stages.lexer.token.LexerToken;
 import com.arkoisystems.arkoicompiler.stages.lexer.token.enums.OperatorType;
 import com.arkoisystems.arkoicompiler.stages.lexer.token.enums.SymbolType;
 import com.arkoisystems.arkoicompiler.stages.parser.Parser;
 import com.arkoisystems.arkoicompiler.stages.parser.ParserErrorType;
-import com.arkoisystems.arkoicompiler.stages.parser.ast.ArkoiNode;
+import com.arkoisystems.arkoicompiler.stages.parser.ast.ParserNode;
 import com.arkoisystems.arkoicompiler.stages.parser.ast.enums.ASTType;
 import com.arkoisystems.arkoicompiler.stages.parser.ast.enums.BlockType;
 import com.arkoisystems.arkoicompiler.stages.parser.ast.enums.TypeKind;
@@ -43,14 +43,14 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 
 @Getter
-public class Block extends ArkoiNode
+public class Block extends ParserNode
 {
     
     public static Block GLOBAL_NODE = new Block(null, null, null, null);
     
     @Printable(name = "nodes")
     @NotNull
-    private final List<ArkoiNode> nodes;
+    private final List<ParserNode> nodes;
     
     @Printable(name = "type")
     @Nullable
@@ -60,8 +60,8 @@ public class Block extends ArkoiNode
     protected Block(
             final @Nullable Parser parser,
             final @Nullable BlockType blockType,
-            final @Nullable ArkoiToken startToken,
-            final @Nullable ArkoiToken endToken
+            final @Nullable LexerToken startToken,
+            final @Nullable LexerToken endToken
     ) {
         super(parser, ASTType.BLOCK, startToken, endToken);
         
@@ -71,7 +71,7 @@ public class Block extends ArkoiNode
     
     @NotNull
     @Override
-    public Block parseAST(final @NotNull ArkoiNode parentAST) {
+    public Block parseAST(final @NotNull ParserNode parentAST) {
         Objects.requireNonNull(this.getParser(), "parser must not be null.");
         
         this.startAST(this.getParser().currentToken());
@@ -81,7 +81,7 @@ public class Block extends ArkoiNode
         } else if (this.getParser().matchesCurrentToken(OperatorType.EQUALS) != null) {
             this.parseInlinedBlock();
         } else {
-            final ArkoiToken currentToken = this.getParser().currentToken();
+            final LexerToken currentToken = this.getParser().currentToken();
             return this.addError(
                     this,
                     this.getParser().getCompilerClass(),
@@ -107,7 +107,7 @@ public class Block extends ArkoiNode
             if (this.getParser().matchesCurrentToken(SymbolType.CLOSING_BRACE) != null)
                 break;
             
-            final ArkoiNode foundNode = this.getValidNode(
+            final ParserNode foundNode = this.getValidNode(
                     VariableStatement.GLOBAL_NODE,
                     IdentifierOperable.GLOBAL_NODE,
                     ReturnStatement.GLOBAL_NODE
@@ -125,7 +125,7 @@ public class Block extends ArkoiNode
             }
     
             // TODO: 5/27/20 Think about a better solution
-            ArkoiNode astNode = foundNode.clone();
+            ParserNode astNode = foundNode.clone();
             astNode.setParser(this.getParser());
             astNode = astNode.parseAST(this);
     
@@ -145,7 +145,7 @@ public class Block extends ArkoiNode
         this.blockType = BlockType.INLINE;
         
         if(!Expression.GLOBAL_NODE.canParse(this.getParser(), 1)) {
-            final ArkoiToken peekedToken = this.getParser().peekToken(1);
+            final LexerToken peekedToken = this.getParser().peekToken(1);
             this.addError(
                     this,
                     this.getParser().getCompilerClass(),

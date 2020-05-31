@@ -23,9 +23,6 @@ import org.jetbrains.annotations.NotNull;
 public interface IStage extends IFailed, IResettable
 {
     
-    @NotNull
-    IErrorHandler getErrorHandler();
-    
     boolean processStage();
     
 }

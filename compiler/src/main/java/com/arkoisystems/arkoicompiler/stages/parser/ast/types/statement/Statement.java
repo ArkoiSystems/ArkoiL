@@ -18,23 +18,23 @@
  */
 package com.arkoisystems.arkoicompiler.stages.parser.ast.types.statement;
 
-import com.arkoisystems.arkoicompiler.stages.lexer.token.ArkoiToken;
+import com.arkoisystems.arkoicompiler.stages.lexer.token.LexerToken;
 import com.arkoisystems.arkoicompiler.stages.parser.Parser;
-import com.arkoisystems.arkoicompiler.stages.parser.ast.ArkoiNode;
+import com.arkoisystems.arkoicompiler.stages.parser.ast.ParserNode;
 import com.arkoisystems.arkoicompiler.stages.parser.ast.enums.ASTType;
 import lombok.Builder;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class Statement extends ArkoiNode
+public class Statement extends ParserNode
 {
     
     @Builder(builderMethodName = "statementBuilder")
     protected Statement(
             final @Nullable Parser parser,
             final @NotNull ASTType astType,
-            final @Nullable ArkoiToken startToken,
-            final @Nullable ArkoiToken endToken
+            final @Nullable LexerToken startToken,
+            final @Nullable LexerToken endToken
     ) {
         super(parser, astType, startToken, endToken);
     }

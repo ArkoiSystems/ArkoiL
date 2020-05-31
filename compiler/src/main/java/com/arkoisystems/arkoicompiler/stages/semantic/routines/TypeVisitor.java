@@ -18,12 +18,12 @@
  */
 package com.arkoisystems.arkoicompiler.stages.semantic.routines;
 
-import com.arkoisystems.arkoicompiler.ArkoiClass;
+import com.arkoisystems.arkoicompiler.CompilerClass;
 import com.arkoisystems.arkoicompiler.api.IFailed;
 import com.arkoisystems.arkoicompiler.api.IVisitor;
 import com.arkoisystems.arkoicompiler.error.ArkoiError;
 import com.arkoisystems.arkoicompiler.error.ErrorPosition;
-import com.arkoisystems.arkoicompiler.stages.parser.ast.ArkoiNode;
+import com.arkoisystems.arkoicompiler.stages.parser.ast.ParserNode;
 import com.arkoisystems.arkoicompiler.stages.parser.ast.enums.BlockType;
 import com.arkoisystems.arkoicompiler.stages.parser.ast.enums.TypeKind;
 import com.arkoisystems.arkoicompiler.stages.parser.ast.types.Block;
@@ -78,7 +78,7 @@ public class TypeVisitor implements IVisitor<TypeKind>, IFailed
     @Override
     public TypeKind visit(final @NotNull Root root) {
         TypeKind typeKind = root.getTypeKind();
-        for (final ArkoiNode astNode : root.getNodes()) {
+        for (final ParserNode astNode : root.getNodes()) {
             if (this.visit(astNode) == TypeKind.ERROR)
                 typeKind = TypeKind.ERROR;
         }
@@ -106,7 +106,7 @@ public class TypeVisitor implements IVisitor<TypeKind>, IFailed
     @Override
     public TypeKind visit(final @NotNull Block block) {
         TypeKind typeKind = block.getTypeKind();
-        for (final ArkoiNode node : block.getNodes()) {
+        for (final ParserNode node : block.getNodes()) {
             if (this.visit(node) == TypeKind.ERROR)
                 typeKind = TypeKind.ERROR;
         }
@@ -470,8 +470,8 @@ public class TypeVisitor implements IVisitor<TypeKind>, IFailed
         return relationalExpression.getTypeKind();
     }
     
-    public <E> E addError(final @Nullable E errorSource, final @NotNull ArkoiClass compilerClass, final @NotNull ArkoiNode astNode, final @NotNull String message, final @NotNull Object... arguments) {
-        compilerClass.getSemantic().getErrorHandler().addError(ArkoiError.builder()
+    public <E> E addError(final @Nullable E errorSource, final @NotNull CompilerClass compilerClass, final @NotNull ParserNode astNode, final @NotNull String message, final @NotNull Object... arguments) {
+        compilerClass.getCompiler().getErrorHandler().addError(ArkoiError.builder()
                 .compilerClass(compilerClass)
                 .positions(Collections.singletonList(ErrorPosition.builder()
                         .lineRange(Objects.requireNonNull(astNode.getLineRange(), "astNode.lineRange must not be null."))

@@ -18,13 +18,13 @@
  */
 package com.arkoisystems.arkoicompiler.stages.parser.ast;
 
-import com.arkoisystems.arkoicompiler.ArkoiClass;
+import com.arkoisystems.arkoicompiler.CompilerClass;
 import com.arkoisystems.arkoicompiler.api.IFailed;
 import com.arkoisystems.arkoicompiler.api.IVisitor;
 import com.arkoisystems.arkoicompiler.error.ArkoiError;
 import com.arkoisystems.arkoicompiler.error.ErrorPosition;
 import com.arkoisystems.arkoicompiler.error.LineRange;
-import com.arkoisystems.arkoicompiler.stages.lexer.token.ArkoiToken;
+import com.arkoisystems.arkoicompiler.stages.lexer.token.LexerToken;
 import com.arkoisystems.arkoicompiler.stages.lexer.token.enums.SymbolType;
 import com.arkoisystems.arkoicompiler.stages.parser.Parser;
 import com.arkoisystems.arkoicompiler.stages.parser.ast.enums.ASTType;
@@ -41,7 +41,7 @@ import java.util.Objects;
 
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Getter
-public class ArkoiNode implements IFailed, Cloneable
+public class ParserNode implements IFailed, Cloneable
 {
     
     @Printable(name = "type")
@@ -55,7 +55,7 @@ public class ArkoiNode implements IFailed, Cloneable
     @EqualsAndHashCode.Include
     @Setter
     @Nullable
-    private ArkoiToken startToken, endToken;
+    private LexerToken startToken, endToken;
     
     private boolean failed;
     
@@ -65,11 +65,11 @@ public class ArkoiNode implements IFailed, Cloneable
     
     private int startLine;
     
-    protected ArkoiNode(
+    protected ParserNode(
             final @Nullable Parser parser,
             final @NotNull ASTType astType,
-            final @Nullable ArkoiToken startToken,
-            final @Nullable ArkoiToken endToken
+            final @Nullable LexerToken startToken,
+            final @Nullable LexerToken endToken
     ) {
         this.parser = parser;
         this.astType = astType;
@@ -82,7 +82,7 @@ public class ArkoiNode implements IFailed, Cloneable
     }
     
     @NotNull
-    public ArkoiNode parseAST(final ArkoiNode parentAST) {
+    public ParserNode parseAST(final ParserNode parentAST) {
         throw new NullPointerException("Not implemented.");
     }
     
@@ -113,11 +113,11 @@ public class ArkoiNode implements IFailed, Cloneable
     }
     
     @Override
-    public ArkoiNode clone() throws CloneNotSupportedException {
-        return (ArkoiNode) super.clone();
+    public ParserNode clone() throws CloneNotSupportedException {
+        return (ParserNode) super.clone();
     }
     
-    public void startAST(final @Nullable ArkoiToken token) {
+    public void startAST(final @Nullable LexerToken token) {
         if (token == null)
             return;
         
@@ -125,7 +125,7 @@ public class ArkoiNode implements IFailed, Cloneable
         this.startLine = token.getLineRange().getStartLine();
     }
     
-    public void endAST(final @Nullable ArkoiToken token) {
+    public void endAST(final @Nullable LexerToken token) {
         if (token == null)
             return;
         
@@ -139,7 +139,7 @@ public class ArkoiNode implements IFailed, Cloneable
         );
     }
     
-    public <E> E addError(final @Nullable E errorSource, final @NotNull ArkoiClass compilerClass, final @Nullable ArkoiNode astNode, final @NotNull String message, final @NotNull Object... arguments) {
+    public <E> E addError(final @Nullable E errorSource, final @NotNull CompilerClass compilerClass, final @Nullable ParserNode astNode, final @NotNull String message, final @NotNull Object... arguments) {
         final LineRange lineRange;
         final int charStart, charEnd;
         if (astNode != null) {
@@ -153,7 +153,7 @@ public class ArkoiNode implements IFailed, Cloneable
             charEnd = sourceSplit[sourceSplit.length - 1].length();
         }
         
-        compilerClass.getParser().getErrorHandler().addError(ArkoiError.builder()
+        compilerClass.getCompiler().getErrorHandler().addError(ArkoiError.builder()
                 .compilerClass(compilerClass)
                 .positions(Collections.singletonList(ErrorPosition.builder()
                         .lineRange(lineRange)
@@ -169,13 +169,13 @@ public class ArkoiNode implements IFailed, Cloneable
         return errorSource;
     }
     
-    public <E> E addError(final @Nullable E errorSource, final @NotNull ArkoiClass compilerClass, final @Nullable ArkoiToken arkoiToken, final @NotNull String message, final @NotNull Object... arguments) {
+    public <E> E addError(final @Nullable E errorSource, final @NotNull CompilerClass compilerClass, final @Nullable LexerToken lexerToken, final @NotNull String message, final @NotNull Object... arguments) {
         final LineRange lineRange;
         final int charStart, charEnd;
-        if (arkoiToken != null) {
-            lineRange = arkoiToken.getLineRange();
-            charStart = arkoiToken.getCharStart();
-            charEnd = arkoiToken.getCharEnd();
+        if (lexerToken != null) {
+            lineRange = lexerToken.getLineRange();
+            charStart = lexerToken.getCharStart();
+            charEnd = lexerToken.getCharEnd();
         } else {
             final String[] sourceSplit = compilerClass.getContent().split(System.getProperty("line.separator"));
             lineRange = LineRange.make(compilerClass, sourceSplit.length - 1, sourceSplit.length - 1);
@@ -183,7 +183,7 @@ public class ArkoiNode implements IFailed, Cloneable
             charEnd = sourceSplit[sourceSplit.length - 1].length();
         }
         
-        compilerClass.getParser().getErrorHandler().addError(ArkoiError.builder()
+        compilerClass.getCompiler().getErrorHandler().addError(ArkoiError.builder()
                 .compilerClass(compilerClass)
                 .positions(Collections.singletonList(ErrorPosition.builder()
                         .lineRange(lineRange)
@@ -220,7 +220,7 @@ public class ArkoiNode implements IFailed, Cloneable
     
     @SafeVarargs
     @Nullable
-    public final <T extends ArkoiNode> T getValidNode(final @NotNull T... nodes) {
+    public final <T extends ParserNode> T getValidNode(final @NotNull T... nodes) {
         Objects.requireNonNull(this.getParser(), "parser must not be null");
         
         for (final T node : nodes)

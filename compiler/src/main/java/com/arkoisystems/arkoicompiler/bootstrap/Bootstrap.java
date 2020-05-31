@@ -18,7 +18,7 @@
  */
 package com.arkoisystems.arkoicompiler.bootstrap;
 
-import com.arkoisystems.arkoicompiler.ArkoiCompiler;
+import com.arkoisystems.arkoicompiler.Compiler;
 import com.arkoisystems.utils.general.FileUtils;
 import lombok.SneakyThrows;
 import org.apache.commons.cli.*;
@@ -60,21 +60,21 @@ public class Bootstrap
         if (!targetPath.exists())
             throw new NullPointerException("The given \"inputPath\" doesn't exists. Please correct the path to a valid file or directory.");
         
-        final ArkoiCompiler arkoiCompiler = new ArkoiCompiler();
+        final Compiler compiler = new Compiler();
         if (targetPath.isDirectory()) {
             for (final File file : FileUtils.getAllFiles(targetPath, ".ark"))
-                arkoiCompiler.addFile(file, detailed);
+                compiler.addFile(file, detailed);
         } else {
             if (!targetPath.getName().endsWith(".ark"))
                 throw new NullPointerException("Couldn't compile this file because it doesn't has the Arkoi file extension \".ark\".");
-            arkoiCompiler.addFile(targetPath, detailed);
+            compiler.addFile(targetPath, detailed);
         }
         
-        if (arkoiCompiler.compile(System.out))
+        if (compiler.compile(System.out))
             return true;
         
         System.err.println("Couldn't compile the file. Please see the stacktrace for errors:");
-        arkoiCompiler.printStackTrace(System.err);
+        compiler.getErrorHandler().printStackTrace(System.err);
         return false;
     }
     

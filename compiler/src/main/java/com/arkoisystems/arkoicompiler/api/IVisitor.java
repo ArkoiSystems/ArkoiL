@@ -18,7 +18,7 @@
  */
 package com.arkoisystems.arkoicompiler.api;
 
-import com.arkoisystems.arkoicompiler.stages.parser.ast.ArkoiNode;
+import com.arkoisystems.arkoicompiler.stages.parser.ast.ParserNode;
 import com.arkoisystems.arkoicompiler.stages.parser.ast.types.*;
 import com.arkoisystems.arkoicompiler.stages.parser.ast.types.argument.Argument;
 import com.arkoisystems.arkoicompiler.stages.parser.ast.types.argument.ArgumentList;
@@ -38,7 +38,7 @@ import org.jetbrains.annotations.NotNull;
 public interface IVisitor<T>
 {
     
-    default T visit(final @NotNull ArkoiNode astNode) {
+    default T visit(final @NotNull ParserNode astNode) {
         if (astNode instanceof IdentifierOperable)
             return this.visit((IdentifierOperable) astNode);
         else if (astNode instanceof Type)

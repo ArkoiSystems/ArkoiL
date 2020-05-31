@@ -19,10 +19,10 @@
 package com.arkoisystems.arkoicompiler.stages.parser.ast.types.operable.types.expression.types;
 
 import com.arkoisystems.arkoicompiler.api.IVisitor;
-import com.arkoisystems.arkoicompiler.stages.lexer.token.ArkoiToken;
+import com.arkoisystems.arkoicompiler.stages.lexer.token.LexerToken;
 import com.arkoisystems.arkoicompiler.stages.lexer.token.enums.OperatorType;
 import com.arkoisystems.arkoicompiler.stages.parser.Parser;
-import com.arkoisystems.arkoicompiler.stages.parser.ast.ArkoiNode;
+import com.arkoisystems.arkoicompiler.stages.parser.ast.ParserNode;
 import com.arkoisystems.arkoicompiler.stages.parser.ast.types.operable.Operable;
 import com.arkoisystems.arkoicompiler.stages.parser.ast.types.operable.types.expression.Expression;
 import com.arkoisystems.arkoicompiler.stages.parser.ast.types.operable.types.expression.types.operators.PrefixOperatorType;
@@ -61,8 +61,8 @@ public class PrefixExpression extends Expression
             final @NotNull PrefixOperatorType operatorType,
             final @Nullable Operable rightHandSide,
             final @Nullable Parser parser,
-            final @Nullable ArkoiToken startToken,
-            final @Nullable ArkoiToken endToken
+            final @Nullable LexerToken startToken,
+            final @Nullable LexerToken endToken
     ) {
         super(parser, null, ASTType.PREFIX_EXPRESSION, startToken, endToken);
         
@@ -72,7 +72,7 @@ public class PrefixExpression extends Expression
     
     @NotNull
     @Override
-    public PrefixExpression parseAST(final @NotNull ArkoiNode parentAST) {
+    public PrefixExpression parseAST(final @NotNull ParserNode parentAST) {
         Objects.requireNonNull(this.getParser(), "parser must not be null.");
         
         this.startAST(this.getParser().currentToken());

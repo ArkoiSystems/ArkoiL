@@ -19,17 +19,16 @@
 package com.arkoisystems.arkoicompiler.stages.lexer.token.types;
 
 import com.arkoisystems.arkoicompiler.stages.lexer.Lexer;
-import com.arkoisystems.arkoicompiler.stages.lexer.token.ArkoiToken;
+import com.arkoisystems.arkoicompiler.stages.lexer.token.LexerToken;
 import com.arkoisystems.arkoicompiler.stages.lexer.token.enums.OperatorType;
 import com.arkoisystems.arkoicompiler.stages.lexer.token.enums.TokenType;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 @Getter
-public class OperatorToken extends ArkoiToken
+public class OperatorToken extends LexerToken
 {
     
     @NotNull

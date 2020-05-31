@@ -19,11 +19,11 @@
 package com.arkoisystems.arkoicompiler.stages.parser.ast.types.parameter;
 
 import com.arkoisystems.arkoicompiler.api.IVisitor;
-import com.arkoisystems.arkoicompiler.stages.lexer.token.ArkoiToken;
+import com.arkoisystems.arkoicompiler.stages.lexer.token.LexerToken;
 import com.arkoisystems.arkoicompiler.stages.lexer.token.enums.SymbolType;
 import com.arkoisystems.arkoicompiler.stages.parser.Parser;
 import com.arkoisystems.arkoicompiler.stages.parser.ParserErrorType;
-import com.arkoisystems.arkoicompiler.stages.parser.ast.ArkoiNode;
+import com.arkoisystems.arkoicompiler.stages.parser.ast.ParserNode;
 import com.arkoisystems.arkoicompiler.stages.parser.ast.enums.ASTType;
 import com.arkoisystems.arkoicompiler.stages.parser.ast.enums.TypeKind;
 import com.arkoisystems.utils.printer.annotations.Printable;
@@ -37,7 +37,7 @@ import java.util.List;
 import java.util.Objects;
 
 @Getter
-public class ParameterList extends ArkoiNode
+public class ParameterList extends ParserNode
 {
     
     public static ParameterList GLOBAL_NODE = new ParameterList(null, null, null);
@@ -49,8 +49,8 @@ public class ParameterList extends ArkoiNode
     @Builder
     protected ParameterList(
             final @Nullable Parser parser,
-            final @Nullable ArkoiToken startToken,
-            final @Nullable ArkoiToken endToken
+            final @Nullable LexerToken startToken,
+            final @Nullable LexerToken endToken
     ) {
         super(parser, ASTType.PARAMETER_LIST, startToken, endToken);
         
@@ -59,11 +59,11 @@ public class ParameterList extends ArkoiNode
     
     @NotNull
     @Override
-    public ParameterList parseAST(final @NotNull ArkoiNode parentAST) {
+    public ParameterList parseAST(final @NotNull ParserNode parentAST) {
         Objects.requireNonNull(this.getParser(), "parser must not be null.");
         
         if (this.getParser().matchesCurrentToken(SymbolType.OPENING_PARENTHESIS) == null) {
-            final ArkoiToken currentToken = this.getParser().currentToken();
+            final LexerToken currentToken = this.getParser().currentToken();
             return this.addError(
                     this,
                     this.getParser().getCompilerClass(),
@@ -98,7 +98,7 @@ public class ParameterList extends ArkoiNode
         }
         
         if (this.getParser().matchesCurrentToken(SymbolType.CLOSING_PARENTHESIS) == null) {
-            final ArkoiToken currentToken = this.getParser().currentToken();
+            final LexerToken currentToken = this.getParser().currentToken();
             return this.addError(
                     this,
                     this.getParser().getCompilerClass(),

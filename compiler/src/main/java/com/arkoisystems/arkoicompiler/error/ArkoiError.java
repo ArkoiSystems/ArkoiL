@@ -18,7 +18,7 @@
  */
 package com.arkoisystems.arkoicompiler.error;
 
-import com.arkoisystems.arkoicompiler.ArkoiClass;
+import com.arkoisystems.arkoicompiler.CompilerClass;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -40,7 +40,7 @@ public class ArkoiError
     
     @Getter
     @NotNull
-    private final ArkoiClass compilerClass;
+    private final CompilerClass compilerClass;
     
     @EqualsAndHashCode.Include
     @Getter
