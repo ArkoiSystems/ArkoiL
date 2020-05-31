@@ -16,18 +16,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.arkoisystems.arkoicompiler.api;
+package com.arkoisystems.arkoicompiler.stages.codegen;
 
-import com.arkoisystems.arkoicompiler.stages.parser.Parser;
-import com.arkoisystems.arkoicompiler.stages.parser.ast.ArkoiNode;
+import com.arkoisystems.arkoicompiler.api.IErrorHandler;
+import com.arkoisystems.arkoicompiler.error.ArkoiError;
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
-public interface ISyntaxParser
+import java.io.PrintStream;
+import java.util.HashSet;
+
+
+public class CodeGenErrorHandler implements IErrorHandler
 {
     
+    @Getter
     @NotNull
-    ArkoiNode parse(final @NotNull ArkoiNode parentAST, final @NotNull Parser parser);
+    private final HashSet<ArkoiError> compilerErrors = new HashSet<>();
     
-    boolean canParse(final @NotNull ArkoiNode parentAST, final @NotNull Parser parser);
+    public void addError(final @NotNull ArkoiError compilerError) {
+        this.compilerErrors.add(compilerError);
+    }
+    
+    @Override
+    public void printStackTrace(final @NotNull PrintStream printStream) {
+        for (final ArkoiError error : this.compilerErrors)
+            printStream.println(error.toString());
+    }
     
 }

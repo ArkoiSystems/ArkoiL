@@ -16,18 +16,44 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.arkoisystems.arkoicompiler.api;
+package com.arkoisystems.arkoicompiler.stages.parser.ast.enums;
 
-import com.arkoisystems.arkoicompiler.stages.parser.Parser;
-import com.arkoisystems.arkoicompiler.stages.parser.ast.ArkoiNode;
-import org.jetbrains.annotations.NotNull;
-
-public interface ISyntaxParser
+public enum ASTType
 {
     
-    @NotNull
-    ArkoiNode parse(final @NotNull ArkoiNode parentAST, final @NotNull Parser parser);
+    BINARY_EXPRESSION,
+    PARENTHESIZED_EXPRESSION,
+    ASSIGNMENT_EXPRESSION,
+    EQUALITY_EXPRESSION,
+    LOGICAL_EXPRESSION,
+    POSTFIX_EXPRESSION,
+    CAST_EXPRESSION,
+    PREFIX_EXPRESSION,
+    RELATIONAL_EXPRESSION,
+    EXPRESSION,
     
-    boolean canParse(final @NotNull ArkoiNode parentAST, final @NotNull Parser parser);
+    IMPORT,
+    PARAMETER,
+    RETURN,
+    ARGUMENT,
+    VARIABLE,
+    FUNCTION,
+    
+    FUNCTION_CALL_PART,
+    IDENTIFIER_CALL,
+    COLLECTION,
+    NUMBER,
+    STRING,
+    
+    OPERABLE,
+    STATEMENT,
+    
+    PARAMETER_LIST,
+    ARGUMENT_LIST,
+    
+    ANNOTATION,
+    BLOCK,
+    ROOT,
+    TYPE
     
 }
