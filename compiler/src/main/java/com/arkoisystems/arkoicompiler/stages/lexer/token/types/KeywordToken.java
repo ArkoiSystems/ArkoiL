@@ -16,57 +16,55 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.arkoisystems.arkoicompiler.stage.lexer.token.types;
+package com.arkoisystems.arkoicompiler.stages.lexer.token.types;
 
-import com.arkoisystems.arkoicompiler.stage.lexer.Lexer;
-import com.arkoisystems.arkoicompiler.stage.lexer.token.ArkoiToken;
-import com.arkoisystems.arkoicompiler.stage.lexer.token.enums.SymbolType;
-import com.arkoisystems.arkoicompiler.stage.lexer.token.enums.TokenType;
+import com.arkoisystems.arkoicompiler.stages.lexer.Lexer;
+import com.arkoisystems.arkoicompiler.stages.lexer.token.ArkoiToken;
+import com.arkoisystems.arkoicompiler.stages.lexer.token.enums.KeywordType;
+import com.arkoisystems.arkoicompiler.stages.lexer.token.enums.TokenType;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.Objects;
+import org.jetbrains.annotations.Nullable;
 
 @Getter
-@Setter
-public class SymbolToken extends ArkoiToken
+public class KeywordToken extends ArkoiToken
 {
     
     @NotNull
-    private SymbolType symbolType;
+    private final KeywordType keywordType;
     
     @Builder
-    public SymbolToken(
+    public KeywordToken(
             final @NotNull Lexer lexer,
-            final @NotNull SymbolType symbolType,
+            final @Nullable KeywordType keywordType,
             final int startLine,
             final int endLine,
             final int charStart,
             final int charEnd
     ) {
-        super(lexer, TokenType.SYMBOL, startLine, endLine, charStart, charEnd);
+        super(lexer, TokenType.KEYWORD, startLine, endLine, charStart, charEnd);
+    
+        if (keywordType == null) {
+            for (final KeywordType type : KeywordType.values())
+                if (type.getName().equals(this.getTokenContent())) {
+                    this.keywordType = type;
+                    return;
+                }
         
-        this.symbolType = symbolType;
+            throw new NullPointerException("keywordType must not be null.");
+        } else this.keywordType = keywordType;
     }
     
-    public SymbolToken(
+    public KeywordToken(
             final @NotNull Lexer lexer,
             final int startLine,
             final int endLine,
             final int charStart,
             final int charEnd
     ) {
-        super(lexer, TokenType.SYMBOL, startLine, endLine, charStart, charEnd);
-        
-        for (final SymbolType symbolType : SymbolType.values())
-            if (symbolType.getName().equals(this.getTokenContent())) {
-                this.symbolType = symbolType;
-                break;
-            }
-        
-        Objects.requireNonNull(this.getSymbolType(), "symbolType must not be null.");
+        this(lexer, null, startLine, endLine, charStart, charEnd);
     }
     
 }

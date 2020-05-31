@@ -16,39 +16,45 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.arkoisystems.arkoicompiler.stage.lexer.token.types;
+package com.arkoisystems.arkoicompiler.stages.lexer.token.types;
 
-import com.arkoisystems.arkoicompiler.stage.lexer.Lexer;
-import com.arkoisystems.arkoicompiler.stage.lexer.token.ArkoiToken;
-import com.arkoisystems.arkoicompiler.stage.lexer.token.enums.OperatorType;
-import com.arkoisystems.arkoicompiler.stage.lexer.token.enums.TokenType;
+import com.arkoisystems.arkoicompiler.stages.lexer.Lexer;
+import com.arkoisystems.arkoicompiler.stages.lexer.token.ArkoiToken;
+import com.arkoisystems.arkoicompiler.stages.lexer.token.enums.OperatorType;
+import com.arkoisystems.arkoicompiler.stages.lexer.token.enums.TokenType;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.Objects;
+import org.jetbrains.annotations.Nullable;
 
 @Getter
-@Setter
 public class OperatorToken extends ArkoiToken
 {
     
     @NotNull
-    private OperatorType operatorType;
+    private final OperatorType operatorType;
     
     @Builder
     public OperatorToken(
             final @NotNull Lexer lexer,
-            final @NotNull OperatorType operatorType,
+            final @Nullable OperatorType operatorType,
             final int startLine,
             final int endLine,
             final int charStart,
             final int charEnd
     ) {
         super(lexer, TokenType.OPERATOR, startLine, endLine, charStart, charEnd);
+    
+        if (operatorType == null) {
+            for (final OperatorType type : OperatorType.values())
+                if (type.getName().equals(this.getTokenContent())) {
+                    this.operatorType = type;
+                    return;
+                }
         
-        this.operatorType = operatorType;
+            throw new NullPointerException("operatorType must not be null.");
+        } else this.operatorType = operatorType;
     }
     
     public OperatorToken(
@@ -58,15 +64,7 @@ public class OperatorToken extends ArkoiToken
             final int charStart,
             final int charEnd
     ) {
-        super(lexer, TokenType.OPERATOR, startLine, endLine, charStart, charEnd);
-        
-        for (final OperatorType operatorType : OperatorType.values())
-            if (operatorType.getName().equals(this.getTokenContent())) {
-                this.operatorType = operatorType;
-                break;
-            }
-        
-        Objects.requireNonNull(this.getOperatorType(), "operatorType must not be null.");
+        this(lexer, null, startLine, endLine, charStart, charEnd);
     }
     
 }

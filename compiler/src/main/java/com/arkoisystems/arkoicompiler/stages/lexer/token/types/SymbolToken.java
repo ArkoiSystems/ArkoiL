@@ -16,47 +16,54 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.arkoisystems.arkoicompiler.stage.lexer.token.types;
+package com.arkoisystems.arkoicompiler.stages.lexer.token.types;
 
-import com.arkoisystems.arkoicompiler.stage.lexer.Lexer;
-import com.arkoisystems.arkoicompiler.stage.lexer.token.ArkoiToken;
-import com.arkoisystems.arkoicompiler.stage.lexer.token.enums.TokenType;
-import com.arkoisystems.arkoicompiler.stage.parser.ast.enums.TypeKind;
+import com.arkoisystems.arkoicompiler.stages.lexer.Lexer;
+import com.arkoisystems.arkoicompiler.stages.lexer.token.ArkoiToken;
+import com.arkoisystems.arkoicompiler.stages.lexer.token.enums.SymbolType;
+import com.arkoisystems.arkoicompiler.stages.lexer.token.enums.TokenType;
 import lombok.Builder;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 @Getter
-public class NumberToken extends ArkoiToken
+public class SymbolToken extends ArkoiToken
 {
     
     @NotNull
-    private TypeKind typeKind;
+    private final SymbolType symbolType;
     
     @Builder
-    public NumberToken(
+    public SymbolToken(
             final @NotNull Lexer lexer,
-            final @NotNull TypeKind typeKind,
+            final @Nullable SymbolType symbolType,
             final int startLine,
             final int endLine,
             final int charStart,
             final int charEnd
     ) {
-        super(lexer, TokenType.NUMBER, startLine, endLine, charStart, charEnd);
+        super(lexer, TokenType.SYMBOL, startLine, endLine, charStart, charEnd);
+    
+        if (symbolType == null) {
+            for (final SymbolType type : SymbolType.values())
+                if (type.getName().equals(this.getTokenContent())) {
+                    this.symbolType = type;
+                    return;
+                }
         
-        this.typeKind = typeKind;
+            throw new NullPointerException("symbolType must not be null.");
+        } else this.symbolType = symbolType;
     }
     
-    public NumberToken(
+    public SymbolToken(
             final @NotNull Lexer lexer,
             final int startLine,
             final int endLine,
             final int charStart,
             final int charEnd
     ) {
-        super(lexer, TokenType.NUMBER, startLine, endLine, charStart, charEnd);
-        
-        this.typeKind = this.getTokenContent().contains(".") ? TypeKind.FLOAT : TypeKind.INTEGER;
+        this(lexer, null, startLine, endLine, charStart, charEnd);
     }
     
 }

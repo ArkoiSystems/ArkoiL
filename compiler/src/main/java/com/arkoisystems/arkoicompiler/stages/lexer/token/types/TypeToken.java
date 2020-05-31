@@ -16,39 +16,45 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.arkoisystems.arkoicompiler.stage.lexer.token.types;
+package com.arkoisystems.arkoicompiler.stages.lexer.token.types;
 
-import com.arkoisystems.arkoicompiler.stage.lexer.Lexer;
-import com.arkoisystems.arkoicompiler.stage.lexer.token.ArkoiToken;
-import com.arkoisystems.arkoicompiler.stage.lexer.token.enums.TokenType;
-import com.arkoisystems.arkoicompiler.stage.parser.ast.enums.TypeKind;
+import com.arkoisystems.arkoicompiler.stages.lexer.Lexer;
+import com.arkoisystems.arkoicompiler.stages.lexer.token.ArkoiToken;
+import com.arkoisystems.arkoicompiler.stages.lexer.token.enums.TokenType;
+import com.arkoisystems.arkoicompiler.stages.parser.ast.enums.TypeKind;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.Objects;
+import org.jetbrains.annotations.Nullable;
 
 @Getter
-@Setter
 public class TypeToken extends ArkoiToken
 {
     
     @NotNull
-    private TypeKind typeKind;
+    private final TypeKind typeKind;
     
     @Builder
     public TypeToken(
             final @NotNull Lexer lexer,
-            final @NotNull TypeKind typeKind,
+            final @Nullable TypeKind typeKind,
             final int startLine,
             final int endLine,
             final int charStart,
             final int charEnd
     ) {
         super(lexer, TokenType.TYPE, startLine, endLine, charStart, charEnd);
+    
+        if (typeKind == null) {
+            for (final TypeKind type : TypeKind.values())
+                if (type.getName().equals(this.getTokenContent())) {
+                    this.typeKind = type;
+                    return;
+                }
         
-        this.typeKind = typeKind;
+            throw new NullPointerException("typeKind must not be null. ");
+        } else this.typeKind = typeKind;
     }
     
     public TypeToken(
@@ -58,15 +64,7 @@ public class TypeToken extends ArkoiToken
             final int charStart,
             final int charEnd
     ) {
-        super(lexer, TokenType.TYPE, startLine, endLine, charStart, charEnd);
-        
-        for (final TypeKind typeKind : TypeKind.values())
-            if (typeKind.getName().equals(this.getTokenContent())) {
-                this.typeKind = typeKind;
-                break;
-            }
-        
-        Objects.requireNonNull(this.getTypeKind(), "typeKind must not be null. ");
+        this(lexer, null, startLine, endLine, charStart, charEnd);
     }
     
 }

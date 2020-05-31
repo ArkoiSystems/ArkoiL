@@ -16,57 +16,48 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.arkoisystems.arkoicompiler.stage.lexer.token.types;
+package com.arkoisystems.arkoicompiler.stages.lexer.token.types;
 
-import com.arkoisystems.arkoicompiler.stage.lexer.Lexer;
-import com.arkoisystems.arkoicompiler.stage.lexer.token.ArkoiToken;
-import com.arkoisystems.arkoicompiler.stage.lexer.token.enums.KeywordType;
-import com.arkoisystems.arkoicompiler.stage.lexer.token.enums.TokenType;
+import com.arkoisystems.arkoicompiler.stages.lexer.Lexer;
+import com.arkoisystems.arkoicompiler.stages.lexer.token.ArkoiToken;
+import com.arkoisystems.arkoicompiler.stages.lexer.token.enums.TokenType;
+import com.arkoisystems.arkoicompiler.stages.parser.ast.enums.TypeKind;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.Objects;
+import org.jetbrains.annotations.Nullable;
 
 @Getter
-@Setter
-public class KeywordToken extends ArkoiToken
+public class NumberToken extends ArkoiToken
 {
     
     @NotNull
-    private KeywordType keywordType;
+    private final TypeKind typeKind;
     
     @Builder
-    public KeywordToken(
+    public NumberToken(
             final @NotNull Lexer lexer,
-            final @NotNull KeywordType keywordType,
+            final @Nullable TypeKind typeKind,
             final int startLine,
             final int endLine,
             final int charStart,
             final int charEnd
     ) {
-        super(lexer, TokenType.KEYWORD, startLine, endLine, charStart, charEnd);
-        
-        this.keywordType = keywordType;
+        super(lexer, TokenType.NUMBER, startLine, endLine, charStart, charEnd);
+    
+        this.typeKind = typeKind == null ?
+                this.getTokenContent().contains(".") ? TypeKind.FLOAT : TypeKind.INTEGER :
+                typeKind;
     }
     
-    public KeywordToken(
+    public NumberToken(
             final @NotNull Lexer lexer,
             final int startLine,
             final int endLine,
             final int charStart,
             final int charEnd
     ) {
-        super(lexer, TokenType.KEYWORD, startLine, endLine, charStart, charEnd);
-        
-        for (final KeywordType keywordType : KeywordType.values())
-            if (keywordType.getName().equals(this.getTokenContent())) {
-                this.keywordType = keywordType;
-                break;
-            }
-        
-        Objects.requireNonNull(this.getKeywordType(), "keywordType must not be null.");
+        this(lexer, null, startLine, endLine, charStart, charEnd);
     }
     
 }
