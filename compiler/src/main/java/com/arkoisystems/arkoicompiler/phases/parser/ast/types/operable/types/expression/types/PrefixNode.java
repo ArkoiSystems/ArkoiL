@@ -23,10 +23,11 @@ import com.arkoisystems.arkoicompiler.phases.lexer.token.LexerToken;
 import com.arkoisystems.arkoicompiler.phases.lexer.token.enums.OperatorType;
 import com.arkoisystems.arkoicompiler.phases.parser.Parser;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.ParserNode;
+import com.arkoisystems.arkoicompiler.phases.parser.ast.enums.TypeKind;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.operable.OperableNode;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.operable.types.expression.ExpressionNode;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.operable.types.expression.types.enums.PrefixOperators;
-import com.arkoisystems.arkoicompiler.phases.parser.ast.enums.NodeType;
+import com.arkoisystems.arkoicompiler.phases.parser.SymbolTable;
 import com.arkoisystems.utils.printer.annotations.Printable;
 import lombok.Builder;
 import lombok.Getter;
@@ -39,13 +40,13 @@ import java.util.Objects;
 public class PrefixNode extends ExpressionNode
 {
     
-    public static PrefixNode ADD_GLOBAL_NODE = new PrefixNode(PrefixOperators.PREFIX_ADD, null, null, null, null);
+    public static PrefixNode ADD_GLOBAL_NODE = new PrefixNode(null, null, PrefixOperators.PREFIX_ADD, null, null, null);
     
-    public static PrefixNode SUB_GLOBAL_NODE = new PrefixNode(PrefixOperators.PREFIX_SUB, null, null, null, null);
+    public static PrefixNode SUB_GLOBAL_NODE = new PrefixNode(null, null, PrefixOperators.PREFIX_SUB, null, null, null);
     
-    public static PrefixNode AFFIRM_GLOBAL_NODE = new PrefixNode(PrefixOperators.AFFIRM, null, null, null, null);
+    public static PrefixNode AFFIRM_GLOBAL_NODE = new PrefixNode(null, null, PrefixOperators.AFFIRM, null, null, null);
     
-    public static PrefixNode NEGATE_GLOBAL_NODE = new PrefixNode(PrefixOperators.NEGATE, null, null, null, null);
+    public static PrefixNode NEGATE_GLOBAL_NODE = new PrefixNode(null, null, PrefixOperators.NEGATE, null, null, null);
     
     @Printable(name = "operation")
     @NotNull
@@ -57,13 +58,14 @@ public class PrefixNode extends ExpressionNode
     
     @Builder
     protected PrefixNode(
+            final @Nullable Parser parser,
+            final @Nullable SymbolTable currentScope,
             final @NotNull PrefixOperators operatorType,
             final @Nullable OperableNode rightHandSide,
-            final @Nullable Parser parser,
             final @Nullable LexerToken startToken,
             final @Nullable LexerToken endToken
     ) {
-        super(parser, startToken, endToken);
+        super(parser, currentScope, startToken, endToken);
         
         this.rightHandSide = rightHandSide;
         this.operatorType = operatorType;
@@ -112,7 +114,7 @@ public class PrefixNode extends ExpressionNode
     }
     
     @Override
-    public @NotNull NodeType getTypeKind() {
+    public @NotNull TypeKind getTypeKind() {
         Objects.requireNonNull(this.getRightHandSide(), "rightHandSide must not be null.");
         return this.getRightHandSide().getTypeKind();
     }

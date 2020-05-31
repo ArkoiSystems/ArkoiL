@@ -410,7 +410,7 @@ public class ScopeVisitor implements IVisitor<ParserNode>, IFailed
                 if (compilerClass.getFilePath().equals(targetFile.getCanonicalPath()))
                     return compilerClass;
     
-            final CompilerClass compilerClass = new CompilerClass(compiler, targetFile.getCanonicalPath(), Files.readAllBytes(targetFile.toPath()), this.getSemantic().getCompilerClass().isDetailed());
+            final CompilerClass compilerClass = new CompilerClass(compiler, targetFile.getCanonicalPath(), Files.readAllBytes(targetFile.toPath()));
             compiler.getClasses().add(compilerClass);
     
             compilerClass.getLexer().processStage();

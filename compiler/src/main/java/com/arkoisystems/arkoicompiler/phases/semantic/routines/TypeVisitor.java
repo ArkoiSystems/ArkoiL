@@ -25,7 +25,7 @@ import com.arkoisystems.arkoicompiler.errorHandling.CompilerError;
 import com.arkoisystems.arkoicompiler.errorHandling.ErrorPosition;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.ParserNode;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.enums.BlockType;
-import com.arkoisystems.arkoicompiler.phases.parser.ast.enums.NodeType;
+import com.arkoisystems.arkoicompiler.phases.parser.ast.enums.TypeKind;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.BlockNode;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.RootNode;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.TypeNode;
@@ -56,7 +56,7 @@ import java.util.Objects;
 @RequiredArgsConstructor
 @Getter
 @Setter
-public class TypeVisitor implements IVisitor<NodeType>, IFailed
+public class TypeVisitor implements IVisitor<TypeKind>, IFailed
 {
     
     @NotNull
@@ -69,72 +69,72 @@ public class TypeVisitor implements IVisitor<NodeType>, IFailed
     
     @NotNull
     @Override
-    public NodeType visit(final @NotNull TypeNode typeNode) {
+    public TypeKind visit(final @NotNull TypeNode typeNode) {
         return typeNode.getTypeKind();
     }
     
     @NotNull
     @Override
-    public NodeType visit(final @NotNull RootNode rootNode) {
-        NodeType nodeType = rootNode.getTypeKind();
+    public TypeKind visit(final @NotNull RootNode rootNode) {
+        TypeKind typeKind = rootNode.getTypeKind();
         for (final ParserNode astNode : rootNode.getNodes()) {
-            if (this.visit(astNode) == NodeType.ERROR)
-                nodeType = NodeType.ERROR;
+            if (this.visit(astNode) == TypeKind.ERROR)
+                typeKind = TypeKind.ERROR;
         }
-        return nodeType;
+        return typeKind;
     }
     
     @NotNull
     @Override
-    public NodeType visit(final @NotNull ParameterListNode parameterListNode) {
-        NodeType nodeType = parameterListNode.getTypeKind();
+    public TypeKind visit(final @NotNull ParameterListNode parameterListNode) {
+        TypeKind typeKind = parameterListNode.getTypeKind();
         for (final ParameterNode parameter : parameterListNode.getParameters()) {
-            if (this.visit(parameter) == NodeType.ERROR)
-                nodeType = NodeType.ERROR;
+            if (this.visit(parameter) == TypeKind.ERROR)
+                typeKind = TypeKind.ERROR;
         }
-        return nodeType;
+        return typeKind;
     }
     
     @NotNull
     @Override
-    public NodeType visit(final @NotNull ParameterNode parameter) {
+    public TypeKind visit(final @NotNull ParameterNode parameter) {
         return parameter.getTypeKind();
     }
     
     @NotNull
     @Override
-    public NodeType visit(final @NotNull BlockNode blockNode) {
-        NodeType nodeType = blockNode.getTypeKind();
+    public TypeKind visit(final @NotNull BlockNode blockNode) {
+        TypeKind typeKind = blockNode.getTypeKind();
         for (final ParserNode node : blockNode.getNodes()) {
-            if (this.visit(node) == NodeType.ERROR)
-                nodeType = NodeType.ERROR;
+            if (this.visit(node) == TypeKind.ERROR)
+                typeKind = TypeKind.ERROR;
         }
-        return nodeType;
+        return typeKind;
     }
     
     @NotNull
     @Override
-    public NodeType visit(final @NotNull ArgumentListNode argumentListNode) {
-        NodeType nodeType = argumentListNode.getTypeKind();
+    public TypeKind visit(final @NotNull ArgumentListNode argumentListNode) {
+        TypeKind typeKind = argumentListNode.getTypeKind();
         for (final ArgumentNode argumentNode : argumentListNode.getArguments()) {
-            if (this.visit(argumentNode) == NodeType.ERROR)
-                nodeType = NodeType.ERROR;
+            if (this.visit(argumentNode) == TypeKind.ERROR)
+                typeKind = TypeKind.ERROR;
         }
-        return nodeType;
+        return typeKind;
     }
     
     @NotNull
     @Override
-    public NodeType visit(final @NotNull ArgumentNode argumentNode) {
+    public TypeKind visit(final @NotNull ArgumentNode argumentNode) {
         Objects.requireNonNull(argumentNode.getExpression(), "argumentNode.argumentExpression must not be null.");
-        if (this.visit(argumentNode.getExpression()) == NodeType.ERROR)
-            return NodeType.ERROR;
+        if (this.visit(argumentNode.getExpression()) == TypeKind.ERROR)
+            return TypeKind.ERROR;
         return argumentNode.getTypeKind();
     }
     
     @NotNull
     @Override
-    public NodeType visit(final @NotNull FunctionNode functionNode) {
+    public TypeKind visit(final @NotNull FunctionNode functionNode) {
         Objects.requireNonNull(functionNode.getParser(), "functionNode.parser must not be null.");
         Objects.requireNonNull(functionNode.getBlockNode(), "functionNode.block must not be null.");
         Objects.requireNonNull(functionNode.getReturnTypeNode(), "functionNode.returnType must not be null.");
@@ -142,15 +142,15 @@ public class TypeVisitor implements IVisitor<NodeType>, IFailed
     
         this.visit(functionNode.getParameters());
     
-        final NodeType expectedType = this.visit(functionNode.getReturnTypeNode());
-        final NodeType givenType = this.visit(functionNode.getBlockNode());
-        if (expectedType == NodeType.ERROR || givenType == NodeType.ERROR)
-            return NodeType.ERROR;
+        final TypeKind expectedType = this.visit(functionNode.getReturnTypeNode());
+        final TypeKind givenType = this.visit(functionNode.getBlockNode());
+        if (expectedType == TypeKind.ERROR || givenType == TypeKind.ERROR)
+            return TypeKind.ERROR;
     
-        if ((expectedType != NodeType.AUTO && functionNode.getBlockNode().getBlockType() != BlockType.NATIVE) &&
+        if ((expectedType != TypeKind.AUTO && functionNode.getBlockNode().getBlockType() != BlockType.NATIVE) &&
                 expectedType != givenType)
             return this.addError(
-                    NodeType.ERROR,
+                    TypeKind.ERROR,
                     functionNode.getParser().getCompilerClass(),
                     functionNode.getBlockNode(),
                     "The block return type doesn't match that of the function."
@@ -161,42 +161,42 @@ public class TypeVisitor implements IVisitor<NodeType>, IFailed
     
     @NotNull
     @Override
-    public NodeType visit(final @NotNull ImportNode importNode) {
+    public TypeKind visit(final @NotNull ImportNode importNode) {
         return importNode.getTypeKind();
     }
     
     @NotNull
     @Override
-    public NodeType visit(final @NotNull ReturnNode returnNode) {
-        if (returnNode.getExpression() != null && this.visit(returnNode.getExpression()) == NodeType.ERROR)
-            return NodeType.ERROR;
+    public TypeKind visit(final @NotNull ReturnNode returnNode) {
+        if (returnNode.getExpression() != null && this.visit(returnNode.getExpression()) == TypeKind.ERROR)
+            return TypeKind.ERROR;
         return returnNode.getTypeKind();
     }
     
     @NotNull
     @Override
-    public NodeType visit(final @NotNull VariableNode variableNode) {
+    public TypeKind visit(final @NotNull VariableNode variableNode) {
         Objects.requireNonNull(variableNode.getExpression(), "variableNode.variableExpression must not be null.");
-        if (this.visit(variableNode.getExpression()) == NodeType.ERROR)
-            return NodeType.ERROR;
+        if (this.visit(variableNode.getExpression()) == TypeKind.ERROR)
+            return TypeKind.ERROR;
         return variableNode.getTypeKind();
     }
     
     @NotNull
     @Override
-    public NodeType visit(final @NotNull StringNode stringNode) {
+    public TypeKind visit(final @NotNull StringNode stringNode) {
         return stringNode.getTypeKind();
     }
     
     @NotNull
     @Override
-    public NodeType visit(final @NotNull NumberNode numberNode) {
+    public TypeKind visit(final @NotNull NumberNode numberNode) {
         return numberNode.getTypeKind();
     }
     
     @NotNull
     @Override
-    public NodeType visit(final @NotNull IdentifierNode identifierNode) {
+    public TypeKind visit(final @NotNull IdentifierNode identifierNode) {
         if (identifierNode.isFunctionCall()) {
             Objects.requireNonNull(identifierNode.getExpressionListNode(), "identifierOperable.expressionList must not be null.");
             this.visit(identifierNode.getExpressionListNode());
@@ -206,18 +206,18 @@ public class TypeVisitor implements IVisitor<NodeType>, IFailed
     }
     
     @Override
-    public NodeType visit(final @NotNull ExpressionListNode expressionListNode) {
-        NodeType nodeType = expressionListNode.getTypeKind();
+    public TypeKind visit(final @NotNull ExpressionListNode expressionListNode) {
+        TypeKind typeKind = expressionListNode.getTypeKind();
         for (final OperableNode operableNode : expressionListNode.getExpressions()) {
-            if (this.visit(operableNode) == NodeType.ERROR)
-                nodeType = NodeType.ERROR;
+            if (this.visit(operableNode) == TypeKind.ERROR)
+                typeKind = TypeKind.ERROR;
         }
-        return nodeType;
+        return typeKind;
     }
     
     @Nullable
     @Override
-    public NodeType visit(final @NotNull AssignmentNode assignmentNode) {
+    public TypeKind visit(final @NotNull AssignmentNode assignmentNode) {
         Objects.requireNonNull(assignmentNode.getLeftHandSide(), "assignmentExpression.leftSideOperable must not be null.");
         Objects.requireNonNull(assignmentNode.getRightHandSide(), "assignmentExpression.rightSideOperable must not be null.");
         Objects.requireNonNull(assignmentNode.getParser(), "assignmentExpression.parser must not be null.");
@@ -226,21 +226,21 @@ public class TypeVisitor implements IVisitor<NodeType>, IFailed
                 ((IdentifierNode) assignmentNode.getLeftHandSide()).isFunctionCall()) {
             // TODO: 5/29/20 Check if its mutable or not
             return this.addError(
-                    NodeType.ERROR,
+                    TypeKind.ERROR,
                     assignmentNode.getParser().getCompilerClass(),
                     assignmentNode.getLeftHandSide(),
                     "Left hand side it not an identifier operable which can be re-assigned."
             );
         }
         
-        final NodeType leftHandSide = this.visit(assignmentNode.getLeftHandSide());
-        final NodeType rightHandSide = this.visit(assignmentNode.getRightHandSide());
-        if (leftHandSide == NodeType.ERROR || rightHandSide == NodeType.ERROR)
-            return NodeType.ERROR;
+        final TypeKind leftHandSide = this.visit(assignmentNode.getLeftHandSide());
+        final TypeKind rightHandSide = this.visit(assignmentNode.getRightHandSide());
+        if (leftHandSide == TypeKind.ERROR || rightHandSide == TypeKind.ERROR)
+            return TypeKind.ERROR;
         
         if (rightHandSide != leftHandSide)
             return this.addError(
-                    NodeType.ERROR,
+                    TypeKind.ERROR,
                     assignmentNode.getParser().getCompilerClass(),
                     assignmentNode.getRightHandSide(),
                     "Left type doesn't match the right one."
@@ -251,20 +251,20 @@ public class TypeVisitor implements IVisitor<NodeType>, IFailed
     
     @Nullable
     @Override
-    public NodeType visit(final @NotNull BinaryNode binaryNode) {
+    public TypeKind visit(final @NotNull BinaryNode binaryNode) {
         Objects.requireNonNull(binaryNode.getLeftHandSide(), "binaryExpressionNode.leftSideOperable must not be null.");
         Objects.requireNonNull(binaryNode.getRightHandSide(), "binaryExpressionNode.rightSideOperable must not be null.");
         Objects.requireNonNull(binaryNode.getOperatorType(), "binaryExpressionNode.binaryOperatorType must not be null.");
         Objects.requireNonNull(binaryNode.getParser(), "binaryExpressionNode.parser must not be null.");
     
-        final NodeType leftHandSide = this.visit(binaryNode.getLeftHandSide());
-        final NodeType rightHandSide = this.visit(binaryNode.getRightHandSide());
-        if (leftHandSide == NodeType.ERROR || rightHandSide == NodeType.ERROR)
-            return NodeType.ERROR;
+        final TypeKind leftHandSide = this.visit(binaryNode.getLeftHandSide());
+        final TypeKind rightHandSide = this.visit(binaryNode.getRightHandSide());
+        if (leftHandSide == TypeKind.ERROR || rightHandSide == TypeKind.ERROR)
+            return TypeKind.ERROR;
     
         if (!leftHandSide.isNumeric() && !rightHandSide.isNumeric())
             return this.addError(
-                    NodeType.ERROR,
+                    TypeKind.ERROR,
                     binaryNode.getParser().getCompilerClass(),
                     binaryNode,
                     "Both sides are not numeric."
@@ -272,7 +272,7 @@ public class TypeVisitor implements IVisitor<NodeType>, IFailed
     
         if (!leftHandSide.isNumeric())
             return this.addError(
-                    NodeType.ERROR,
+                    TypeKind.ERROR,
                     binaryNode.getParser().getCompilerClass(),
                     binaryNode.getLeftHandSide(),
                     "Left side is not numeric."
@@ -280,7 +280,7 @@ public class TypeVisitor implements IVisitor<NodeType>, IFailed
     
         if (!rightHandSide.isNumeric())
             return this.addError(
-                    NodeType.ERROR,
+                    TypeKind.ERROR,
                     binaryNode.getParser().getCompilerClass(),
                     binaryNode.getRightHandSide(),
                     "Right side is not numeric."
@@ -291,26 +291,26 @@ public class TypeVisitor implements IVisitor<NodeType>, IFailed
     
     @NotNull
     @Override
-    public NodeType visit(final @NotNull ParenthesizedNode parenthesizedNode) {
+    public TypeKind visit(final @NotNull ParenthesizedNode parenthesizedNode) {
         Objects.requireNonNull(parenthesizedNode.getExpression(), "parenthesizedExpressionNode.expression must not be null.");
-        if (this.visit(parenthesizedNode.getExpression()) == NodeType.ERROR)
-            return NodeType.ERROR;
+        if (this.visit(parenthesizedNode.getExpression()) == TypeKind.ERROR)
+            return TypeKind.ERROR;
         return parenthesizedNode.getTypeKind();
     }
     
     @Nullable
     @Override
-    public NodeType visit(final @NotNull PostfixNode postfixNode) {
+    public TypeKind visit(final @NotNull PostfixNode postfixNode) {
         Objects.requireNonNull(postfixNode.getLeftHandSide(), "postfixExpressionNode.leftSideOperable must not be null.");
         Objects.requireNonNull(postfixNode.getParser(), "postfixExpressionNode.parser must not be null.");
         
-        final NodeType leftHandSide = this.visit(postfixNode.getLeftHandSide());
-        if (leftHandSide == NodeType.ERROR)
-            return NodeType.ERROR;
+        final TypeKind leftHandSide = this.visit(postfixNode.getLeftHandSide());
+        if (leftHandSide == TypeKind.ERROR)
+            return TypeKind.ERROR;
         
         if (!leftHandSide.isNumeric())
             return this.addError(
-                    NodeType.ERROR,
+                    TypeKind.ERROR,
                     postfixNode.getParser().getCompilerClass(),
                     postfixNode,
                     "Left side is not numeric."
@@ -321,18 +321,18 @@ public class TypeVisitor implements IVisitor<NodeType>, IFailed
     
     @Nullable
     @Override
-    public NodeType visit(final @NotNull PrefixNode prefixNode) {
+    public TypeKind visit(final @NotNull PrefixNode prefixNode) {
         Objects.requireNonNull(prefixNode.getRightHandSide(), "prefixExpressionNode.rightSideOperable must not be null.");
         Objects.requireNonNull(prefixNode.getOperatorType(), "prefixExpressionNode.prefixOperatorType must not be null.");
         Objects.requireNonNull(prefixNode.getParser(), "prefixExpressionNode.parser must not be null.");
         
-        final NodeType rightHandSide = this.visit(prefixNode.getRightHandSide());
-        if (rightHandSide == NodeType.ERROR)
-            return NodeType.ERROR;
+        final TypeKind rightHandSide = this.visit(prefixNode.getRightHandSide());
+        if (rightHandSide == TypeKind.ERROR)
+            return TypeKind.ERROR;
         
         if (!rightHandSide.isNumeric())
             return this.addError(
-                    NodeType.ERROR,
+                    TypeKind.ERROR,
                     prefixNode.getParser().getCompilerClass(),
                     prefixNode,
                     "Right side is not numeric."

@@ -28,7 +28,8 @@ import com.arkoisystems.arkoicompiler.phases.parser.Parser;
 import com.arkoisystems.arkoicompiler.phases.parser.ParserErrorType;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.ParserNode;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.statement.StatementNode;
-import com.arkoisystems.arkoicompiler.phases.parser.ast.enums.NodeType;
+import com.arkoisystems.arkoicompiler.phases.parser.ast.enums.TypeKind;
+import com.arkoisystems.arkoicompiler.phases.parser.SymbolTable;
 import com.arkoisystems.utils.printer.annotations.Printable;
 import lombok.Builder;
 import lombok.Getter;
@@ -41,7 +42,7 @@ import java.util.Objects;
 public class ImportNode extends StatementNode
 {
     
-    public static ImportNode GLOBAL_NODE = new ImportNode(null, null, null, null, null);
+    public static ImportNode GLOBAL_NODE = new ImportNode(null, null, null, null, null, null);
  
     @Printable(name = "file path")
     @Nullable
@@ -54,12 +55,13 @@ public class ImportNode extends StatementNode
     @Builder
     protected ImportNode(
             final @Nullable Parser parser,
+            final @Nullable SymbolTable currentScope,
             final @Nullable StringToken filePath,
             final @Nullable IdentifierToken name,
             final @Nullable LexerToken startToken,
             final @Nullable LexerToken endToken
     ) {
-        super(parser, startToken, endToken);
+        super(parser, currentScope, startToken, endToken);
         
         this.filePath = filePath;
         this.name = name;
@@ -118,12 +120,17 @@ public class ImportNode extends StatementNode
         
             this.name = (IdentifierToken) this.getParser().nextToken();
         } else if (this.getFilePath() != null) {
+            // TODO: 5/31/20 Remove prefix for non defined names
             final String[] split = this.getFilePath().getTokenContent().split("/");
             this.name = IdentifierToken.builder()
                     .lexer(this.getParser().getCompilerClass().getLexer())
                     .build();
             this.name.setTokenContent(split[split.length - 1].replace(".ark", ""));
         }
+        
+        Objects.requireNonNull(this.getCurrentScope(), "currentScope must not be null.");
+        Objects.requireNonNull(this.getName(), "name must not be null.");
+        this.getCurrentScope().insert(this.getName().getTokenContent(), this);
     
         this.endAST(this.getParser().currentToken());
         return this;
@@ -141,8 +148,8 @@ public class ImportNode extends StatementNode
     
     @Override
     @NotNull
-    public NodeType getTypeKind() {
-        return NodeType.UNDEFINED;
+    public TypeKind getTypeKind() {
+        return TypeKind.UNDEFINED;
     }
     
 }

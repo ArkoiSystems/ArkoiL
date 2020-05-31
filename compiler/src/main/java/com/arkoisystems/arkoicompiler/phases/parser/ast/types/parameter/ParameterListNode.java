@@ -24,7 +24,8 @@ import com.arkoisystems.arkoicompiler.phases.lexer.token.enums.SymbolType;
 import com.arkoisystems.arkoicompiler.phases.parser.Parser;
 import com.arkoisystems.arkoicompiler.phases.parser.ParserErrorType;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.ParserNode;
-import com.arkoisystems.arkoicompiler.phases.parser.ast.enums.NodeType;
+import com.arkoisystems.arkoicompiler.phases.parser.ast.enums.TypeKind;
+import com.arkoisystems.arkoicompiler.phases.parser.SymbolTable;
 import com.arkoisystems.utils.printer.annotations.Printable;
 import lombok.Builder;
 import lombok.Getter;
@@ -39,7 +40,7 @@ import java.util.Objects;
 public class ParameterListNode extends ParserNode
 {
     
-    public static ParameterListNode GLOBAL_NODE = new ParameterListNode(null, null, null);
+    public static ParameterListNode GLOBAL_NODE = new ParameterListNode(null, null, null, null);
     
     @Printable(name = "parameters")
     @NotNull
@@ -48,10 +49,11 @@ public class ParameterListNode extends ParserNode
     @Builder
     protected ParameterListNode(
             final @Nullable Parser parser,
+            final @Nullable SymbolTable currentScope,
             final @Nullable LexerToken startToken,
             final @Nullable LexerToken endToken
     ) {
-        super(parser, startToken, endToken);
+        super(parser, currentScope, startToken, endToken);
         
         this.parameters = new ArrayList<>();
     }
@@ -124,8 +126,8 @@ public class ParameterListNode extends ParserNode
     
     @Override
     @NotNull
-    public NodeType getTypeKind() {
-        return NodeType.UNDEFINED;
+    public TypeKind getTypeKind() {
+        return TypeKind.UNDEFINED;
     }
     
 }

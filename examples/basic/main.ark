@@ -13,6 +13,11 @@ fun main(args: string[]): int {
     const test_3 = test.test()
     const test_6 = 1
   
+    {
+        const test_6 = "Hello World"
+        println(test_6)
+    }
+  
     this.print_greet(test_1)
     return (20++ + -10 * 5) * 2 ** 3 ** 4 + (test_6 += 1 * 2)
 }

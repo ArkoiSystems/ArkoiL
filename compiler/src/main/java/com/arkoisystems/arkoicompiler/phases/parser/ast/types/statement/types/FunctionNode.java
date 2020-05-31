@@ -34,7 +34,8 @@ import com.arkoisystems.arkoicompiler.phases.parser.ast.types.parameter.Paramete
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.TypeNode;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.statement.StatementNode;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.enums.BlockType;
-import com.arkoisystems.arkoicompiler.phases.parser.ast.enums.NodeType;
+import com.arkoisystems.arkoicompiler.phases.parser.ast.enums.TypeKind;
+import com.arkoisystems.arkoicompiler.phases.parser.SymbolTable;
 import com.arkoisystems.utils.printer.annotations.Printable;
 import lombok.Builder;
 import lombok.Getter;
@@ -47,7 +48,7 @@ import java.util.Objects;
 public class FunctionNode extends StatementNode
 {
     
-    public static FunctionNode GLOBAL_NODE = new FunctionNode(null, null, null, null, null, null, null);
+    public static FunctionNode GLOBAL_NODE = new FunctionNode(null, null, null, null, null, null, null, null);
     
     @Printable(name = "name")
     @Nullable
@@ -66,15 +67,16 @@ public class FunctionNode extends StatementNode
     
     @Builder
     protected FunctionNode(
-            final @Nullable ParameterListNode parameters,
             final @Nullable Parser parser,
+            final @Nullable SymbolTable currentScope,
+            final @Nullable ParameterListNode parameters,
             final @Nullable IdentifierToken name,
             final @Nullable TypeNode returnTypeNode,
             final @Nullable BlockNode blockNode,
             final @Nullable LexerToken startToken,
             final @Nullable LexerToken endToken
     ) {
-        super(parser, startToken, endToken);
+        super(parser, currentScope, startToken, endToken);
         
         this.parameters = parameters;
         this.returnTypeNode = returnTypeNode;
@@ -115,6 +117,10 @@ public class FunctionNode extends StatementNode
         
         this.name = (IdentifierToken) this.getParser().nextToken();
         
+        Objects.requireNonNull(this.getCurrentScope(), "currentScope must not be null.");
+        Objects.requireNonNull(this.getName(), "name must not be null.");
+        this.getCurrentScope().insert(this.getName().getTokenContent(), this);
+        
         if (!ParameterListNode.GLOBAL_NODE.canParse(this.getParser(), 1)) {
             final LexerToken peekedToken = this.getParser().peekToken(1);
             return this.addError(
@@ -130,6 +136,7 @@ public class FunctionNode extends StatementNode
         this.getParser().nextToken();
         
         final ParameterListNode parameterListNode = ParameterListNode.builder()
+                .currentScope(this.getCurrentScope())
                 .parser(this.getParser())
                 .build()
                 .parseAST(this);
@@ -171,7 +178,7 @@ public class FunctionNode extends StatementNode
                 .parser(this.getParser())
                 .typeToken(TypeToken.builder()
                         .lexer(this.getParser().getCompilerClass().getLexer())
-                        .nodeType(NodeType.AUTO)
+                        .typeKind(TypeKind.AUTO)
                         .build())
                 .startToken(UndefinedToken.builder()
                         .lexer(this.getParser().getCompilerClass().getLexer())
@@ -188,6 +195,7 @@ public class FunctionNode extends StatementNode
             this.getParser().nextToken();
             
             final BlockNode blockNodeAST = BlockNode.builder()
+                    .currentScope(this.getCurrentScope())
                     .parser(this.getParser())
                     .build()
                     .parseAST(parentAST);
@@ -220,7 +228,7 @@ public class FunctionNode extends StatementNode
     
     @Override
     @NotNull
-    public NodeType getTypeKind() {
+    public TypeKind getTypeKind() {
         Objects.requireNonNull(this.getReturnTypeNode(), "returnType must not be null.");
         return this.getReturnTypeNode().getTypeKind();
     }

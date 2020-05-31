@@ -26,12 +26,13 @@ import com.arkoisystems.arkoicompiler.phases.parser.Parser;
 import com.arkoisystems.arkoicompiler.phases.parser.ParserErrorType;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.ParserNode;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.enums.BlockType;
-import com.arkoisystems.arkoicompiler.phases.parser.ast.enums.NodeType;
+import com.arkoisystems.arkoicompiler.phases.parser.ast.enums.TypeKind;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.operable.OperableNode;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.operable.types.IdentifierNode;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.operable.types.expression.ExpressionNode;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.statement.types.ReturnNode;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.statement.types.VariableNode;
+import com.arkoisystems.arkoicompiler.phases.parser.SymbolTable;
 import com.arkoisystems.utils.printer.annotations.Printable;
 import lombok.Builder;
 import lombok.Getter;
@@ -45,7 +46,7 @@ import java.util.*;
 public class BlockNode extends ParserNode
 {
     
-    public static BlockNode GLOBAL_NODE = new BlockNode(null, null, null, null);
+    public static BlockNode GLOBAL_NODE = new BlockNode(null, null, null, null, null);
     
     @Printable(name = "nodes")
     @NotNull
@@ -58,11 +59,12 @@ public class BlockNode extends ParserNode
     @Builder
     protected BlockNode(
             final @Nullable Parser parser,
+            final @Nullable SymbolTable currentScope,
             final @Nullable BlockType blockType,
             final @Nullable LexerToken startToken,
             final @Nullable LexerToken endToken
     ) {
-        super(parser, startToken, endToken);
+        super(parser, currentScope, startToken, endToken);
         
         this.nodes = new ArrayList<>();
         this.blockType = blockType;
@@ -124,8 +126,10 @@ public class BlockNode extends ParserNode
                 continue;
             }
     
-            // TODO: 5/27/20 Think about a better solution
             ParserNode astNode = foundNode.clone();
+            if (astNode instanceof BlockNode)
+                astNode.setCurrentScope(new SymbolTable(this.getCurrentScope()));
+            else astNode.setCurrentScope(this.getCurrentScope());
             astNode.setParser(this.getParser());
             astNode = astNode.parseAST(this);
     
@@ -184,11 +188,11 @@ public class BlockNode extends ParserNode
     
     @Override
     @NotNull
-    public NodeType getTypeKind() {
+    public TypeKind getTypeKind() {
         if (this.getBlockType() == BlockType.INLINE) {
             return this.getNodes().get(0).getTypeKind();
         } else if (this.getBlockType() == BlockType.BLOCK) {
-            final HashMap<NodeType, Integer> kinds = new HashMap<>();
+            final HashMap<TypeKind, Integer> kinds = new HashMap<>();
             this.getNodes().stream()
                     .filter(node -> node instanceof ReturnNode)
                     .forEach(statement -> {
@@ -197,11 +201,11 @@ public class BlockNode extends ParserNode
                     });
         
             if (kinds.size() == 0)
-                return NodeType.VOID;
+                return TypeKind.VOID;
         
             return Collections.max(kinds.entrySet(), Comparator.comparingInt(Map.Entry::getValue)).getKey();
         }
-        return NodeType.UNDEFINED;
+        return TypeKind.UNDEFINED;
     }
     
 }

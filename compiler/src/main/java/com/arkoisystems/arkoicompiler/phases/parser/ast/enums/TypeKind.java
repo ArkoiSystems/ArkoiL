@@ -18,10 +18,13 @@
  */
 package com.arkoisystems.arkoicompiler.phases.parser.ast.enums;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
-public enum NodeType
+@AllArgsConstructor
+@Getter
+public enum TypeKind
 {
     
     FLOAT("float", true),
@@ -44,15 +47,8 @@ public enum NodeType
     AUTO("auto", false);
     
     @NotNull
-    @Getter
     private final String name;
     
-    @Getter
     private final boolean isNumeric;
-    
-    NodeType(final @NotNull String name, final boolean isNumeric) {
-        this.isNumeric = isNumeric;
-        this.name = name;
-    }
     
 }

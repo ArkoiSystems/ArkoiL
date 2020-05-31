@@ -28,7 +28,8 @@ import com.arkoisystems.arkoicompiler.phases.parser.ParserErrorType;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.ParserNode;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.operable.OperableNode;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.operable.types.expression.ExpressionNode;
-import com.arkoisystems.arkoicompiler.phases.parser.ast.enums.NodeType;
+import com.arkoisystems.arkoicompiler.phases.parser.ast.enums.TypeKind;
+import com.arkoisystems.arkoicompiler.phases.parser.SymbolTable;
 import com.arkoisystems.utils.printer.annotations.Printable;
 import lombok.Builder;
 import lombok.Getter;
@@ -41,7 +42,7 @@ import java.util.Objects;
 public class ArgumentNode extends ParserNode
 {
     
-    public static ArgumentNode GLOBAL_NODE = new ArgumentNode(null, null, null, null, null);
+    public static ArgumentNode GLOBAL_NODE = new ArgumentNode(null, null, null, null, null, null);
     
     @Printable(name = "name")
     @Nullable
@@ -54,12 +55,13 @@ public class ArgumentNode extends ParserNode
     @Builder
     protected ArgumentNode(
             final @Nullable Parser parser,
+            final @Nullable SymbolTable currentScope,
             final @Nullable OperableNode expression,
             final @Nullable IdentifierToken name,
             final @Nullable LexerToken startToken,
             final @Nullable LexerToken endToken
     ) {
-        super(parser, startToken, endToken);
+        super(parser, currentScope, startToken, endToken);
         
         this.expression = expression;
         this.name = name;
@@ -139,7 +141,7 @@ public class ArgumentNode extends ParserNode
     
     @Override
     @NotNull
-    public NodeType getTypeKind() {
+    public TypeKind getTypeKind() {
         Objects.requireNonNull(this.getExpression(), "expression must not be null.");
         return this.getExpression().getTypeKind();
     }

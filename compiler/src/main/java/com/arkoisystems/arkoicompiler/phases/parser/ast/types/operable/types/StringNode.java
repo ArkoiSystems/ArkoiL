@@ -26,7 +26,8 @@ import com.arkoisystems.arkoicompiler.phases.parser.Parser;
 import com.arkoisystems.arkoicompiler.phases.parser.ParserErrorType;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.ParserNode;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.operable.OperableNode;
-import com.arkoisystems.arkoicompiler.phases.parser.ast.enums.NodeType;
+import com.arkoisystems.arkoicompiler.phases.parser.ast.enums.TypeKind;
+import com.arkoisystems.arkoicompiler.phases.parser.SymbolTable;
 import com.arkoisystems.utils.printer.annotations.Printable;
 import lombok.Builder;
 import lombok.Getter;
@@ -39,7 +40,7 @@ import java.util.Objects;
 public class StringNode extends OperableNode
 {
     
-    public static StringNode GLOBAL_NODE = new StringNode(null, null, null, null);
+    public static StringNode GLOBAL_NODE = new StringNode(null, null, null, null, null);
     
     @Printable(name = "string")
     @Nullable
@@ -48,11 +49,12 @@ public class StringNode extends OperableNode
     @Builder
     protected StringNode(
             final @Nullable Parser parser,
+            final @Nullable SymbolTable currentScope,
             final @Nullable StringToken stringToken,
             final @Nullable LexerToken startToken,
             final @Nullable LexerToken endToken
     ) {
-        super(parser, startToken, endToken);
+        super(parser, currentScope, startToken, endToken);
         
         this.stringToken = stringToken;
     }
@@ -92,8 +94,8 @@ public class StringNode extends OperableNode
     
     @Override
     @NotNull
-    public NodeType getTypeKind() {
-        return NodeType.STRING;
+    public TypeKind getTypeKind() {
+        return TypeKind.STRING;
     }
     
 }

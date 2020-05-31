@@ -24,6 +24,7 @@ import com.arkoisystems.arkoicompiler.phases.parser.ast.ParserNode;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.operable.types.IdentifierNode;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.operable.types.NumberNode;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.operable.types.StringNode;
+import com.arkoisystems.arkoicompiler.phases.parser.SymbolTable;
 import lombok.Builder;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -34,10 +35,11 @@ public class OperableNode extends ParserNode
     @Builder(builderMethodName = "operatorBuilder")
     protected OperableNode(
             final @Nullable Parser parser,
+            final @Nullable SymbolTable currentScope,
             final @Nullable LexerToken startToken,
             final @Nullable LexerToken endToken
     ) {
-        super(parser, startToken, endToken);
+        super(parser, currentScope, startToken, endToken);
     }
     
     @Override

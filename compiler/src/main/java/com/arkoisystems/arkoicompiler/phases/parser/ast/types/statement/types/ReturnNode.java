@@ -24,10 +24,11 @@ import com.arkoisystems.arkoicompiler.phases.lexer.token.enums.KeywordType;
 import com.arkoisystems.arkoicompiler.phases.parser.Parser;
 import com.arkoisystems.arkoicompiler.phases.parser.ParserErrorType;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.ParserNode;
+import com.arkoisystems.arkoicompiler.phases.parser.ast.enums.TypeKind;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.operable.OperableNode;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.operable.types.expression.ExpressionNode;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.statement.StatementNode;
-import com.arkoisystems.arkoicompiler.phases.parser.ast.enums.NodeType;
+import com.arkoisystems.arkoicompiler.phases.parser.SymbolTable;
 import com.arkoisystems.utils.printer.annotations.Printable;
 import lombok.Builder;
 import lombok.Getter;
@@ -40,7 +41,7 @@ import java.util.Objects;
 public class ReturnNode extends StatementNode
 {
     
-    public static ReturnNode GLOBAL_NODE = new ReturnNode(null, null, null, null);
+    public static ReturnNode GLOBAL_NODE = new ReturnNode(null, null, null, null, null);
     
     @Printable(name = "expression")
     @Nullable
@@ -49,11 +50,12 @@ public class ReturnNode extends StatementNode
     @Builder
     protected ReturnNode(
             final @Nullable Parser parser,
+            final @Nullable SymbolTable currentScope,
             final @Nullable OperableNode expression,
             final @Nullable LexerToken startToken,
             final @Nullable LexerToken endToken
     ) {
-        super(parser, startToken, endToken);
+        super(parser, currentScope, startToken, endToken);
         
         this.expression = expression;
     }
@@ -108,12 +110,12 @@ public class ReturnNode extends StatementNode
     
     @Override
     @NotNull
-    public NodeType getTypeKind() {
-        if(this.getExpression() != null) {
+    public TypeKind getTypeKind() {
+        if (this.getExpression() != null) {
             Objects.requireNonNull(this.getExpression(), "expression must not be null.");
             return this.getExpression().getTypeKind();
         }
-        return NodeType.VOID;
+        return TypeKind.VOID;
     }
     
 }

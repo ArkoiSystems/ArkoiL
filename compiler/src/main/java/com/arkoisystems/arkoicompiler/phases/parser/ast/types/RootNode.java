@@ -26,7 +26,8 @@ import com.arkoisystems.arkoicompiler.phases.parser.ast.ParserNode;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.statement.types.FunctionNode;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.statement.types.ImportNode;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.statement.types.VariableNode;
-import com.arkoisystems.arkoicompiler.phases.parser.ast.enums.NodeType;
+import com.arkoisystems.arkoicompiler.phases.parser.SymbolTable;
+import com.arkoisystems.arkoicompiler.phases.parser.ast.enums.TypeKind;
 import com.arkoisystems.utils.printer.annotations.Printable;
 import lombok.Builder;
 import lombok.Getter;
@@ -52,7 +53,7 @@ public class RootNode extends ParserNode
             final @Nullable LexerToken startToken,
             final @Nullable LexerToken endToken
     ) {
-        super(parser, startToken, endToken);
+        super(parser, new SymbolTable(null), startToken, endToken);
         
         this.nodes = new ArrayList<>();
     }
@@ -83,6 +84,7 @@ public class RootNode extends ParserNode
             }
             
             ParserNode astNode = foundNode.clone();
+            astNode.setCurrentScope(this.getCurrentScope());
             astNode.setParser(this.getParser());
             astNode = astNode.parseAST(this);
             
@@ -106,8 +108,8 @@ public class RootNode extends ParserNode
     
     @Override
     @NotNull
-    public NodeType getTypeKind() {
-        return NodeType.ERROR;
+    public TypeKind getTypeKind() {
+        return TypeKind.UNDEFINED;
     }
     
 }

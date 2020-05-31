@@ -23,10 +23,11 @@ import com.arkoisystems.arkoicompiler.phases.lexer.token.LexerToken;
 import com.arkoisystems.arkoicompiler.phases.lexer.token.enums.OperatorType;
 import com.arkoisystems.arkoicompiler.phases.parser.Parser;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.ParserNode;
-import com.arkoisystems.arkoicompiler.phases.parser.ast.enums.NodeType;
+import com.arkoisystems.arkoicompiler.phases.parser.ast.enums.TypeKind;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.operable.OperableNode;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.operable.types.expression.ExpressionNode;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.operable.types.expression.types.enums.AssignmentOperators;
+import com.arkoisystems.arkoicompiler.phases.parser.SymbolTable;
 import com.arkoisystems.utils.printer.annotations.Printable;
 import lombok.Builder;
 import lombok.Getter;
@@ -39,17 +40,17 @@ import java.util.Objects;
 public class AssignmentNode extends ExpressionNode
 {
     
-    public static AssignmentNode ASSIGN_GLOBAL_NODE = new AssignmentNode(AssignmentOperators.ASSIGN, null, null, null, null, null);
+    public static AssignmentNode ASSIGN_GLOBAL_NODE = new AssignmentNode(null, null, AssignmentOperators.ASSIGN, null, null, null, null);
     
-    public static AssignmentNode ADD_GLOBAL_NODE = new AssignmentNode(AssignmentOperators.ADD_ASSIGN, null, null, null, null, null);
+    public static AssignmentNode ADD_GLOBAL_NODE = new AssignmentNode(null, null, AssignmentOperators.ADD_ASSIGN, null, null, null, null);
     
-    public static AssignmentNode SUB_GLOBAL_NODE = new AssignmentNode(AssignmentOperators.SUB_ASSIGN, null, null, null, null, null);
+    public static AssignmentNode SUB_GLOBAL_NODE = new AssignmentNode(null, null, AssignmentOperators.SUB_ASSIGN, null, null, null, null);
     
-    public static AssignmentNode MUL_GLOBAL_NODE = new AssignmentNode(AssignmentOperators.MUL_ASSIGN, null, null, null, null, null);
+    public static AssignmentNode MUL_GLOBAL_NODE = new AssignmentNode(null, null, AssignmentOperators.MUL_ASSIGN, null, null, null, null);
     
-    public static AssignmentNode DIV_GLOBAL_NODE = new AssignmentNode(AssignmentOperators.DIV_ASSIGN, null, null, null, null, null);
+    public static AssignmentNode DIV_GLOBAL_NODE = new AssignmentNode(null, null, AssignmentOperators.DIV_ASSIGN, null, null, null, null);
     
-    public static AssignmentNode MOD_GLOBAL_NODE = new AssignmentNode(AssignmentOperators.MOD_ASSIGN, null, null, null, null, null);
+    public static AssignmentNode MOD_GLOBAL_NODE = new AssignmentNode(null, null, AssignmentOperators.MOD_ASSIGN, null, null, null, null);
     
     @Printable(name = "lhs")
     @Nullable
@@ -65,14 +66,15 @@ public class AssignmentNode extends ExpressionNode
     
     @Builder
     protected AssignmentNode(
+            final @Nullable Parser parser,
+            final @Nullable SymbolTable currentScope,
             final @NotNull AssignmentOperators operatorType,
             final @Nullable OperableNode rightHandSide,
-            final @Nullable Parser parser,
             final @Nullable OperableNode leftHandSide,
             final @Nullable LexerToken startToken,
             final @Nullable LexerToken endToken
     ) {
-        super(parser, startToken, endToken);
+        super(parser, currentScope, startToken, endToken);
         
         this.rightHandSide = rightHandSide;
         this.operatorType = operatorType;
@@ -125,7 +127,7 @@ public class AssignmentNode extends ExpressionNode
     }
     
     @Override
-    public @NotNull NodeType getTypeKind() {
+    public @NotNull TypeKind getTypeKind() {
         Objects.requireNonNull(this.getLeftHandSide(), "leftHandSide must not be null.");
         return this.getLeftHandSide().getTypeKind();
     }

@@ -24,8 +24,9 @@ import com.arkoisystems.arkoicompiler.phases.lexer.token.enums.SymbolType;
 import com.arkoisystems.arkoicompiler.phases.parser.Parser;
 import com.arkoisystems.arkoicompiler.phases.parser.ParserErrorType;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.ParserNode;
-import com.arkoisystems.arkoicompiler.phases.parser.ast.enums.NodeType;
+import com.arkoisystems.arkoicompiler.phases.parser.ast.enums.TypeKind;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.operable.OperableNode;
+import com.arkoisystems.arkoicompiler.phases.parser.SymbolTable;
 import com.arkoisystems.utils.printer.annotations.Printable;
 import lombok.Builder;
 import lombok.Getter;
@@ -40,7 +41,7 @@ import java.util.Objects;
 public class ExpressionListNode extends ParserNode
 {
     
-    public static ExpressionListNode GLOBAL_NODE = new ExpressionListNode(null, null, null);
+    public static ExpressionListNode GLOBAL_NODE = new ExpressionListNode(null, null, null, null);
     
     @Printable(name = "expressions")
     @NotNull
@@ -49,10 +50,11 @@ public class ExpressionListNode extends ParserNode
     @Builder
     protected ExpressionListNode(
             final @Nullable Parser parser,
+            final @Nullable SymbolTable currentScope,
             final @Nullable LexerToken startToken,
             final @Nullable LexerToken endToken
     ) {
-        super(parser, startToken, endToken);
+        super(parser, currentScope, startToken, endToken);
         
         this.expressions = new ArrayList<>();
     }
@@ -127,8 +129,8 @@ public class ExpressionListNode extends ParserNode
     
     @Override
     @NotNull
-    public NodeType getTypeKind() {
-        return NodeType.UNDEFINED;
+    public TypeKind getTypeKind() {
+        return TypeKind.UNDEFINED;
     }
     
 }

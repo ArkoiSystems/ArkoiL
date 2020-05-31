@@ -26,7 +26,8 @@ import com.arkoisystems.arkoicompiler.phases.lexer.token.types.TypeToken;
 import com.arkoisystems.arkoicompiler.phases.parser.Parser;
 import com.arkoisystems.arkoicompiler.phases.parser.ParserErrorType;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.ParserNode;
-import com.arkoisystems.arkoicompiler.phases.parser.ast.enums.NodeType;
+import com.arkoisystems.arkoicompiler.phases.parser.ast.enums.TypeKind;
+import com.arkoisystems.arkoicompiler.phases.parser.SymbolTable;
 import com.arkoisystems.utils.printer.annotations.Printable;
 import lombok.Builder;
 import lombok.Getter;
@@ -39,7 +40,7 @@ import java.util.Objects;
 public class TypeNode extends ParserNode
 {
     
-    public static TypeNode GLOBAL_NODE = new TypeNode(null, null, null, null, false);
+    public static TypeNode GLOBAL_NODE = new TypeNode(null, null, null, null, null, false);
     
     @Printable(name = "type")
     @Nullable
@@ -51,12 +52,13 @@ public class TypeNode extends ParserNode
     @Builder
     protected TypeNode(
             final @Nullable Parser parser,
+            final @Nullable SymbolTable currentScope,
             final @Nullable TypeToken typeToken,
             final @Nullable LexerToken startToken,
             final @Nullable LexerToken endToken,
             final boolean isArray
     ) {
-        super(parser, startToken, endToken);
+        super(parser, currentScope, startToken, endToken);
         
         this.typeToken = typeToken;
         this.isArray = isArray;
@@ -102,9 +104,9 @@ public class TypeNode extends ParserNode
     
     @Override
     @NotNull
-    public NodeType getTypeKind() {
+    public TypeKind getTypeKind() {
         Objects.requireNonNull(this.getTypeToken(), "typeToken must not be null.");
-        return this.getTypeToken().getNodeType();
+        return this.getTypeToken().getTypeKind();
     }
     
 }
