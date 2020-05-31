@@ -41,14 +41,12 @@ public class Parser implements IStage
     @NotNull
     private final CompilerClass compilerClass;
     
-    @NotNull
-    private RootNode rootNodeAST = RootNode.builder()
-            .parser(this)
-            .build();
-    
     @Setter
     @NotNull
     private LexerToken[] tokens;
+    
+    @NotNull
+    private RootNode rootNode;
     
     @Setter
     private boolean failed;
@@ -57,6 +55,10 @@ public class Parser implements IStage
     
     public Parser(final @NotNull CompilerClass compilerClass) {
         this.compilerClass = compilerClass;
+    
+        this.rootNode = RootNode.builder()
+                .parser(this)
+                .build();
     }
     
     @Override
@@ -67,12 +69,12 @@ public class Parser implements IStage
         if (this.tokens.length == 0)
             return true;
         
-        return !this.rootNodeAST.parseAST(this.rootNodeAST).isFailed();
+        return !this.rootNode.parseAST(this.rootNode).isFailed();
     }
     
     @Override
     public void reset() {
-        this.rootNodeAST = RootNode.builder()
+        this.rootNode = RootNode.builder()
                 .parser(this)
                 .build();
         this.tokens = new LexerToken[0];

@@ -22,8 +22,6 @@ import com.arkoisystems.arkoicompiler.phases.parser.ast.ParserNode;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.BlockNode;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.RootNode;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.TypeNode;
-import com.arkoisystems.arkoicompiler.phases.parser.ast.types.argument.ArgumentNode;
-import com.arkoisystems.arkoicompiler.phases.parser.ast.types.argument.ArgumentListNode;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.operable.types.IdentifierNode;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.operable.types.NumberNode;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.operable.types.StringNode;
@@ -53,10 +51,6 @@ public interface IVisitor<T>
             return this.visit((ParameterNode) astNode);
         else if (astNode instanceof BlockNode)
             return this.visit((BlockNode) astNode);
-        else if (astNode instanceof ArgumentListNode)
-            return this.visit((ArgumentListNode) astNode);
-        else if (astNode instanceof ArgumentNode)
-            return this.visit((ArgumentNode) astNode);
         else if (astNode instanceof FunctionNode)
             return this.visit((FunctionNode) astNode);
         else if (astNode instanceof ImportNode)
@@ -94,10 +88,6 @@ public interface IVisitor<T>
     T visit(final @NotNull ParameterNode parameter);
     
     T visit(final @NotNull BlockNode blockNode);
-    
-    T visit(final @NotNull ArgumentListNode argumentListNode);
-    
-    T visit(final @NotNull ArgumentNode argumentNode);
     
     T visit(final @NotNull FunctionNode functionNode);
     

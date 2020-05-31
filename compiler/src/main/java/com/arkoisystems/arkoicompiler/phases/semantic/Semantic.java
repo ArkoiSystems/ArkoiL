@@ -21,7 +21,6 @@ package com.arkoisystems.arkoicompiler.phases.semantic;
 import com.arkoisystems.arkoicompiler.CompilerClass;
 import com.arkoisystems.arkoicompiler.api.IStage;
 import com.arkoisystems.arkoicompiler.phases.semantic.routines.ScopeVisitor;
-import com.arkoisystems.arkoicompiler.phases.semantic.routines.TypeVisitor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.SneakyThrows;
@@ -45,14 +44,17 @@ public class Semantic implements IStage
     @Override
     public boolean processStage() {
         this.reset();
-        
+    
         final ScopeVisitor scopeVisitor = new ScopeVisitor(this);
-        scopeVisitor.visit(this.getCompilerClass().getParser().getRootNodeAST());
-        
-        final TypeVisitor typeVisitor = new TypeVisitor(this, scopeVisitor);
-        typeVisitor.visit(this.getCompilerClass().getParser().getRootNodeAST());
-        
-        return !scopeVisitor.isFailed() && !typeVisitor.isFailed();
+        scopeVisitor.visit(this.getCompilerClass().getParser().getRootNode());
+    
+        //        final TypeVisitor typeVisitor = new TypeVisitor(this, scopeVisitor);
+        //        typeVisitor.visit(this.getCompilerClass().getParser().getRootNodeAST());
+    
+//        System.out.println(scopeVisitor.isFailed());
+        return !scopeVisitor.isFailed();
+//        return !scopeVisitor.isFailed();
+        //                && !typeVisitor.isFailed();
     }
     
     @Override

@@ -42,7 +42,7 @@ public class CodeGen implements IStage
     @Override
     public boolean processStage() {
         final CodeGenVisitor visitor = new CodeGenVisitor();
-        final Module module = visitor.visit(this.getCompilerClass().getParser().getRootNodeAST());
+        final Module module = visitor.visit(this.getCompilerClass().getParser().getRootNode());
         //        if (module != null)
         //            module.dumpModule();
         return module != null;
