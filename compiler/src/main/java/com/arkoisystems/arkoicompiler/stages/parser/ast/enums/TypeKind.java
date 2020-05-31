@@ -18,7 +18,7 @@
  */
 package com.arkoisystems.arkoicompiler.stages.parser.ast.enums;
 
-import com.arkoisystems.arkoicompiler.stages.lexer.token.ArkoiToken;
+import com.arkoisystems.arkoicompiler.stages.lexer.token.LexerToken;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -62,11 +62,11 @@ public enum TypeKind
     }
     
     @Nullable
-    public static TypeKind getTypeKind(final ArkoiToken arkoiToken) {
+    public static TypeKind getTypeKind(final LexerToken lexerToken) {
         for (final TypeKind typeKind : TypeKind.values()) {
             if (typeKind == COLLECTION || typeKind == UNDEFINED)
                 continue;
-            if (typeKind.getName().equals(arkoiToken.getTokenContent()))
+            if (typeKind.getName().equals(lexerToken.getTokenContent()))
                 return typeKind;
         }
         return null;

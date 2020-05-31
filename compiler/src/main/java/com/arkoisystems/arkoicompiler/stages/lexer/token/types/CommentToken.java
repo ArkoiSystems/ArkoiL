@@ -19,12 +19,12 @@
 package com.arkoisystems.arkoicompiler.stages.lexer.token.types;
 
 import com.arkoisystems.arkoicompiler.stages.lexer.Lexer;
-import com.arkoisystems.arkoicompiler.stages.lexer.token.ArkoiToken;
+import com.arkoisystems.arkoicompiler.stages.lexer.token.LexerToken;
 import com.arkoisystems.arkoicompiler.stages.lexer.token.enums.TokenType;
 import lombok.Builder;
 import org.jetbrains.annotations.NotNull;
 
-public class CommentToken extends ArkoiToken
+public class CommentToken extends LexerToken
 {
     
     @Builder

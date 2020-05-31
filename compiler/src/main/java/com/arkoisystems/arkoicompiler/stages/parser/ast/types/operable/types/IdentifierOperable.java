@@ -19,14 +19,14 @@
 package com.arkoisystems.arkoicompiler.stages.parser.ast.types.operable.types;
 
 import com.arkoisystems.arkoicompiler.api.IVisitor;
-import com.arkoisystems.arkoicompiler.stages.lexer.token.ArkoiToken;
+import com.arkoisystems.arkoicompiler.stages.lexer.token.LexerToken;
 import com.arkoisystems.arkoicompiler.stages.lexer.token.enums.KeywordType;
 import com.arkoisystems.arkoicompiler.stages.lexer.token.enums.SymbolType;
 import com.arkoisystems.arkoicompiler.stages.lexer.token.enums.TokenType;
 import com.arkoisystems.arkoicompiler.stages.lexer.token.types.IdentifierToken;
 import com.arkoisystems.arkoicompiler.stages.parser.Parser;
 import com.arkoisystems.arkoicompiler.stages.parser.ParserErrorType;
-import com.arkoisystems.arkoicompiler.stages.parser.ast.ArkoiNode;
+import com.arkoisystems.arkoicompiler.stages.parser.ast.ParserNode;
 import com.arkoisystems.arkoicompiler.stages.parser.ast.enums.ASTType;
 import com.arkoisystems.arkoicompiler.stages.parser.ast.enums.TypeKind;
 import com.arkoisystems.arkoicompiler.stages.parser.ast.types.operable.Operable;
@@ -72,8 +72,8 @@ public class IdentifierOperable extends Operable
             final @Nullable ExpressionList expressionList,
             final @Nullable IdentifierToken identifier,
             final @Nullable Parser parser,
-            final @Nullable ArkoiToken startToken,
-            final @Nullable ArkoiToken endToken,
+            final @Nullable LexerToken startToken,
+            final @Nullable LexerToken endToken,
             final boolean isFileLocal
     ) {
         super(parser, ASTType.IDENTIFIER_CALL, startToken, endToken);
@@ -86,7 +86,7 @@ public class IdentifierOperable extends Operable
     
     @NotNull
     @Override
-    public IdentifierOperable parseAST(final @Nullable ArkoiNode parentAST) {
+    public IdentifierOperable parseAST(final @Nullable ParserNode parentAST) {
         Objects.requireNonNull(this.getParser(), "parser must not be null.");
         
         this.startAST(this.getParser().currentToken());
@@ -95,7 +95,7 @@ public class IdentifierOperable extends Operable
             this.isFileLocal = true;
             
             if (this.getParser().matchesPeekToken(1, SymbolType.PERIOD) == null) {
-                final ArkoiToken currentToken = this.getParser().currentToken();
+                final LexerToken currentToken = this.getParser().currentToken();
                 return this.addError(
                         this,
                         this.getParser().getCompilerClass(),
@@ -109,7 +109,7 @@ public class IdentifierOperable extends Operable
             this.getParser().nextToken();
             
             if (this.getParser().matchesPeekToken(1, TokenType.IDENTIFIER) == null) {
-                final ArkoiToken currentToken = this.getParser().currentToken();
+                final LexerToken currentToken = this.getParser().currentToken();
                 return this.addError(
                         this,
                         this.getParser().getCompilerClass(),
@@ -122,7 +122,7 @@ public class IdentifierOperable extends Operable
             
             this.getParser().nextToken();
         } else if (this.getParser().matchesCurrentToken(TokenType.IDENTIFIER) == null) {
-            final ArkoiToken currentToken = this.getParser().currentToken();
+            final LexerToken currentToken = this.getParser().currentToken();
             return this.addError(
                     this,
                     this.getParser().getCompilerClass(),
@@ -157,7 +157,7 @@ public class IdentifierOperable extends Operable
             this.getParser().nextToken();
             
             if(!IdentifierOperable.GLOBAL_NODE.canParse(this.getParser(), 1)) {
-                final ArkoiToken peekedToken = this.getParser().peekToken(1);
+                final LexerToken peekedToken = this.getParser().peekToken(1);
                 return this.addError(
                         this,
                         this.getParser().getCompilerClass(),
@@ -205,7 +205,7 @@ public class IdentifierOperable extends Operable
         final ScopeVisitor scopeVisitor = new ScopeVisitor(this.getParser().getCompilerClass().getSemantic());
         scopeVisitor.visit(this.getParser().getRootAST());
         
-        final ArkoiNode resultNode = scopeVisitor.visit(this);
+        final ParserNode resultNode = scopeVisitor.visit(this);
         if (scopeVisitor.isFailed())
             this.setFailed(true);
         if (resultNode != null)

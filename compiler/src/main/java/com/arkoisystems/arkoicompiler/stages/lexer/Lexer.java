@@ -18,12 +18,9 @@
  */
 package com.arkoisystems.arkoicompiler.stages.lexer;
 
-import com.arkoisystems.arkoicompiler.ArkoiClass;
+import com.arkoisystems.arkoicompiler.CompilerClass;
 import com.arkoisystems.arkoicompiler.api.IStage;
-import com.arkoisystems.arkoicompiler.error.ArkoiError;
-import com.arkoisystems.arkoicompiler.error.ErrorPosition;
-import com.arkoisystems.arkoicompiler.error.LineRange;
-import com.arkoisystems.arkoicompiler.stages.lexer.token.ArkoiToken;
+import com.arkoisystems.arkoicompiler.stages.lexer.token.LexerToken;
 import com.arkoisystems.arkoicompiler.stages.lexer.token.enums.TokenType;
 import lombok.Getter;
 import lombok.Setter;
@@ -31,32 +28,29 @@ import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Getter
-@Setter
 public class Lexer implements IStage
 {
     
-    @Getter
     @NotNull
-    private final ArkoiClass compilerClass;
+    private final CompilerClass compilerClass;
     
     @NotNull
-    private LexerErrorHandler errorHandler = new LexerErrorHandler();
+    private final List<LexerToken> tokens;
     
     private int lineIndex, charIndex;
     
-    @NotNull
-    private List<ArkoiToken> tokens;
-    
+    @Setter
     private boolean failed;
     
-    public Lexer(final @NotNull ArkoiClass compilerClass) {
+    public Lexer(final @NotNull CompilerClass compilerClass) {
         this.compilerClass = compilerClass;
+        
+        this.tokens = new ArrayList<>();
     }
     
     @SneakyThrows
@@ -98,12 +92,11 @@ public class Lexer implements IStage
     
     @Override
     public void reset() {
-        this.setErrorHandler(new LexerErrorHandler());
-        this.setTokens(new ArrayList<>());
         this.setFailed(false);
         
-        this.setCharIndex(0);
-        this.setLineIndex(0);
+        this.tokens.clear();
+        this.charIndex = 0;
+        this.lineIndex = 0;
     }
     
 }

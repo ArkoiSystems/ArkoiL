@@ -19,15 +19,15 @@
 package com.arkoisystems.arkoicompiler.api;
 
 import com.arkoisystems.arkoicompiler.stages.parser.Parser;
-import com.arkoisystems.arkoicompiler.stages.parser.ast.ArkoiNode;
+import com.arkoisystems.arkoicompiler.stages.parser.ast.ParserNode;
 import org.jetbrains.annotations.NotNull;
 
 public interface ISyntaxParser
 {
     
     @NotNull
-    ArkoiNode parse(final @NotNull ArkoiNode parentAST, final @NotNull Parser parser);
+    ParserNode parse(final @NotNull ParserNode parentAST, final @NotNull Parser parser);
     
-    boolean canParse(final @NotNull ArkoiNode parentAST, final @NotNull Parser parser);
+    boolean canParse(final @NotNull ParserNode parentAST, final @NotNull Parser parser);
     
 }

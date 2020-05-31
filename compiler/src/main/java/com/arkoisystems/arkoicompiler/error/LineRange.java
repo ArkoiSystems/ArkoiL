@@ -1,6 +1,6 @@
 package com.arkoisystems.arkoicompiler.error;
 
-import com.arkoisystems.arkoicompiler.ArkoiClass;
+import com.arkoisystems.arkoicompiler.CompilerClass;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -22,7 +22,7 @@ public class LineRange
     
     @NotNull
     public static LineRange make(
-            final @NotNull ArkoiClass compilerClass,
+            final @NotNull CompilerClass compilerClass,
             final int startLine,
             final int endLine
     ) {

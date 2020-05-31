@@ -1,6 +1,6 @@
 /*
  * Copyright © 2019-2020 ArkoiSystems (https://www.arkoisystems.com/) All Rights Reserved.
- * Created ArkoiCompiler on February 15, 2020
+ * Created ArkoiCompiler on May 31, 2020
  * Author єхcsє#5543 aka timo
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,9 +16,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.arkoisystems.arkoicompiler.stages.semantic;
+package com.arkoisystems.arkoicompiler;
 
-import com.arkoisystems.arkoicompiler.api.IErrorHandler;
 import com.arkoisystems.arkoicompiler.error.ArkoiError;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
@@ -26,20 +25,19 @@ import org.jetbrains.annotations.NotNull;
 import java.io.PrintStream;
 import java.util.HashSet;
 
-public class SemanticErrorHandler implements IErrorHandler
+@Getter
+public class ErrorHandler
 {
     
-    @Getter
-    private final HashSet<ArkoiError> compileErrors = new HashSet<>();
+    @NotNull
+    private final HashSet<ArkoiError> compilerErrors = new HashSet<>();
     
-    @Override
     public void addError(final @NotNull ArkoiError compilerError) {
-        this.getCompileErrors().add(compilerError);
+        this.compilerErrors.add(compilerError);
     }
     
-    @Override
     public void printStackTrace(final @NotNull PrintStream printStream) {
-        for (final ArkoiError error : this.getCompileErrors())
+        for (final ArkoiError error : this.compilerErrors)
             printStream.println(error.toString());
     }
     

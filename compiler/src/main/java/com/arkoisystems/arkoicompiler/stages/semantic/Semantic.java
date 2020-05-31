@@ -18,7 +18,7 @@
  */
 package com.arkoisystems.arkoicompiler.stages.semantic;
 
-import com.arkoisystems.arkoicompiler.ArkoiClass;
+import com.arkoisystems.arkoicompiler.CompilerClass;
 import com.arkoisystems.arkoicompiler.api.IStage;
 import com.arkoisystems.arkoicompiler.stages.semantic.routines.ScopeVisitor;
 import com.arkoisystems.arkoicompiler.stages.semantic.routines.TypeVisitor;
@@ -27,22 +27,17 @@ import lombok.Setter;
 import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
 
+@Getter
 public class Semantic implements IStage
 {
     
-    @Getter
     @NotNull
-    private final ArkoiClass compilerClass;
+    private final CompilerClass compilerClass;
     
-    @Getter
-    @NotNull
-    private SemanticErrorHandler errorHandler = new SemanticErrorHandler();
-    
-    @Getter
     @Setter
     private boolean failed;
     
-    public Semantic(final @NotNull ArkoiClass compilerClass) {
+    public Semantic(final @NotNull CompilerClass compilerClass) {
         this.compilerClass = compilerClass;
     }
     
@@ -50,19 +45,18 @@ public class Semantic implements IStage
     @Override
     public boolean processStage() {
         this.reset();
-    
+        
         final ScopeVisitor scopeVisitor = new ScopeVisitor(this);
         scopeVisitor.visit(this.getCompilerClass().getParser().getRootAST());
-    
+        
         final TypeVisitor typeVisitor = new TypeVisitor(this, scopeVisitor);
         typeVisitor.visit(this.getCompilerClass().getParser().getRootAST());
-    
+        
         return !scopeVisitor.isFailed() && !typeVisitor.isFailed();
     }
     
     @Override
     public void reset() {
-        this.errorHandler = new SemanticErrorHandler();
         this.failed = false;
     }
     

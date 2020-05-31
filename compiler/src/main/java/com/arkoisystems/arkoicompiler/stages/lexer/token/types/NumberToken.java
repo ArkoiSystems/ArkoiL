@@ -19,7 +19,7 @@
 package com.arkoisystems.arkoicompiler.stages.lexer.token.types;
 
 import com.arkoisystems.arkoicompiler.stages.lexer.Lexer;
-import com.arkoisystems.arkoicompiler.stages.lexer.token.ArkoiToken;
+import com.arkoisystems.arkoicompiler.stages.lexer.token.LexerToken;
 import com.arkoisystems.arkoicompiler.stages.lexer.token.enums.TokenType;
 import com.arkoisystems.arkoicompiler.stages.parser.ast.enums.TypeKind;
 import lombok.Builder;
@@ -28,7 +28,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 @Getter
-public class NumberToken extends ArkoiToken
+public class NumberToken extends LexerToken
 {
     
     @NotNull

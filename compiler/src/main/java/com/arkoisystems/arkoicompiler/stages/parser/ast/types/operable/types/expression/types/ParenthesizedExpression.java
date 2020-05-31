@@ -19,11 +19,11 @@
 package com.arkoisystems.arkoicompiler.stages.parser.ast.types.operable.types.expression.types;
 
 import com.arkoisystems.arkoicompiler.api.IVisitor;
-import com.arkoisystems.arkoicompiler.stages.lexer.token.ArkoiToken;
+import com.arkoisystems.arkoicompiler.stages.lexer.token.LexerToken;
 import com.arkoisystems.arkoicompiler.stages.lexer.token.enums.SymbolType;
 import com.arkoisystems.arkoicompiler.stages.parser.Parser;
 import com.arkoisystems.arkoicompiler.stages.parser.ParserErrorType;
-import com.arkoisystems.arkoicompiler.stages.parser.ast.ArkoiNode;
+import com.arkoisystems.arkoicompiler.stages.parser.ast.ParserNode;
 import com.arkoisystems.arkoicompiler.stages.parser.ast.types.operable.Operable;
 import com.arkoisystems.arkoicompiler.stages.parser.ast.types.operable.types.expression.Expression;
 import com.arkoisystems.arkoicompiler.stages.parser.ast.enums.ASTType;
@@ -50,8 +50,8 @@ public class ParenthesizedExpression extends Expression
     protected ParenthesizedExpression(
             final @Nullable Operable expression,
             final @Nullable Parser parser,
-            final @Nullable ArkoiToken startToken,
-            final @Nullable ArkoiToken endToken
+            final @Nullable LexerToken startToken,
+            final @Nullable LexerToken endToken
     ) {
         super(parser, null, ASTType.PARENTHESIZED_EXPRESSION, startToken, endToken);
         
@@ -60,11 +60,11 @@ public class ParenthesizedExpression extends Expression
     
     @NotNull
     @Override
-    public ParenthesizedExpression parseAST(final @NotNull ArkoiNode parentAST) {
+    public ParenthesizedExpression parseAST(final @NotNull ParserNode parentAST) {
         Objects.requireNonNull(this.getParser(), "parser must not be null.");
         
         if (this.getParser().matchesCurrentToken(SymbolType.OPENING_PARENTHESIS) == null) {
-            final ArkoiToken currentToken = this.getParser().currentToken();
+            final LexerToken currentToken = this.getParser().currentToken();
             return this.addError(
                     this,
                     this.getParser().getCompilerClass(),
@@ -78,7 +78,7 @@ public class ParenthesizedExpression extends Expression
         this.startAST(this.getParser().currentToken());
         
         if(!Expression.GLOBAL_NODE.canParse(this.getParser(), 1)) {
-            final ArkoiToken peekedToken = this.getParser().peekToken(1);
+            final LexerToken peekedToken = this.getParser().peekToken(1);
             return this.addError(
                     this,
                     this.getParser().getCompilerClass(),
@@ -104,7 +104,7 @@ public class ParenthesizedExpression extends Expression
         this.expression = operableAST;
         
         if (this.getParser().matchesPeekToken(1, SymbolType.CLOSING_PARENTHESIS) == null) {
-            final ArkoiToken peekedToken = this.getParser().peekToken(1);
+            final LexerToken peekedToken = this.getParser().peekToken(1);
             return this.addError(
                     this,
                     this.getParser().getCompilerClass(),

@@ -19,10 +19,10 @@
 package com.arkoisystems.arkoicompiler.stages.parser.ast.types.operable.types.expression.types;
 
 import com.arkoisystems.arkoicompiler.api.IVisitor;
-import com.arkoisystems.arkoicompiler.stages.lexer.token.ArkoiToken;
+import com.arkoisystems.arkoicompiler.stages.lexer.token.LexerToken;
 import com.arkoisystems.arkoicompiler.stages.lexer.token.enums.OperatorType;
 import com.arkoisystems.arkoicompiler.stages.parser.Parser;
-import com.arkoisystems.arkoicompiler.stages.parser.ast.ArkoiNode;
+import com.arkoisystems.arkoicompiler.stages.parser.ast.ParserNode;
 import com.arkoisystems.arkoicompiler.stages.parser.ast.types.operable.Operable;
 import com.arkoisystems.arkoicompiler.stages.parser.ast.types.operable.types.expression.Expression;
 import com.arkoisystems.arkoicompiler.stages.parser.ast.types.operable.types.expression.types.operators.PostfixOperatorType;
@@ -57,8 +57,8 @@ public class PostfixExpression extends Expression
             final @NotNull PostfixOperatorType operatorType,
             final @Nullable Operable leftHandSide,
             final @Nullable Parser parser,
-            final @Nullable ArkoiToken startToken,
-            final @Nullable ArkoiToken endToken
+            final @Nullable LexerToken startToken,
+            final @Nullable LexerToken endToken
     ) {
         super(parser, null, ASTType.POSTFIX_EXPRESSION, startToken, endToken);
         
@@ -68,7 +68,7 @@ public class PostfixExpression extends Expression
     
     @NotNull
     @Override
-    public PostfixExpression parseAST(final @NotNull ArkoiNode parentAST) {
+    public PostfixExpression parseAST(final @NotNull ParserNode parentAST) {
         Objects.requireNonNull(this.getParser(), "parser must not be null.");
         Objects.requireNonNull(this.getLeftHandSide(), "leftSideOperable must not be null.");
         

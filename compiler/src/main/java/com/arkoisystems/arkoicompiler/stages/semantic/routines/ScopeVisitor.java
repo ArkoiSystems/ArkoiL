@@ -18,15 +18,15 @@
  */
 package com.arkoisystems.arkoicompiler.stages.semantic.routines;
 
-import com.arkoisystems.arkoicompiler.ArkoiClass;
-import com.arkoisystems.arkoicompiler.ArkoiCompiler;
+import com.arkoisystems.arkoicompiler.CompilerClass;
+import com.arkoisystems.arkoicompiler.Compiler;
 import com.arkoisystems.arkoicompiler.api.IFailed;
 import com.arkoisystems.arkoicompiler.api.IVisitor;
 import com.arkoisystems.arkoicompiler.error.ArkoiError;
 import com.arkoisystems.arkoicompiler.error.ErrorPosition;
 import com.arkoisystems.arkoicompiler.error.LineRange;
-import com.arkoisystems.arkoicompiler.stages.lexer.token.ArkoiToken;
-import com.arkoisystems.arkoicompiler.stages.parser.ast.ArkoiNode;
+import com.arkoisystems.arkoicompiler.stages.lexer.token.LexerToken;
+import com.arkoisystems.arkoicompiler.stages.parser.ast.ParserNode;
 import com.arkoisystems.arkoicompiler.stages.parser.ast.types.Block;
 import com.arkoisystems.arkoicompiler.stages.parser.ast.types.Root;
 import com.arkoisystems.arkoicompiler.stages.parser.ast.types.Type;
@@ -56,12 +56,12 @@ import java.io.File;
 import java.nio.file.Files;
 import java.util.*;
 
-public class ScopeVisitor implements IVisitor<ArkoiNode>, IFailed
+public class ScopeVisitor implements IVisitor<ParserNode>, IFailed
 {
     
     @NotNull
     @Getter
-    private final List<HashMap<String, ArkoiNode>> scopeStack = new ArrayList<>();
+    private final List<HashMap<String, ParserNode>> scopeStack = new ArrayList<>();
     
     @Getter
     @NotNull
@@ -95,7 +95,7 @@ public class ScopeVisitor implements IVisitor<ArkoiNode>, IFailed
         this.getScopeStack().add(new HashMap<>());
         this.setCurrentIndex(0);
         
-        for (final ArkoiNode astNode : root.getNodes()) {
+        for (final ParserNode astNode : root.getNodes()) {
             if (astNode instanceof VariableStatement)
                 this.preVisit((VariableStatement) astNode);
             else if (astNode instanceof FunctionStatement)
@@ -104,7 +104,7 @@ public class ScopeVisitor implements IVisitor<ArkoiNode>, IFailed
                 this.preVisit((ImportStatement) astNode);
         }
         
-        for (final ArkoiNode astNode : root.getNodes())
+        for (final ParserNode astNode : root.getNodes())
             this.visit(astNode);
         return root;
     }
@@ -123,7 +123,7 @@ public class ScopeVisitor implements IVisitor<ArkoiNode>, IFailed
         Objects.requireNonNull(parameter.getName(), "parameterAST.parameterName must not be null.");
         Objects.requireNonNull(parameter.getParser(), "parameterAST.parser must not be null.");
         
-        final HashMap<String, ArkoiNode> currentScope = this.getScopeIndexes().containsKey(parameter.hashCode()) ?
+        final HashMap<String, ParserNode> currentScope = this.getScopeIndexes().containsKey(parameter.hashCode()) ?
                 this.getScopeStack().get(this.getScopeIndexes().get(parameter.hashCode())) :
                 this.getScopeStack().get(this.getCurrentIndex());
         if (!this.getScopeIndexes().containsKey(parameter.hashCode()))
@@ -145,7 +145,7 @@ public class ScopeVisitor implements IVisitor<ArkoiNode>, IFailed
     @NotNull
     @Override
     public Block visit(final @NotNull Block block) {
-        for (final ArkoiNode astNode : block.getNodes()) {
+        for (final ParserNode astNode : block.getNodes()) {
             if (astNode instanceof VariableStatement)
                 this.preVisit((VariableStatement) astNode);
             this.visit(astNode);
@@ -167,7 +167,7 @@ public class ScopeVisitor implements IVisitor<ArkoiNode>, IFailed
         Objects.requireNonNull(argument.getName(), "argumentAST.argumentName must not be null.");
         Objects.requireNonNull(argument.getParser(), "argumentAST.parser must not be null.");
         
-        final HashMap<String, ArkoiNode> currentScope = this.getScopeIndexes().containsKey(argument.hashCode()) ?
+        final HashMap<String, ParserNode> currentScope = this.getScopeIndexes().containsKey(argument.hashCode()) ?
                 this.getScopeStack().get(this.getScopeIndexes().get(argument.hashCode())) :
                 this.getScopeStack().get(this.getCurrentIndex());
         if (!this.getScopeIndexes().containsKey(argument.hashCode()))
@@ -190,7 +190,7 @@ public class ScopeVisitor implements IVisitor<ArkoiNode>, IFailed
         Objects.requireNonNull(functionStatement.getName(), "functionAST.functionName must not be null.");
         Objects.requireNonNull(functionStatement.getParser(), "functionAST.parser must not be null.");
         
-        final HashMap<String, ArkoiNode> rootScope = this.getScopeStack().get(0);
+        final HashMap<String, ParserNode> rootScope = this.getScopeStack().get(0);
         if (rootScope.containsKey(functionStatement.getFunctionDescription())) {
             this.addError(
                     functionStatement,
@@ -223,7 +223,7 @@ public class ScopeVisitor implements IVisitor<ArkoiNode>, IFailed
         Objects.requireNonNull(importStatement.getName(), "importAST.importName must not be null.");
         Objects.requireNonNull(importStatement.getParser(), "importAST.parser must not be null.");
         
-        final HashMap<String, ArkoiNode> rootScope = this.getScopeStack().get(0);
+        final HashMap<String, ParserNode> rootScope = this.getScopeStack().get(0);
         if (rootScope.containsKey(importStatement.getName().getTokenContent())) {
             this.addError(
                     importStatement,
@@ -255,7 +255,7 @@ public class ScopeVisitor implements IVisitor<ArkoiNode>, IFailed
         Objects.requireNonNull(variableStatement.getName(), "variableAST.variableName must not be null.");
         Objects.requireNonNull(variableStatement.getParser(), "variableAST.parser must not be null.");
         
-        final HashMap<String, ArkoiNode> currentScope = this.getScopeIndexes().containsKey(variableStatement.hashCode()) ?
+        final HashMap<String, ParserNode> currentScope = this.getScopeIndexes().containsKey(variableStatement.hashCode()) ?
                 this.getScopeStack().get(this.getScopeIndexes().get(variableStatement.hashCode())) :
                 this.getScopeStack().get(this.getCurrentIndex());
         if (!this.getScopeIndexes().containsKey(variableStatement.hashCode()))
@@ -296,17 +296,17 @@ public class ScopeVisitor implements IVisitor<ArkoiNode>, IFailed
     
     @Nullable
     @Override
-    public ArkoiNode visit(final @NotNull IdentifierOperable identifierOperable) {
+    public ParserNode visit(final @NotNull IdentifierOperable identifierOperable) {
         Objects.requireNonNull(identifierOperable.getIdentifier(), "identifierCallAST.calledIdentifier must not be null.");
         Objects.requireNonNull(identifierOperable.getParser(), "identifierCallAST.parser must not be null.");
         
-        final HashMap<String, ArkoiNode> currentScope = this.getScopeIndexes().containsKey(identifierOperable.hashCode()) ?
+        final HashMap<String, ParserNode> currentScope = this.getScopeIndexes().containsKey(identifierOperable.hashCode()) ?
                 this.getScopeStack().get(this.getScopeIndexes().get(identifierOperable.hashCode())) :
                 this.getScopeStack().get(this.getCurrentIndex());
         if (!this.getScopeIndexes().containsKey(identifierOperable.hashCode()))
             this.getScopeIndexes().put(identifierOperable.hashCode(), this.getCurrentIndex());
         
-        ArkoiNode foundAST = null;
+        ParserNode foundAST = null;
         if (!identifierOperable.isFileLocal() && currentScope.containsKey(identifierOperable.getDescriptor()))
             foundAST = currentScope.get(identifierOperable.getDescriptor());
         if (foundAST == null && this.getScopeStack().get(0).containsKey(identifierOperable.getDescriptor()))
@@ -357,7 +357,7 @@ public class ScopeVisitor implements IVisitor<ArkoiNode>, IFailed
         if (identifierOperable.getNextIdentifier() == null)
             return foundAST;
         
-        ArkoiClass resolvedClass = this.resolveClass(foundAST);
+        CompilerClass resolvedClass = this.resolveClass(foundAST);
         if (resolvedClass == null)
             return foundAST;
         
@@ -373,7 +373,7 @@ public class ScopeVisitor implements IVisitor<ArkoiNode>, IFailed
     
     @SneakyThrows
     @Nullable
-    private ArkoiClass resolveClass(final @NotNull ArkoiNode foundAST) {
+    private CompilerClass resolveClass(final @NotNull ParserNode foundAST) {
         Objects.requireNonNull(foundAST.getParser(), "foundAST.parser must not be null.");
     
         if (foundAST instanceof ImportStatement) {
@@ -406,18 +406,18 @@ public class ScopeVisitor implements IVisitor<ArkoiNode>, IFailed
                         "Path doesn't lead to file '%s'.", importStatement.getFilePath().getTokenContent()
                 );
     
-            final ArkoiCompiler arkoiCompiler = this.getSemantic().getCompilerClass().getCompiler();
-            for (final ArkoiClass compilerClass : arkoiCompiler.getArkoiClasses())
+            final Compiler compiler = this.getSemantic().getCompilerClass().getCompiler();
+            for (final CompilerClass compilerClass : compiler.getClasses())
                 if (compilerClass.getFilePath().equals(targetFile.getCanonicalPath()))
                     return compilerClass;
     
-            final ArkoiClass arkoiClass = new ArkoiClass(arkoiCompiler, targetFile.getCanonicalPath(), Files.readAllBytes(targetFile.toPath()), this.getSemantic().getCompilerClass().isDetailed());
-            arkoiCompiler.getArkoiClasses().add(arkoiClass);
+            final CompilerClass compilerClass = new CompilerClass(compiler, targetFile.getCanonicalPath(), Files.readAllBytes(targetFile.toPath()), this.getSemantic().getCompilerClass().isDetailed());
+            compiler.getClasses().add(compilerClass);
     
-            arkoiClass.getLexer().processStage();
-            arkoiClass.getParser().processStage();
-            arkoiClass.getSemantic().processStage();
-            return arkoiClass;
+            compilerClass.getLexer().processStage();
+            compilerClass.getParser().processStage();
+            compilerClass.getSemantic().processStage();
+            return compilerClass;
         }
         return null;
     }
@@ -520,10 +520,10 @@ public class ScopeVisitor implements IVisitor<ArkoiNode>, IFailed
     }
     
     @Nullable
-    public <E> E addError(@Nullable E errorSource, final @NotNull ArkoiClass compilerClass, final @NotNull ArkoiNode astNode, final @NotNull String message, final @NotNull Object... arguments) {
+    public <E> E addError(@Nullable E errorSource, final @NotNull CompilerClass compilerClass, final @NotNull ParserNode astNode, final @NotNull String message, final @NotNull Object... arguments) {
         Objects.requireNonNull(astNode.getLineRange(), "astNode.lineRange must not be null.");
         
-        compilerClass.getSemantic().getErrorHandler().addError(ArkoiError.builder()
+        compilerClass.getCompiler().getErrorHandler().addError(ArkoiError.builder()
                 .compilerClass(compilerClass)
                 .positions(Collections.singletonList(ErrorPosition.builder()
                         .lineRange(astNode.getLineRange())
@@ -540,13 +540,13 @@ public class ScopeVisitor implements IVisitor<ArkoiNode>, IFailed
     }
     
     @Nullable
-    public <E> E addError(@Nullable E errorSource, final @NotNull ArkoiClass compilerClass, final @NotNull ArkoiToken arkoiToken, final @NotNull String message, final @NotNull Object... arguments) {
-        compilerClass.getSemantic().getErrorHandler().addError(ArkoiError.builder()
+    public <E> E addError(@Nullable E errorSource, final @NotNull CompilerClass compilerClass, final @NotNull LexerToken lexerToken, final @NotNull String message, final @NotNull Object... arguments) {
+        compilerClass.getCompiler().getErrorHandler().addError(ArkoiError.builder()
                 .compilerClass(compilerClass)
                 .positions(Collections.singletonList(ErrorPosition.builder()
-                        .lineRange(arkoiToken.getLineRange())
-                        .charStart(arkoiToken.getCharStart())
-                        .charEnd(arkoiToken.getCharEnd())
+                        .lineRange(lexerToken.getLineRange())
+                        .charStart(lexerToken.getCharStart())
+                        .charEnd(lexerToken.getCharEnd())
                         .build()))
                 .message(message)
                 .arguments(arguments)
@@ -558,8 +558,8 @@ public class ScopeVisitor implements IVisitor<ArkoiNode>, IFailed
     }
     
     @Nullable
-    public <E> E addError(@Nullable E errorSource, final @NotNull ArkoiClass compilerClass, final int start, final int end, final @NotNull LineRange lineRange, final @NotNull String message, final @NotNull Object... arguments) {
-        compilerClass.getSemantic().getErrorHandler().addError(ArkoiError.builder()
+    public <E> E addError(@Nullable E errorSource, final @NotNull CompilerClass compilerClass, final int start, final int end, final @NotNull LineRange lineRange, final @NotNull String message, final @NotNull Object... arguments) {
+        compilerClass.getCompiler().getErrorHandler().addError(ArkoiError.builder()
                 .compilerClass(compilerClass)
                 .positions(Collections.singletonList(ErrorPosition.builder()
                         .lineRange(lineRange)

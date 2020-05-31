@@ -21,14 +21,14 @@ package com.arkoisystems.arkoicompiler.stages.lexer.token.types;
 import com.arkoisystems.arkoicompiler.error.ArkoiError;
 import com.arkoisystems.arkoicompiler.error.ErrorPosition;
 import com.arkoisystems.arkoicompiler.stages.lexer.Lexer;
-import com.arkoisystems.arkoicompiler.stages.lexer.token.ArkoiToken;
+import com.arkoisystems.arkoicompiler.stages.lexer.token.LexerToken;
 import com.arkoisystems.arkoicompiler.stages.lexer.token.enums.TokenType;
 import lombok.Builder;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
 
-public class StringToken extends ArkoiToken
+public class StringToken extends LexerToken
 {
     
     @Builder
@@ -43,7 +43,7 @@ public class StringToken extends ArkoiToken
     
         if(this.getTokenContent().length() < 2 || this.getTokenContent().endsWith("\\\"") || !this.getTokenContent().endsWith("\"")) {
             this.getLexer().setFailed(true);
-            this.getLexer().getErrorHandler().addError(ArkoiError.builder()
+            this.getLexer().getCompilerClass().getCompiler().getErrorHandler().addError(ArkoiError.builder()
                     .compilerClass(this.getLexer().getCompilerClass())
                     .positions(Collections.singletonList(ErrorPosition.builder()
                             .lineRange(this.getLineRange())

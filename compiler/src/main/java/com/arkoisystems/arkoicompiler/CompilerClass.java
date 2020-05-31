@@ -30,11 +30,11 @@ import java.nio.charset.StandardCharsets;
 
 @Getter
 @Setter
-public class ArkoiClass
+public class CompilerClass
 {
     
     @NotNull
-    private final ArkoiCompiler compiler;
+    private final Compiler compiler;
     
     @NotNull
     private final Semantic semantic = new Semantic(this);
@@ -58,7 +58,7 @@ public class ArkoiClass
     @NotNull
     private String content;
     
-    public ArkoiClass(final @NotNull ArkoiCompiler compiler, final @NotNull String filePath, final @NotNull byte[] content, final boolean detailed) {
+    public CompilerClass(final @NotNull Compiler compiler, final @NotNull String filePath, final @NotNull byte[] content, final boolean detailed) {
         this.compiler = compiler;
         this.detailed = detailed;
         this.filePath = filePath;

@@ -18,27 +18,24 @@
  */
 package com.arkoisystems.arkoicompiler.stages.codegen;
 
-import com.arkoisystems.arkoicompiler.ArkoiClass;
+import com.arkoisystems.arkoicompiler.CompilerClass;
 import com.arkoisystems.arkoicompiler.api.IStage;
 import com.arkoisystems.llvm4j.api.core.modules.Module;
 import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 
+@Getter
 public class CodeGen implements IStage
 {
     
-    @Getter
-    private final ArkoiClass compilerClass;
+    @NotNull
+    private final CompilerClass compilerClass;
     
-    @Getter
-    private CodeGenErrorHandler errorHandler;
-    
-    @Getter
     @Setter
     private boolean failed;
     
-    public CodeGen(final @NotNull ArkoiClass compilerClass) {
+    public CodeGen(final @NotNull CompilerClass compilerClass) {
         this.compilerClass = compilerClass;
     }
     
@@ -52,8 +49,6 @@ public class CodeGen implements IStage
     }
     
     @Override
-    public void reset() {
-        this.errorHandler = new CodeGenErrorHandler();
-    }
+    public void reset() { }
     
 }

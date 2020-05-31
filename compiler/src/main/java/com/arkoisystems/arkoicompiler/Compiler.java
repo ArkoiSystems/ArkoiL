@@ -30,72 +30,69 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Getter
-public class ArkoiCompiler
+public class Compiler
 {
     
     @NotNull
-    private final List<ArkoiClass> arkoiClasses = new ArrayList<>();
+    private final List<CompilerClass> classes = new ArrayList<>();
     
     @NotNull
     private final List<File> libraryPaths = new ArrayList<>();
     
-    public ArkoiCompiler() throws IOException {
+    @NotNull
+    private final ErrorHandler errorHandler;
+    
+    public Compiler() throws IOException {
         this.getLibraryPaths().add(new File("../natives"));
         this.addNativeFiles();
+        
+        this.errorHandler = new ErrorHandler();
     }
     
     public void addFile(final @NotNull File file, final boolean detailed) throws IOException {
-        this.getArkoiClasses().add(new ArkoiClass(this, file.getCanonicalPath(), Files.readAllBytes(file.toPath()), detailed));
-    }
-    
-    public void printStackTrace(final @NotNull PrintStream errorStream) {
-        for (final ArkoiClass arkoiClass : this.getArkoiClasses()) {
-            arkoiClass.getLexer().getErrorHandler().printStackTrace(errorStream);
-            arkoiClass.getParser().getErrorHandler().printStackTrace(errorStream);
-            arkoiClass.getSemantic().getErrorHandler().printStackTrace(errorStream);
-        }
+        this.getClasses().add(new CompilerClass(this, file.getCanonicalPath(), Files.readAllBytes(file.toPath()), detailed));
     }
     
     public boolean compile(final PrintStream printStream) {
         final long compileStart = System.nanoTime();
         {
             final long lexerStart = System.nanoTime();
-            final ArkoiClass lexerFailed = this.getArkoiClasses().stream()
+            final CompilerClass lexerFailed = this.getClasses().stream()
                     .filter(compilerClass -> !compilerClass.getLexer().processStage())
                     .findFirst()
                     .orElse(null);
             if (lexerFailed != null)
                 return false;
-            printStream.printf("The lexical analysis took %sms for all classes (%s in total)\n", (System.nanoTime() - lexerStart) / 1_000_000D, this.arkoiClasses.size());
-            
+            printStream.printf("The lexical analysis took %sms for all classes (%s in total)\n", (System.nanoTime() - lexerStart) / 1_000_000D, this.classes.size());
+    
             final long parserStart = System.nanoTime();
-            final ArkoiClass syntaxFailed = this.getArkoiClasses().stream()
+            final CompilerClass syntaxFailed = this.getClasses().stream()
                     .filter(compilerClass -> !compilerClass.getParser().processStage())
                     .findFirst()
                     .orElse(null);
             if (syntaxFailed != null)
                 return false;
-            printStream.printf("The syntax analysis took %sms for all classes (%s in total)\n", (System.nanoTime() - parserStart) / 1_000_000D, this.getArkoiClasses().size());
-            
+            printStream.printf("The syntax analysis took %sms for all classes (%s in total)\n", (System.nanoTime() - parserStart) / 1_000_000D, this.getClasses().size());
+    
             final long semanticStart = System.nanoTime();
-            final ArkoiClass semanticFailed = this.getArkoiClasses().stream()
+            final CompilerClass semanticFailed = this.getClasses().stream()
                     .filter(compilerClass -> !compilerClass.getSemantic().processStage())
                     .findFirst()
                     .orElse(null);
             if (semanticFailed != null)
                 return false;
-            printStream.printf("The semantic analysis took %sms for all classes (%s in total)\n", (System.nanoTime() - semanticStart) / 1_000_000D, this.getArkoiClasses().size());
-            
+            printStream.printf("The semantic analysis took %sms for all classes (%s in total)\n", (System.nanoTime() - semanticStart) / 1_000_000D, this.getClasses().size());
+    
             final long codeGenTime = System.nanoTime();
-            final ArkoiClass codeGenFailed = this.getArkoiClasses().stream()
+            final CompilerClass codeGenFailed = this.getClasses().stream()
                     .filter(compilerClass -> !compilerClass.getCodeGen().processStage())
                     .findFirst()
                     .orElse(null);
             if (codeGenFailed != null)
                 return false;
-            printStream.printf("The code generation took %sms for all classes (%s in total)\n", (System.nanoTime() - codeGenTime) / 1_000_000D, this.getArkoiClasses().size());
+            printStream.printf("The code generation took %sms for all classes (%s in total)\n", (System.nanoTime() - codeGenTime) / 1_000_000D, this.getClasses().size());
         }
-        printStream.printf("The compilation took %sms for all classes (%s in total)\n", (System.nanoTime() - compileStart) / 1_000_000D, this.getArkoiClasses().size());
+        printStream.printf("The compilation took %sms for all classes (%s in total)\n", (System.nanoTime() - compileStart) / 1_000_000D, this.getClasses().size());
         return true;
     }
     
@@ -106,9 +103,9 @@ public class ArkoiCompiler
         
         final List<File> files = FileUtils.getAllFiles(nativeDirectory, ".ark");
         for (final File file : files) {
-            final ArkoiClass arkoiClass = new ArkoiClass(this, file.getCanonicalPath(), Files.readAllBytes(file.toPath()), true);
-            arkoiClass.setNative(true);
-            this.getArkoiClasses().add(arkoiClass);
+            final CompilerClass compilerClass = new CompilerClass(this, file.getCanonicalPath(), Files.readAllBytes(file.toPath()), true);
+            compilerClass.setNative(true);
+            this.getClasses().add(compilerClass);
         }
     }
     

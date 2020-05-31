@@ -22,15 +22,15 @@ import com.arkoisystems.arkoicompiler.bootstrap.Bootstrap
 import com.arkoisystems.utils.general.FileUtils
 import spock.lang.Specification
 
-class ArkoiCompilerSpec extends Specification {
+class CompilerSpec extends Specification {
 	
 	def "are natives loaded"() {
 		given:
-		def arkoiCompiler = new ArkoiCompiler()
+		def arkoiCompiler = new Compiler()
 		
 		expect:
-		!arkoiCompiler.getArkoiClasses().isEmpty()
-		arkoiCompiler.getArkoiClasses().size() == files
+		!arkoiCompiler.getClasses().isEmpty()
+		arkoiCompiler.getClasses().size() == files
 		
 		where:
 		files = FileUtils.getAllFiles(new File("../natives"), ".ark").size()
@@ -38,7 +38,7 @@ class ArkoiCompilerSpec extends Specification {
 	
 	def "are natives compilable"() {
 		given:
-		def arkoiCompiler = new ArkoiCompiler()
+		def arkoiCompiler = new Compiler()
 		
 		expect:
 		arkoiCompiler.compile(System.out)

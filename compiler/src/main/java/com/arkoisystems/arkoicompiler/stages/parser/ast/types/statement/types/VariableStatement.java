@@ -19,14 +19,14 @@
 package com.arkoisystems.arkoicompiler.stages.parser.ast.types.statement.types;
 
 import com.arkoisystems.arkoicompiler.api.IVisitor;
-import com.arkoisystems.arkoicompiler.stages.lexer.token.ArkoiToken;
+import com.arkoisystems.arkoicompiler.stages.lexer.token.LexerToken;
 import com.arkoisystems.arkoicompiler.stages.lexer.token.types.IdentifierToken;
 import com.arkoisystems.arkoicompiler.stages.lexer.token.enums.KeywordType;
 import com.arkoisystems.arkoicompiler.stages.lexer.token.enums.OperatorType;
 import com.arkoisystems.arkoicompiler.stages.lexer.token.enums.TokenType;
 import com.arkoisystems.arkoicompiler.stages.parser.Parser;
 import com.arkoisystems.arkoicompiler.stages.parser.ParserErrorType;
-import com.arkoisystems.arkoicompiler.stages.parser.ast.ArkoiNode;
+import com.arkoisystems.arkoicompiler.stages.parser.ast.ParserNode;
 import com.arkoisystems.arkoicompiler.stages.parser.ast.types.operable.Operable;
 import com.arkoisystems.arkoicompiler.stages.parser.ast.types.operable.types.expression.Expression;
 import com.arkoisystems.arkoicompiler.stages.parser.ast.types.statement.Statement;
@@ -59,8 +59,8 @@ public class VariableStatement extends Statement
             final @Nullable Operable expression,
             final @Nullable Parser parser,
             final @Nullable IdentifierToken name,
-            final @Nullable ArkoiToken startToken,
-            final @Nullable ArkoiToken endToken
+            final @Nullable LexerToken startToken,
+            final @Nullable LexerToken endToken
     ) {
         super(parser, ASTType.VARIABLE, startToken, endToken);
         
@@ -70,11 +70,11 @@ public class VariableStatement extends Statement
     
     @NotNull
     @Override
-    public VariableStatement parseAST(final @Nullable ArkoiNode parentAST) {
+    public VariableStatement parseAST(final @Nullable ParserNode parentAST) {
         Objects.requireNonNull(this.getParser(), "parser must not be null.");
     
         if (this.getParser().matchesCurrentToken(KeywordType.VAR) == null && this.getParser().matchesCurrentToken(KeywordType.CONST) == null) {
-            final ArkoiToken currentToken = this.getParser().currentToken();
+            final LexerToken currentToken = this.getParser().currentToken();
             return this.addError(
                     this,
                     this.getParser().getCompilerClass(),
@@ -88,7 +88,7 @@ public class VariableStatement extends Statement
         this.startAST(this.getParser().currentToken());
         
         if (this.getParser().matchesPeekToken(1, TokenType.IDENTIFIER) == null) {
-            final ArkoiToken peekedToken = this.getParser().peekToken(1);
+            final LexerToken peekedToken = this.getParser().peekToken(1);
             return this.addError(
                     this,
                     this.getParser().getCompilerClass(),
@@ -102,7 +102,7 @@ public class VariableStatement extends Statement
         this.name = (IdentifierToken) this.getParser().nextToken();
         
         if (this.getParser().matchesPeekToken(1, OperatorType.EQUALS) == null) {
-            final ArkoiToken peekedToken = this.getParser().peekToken(1);
+            final LexerToken peekedToken = this.getParser().peekToken(1);
             return this.addError(
                     this,
                     this.getParser().getCompilerClass(),
@@ -116,7 +116,7 @@ public class VariableStatement extends Statement
         this.getParser().nextToken();
         
         if(!Expression.GLOBAL_NODE.canParse(this.getParser(), 1)) {
-            final ArkoiToken peekedToken = this.getParser().peekToken(1);
+            final LexerToken peekedToken = this.getParser().peekToken(1);
             return this.addError(
                     this,
                     this.getParser().getCompilerClass(),
