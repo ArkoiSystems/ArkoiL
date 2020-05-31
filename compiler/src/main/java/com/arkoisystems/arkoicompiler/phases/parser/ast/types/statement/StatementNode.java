@@ -16,11 +16,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.arkoisystems.arkoicompiler.api;
+package com.arkoisystems.arkoicompiler.phases.parser.ast.types.statement;
 
-public interface IStage extends IFailed, IResettable
+import com.arkoisystems.arkoicompiler.phases.lexer.token.LexerToken;
+import com.arkoisystems.arkoicompiler.phases.parser.Parser;
+import com.arkoisystems.arkoicompiler.phases.parser.ast.ParserNode;
+import lombok.Builder;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+public class StatementNode extends ParserNode
 {
     
-    boolean processStage();
+    @Builder(builderMethodName = "statementBuilder")
+    protected StatementNode(
+            final @Nullable Parser parser,
+            final @Nullable LexerToken startToken,
+            final @Nullable LexerToken endToken
+    ) {
+        super(parser, startToken, endToken);
+    }
     
 }

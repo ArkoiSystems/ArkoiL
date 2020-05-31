@@ -18,6 +18,7 @@
  */
 package com.arkoisystems.arkoicompiler;
 
+import com.arkoisystems.arkoicompiler.errorHandling.ErrorHandler;
 import com.arkoisystems.utils.general.FileUtils;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
