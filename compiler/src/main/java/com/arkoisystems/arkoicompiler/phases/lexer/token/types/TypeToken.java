@@ -21,7 +21,7 @@ package com.arkoisystems.arkoicompiler.phases.lexer.token.types;
 import com.arkoisystems.arkoicompiler.phases.lexer.Lexer;
 import com.arkoisystems.arkoicompiler.phases.lexer.token.LexerToken;
 import com.arkoisystems.arkoicompiler.phases.lexer.token.enums.TokenType;
-import com.arkoisystems.arkoicompiler.phases.parser.ast.enums.NodeType;
+import com.arkoisystems.arkoicompiler.phases.parser.ast.enums.TypeKind;
 import lombok.Builder;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
@@ -32,12 +32,12 @@ public class TypeToken extends LexerToken
 {
     
     @NotNull
-    private final NodeType nodeType;
+    private final TypeKind typeKind;
     
     @Builder
     public TypeToken(
             final @NotNull Lexer lexer,
-            final @Nullable NodeType nodeType,
+            final @Nullable TypeKind typeKind,
             final int startLine,
             final int endLine,
             final int charStart,
@@ -45,15 +45,15 @@ public class TypeToken extends LexerToken
     ) {
         super(lexer, TokenType.TYPE, startLine, endLine, charStart, charEnd);
     
-        if (nodeType == null) {
-            for (final NodeType type : NodeType.values())
+        if (typeKind == null) {
+            for (final TypeKind type : TypeKind.values())
                 if (type.getName().equals(this.getTokenContent())) {
-                    this.nodeType = type;
+                    this.typeKind = type;
                     return;
                 }
         
             throw new NullPointerException("typeKind must not be null. ");
-        } else this.nodeType = nodeType;
+        } else this.typeKind = typeKind;
     }
     
     public TypeToken(

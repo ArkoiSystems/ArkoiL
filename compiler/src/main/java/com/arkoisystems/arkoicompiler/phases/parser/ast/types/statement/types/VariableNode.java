@@ -30,7 +30,8 @@ import com.arkoisystems.arkoicompiler.phases.parser.ast.ParserNode;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.operable.OperableNode;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.operable.types.expression.ExpressionNode;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.statement.StatementNode;
-import com.arkoisystems.arkoicompiler.phases.parser.ast.enums.NodeType;
+import com.arkoisystems.arkoicompiler.phases.parser.ast.enums.TypeKind;
+import com.arkoisystems.arkoicompiler.phases.parser.SymbolTable;
 import com.arkoisystems.utils.printer.annotations.Printable;
 import lombok.Builder;
 import lombok.Getter;
@@ -43,7 +44,7 @@ import java.util.Objects;
 public class VariableNode extends StatementNode
 {
     
-    public static VariableNode GLOBAL_NODE = new VariableNode(null, null, null, null, null);
+    public static VariableNode GLOBAL_NODE = new VariableNode(null, null, null, null, null, null);
     
     @Printable(name = "name")
     @Nullable
@@ -55,13 +56,14 @@ public class VariableNode extends StatementNode
     
     @Builder
     protected VariableNode(
-            final @Nullable OperableNode expression,
             final @Nullable Parser parser,
+            final @Nullable SymbolTable currentScope,
+            final @Nullable OperableNode expression,
             final @Nullable IdentifierToken name,
             final @Nullable LexerToken startToken,
             final @Nullable LexerToken endToken
     ) {
-        super(parser, startToken, endToken);
+        super(parser, currentScope, startToken, endToken);
         
         this.expression = expression;
         this.name = name;
@@ -99,6 +101,10 @@ public class VariableNode extends StatementNode
         }
         
         this.name = (IdentifierToken) this.getParser().nextToken();
+        
+        Objects.requireNonNull(this.getCurrentScope(), "currentScope must not be null.");
+        Objects.requireNonNull(this.getName(), "name must not be null.");
+        this.getCurrentScope().insert(this.getName().getTokenContent(), this);
         
         if (this.getParser().matchesPeekToken(1, OperatorType.EQUALS) == null) {
             final LexerToken peekedToken = this.getParser().peekToken(1);
@@ -155,7 +161,7 @@ public class VariableNode extends StatementNode
     
     @Override
     @NotNull
-    public NodeType getTypeKind() {
+    public TypeKind getTypeKind() {
         Objects.requireNonNull(this.getExpression(), "expression must not be null.");
         return this.getExpression().getTypeKind();
     }

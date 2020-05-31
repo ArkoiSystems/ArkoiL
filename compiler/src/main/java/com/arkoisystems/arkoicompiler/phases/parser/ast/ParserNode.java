@@ -27,7 +27,8 @@ import com.arkoisystems.arkoicompiler.errorHandling.LineRange;
 import com.arkoisystems.arkoicompiler.phases.lexer.token.LexerToken;
 import com.arkoisystems.arkoicompiler.phases.lexer.token.enums.SymbolType;
 import com.arkoisystems.arkoicompiler.phases.parser.Parser;
-import com.arkoisystems.arkoicompiler.phases.parser.ast.enums.NodeType;
+import com.arkoisystems.arkoicompiler.phases.parser.SymbolTable;
+import com.arkoisystems.arkoicompiler.phases.parser.ast.enums.TypeKind;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -42,13 +43,17 @@ import java.util.Objects;
 public class ParserNode implements IFailed, Cloneable
 {
     
-    @Nullable
-    private LineRange lineRange;
-    
     @EqualsAndHashCode.Include
     @Setter
     @Nullable
     private LexerToken startToken, endToken;
+    
+    @Setter
+    @Nullable
+    private SymbolTable currentScope;
+    
+    @Nullable
+    private LineRange lineRange;
     
     private boolean failed;
     
@@ -60,9 +65,11 @@ public class ParserNode implements IFailed, Cloneable
     
     protected ParserNode(
             final @Nullable Parser parser,
+            final @Nullable SymbolTable currentScope,
             final @Nullable LexerToken startToken,
             final @Nullable LexerToken endToken
     ) {
+        this.currentScope = currentScope;
         this.parser = parser;
         
         this.startToken = startToken;
@@ -86,7 +93,7 @@ public class ParserNode implements IFailed, Cloneable
     }
     
     @NotNull
-    public NodeType getTypeKind() {
+    public TypeKind getTypeKind() {
         throw new NullPointerException("Not implemented.");
     }
     

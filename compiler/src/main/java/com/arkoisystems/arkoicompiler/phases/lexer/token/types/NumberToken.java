@@ -21,7 +21,7 @@ package com.arkoisystems.arkoicompiler.phases.lexer.token.types;
 import com.arkoisystems.arkoicompiler.phases.lexer.Lexer;
 import com.arkoisystems.arkoicompiler.phases.lexer.token.LexerToken;
 import com.arkoisystems.arkoicompiler.phases.lexer.token.enums.TokenType;
-import com.arkoisystems.arkoicompiler.phases.parser.ast.enums.NodeType;
+import com.arkoisystems.arkoicompiler.phases.parser.ast.enums.TypeKind;
 import lombok.Builder;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
@@ -32,12 +32,12 @@ public class NumberToken extends LexerToken
 {
     
     @NotNull
-    private final NodeType nodeType;
+    private final TypeKind typeKind;
     
     @Builder
     public NumberToken(
             final @NotNull Lexer lexer,
-            final @Nullable NodeType nodeType,
+            final @Nullable TypeKind typeKind,
             final int startLine,
             final int endLine,
             final int charStart,
@@ -45,9 +45,9 @@ public class NumberToken extends LexerToken
     ) {
         super(lexer, TokenType.NUMBER, startLine, endLine, charStart, charEnd);
     
-        this.nodeType = nodeType == null ?
-                this.getTokenContent().contains(".") ? NodeType.FLOAT : NodeType.INTEGER :
-                nodeType;
+        this.typeKind = typeKind == null ?
+                this.getTokenContent().contains(".") ? TypeKind.FLOAT : TypeKind.INTEGER :
+                typeKind;
     }
     
     public NumberToken(

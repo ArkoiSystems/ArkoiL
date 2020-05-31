@@ -23,10 +23,11 @@ import com.arkoisystems.arkoicompiler.phases.lexer.token.LexerToken;
 import com.arkoisystems.arkoicompiler.phases.lexer.token.enums.OperatorType;
 import com.arkoisystems.arkoicompiler.phases.parser.Parser;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.ParserNode;
+import com.arkoisystems.arkoicompiler.phases.parser.ast.enums.TypeKind;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.operable.OperableNode;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.operable.types.expression.ExpressionNode;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.operable.types.expression.types.enums.PostfixOperators;
-import com.arkoisystems.arkoicompiler.phases.parser.ast.enums.NodeType;
+import com.arkoisystems.arkoicompiler.phases.parser.SymbolTable;
 import com.arkoisystems.utils.printer.annotations.Printable;
 import lombok.Builder;
 import lombok.Getter;
@@ -39,9 +40,9 @@ import java.util.Objects;
 public class PostfixNode extends ExpressionNode
 {
     
-    public static PostfixNode ADD_GLOBAL_NODE = new PostfixNode(PostfixOperators.POSTFIX_ADD, null, null, null, null);
+    public static PostfixNode ADD_GLOBAL_NODE = new PostfixNode(null, null, PostfixOperators.POSTFIX_ADD, null, null, null);
     
-    public static PostfixNode SUB_GLOBAL_NODE = new PostfixNode(PostfixOperators.POSTFIX_SUB, null, null, null, null);
+    public static PostfixNode SUB_GLOBAL_NODE = new PostfixNode(null, null, PostfixOperators.POSTFIX_SUB, null, null, null);
     
     @Printable(name = "operation")
     @NotNull
@@ -53,13 +54,14 @@ public class PostfixNode extends ExpressionNode
     
     @Builder
     protected PostfixNode(
+            final @Nullable Parser parser,
+            final @Nullable SymbolTable currentScope,
             final @NotNull PostfixOperators operatorType,
             final @Nullable OperableNode leftHandSide,
-            final @Nullable Parser parser,
             final @Nullable LexerToken startToken,
             final @Nullable LexerToken endToken
     ) {
-        super(parser, startToken, endToken);
+        super(parser, currentScope, startToken, endToken);
         
         this.operatorType = operatorType;
         this.leftHandSide = leftHandSide;
@@ -95,7 +97,7 @@ public class PostfixNode extends ExpressionNode
     }
     
     @Override
-    public @NotNull NodeType getTypeKind() {
+    public @NotNull TypeKind getTypeKind() {
         Objects.requireNonNull(this.getLeftHandSide(), "leftHandSide must not be null.");
         return this.getLeftHandSide().getTypeKind();
     }

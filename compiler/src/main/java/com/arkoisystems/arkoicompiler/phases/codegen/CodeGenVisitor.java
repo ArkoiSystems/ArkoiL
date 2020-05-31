@@ -20,7 +20,7 @@ package com.arkoisystems.arkoicompiler.phases.codegen;
 
 import com.arkoisystems.arkoicompiler.api.IVisitor;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.enums.BlockType;
-import com.arkoisystems.arkoicompiler.phases.parser.ast.enums.NodeType;
+import com.arkoisystems.arkoicompiler.phases.parser.ast.enums.TypeKind;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.BlockNode;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.RootNode;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.TypeNode;
@@ -108,7 +108,7 @@ public class CodeGenVisitor implements IVisitor<Object>
     public PointerArray<Type> visit(final @NotNull ParameterListNode parameterListNode) {
         final List<Type> parameterTypes = new ArrayList<>();
         for (final ParameterNode parameter : parameterListNode.getParameters()) {
-            if (parameter.getTypeKind() == NodeType.VARIADIC)
+            if (parameter.getTypeKind() == TypeKind.VARIADIC)
                 continue;
             final Type parameterType = this.visit(parameter);
             if (parameterType == null)
@@ -159,7 +159,7 @@ public class CodeGenVisitor implements IVisitor<Object>
         
         final boolean isVariadic = functionNode.getParameters().getParameters()
                 .stream()
-                .anyMatch(parameter -> parameter.getTypeKind() == NodeType.VARIADIC);
+                .anyMatch(parameter -> parameter.getTypeKind() == TypeKind.VARIADIC);
     
         final Function function = this.getModule().addFunction(
                 functionNode.getName().getTokenContent(),
@@ -176,8 +176,8 @@ public class CodeGenVisitor implements IVisitor<Object>
     }
     
     @Override
-    public NodeType visit(final @NotNull ImportNode importNode) {
-        return NodeType.UNDEFINED;
+    public TypeKind visit(final @NotNull ImportNode importNode) {
+        return TypeKind.UNDEFINED;
     }
     
     @Override
@@ -186,8 +186,8 @@ public class CodeGenVisitor implements IVisitor<Object>
     }
     
     @Override
-    public NodeType visit(final @NotNull VariableNode variableNode) {
-        return NodeType.UNDEFINED;
+    public TypeKind visit(final @NotNull VariableNode variableNode) {
+        return TypeKind.UNDEFINED;
     }
     
     @Override

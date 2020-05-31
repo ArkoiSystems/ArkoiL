@@ -26,8 +26,9 @@ import com.arkoisystems.arkoicompiler.phases.lexer.token.enums.TokenType;
 import com.arkoisystems.arkoicompiler.phases.parser.Parser;
 import com.arkoisystems.arkoicompiler.phases.parser.ParserErrorType;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.ParserNode;
-import com.arkoisystems.arkoicompiler.phases.parser.ast.enums.NodeType;
+import com.arkoisystems.arkoicompiler.phases.parser.ast.enums.TypeKind;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.TypeNode;
+import com.arkoisystems.arkoicompiler.phases.parser.SymbolTable;
 import com.arkoisystems.utils.printer.annotations.Printable;
 import lombok.Builder;
 import lombok.Getter;
@@ -40,7 +41,7 @@ import java.util.Objects;
 public class ParameterNode extends ParserNode
 {
     
-    public static ParameterNode GLOBAL_NODE = new ParameterNode(null, null, null, null, null);
+    public static ParameterNode GLOBAL_NODE = new ParameterNode(null, null, null, null, null, null);
     
     @Printable(name = "name")
     @Nullable
@@ -53,15 +54,16 @@ public class ParameterNode extends ParserNode
     @Builder
     protected ParameterNode(
             final @Nullable Parser parser,
+            final @Nullable SymbolTable currentScope,
             final @Nullable IdentifierToken name,
             final @Nullable TypeNode typeNode,
             final @Nullable LexerToken startToken,
             final @Nullable LexerToken endToken
     ) {
-        super(parser, startToken, endToken);
-        
-        this.name = name;
+        super(parser, currentScope, startToken, endToken);
+    
         this.typeNode = typeNode;
+        this.name = name;
     }
     
     @NotNull
@@ -136,7 +138,7 @@ public class ParameterNode extends ParserNode
     
     @Override
     @NotNull
-    public NodeType getTypeKind() {
+    public TypeKind getTypeKind() {
         Objects.requireNonNull(this.getTypeNode(), "type must not be null.");
         return this.getTypeNode().getTypeKind();
     }

@@ -46,7 +46,7 @@ class CompilerSpec extends Specification {
 	
 	def "can pass basic test"() {
 		expect:
-		Bootstrap.compile("../examples/basic", false)
+		Bootstrap.compile("../examples/basic")
 	}
 	
 }

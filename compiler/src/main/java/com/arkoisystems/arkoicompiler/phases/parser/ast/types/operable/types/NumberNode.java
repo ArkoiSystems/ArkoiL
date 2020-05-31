@@ -25,8 +25,9 @@ import com.arkoisystems.arkoicompiler.phases.lexer.token.types.NumberToken;
 import com.arkoisystems.arkoicompiler.phases.parser.Parser;
 import com.arkoisystems.arkoicompiler.phases.parser.ParserErrorType;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.ParserNode;
-import com.arkoisystems.arkoicompiler.phases.parser.ast.enums.NodeType;
+import com.arkoisystems.arkoicompiler.phases.parser.ast.enums.TypeKind;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.operable.OperableNode;
+import com.arkoisystems.arkoicompiler.phases.parser.SymbolTable;
 import com.arkoisystems.utils.printer.annotations.Printable;
 import lombok.Builder;
 import lombok.Getter;
@@ -39,7 +40,7 @@ import java.util.Objects;
 public class NumberNode extends OperableNode
 {
     
-    public static NumberNode GLOBAL_NODE = new NumberNode(null, null, null, null);
+    public static NumberNode GLOBAL_NODE = new NumberNode(null, null, null, null, null);
     
     @Printable(name = "number")
     @Nullable
@@ -48,11 +49,12 @@ public class NumberNode extends OperableNode
     @Builder
     protected NumberNode(
             final @Nullable Parser parser,
+            final @Nullable SymbolTable currentScope,
             final @Nullable NumberToken numberToken,
             final @Nullable LexerToken startToken,
             final @Nullable LexerToken endToken
     ) {
-        super(parser, startToken, endToken);
+        super(parser, currentScope, startToken, endToken);
         
         this.numberToken = numberToken;
     }
@@ -92,9 +94,9 @@ public class NumberNode extends OperableNode
     
     @Override
     @NotNull
-    public NodeType getTypeKind() {
+    public TypeKind getTypeKind() {
         Objects.requireNonNull(this.getNumberToken(), "numberToken must not be null.");
-        return this.getNumberToken().getNodeType();
+        return this.getNumberToken().getTypeKind();
     }
     
 }

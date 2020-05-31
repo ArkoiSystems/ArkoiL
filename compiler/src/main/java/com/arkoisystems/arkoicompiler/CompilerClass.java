@@ -48,8 +48,6 @@ public class CompilerClass
     @NotNull
     private final Lexer lexer = new Lexer(this);
     
-    private final boolean detailed;
-    
     private boolean isNative;
     
     @NotNull
@@ -58,9 +56,8 @@ public class CompilerClass
     @NotNull
     private String content;
     
-    public CompilerClass(final @NotNull Compiler compiler, final @NotNull String filePath, final @NotNull byte[] content, final boolean detailed) {
+    public CompilerClass(final @NotNull Compiler compiler, final @NotNull String filePath, final @NotNull byte[] content) {
         this.compiler = compiler;
-        this.detailed = detailed;
         this.filePath = filePath;
         
         this.content = new String(content, StandardCharsets.UTF_8);

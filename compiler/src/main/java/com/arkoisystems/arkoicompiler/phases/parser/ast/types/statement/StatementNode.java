@@ -21,8 +21,8 @@ package com.arkoisystems.arkoicompiler.phases.parser.ast.types.statement;
 import com.arkoisystems.arkoicompiler.phases.lexer.token.LexerToken;
 import com.arkoisystems.arkoicompiler.phases.parser.Parser;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.ParserNode;
+import com.arkoisystems.arkoicompiler.phases.parser.SymbolTable;
 import lombok.Builder;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class StatementNode extends ParserNode
@@ -31,10 +31,11 @@ public class StatementNode extends ParserNode
     @Builder(builderMethodName = "statementBuilder")
     protected StatementNode(
             final @Nullable Parser parser,
+            final @Nullable SymbolTable currentScope,
             final @Nullable LexerToken startToken,
             final @Nullable LexerToken endToken
     ) {
-        super(parser, startToken, endToken);
+        super(parser, currentScope, startToken, endToken);
     }
     
 }

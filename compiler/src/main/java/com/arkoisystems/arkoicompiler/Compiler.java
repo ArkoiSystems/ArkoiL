@@ -50,8 +50,8 @@ public class Compiler
         this.errorHandler = new ErrorHandler();
     }
     
-    public void addFile(final @NotNull File file, final boolean detailed) throws IOException {
-        this.getClasses().add(new CompilerClass(this, file.getCanonicalPath(), Files.readAllBytes(file.toPath()), detailed));
+    public void addFile(final @NotNull File file) throws IOException {
+        this.getClasses().add(new CompilerClass(this, file.getCanonicalPath(), Files.readAllBytes(file.toPath())));
     }
     
     public boolean compile(final PrintStream printStream) {
@@ -104,7 +104,7 @@ public class Compiler
         
         final List<File> files = FileUtils.getAllFiles(nativeDirectory, ".ark");
         for (final File file : files) {
-            final CompilerClass compilerClass = new CompilerClass(this, file.getCanonicalPath(), Files.readAllBytes(file.toPath()), true);
+            final CompilerClass compilerClass = new CompilerClass(this, file.getCanonicalPath(), Files.readAllBytes(file.toPath()));
             compilerClass.setNative(true);
             this.getClasses().add(compilerClass);
         }

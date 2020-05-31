@@ -51,11 +51,11 @@ public class Bootstrap
             return;
         }
     
-        compile(commandLine.getOptionValue("inputPath"), Boolean.parseBoolean(commandLine.getOptionValue("detailed")));
+        compile(commandLine.getOptionValue("inputPath"));
     }
     
     @SneakyThrows
-    public static boolean compile(final @NotNull String inputPath, final boolean detailed) {
+    public static boolean compile(final @NotNull String inputPath) {
         final File targetPath = new File(inputPath);
         if (!targetPath.exists())
             throw new NullPointerException("The given \"inputPath\" doesn't exists. Please correct the path to a valid file or directory.");
@@ -63,11 +63,11 @@ public class Bootstrap
         final Compiler compiler = new Compiler();
         if (targetPath.isDirectory()) {
             for (final File file : FileUtils.getAllFiles(targetPath, ".ark"))
-                compiler.addFile(file, detailed);
+                compiler.addFile(file);
         } else {
             if (!targetPath.getName().endsWith(".ark"))
                 throw new NullPointerException("Couldn't compile this file because it doesn't has the Arkoi file extension \".ark\".");
-            compiler.addFile(targetPath, detailed);
+            compiler.addFile(targetPath);
         }
         
         if (compiler.compile(System.out))

@@ -31,6 +31,7 @@ import com.arkoisystems.arkoicompiler.phases.parser.ast.types.operable.types.exp
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.operable.types.expression.types.enums.BinaryOperators;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.operable.types.expression.types.enums.PostfixOperators;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.operable.types.expression.types.enums.PrefixOperators;
+import com.arkoisystems.arkoicompiler.phases.parser.SymbolTable;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.SneakyThrows;
@@ -43,15 +44,16 @@ import java.util.Objects;
 public class ExpressionNode extends OperableNode
 {
     
-    public static ExpressionNode GLOBAL_NODE = new ExpressionNode(null, null, null);
+    public static ExpressionNode GLOBAL_NODE = new ExpressionNode(null, null, null, null);
     
     @Builder(builderMethodName = "expressionBuilder")
     protected ExpressionNode(
             final @Nullable Parser parser,
+            final @Nullable SymbolTable currentScope,
             final @Nullable LexerToken startToken,
             final @Nullable LexerToken endToken
     ) {
-        super(parser, startToken, endToken);
+        super(parser, currentScope, startToken, endToken);
     }
     
     @NotNull

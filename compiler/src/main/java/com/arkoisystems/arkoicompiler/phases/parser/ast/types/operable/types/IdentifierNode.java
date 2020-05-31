@@ -27,10 +27,11 @@ import com.arkoisystems.arkoicompiler.phases.lexer.token.types.IdentifierToken;
 import com.arkoisystems.arkoicompiler.phases.parser.Parser;
 import com.arkoisystems.arkoicompiler.phases.parser.ParserErrorType;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.ParserNode;
-import com.arkoisystems.arkoicompiler.phases.parser.ast.enums.NodeType;
+import com.arkoisystems.arkoicompiler.phases.parser.ast.enums.TypeKind;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.operable.OperableNode;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.operable.types.expression.ExpressionListNode;
 import com.arkoisystems.arkoicompiler.phases.semantic.routines.ScopeVisitor;
+import com.arkoisystems.arkoicompiler.phases.parser.SymbolTable;
 import com.arkoisystems.utils.printer.annotations.Printable;
 import lombok.Builder;
 import lombok.Getter;
@@ -44,7 +45,7 @@ import java.util.Objects;
 public class IdentifierNode extends OperableNode
 {
     
-    public static IdentifierNode GLOBAL_NODE = new IdentifierNode(null, null, null, null, null, null, false);
+    public static IdentifierNode GLOBAL_NODE = new IdentifierNode(null, null, null, null, null, null, null, false);
     
     @Printable(name = "file local")
     @Setter
@@ -67,15 +68,16 @@ public class IdentifierNode extends OperableNode
     
     @Builder
     protected IdentifierNode(
+            final @Nullable Parser parser,
+            final @Nullable SymbolTable currentScope,
             final @Nullable IdentifierNode nextIdentifier,
             final @Nullable ExpressionListNode expressionListNode,
             final @Nullable IdentifierToken identifier,
-            final @Nullable Parser parser,
             final @Nullable LexerToken startToken,
             final @Nullable LexerToken endToken,
             final boolean isFileLocal
     ) {
-        super(parser, startToken, endToken);
+        super(parser, currentScope, startToken, endToken);
     
         this.nextIdentifier = nextIdentifier;
         this.expressionListNode = expressionListNode;
@@ -198,7 +200,7 @@ public class IdentifierNode extends OperableNode
     
     @Override
     @NotNull
-    public NodeType getTypeKind() {
+    public TypeKind getTypeKind() {
         Objects.requireNonNull(this.getParser(), "parser must not be null.");
     
         final ScopeVisitor scopeVisitor = new ScopeVisitor(this.getParser().getCompilerClass().getSemantic());
@@ -209,7 +211,7 @@ public class IdentifierNode extends OperableNode
             this.setFailed(true);
         if (resultNode != null)
             return resultNode.getTypeKind();
-        return NodeType.UNDEFINED;
+        return TypeKind.UNDEFINED;
     }
     
     @NotNull
