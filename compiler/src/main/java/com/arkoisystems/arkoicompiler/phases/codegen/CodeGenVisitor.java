@@ -24,8 +24,6 @@ import com.arkoisystems.arkoicompiler.phases.parser.ast.enums.TypeKind;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.BlockNode;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.RootNode;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.TypeNode;
-import com.arkoisystems.arkoicompiler.phases.parser.ast.types.argument.ArgumentListNode;
-import com.arkoisystems.arkoicompiler.phases.parser.ast.types.argument.ArgumentNode;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.operable.types.IdentifierNode;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.operable.types.NumberNode;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.operable.types.StringNode;
@@ -127,16 +125,6 @@ public class CodeGenVisitor implements IVisitor<Object>
     
     @Override
     public Object visit(final @NotNull BlockNode blockNode) {
-        return null;
-    }
-    
-    @Override
-    public Object visit(final @NotNull ArgumentListNode argumentListNode) {
-        return null;
-    }
-    
-    @Override
-    public Object visit(final @NotNull ArgumentNode argumentNode) {
         return null;
     }
     

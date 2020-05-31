@@ -29,8 +29,6 @@ import com.arkoisystems.arkoicompiler.phases.parser.ast.enums.TypeKind;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.BlockNode;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.RootNode;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.TypeNode;
-import com.arkoisystems.arkoicompiler.phases.parser.ast.types.argument.ArgumentNode;
-import com.arkoisystems.arkoicompiler.phases.parser.ast.types.argument.ArgumentListNode;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.operable.OperableNode;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.operable.types.IdentifierNode;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.operable.types.NumberNode;
@@ -114,26 +112,6 @@ public class TypeVisitor implements IVisitor<TypeKind>, IFailed
     
     @NotNull
     @Override
-    public TypeKind visit(final @NotNull ArgumentListNode argumentListNode) {
-        TypeKind typeKind = argumentListNode.getTypeKind();
-        for (final ArgumentNode argumentNode : argumentListNode.getArguments()) {
-            if (this.visit(argumentNode) == TypeKind.ERROR)
-                typeKind = TypeKind.ERROR;
-        }
-        return typeKind;
-    }
-    
-    @NotNull
-    @Override
-    public TypeKind visit(final @NotNull ArgumentNode argumentNode) {
-        Objects.requireNonNull(argumentNode.getExpression(), "argumentNode.argumentExpression must not be null.");
-        if (this.visit(argumentNode.getExpression()) == TypeKind.ERROR)
-            return TypeKind.ERROR;
-        return argumentNode.getTypeKind();
-    }
-    
-    @NotNull
-    @Override
     public TypeKind visit(final @NotNull FunctionNode functionNode) {
         Objects.requireNonNull(functionNode.getParser(), "functionNode.parser must not be null.");
         Objects.requireNonNull(functionNode.getBlockNode(), "functionNode.block must not be null.");
@@ -198,8 +176,8 @@ public class TypeVisitor implements IVisitor<TypeKind>, IFailed
     @Override
     public TypeKind visit(final @NotNull IdentifierNode identifierNode) {
         if (identifierNode.isFunctionCall()) {
-            Objects.requireNonNull(identifierNode.getExpressionListNode(), "identifierOperable.expressionList must not be null.");
-            this.visit(identifierNode.getExpressionListNode());
+            Objects.requireNonNull(identifierNode.getExpressions(), "identifierOperable.expressionList must not be null.");
+            this.visit(identifierNode.getExpressions());
         }
     
         return identifierNode.getTypeKind();

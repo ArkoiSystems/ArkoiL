@@ -65,8 +65,7 @@ public class CompilerError
                 compilerClass.getFilePath(),
                 this.getPositions().get(0).getLineRange().getStartLine() + 1,
                 this.getPositions().get(0).getCharStart() + 1,
-                String.format(this.getMessage(),
-                        this.getArguments())
+                String.format(this.getMessage(), this.getArguments())
         ));
     
         for (final ErrorPosition errorPosition : this.getPositions()) {

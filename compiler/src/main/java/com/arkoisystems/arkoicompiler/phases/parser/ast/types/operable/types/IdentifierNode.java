@@ -26,12 +26,12 @@ import com.arkoisystems.arkoicompiler.phases.lexer.token.enums.TokenType;
 import com.arkoisystems.arkoicompiler.phases.lexer.token.types.IdentifierToken;
 import com.arkoisystems.arkoicompiler.phases.parser.Parser;
 import com.arkoisystems.arkoicompiler.phases.parser.ParserErrorType;
+import com.arkoisystems.arkoicompiler.phases.parser.SymbolTable;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.ParserNode;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.enums.TypeKind;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.operable.OperableNode;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.operable.types.expression.ExpressionListNode;
-import com.arkoisystems.arkoicompiler.phases.semantic.routines.ScopeVisitor;
-import com.arkoisystems.arkoicompiler.phases.parser.SymbolTable;
+import com.arkoisystems.arkoicompiler.phases.parser.ast.types.statement.types.FunctionNode;
 import com.arkoisystems.utils.printer.annotations.Printable;
 import lombok.Builder;
 import lombok.Getter;
@@ -39,7 +39,10 @@ import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Comparator;
+import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Getter
 public class IdentifierNode extends OperableNode
@@ -60,7 +63,7 @@ public class IdentifierNode extends OperableNode
     
     @Printable(name = "expressions")
     @Nullable
-    private ExpressionListNode expressionListNode;
+    private ExpressionListNode expressions;
     
     @Printable(name = "next call")
     @Nullable
@@ -71,7 +74,7 @@ public class IdentifierNode extends OperableNode
             final @Nullable Parser parser,
             final @Nullable SymbolTable currentScope,
             final @Nullable IdentifierNode nextIdentifier,
-            final @Nullable ExpressionListNode expressionListNode,
+            final @Nullable ExpressionListNode expressions,
             final @Nullable IdentifierToken identifier,
             final @Nullable LexerToken startToken,
             final @Nullable LexerToken endToken,
@@ -80,7 +83,7 @@ public class IdentifierNode extends OperableNode
         super(parser, currentScope, startToken, endToken);
     
         this.nextIdentifier = nextIdentifier;
-        this.expressionListNode = expressionListNode;
+        this.expressions = expressions;
         this.isFileLocal = isFileLocal;
         this.identifier = identifier;
     }
@@ -142,6 +145,7 @@ public class IdentifierNode extends OperableNode
             this.isFunctionCall = true;
             
             final ExpressionListNode expressionListNode = ExpressionListNode.builder()
+                    .currentScope(this.getCurrentScope())
                     .parser(this.getParser())
                     .build()
                     .parseAST(this);
@@ -150,7 +154,7 @@ public class IdentifierNode extends OperableNode
                 return this;
             }
     
-            this.expressionListNode = expressionListNode;
+            this.expressions = expressionListNode;
         }
         
         
@@ -172,6 +176,7 @@ public class IdentifierNode extends OperableNode
             this.getParser().nextToken();
     
             final IdentifierNode identifierOperable = IdentifierNode.builder()
+                    .currentScope(this.getCurrentScope())
                     .parser(this.getParser())
                     .build()
                     .parseAST(this);
@@ -202,30 +207,40 @@ public class IdentifierNode extends OperableNode
     @NotNull
     public TypeKind getTypeKind() {
         Objects.requireNonNull(this.getParser(), "parser must not be null.");
+        Objects.requireNonNull(this.getIdentifier(), "identifier must not be null.");
     
-        final ScopeVisitor scopeVisitor = new ScopeVisitor(this.getParser().getCompilerClass().getSemantic());
-        scopeVisitor.visit(this.getParser().getRootNodeAST());
+        if (this.isFileLocal()) {
+            Objects.requireNonNull(this.getParser().getRootNode().getCurrentScope(), "parser.rootNode.currentScope must not be null.");
         
-        final ParserNode resultNode = scopeVisitor.visit(this);
-        if (scopeVisitor.isFailed())
-            this.setFailed(true);
-        if (resultNode != null)
-            return resultNode.getTypeKind();
-        return TypeKind.UNDEFINED;
-    }
+            final List<ParserNode> nodes = this.getParser().getRootNode().getCurrentScope().lookupScope(this.getIdentifier().getTokenContent());
+            if (nodes == null || nodes.isEmpty())
+                return TypeKind.UNDEFINED;
+            return nodes.get(0).getTypeKind();
+        } else if (this.isFunctionCall()) {
+            Objects.requireNonNull(this.getParser().getRootNode().getCurrentScope(), "parser.rootNode.currentScope must not be null.");
+        
+            final List<ParserNode> nodes = this.getParser().getRootNode().getCurrentScope().lookupScope(this.getIdentifier().getTokenContent());
+            if (nodes == null || nodes.isEmpty())
+                return TypeKind.UNDEFINED;
+            
+            final List<FunctionNode> functions = nodes.stream()
+                    .filter(node -> node instanceof FunctionNode)
+                    .map(node -> (FunctionNode) node)
+                    .filter(node -> node.equalsToIdentifier(this))
+                    .collect(Collectors.toList());
+            if(functions.isEmpty())
+                return TypeKind.UNDEFINED;
+            return functions.get(0).getTypeKind();
+        } else {
+            Objects.requireNonNull(this.getCurrentScope(), "parser.currentScope must not be null.");
+            
+            final List<ParserNode> nodes = this.getCurrentScope().lookupScope(this.getIdentifier().getTokenContent());
+            if(nodes == null || nodes.isEmpty())
+                return TypeKind.UNDEFINED;
     
-    @NotNull
-    public String getDescriptor() {
-        Objects.requireNonNull(this.getIdentifier(), "calledIdentifier must not be null.");
-        Objects.requireNonNull(this.getParser(), "parser must not be null.");
-        
-        final StringBuilder descriptorBuilder = new StringBuilder(this.getIdentifier().getTokenContent());
-        if (this.isFunctionCall()) {
-            Objects.requireNonNull(this.getExpressionListNode(), "expressionList must not be null.");
-            descriptorBuilder.append("(").append(this.getExpressionListNode().getExpressions().size()).append(")");
+            nodes.sort((o1, o2) -> o2.getStartLine() - o1.getStartLine());
+            return nodes.get(0).getTypeKind();
         }
-        
-        return descriptorBuilder.toString();
     }
     
 }

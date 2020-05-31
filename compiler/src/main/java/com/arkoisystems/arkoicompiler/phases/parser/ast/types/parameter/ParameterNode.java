@@ -85,6 +85,10 @@ public class ParameterNode extends ParserNode
     
         this.startAST(this.getParser().currentToken());
         this.name = (IdentifierToken) this.getParser().currentToken();
+        
+        Objects.requireNonNull(this.getCurrentScope(), "currentScope must not be null.");
+        Objects.requireNonNull(this.getName(), "name must not be null.");
+        this.getCurrentScope().insert(this.getName().getTokenContent(), this);
     
         if (this.getParser().matchesPeekToken(1, SymbolType.COLON) == null) {
             final LexerToken peekedToken = this.getParser().peekToken(1);
@@ -113,6 +117,7 @@ public class ParameterNode extends ParserNode
         }
         
         final TypeNode typeNodeAST = TypeNode.builder()
+                .currentScope(this.getCurrentScope())
                 .parser(this.getParser())
                 .build()
                 .parseAST(parentAST);

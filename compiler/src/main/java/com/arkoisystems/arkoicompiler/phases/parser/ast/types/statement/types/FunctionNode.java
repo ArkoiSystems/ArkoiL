@@ -30,8 +30,11 @@ import com.arkoisystems.arkoicompiler.phases.parser.Parser;
 import com.arkoisystems.arkoicompiler.phases.parser.ParserErrorType;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.ParserNode;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.BlockNode;
+import com.arkoisystems.arkoicompiler.phases.parser.ast.types.operable.OperableNode;
+import com.arkoisystems.arkoicompiler.phases.parser.ast.types.operable.types.IdentifierNode;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.parameter.ParameterListNode;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.TypeNode;
+import com.arkoisystems.arkoicompiler.phases.parser.ast.types.parameter.ParameterNode;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.statement.StatementNode;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.enums.BlockType;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.enums.TypeKind;
@@ -120,6 +123,7 @@ public class FunctionNode extends StatementNode
         Objects.requireNonNull(this.getCurrentScope(), "currentScope must not be null.");
         Objects.requireNonNull(this.getName(), "name must not be null.");
         this.getCurrentScope().insert(this.getName().getTokenContent(), this);
+        this.setCurrentScope(new SymbolTable(this.getCurrentScope()));
         
         if (!ParameterListNode.GLOBAL_NODE.canParse(this.getParser(), 1)) {
             final LexerToken peekedToken = this.getParser().peekToken(1);
@@ -165,6 +169,7 @@ public class FunctionNode extends StatementNode
             this.getParser().nextToken();
             
             final TypeNode typeNodeAST = TypeNode.builder()
+                    .currentScope(this.getCurrentScope())
                     .parser(this.getParser())
                     .build()
                     .parseAST(parentAST);
@@ -175,6 +180,7 @@ public class FunctionNode extends StatementNode
             
             this.returnTypeNode = typeNodeAST;
         } else this.returnTypeNode = TypeNode.builder()
+                .currentScope(this.getCurrentScope())
                 .parser(this.getParser())
                 .typeToken(TypeToken.builder()
                         .lexer(this.getParser().getCompilerClass().getLexer())
@@ -206,6 +212,7 @@ public class FunctionNode extends StatementNode
             
             this.blockNode = blockNodeAST;
         } else this.blockNode = BlockNode.builder()
+                .currentScope(this.getCurrentScope())
                 .parser(this.getParser())
                 .blockType(BlockType.NATIVE)
                 .startToken(this.getStartToken())
@@ -233,12 +240,28 @@ public class FunctionNode extends StatementNode
         return this.getReturnTypeNode().getTypeKind();
     }
     
+    public boolean equalsToIdentifier(final @NotNull IdentifierNode identifierNode) {
+        if(!identifierNode.isFunctionCall())
+            return false;
     
-    public String getFunctionDescription() {
-        Objects.requireNonNull(this.getName(), "functionName must not be null.");
-        Objects.requireNonNull(this.getParameters(), "functionParameters must not be null.");
+        Objects.requireNonNull(this.getParameters(), "parameters must not be null.");
+        Objects.requireNonNull(this.getName(), "name must not be null.");
+        Objects.requireNonNull(identifierNode.getIdentifier(), "identifierNode.identifier must not be null.");
         
-        return this.getName().getTokenContent() + "(" + this.getParameters().getParameters().size() + ")";
+        if(!identifierNode.getIdentifier().getTokenContent().equals(this.getName().getTokenContent()))
+            return false;
+        
+        Objects.requireNonNull(identifierNode.getExpressions(), "identifierNode.expressions must not be null.");
+        if(identifierNode.getExpressions().getExpressions().size() != this.getParameters().getParameters().size())
+            return false;
+        
+        for (int index = 0; index < this.getParameters().getParameters().size(); index++) {
+            final ParameterNode parameterNode = this.getParameters().getParameters().get(index);
+            final OperableNode expressionNode = identifierNode.getExpressions().getExpressions().get(index);
+            if(parameterNode.getTypeKind() != expressionNode.getTypeKind())
+                return false;
+        }
+        return true;
     }
     
 }

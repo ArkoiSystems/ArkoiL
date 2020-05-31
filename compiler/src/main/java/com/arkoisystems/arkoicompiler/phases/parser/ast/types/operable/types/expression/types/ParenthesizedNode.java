@@ -93,6 +93,7 @@ public class ParenthesizedNode extends ExpressionNode
         this.getParser().nextToken();
         
         final OperableNode operableNode = ExpressionNode.expressionBuilder()
+                .currentScope(this.getCurrentScope())
                 .parser(this.getParser())
                 .build()
                 .parseAST(parentAST);

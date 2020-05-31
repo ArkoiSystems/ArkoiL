@@ -83,6 +83,7 @@ public class ParameterListNode extends ParserNode
                 break;
             
             final ParameterNode parameterAST = ParameterNode.builder()
+                    .currentScope(this.getCurrentScope())
                     .parser(this.getParser())
                     .build()
                     .parseAST(parentAST);
