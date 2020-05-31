@@ -18,21 +18,21 @@
  */
 package com.arkoisystems.arkoicompiler.api;
 
-import com.arkoisystems.arkoicompiler.stage.parser.ast.ArkoiNode;
-import com.arkoisystems.arkoicompiler.stage.parser.ast.types.*;
-import com.arkoisystems.arkoicompiler.stage.parser.ast.types.argument.Argument;
-import com.arkoisystems.arkoicompiler.stage.parser.ast.types.argument.ArgumentList;
-import com.arkoisystems.arkoicompiler.stage.parser.ast.types.operable.types.*;
-import com.arkoisystems.arkoicompiler.stage.parser.ast.types.operable.types.NumberOperable;
-import com.arkoisystems.arkoicompiler.stage.parser.ast.types.operable.types.StringOperable;
-import com.arkoisystems.arkoicompiler.stage.parser.ast.types.operable.types.expression.ExpressionList;
-import com.arkoisystems.arkoicompiler.stage.parser.ast.types.operable.types.expression.types.*;
-import com.arkoisystems.arkoicompiler.stage.parser.ast.types.parameter.Parameter;
-import com.arkoisystems.arkoicompiler.stage.parser.ast.types.parameter.ParameterList;
-import com.arkoisystems.arkoicompiler.stage.parser.ast.types.statement.types.FunctionStatement;
-import com.arkoisystems.arkoicompiler.stage.parser.ast.types.statement.types.ImportStatement;
-import com.arkoisystems.arkoicompiler.stage.parser.ast.types.statement.types.ReturnStatement;
-import com.arkoisystems.arkoicompiler.stage.parser.ast.types.statement.types.VariableStatement;
+import com.arkoisystems.arkoicompiler.stages.parser.ast.ArkoiNode;
+import com.arkoisystems.arkoicompiler.stages.parser.ast.types.*;
+import com.arkoisystems.arkoicompiler.stages.parser.ast.types.argument.Argument;
+import com.arkoisystems.arkoicompiler.stages.parser.ast.types.argument.ArgumentList;
+import com.arkoisystems.arkoicompiler.stages.parser.ast.types.operable.types.*;
+import com.arkoisystems.arkoicompiler.stages.parser.ast.types.operable.types.NumberOperable;
+import com.arkoisystems.arkoicompiler.stages.parser.ast.types.operable.types.StringOperable;
+import com.arkoisystems.arkoicompiler.stages.parser.ast.types.operable.types.expression.ExpressionList;
+import com.arkoisystems.arkoicompiler.stages.parser.ast.types.operable.types.expression.types.*;
+import com.arkoisystems.arkoicompiler.stages.parser.ast.types.parameter.Parameter;
+import com.arkoisystems.arkoicompiler.stages.parser.ast.types.parameter.ParameterList;
+import com.arkoisystems.arkoicompiler.stages.parser.ast.types.statement.types.FunctionStatement;
+import com.arkoisystems.arkoicompiler.stages.parser.ast.types.statement.types.ImportStatement;
+import com.arkoisystems.arkoicompiler.stages.parser.ast.types.statement.types.ReturnStatement;
+import com.arkoisystems.arkoicompiler.stages.parser.ast.types.statement.types.VariableStatement;
 import org.jetbrains.annotations.NotNull;
 
 public interface IVisitor<T>

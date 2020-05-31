@@ -16,18 +16,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.arkoisystems.arkoicompiler.api;
+package com.arkoisystems.arkoicompiler.stages.parser.ast.types.statement;
 
+import com.arkoisystems.arkoicompiler.stages.lexer.token.ArkoiToken;
 import com.arkoisystems.arkoicompiler.stages.parser.Parser;
 import com.arkoisystems.arkoicompiler.stages.parser.ast.ArkoiNode;
+import com.arkoisystems.arkoicompiler.stages.parser.ast.enums.ASTType;
+import lombok.Builder;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-public interface ISyntaxParser
+public class Statement extends ArkoiNode
 {
     
-    @NotNull
-    ArkoiNode parse(final @NotNull ArkoiNode parentAST, final @NotNull Parser parser);
-    
-    boolean canParse(final @NotNull ArkoiNode parentAST, final @NotNull Parser parser);
+    @Builder(builderMethodName = "statementBuilder")
+    protected Statement(
+            final @Nullable Parser parser,
+            final @NotNull ASTType astType,
+            final @Nullable ArkoiToken startToken,
+            final @Nullable ArkoiToken endToken
+    ) {
+        super(parser, astType, startToken, endToken);
+    }
     
 }

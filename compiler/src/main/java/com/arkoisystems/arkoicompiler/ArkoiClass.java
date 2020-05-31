@@ -18,10 +18,10 @@
  */
 package com.arkoisystems.arkoicompiler;
 
-import com.arkoisystems.arkoicompiler.stage.codegen.CodeGen;
-import com.arkoisystems.arkoicompiler.stage.lexer.Lexer;
-import com.arkoisystems.arkoicompiler.stage.parser.Parser;
-import com.arkoisystems.arkoicompiler.stage.semantic.Semantic;
+import com.arkoisystems.arkoicompiler.stages.codegen.CodeGen;
+import com.arkoisystems.arkoicompiler.stages.lexer.Lexer;
+import com.arkoisystems.arkoicompiler.stages.parser.Parser;
+import com.arkoisystems.arkoicompiler.stages.semantic.Semantic;
 import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
