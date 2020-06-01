@@ -49,11 +49,11 @@ public class RootNode extends ParserNode
     
     @Builder
     protected RootNode(
-            final @Nullable Parser parser,
+            final @NotNull Parser parser,
             final @Nullable LexerToken startToken,
             final @Nullable LexerToken endToken
     ) {
-        super(parser, new SymbolTable(null), startToken, endToken);
+        super(parser, parser.getCompilerClass().getRootScope(), startToken, endToken);
         
         this.nodes = new ArrayList<>();
     }

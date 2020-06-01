@@ -80,9 +80,12 @@ public class VariableNode extends StatementNode
                     this,
                     this.getParser().getCompilerClass(),
                     currentToken,
-                
-                    ParserErrorType.SYNTAX_ERROR_TEMPLATE,
-                    "Variable", "'var' or 'const'", currentToken != null ? currentToken.getTokenContent() : "nothing"
+                    String.format(
+                            ParserErrorType.SYNTAX_ERROR_TEMPLATE,
+                            "Variable",
+                            "'var' or 'const'",
+                            currentToken != null ? currentToken.getTokenContent() : "nothing"
+                    )
             );
         }
         
@@ -94,9 +97,12 @@ public class VariableNode extends StatementNode
                     this,
                     this.getParser().getCompilerClass(),
                     peekedToken,
-            
-                    ParserErrorType.SYNTAX_ERROR_TEMPLATE,
-                    "Variable", "<identifier>", peekedToken != null ? peekedToken.getTokenContent() : "nothing"
+                    String.format(
+                            ParserErrorType.SYNTAX_ERROR_TEMPLATE,
+                            "Variable",
+                            "<identifier>",
+                            peekedToken != null ? peekedToken.getTokenContent() : "nothing"
+                    )
             );
         }
         
@@ -112,9 +118,12 @@ public class VariableNode extends StatementNode
                     this,
                     this.getParser().getCompilerClass(),
                     peekedToken,
-            
-                    ParserErrorType.SYNTAX_ERROR_TEMPLATE,
-                    "Variable", "'='", peekedToken != null ? peekedToken.getTokenContent() : "nothing"
+                    String.format(
+                            ParserErrorType.SYNTAX_ERROR_TEMPLATE,
+                            "Variable",
+                            "'='",
+                            peekedToken != null ? peekedToken.getTokenContent() : "nothing"
+                    )
             );
         }
         
@@ -126,9 +135,12 @@ public class VariableNode extends StatementNode
                     this,
                     this.getParser().getCompilerClass(),
                     peekedToken,
-                
-                    ParserErrorType.SYNTAX_ERROR_TEMPLATE,
-                    "Variable", "<expression>", peekedToken != null ? peekedToken.getTokenContent() : "nothing"
+                    String.format(
+                            ParserErrorType.SYNTAX_ERROR_TEMPLATE,
+                            "Variable",
+                            "<expression>",
+                            peekedToken != null ? peekedToken.getTokenContent() : "nothing"
+                    )
             );
         }
         

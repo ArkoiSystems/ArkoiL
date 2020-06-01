@@ -39,7 +39,6 @@ import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -104,9 +103,12 @@ public class IdentifierNode extends OperableNode
                         this,
                         this.getParser().getCompilerClass(),
                         currentToken,
-                        
-                        ParserErrorType.SYNTAX_ERROR_TEMPLATE,
-                        "Identifier call", "'.'", currentToken != null ? currentToken.getTokenContent() : "nothing"
+                        String.format(
+                                ParserErrorType.SYNTAX_ERROR_TEMPLATE,
+                                "Identifier call",
+                                "'.'",
+                                currentToken != null ? currentToken.getTokenContent() : "nothing"
+                        )
                 );
             }
             
@@ -118,9 +120,12 @@ public class IdentifierNode extends OperableNode
                         this,
                         this.getParser().getCompilerClass(),
                         currentToken,
-                        
-                        ParserErrorType.SYNTAX_ERROR_TEMPLATE,
-                        "Identifier call", "<identifier>", currentToken != null ? currentToken.getTokenContent() : "nothing"
+                        String.format(
+                                ParserErrorType.SYNTAX_ERROR_TEMPLATE,
+                                "Identifier call",
+                                "<identifier>",
+                                currentToken != null ? currentToken.getTokenContent() : "nothing"
+                        )
                 );
             }
             
@@ -131,9 +136,12 @@ public class IdentifierNode extends OperableNode
                     this,
                     this.getParser().getCompilerClass(),
                     currentToken,
-                    
-                    ParserErrorType.SYNTAX_ERROR_TEMPLATE,
-                    "Identifier call", "<identifier>", currentToken != null ? currentToken.getTokenContent() : "nothing"
+                    String.format(
+                            ParserErrorType.SYNTAX_ERROR_TEMPLATE,
+                            "Identifier call",
+                            "<identifier>",
+                            currentToken != null ? currentToken.getTokenContent() : "nothing"
+                    )
             );
         }
         
@@ -167,9 +175,12 @@ public class IdentifierNode extends OperableNode
                         this,
                         this.getParser().getCompilerClass(),
                         peekedToken,
-            
-                        ParserErrorType.SYNTAX_ERROR_TEMPLATE,
-                        "Identifier call", "<identifier call>", peekedToken != null ? peekedToken.getTokenContent() : "nothing"
+                        String.format(
+                                ParserErrorType.SYNTAX_ERROR_TEMPLATE,
+                                "Identifier call",
+                                "<identifier call>",
+                                peekedToken != null ? peekedToken.getTokenContent() : "nothing"
+                        )
                 );
             }
     

@@ -56,8 +56,6 @@ public class Lexer implements IStage
     @SneakyThrows
     @Override
     public boolean processStage() {
-        this.reset();
-        
         final StringBuilder patternBuffer = new StringBuilder();
         for (final TokenType tokenType : TokenType.values())
             patternBuffer.append(String.format("|(?<%s>%s)", tokenType.name().replace("_", ""), tokenType.getRegex()));
@@ -88,15 +86,6 @@ public class Lexer implements IStage
         }
         
         return !this.isFailed();
-    }
-    
-    @Override
-    public void reset() {
-        this.setFailed(false);
-        
-        this.tokens.clear();
-        this.charIndex = 0;
-        this.lineIndex = 0;
     }
     
 }

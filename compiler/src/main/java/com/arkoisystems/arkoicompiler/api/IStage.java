@@ -18,7 +18,7 @@
  */
 package com.arkoisystems.arkoicompiler.api;
 
-public interface IStage extends IFailed, IResettable
+public interface IStage extends IFailed
 {
     
     boolean processStage();

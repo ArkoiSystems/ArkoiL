@@ -70,9 +70,12 @@ public class ExpressionListNode extends ParserNode
                     this,
                     this.getParser().getCompilerClass(),
                     currentToken,
-                    
-                    ParserErrorType.SYNTAX_ERROR_TEMPLATE,
-                    "Expression list", "'('", currentToken != null ? currentToken.getTokenContent() : "nothing"
+                    String.format(
+                            ParserErrorType.SYNTAX_ERROR_TEMPLATE,
+                            "Expression list",
+                            "'('",
+                            currentToken != null ? currentToken.getTokenContent() : "nothing"
+                    )
             );
         }
         
@@ -108,9 +111,12 @@ public class ExpressionListNode extends ParserNode
                     this,
                     this.getParser().getCompilerClass(),
                     currentToken,
-                    
-                    ParserErrorType.SYNTAX_ERROR_TEMPLATE,
-                    "Expression list", "')'", currentToken != null ? currentToken.getTokenContent() : "nothing"
+                    String.format(
+                            ParserErrorType.SYNTAX_ERROR_TEMPLATE,
+                            "Expression list",
+                            "')'",
+                            currentToken != null ? currentToken.getTokenContent() : "nothing"
+                    )
             );
         }
         

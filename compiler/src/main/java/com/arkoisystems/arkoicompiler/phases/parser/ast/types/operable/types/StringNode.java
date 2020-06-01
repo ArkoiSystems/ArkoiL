@@ -70,9 +70,12 @@ public class StringNode extends OperableNode
                     this,
                     this.getParser().getCompilerClass(),
                     currentToken,
-            
-                    ParserErrorType.SYNTAX_ERROR_TEMPLATE,
-                    "String", "<string>", currentToken != null ? currentToken.getTokenContent() : "nothing"
+                    String.format(
+                            ParserErrorType.SYNTAX_ERROR_TEMPLATE,
+                            "String",
+                            "<string>",
+                            currentToken != null ? currentToken.getTokenContent() : "nothing"
+                    )
             );
         }
         

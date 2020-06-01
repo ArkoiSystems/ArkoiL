@@ -18,6 +18,8 @@
  */
 package com.arkoisystems.arkoicompiler.phases.parser.ast.types.statement.types;
 
+import com.arkoisystems.arkoicompiler.Compiler;
+import com.arkoisystems.arkoicompiler.CompilerClass;
 import com.arkoisystems.arkoicompiler.api.IVisitor;
 import com.arkoisystems.arkoicompiler.phases.lexer.token.LexerToken;
 import com.arkoisystems.arkoicompiler.phases.lexer.token.enums.KeywordType;
@@ -26,16 +28,19 @@ import com.arkoisystems.arkoicompiler.phases.lexer.token.types.IdentifierToken;
 import com.arkoisystems.arkoicompiler.phases.lexer.token.types.StringToken;
 import com.arkoisystems.arkoicompiler.phases.parser.Parser;
 import com.arkoisystems.arkoicompiler.phases.parser.ParserErrorType;
-import com.arkoisystems.arkoicompiler.phases.parser.ast.ParserNode;
-import com.arkoisystems.arkoicompiler.phases.parser.ast.types.statement.StatementNode;
-import com.arkoisystems.arkoicompiler.phases.parser.ast.enums.TypeKind;
 import com.arkoisystems.arkoicompiler.phases.parser.SymbolTable;
+import com.arkoisystems.arkoicompiler.phases.parser.ast.ParserNode;
+import com.arkoisystems.arkoicompiler.phases.parser.ast.enums.TypeKind;
+import com.arkoisystems.arkoicompiler.phases.parser.ast.types.statement.StatementNode;
 import com.arkoisystems.utils.printer.annotations.Printable;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.File;
+import java.nio.file.Files;
 import java.util.Objects;
 
 @Getter
@@ -78,9 +83,12 @@ public class ImportNode extends StatementNode
                     this,
                     this.getParser().getCompilerClass(),
                     currentToken,
-                
-                    ParserErrorType.SYNTAX_ERROR_TEMPLATE,
-                    "Import", "'import'", currentToken != null ? currentToken.getTokenContent() : "nothing"
+                    String.format(
+                            ParserErrorType.SYNTAX_ERROR_TEMPLATE,
+                            "Import",
+                            "'import'",
+                            currentToken != null ? currentToken.getTokenContent() : "nothing"
+                    )
             );
         }
     
@@ -92,16 +100,31 @@ public class ImportNode extends StatementNode
                     this,
                     this.getParser().getCompilerClass(),
                     peekedToken,
-                
-                    ParserErrorType.SYNTAX_ERROR_TEMPLATE,
-                    "Import", "<string>", peekedToken != null ? peekedToken.getTokenContent() : "nothing"
+                    String.format(
+                            ParserErrorType.SYNTAX_ERROR_TEMPLATE,
+                            "Import",
+                            "<string>",
+                            peekedToken != null ? peekedToken.getTokenContent() : "nothing"
+                    )
             );
         }
     
         this.filePath = (StringToken) this.getParser().nextToken();
-    
-        if (this.getFilePath() != null && this.getFilePath().getTokenContent().endsWith(".ark"))
+        Objects.requireNonNull(this.getFilePath(), "filePath must not be null.");
+        if (this.getFilePath().getTokenContent().endsWith(".ark"))
             this.getFilePath().setTokenContent(this.getFilePath().getTokenContent().substring(0, this.getFilePath().getTokenContent().length() - 4));
+    
+        final CompilerClass resolvedClass = this.resolveClass();
+        if(resolvedClass == null)
+            return this.addError(
+                    this,
+                    this.getParser().getCompilerClass(),
+                    this.getFilePath(),
+                    String.format(
+                            "Path doesn't lead to any file %s.",
+                            this.getFilePath().getTokenContent()
+                    )
+            );
     
         if (this.getParser().matchesPeekToken(1, KeywordType.AS) != null) {
             this.getParser().nextToken();
@@ -112,25 +135,21 @@ public class ImportNode extends StatementNode
                         this,
                         this.getParser().getCompilerClass(),
                         peekedToken,
-                    
-                        ParserErrorType.SYNTAX_ERROR_TEMPLATE,
-                        "Import", "<identifier>", peekedToken != null ? peekedToken.getTokenContent() : "nothing"
+                        String.format(
+                                ParserErrorType.SYNTAX_ERROR_TEMPLATE,
+                                "Import",
+                                "<identifier>",
+                                peekedToken != null ? peekedToken.getTokenContent() : "nothing"
+                        )
                 );
             }
         
             this.name = (IdentifierToken) this.getParser().nextToken();
-        } else if (this.getFilePath() != null) {
-            // TODO: 5/31/20 Remove prefix for non defined names
-            final String[] split = this.getFilePath().getTokenContent().split("/");
-            this.name = IdentifierToken.builder()
-                    .lexer(this.getParser().getCompilerClass().getLexer())
-                    .build();
-            this.name.setTokenContent(split[split.length - 1].replace(".ark", ""));
-        }
         
-        Objects.requireNonNull(this.getCurrentScope(), "currentScope must not be null.");
-        Objects.requireNonNull(this.getName(), "name must not be null.");
-        this.getCurrentScope().insert(this.getName().getTokenContent(), this);
+            Objects.requireNonNull(this.getCurrentScope(), "currentScope must not be null.");
+            Objects.requireNonNull(this.getName(), "name must not be null.");
+            this.getCurrentScope().insert(this.getName().getTokenContent(), this);
+        }
     
         this.endAST(this.getParser().currentToken());
         return this;
@@ -150,6 +169,55 @@ public class ImportNode extends StatementNode
     @NotNull
     public TypeKind getTypeKind() {
         return TypeKind.UNDEFINED;
+    }
+    
+    @SneakyThrows
+    @Nullable
+    public CompilerClass resolveClass() {
+        Objects.requireNonNull(this.getFilePath(), "filePath must not be null.");
+        Objects.requireNonNull(this.getParser(), "parser must not be null.");
+        
+        File targetFile = new File(this.getFilePath().getTokenContent() + ".ark");
+        if (!targetFile.isAbsolute()) {
+            targetFile = new File(
+                    new File(this.getParser().getCompilerClass().getFilePath()).getParent(),
+                    this.getFilePath().getTokenContent() + ".ark"
+            );
+            
+            if (!targetFile.exists()) {
+                for (final File libraryDirectory : this.getParser().getCompilerClass().getCompiler().getLibraryPaths()) {
+                    final File file = new File(
+                            libraryDirectory.getPath(),
+                            this.getFilePath().getTokenContent() + ".ark"
+                    );
+                    if (!file.exists())
+                        continue;
+                    
+                    targetFile = file;
+                    break;
+                }
+            }
+        }
+        
+        if (!targetFile.exists())
+            return null;
+        
+        final Compiler compiler = this.getParser().getCompilerClass().getCompiler();
+        for (final CompilerClass compilerClass : compiler.getClasses()) {
+            if (compilerClass.getFilePath().equals(targetFile.getCanonicalPath()))
+                return compilerClass;
+        }
+        
+        final CompilerClass compilerClass = new CompilerClass(
+                compiler,
+                targetFile.getCanonicalPath(),
+                Files.readAllBytes(targetFile.toPath())
+        );
+        compiler.getClasses().add(compilerClass);
+        
+        compilerClass.getLexer().processStage();
+        compilerClass.getParser().processStage();
+        return compilerClass;
     }
     
 }

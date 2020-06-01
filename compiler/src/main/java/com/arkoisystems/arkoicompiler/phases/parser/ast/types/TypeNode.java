@@ -25,9 +25,9 @@ import com.arkoisystems.arkoicompiler.phases.lexer.token.enums.TokenType;
 import com.arkoisystems.arkoicompiler.phases.lexer.token.types.TypeToken;
 import com.arkoisystems.arkoicompiler.phases.parser.Parser;
 import com.arkoisystems.arkoicompiler.phases.parser.ParserErrorType;
+import com.arkoisystems.arkoicompiler.phases.parser.SymbolTable;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.ParserNode;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.enums.TypeKind;
-import com.arkoisystems.arkoicompiler.phases.parser.SymbolTable;
 import com.arkoisystems.utils.printer.annotations.Printable;
 import lombok.Builder;
 import lombok.Getter;
@@ -75,9 +75,12 @@ public class TypeNode extends ParserNode
                     this,
                     this.getParser().getCompilerClass(),
                     currentToken,
-                    
-                    ParserErrorType.SYNTAX_ERROR_TEMPLATE,
-                    "Type", "<type keyword>", currentToken != null ? currentToken.getTokenContent() : "nothing"
+                    String.format(
+                            ParserErrorType.SYNTAX_ERROR_TEMPLATE,
+                            "Type",
+                            "<type keyword>",
+                            currentToken != null ? currentToken.getTokenContent() : "nothing"
+                    )
             );
         }
         

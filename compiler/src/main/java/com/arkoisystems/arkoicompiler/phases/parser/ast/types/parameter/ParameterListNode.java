@@ -69,9 +69,12 @@ public class ParameterListNode extends ParserNode
                     this,
                     this.getParser().getCompilerClass(),
                     currentToken,
-                    
-                    ParserErrorType.SYNTAX_ERROR_TEMPLATE,
-                    "Parameter list", "'('", currentToken != null ? currentToken.getTokenContent() : "nothing"
+                    String.format(
+                            ParserErrorType.SYNTAX_ERROR_TEMPLATE,
+                            "Parameter list",
+                            "'('",
+                            currentToken != null ? currentToken.getTokenContent() : "nothing"
+                    )
             );
         }
         
@@ -105,9 +108,12 @@ public class ParameterListNode extends ParserNode
                     this,
                     this.getParser().getCompilerClass(),
                     currentToken,
-                    
-                    ParserErrorType.SYNTAX_ERROR_TEMPLATE,
-                    "Parameter list", "')'", currentToken != null ? currentToken.getTokenContent() : "nothing"
+                    String.format(
+                            ParserErrorType.SYNTAX_ERROR_TEMPLATE,
+                            "Parameter list",
+                            "')'",
+                            currentToken != null ? currentToken.getTokenContent() : "nothing"
+                    )
             );
         }
         

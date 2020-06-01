@@ -35,8 +35,8 @@ import com.arkoisystems.arkoicompiler.phases.parser.ast.types.operable.types.Num
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.operable.types.StringNode;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.operable.types.expression.ExpressionListNode;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.operable.types.expression.types.*;
-import com.arkoisystems.arkoicompiler.phases.parser.ast.types.parameter.ParameterNode;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.parameter.ParameterListNode;
+import com.arkoisystems.arkoicompiler.phases.parser.ast.types.parameter.ParameterNode;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.statement.types.FunctionNode;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.statement.types.ImportNode;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.statement.types.ReturnNode;
@@ -48,7 +48,6 @@ import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Collections;
 import java.util.Objects;
 
 @RequiredArgsConstructor
@@ -319,16 +318,20 @@ public class TypeVisitor implements IVisitor<TypeKind>, IFailed
         return prefixNode.getTypeKind();
     }
     
-    public <E> E addError(final @Nullable E errorSource, final @NotNull CompilerClass compilerClass, final @NotNull ParserNode astNode, final @NotNull String message, final @NotNull Object... arguments) {
+    public <E> E addError(
+            final @Nullable E errorSource,
+            final @NotNull CompilerClass compilerClass,
+            final @NotNull ParserNode astNode,
+            final @NotNull String causeMessage
+    ) {
         compilerClass.getCompiler().getErrorHandler().addError(CompilerError.builder()
-                .compilerClass(compilerClass)
-                .positions(Collections.singletonList(ErrorPosition.builder()
+                .causePosition(ErrorPosition.builder()
+                        .compilerClass(Objects.requireNonNull(astNode.getParser(), "astNode.parser must not be null.").getCompilerClass())
                         .lineRange(Objects.requireNonNull(astNode.getLineRange(), "astNode.lineRange must not be null."))
                         .charStart(Objects.requireNonNull(astNode.getStartToken(), "astNode.startToken must not be null.").getCharStart())
                         .charEnd(Objects.requireNonNull(astNode.getEndToken(), "astNode.endToken must not be null.").getCharEnd())
-                        .build()))
-                .message(message)
-                .arguments(arguments)
+                        .build())
+                .causeMessage(causeMessage)
                 .build()
         );
         
