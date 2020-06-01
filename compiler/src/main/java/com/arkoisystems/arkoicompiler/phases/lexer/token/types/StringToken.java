@@ -26,8 +26,6 @@ import com.arkoisystems.arkoicompiler.phases.lexer.token.enums.TokenType;
 import lombok.Builder;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Collections;
-
 public class StringToken extends LexerToken
 {
     
@@ -44,13 +42,13 @@ public class StringToken extends LexerToken
         if(this.getTokenContent().length() < 2 || this.getTokenContent().endsWith("\\\"") || !this.getTokenContent().endsWith("\"")) {
             this.getLexer().setFailed(true);
             this.getLexer().getCompilerClass().getCompiler().getErrorHandler().addError(CompilerError.builder()
-                    .compilerClass(this.getLexer().getCompilerClass())
-                    .positions(Collections.singletonList(ErrorPosition.builder()
+                    .causePosition(ErrorPosition.builder()
+                            .compilerClass(this.getLexer().getCompilerClass())
                             .lineRange(this.getLineRange())
                             .charStart(this.getCharStart())
                             .charEnd(this.getCharEnd())
-                            .build()))
-                    .message("A string must be terminated correctly.")
+                            .build())
+                    .causeMessage("A string must be terminated correctly.")
                     .build());
             return;
         }

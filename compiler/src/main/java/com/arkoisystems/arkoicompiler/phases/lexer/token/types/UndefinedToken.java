@@ -26,8 +26,6 @@ import com.arkoisystems.arkoicompiler.phases.lexer.token.enums.TokenType;
 import lombok.Builder;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Collections;
-
 public class UndefinedToken extends LexerToken
 {
     
@@ -45,14 +43,13 @@ public class UndefinedToken extends LexerToken
         if (!dummy) {
             this.getLexer().setFailed(true);
             this.getLexer().getCompilerClass().getCompiler().getErrorHandler().addError(CompilerError.builder()
-                    .compilerClass(this.getLexer().getCompilerClass())
-                    .positions(Collections.singletonList(ErrorPosition.builder()
+                    .causePosition(ErrorPosition.builder()
+                            .compilerClass(this.getLexer().getCompilerClass())
                             .lineRange(this.getLineRange())
                             .charStart(charStart)
                             .charEnd(charEnd)
-                            .build()))
-                    .message("This character is unknown to the lexer: %s")
-                    .arguments(new Object[] { this.getTokenContent() })
+                            .build())
+                    .causeMessage("This character is unknown to the lexer")
                     .build()
             );
         }

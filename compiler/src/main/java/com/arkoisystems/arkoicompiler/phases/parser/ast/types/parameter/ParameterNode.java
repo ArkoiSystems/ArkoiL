@@ -77,9 +77,12 @@ public class ParameterNode extends ParserNode
                     this,
                     this.getParser().getCompilerClass(),
                     currentToken,
-                
-                    ParserErrorType.SYNTAX_ERROR_TEMPLATE,
-                    "Parameter", "<identifier>", currentToken != null ? currentToken.getTokenContent() : "nothing"
+                    String.format(
+                            ParserErrorType.SYNTAX_ERROR_TEMPLATE,
+                            "Parameter",
+                            "<identifier>",
+                            currentToken != null ? currentToken.getTokenContent() : "nothing"
+                    )
             );
         }
     
@@ -96,9 +99,12 @@ public class ParameterNode extends ParserNode
                     this,
                     this.getParser().getCompilerClass(),
                     peekedToken,
-                
-                    ParserErrorType.SYNTAX_ERROR_TEMPLATE,
-                    "Parameter", "':'", peekedToken != null ? peekedToken.getTokenContent() : "nothing"
+                    String.format(
+                            ParserErrorType.SYNTAX_ERROR_TEMPLATE,
+                            "Parameter",
+                            "':'",
+                            peekedToken != null ? peekedToken.getTokenContent() : "nothing"
+                    )
             );
         }
     
@@ -110,9 +116,12 @@ public class ParameterNode extends ParserNode
                     this,
                     this.getParser().getCompilerClass(),
                     currentToken,
-            
-                    ParserErrorType.SYNTAX_ERROR_TEMPLATE,
-                    "Parameter", "<type>", currentToken != null ? currentToken.getTokenContent() : "nothing"
+                    String.format(
+                            ParserErrorType.SYNTAX_ERROR_TEMPLATE,
+                            "Parameter",
+                            "<type>",
+                            currentToken != null ? currentToken.getTokenContent() : "nothing"
+                    )
             );
         }
         

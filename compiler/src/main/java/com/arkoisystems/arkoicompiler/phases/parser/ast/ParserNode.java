@@ -35,7 +35,6 @@ import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Collections;
 import java.util.Objects;
 
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
@@ -137,59 +136,36 @@ public class ParserNode implements IFailed, Cloneable
         );
     }
     
-    public <E> E addError(final @Nullable E errorSource, final @NotNull CompilerClass compilerClass, final @Nullable ParserNode astNode, final @NotNull String message, final @NotNull Object... arguments) {
+    public <E> E addError(
+            final @Nullable E errorSource,
+            final @NotNull CompilerClass compilerClass,
+            final @Nullable LexerToken lexerToken,
+            final @NotNull String causeMessage
+    ) {
         final LineRange lineRange;
-        final int charStart, charEnd;
-        if (astNode != null) {
-            lineRange = Objects.requireNonNull(astNode.getLineRange(), "astNode.lineRange must not be null.");
-            charStart = Objects.requireNonNull(astNode.getStartToken(), "astNode.startToken must not be null.").getCharStart();
-            charEnd = Objects.requireNonNull(astNode.getStartToken(), "astNode.startToken must not be null.").getCharEnd();
-        } else {
-            final String[] sourceSplit = compilerClass.getContent().split(System.getProperty("line.separator"));
-            lineRange = LineRange.make(compilerClass, sourceSplit.length - 1, sourceSplit.length - 1);
-            charStart = sourceSplit[sourceSplit.length - 1].length() - 1;
-            charEnd = sourceSplit[sourceSplit.length - 1].length();
-        }
-    
-        compilerClass.getCompiler().getErrorHandler().addError(CompilerError.builder()
-                .compilerClass(compilerClass)
-                .positions(Collections.singletonList(ErrorPosition.builder()
-                        .lineRange(lineRange)
-                        .charStart(charStart)
-                        .charEnd(charEnd)
-                        .build()))
-                .message(message)
-                .arguments(arguments)
-                .build()
-        );
-        
-        this.setFailed(true);
-        return errorSource;
-    }
-    
-    public <E> E addError(final @Nullable E errorSource, final @NotNull CompilerClass compilerClass, final @Nullable LexerToken lexerToken, final @NotNull String message, final @NotNull Object... arguments) {
-        final LineRange lineRange;
+        final CompilerClass tokenClass;
         final int charStart, charEnd;
         if (lexerToken != null) {
+            tokenClass = lexerToken.getLexer().getCompilerClass();
             lineRange = lexerToken.getLineRange();
             charStart = lexerToken.getCharStart();
             charEnd = lexerToken.getCharEnd();
         } else {
             final String[] sourceSplit = compilerClass.getContent().split(System.getProperty("line.separator"));
+            tokenClass = compilerClass;
             lineRange = LineRange.make(compilerClass, sourceSplit.length - 1, sourceSplit.length - 1);
             charStart = sourceSplit[sourceSplit.length - 1].length() - 1;
             charEnd = sourceSplit[sourceSplit.length - 1].length();
         }
     
         compilerClass.getCompiler().getErrorHandler().addError(CompilerError.builder()
-                .compilerClass(compilerClass)
-                .positions(Collections.singletonList(ErrorPosition.builder()
+                .causePosition(ErrorPosition.builder()
+                        .compilerClass(tokenClass)
                         .lineRange(lineRange)
                         .charStart(charStart)
                         .charEnd(charEnd)
-                        .build()))
-                .message(message)
-                .arguments(arguments)
+                        .build())
+                .causeMessage(causeMessage)
                 .build()
         );
         

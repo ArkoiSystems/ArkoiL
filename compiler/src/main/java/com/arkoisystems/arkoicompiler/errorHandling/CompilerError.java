@@ -18,13 +18,9 @@
  */
 package com.arkoisystems.arkoicompiler.errorHandling;
 
-import com.arkoisystems.arkoicompiler.CompilerClass;
-import com.arkoisystems.arkoicompiler.errorHandling.ErrorPosition;
-import com.arkoisystems.arkoicompiler.errorHandling.LineRange;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -32,95 +28,53 @@ import java.util.Objects;
 
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Builder
+@Getter
 public class CompilerError
 {
     
     @EqualsAndHashCode.Include
-    @Getter
     @Nullable
-    private final List<ErrorPosition> positions;
-    
-    @Getter
-    @NotNull
-    private final CompilerClass compilerClass;
+    private final List<ErrorPosition> otherPositions;
     
     @EqualsAndHashCode.Include
-    @Getter
     @Nullable
-    private final Object[] arguments;
+    private final ErrorPosition causePosition;
     
     @EqualsAndHashCode.Include
-    @Getter
     @Nullable
-    private final String message;
+    private final String otherMessage;
+    
+    @EqualsAndHashCode.Include
+    @Nullable
+    private final String causeMessage;
+    
     
     @Override
     public String toString() {
-        Objects.requireNonNull(this.getMessage(), "message must not be null.");
-        Objects.requireNonNull(this.getPositions(), "positions must not be null.");
-        Objects.requireNonNull(this.getCompilerClass(), "compilerClass must not be null.");
-    
+        Objects.requireNonNull(this.getCauseMessage(), "message must not be null.");
+        Objects.requireNonNull(this.getCausePosition(), "positions must not be null.");
+        
         final StringBuilder stringBuilder = new StringBuilder(String.format(
                 "%s:%s:%s: %s",
-                compilerClass.getFilePath(),
-                this.getPositions().get(0).getLineRange().getStartLine() + 1,
-                this.getPositions().get(0).getCharStart() + 1,
-                String.format(this.getMessage(), this.getArguments())
-        ));
-    
-        for (final ErrorPosition errorPosition : this.getPositions()) {
-            stringBuilder.append("\r\n");
+                this.getCausePosition().getCompilerClass().getFilePath(),
+                this.getCausePosition().getLineRange().getStartLine() + 1,
+                this.getCausePosition().getCharStart() + 1,
+                this.getCauseMessage()
+        )).append("\r\n");
+        this.getCausePosition().toString(stringBuilder, " ");
         
-            final int startLine = errorPosition.getLineRange().getStartLine(), endLine = errorPosition.getLineRange().getEndLine();
-            final String[] sourceLines = errorPosition.getLineRange().getSourceCode().split(System.getProperty("line.separator"));
-            final int biggestNumber = String.valueOf(endLine + 1).length();
-            for (int lineIndex = startLine; lineIndex < startLine + sourceLines.length; lineIndex++) {
-                final LineRange lineRange = LineRange.make(this.getCompilerClass(), lineIndex, lineIndex);
-                final String sourceCode = lineRange.getSourceCode().replace("\n", "");
-            
-                final int leadingSpaces = sourceCode.length() - sourceCode.replaceAll("^\\s+", "").length();
-                final int trailingSpaces = sourceCode.length() - sourceCode.replaceAll("\\s+$", "").length();
-            
-                final String numberReplacement = " ".repeat(String.valueOf(endLine + 1).length());
-                final String whitespacePrefix = " ".repeat(biggestNumber - String.valueOf(lineIndex + 1).length());
-    
-                int repeats = sourceCode.length() - leadingSpaces;
-                if(repeats <= 0)
-                    continue;
-                stringBuilder.append("> ")
-                        .append(whitespacePrefix)
-                        .append(lineIndex + 1)
-                        .append(" │ ")
-                        .append(sourceCode)
-                        .append("\r\n");
-                if (lineIndex == startLine) {
-                    repeats = startLine == endLine ? errorPosition.getCharEnd() - errorPosition.getCharStart() : (sourceCode.length() - errorPosition.getCharStart()) - trailingSpaces;
-                    stringBuilder.append(whitespacePrefix)
-                            .append(numberReplacement)
-                            .append("   │ ")
-                            .append(" ".repeat(errorPosition.getCharStart()))
-                            .append("^")
-                            .append("~".repeat(repeats - 1))
-                            .append("\r\n");
-                } else if (lineIndex == endLine) {
-                    stringBuilder.append(whitespacePrefix)
-                            .append(numberReplacement)
-                            .append("   │ ")
-                            .append(" ".repeat(leadingSpaces))
-                            .append("^")
-                            .append("~".repeat(errorPosition.getCharEnd() - leadingSpaces - 1))
-                            .append("\r\n");
-                } else {
-                    stringBuilder.append(whitespacePrefix)
-                            .append(numberReplacement)
-                            .append("   │ ")
-                            .append(" ".repeat(leadingSpaces))
-                            .append("^")
-                            .append("~".repeat(repeats - 1))
-                            .append("\r\n");
-                }
-            }
+        if (this.getOtherPositions() == null || this.getOtherPositions().isEmpty())
+            return stringBuilder.toString();
+        
+        stringBuilder.append("\r\n").append(" ");
+        if (this.getOtherMessage() != null)
+            stringBuilder.append(this.getOtherMessage());
+        
+        for (final ErrorPosition errorPosition : this.getOtherPositions()) {
+            stringBuilder.append("\r\n");
+            errorPosition.toString(stringBuilder, " ");
         }
+        
         return stringBuilder.toString();
     }
     

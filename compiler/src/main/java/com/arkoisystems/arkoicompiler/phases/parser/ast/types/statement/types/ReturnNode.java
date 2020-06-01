@@ -23,12 +23,12 @@ import com.arkoisystems.arkoicompiler.phases.lexer.token.LexerToken;
 import com.arkoisystems.arkoicompiler.phases.lexer.token.enums.KeywordType;
 import com.arkoisystems.arkoicompiler.phases.parser.Parser;
 import com.arkoisystems.arkoicompiler.phases.parser.ParserErrorType;
+import com.arkoisystems.arkoicompiler.phases.parser.SymbolTable;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.ParserNode;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.enums.TypeKind;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.operable.OperableNode;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.operable.types.expression.ExpressionNode;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.statement.StatementNode;
-import com.arkoisystems.arkoicompiler.phases.parser.SymbolTable;
 import com.arkoisystems.utils.printer.annotations.Printable;
 import lombok.Builder;
 import lombok.Getter;
@@ -71,9 +71,12 @@ public class ReturnNode extends StatementNode
                     this,
                     this.getParser().getCompilerClass(),
                     currentToken,
-                    
-                    ParserErrorType.SYNTAX_ERROR_TEMPLATE,
-                    "Return", "'return'", currentToken != null ? currentToken.getTokenContent() : "nothing"
+                    String.format(
+                            ParserErrorType.SYNTAX_ERROR_TEMPLATE,
+                            "Return",
+                            "'return'",
+                            currentToken != null ? currentToken.getTokenContent() : "nothing"
+                    )
             );
         }
         
