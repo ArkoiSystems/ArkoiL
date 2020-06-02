@@ -24,6 +24,7 @@ import com.arkoisystems.arkoicompiler.phases.parser.ast.enums.TypeKind;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.BlockNode;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.RootNode;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.TypeNode;
+import com.arkoisystems.arkoicompiler.phases.parser.ast.types.operable.OperableNode;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.operable.types.IdentifierNode;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.operable.types.NumberNode;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.operable.types.StringNode;
@@ -35,10 +36,8 @@ import com.arkoisystems.arkoicompiler.phases.parser.ast.types.statement.types.Fu
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.statement.types.ImportNode;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.statement.types.ReturnNode;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.statement.types.VariableNode;
-import com.arkoisystems.llvm.Builder;
-import com.arkoisystems.llvm.Function;
 import com.arkoisystems.llvm.Module;
-import com.arkoisystems.llvm.Parameter;
+import com.arkoisystems.llvm.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.bytedeco.llvm.LLVM.LLVMTypeRef;
@@ -81,7 +80,8 @@ public class CodeGenVisitor implements IVisitor<Object>
             case STRING:
                 return LLVM.LLVMPointerType(LLVM.LLVMInt8Type(), 0);
             default:
-                throw new NullPointerException("Unhandled type: " + typeNode.getTypeKind().name());
+                return LLVM.LLVMVoidType();
+            //                throw new NullPointerException("Unhandled type: " + typeNode.getTypeKind().name());
         }
     }
     
@@ -101,14 +101,17 @@ public class CodeGenVisitor implements IVisitor<Object>
     
         final String error = module.verify(LLVM.LLVMReturnStatusAction);
     
-        //        this.getModule().dump();
-        //        System.out.println(error);
+        this.getModule().dump();
+//        System.out.println(error);
     
-        return error.isEmpty() ? this.getModule() : null;
+        return this.getModule();
+        //        return error.isEmpty() ? this.getModule() : null;
     }
     
     @Override
     public ParameterListNode visit(final @NotNull ParameterListNode parameterListNode) {
+        for (final ParameterNode parameterNode : parameterListNode.getParameters())
+            this.visit(parameterNode);
         return parameterListNode;
     }
     
@@ -119,6 +122,8 @@ public class CodeGenVisitor implements IVisitor<Object>
     
     @Override
     public BlockNode visit(final @NotNull BlockNode blockNode) {
+        for (final ParserNode node : blockNode.getNodes())
+            this.visit(node);
         return blockNode;
     }
     
@@ -155,16 +160,31 @@ public class CodeGenVisitor implements IVisitor<Object>
     
     @Override
     public ReturnNode visit(final @NotNull ReturnNode returnNode) {
+        if (returnNode.getExpression() != null)
+            this.visit(returnNode.getExpression());
         return returnNode;
     }
     
     @Override
     public VariableNode visit(final @NotNull VariableNode variableNode) {
+        Objects.requireNonNull(variableNode.getExpression(), "variableNode.expression must not be null.");
+        this.visit(variableNode.getExpression());
         return variableNode;
     }
     
     @Override
     public StringNode visit(final @NotNull StringNode stringNode) {
+        Objects.requireNonNull(stringNode.getStringToken(), "stringNode.stringToken must not be null.");
+    
+        GlobalVariable.builder()
+                .module(this.getModule())
+                .name("")
+                .constant(ConstantString.builder()
+                        .content(stringNode.getStringToken().getTokenContent())
+                        .build())
+                .isConstant(true)
+                .linkage(LLVM.LLVMPrivateLinkage)
+                .build();
         return stringNode;
     }
     
@@ -180,31 +200,49 @@ public class CodeGenVisitor implements IVisitor<Object>
     
     @Override
     public ExpressionListNode visit(final @NotNull ExpressionListNode expressionListNode) {
+        for (final OperableNode operableNode : expressionListNode.getExpressions())
+            this.visit(operableNode);
         return expressionListNode;
     }
     
     @Override
     public AssignmentNode visit(final @NotNull AssignmentNode assignmentNode) {
+        Objects.requireNonNull(assignmentNode.getLeftHandSide(), "assignmentNode.leftHandSide must not be null.");
+        Objects.requireNonNull(assignmentNode.getRightHandSide(), "assignmentNode.rightHandSide must not be null.");
+    
+        this.visit(assignmentNode.getLeftHandSide());
+        this.visit(assignmentNode.getRightHandSide());
         return assignmentNode;
     }
     
     @Override
     public BinaryNode visit(final @NotNull BinaryNode binaryNode) {
+        Objects.requireNonNull(binaryNode.getLeftHandSide(), "binaryNode.leftHandSide must not be null.");
+        Objects.requireNonNull(binaryNode.getRightHandSide(), "binaryNode.rightHandSide must not be null.");
+    
+        this.visit(binaryNode.getLeftHandSide());
+        this.visit(binaryNode.getRightHandSide());
         return binaryNode;
     }
     
     @Override
     public ParenthesizedNode visit(final @NotNull ParenthesizedNode parenthesizedNode) {
+        Objects.requireNonNull(parenthesizedNode.getExpression(), "parenthesizedNode.expression must not be null.");
+        this.visit(parenthesizedNode.getExpression());
         return parenthesizedNode;
     }
     
     @Override
     public PostfixNode visit(final @NotNull PostfixNode postfixNode) {
+        Objects.requireNonNull(postfixNode.getLeftHandSide(), "postfixNode.leftHandSide must not be null.");
+        this.visit(postfixNode.getLeftHandSide());
         return postfixNode;
     }
     
     @Override
     public PrefixNode visit(final @NotNull PrefixNode prefixNode) {
+        Objects.requireNonNull(prefixNode.getRightHandSide(), "prefixNode.rightHandSide must not be null.");
+        this.visit(prefixNode.getRightHandSide());
         return prefixNode;
     }
     
