@@ -20,7 +20,6 @@ package com.arkoisystems.arkoicompiler.phases.codegen;
 
 import com.arkoisystems.arkoicompiler.api.IVisitor;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.ParserNode;
-import com.arkoisystems.arkoicompiler.phases.parser.ast.enums.BlockType;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.enums.TypeKind;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.BlockNode;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.RootNode;
@@ -36,26 +35,17 @@ import com.arkoisystems.arkoicompiler.phases.parser.ast.types.statement.types.Fu
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.statement.types.ImportNode;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.statement.types.ReturnNode;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.statement.types.VariableNode;
-import com.arkoisystems.llvm4j.api.builder.Builder;
-import com.arkoisystems.llvm4j.api.core.basicBlock.BasicBlock;
-import com.arkoisystems.llvm4j.api.core.modules.Module;
-import com.arkoisystems.llvm4j.api.core.types.Type;
-import com.arkoisystems.llvm4j.api.core.types.modules.FloatingType;
-import com.arkoisystems.llvm4j.api.core.types.modules.FunctionType;
-import com.arkoisystems.llvm4j.api.core.types.modules.IntegerType;
-import com.arkoisystems.llvm4j.api.core.types.modules.VoidType;
-import com.arkoisystems.llvm4j.api.core.types.modules.sequential.PointerType;
-import com.arkoisystems.llvm4j.api.core.values.Value;
-import com.arkoisystems.llvm4j.api.core.values.constants.function.Function;
-import com.arkoisystems.llvm4j.utils.PointerArray;
+import com.arkoisystems.llvm.Builder;
+import com.arkoisystems.llvm.Function;
+import com.arkoisystems.llvm.Module;
+import com.arkoisystems.llvm.Parameter;
 import lombok.Getter;
 import lombok.Setter;
+import org.bytedeco.llvm.LLVM.LLVMTypeRef;
+import org.bytedeco.llvm.global.LLVM;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
 @Getter
@@ -69,66 +59,62 @@ public class CodeGenVisitor implements IVisitor<Object>
     @NotNull
     private Builder builder;
     
-    @Nullable
     @Override
-    public Type visit(final @NotNull TypeNode typeNode) {
+    public LLVMTypeRef visit(final @NotNull TypeNode typeNode) {
         switch (typeNode.getTypeKind()) {
             case FLOAT:
-                return FloatingType.createFloatType();
+                return LLVM.LLVMFloatType();
             case BOOLEAN:
-                return IntegerType.createInt1Type();
+                return LLVM.LLVMInt1Type();
             case BYTE:
-                return IntegerType.createInt8Type();
+                return LLVM.LLVMInt8Type();
             case CHAR:
-                return IntegerType.createInt16Type();
+                return LLVM.LLVMInt16Type();
             case DOUBLE:
-                return FloatingType.createDoubleType();
+                return LLVM.LLVMDoubleType();
             case INTEGER:
-                return IntegerType.createInt32Type();
+                return LLVM.LLVMInt32Type();
             case LONG:
-                return IntegerType.createInt64Type();
+                return LLVM.LLVMInt64Type();
             case VOID:
-                return VoidType.createVoidType();
+                return LLVM.LLVMVoidType();
             case STRING:
-                return PointerType.createPointerType(IntegerType.createInt8Type(), 0);
+                return LLVM.LLVMPointerType(LLVM.LLVMInt8Type(), 0);
             default:
                 throw new NullPointerException("Unhandled type: " + typeNode.getTypeKind().name());
         }
     }
     
-    
     @Override
     public Module visit(final @NotNull RootNode rootNode) {
         Objects.requireNonNull(rootNode.getParser(), "rootAST.parser must not be null.");
-        
+    
         final File file = new File(rootNode.getParser().getCompilerClass().getFilePath());
-        this.module = Module.createWithName(file.getName());
-        this.builder = Builder.createBuilder();
-        
-        return rootNode.getNodes().stream()
-                .anyMatch(node -> this.visit(node) == null) ? null : module;
+        this.setModule(Module.builder()
+                .name(file.getName())
+                .build());
+        this.setBuilder(Builder.builder()
+                .build());
+    
+        for (final ParserNode node : rootNode.getNodes())
+            this.visit(node);
+    
+        final String error = module.verify(LLVM.LLVMReturnStatusAction);
+    
+        //        this.getModule().dump();
+        //        System.out.println(error);
+    
+        return error.isEmpty() ? this.getModule() : null;
     }
     
-    @Nullable
     @Override
-    public PointerArray<Type> visit(final @NotNull ParameterListNode parameterListNode) {
-        final List<Type> parameterTypes = new ArrayList<>();
-        for (final ParameterNode parameter : parameterListNode.getParameters()) {
-            if (parameter.getTypeKind() == TypeKind.VARIADIC)
-                continue;
-            final Type parameterType = this.visit(parameter);
-            if (parameterType == null)
-                return null;
-            parameterTypes.add(parameterType);
-        }
-        return new PointerArray<>(parameterTypes.toArray(Type[]::new));
+    public ParameterListNode visit(final @NotNull ParameterListNode parameterListNode) {
+        return parameterListNode;
     }
     
-    @Nullable
     @Override
-    public Type visit(final @NotNull ParameterNode parameter) {
-        Objects.requireNonNull(parameter.getTypeNode(), "parameterAST.parameterType must not be null.");
-        return this.visit(parameter.getTypeNode());
+    public ParameterNode visit(final @NotNull ParameterNode parameter) {
+        return parameter;
     }
     
     @Override
@@ -137,41 +123,29 @@ public class CodeGenVisitor implements IVisitor<Object>
     }
     
     @Override
-    public Function visit(final @NotNull FunctionNode functionNode) {
-        Objects.requireNonNull(functionNode.getParser(), "functionAST.parser must not be null.");
-        Objects.requireNonNull(functionNode.getReturnTypeNode(), "functionAST.returnType must not be null.");
-        Objects.requireNonNull(functionNode.getParameters(), "functionAST.parameters must not be null.");
-        Objects.requireNonNull(functionNode.getName(), "functionAST.name must not be null.");
-        Objects.requireNonNull(functionNode.getBlockNode(), "functionAST.block must not be null.");
-        Objects.requireNonNull(this.getModule(), "module must not be null.");
+    public FunctionNode visit(final @NotNull FunctionNode functionNode) {
+        Objects.requireNonNull(functionNode.getParameters(), "functionNode.parameters must not be null.");
+        Objects.requireNonNull(functionNode.getReturnType(), "functionNode.name must not be null.");
+        Objects.requireNonNull(functionNode.getName(), "functionNode.name must not be null.");
         
-        final Type returnType = this.visit(functionNode.getReturnTypeNode());
-        if (returnType == null)
-            return null;
+        Function.builder()
+                .module(this.getModule())
+                .name(functionNode.getName().getTokenContent())
+                .parameters(functionNode.getParameters().getParameters().stream()
+                        .filter(parameter -> parameter.getTypeKind() != TypeKind.VARIADIC)
+                        .map(parameter -> Parameter.builder()
+                                .name(Objects.requireNonNull(parameter.getName(), "parameter.name must not be null.").getTokenContent())
+                                .typeRef(this.visit(Objects.requireNonNull(parameter.getTypeNode(), "parameter.typeNode must not be null.")))
+                                .build())
+                        .toArray(Parameter[]::new))
+                .variadic(functionNode.getParameters().isVariadic())
+                .returnType(this.visit(functionNode.getReturnType()))
+                .foreignFunction(functionNode.getBlockNode() == null)
+                .build();
         
-        final PointerArray<Type> parameters = this.visit(functionNode.getParameters());
-        if (parameters == null)
-            return null;
-        
-        final boolean isVariadic = functionNode.getParameters().getParameters()
-                .stream()
-                .anyMatch(parameter -> parameter.getTypeKind() == TypeKind.VARIADIC);
-        final Function function = this.getModule().addFunction(
-                functionNode.getName().getTokenContent(),
-                FunctionType.createFunctionType(
-                        returnType,
-                        parameters,
-                        isVariadic
-                )
-        );
-        
-        if (functionNode.getBlockNode().getBlockType() != BlockType.NATIVE) {
-            final BasicBlock basicBlock = function.appendBasicBlock("entry");
-            this.getBuilder().setInsertPositionAtEnd(basicBlock);
-            if (this.visit(functionNode.getBlockNode()) == null)
-                return null;
-        }
-        return function;
+        if (functionNode.getBlockNode() != null)
+            this.visit(functionNode.getBlockNode());
+        return functionNode;
     }
     
     @Override
@@ -181,12 +155,6 @@ public class CodeGenVisitor implements IVisitor<Object>
     
     @Override
     public ReturnNode visit(final @NotNull ReturnNode returnNode) {
-        if (returnNode.getExpression() != null) {
-            final Object object = this.visit(returnNode.getExpression());
-            if (!(object instanceof Value))
-                return null;
-            this.getBuilder().buildReturn((Value) object);
-        } else this.getBuilder().buildReturnVoid();
         return returnNode;
     }
     

@@ -20,8 +20,6 @@ package com.arkoisystems.arkoicompiler.phases.codegen;
 
 import com.arkoisystems.arkoicompiler.CompilerClass;
 import com.arkoisystems.arkoicompiler.api.IStage;
-import com.arkoisystems.llvm4j.api.analysis.VerifierFailureAction;
-import com.arkoisystems.llvm4j.api.core.modules.Module;
 import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
@@ -43,12 +41,7 @@ public class CodeGen implements IStage
     @Override
     public boolean processStage() {
         final CodeGenVisitor visitor = new CodeGenVisitor();
-        final Module module = visitor.visit(this.getCompilerClass().getParser().getRootNode());
-        if (module != null) {
-            module.dumpModule();
-            module.verifyModule(VerifierFailureAction.PRINT_MESSAGE);
-        }
-        return module != null;
+        return visitor.visit(this.getCompilerClass().getParser().getRootNode()) != null;
     }
     
 }
