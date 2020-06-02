@@ -57,7 +57,7 @@ public class IdentifierNode extends OperableNode
     @Nullable
     private IdentifierToken identifier;
     
-    @Printable(name = "is function call")
+    @Printable(name = "function call")
     private boolean isFunctionCall;
     
     @Printable(name = "expressions")
@@ -168,8 +168,9 @@ public class IdentifierNode extends OperableNode
         
         if (this.getParser().matchesPeekToken(1, SymbolType.PERIOD) != null) {
             this.getParser().nextToken();
-            
-            if(!IdentifierNode.GLOBAL_NODE.canParse(this.getParser(), 1)) {
+    
+            if (!IdentifierNode.GLOBAL_NODE.canParse(this.getParser(), 1) ||
+                    this.getParser().matchesPeekToken(1, KeywordType.THIS) != null) {
                 final LexerToken peekedToken = this.getParser().peekToken(1);
                 return this.addError(
                         this,

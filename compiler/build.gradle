@@ -27,6 +27,6 @@ dependencies {
 	
 	compile group: 'org.elasticsearch', name: 'jna', version: '4.4.0-1'
 	
-	implementation 'com.github.ArkoiSystems:ArkoiUtils:fee47c893e'
+	implementation 'com.github.ArkoiSystems:ArkoiUtils:7ad657663c'
 	implementation 'com.github.Excse:LLVM4J:master-SNAPSHOT'
 }

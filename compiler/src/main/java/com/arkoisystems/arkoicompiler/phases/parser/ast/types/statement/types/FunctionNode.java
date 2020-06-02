@@ -196,7 +196,7 @@ public class FunctionNode extends StatementNode
                 .parser(this.getParser())
                 .typeToken(TypeToken.builder()
                         .lexer(this.getParser().getCompilerClass().getLexer())
-                        .typeKind(TypeKind.VOID)
+                        .typeKind(TypeKind.AUTO)
                         .build())
                 .startToken(UndefinedToken.builder()
                         .lexer(this.getParser().getCompilerClass().getLexer())
@@ -252,6 +252,28 @@ public class FunctionNode extends StatementNode
         return this.getReturnTypeNode().getTypeKind();
     }
     
+    public boolean equalsToFunction(final @NotNull FunctionNode functionNode) {
+        Objects.requireNonNull(this.getParameters(), "identifierNode.parameters must not be null.");
+        Objects.requireNonNull(this.getName(), "name must not be null.");
+        Objects.requireNonNull(functionNode.getParameters(), "functionNode.parameters must not be null.");
+        Objects.requireNonNull(functionNode.getName(), "functionNode.name must not be null.");
+        
+        if(!functionNode.getName().getTokenContent().equals(this.getName().getTokenContent()))
+            return false;
+    
+        for (int index = 0; index < this.getParameters().getParameters().size(); index++) {
+            final ParameterNode ownParameter = this.getParameters().getParameters().get(index);
+            if (index >= functionNode.getParameters().getParameters().size())
+                return false;
+            
+            final ParserNode otherParameter = functionNode.getParameters().getParameters().get(index);
+            if (ownParameter.getTypeKind() != otherParameter.getTypeKind())
+                return false;
+        }
+        
+        return true;
+    }
+    
     public boolean equalsToIdentifier(final @NotNull IdentifierNode identifierNode) {
         if (!identifierNode.isFunctionCall())
             return false;
@@ -266,18 +288,18 @@ public class FunctionNode extends StatementNode
         Objects.requireNonNull(identifierNode.getExpressions(), "identifierNode.expressions must not be null.");
         for (int index = 0; index < this.getParameters().getParameters().size(); index++) {
             final ParameterNode parameterNode = this.getParameters().getParameters().get(index);
-    
             // TODO: 6/1/20 Do better VARIADIC check
             if(parameterNode.getTypeKind() == TypeKind.VARIADIC)
                 break;
             
             if (index >= identifierNode.getExpressions().getExpressions().size())
                 return false;
+            
             final OperableNode expressionNode = identifierNode.getExpressions().getExpressions().get(index);
-        
             if (parameterNode.getTypeKind() != expressionNode.getTypeKind())
                 return false;
         }
+        
         return true;
     }
     
