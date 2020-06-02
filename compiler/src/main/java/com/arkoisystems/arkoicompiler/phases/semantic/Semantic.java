@@ -20,7 +20,9 @@ package com.arkoisystems.arkoicompiler.phases.semantic;
 
 import com.arkoisystems.arkoicompiler.CompilerClass;
 import com.arkoisystems.arkoicompiler.api.IStage;
+import com.arkoisystems.arkoicompiler.phases.parser.ast.types.statement.types.ImportNode;
 import com.arkoisystems.arkoicompiler.phases.semantic.routines.ScopeVisitor;
+import com.arkoisystems.arkoicompiler.phases.semantic.routines.TypeVisitor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.SneakyThrows;
@@ -43,23 +45,27 @@ public class Semantic implements IStage
     @SneakyThrows
     @Override
     public boolean processStage() {
-        this.reset();
+        this.getCompilerClass().getParser().getRootNode().getNodes().stream()
+                .filter(node -> node instanceof ImportNode)
+                .map(node -> (ImportNode) node)
+                .forEach(importNode -> {
+                    if (importNode.getName() != null)
+                        return;
+                
+                    final CompilerClass compilerClass = importNode.resolveClass();
+                    if (compilerClass == null)
+                        return;
+                
+                    this.getCompilerClass().getRootScope().getSymbolTable().putAll(compilerClass.getRootScope().getSymbolTable());
+                });
     
         final ScopeVisitor scopeVisitor = new ScopeVisitor(this);
         scopeVisitor.visit(this.getCompilerClass().getParser().getRootNode());
     
-        //        final TypeVisitor typeVisitor = new TypeVisitor(this, scopeVisitor);
-        //        typeVisitor.visit(this.getCompilerClass().getParser().getRootNodeAST());
+        final TypeVisitor typeVisitor = new TypeVisitor(this, scopeVisitor);
+        typeVisitor.visit(this.getCompilerClass().getParser().getRootNode());
     
-//        System.out.println(scopeVisitor.isFailed());
-        return !scopeVisitor.isFailed();
-//        return !scopeVisitor.isFailed();
-        //                && !typeVisitor.isFailed();
-    }
-    
-    @Override
-    public void reset() {
-        this.failed = false;
+        return !scopeVisitor.isFailed() && !typeVisitor.isFailed();
     }
     
 }

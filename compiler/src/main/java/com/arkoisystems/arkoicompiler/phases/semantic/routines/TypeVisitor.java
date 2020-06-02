@@ -123,7 +123,7 @@ public class TypeVisitor implements IVisitor<TypeKind>, IFailed
         final TypeKind givenType = this.visit(functionNode.getBlockNode());
         if (expectedType == TypeKind.ERROR || givenType == TypeKind.ERROR)
             return TypeKind.ERROR;
-    
+        
         if ((expectedType != TypeKind.AUTO && functionNode.getBlockNode().getBlockType() != BlockType.NATIVE) &&
                 expectedType != givenType)
             return this.addError(
@@ -206,7 +206,7 @@ public class TypeVisitor implements IVisitor<TypeKind>, IFailed
                     TypeKind.ERROR,
                     assignmentNode.getParser().getCompilerClass(),
                     assignmentNode.getLeftHandSide(),
-                    "Left hand side it not an identifier operable which can be re-assigned."
+                    "Left side isn't an identifier operable which can be re-assigned."
             );
         }
         
@@ -220,7 +220,7 @@ public class TypeVisitor implements IVisitor<TypeKind>, IFailed
                     TypeKind.ERROR,
                     assignmentNode.getParser().getCompilerClass(),
                     assignmentNode.getRightHandSide(),
-                    "Left type doesn't match the right one."
+                    "Right side doesn't match the left one."
             );
     
         return assignmentNode.getTypeKind();

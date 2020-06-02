@@ -19,6 +19,7 @@
 package com.arkoisystems.arkoicompiler.phases.codegen;
 
 import com.arkoisystems.arkoicompiler.api.IVisitor;
+import com.arkoisystems.arkoicompiler.phases.parser.ast.ParserNode;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.enums.BlockType;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.enums.TypeKind;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.BlockNode;
@@ -35,6 +36,8 @@ import com.arkoisystems.arkoicompiler.phases.parser.ast.types.statement.types.Fu
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.statement.types.ImportNode;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.statement.types.ReturnNode;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.statement.types.VariableNode;
+import com.arkoisystems.llvm4j.api.builder.Builder;
+import com.arkoisystems.llvm4j.api.core.basicBlock.BasicBlock;
 import com.arkoisystems.llvm4j.api.core.modules.Module;
 import com.arkoisystems.llvm4j.api.core.types.Type;
 import com.arkoisystems.llvm4j.api.core.types.modules.FloatingType;
@@ -42,6 +45,7 @@ import com.arkoisystems.llvm4j.api.core.types.modules.FunctionType;
 import com.arkoisystems.llvm4j.api.core.types.modules.IntegerType;
 import com.arkoisystems.llvm4j.api.core.types.modules.VoidType;
 import com.arkoisystems.llvm4j.api.core.types.modules.sequential.PointerType;
+import com.arkoisystems.llvm4j.api.core.values.Value;
 import com.arkoisystems.llvm4j.api.core.values.constants.function.Function;
 import com.arkoisystems.llvm4j.utils.PointerArray;
 import lombok.Getter;
@@ -54,12 +58,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+@Getter
+@Setter
 public class CodeGenVisitor implements IVisitor<Object>
 {
     
-    @Getter
-    @Setter
+    @NotNull
     private Module module;
+    
+    @NotNull
+    private Builder builder;
     
     @Nullable
     @Override
@@ -94,8 +102,8 @@ public class CodeGenVisitor implements IVisitor<Object>
         Objects.requireNonNull(rootNode.getParser(), "rootAST.parser must not be null.");
         
         final File file = new File(rootNode.getParser().getCompilerClass().getFilePath());
-        final Module module = Module.createWithName(file.getName());
-        this.setModule(module);
+        this.module = Module.createWithName(file.getName());
+        this.builder = Builder.createBuilder();
         
         return rootNode.getNodes().stream()
                 .anyMatch(node -> this.visit(node) == null) ? null : module;
@@ -124,8 +132,8 @@ public class CodeGenVisitor implements IVisitor<Object>
     }
     
     @Override
-    public Object visit(final @NotNull BlockNode blockNode) {
-        return null;
+    public BlockNode visit(final @NotNull BlockNode blockNode) {
+        return blockNode;
     }
     
     @Override
@@ -148,7 +156,6 @@ public class CodeGenVisitor implements IVisitor<Object>
         final boolean isVariadic = functionNode.getParameters().getParameters()
                 .stream()
                 .anyMatch(parameter -> parameter.getTypeKind() == TypeKind.VARIADIC);
-    
         final Function function = this.getModule().addFunction(
                 functionNode.getName().getTokenContent(),
                 FunctionType.createFunctionType(
@@ -158,69 +165,79 @@ public class CodeGenVisitor implements IVisitor<Object>
                 )
         );
         
-        if (functionNode.getBlockNode().getBlockType() != BlockType.NATIVE)
-            function.appendBasicBlock("entry");
+        if (functionNode.getBlockNode().getBlockType() != BlockType.NATIVE) {
+            final BasicBlock basicBlock = function.appendBasicBlock("entry");
+            this.getBuilder().setInsertPositionAtEnd(basicBlock);
+            if (this.visit(functionNode.getBlockNode()) == null)
+                return null;
+        }
         return function;
     }
     
     @Override
-    public TypeKind visit(final @NotNull ImportNode importNode) {
-        return TypeKind.UNDEFINED;
+    public ImportNode visit(final @NotNull ImportNode importNode) {
+        return importNode;
     }
     
     @Override
-    public Object visit(final @NotNull ReturnNode returnNode) {
-        return null;
+    public ReturnNode visit(final @NotNull ReturnNode returnNode) {
+        if (returnNode.getExpression() != null) {
+            final Object object = this.visit(returnNode.getExpression());
+            if (!(object instanceof Value))
+                return null;
+            this.getBuilder().buildReturn((Value) object);
+        } else this.getBuilder().buildReturnVoid();
+        return returnNode;
     }
     
     @Override
-    public TypeKind visit(final @NotNull VariableNode variableNode) {
-        return TypeKind.UNDEFINED;
+    public VariableNode visit(final @NotNull VariableNode variableNode) {
+        return variableNode;
     }
     
     @Override
-    public Object visit(final @NotNull StringNode stringNode) {
-        return null;
+    public StringNode visit(final @NotNull StringNode stringNode) {
+        return stringNode;
     }
     
     @Override
-    public Object visit(final @NotNull NumberNode numberNode) {
-        return null;
+    public NumberNode visit(final @NotNull NumberNode numberNode) {
+        return numberNode;
     }
     
     @Override
-    public Object visit(final @NotNull IdentifierNode identifierNode) {
-        return null;
+    public IdentifierNode visit(final @NotNull IdentifierNode identifierNode) {
+        return identifierNode;
     }
     
     @Override
-    public Object visit(final @NotNull ExpressionListNode expressionListNode) {
-        return null;
+    public ExpressionListNode visit(final @NotNull ExpressionListNode expressionListNode) {
+        return expressionListNode;
     }
     
     @Override
-    public Object visit(final @NotNull AssignmentNode assignmentNode) {
-        return null;
+    public AssignmentNode visit(final @NotNull AssignmentNode assignmentNode) {
+        return assignmentNode;
     }
     
     @Override
-    public Object visit(final @NotNull BinaryNode binaryNode) {
-        return null;
+    public BinaryNode visit(final @NotNull BinaryNode binaryNode) {
+        return binaryNode;
     }
     
     @Override
-    public Object visit(final @NotNull ParenthesizedNode parenthesizedNode) {
-        return null;
+    public ParenthesizedNode visit(final @NotNull ParenthesizedNode parenthesizedNode) {
+        return parenthesizedNode;
     }
     
     @Override
-    public Object visit(final @NotNull PostfixNode postfixNode) {
-        return null;
+    public PostfixNode visit(final @NotNull PostfixNode postfixNode) {
+        return postfixNode;
     }
     
     @Override
-    public Object visit(final @NotNull PrefixNode prefixNode) {
-        return null;
+    public PrefixNode visit(final @NotNull PrefixNode prefixNode) {
+        return prefixNode;
     }
     
 }
