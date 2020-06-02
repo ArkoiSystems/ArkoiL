@@ -24,6 +24,7 @@ import com.arkoisystems.arkoicompiler.phases.lexer.Lexer;
 import com.arkoisystems.arkoicompiler.phases.lexer.token.LexerToken;
 import com.arkoisystems.arkoicompiler.phases.lexer.token.enums.TokenType;
 import lombok.Builder;
+import lombok.NonNull;
 import org.jetbrains.annotations.NotNull;
 
 public class StringToken extends LexerToken
@@ -31,7 +32,8 @@ public class StringToken extends LexerToken
     
     @Builder
     public StringToken(
-            final @NotNull Lexer lexer,
+            @NonNull
+            @NotNull final Lexer lexer,
             final int startLine,
             final int endLine,
             final int charStart,

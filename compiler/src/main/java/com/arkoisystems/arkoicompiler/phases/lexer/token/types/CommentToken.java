@@ -22,6 +22,7 @@ import com.arkoisystems.arkoicompiler.phases.lexer.Lexer;
 import com.arkoisystems.arkoicompiler.phases.lexer.token.LexerToken;
 import com.arkoisystems.arkoicompiler.phases.lexer.token.enums.TokenType;
 import lombok.Builder;
+import lombok.NonNull;
 import org.jetbrains.annotations.NotNull;
 
 public class CommentToken extends LexerToken
@@ -29,7 +30,8 @@ public class CommentToken extends LexerToken
     
     @Builder
     public CommentToken(
-            final @NotNull Lexer lexer,
+            @NonNull
+            @NotNull final Lexer lexer,
             final int startLine,
             final int endLine,
             final int charStart,

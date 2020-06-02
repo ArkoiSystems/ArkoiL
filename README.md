@@ -27,20 +27,8 @@ OpenJDK 64-Bit Server VM (build 11.0.6+10-post-Ubuntu-1ubuntu118.04.1, mixed mod
 ```
 
 Also if you want to build any example (or self written code), you also need to install 
-LLVM 10.0.0. ``LLVM4J`` will find the library by itself and so you don't need to do anything
+LLVM 10.0.0. ``ArkoiLLVM`` will find the library by itself and so you don't need to do anything
 else.
-
-Check out ``LLVM4J`` on this README for more details about it, and a link which will redirect
-you to the offical repository.
-
-## LLVM4J
-
-``LLVM4J`` is a sideproject of the Arkoi Language which is necessary, because there are no
-up to date repositorys which made an LLVM Wrapper for Java. It covers the entire C API instead
-of the C++ API, because it's more stable than the C++ API. Thereforce it will take some time,
-until changes arrive in the C API.
-
-If you want to learn more about it, you can visit the offical ``LLVM4J`` repository [here](https://github.com/Excse/LLVM4J).
 
 ## Contributing
 

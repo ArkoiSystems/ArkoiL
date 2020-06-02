@@ -24,6 +24,7 @@ import com.arkoisystems.arkoicompiler.phases.lexer.token.enums.TokenType;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.enums.TypeKind;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NonNull;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -36,7 +37,8 @@ public class NumberToken extends LexerToken
     
     @Builder
     public NumberToken(
-            final @NotNull Lexer lexer,
+            @NonNull
+            @NotNull final Lexer lexer,
             final @Nullable TypeKind typeKind,
             final int startLine,
             final int endLine,
