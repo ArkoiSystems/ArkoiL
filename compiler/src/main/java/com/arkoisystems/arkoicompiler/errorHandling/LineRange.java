@@ -4,20 +4,21 @@ import com.arkoisystems.arkoicompiler.CompilerClass;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.NonNull;
 import org.jetbrains.annotations.NotNull;
 
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Builder
+@Getter
 public class LineRange
 {
     
     @EqualsAndHashCode.Include
+    @NonNull
     @NotNull
-    @Getter
     private final String sourceCode;
     
     @EqualsAndHashCode.Include
-    @Getter
     private final int startLine, endLine;
     
     @NotNull

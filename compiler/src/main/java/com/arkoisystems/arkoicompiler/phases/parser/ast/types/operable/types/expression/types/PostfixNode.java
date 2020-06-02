@@ -22,15 +22,16 @@ import com.arkoisystems.arkoicompiler.api.IVisitor;
 import com.arkoisystems.arkoicompiler.phases.lexer.token.LexerToken;
 import com.arkoisystems.arkoicompiler.phases.lexer.token.enums.OperatorType;
 import com.arkoisystems.arkoicompiler.phases.parser.Parser;
+import com.arkoisystems.arkoicompiler.phases.parser.SymbolTable;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.ParserNode;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.enums.TypeKind;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.operable.OperableNode;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.operable.types.expression.ExpressionNode;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.operable.types.expression.types.enums.PostfixOperators;
-import com.arkoisystems.arkoicompiler.phases.parser.SymbolTable;
 import com.arkoisystems.utils.printer.annotations.Printable;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NonNull;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -56,7 +57,8 @@ public class PostfixNode extends ExpressionNode
     protected PostfixNode(
             final @Nullable Parser parser,
             final @Nullable SymbolTable currentScope,
-            final @NotNull PostfixOperators operatorType,
+            @NonNull
+            @NotNull final PostfixOperators operatorType,
             final @Nullable OperableNode leftHandSide,
             final @Nullable LexerToken startToken,
             final @Nullable LexerToken endToken

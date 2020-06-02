@@ -23,14 +23,14 @@ import com.arkoisystems.arkoicompiler.phases.lexer.token.LexerToken;
 import com.arkoisystems.arkoicompiler.phases.parser.Parser;
 import com.arkoisystems.arkoicompiler.phases.parser.ParserErrorType;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.ParserNode;
+import com.arkoisystems.arkoicompiler.phases.parser.ast.enums.TypeKind;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.statement.types.FunctionNode;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.statement.types.ImportNode;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.statement.types.VariableNode;
-import com.arkoisystems.arkoicompiler.phases.parser.SymbolTable;
-import com.arkoisystems.arkoicompiler.phases.parser.ast.enums.TypeKind;
 import com.arkoisystems.utils.printer.annotations.Printable;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -49,7 +49,8 @@ public class RootNode extends ParserNode
     
     @Builder
     protected RootNode(
-            final @NotNull Parser parser,
+            @NonNull
+            @NotNull final Parser parser,
             final @Nullable LexerToken startToken,
             final @Nullable LexerToken endToken
     ) {

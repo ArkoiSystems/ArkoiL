@@ -24,6 +24,7 @@ import com.arkoisystems.arkoicompiler.phases.lexer.token.enums.SymbolType;
 import com.arkoisystems.arkoicompiler.phases.lexer.token.enums.TokenType;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NonNull;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -36,7 +37,8 @@ public class SymbolToken extends LexerToken
     
     @Builder
     public SymbolToken(
-            final @NotNull Lexer lexer,
+            @NonNull
+            @NotNull final Lexer lexer,
             final @Nullable SymbolType symbolType,
             final int startLine,
             final int endLine,

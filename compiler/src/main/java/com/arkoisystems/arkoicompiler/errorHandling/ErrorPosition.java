@@ -4,9 +4,8 @@ import com.arkoisystems.arkoicompiler.CompilerClass;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.NonNull;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.StringJoiner;
 
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Builder
@@ -18,6 +17,7 @@ public class ErrorPosition
     @NotNull
     private final LineRange lineRange;
     
+    @NonNull
     @NotNull
     private final CompilerClass compilerClass;
     
