@@ -4,7 +4,6 @@ public enum BlockType
 {
     
     BLOCK,
-    INLINE,
-    NATIVE
+    INLINE
     
 }

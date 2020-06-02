@@ -24,7 +24,6 @@ import com.arkoisystems.arkoicompiler.api.IVisitor;
 import com.arkoisystems.arkoicompiler.errorHandling.CompilerError;
 import com.arkoisystems.arkoicompiler.errorHandling.ErrorPosition;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.ParserNode;
-import com.arkoisystems.arkoicompiler.phases.parser.ast.enums.BlockType;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.enums.TypeKind;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.BlockNode;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.RootNode;
@@ -113,19 +112,20 @@ public class TypeVisitor implements IVisitor<TypeKind>, IFailed
     @Override
     public TypeKind visit(final @NotNull FunctionNode functionNode) {
         Objects.requireNonNull(functionNode.getParser(), "functionNode.parser must not be null.");
-        Objects.requireNonNull(functionNode.getBlockNode(), "functionNode.block must not be null.");
-        Objects.requireNonNull(functionNode.getReturnTypeNode(), "functionNode.returnType must not be null.");
+        Objects.requireNonNull(functionNode.getReturnType(), "functionNode.returnType must not be null.");
         Objects.requireNonNull(functionNode.getParameters(), "functionNode.parameters must not be null.");
     
         this.visit(functionNode.getParameters());
     
-        final TypeKind expectedType = this.visit(functionNode.getReturnTypeNode());
+        if (functionNode.getBlockNode() == null)
+            return functionNode.getTypeKind();
+    
+        final TypeKind expectedType = this.visit(functionNode.getReturnType());
         final TypeKind givenType = this.visit(functionNode.getBlockNode());
         if (expectedType == TypeKind.ERROR || givenType == TypeKind.ERROR)
             return TypeKind.ERROR;
-        
-        if ((expectedType != TypeKind.AUTO && functionNode.getBlockNode().getBlockType() != BlockType.NATIVE) &&
-                expectedType != givenType)
+    
+        if (expectedType != TypeKind.AUTO && expectedType != givenType)
             return this.addError(
                     TypeKind.ERROR,
                     functionNode.getParser().getCompilerClass(),

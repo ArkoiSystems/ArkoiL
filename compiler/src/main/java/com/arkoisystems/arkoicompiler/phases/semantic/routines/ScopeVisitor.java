@@ -117,15 +117,16 @@ public class ScopeVisitor implements IVisitor<ParserNode>, IFailed
     @Override
     public FunctionNode visit(final @NotNull FunctionNode functionNode) {
         Objects.requireNonNull(functionNode.getParameters(), "functionNode.parameters must not be null.");
-        Objects.requireNonNull(functionNode.getReturnTypeNode(), "functionNode.returnTypeNode must not be null.");
-        Objects.requireNonNull(functionNode.getBlockNode(), "functionNode.blockNode must not be null.");
+        Objects.requireNonNull(functionNode.getReturnType(), "functionNode.returnTypeNode must not be null.");
         Objects.requireNonNull(functionNode.getCurrentScope(), "functionNode.currentScope must not be null.");
         Objects.requireNonNull(functionNode.getParser(), "functionNode.parser must not be null.");
         Objects.requireNonNull(functionNode.getName(), "functionNode.name must not be null.");
     
         this.visit(functionNode.getParameters());
-        this.visit(functionNode.getReturnTypeNode());
-        this.visit(functionNode.getBlockNode());
+        this.visit(functionNode.getReturnType());
+    
+        if (functionNode.getBlockNode() != null)
+            this.visit(functionNode.getBlockNode());
     
         final List<ParserNode> nodes = functionNode.getParser().getCompilerClass().getRootScope().lookupScope(functionNode.getName().getTokenContent());
         if (nodes == null)

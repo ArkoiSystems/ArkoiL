@@ -30,7 +30,6 @@ import com.arkoisystems.arkoicompiler.phases.parser.Parser;
 import com.arkoisystems.arkoicompiler.phases.parser.ParserErrorType;
 import com.arkoisystems.arkoicompiler.phases.parser.SymbolTable;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.ParserNode;
-import com.arkoisystems.arkoicompiler.phases.parser.ast.enums.BlockType;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.enums.TypeKind;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.BlockNode;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.TypeNode;
@@ -59,7 +58,7 @@ public class FunctionNode extends StatementNode
     
     @Printable(name = "return type")
     @Nullable
-    private TypeNode returnTypeNode;
+    private TypeNode returnType;
     
     @Nullable
     private ParameterListNode parameters;
@@ -74,15 +73,15 @@ public class FunctionNode extends StatementNode
             final @Nullable SymbolTable currentScope,
             final @Nullable ParameterListNode parameters,
             final @Nullable IdentifierToken name,
-            final @Nullable TypeNode returnTypeNode,
+            final @Nullable TypeNode returnType,
             final @Nullable BlockNode blockNode,
             final @Nullable LexerToken startToken,
             final @Nullable LexerToken endToken
     ) {
         super(parser, currentScope, startToken, endToken);
-        
+    
         this.parameters = parameters;
-        this.returnTypeNode = returnTypeNode;
+        this.returnType = returnType;
         this.blockNode = blockNode;
         this.name = name;
     }
@@ -179,7 +178,7 @@ public class FunctionNode extends StatementNode
             }
             
             this.getParser().nextToken();
-            
+    
             final TypeNode typeNodeAST = TypeNode.builder()
                     .currentScope(this.getCurrentScope())
                     .parser(this.getParser())
@@ -189,9 +188,9 @@ public class FunctionNode extends StatementNode
                 this.setFailed(true);
                 return this;
             }
-            
-            this.returnTypeNode = typeNodeAST;
-        } else this.returnTypeNode = TypeNode.builder()
+    
+            this.returnType = typeNodeAST;
+        } else this.returnType = TypeNode.builder()
                 .currentScope(this.getCurrentScope())
                 .parser(this.getParser())
                 .typeToken(TypeToken.builder()
@@ -223,13 +222,7 @@ public class FunctionNode extends StatementNode
             }
             
             this.blockNode = blockNodeAST;
-        } else this.blockNode = BlockNode.builder()
-                .currentScope(this.getCurrentScope())
-                .parser(this.getParser())
-                .blockType(BlockType.NATIVE)
-                .startToken(this.getStartToken())
-                .endToken(this.getParser().currentToken())
-                .build();
+        }
         
         this.endAST(this.getParser().currentToken());
         return this;
@@ -248,8 +241,8 @@ public class FunctionNode extends StatementNode
     @Override
     @NotNull
     public TypeKind getTypeKind() {
-        Objects.requireNonNull(this.getReturnTypeNode(), "returnType must not be null.");
-        return this.getReturnTypeNode().getTypeKind();
+        Objects.requireNonNull(this.getReturnType(), "returnType must not be null.");
+        return this.getReturnType().getTypeKind();
     }
     
     public boolean equalsToFunction(final @NotNull FunctionNode functionNode) {

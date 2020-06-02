@@ -23,9 +23,9 @@ import com.arkoisystems.arkoicompiler.phases.lexer.token.LexerToken;
 import com.arkoisystems.arkoicompiler.phases.lexer.token.enums.SymbolType;
 import com.arkoisystems.arkoicompiler.phases.parser.Parser;
 import com.arkoisystems.arkoicompiler.phases.parser.ParserErrorType;
+import com.arkoisystems.arkoicompiler.phases.parser.SymbolTable;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.ParserNode;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.enums.TypeKind;
-import com.arkoisystems.arkoicompiler.phases.parser.SymbolTable;
 import com.arkoisystems.utils.printer.annotations.Printable;
 import lombok.Builder;
 import lombok.Getter;
@@ -45,6 +45,9 @@ public class ParameterListNode extends ParserNode
     @Printable(name = "parameters")
     @NotNull
     private final List<ParameterNode> parameters;
+    
+    @Printable(name = "variadic")
+    private boolean isVariadic;
     
     @Builder
     protected ParameterListNode(
@@ -94,9 +97,15 @@ public class ParameterListNode extends ParserNode
                 this.setFailed(true);
                 return this;
             }
-            
+    
             this.getParameters().add(parameterAST);
-            
+    
+            if (parameterAST.getTypeKind() == TypeKind.VARIADIC) {
+                this.getParser().nextToken();
+                this.isVariadic = true;
+                break;
+            }
+    
             if (this.getParser().matchesNextToken(SymbolType.COMMA) == null)
                 break;
             this.getParser().nextToken();
