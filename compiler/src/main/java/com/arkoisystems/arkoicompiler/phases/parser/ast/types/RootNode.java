@@ -80,7 +80,7 @@ public class RootNode extends ParserNode
                         this.getParser().currentToken(),
                         ParserErrorType.ROOT_NO_PARSER_FOUND
                 );
-                this.skipToNextValidToken();
+                this.findValidToken();
                 continue;
             }
             
@@ -90,7 +90,8 @@ public class RootNode extends ParserNode
             astNode = astNode.parseAST(this);
             
             if (astNode.isFailed()) {
-                this.skipToNextValidToken();
+                this.setFailed(true);
+                this.findValidToken();
                 continue;
             }
             
@@ -111,6 +112,23 @@ public class RootNode extends ParserNode
     @NotNull
     public TypeKind getTypeKind() {
         return TypeKind.UNDEFINED;
+    }
+    
+    private void findValidToken() {
+        Objects.requireNonNull(this.getParser(), "parser must not be null.");
+        
+        while (this.getParser().getPosition() < this.getParser().getTokens().length) {
+            final ParserNode foundNode = this.getValidNode(
+                    FunctionNode.GLOBAL_NODE,
+                    ImportNode.GLOBAL_NODE,
+                    VariableNode.GLOBAL_NODE
+            );
+            
+            if(foundNode != null)
+                break;
+            
+            this.getParser().nextToken();
+        }
     }
     
 }
