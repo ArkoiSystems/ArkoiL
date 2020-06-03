@@ -20,6 +20,7 @@ package com.arkoisystems.arkoicompiler.phases.parser.ast.types.statement.types;
 
 import com.arkoisystems.arkoicompiler.api.IVisitor;
 import com.arkoisystems.arkoicompiler.phases.lexer.token.LexerToken;
+import com.arkoisystems.arkoicompiler.phases.lexer.token.enums.SymbolType;
 import com.arkoisystems.arkoicompiler.phases.lexer.token.types.IdentifierToken;
 import com.arkoisystems.arkoicompiler.phases.lexer.token.enums.KeywordType;
 import com.arkoisystems.arkoicompiler.phases.lexer.token.enums.OperatorType;
@@ -27,6 +28,7 @@ import com.arkoisystems.arkoicompiler.phases.lexer.token.enums.TokenType;
 import com.arkoisystems.arkoicompiler.phases.parser.Parser;
 import com.arkoisystems.arkoicompiler.phases.parser.ParserErrorType;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.ParserNode;
+import com.arkoisystems.arkoicompiler.phases.parser.ast.types.TypeNode;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.operable.OperableNode;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.operable.types.expression.ExpressionNode;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.statement.StatementNode;
@@ -50,9 +52,16 @@ public class VariableNode extends StatementNode
     @Nullable
     private IdentifierToken name;
     
+    @Printable(name = "return type")
+    @Nullable
+    private TypeNode returnType;
+    
     @Printable(name = "expression")
     @Nullable
     private OperableNode expression;
+    
+    @Printable(name = "is constant")
+    private boolean isConstant;
     
     @Builder
     protected VariableNode(
@@ -90,6 +99,7 @@ public class VariableNode extends StatementNode
         }
         
         this.startAST(this.getParser().currentToken());
+        this.isConstant = this.getParser().matchesCurrentToken(KeywordType.CONST) != null;
         
         if (this.getParser().matchesPeekToken(1, TokenType.IDENTIFIER) == null) {
             final LexerToken peekedToken = this.getParser().peekToken(1);
@@ -111,52 +121,73 @@ public class VariableNode extends StatementNode
         Objects.requireNonNull(this.getCurrentScope(), "currentScope must not be null.");
         Objects.requireNonNull(this.getName(), "name must not be null.");
         this.getCurrentScope().insert(this.getName().getTokenContent(), this);
+    
+        if (this.getParser().matchesPeekToken(1, SymbolType.COLON) != null) {
+            this.getParser().nextToken();
         
-        if (this.getParser().matchesPeekToken(1, OperatorType.EQUALS) == null) {
-            final LexerToken peekedToken = this.getParser().peekToken(1);
-            return this.addError(
-                    this,
-                    this.getParser().getCompilerClass(),
-                    peekedToken,
-                    String.format(
-                            ParserErrorType.SYNTAX_ERROR_TEMPLATE,
-                            "Variable",
-                            "'='",
-                            peekedToken != null ? peekedToken.getTokenContent() : "nothing"
-                    )
-            );
+            if (this.getParser().matchesPeekToken(1, TokenType.TYPE) == null) {
+                final LexerToken peekedToken = this.getParser().peekToken(1);
+                return this.addError(
+                        this,
+                        this.getParser().getCompilerClass(),
+                        peekedToken,
+                        String.format(
+                                ParserErrorType.SYNTAX_ERROR_TEMPLATE,
+                                "Variable",
+                                "<identifier>",
+                                peekedToken != null ? peekedToken.getTokenContent() : "nothing"
+                        )
+                );
+            }
+        
+            this.getParser().nextToken();
+        
+            final TypeNode typeNodeAST = TypeNode.builder()
+                    .currentScope(this.getCurrentScope())
+                    .parser(this.getParser())
+                    .build()
+                    .parseAST(parentAST);
+            if (typeNodeAST.isFailed()) {
+                this.setFailed(true);
+                return this;
+            }
+        
+            this.returnType = typeNodeAST;
         }
         
-        this.getParser().nextToken();
-        
-        if(!ExpressionNode.GLOBAL_NODE.canParse(this.getParser(), 1)) {
-            final LexerToken peekedToken = this.getParser().peekToken(1);
-            return this.addError(
-                    this,
-                    this.getParser().getCompilerClass(),
-                    peekedToken,
-                    String.format(
-                            ParserErrorType.SYNTAX_ERROR_TEMPLATE,
-                            "Variable",
-                            "<expression>",
-                            peekedToken != null ? peekedToken.getTokenContent() : "nothing"
-                    )
-            );
+        if (this.getParser().matchesPeekToken(1, OperatorType.EQUALS) != null) {
+            this.getParser().nextToken();
+    
+            if(!ExpressionNode.GLOBAL_NODE.canParse(this.getParser(), 1)) {
+                final LexerToken peekedToken = this.getParser().peekToken(1);
+                return this.addError(
+                        this,
+                        this.getParser().getCompilerClass(),
+                        peekedToken,
+                        String.format(
+                                ParserErrorType.SYNTAX_ERROR_TEMPLATE,
+                                "Variable",
+                                "<expression>",
+                                peekedToken != null ? peekedToken.getTokenContent() : "nothing"
+                        )
+                );
+            }
+    
+            this.getParser().nextToken();
+    
+            final OperableNode operableNode = ExpressionNode.expressionBuilder()
+                    .currentScope(this.getCurrentScope())
+                    .parser(this.getParser())
+                    .build()
+                    .parseAST(this);
+            if (operableNode.isFailed()) {
+                this.setFailed(true);
+                return this;
+            }
+    
+            this.expression = operableNode;
         }
         
-        this.getParser().nextToken();
-        
-        final OperableNode operableNode = ExpressionNode.expressionBuilder()
-                .currentScope(this.getCurrentScope())
-                .parser(this.getParser())
-                .build()
-                .parseAST(this);
-        if (operableNode.isFailed()) {
-            this.setFailed(true);
-            return this;
-        }
-        
-        this.expression = operableNode;
         this.endAST(this.getParser().currentToken());
         return this;
     }
@@ -175,6 +206,9 @@ public class VariableNode extends StatementNode
     @Override
     @NotNull
     public TypeKind getTypeKind() {
+        if(this.getReturnType() != null)
+            return this.getReturnType().getTypeKind();
+    
         Objects.requireNonNull(this.getExpression(), "expression must not be null.");
         return this.getExpression().getTypeKind();
     }

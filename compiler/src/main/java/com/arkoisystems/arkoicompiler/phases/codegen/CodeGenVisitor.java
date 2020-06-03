@@ -110,7 +110,7 @@ public class CodeGenVisitor implements IVisitor<Object>
         Objects.requireNonNull(functionNode.getParameters(), "functionNode.parameters must not be null.");
         Objects.requireNonNull(functionNode.getName(), "functionNode.name must not be null.");
         
-        Function.builder()
+        final Function function = Function.builder()
                 .module(this.getModule())
                 .name(functionNode.getName().getTokenContent())
                 .parameters(functionNode.getParameters().getParameters().stream()
@@ -124,7 +124,10 @@ public class CodeGenVisitor implements IVisitor<Object>
                 .returnType(this.getTypeRef(functionNode.getTypeKind()))
                 .foreignFunction(functionNode.getBlockNode() == null)
                 .build();
-        
+    
+        if (function.getEntryBlock() != null)
+            this.getBuilder().setPositionAtEnd(function.getEntryBlock());
+    
         if (functionNode.getBlockNode() != null)
             this.visit(functionNode.getBlockNode());
         return functionNode;
@@ -144,8 +147,8 @@ public class CodeGenVisitor implements IVisitor<Object>
     
     @Override
     public VariableNode visit(final @NotNull VariableNode variableNode) {
-        Objects.requireNonNull(variableNode.getExpression(), "variableNode.expression must not be null.");
-        this.visit(variableNode.getExpression());
+        if (variableNode.getExpression() != null)
+            this.visit(variableNode.getExpression());
         return variableNode;
     }
     
