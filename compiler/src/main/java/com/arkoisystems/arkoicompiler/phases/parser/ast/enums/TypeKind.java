@@ -43,8 +43,7 @@ public enum TypeKind
     VARIADIC("...", false),
     
     UNDEFINED("undefined", false),
-    ERROR("error", false),
-    AUTO("auto", false);
+    ERROR("error", false);
     
     @NotNull
     private final String name;

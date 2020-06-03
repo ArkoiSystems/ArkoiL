@@ -190,23 +190,7 @@ public class FunctionNode extends StatementNode
             }
     
             this.returnType = typeNodeAST;
-        } else this.returnType = TypeNode.builder()
-                .currentScope(this.getCurrentScope())
-                .parser(this.getParser())
-                .typeToken(TypeToken.builder()
-                        .lexer(this.getParser().getCompilerClass().getLexer())
-                        .typeKind(TypeKind.AUTO)
-                        .build())
-                .startToken(UndefinedToken.builder()
-                        .lexer(this.getParser().getCompilerClass().getLexer())
-                        .dummy(true)
-                        .build())
-                .endToken(UndefinedToken.builder()
-                        .lexer(this.getParser().getCompilerClass().getLexer())
-                        .dummy(true)
-                        .build())
-                .isArray(false)
-                .build();
+        }
         
         if (BlockNode.GLOBAL_NODE.canParse(this.getParser(), 1)) {
             this.getParser().nextToken();
@@ -241,8 +225,11 @@ public class FunctionNode extends StatementNode
     @Override
     @NotNull
     public TypeKind getTypeKind() {
-        Objects.requireNonNull(this.getReturnType(), "returnType must not be null.");
-        return this.getReturnType().getTypeKind();
+        if(this.getReturnType() != null)
+            return this.getReturnType().getTypeKind();
+        
+        Objects.requireNonNull(this.getBlockNode(), "blockNode must not be null.");
+        return this.getBlockNode().getTypeKind();
     }
     
     public boolean equalsToFunction(final @NotNull FunctionNode functionNode) {
