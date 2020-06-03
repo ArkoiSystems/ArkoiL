@@ -173,24 +173,24 @@ public class ParserNode implements IFailed, Cloneable
         return errorSource;
     }
     
-    protected void skipToNextValidToken() {
-        this.setFailed(true);
-        Objects.requireNonNull(this.getParser(), "parser must not be null.");
-        
-        int openBraces = 0;
-        while (this.getParser().getPosition() < this.getParser().getTokens().length) {
-            if (this.getParser().matchesCurrentToken(SymbolType.OPENING_BRACE) != null)
-                openBraces++;
-            else if (this.getParser().matchesCurrentToken(SymbolType.CLOSING_BRACE) != null) {
-                openBraces--;
-                if (openBraces <= 0) {
-                    this.getParser().nextToken();
-                    break;
-                }
-            }
-            this.getParser().nextToken();
-        }
-    }
+//    protected void skipToNextValidToken() {
+//        this.setFailed(true);
+//        Objects.requireNonNull(this.getParser(), "parser must not be null.");
+//
+//        int openBraces = 0;
+//        while (this.getParser().getPosition() < this.getParser().getTokens().length) {
+//            if (this.getParser().matchesCurrentToken(SymbolType.OPENING_BRACE) != null)
+//                openBraces++;
+//            else if (this.getParser().matchesCurrentToken(SymbolType.CLOSING_BRACE) != null) {
+//                openBraces--;
+//                if (openBraces <= 0) {
+//                    this.getParser().nextToken();
+//                    break;
+//                }
+//            }
+//            this.getParser().nextToken();
+//        }
+//    }
     
     @SafeVarargs
     @Nullable

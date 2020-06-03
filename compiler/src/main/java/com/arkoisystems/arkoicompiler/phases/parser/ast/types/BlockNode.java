@@ -30,6 +30,8 @@ import com.arkoisystems.arkoicompiler.phases.parser.ast.enums.TypeKind;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.operable.OperableNode;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.operable.types.IdentifierNode;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.operable.types.expression.ExpressionNode;
+import com.arkoisystems.arkoicompiler.phases.parser.ast.types.statement.types.FunctionNode;
+import com.arkoisystems.arkoicompiler.phases.parser.ast.types.statement.types.ImportNode;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.statement.types.ReturnNode;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.statement.types.VariableNode;
 import com.arkoisystems.arkoicompiler.phases.parser.SymbolTable;
@@ -125,7 +127,7 @@ public class BlockNode extends ParserNode
                         this.getParser().currentToken(),
                         ParserErrorType.BLOCK_NO_PARSER_FOUND
                 );
-                this.skipToNextValidToken();
+                this.findValidToken();
                 continue;
             }
     
@@ -137,7 +139,8 @@ public class BlockNode extends ParserNode
             astNode = astNode.parseAST(this);
     
             if (astNode.isFailed()) {
-                this.skipToNextValidToken();
+                this.setFailed(true);
+                this.findValidToken();
                 continue;
             }
     
@@ -213,6 +216,24 @@ public class BlockNode extends ParserNode
             return Collections.max(kinds.entrySet(), Comparator.comparingInt(Map.Entry::getValue)).getKey();
         }
         return TypeKind.UNDEFINED;
+    }
+    
+    private void findValidToken() {
+        Objects.requireNonNull(this.getParser(), "parser must not be null.");
+        
+        while (this.getParser().getPosition() < this.getParser().getTokens().length) {
+            final ParserNode foundNode = this.getValidNode(
+                    VariableNode.GLOBAL_NODE,
+                    IdentifierNode.GLOBAL_NODE,
+                    ReturnNode.GLOBAL_NODE,
+                    BlockNode.GLOBAL_NODE
+            );
+            
+            if(foundNode != null || this.getParser().matchesCurrentToken(SymbolType.CLOSING_BRACE) != null)
+                break;
+            
+            this.getParser().nextToken();
+        }
     }
     
 }
