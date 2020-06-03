@@ -60,29 +60,7 @@ public class CodeGenVisitor implements IVisitor<Object>
     
     @Override
     public LLVMTypeRef visit(final @NotNull TypeNode typeNode) {
-        switch (typeNode.getTypeKind()) {
-            case FLOAT:
-                return LLVM.LLVMFloatType();
-            case BOOLEAN:
-                return LLVM.LLVMInt1Type();
-            case BYTE:
-                return LLVM.LLVMInt8Type();
-            case CHAR:
-                return LLVM.LLVMInt16Type();
-            case DOUBLE:
-                return LLVM.LLVMDoubleType();
-            case INTEGER:
-                return LLVM.LLVMInt32Type();
-            case LONG:
-                return LLVM.LLVMInt64Type();
-            case VOID:
-                return LLVM.LLVMVoidType();
-            case STRING:
-                return LLVM.LLVMPointerType(LLVM.LLVMInt8Type(), 0);
-            default:
-                return LLVM.LLVMVoidType();
-            //                throw new NullPointerException("Unhandled type: " + typeNode.getTypeKind().name());
-        }
+       return this.getTypeRef(typeNode.getTypeKind());
     }
     
     @Override
@@ -102,10 +80,10 @@ public class CodeGenVisitor implements IVisitor<Object>
         final String error = module.verify(LLVM.LLVMReturnStatusAction);
     
         this.getModule().dump();
-//        System.out.println(error);
+        System.err.println(error);
     
-        return this.getModule();
-        //        return error.isEmpty() ? this.getModule() : null;
+        //        return this.getModule();
+        return error.isEmpty() ? this.getModule() : null;
     }
     
     @Override
@@ -130,7 +108,6 @@ public class CodeGenVisitor implements IVisitor<Object>
     @Override
     public FunctionNode visit(final @NotNull FunctionNode functionNode) {
         Objects.requireNonNull(functionNode.getParameters(), "functionNode.parameters must not be null.");
-        Objects.requireNonNull(functionNode.getReturnType(), "functionNode.name must not be null.");
         Objects.requireNonNull(functionNode.getName(), "functionNode.name must not be null.");
         
         Function.builder()
@@ -144,7 +121,7 @@ public class CodeGenVisitor implements IVisitor<Object>
                                 .build())
                         .toArray(Parameter[]::new))
                 .variadic(functionNode.getParameters().isVariadic())
-                .returnType(this.visit(functionNode.getReturnType()))
+                .returnType(this.getTypeRef(functionNode.getTypeKind()))
                 .foreignFunction(functionNode.getBlockNode() == null)
                 .build();
         
@@ -244,6 +221,32 @@ public class CodeGenVisitor implements IVisitor<Object>
         Objects.requireNonNull(prefixNode.getRightHandSide(), "prefixNode.rightHandSide must not be null.");
         this.visit(prefixNode.getRightHandSide());
         return prefixNode;
+    }
+    
+    @NotNull
+    private LLVMTypeRef getTypeRef(final @NotNull TypeKind typeKind) {
+        switch (typeKind) {
+            case FLOAT:
+                return LLVM.LLVMFloatType();
+            case BOOLEAN:
+                return LLVM.LLVMInt1Type();
+            case BYTE:
+                return LLVM.LLVMInt8Type();
+            case CHAR:
+                return LLVM.LLVMInt16Type();
+            case DOUBLE:
+                return LLVM.LLVMDoubleType();
+            case INTEGER:
+                return LLVM.LLVMInt32Type();
+            case LONG:
+                return LLVM.LLVMInt64Type();
+            case VOID:
+                return LLVM.LLVMVoidType();
+            case STRING:
+                return LLVM.LLVMPointerType(LLVM.LLVMInt8Type(), 0);
+            default:
+                throw new NullPointerException("Unhandled type: " + typeKind.name());
+        }
     }
     
 }

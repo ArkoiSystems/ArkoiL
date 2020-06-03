@@ -58,9 +58,6 @@ public class TypeVisitor implements IVisitor<TypeKind>, IFailed
     @NotNull
     private final Semantic semantic;
     
-    @NotNull
-    private final ScopeVisitor scopeVisitor;
-    
     private boolean failed;
     
     @NotNull
@@ -112,12 +109,11 @@ public class TypeVisitor implements IVisitor<TypeKind>, IFailed
     @Override
     public TypeKind visit(final @NotNull FunctionNode functionNode) {
         Objects.requireNonNull(functionNode.getParser(), "functionNode.parser must not be null.");
-        Objects.requireNonNull(functionNode.getReturnType(), "functionNode.returnType must not be null.");
         Objects.requireNonNull(functionNode.getParameters(), "functionNode.parameters must not be null.");
     
         this.visit(functionNode.getParameters());
     
-        if (functionNode.getBlockNode() == null)
+        if (functionNode.getBlockNode() == null || functionNode.getReturnType() == null)
             return functionNode.getTypeKind();
     
         final TypeKind expectedType = this.visit(functionNode.getReturnType());
@@ -125,7 +121,7 @@ public class TypeVisitor implements IVisitor<TypeKind>, IFailed
         if (expectedType == TypeKind.ERROR || givenType == TypeKind.ERROR)
             return TypeKind.ERROR;
     
-        if (expectedType != TypeKind.AUTO && expectedType != givenType)
+        if (expectedType != givenType)
             return this.addError(
                     TypeKind.ERROR,
                     functionNode.getParser().getCompilerClass(),
