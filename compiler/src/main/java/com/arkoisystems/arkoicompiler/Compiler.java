@@ -58,38 +58,38 @@ public class Compiler
         final long compileStart = System.nanoTime();
         {
             final long lexerStart = System.nanoTime();
-            final CompilerClass lexerFailed = this.getClasses().stream()
-                    .filter(compilerClass -> !compilerClass.getLexer().processStage())
-                    .findFirst()
-                    .orElse(null);
-            if (lexerFailed != null)
+            boolean lexerFailed = false;
+            for (final CompilerClass compilerClass : this.getClasses())
+                if (!compilerClass.getLexer().processStage())
+                    lexerFailed = true;
+            if (lexerFailed)
                 return false;
             printStream.printf("The lexical analysis took %sms for all classes (%s in total)\n", (System.nanoTime() - lexerStart) / 1_000_000D, this.classes.size());
     
             final long parserStart = System.nanoTime();
-            final CompilerClass syntaxFailed = this.getClasses().stream()
-                    .filter(compilerClass -> !compilerClass.getParser().processStage())
-                    .findFirst()
-                    .orElse(null);
-            if (syntaxFailed != null)
+            boolean parserFailed = false;
+            for (final CompilerClass compilerClass : this.getClasses())
+                if (!compilerClass.getParser().processStage())
+                    parserFailed = true;
+            if (parserFailed)
                 return false;
             printStream.printf("The syntax analysis took %sms for all classes (%s in total)\n", (System.nanoTime() - parserStart) / 1_000_000D, this.getClasses().size());
     
             final long semanticStart = System.nanoTime();
-            final CompilerClass semanticFailed = this.getClasses().stream()
-                    .filter(compilerClass -> !compilerClass.getSemantic().processStage())
-                    .findFirst()
-                    .orElse(null);
-            if (semanticFailed != null)
+            boolean semanticFailed = false;
+            for (final CompilerClass compilerClass : this.getClasses())
+                if (!compilerClass.getSemantic().processStage())
+                    semanticFailed = true;
+            if (semanticFailed)
                 return false;
             printStream.printf("The semantic analysis took %sms for all classes (%s in total)\n", (System.nanoTime() - semanticStart) / 1_000_000D, this.getClasses().size());
     
             final long codeGenTime = System.nanoTime();
-            final CompilerClass codeGenFailed = this.getClasses().stream()
-                    .filter(compilerClass -> !compilerClass.getCodeGen().processStage())
-                    .findFirst()
-                    .orElse(null);
-            if (codeGenFailed != null)
+            boolean codeGenFailed = false;
+            for (final CompilerClass compilerClass : this.getClasses())
+                if (!compilerClass.getCodeGen().processStage())
+                    codeGenFailed = true;
+            if (codeGenFailed)
                 return false;
             printStream.printf("The code generation took %sms for all classes (%s in total)\n", (System.nanoTime() - codeGenTime) / 1_000_000D, this.getClasses().size());
         }
