@@ -203,7 +203,6 @@ public class ScopeVisitor implements IVisitor<ParserNode>, IFailed
     @NotNull
     @Override
     public VariableNode visit(final @NotNull VariableNode variableNode) {
-        Objects.requireNonNull(variableNode.getExpression(), "variableNode.expression must not be null.");
         Objects.requireNonNull(variableNode.getCurrentScope(), "variableNode.currentScope must not be null.");
         Objects.requireNonNull(variableNode.getParser(), "variableNode.parser must not be null.");
         Objects.requireNonNull(variableNode.getName(), "variableNode.name must not be null.");
@@ -220,7 +219,8 @@ public class ScopeVisitor implements IVisitor<ParserNode>, IFailed
             );
         }
     
-        this.visit(variableNode.getExpression());
+        if (variableNode.getExpression() != null)
+            this.visit(variableNode.getExpression());
         return variableNode;
     }
     
