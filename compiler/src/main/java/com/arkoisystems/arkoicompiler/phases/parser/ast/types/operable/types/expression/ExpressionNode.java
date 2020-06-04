@@ -67,7 +67,6 @@ public class ExpressionNode extends OperableNode
         return super.canParse(parser, offset) ||
                 PrefixNode.ADD_GLOBAL_NODE.canParse(parser, offset) ||
                 PrefixNode.SUB_GLOBAL_NODE.canParse(parser, offset) ||
-                PrefixNode.AFFIRM_GLOBAL_NODE.canParse(parser, offset) ||
                 PrefixNode.NEGATE_GLOBAL_NODE.canParse(parser, offset) ||
                 ParenthesizedNode.GLOBAL_NODE.canParse(parser, offset);
     }
@@ -257,13 +256,6 @@ public class ExpressionNode extends OperableNode
                     .currentScope(this.getCurrentScope())
                     .parser(this.getParser())
                     .operatorType(PrefixOperators.NEGATE)
-                    .build()
-                    .parseAST(parentAST);
-        else if (PrefixNode.AFFIRM_GLOBAL_NODE.canParse(this.getParser(), 0))
-            operableNode = PrefixNode.builder()
-                    .currentScope(this.getCurrentScope())
-                    .parser(this.getParser())
-                    .operatorType(PrefixOperators.AFFIRM)
                     .build()
                     .parseAST(parentAST);
         else if (ParenthesizedNode.GLOBAL_NODE.canParse(this.getParser(), 0)) {

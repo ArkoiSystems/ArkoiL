@@ -205,7 +205,6 @@ public class TypeVisitor implements IVisitor<TypeKind>, IFailed
             Objects.requireNonNull(identifierNode.getExpressions(), "identifierOperable.expressionList must not be null.");
             this.visit(identifierNode.getExpressions());
         }
-    
         return identifierNode.getTypeKind();
     }
     

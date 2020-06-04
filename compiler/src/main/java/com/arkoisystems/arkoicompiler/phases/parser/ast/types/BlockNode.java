@@ -24,17 +24,15 @@ import com.arkoisystems.arkoicompiler.phases.lexer.token.enums.OperatorType;
 import com.arkoisystems.arkoicompiler.phases.lexer.token.enums.SymbolType;
 import com.arkoisystems.arkoicompiler.phases.parser.Parser;
 import com.arkoisystems.arkoicompiler.phases.parser.ParserErrorType;
+import com.arkoisystems.arkoicompiler.phases.parser.SymbolTable;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.ParserNode;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.enums.BlockType;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.enums.TypeKind;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.operable.OperableNode;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.operable.types.IdentifierNode;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.operable.types.expression.ExpressionNode;
-import com.arkoisystems.arkoicompiler.phases.parser.ast.types.statement.types.FunctionNode;
-import com.arkoisystems.arkoicompiler.phases.parser.ast.types.statement.types.ImportNode;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.statement.types.ReturnNode;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.statement.types.VariableNode;
-import com.arkoisystems.arkoicompiler.phases.parser.SymbolTable;
 import com.arkoisystems.utils.printer.annotations.Printable;
 import lombok.Builder;
 import lombok.Getter;
@@ -132,9 +130,16 @@ public class BlockNode extends ParserNode
             }
     
             ParserNode astNode = foundNode.clone();
+            
             if (astNode instanceof BlockNode)
                 astNode.setCurrentScope(new SymbolTable(this.getCurrentScope()));
             else astNode.setCurrentScope(this.getCurrentScope());
+            
+            if(astNode instanceof VariableNode) {
+                final VariableNode variableNode = (VariableNode) astNode;
+                variableNode.setLocal(true);
+            }
+            
             astNode.setParser(this.getParser());
             astNode = astNode.parseAST(this);
     
@@ -182,7 +187,13 @@ public class BlockNode extends ParserNode
             return;
         }
     
-        this.getNodes().add(operableNode);
+        this.getNodes().add(ReturnNode.builder()
+                .parser(operableNode.getParser())
+                .currentScope(operableNode.getCurrentScope())
+                .expression(operableNode)
+                .startToken(operableNode.getStartToken())
+                .endToken(operableNode.getEndToken())
+                .build());
     }
     
     @Override

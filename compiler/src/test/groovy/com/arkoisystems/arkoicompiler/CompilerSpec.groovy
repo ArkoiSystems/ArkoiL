@@ -26,7 +26,7 @@ class CompilerSpec extends Specification {
 	
 	def "are natives loaded"() {
 		given:
-		def arkoiCompiler = new Compiler()
+		def arkoiCompiler = new Compiler("../natives")
 		
 		expect:
 		!arkoiCompiler.getClasses().isEmpty()
@@ -38,7 +38,7 @@ class CompilerSpec extends Specification {
 	
 	def "are natives compilable"() {
 		given:
-		def arkoiCompiler = new Compiler()
+		def arkoiCompiler = new Compiler("../natives")
 		
 		expect:
 		arkoiCompiler.compile(System.out)
@@ -46,7 +46,7 @@ class CompilerSpec extends Specification {
 	
 	def "can pass basic test"() {
 		expect:
-		Bootstrap.compile("../examples/basic")
+		Bootstrap.compile("../examples/basic", "../examples/basic/out")
 	}
 	
 }
