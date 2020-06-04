@@ -5,7 +5,6 @@ public enum PrefixOperators
     
     PREFIX_ADD,
     PREFIX_SUB,
-    NEGATE,
-    AFFIRM
+    NEGATE
     
 }

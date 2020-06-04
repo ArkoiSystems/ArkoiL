@@ -34,9 +34,11 @@ import com.arkoisystems.arkoicompiler.phases.parser.ast.types.operable.types.exp
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.statement.StatementNode;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.enums.TypeKind;
 import com.arkoisystems.arkoicompiler.phases.parser.SymbolTable;
+import com.arkoisystems.utils.printer.TreePrinter;
 import com.arkoisystems.utils.printer.annotations.Printable;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -46,7 +48,14 @@ import java.util.Objects;
 public class VariableNode extends StatementNode
 {
     
-    public static VariableNode GLOBAL_NODE = new VariableNode(null, null, null, null, null, null);
+    public static VariableNode GLOBAL_NODE = new VariableNode(null, null, null, null, null, null, false, false);
+    
+    @Printable(name = "is constant")
+    private boolean isConstant;
+    
+    @Printable(name = "is local")
+    @Setter
+    private boolean isLocal;
     
     @Printable(name = "name")
     @Nullable
@@ -60,9 +69,6 @@ public class VariableNode extends StatementNode
     @Nullable
     private OperableNode expression;
     
-    @Printable(name = "is constant")
-    private boolean isConstant;
-    
     @Builder
     protected VariableNode(
             final @Nullable Parser parser,
@@ -70,11 +76,15 @@ public class VariableNode extends StatementNode
             final @Nullable OperableNode expression,
             final @Nullable IdentifierToken name,
             final @Nullable LexerToken startToken,
-            final @Nullable LexerToken endToken
+            final @Nullable LexerToken endToken,
+            final boolean isConstant,
+            final boolean isLocal
     ) {
         super(parser, currentScope, startToken, endToken);
         
         this.expression = expression;
+        this.isConstant = isConstant;
+        this.isLocal = isLocal;
         this.name = name;
     }
     
@@ -208,7 +218,7 @@ public class VariableNode extends StatementNode
     public TypeKind getTypeKind() {
         if(this.getReturnType() != null)
             return this.getReturnType().getTypeKind();
-    
+        
         Objects.requireNonNull(this.getExpression(), "expression must not be null.");
         return this.getExpression().getTypeKind();
     }

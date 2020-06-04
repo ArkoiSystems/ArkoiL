@@ -51,16 +51,16 @@ public class Bootstrap
             return;
         }
     
-        compile(commandLine.getOptionValue("inputPath"));
+        compile(commandLine.getOptionValue("inputPath"), commandLine.getOptionValue("outputFile"));
     }
     
     @SneakyThrows
-    public static boolean compile(final @NotNull String inputPath) {
+    public static boolean compile(final @NotNull String inputPath, final @NotNull String outputPath) {
         final File targetPath = new File(inputPath);
         if (!targetPath.exists())
             throw new NullPointerException("The given \"inputPath\" doesn't exists. Please correct the path to a valid file or directory.");
         
-        final Compiler compiler = new Compiler();
+        final Compiler compiler = new Compiler(outputPath);
         if (targetPath.isDirectory()) {
             for (final File file : FileUtils.getAllFiles(targetPath, ".ark"))
                 compiler.addFile(file);

@@ -45,8 +45,6 @@ public class PrefixNode extends ExpressionNode
     
     public static PrefixNode SUB_GLOBAL_NODE = new PrefixNode(null, null, PrefixOperators.PREFIX_SUB, null, null, null);
     
-    public static PrefixNode AFFIRM_GLOBAL_NODE = new PrefixNode(null, null, PrefixOperators.AFFIRM, null, null, null);
-    
     public static PrefixNode NEGATE_GLOBAL_NODE = new PrefixNode(null, null, PrefixOperators.NEGATE, null, null, null);
     
     @Printable(name = "operation")
@@ -101,10 +99,8 @@ public class PrefixNode extends ExpressionNode
                 return parser.matchesCurrentToken(OperatorType.PLUS_PLUS) != null;
             case PREFIX_SUB:
                 return parser.matchesCurrentToken(OperatorType.MINUS_MINUS) != null;
-            case AFFIRM:
-                return parser.matchesCurrentToken(OperatorType.MINUS) != null;
             case NEGATE:
-                return parser.matchesCurrentToken(OperatorType.PLUS) != null;
+                return parser.matchesCurrentToken(OperatorType.MINUS) != null;
             default:
                 return false;
         }

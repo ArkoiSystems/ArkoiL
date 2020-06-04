@@ -36,16 +36,28 @@ import com.arkoisystems.arkoicompiler.phases.parser.ast.types.statement.types.Fu
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.statement.types.ImportNode;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.statement.types.ReturnNode;
 import com.arkoisystems.arkoicompiler.phases.parser.ast.types.statement.types.VariableNode;
+import com.arkoisystems.llvm.Builder;
+import com.arkoisystems.llvm.Function;
 import com.arkoisystems.llvm.Module;
-import com.arkoisystems.llvm.*;
+import com.arkoisystems.llvm.Parameter;
 import lombok.Getter;
 import lombok.Setter;
-import org.bytedeco.llvm.LLVM.LLVMTypeRef;
+import lombok.SneakyThrows;
+import org.bytedeco.javacpp.BytePointer;
+import org.bytedeco.javacpp.Pointer;
+import org.bytedeco.javacpp.PointerPointer;
+import org.bytedeco.llvm.LLVM.*;
 import org.bytedeco.llvm.global.LLVM;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.ThreadLocalRandom;
 
 @Getter
 @Setter
@@ -60,29 +72,87 @@ public class CodeGenVisitor implements IVisitor<Object>
     
     @Override
     public LLVMTypeRef visit(final @NotNull TypeNode typeNode) {
-       return this.getTypeRef(typeNode.getTypeKind());
+        return this.getTypeRef(typeNode.getTypeKind(), typeNode.isArray());
     }
     
+    @SneakyThrows
     @Override
     public Module visit(final @NotNull RootNode rootNode) {
+        Objects.requireNonNull(rootNode.getCurrentScope(), "rootAST.currentScope must not be null.");
         Objects.requireNonNull(rootNode.getParser(), "rootAST.parser must not be null.");
-    
+        
         final File file = new File(rootNode.getParser().getCompilerClass().getFilePath());
         this.setModule(Module.builder()
                 .name(file.getName())
                 .build());
+        
+        rootNode.getCurrentScope().getSymbolTable().values().stream()
+                .flatMap(Collection::stream)
+                .filter(node -> node instanceof FunctionNode)
+                .map(node -> (FunctionNode) node)
+                .forEach(node -> this.createFunction(node, !rootNode.getNodes().contains(node)));
+        
         this.setBuilder(Builder.builder()
                 .build());
-    
-        for (final ParserNode node : rootNode.getNodes())
-            this.visit(node);
-    
+        
+        rootNode.getNodes().forEach(this::visit);
+        
         final String error = module.verify(LLVM.LLVMReturnStatusAction);
-    
-        this.getModule().dump();
-        System.err.println(error);
-    
-        //        return this.getModule();
+        
+        if (error.isEmpty()) {
+            final BytePointer errorPointer = new BytePointer();
+            
+            LLVM.LLVMInitializeNativeTarget();
+            LLVM.LLVMInitializeAllTargets();
+            LLVM.LLVMInitializeAllTargetMCs();
+            LLVM.LLVMInitializeAllAsmPrinters();
+            LLVM.LLVMInitializeAllAsmParsers();
+            
+            LLVMPassRegistryRef passRegistryRef = LLVM.LLVMGetGlobalPassRegistry();
+            LLVM.LLVMInitializeCore(passRegistryRef);
+            LLVM.LLVMInitializeCodeGen(passRegistryRef);
+            LLVM.LLVMInitializeScalarOpts(passRegistryRef);
+            LLVM.LLVMInitializeVectorization(passRegistryRef);
+            
+            final String targetTriple = LLVM.LLVMGetDefaultTargetTriple().getString();
+            
+            final LLVMTargetRef targetRef = new LLVMTargetRef();
+            LLVM.LLVMGetTargetFromTriple(new BytePointer(targetTriple), targetRef, errorPointer);
+            if (!Pointer.isNull(errorPointer))
+                throw new NullPointerException(errorPointer.getString());
+            
+            final LLVMTargetMachineRef targetMachineRef = LLVM.LLVMCreateTargetMachine(
+                    targetRef,
+                    targetTriple,
+                    LLVM.LLVMGetHostCPUName().getString(),
+                    LLVM.LLVMGetHostCPUFeatures().getString(),
+                    LLVM.LLVMCodeGenLevelNone,
+                    LLVM.LLVMRelocDefault,
+                    LLVM.LLVMCodeModelDefault
+            );
+            
+            final LLVMTargetDataRef targetDataRef = LLVM.LLVMCreateTargetDataLayout(targetMachineRef);
+            LLVM.LLVMSetModuleDataLayout(this.getModule().getModuleRef(), targetDataRef);
+            
+            final String name = new File(rootNode.getParser().getCompilerClass().getFilePath()).getName();
+            final File objectFile = new File(String.format(
+                    "%s/obj/%s.o",
+                    rootNode.getParser().getCompilerClass().getCompiler().getOutputPath(),
+                    name.substring(0, name.length() - 4)
+            ));
+            
+            if (!objectFile.getParentFile().exists())
+                objectFile.getParentFile().mkdirs();
+            
+            LLVM.LLVMTargetMachineEmitToFile(
+                    targetMachineRef,
+                    this.getModule().getModuleRef(),
+                    new BytePointer(objectFile.getCanonicalPath()),
+                    LLVM.LLVMObjectFile,
+                    errorPointer
+            );
+        }
+        
         return error.isEmpty() ? this.getModule() : null;
     }
     
@@ -105,12 +175,14 @@ public class CodeGenVisitor implements IVisitor<Object>
         return blockNode;
     }
     
-    @Override
-    public FunctionNode visit(final @NotNull FunctionNode functionNode) {
+    public void createFunction(
+            final @NotNull FunctionNode functionNode,
+            final boolean foreign
+    ) {
         Objects.requireNonNull(functionNode.getParameters(), "functionNode.parameters must not be null.");
         Objects.requireNonNull(functionNode.getName(), "functionNode.name must not be null.");
         
-        final Function function = Function.builder()
+        Function.builder()
                 .module(this.getModule())
                 .name(functionNode.getName().getTokenContent())
                 .parameters(functionNode.getParameters().getParameters().stream()
@@ -121,15 +193,31 @@ public class CodeGenVisitor implements IVisitor<Object>
                                 .build())
                         .toArray(Parameter[]::new))
                 .variadic(functionNode.getParameters().isVariadic())
-                .returnType(this.getTypeRef(functionNode.getTypeKind()))
-                .foreignFunction(functionNode.getBlockNode() == null)
+                // TODO: 6/3/20 Remake the typekind system
+                .returnType(this.getTypeRef(functionNode.getTypeKind(), false))
+                .foreignFunction(foreign || functionNode.getBlockNode() == null)
                 .build();
+    }
     
-        if (function.getEntryBlock() != null)
-            this.getBuilder().setPositionAtEnd(function.getEntryBlock());
-    
-        if (functionNode.getBlockNode() != null)
+    @Override
+    public FunctionNode visit(final @NotNull FunctionNode functionNode) {
+        Objects.requireNonNull(functionNode.getName(), "functionNode.name must not be null.");
+        
+        final LLVMValueRef functionValue = LLVM.LLVMGetNamedFunction(
+                this.getModule().getModuleRef(),
+                functionNode.getName().getTokenContent()
+        );
+        if (functionValue == null)
+            throw new NullPointerException("2");
+        
+        if (functionNode.getBlockNode() != null) {
+            final LLVMBasicBlockRef basicBlock = LLVM.LLVMGetFirstBasicBlock(functionValue);
+            if (basicBlock == null)
+                throw new NullPointerException("3");
+            this.getBuilder().setPositionAtEnd(basicBlock);
+            
             this.visit(functionNode.getBlockNode());
+        }
         return functionNode;
     }
     
@@ -140,42 +228,111 @@ public class CodeGenVisitor implements IVisitor<Object>
     
     @Override
     public ReturnNode visit(final @NotNull ReturnNode returnNode) {
-        if (returnNode.getExpression() != null)
-            this.visit(returnNode.getExpression());
+        if (returnNode.getExpression() != null) {
+            final Object object = this.visit(returnNode.getExpression());
+            if (!(object instanceof LLVMValueRef))
+                return returnNode;
+        
+            this.getBuilder().returnValue(((LLVMValueRef) object));
+        } else this.getBuilder().returnVoid();
         return returnNode;
     }
     
     @Override
-    public VariableNode visit(final @NotNull VariableNode variableNode) {
-        if (variableNode.getExpression() != null)
-            this.visit(variableNode.getExpression());
-        return variableNode;
+    public LLVMValueRef visit(final @NotNull VariableNode variableNode) {
+        Objects.requireNonNull(variableNode.getName(), "variableNode.name must not be null.");
+        
+        if (variableNode.isLocal()) {
+            if (variableNode.getReturnType() != null) {
+                return LLVM.LLVMBuildAlloca(
+                        this.getBuilder().getBuilderRef(),
+                        this.visit(variableNode.getReturnType()),
+                        variableNode.getName().getTokenContent()
+                );
+            } else {
+                return LLVM.LLVMBuildAlloca(
+                        this.getBuilder().getBuilderRef(),
+                        this.getTypeRef(variableNode.getTypeKind(), false),
+                        variableNode.getName().getTokenContent()
+                );
+            }
+        } else {
+            if (variableNode.getReturnType() != null) {
+                return LLVM.LLVMAddGlobal(
+                        this.getModule().getModuleRef(),
+                        this.visit(variableNode.getReturnType()),
+                        variableNode.getName().getTokenContent()
+                );
+            } else {
+                return LLVM.LLVMAddGlobal(
+                        this.getModule().getModuleRef(),
+                        this.getTypeRef(variableNode.getTypeKind(), false),
+                        variableNode.getName().getTokenContent()
+                );
+            }
+        }
     }
     
     @Override
-    public StringNode visit(final @NotNull StringNode stringNode) {
+    public LLVMValueRef visit(final @NotNull StringNode stringNode) {
         Objects.requireNonNull(stringNode.getStringToken(), "stringNode.stringToken must not be null.");
-    
-        GlobalVariable.builder()
-                .module(this.getModule())
-                .name("")
-                .constant(ConstantString.builder()
-                        .content(stringNode.getStringToken().getTokenContent())
-                        .build())
-                .isConstant(true)
-                .linkage(LLVM.LLVMPrivateLinkage)
-                .build();
-        return stringNode;
+        return LLVM.LLVMBuildGlobalStringPtr(
+                this.getBuilder().getBuilderRef(),
+                stringNode.getStringToken().getTokenContent(),
+                ""
+        );
     }
     
     @Override
-    public NumberNode visit(final @NotNull NumberNode numberNode) {
-        return numberNode;
+    public LLVMValueRef visit(final @NotNull NumberNode numberNode) {
+        Objects.requireNonNull(numberNode.getNumberToken(), "numberNode.numberToken must not be null.");
+        
+        if (numberNode.getTypeKind() == TypeKind.INTEGER) {
+            // TODO: 6/4/20 Signed integers
+            final int value = Integer.parseInt(numberNode.getNumberToken().getTokenContent());
+            return LLVM.LLVMConstInt(LLVM.LLVMInt32Type(), value, 0);
+        }
+        
+        return null;
     }
     
     @Override
-    public IdentifierNode visit(final @NotNull IdentifierNode identifierNode) {
-        return identifierNode;
+    public LLVMValueRef visit(final @NotNull IdentifierNode identifierNode) {
+        Objects.requireNonNull(identifierNode.getIdentifier(), "identifierNode.identifier must not be null.");
+        
+        if (identifierNode.isFunctionCall()) {
+            Objects.requireNonNull(identifierNode.getExpressions(), "identifierNode.expression must not be null.");
+            
+            final LLVMValueRef functionValue = LLVM.LLVMGetNamedFunction(
+                    this.getModule().getModuleRef(),
+                    identifierNode.getIdentifier().getTokenContent()
+            );
+            if (functionValue == null) {
+                this.getModule().dump();
+                throw new NullPointerException(identifierNode.getIdentifier().getTokenContent());
+            }
+            
+            final List<LLVMValueRef> arguments = new ArrayList<>();
+            for (final OperableNode expression : identifierNode.getExpressions().getExpressions()) {
+                final Object object = this.visit(expression);
+                if (!(object instanceof LLVMValueRef)) {
+                    // TODO: 6/4/20 Throw error
+                    continue;
+                }
+                
+                arguments.add((LLVMValueRef) object);
+            }
+            
+            return LLVM.LLVMBuildCall(
+                    this.getBuilder().getBuilderRef(),
+                    functionValue,
+                    new PointerPointer<>(arguments.toArray(LLVMValueRef[]::new)),
+                    arguments.size(),
+                    ""
+            );
+        }
+        
+        return null;
     }
     
     @Override
@@ -196,20 +353,55 @@ public class CodeGenVisitor implements IVisitor<Object>
     }
     
     @Override
-    public BinaryNode visit(final @NotNull BinaryNode binaryNode) {
+    public LLVMValueRef visit(final @NotNull BinaryNode binaryNode) {
         Objects.requireNonNull(binaryNode.getLeftHandSide(), "binaryNode.leftHandSide must not be null.");
         Objects.requireNonNull(binaryNode.getRightHandSide(), "binaryNode.rightHandSide must not be null.");
-    
-        this.visit(binaryNode.getLeftHandSide());
-        this.visit(binaryNode.getRightHandSide());
-        return binaryNode;
+        
+        final Object lhsObject = this.visit(binaryNode.getLeftHandSide());
+        if (!(lhsObject instanceof LLVMValueRef)) {
+            // TODO: 6/4/20 Throw error
+            return null;
+        }
+        
+        final Object rhsObject = this.visit(binaryNode.getRightHandSide());
+        if (!(rhsObject instanceof LLVMValueRef)) {
+            // TODO: 6/4/20 Throw error
+            return null;
+        }
+        
+        final LLVMValueRef lhsValue = (LLVMValueRef) lhsObject, rhsValue = (LLVMValueRef) rhsObject;
+        switch (binaryNode.getOperatorType()) {
+            case ADD:
+                // TODO: 6/4/20 Check if its floating point/signed or not.
+                return LLVM.LLVMBuildAdd(this.getBuilder().getBuilderRef(), lhsValue, rhsValue, "");
+            case MUL:
+                // TODO: 6/4/20 Check if its floating point/signed or not.
+                return LLVM.LLVMBuildMul(this.getBuilder().getBuilderRef(), lhsValue, rhsValue, "");
+            case DIV:
+                // TODO: 6/4/20 Check if its floating point/signed or not.
+                return LLVM.LLVMBuildUDiv(this.getBuilder().getBuilderRef(), lhsValue, rhsValue, "");
+            case SUB:
+                // TODO: 6/4/20 Check if its floating point/signed or not.
+                return LLVM.LLVMBuildSub(this.getBuilder().getBuilderRef(), lhsValue, rhsValue, "");
+            case EXP:
+                throw new NullPointerException("6");
+            case MOD:
+                // TODO: 6/4/20 Check if its floating point/signed or not.
+                return LLVM.LLVMBuildURem(this.getBuilder().getBuilderRef(), lhsValue, rhsValue, "");
+        }
+        
+        return null;
     }
     
     @Override
-    public ParenthesizedNode visit(final @NotNull ParenthesizedNode parenthesizedNode) {
+    public LLVMValueRef visit(final @NotNull ParenthesizedNode parenthesizedNode) {
         Objects.requireNonNull(parenthesizedNode.getExpression(), "parenthesizedNode.expression must not be null.");
-        this.visit(parenthesizedNode.getExpression());
-        return parenthesizedNode;
+        final Object object = this.visit(parenthesizedNode.getExpression());
+        if (!(object instanceof LLVMValueRef)) {
+            // TODO: 6/4/20 Throw error
+            return null;
+        }
+        return (LLVMValueRef) object;
     }
     
     @Override
@@ -220,36 +412,60 @@ public class CodeGenVisitor implements IVisitor<Object>
     }
     
     @Override
-    public PrefixNode visit(final @NotNull PrefixNode prefixNode) {
+    public LLVMValueRef visit(final @NotNull PrefixNode prefixNode) {
         Objects.requireNonNull(prefixNode.getRightHandSide(), "prefixNode.rightHandSide must not be null.");
-        this.visit(prefixNode.getRightHandSide());
-        return prefixNode;
+        
+        final Object rhsObject = this.visit(prefixNode.getRightHandSide());
+        if (!(rhsObject instanceof LLVMValueRef)) {
+            // TODO: 6/4/20 Throw error
+            return null;
+        }
+        
+        final LLVMValueRef rhsValue = (LLVMValueRef) rhsObject;
+        switch (prefixNode.getOperatorType()) {
+            case NEGATE:
+                return LLVM.LLVMBuildNeg(this.getBuilder().getBuilderRef(), rhsValue, "");
+        }
+        
+        return null;
     }
     
     @NotNull
-    private LLVMTypeRef getTypeRef(final @NotNull TypeKind typeKind) {
+    private LLVMTypeRef getTypeRef(final @NotNull TypeKind typeKind, final boolean array) {
+        final LLVMTypeRef typeRef;
         switch (typeKind) {
             case FLOAT:
-                return LLVM.LLVMFloatType();
+                typeRef = LLVM.LLVMFloatType();
+                break;
             case BOOLEAN:
-                return LLVM.LLVMInt1Type();
+                typeRef = LLVM.LLVMInt1Type();
+                break;
             case BYTE:
-                return LLVM.LLVMInt8Type();
+                typeRef = LLVM.LLVMInt8Type();
+                break;
             case CHAR:
-                return LLVM.LLVMInt16Type();
+                typeRef = LLVM.LLVMInt16Type();
+                break;
             case DOUBLE:
-                return LLVM.LLVMDoubleType();
+                typeRef = LLVM.LLVMDoubleType();
+                break;
             case INTEGER:
-                return LLVM.LLVMInt32Type();
+                typeRef = LLVM.LLVMInt32Type();
+                break;
             case LONG:
-                return LLVM.LLVMInt64Type();
+                typeRef = LLVM.LLVMInt64Type();
+                break;
             case VOID:
-                return LLVM.LLVMVoidType();
+                typeRef = LLVM.LLVMVoidType();
+                break;
             case STRING:
-                return LLVM.LLVMPointerType(LLVM.LLVMInt8Type(), 0);
+                typeRef = LLVM.LLVMPointerType(LLVM.LLVMInt8Type(), 0);
+                break;
             default:
                 throw new NullPointerException("Unhandled type: " + typeKind.name());
         }
+        
+        return !array ? typeRef : LLVM.LLVMPointerType(typeRef, 0);
     }
     
 }

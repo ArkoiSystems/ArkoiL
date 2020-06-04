@@ -43,7 +43,12 @@ public class Compiler
     @NotNull
     private final ErrorHandler errorHandler;
     
-    public Compiler() throws IOException {
+    @NotNull
+    private final String outputPath;
+    
+    public Compiler(final @NotNull String outputPath) throws IOException {
+        this.outputPath = outputPath;
+        
         this.getLibraryPaths().add(new File("../natives"));
         this.addNativeFiles();
         
