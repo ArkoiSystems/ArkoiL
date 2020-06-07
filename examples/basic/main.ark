@@ -1,6 +1,7 @@
 import "system"
+import "test"
 
 fun main(): int {
-    println("Hello World")
+    println(test())
     return 0
 }
