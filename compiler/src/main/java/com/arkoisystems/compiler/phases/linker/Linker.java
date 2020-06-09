@@ -25,14 +25,21 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.SneakyThrows;
 import org.bytedeco.javacpp.BytePointer;
+import org.bytedeco.javacpp.Pointer;
+import org.bytedeco.javacpp.SizeTPointer;
 import org.bytedeco.llvm.LLVM.LLVMMemoryBufferRef;
+import org.bytedeco.llvm.LLVM.LLVMTargetRef;
 import org.bytedeco.llvm.LLVM.lto_code_gen_t;
+import org.bytedeco.llvm.LLVM.lto_module_t;
 import org.bytedeco.llvm.global.LLVM;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.File;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 
+// https://github.com/intel/cm-compiler/blob/master/llvm/tools/llvm-lto/llvm-lto.cpp
 @Getter
 public class Linker implements IStage
 {
@@ -54,28 +61,64 @@ public class Linker implements IStage
     @SneakyThrows
     @Override
     public boolean processStage() {
-        final List<LinkerModule> linkerModules = new ArrayList<>();
+        final BytePointer errorPointer = new BytePointer();
         
+        LLVM.LLVMInitializeAllTargetInfos();
+        LLVM.LLVMInitializeAllTargets();
+        LLVM.LLVMInitializeAllTargetMCs();
+        LLVM.LLVMInitializeAllAsmPrinters();
+        LLVM.LLVMInitializeAllAsmParsers();
+        
+        final BytePointer targetTriple = LLVM.LLVMGetDefaultTargetTriple();
+        final LLVMTargetRef targetRef = new LLVMTargetRef();
+        LLVM.LLVMGetTargetFromTriple(targetTriple, targetRef, errorPointer);
+        if (!Pointer.isNull(errorPointer))
+            throw new NullPointerException(errorPointer.getString());
+        
+        final lto_code_gen_t codeGen = LLVM.lto_codegen_create();
+        LLVM.lto_codegen_set_pic_model(codeGen, LLVM.LTO_CODEGEN_PIC_MODEL_DEFAULT);
+        LLVM.lto_codegen_set_debug_model(codeGen, LLVM.LTO_DEBUG_MODEL_DWARF);
+        
+        final List<lto_module_t> ltoModules = new ArrayList<>();
         for (final Module module : this.getModules()) {
             final LLVMMemoryBufferRef memoryBuffer = LLVM.LLVMWriteBitcodeToMemoryBuffer(module.getModuleRef());
             final BytePointer start = LLVM.LLVMGetBufferStart(memoryBuffer);
             final long size = LLVM.LLVMGetBufferSize(memoryBuffer);
-            
             if (!LLVM.lto_module_is_object_file_in_memory(start, size))
                 return false;
             
-            linkerModules.add(new LinkerModule(memoryBuffer, LLVM.lto_module_create_from_memory(start, size)));
+            final lto_module_t ltoModule = LLVM.lto_module_create_from_memory(start, size);
+            LLVM.lto_module_set_target_triple(ltoModule, targetTriple);
+            LLVM.LLVMDisposeMemoryBuffer(memoryBuffer);
+            
+            if (LLVM.lto_codegen_add_module(codeGen, ltoModule))
+                return false;
+            
+            ltoModules.add(ltoModule);
         }
         
-        final lto_code_gen_t codeGen = LLVM.lto_codegen_create();                // <
-        for (final LinkerModule linkerModule : linkerModules)                    // < These lines let the VM crash.
-            LLVM.lto_codegen_add_module(codeGen, linkerModule.getLtoModule());   // <
+        LLVM.lto_codegen_set_cpu(codeGen, LLVM.LLVMGetHostCPUName());
+        LLVM.lto_codegen_add_must_preserve_symbol(codeGen, "main");
         
-        for (final LinkerModule linkerModule : linkerModules) {
-            LLVM.lto_module_dispose(linkerModule.getLtoModule());
-            LLVM.LLVMDisposeMemoryBuffer(linkerModule.getMemoryBuffer());
-        }
+        final File file = new File(String.format(
+                "%s/output.o",
+                this.getCompiler().getOutputPath()
+        ));
+        if (!file.getParentFile().exists())
+            file.getParentFile().mkdirs();
         
+        final SizeTPointer sizeT = new SizeTPointer(0);
+        final BytePointer bytePointer = new BytePointer(LLVM.lto_codegen_compile(codeGen, sizeT));
+        
+        final int size = (int) sizeT.get();
+        final byte[] bytes = new byte[size];
+        for (int index = 0; index < size; index++)
+            bytes[index] = bytePointer.get(index);
+        
+        Files.write(file.toPath(), bytes);
+        
+        for (final lto_module_t ltoModule : ltoModules)
+            LLVM.lto_module_dispose(ltoModule);
         LLVM.lto_codegen_dispose(codeGen);
         return true;
     }

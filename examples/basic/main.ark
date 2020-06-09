@@ -1,7 +1,7 @@
 import "system"
 import "test"
 
-fun main(): int {
+fun main(args: char**): int {
     println(test())
     return 0
 }
