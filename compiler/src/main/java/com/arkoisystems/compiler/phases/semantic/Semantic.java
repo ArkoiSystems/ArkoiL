@@ -51,11 +51,11 @@ public class Semantic implements IStage
                 .forEach(importNode -> {
                     if (importNode.getName() != null)
                         return;
-                
+    
                     final CompilerClass compilerClass = importNode.resolveClass();
                     if (compilerClass == null)
                         return;
-                
+    
                     this.getCompilerClass().getRootScope().getSymbolTable().putAll(compilerClass.getRootScope().getSymbolTable());
                 });
     

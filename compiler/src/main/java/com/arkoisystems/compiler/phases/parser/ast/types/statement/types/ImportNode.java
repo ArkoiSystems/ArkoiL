@@ -46,7 +46,7 @@ public class ImportNode extends StatementNode
 {
     
     public static ImportNode GLOBAL_NODE = new ImportNode(null, null, null, null, null, null);
- 
+    
     @Printable(name = "file path")
     @Nullable
     private StringToken filePath;
@@ -113,7 +113,7 @@ public class ImportNode extends StatementNode
             this.getFilePath().setTokenContent(this.getFilePath().getTokenContent().substring(0, this.getFilePath().getTokenContent().length() - 4));
     
         final CompilerClass resolvedClass = this.resolveClass();
-        if(resolvedClass == null)
+        if (resolvedClass == null)
             return this.addError(
                     this,
                     this.getParser().getCompilerClass(),

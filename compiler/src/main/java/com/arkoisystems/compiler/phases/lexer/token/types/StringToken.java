@@ -41,7 +41,7 @@ public class StringToken extends LexerToken
     ) {
         super(lexer, TokenType.STRING, startLine, endLine, charStart, charEnd);
     
-        if(this.getTokenContent().length() < 2 || this.getTokenContent().endsWith("\\\"") || !this.getTokenContent().endsWith("\"")) {
+        if (this.getTokenContent().length() < 2 || this.getTokenContent().endsWith("\\\"") || !this.getTokenContent().endsWith("\"")) {
             this.getLexer().setFailed(true);
             this.getLexer().getCompilerClass().getCompiler().getErrorHandler().addError(CompilerError.builder()
                     .causePosition(ErrorPosition.builder()

@@ -233,14 +233,14 @@ public class FunctionNode extends StatementNode
         Objects.requireNonNull(this.getName(), "name must not be null.");
         Objects.requireNonNull(functionNode.getParameters(), "functionNode.parameters must not be null.");
         Objects.requireNonNull(functionNode.getName(), "functionNode.name must not be null.");
-        
-        if(!functionNode.getName().getTokenContent().equals(this.getName().getTokenContent()))
+    
+        if (!functionNode.getName().getTokenContent().equals(this.getName().getTokenContent()))
             return false;
     
         for (int index = 0; index < this.getParameters().getParameters().size(); index++) {
             if (index >= functionNode.getParameters().getParameters().size())
                 return false;
-    
+        
             final ParameterNode ownParameter = this.getParameters().getParameters().get(index);
             final ParameterNode otherParameter = functionNode.getParameters().getParameters().get(index);
             if (ownParameter.getTypeNode().getDataKind() != otherParameter.getTypeNode().getDataKind())

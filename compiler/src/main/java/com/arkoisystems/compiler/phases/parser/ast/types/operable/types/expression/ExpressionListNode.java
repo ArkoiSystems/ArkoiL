@@ -84,7 +84,7 @@ public class ExpressionListNode extends ParserNode
         while (this.getParser().getPosition() < this.getParser().getTokens().length) {
             if (this.getParser().matchesCurrentToken(SymbolType.CLOSING_PARENTHESIS) != null)
                 break;
-            if(!ExpressionNode.GLOBAL_NODE.canParse(this.getParser(), 0))
+            if (!ExpressionNode.GLOBAL_NODE.canParse(this.getParser(), 0))
                 break;
     
             final OperableNode operableNode = ExpressionNode.expressionBuilder()

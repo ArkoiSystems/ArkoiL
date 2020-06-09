@@ -209,7 +209,7 @@ public class IRVisitor implements IVisitor<Object>, IFailed
             final Object object = this.visit(returnNode.getExpression());
             if (!(object instanceof LLVMValueRef))
                 return returnNode;
-        
+    
             this.getBuilder().returnValue(((LLVMValueRef) object));
         } else this.getBuilder().returnVoid();
         return returnNode;

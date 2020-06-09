@@ -130,12 +130,12 @@ public class BlockNode extends ParserNode
             }
     
             ParserNode astNode = foundNode.clone();
-            
+    
             if (astNode instanceof BlockNode)
                 astNode.setCurrentScope(new SymbolTable(this.getCurrentScope()));
             else astNode.setCurrentScope(this.getCurrentScope());
-            
-            if(astNode instanceof VariableNode) {
+    
+            if (astNode instanceof VariableNode) {
                 final VariableNode variableNode = (VariableNode) astNode;
                 variableNode.setLocal(true);
             }
@@ -254,10 +254,10 @@ public class BlockNode extends ParserNode
                     ReturnNode.GLOBAL_NODE,
                     BlockNode.GLOBAL_NODE
             );
-            
-            if(foundNode != null || this.getParser().matchesCurrentToken(SymbolType.CLOSING_BRACE) != null)
+    
+            if (foundNode != null || this.getParser().matchesCurrentToken(SymbolType.CLOSING_BRACE) != null)
                 break;
-            
+    
             this.getParser().nextToken();
         }
     }

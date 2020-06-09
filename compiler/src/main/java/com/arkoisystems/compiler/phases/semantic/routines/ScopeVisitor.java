@@ -272,7 +272,7 @@ public class ScopeVisitor implements IVisitor<ParserNode>, IFailed
                         functions,
                         "These functions matches with the identifier name. Did you mean one of those?"
                 );
-        
+    
             this.visit(identifierNode.getExpressions());
             foundNode = matchingFunctions.get(0);
         } else {

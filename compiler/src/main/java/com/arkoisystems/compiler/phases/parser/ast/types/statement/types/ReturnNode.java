@@ -82,7 +82,7 @@ public class ReturnNode extends StatementNode
         
         this.startAST(this.getParser().currentToken());
         
-        if(ExpressionNode.GLOBAL_NODE.canParse(this.getParser(), 1)) {
+        if (ExpressionNode.GLOBAL_NODE.canParse(this.getParser(), 1)) {
             this.getParser().nextToken();
     
             final OperableNode operableNode = ExpressionNode.expressionBuilder()
