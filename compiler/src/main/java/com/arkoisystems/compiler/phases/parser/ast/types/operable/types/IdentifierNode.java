@@ -149,14 +149,14 @@ public class IdentifierNode extends OperableNode
                     )
             );
         }
-        
-        this.identifier = (IdentifierToken) this.getParser().currentToken();
-        
-        if(ExpressionListNode.GLOBAL_NODE.canParse(this.getParser(), 1)) {
-            this.getParser().nextToken();
-            
-            this.isFunctionCall = true;
     
+        this.identifier = (IdentifierToken) this.getParser().currentToken();
+    
+        if (ExpressionListNode.GLOBAL_NODE.canParse(this.getParser(), 1)) {
+            this.getParser().nextToken();
+        
+            this.isFunctionCall = true;
+        
             final ExpressionListNode expressionListNode = ExpressionListNode.builder()
                     .currentScope(this.getCurrentScope())
                     .parser(this.getParser())
@@ -166,7 +166,7 @@ public class IdentifierNode extends OperableNode
                 this.setFailed(true);
                 return this;
             }
-    
+        
             this.expressions = expressionListNode;
         }
         

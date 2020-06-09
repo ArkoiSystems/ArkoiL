@@ -88,7 +88,7 @@ public class PostfixNode extends ExpressionNode
             case POSTFIX_SUB:
                 return parser.matchesPeekToken(1, OperatorType.MINUS_MINUS) != null;
             default:
-            return true;
+                return true;
         }
     }
     

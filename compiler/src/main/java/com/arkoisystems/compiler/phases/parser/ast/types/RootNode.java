@@ -117,7 +117,7 @@ public class RootNode extends ParserNode
                     VariableNode.GLOBAL_NODE
             );
             
-            if(foundNode != null)
+            if (foundNode != null)
                 break;
             
             this.getParser().nextToken();

@@ -80,7 +80,7 @@ public class ParenthesizedNode extends ExpressionNode
         
         this.startAST(this.getParser().currentToken());
         
-        if(!ExpressionNode.GLOBAL_NODE.canParse(this.getParser(), 1)) {
+        if (!ExpressionNode.GLOBAL_NODE.canParse(this.getParser(), 1)) {
             final LexerToken peekedToken = this.getParser().peekToken(1);
             return this.addError(
                     this,

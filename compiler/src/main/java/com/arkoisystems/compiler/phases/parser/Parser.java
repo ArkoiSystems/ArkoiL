@@ -253,7 +253,7 @@ public class Parser implements IStage
     @Nullable
     public LexerToken matchesNextToken(final @NotNull TokenType tokenType, final boolean advance) {
         final LexerToken nextToken = this.nextToken(advance);
-        if(nextToken == null)
+        if (nextToken == null)
             return null;
         if (nextToken.getTokenType() != tokenType)
             return null;
@@ -271,7 +271,7 @@ public class Parser implements IStage
             return this.matchesCurrentToken(tokenType, advance);
         
         final LexerToken peekToken = this.peekToken(offset, advance);
-        if(peekToken == null)
+        if (peekToken == null)
             return null;
         if (peekToken.getTokenType() != tokenType)
             return null;

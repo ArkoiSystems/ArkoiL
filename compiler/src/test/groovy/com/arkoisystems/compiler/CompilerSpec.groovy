@@ -23,30 +23,30 @@ import com.arkoisystems.utils.general.FileUtils
 import spock.lang.Specification
 
 class CompilerSpec extends Specification {
-	
-	def "are natives loaded"() {
-		given:
-		def arkoiCompiler = new Compiler("../natives")
-		
-		expect:
-		!arkoiCompiler.getClasses().isEmpty()
-		arkoiCompiler.getClasses().size() == files
-		
-		where:
-		files = FileUtils.getAllFiles(new File("../natives"), ".ark").size()
-	}
-	
-	def "are natives compilable"() {
-		given:
-		def arkoiCompiler = new Compiler("../natives")
-		
-		expect:
-		arkoiCompiler.compile(System.out)
-	}
-	
-	def "can pass basic test"() {
-		expect:
-		Bootstrap.compile("../examples/basic", "../examples/basic/out")
-	}
-	
+    
+    def "are natives loaded"() {
+        given:
+        def arkoiCompiler = new Compiler("../natives")
+        
+        expect:
+        !arkoiCompiler.getClasses().isEmpty()
+        arkoiCompiler.getClasses().size() == files
+        
+        where:
+        files = FileUtils.getAllFiles(new File("../natives"), ".ark").size()
+    }
+    
+    def "are natives compilable"() {
+        given:
+        def arkoiCompiler = new Compiler("../natives")
+        
+        expect:
+        arkoiCompiler.compile(System.out)
+    }
+    
+    def "can pass basic test"() {
+        expect:
+        Bootstrap.compile("../examples/basic", "../examples/basic/out")
+    }
+    
 }
