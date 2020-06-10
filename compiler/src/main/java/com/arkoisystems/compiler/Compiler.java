@@ -28,14 +28,16 @@ import java.io.File;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
 @Getter
 public class Compiler
 {
     
+    // TODO: 6/10/20 Think about it
     @NotNull
-    private final List<CompilerClass> classes = new ArrayList<>();
+    private final List<CompilerClass> classes = new CopyOnWriteArrayList<>();
     
     @NotNull
     private final List<File> libraryPaths = new ArrayList<>();
@@ -50,8 +52,6 @@ public class Compiler
         this.outputPath = outputPath;
         
         this.getLibraryPaths().add(new File("../natives"));
-        this.addNativeFiles();
-        
         this.errorHandler = new ErrorHandler();
     }
     
