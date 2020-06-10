@@ -18,7 +18,6 @@
  */
 package com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expression.types;
 
-import com.arkoisystems.compiler.api.IVisitor;
 import com.arkoisystems.compiler.phases.lexer.token.LexerToken;
 import com.arkoisystems.compiler.phases.lexer.token.enums.SymbolType;
 import com.arkoisystems.compiler.phases.parser.Parser;
@@ -27,6 +26,7 @@ import com.arkoisystems.compiler.phases.parser.SymbolTable;
 import com.arkoisystems.compiler.phases.parser.ast.types.TypeNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.OperableNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expression.ExpressionNode;
+import com.arkoisystems.compiler.visitor.IVisitor;
 import com.arkoisystems.utils.printer.annotations.Printable;
 import lombok.Builder;
 import lombok.Getter;

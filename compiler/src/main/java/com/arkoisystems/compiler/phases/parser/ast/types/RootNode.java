@@ -18,7 +18,6 @@
  */
 package com.arkoisystems.compiler.phases.parser.ast.types;
 
-import com.arkoisystems.compiler.api.IVisitor;
 import com.arkoisystems.compiler.phases.lexer.token.LexerToken;
 import com.arkoisystems.compiler.phases.parser.Parser;
 import com.arkoisystems.compiler.phases.parser.ParserErrorType;
@@ -26,6 +25,7 @@ import com.arkoisystems.compiler.phases.parser.ast.ParserNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.statement.types.FunctionNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.statement.types.ImportNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.statement.types.VariableNode;
+import com.arkoisystems.compiler.visitor.IVisitor;
 import com.arkoisystems.utils.printer.annotations.Printable;
 import lombok.Builder;
 import lombok.Getter;

@@ -19,14 +19,13 @@
 package com.arkoisystems.compiler.phases.parser.ast;
 
 import com.arkoisystems.compiler.CompilerClass;
-import com.arkoisystems.compiler.api.IFailed;
-import com.arkoisystems.compiler.api.IVisitor;
 import com.arkoisystems.compiler.error.CompilerError;
 import com.arkoisystems.compiler.error.ErrorPosition;
 import com.arkoisystems.compiler.error.LineRange;
 import com.arkoisystems.compiler.phases.lexer.token.LexerToken;
 import com.arkoisystems.compiler.phases.parser.Parser;
 import com.arkoisystems.compiler.phases.parser.SymbolTable;
+import com.arkoisystems.compiler.visitor.IVisitor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -37,7 +36,7 @@ import java.util.Objects;
 
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Getter
-public class ParserNode implements IFailed, Cloneable
+public class ParserNode implements Cloneable
 {
     
     @EqualsAndHashCode.Include
@@ -89,7 +88,6 @@ public class ParserNode implements IFailed, Cloneable
         throw new NullPointerException("Not implemented.");
     }
     
-    @Override
     public void setFailed(final boolean failed) {
         if (!failed) {
             this.failed = false;

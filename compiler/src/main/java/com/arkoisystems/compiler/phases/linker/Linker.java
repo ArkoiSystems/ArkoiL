@@ -19,7 +19,6 @@
 package com.arkoisystems.compiler.phases.linker;
 
 import com.arkoisystems.compiler.Compiler;
-import com.arkoisystems.compiler.api.IStage;
 import com.arkoisystems.llvm.Module;
 import lombok.Getter;
 import lombok.Setter;
@@ -41,7 +40,7 @@ import java.util.List;
 
 // https://github.com/intel/cm-compiler/blob/master/llvm/tools/llvm-lto/llvm-lto.cpp
 @Getter
-public class Linker implements IStage
+public class Linker
 {
     
     @NotNull
@@ -59,7 +58,6 @@ public class Linker implements IStage
     }
     
     @SneakyThrows
-    @Override
     public boolean processStage() {
         final BytePointer errorPointer = new BytePointer();
         

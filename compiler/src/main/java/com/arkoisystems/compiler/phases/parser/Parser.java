@@ -19,7 +19,6 @@
 package com.arkoisystems.compiler.phases.parser;
 
 import com.arkoisystems.compiler.CompilerClass;
-import com.arkoisystems.compiler.api.IStage;
 import com.arkoisystems.compiler.phases.lexer.token.LexerToken;
 import com.arkoisystems.compiler.phases.lexer.token.enums.KeywordType;
 import com.arkoisystems.compiler.phases.lexer.token.enums.OperatorType;
@@ -35,7 +34,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 @Getter
-public class Parser implements IStage
+public class Parser
 {
     
     @NotNull
@@ -61,7 +60,6 @@ public class Parser implements IStage
                 .build();
     }
     
-    @Override
     public boolean processStage() {
         this.tokens = this.compilerClass.getLexer().getTokens().toArray(LexerToken[]::new);
         if (this.tokens.length == 0)

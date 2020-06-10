@@ -19,7 +19,6 @@
 package com.arkoisystems.compiler.phases.lexer;
 
 import com.arkoisystems.compiler.CompilerClass;
-import com.arkoisystems.compiler.api.IStage;
 import com.arkoisystems.compiler.phases.lexer.token.LexerToken;
 import com.arkoisystems.compiler.phases.lexer.token.enums.TokenType;
 import lombok.Getter;
@@ -33,7 +32,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Getter
-public class Lexer implements IStage
+public class Lexer
 {
     
     @NotNull
@@ -54,7 +53,6 @@ public class Lexer implements IStage
     }
     
     @SneakyThrows
-    @Override
     public boolean processStage() {
         final StringBuilder patternBuffer = new StringBuilder();
         for (final TokenType tokenType : TokenType.values())
