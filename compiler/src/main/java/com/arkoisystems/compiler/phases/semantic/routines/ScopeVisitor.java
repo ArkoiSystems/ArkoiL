@@ -237,9 +237,7 @@ public class ScopeVisitor implements IVisitor<ParserNode>
         Objects.requireNonNull(identifierNode.getIdentifier(), "identifierNode.identifier must not be null.");
         Objects.requireNonNull(identifierNode.getParser(), "identifierNode.parser must not be null.");
     
-        final List<ParserNode> nodes = identifierNode.isFileLocal() ?
-                identifierNode.getParser().getCompilerClass().getRootScope().lookup(identifierNode.getIdentifier().getTokenContent()) :
-                identifierNode.getCurrentScope().lookup(identifierNode.getIdentifier().getTokenContent());
+        final List<ParserNode> nodes = identifierNode.getCurrentScope().lookup(identifierNode.getIdentifier().getTokenContent());
         if (nodes == null || nodes.size() == 0)
             return this.addError(
                     null,

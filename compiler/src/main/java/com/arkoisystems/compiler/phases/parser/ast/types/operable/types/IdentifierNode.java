@@ -40,7 +40,6 @@ import com.arkoisystems.compiler.visitor.IVisitor;
 import com.arkoisystems.utils.printer.annotations.Printable;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -52,11 +51,7 @@ import java.util.stream.Collectors;
 public class IdentifierNode extends OperableNode
 {
     
-    public static IdentifierNode GLOBAL_NODE = new IdentifierNode(null, null, null, null, null, null, null, false);
-    
-    @Printable(name = "file local")
-    @Setter
-    private boolean isFileLocal;
+    public static IdentifierNode GLOBAL_NODE = new IdentifierNode(null, null, null, null, null, null, null, null, false);
     
     @Printable(name = "called identifier")
     @Nullable
@@ -75,20 +70,20 @@ public class IdentifierNode extends OperableNode
     
     @Builder
     protected IdentifierNode(
-            final @Nullable Parser parser,
-            final @Nullable SymbolTable currentScope,
-            final @Nullable IdentifierNode nextIdentifier,
-            final @Nullable ExpressionListNode expressions,
-            final @Nullable IdentifierToken identifier,
-            final @Nullable LexerToken startToken,
-            final @Nullable LexerToken endToken,
+            @Nullable final Parser parser,
+            @Nullable final ParserNode parentNode,
+            @Nullable final SymbolTable currentScope,
+            @Nullable final IdentifierNode nextIdentifier,
+            @Nullable final ExpressionListNode expressions,
+            @Nullable final IdentifierToken identifier,
+            @Nullable final LexerToken startToken,
+            @Nullable final LexerToken endToken,
             final boolean isFileLocal
     ) {
-        super(parser, currentScope, startToken, endToken);
+        super(parser, parentNode, currentScope, startToken, endToken);
     
         this.nextIdentifier = nextIdentifier;
         this.expressions = expressions;
-        this.isFileLocal = isFileLocal;
         this.identifier = identifier;
     }
     
@@ -96,46 +91,10 @@ public class IdentifierNode extends OperableNode
     @Override
     public IdentifierNode parse() {
         Objects.requireNonNull(this.getParser(), "parser must not be null.");
-        
+    
         this.startAST(this.getParser().currentToken());
-        
-        if (this.getParser().matchesCurrentToken(KeywordType.THIS) != null) {
-            this.isFileLocal = true;
-            
-            if (this.getParser().matchesPeekToken(1, SymbolType.PERIOD) == null) {
-                final LexerToken currentToken = this.getParser().currentToken();
-                return this.addError(
-                        this,
-                        this.getParser().getCompilerClass(),
-                        currentToken,
-                        String.format(
-                                ParserErrorType.SYNTAX_ERROR_TEMPLATE,
-                                "Identifier call",
-                                "'.'",
-                                currentToken != null ? currentToken.getTokenContent() : "nothing"
-                        )
-                );
-            }
-            
-            this.getParser().nextToken();
-            
-            if (this.getParser().matchesPeekToken(1, TokenType.IDENTIFIER) == null) {
-                final LexerToken currentToken = this.getParser().currentToken();
-                return this.addError(
-                        this,
-                        this.getParser().getCompilerClass(),
-                        currentToken,
-                        String.format(
-                                ParserErrorType.SYNTAX_ERROR_TEMPLATE,
-                                "Identifier call",
-                                "<identifier>",
-                                currentToken != null ? currentToken.getTokenContent() : "nothing"
-                        )
-                );
-            }
-            
-            this.getParser().nextToken();
-        } else if (this.getParser().matchesCurrentToken(TokenType.IDENTIFIER) == null) {
+    
+        if (this.getParser().matchesCurrentToken(TokenType.IDENTIFIER) == null) {
             final LexerToken currentToken = this.getParser().currentToken();
             return this.addError(
                     this,
@@ -158,6 +117,7 @@ public class IdentifierNode extends OperableNode
             this.isFunctionCall = true;
         
             final ExpressionListNode expressionListNode = ExpressionListNode.builder()
+                    .parentNode(this)
                     .currentScope(this.getCurrentScope())
                     .parser(this.getParser())
                     .build()
@@ -210,13 +170,13 @@ public class IdentifierNode extends OperableNode
     }
     
     @Override
-    public boolean canParse(final @NotNull Parser parser, final int offset) {
+    public boolean canParse(@NotNull final Parser parser, final int offset) {
         return parser.matchesPeekToken(offset, KeywordType.THIS) != null ||
                 parser.matchesPeekToken(offset, TokenType.IDENTIFIER) != null;
     }
     
     @Override
-    public void accept(final @NotNull IVisitor<?> visitor) {
+    public void accept(@NotNull final IVisitor<?> visitor) {
         visitor.visit(this);
     }
     
@@ -226,15 +186,9 @@ public class IdentifierNode extends OperableNode
         Objects.requireNonNull(this.getIdentifier(), "identifier must not be null.");
         
         ParserNode foundNode = null;
-        if (this.isFileLocal()) {
+        if (this.isFunctionCall()) {
             Objects.requireNonNull(this.getParser().getRootNode().getCurrentScope(), "parser.rootNode.currentScope must not be null.");
-            
-            final List<ParserNode> nodes = this.getParser().getRootNode().getCurrentScope().lookupScope(this.getIdentifier().getTokenContent());
-            if (nodes != null && !nodes.isEmpty())
-                foundNode = nodes.get(0);
-        } else if (this.isFunctionCall()) {
-            Objects.requireNonNull(this.getParser().getRootNode().getCurrentScope(), "parser.rootNode.currentScope must not be null.");
-            
+        
             final List<ParserNode> nodes = this.getParser().getRootNode().getCurrentScope().lookupScope(this.getIdentifier().getTokenContent());
             if (nodes != null && !nodes.isEmpty()) {
                 final List<FunctionNode> functions = nodes.stream()
@@ -252,8 +206,6 @@ public class IdentifierNode extends OperableNode
             if (nodes != null && !nodes.isEmpty())
                 foundNode = nodes.get(0);
         }
-        
-        //        System.out.println(this.getParser().getCompilerClass().getName() + ": " + this.getIdentifier().getTokenContent() + ", " + foundNode);
         
         if (foundNode instanceof VariableNode)
             return ((VariableNode) foundNode).getTypeNode();
