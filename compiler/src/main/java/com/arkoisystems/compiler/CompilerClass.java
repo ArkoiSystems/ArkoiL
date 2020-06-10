@@ -25,10 +25,11 @@ import com.arkoisystems.compiler.phases.parser.SymbolTable;
 import com.arkoisystems.compiler.phases.semantic.Semantic;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
-import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 
 @Getter
 @Setter
@@ -64,14 +65,13 @@ public class CompilerClass
     @NotNull
     private String content;
     
-    public CompilerClass(final @NotNull Compiler compiler, final @NotNull String filePath, final @NotNull byte[] content) {
+    @SneakyThrows
+    public CompilerClass(final @NotNull Compiler compiler, final @NotNull File file) {
         this.compiler = compiler;
-        this.filePath = filePath;
-        
-        final File file = new File(filePath);
         
         this.name = file.getName().substring(0, file.getName().length() - 4);
-        this.content = new String(content, StandardCharsets.UTF_8);
+        this.content = Files.readString(file.toPath());
+        this.filePath = file.getCanonicalPath();
         this.isNative = false;
         
         this.irGenerator = new IRGenerator(this);

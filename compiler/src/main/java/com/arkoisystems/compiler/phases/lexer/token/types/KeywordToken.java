@@ -47,15 +47,18 @@ public class KeywordToken extends LexerToken
     ) {
         super(lexer, TokenType.KEYWORD, startLine, endLine, charStart, charEnd);
     
-        if (keywordType == null) {
-            for (final KeywordType type : KeywordType.values())
-                if (type.getName().equals(this.getTokenContent())) {
-                    this.keywordType = type;
-                    return;
-                }
+        if (keywordType != null) {
+            this.keywordType = keywordType;
+            return;
+        }
         
-            throw new NullPointerException("keywordType must not be null.");
-        } else this.keywordType = keywordType;
+        for (final KeywordType type : KeywordType.values())
+            if (type.getName().equals(this.getTokenContent())) {
+                this.keywordType = type;
+                return;
+            }
+    
+        throw new NullPointerException("keywordType must not be null.");
     }
     
     public KeywordToken(

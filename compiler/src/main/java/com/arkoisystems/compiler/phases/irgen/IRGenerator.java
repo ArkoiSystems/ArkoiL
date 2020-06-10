@@ -19,7 +19,6 @@
 package com.arkoisystems.compiler.phases.irgen;
 
 import com.arkoisystems.compiler.CompilerClass;
-import com.arkoisystems.compiler.api.IStage;
 import com.arkoisystems.llvm.Module;
 import lombok.Getter;
 import lombok.Setter;
@@ -27,7 +26,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 @Getter
-public class IRGenerator implements IStage
+public class IRGenerator
 {
     
     @NotNull
@@ -43,7 +42,6 @@ public class IRGenerator implements IStage
         this.compilerClass = compilerClass;
     }
     
-    @Override
     public boolean processStage() {
         final IRVisitor visitor = new IRVisitor();
         this.module = visitor.visit(this.getCompilerClass().getParser().getRootNode());

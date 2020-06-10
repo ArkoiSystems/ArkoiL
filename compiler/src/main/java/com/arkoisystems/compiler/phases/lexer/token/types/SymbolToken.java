@@ -47,15 +47,18 @@ public class SymbolToken extends LexerToken
     ) {
         super(lexer, TokenType.SYMBOL, startLine, endLine, charStart, charEnd);
     
-        if (symbolType == null) {
-            for (final SymbolType type : SymbolType.values())
-                if (type.getName().equals(this.getTokenContent())) {
-                    this.symbolType = type;
-                    return;
-                }
+        if (symbolType != null) {
+            this.symbolType = symbolType;
+            return;
+        }
         
-            throw new NullPointerException("symbolType must not be null.");
-        } else this.symbolType = symbolType;
+        for (final SymbolType type : SymbolType.values())
+            if (type.getName().equals(this.getTokenContent())) {
+                this.symbolType = type;
+                return;
+            }
+    
+        throw new NullPointerException("symbolType must not be null.");
     }
     
     public SymbolToken(

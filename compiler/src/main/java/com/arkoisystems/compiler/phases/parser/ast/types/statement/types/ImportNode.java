@@ -20,7 +20,6 @@ package com.arkoisystems.compiler.phases.parser.ast.types.statement.types;
 
 import com.arkoisystems.compiler.Compiler;
 import com.arkoisystems.compiler.CompilerClass;
-import com.arkoisystems.compiler.api.IVisitor;
 import com.arkoisystems.compiler.phases.lexer.token.LexerToken;
 import com.arkoisystems.compiler.phases.lexer.token.enums.KeywordType;
 import com.arkoisystems.compiler.phases.lexer.token.enums.TokenType;
@@ -30,6 +29,7 @@ import com.arkoisystems.compiler.phases.parser.Parser;
 import com.arkoisystems.compiler.phases.parser.ParserErrorType;
 import com.arkoisystems.compiler.phases.parser.SymbolTable;
 import com.arkoisystems.compiler.phases.parser.ast.types.statement.StatementNode;
+import com.arkoisystems.compiler.visitor.IVisitor;
 import com.arkoisystems.utils.printer.annotations.Printable;
 import lombok.Builder;
 import lombok.Getter;
@@ -38,7 +38,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
-import java.nio.file.Files;
 import java.util.Objects;
 
 @Getter
@@ -190,23 +189,19 @@ public class ImportNode extends StatementNode
                 }
             }
         }
-        
+    
         if (!targetFile.exists())
             return null;
-        
+    
         final Compiler compiler = this.getParser().getCompilerClass().getCompiler();
         for (final CompilerClass compilerClass : compiler.getClasses()) {
             if (compilerClass.getFilePath().equals(targetFile.getCanonicalPath()))
                 return compilerClass;
         }
-        
-        final CompilerClass compilerClass = new CompilerClass(
-                compiler,
-                targetFile.getCanonicalPath(),
-                Files.readAllBytes(targetFile.toPath())
-        );
+    
+        final CompilerClass compilerClass = new CompilerClass(compiler, targetFile);
         compiler.getClasses().add(compilerClass);
-        
+    
         compilerClass.getLexer().processStage();
         compilerClass.getParser().processStage();
         return compilerClass;

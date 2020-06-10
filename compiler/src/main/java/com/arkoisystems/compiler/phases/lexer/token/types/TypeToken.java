@@ -47,15 +47,18 @@ public class TypeToken extends LexerToken
     ) {
         super(lexer, TokenType.TYPE, startLine, endLine, charStart, charEnd);
     
-        if (dataKind == null) {
-            for (final DataKind type : DataKind.values())
-                if (type.getName().equals(this.getTokenContent())) {
-                    this.dataKind = type;
-                    return;
-                }
-        
-            throw new NullPointerException("typeKind must not be null. ");
-        } else this.dataKind = dataKind;
+        if (dataKind != null) {
+            this.dataKind = dataKind;
+            return;
+        }
+    
+        for (final DataKind type : DataKind.values())
+            if (type.getName().equals(this.getTokenContent())) {
+                this.dataKind = type;
+                return;
+            }
+    
+        throw new NullPointerException("typeKind must not be null. ");
     }
     
     public TypeToken(

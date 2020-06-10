@@ -19,8 +19,6 @@
 package com.arkoisystems.compiler.phases.semantic.routines;
 
 import com.arkoisystems.compiler.CompilerClass;
-import com.arkoisystems.compiler.api.IFailed;
-import com.arkoisystems.compiler.api.IVisitor;
 import com.arkoisystems.compiler.error.CompilerError;
 import com.arkoisystems.compiler.error.ErrorPosition;
 import com.arkoisystems.compiler.phases.parser.ast.ParserNode;
@@ -39,6 +37,7 @@ import com.arkoisystems.compiler.phases.parser.ast.types.statement.types.ImportN
 import com.arkoisystems.compiler.phases.parser.ast.types.statement.types.ReturnNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.statement.types.VariableNode;
 import com.arkoisystems.compiler.phases.semantic.Semantic;
+import com.arkoisystems.compiler.visitor.IVisitor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -53,7 +52,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Getter
 @Setter
-public class ScopeVisitor implements IVisitor<ParserNode>, IFailed
+public class ScopeVisitor implements IVisitor<ParserNode>
 {
     
     @NotNull

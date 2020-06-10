@@ -42,19 +42,20 @@ public class UndefinedToken extends LexerToken
     ) {
         super(lexer, TokenType.UNDEFINED, startLine, endLine, charStart, charEnd);
     
-        if (!dummy) {
-            this.getLexer().setFailed(true);
-            this.getLexer().getCompilerClass().getCompiler().getErrorHandler().addError(CompilerError.builder()
-                    .causePosition(ErrorPosition.builder()
-                            .compilerClass(this.getLexer().getCompilerClass())
-                            .lineRange(this.getLineRange())
-                            .charStart(charStart)
-                            .charEnd(charEnd)
-                            .build())
-                    .causeMessage("This character is unknown to the lexer")
-                    .build()
-            );
-        }
+        if (dummy)
+            return;
+    
+        this.getLexer().setFailed(true);
+        this.getLexer().getCompilerClass().getCompiler().getErrorHandler().addError(CompilerError.builder()
+                .causePosition(ErrorPosition.builder()
+                        .compilerClass(this.getLexer().getCompilerClass())
+                        .lineRange(this.getLineRange())
+                        .charStart(charStart)
+                        .charEnd(charEnd)
+                        .build())
+                .causeMessage("This character is unknown to the lexer")
+                .build()
+        );
     }
     
     public UndefinedToken(

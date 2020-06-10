@@ -18,8 +18,6 @@
  */
 package com.arkoisystems.compiler.phases.irgen;
 
-import com.arkoisystems.compiler.api.IFailed;
-import com.arkoisystems.compiler.api.IVisitor;
 import com.arkoisystems.compiler.phases.parser.ast.DataKind;
 import com.arkoisystems.compiler.phases.parser.ast.ParserNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.BlockNode;
@@ -38,6 +36,7 @@ import com.arkoisystems.compiler.phases.parser.ast.types.statement.types.Functio
 import com.arkoisystems.compiler.phases.parser.ast.types.statement.types.ImportNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.statement.types.ReturnNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.statement.types.VariableNode;
+import com.arkoisystems.compiler.visitor.IVisitor;
 import com.arkoisystems.llvm.Builder;
 import com.arkoisystems.llvm.Function;
 import com.arkoisystems.llvm.Module;
@@ -58,7 +57,7 @@ import java.util.List;
 import java.util.Objects;
 
 @Getter
-public class IRVisitor implements IVisitor<Object>, IFailed
+public class IRVisitor implements IVisitor<Object>
 {
     
     @Setter

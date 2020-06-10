@@ -19,7 +19,6 @@
 package com.arkoisystems.compiler.phases.semantic;
 
 import com.arkoisystems.compiler.CompilerClass;
-import com.arkoisystems.compiler.api.IStage;
 import com.arkoisystems.compiler.phases.parser.ast.types.statement.types.ImportNode;
 import com.arkoisystems.compiler.phases.semantic.routines.ScopeVisitor;
 import com.arkoisystems.compiler.phases.semantic.routines.TypeVisitor;
@@ -29,7 +28,7 @@ import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
 
 @Getter
-public class Semantic implements IStage
+public class Semantic
 {
     
     @NotNull
@@ -43,7 +42,6 @@ public class Semantic implements IStage
     }
     
     @SneakyThrows
-    @Override
     public boolean processStage() {
         this.getCompilerClass().getParser().getRootNode().getNodes().stream()
                 .filter(node -> node instanceof ImportNode)

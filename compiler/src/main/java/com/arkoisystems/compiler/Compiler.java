@@ -25,9 +25,7 @@ import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.PrintStream;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -48,7 +46,7 @@ public class Compiler
     @NotNull
     private final String outputPath;
     
-    public Compiler(final @NotNull String outputPath) throws IOException {
+    public Compiler(final @NotNull String outputPath) {
         this.outputPath = outputPath;
         
         this.getLibraryPaths().add(new File("../natives"));
@@ -57,8 +55,8 @@ public class Compiler
         this.errorHandler = new ErrorHandler();
     }
     
-    public void addFile(final @NotNull File file) throws IOException {
-        this.getClasses().add(new CompilerClass(this, file.getCanonicalPath(), Files.readAllBytes(file.toPath())));
+    public void addFile(final @NotNull File file) {
+        this.getClasses().add(new CompilerClass(this, file));
     }
     
     public boolean compile(final PrintStream printStream) {
@@ -112,14 +110,14 @@ public class Compiler
         return true;
     }
     
-    private void addNativeFiles() throws IOException {
+    private void addNativeFiles() {
         final File nativeDirectory = new File("../natives");
         if (!nativeDirectory.exists())
             throw new NullPointerException("Couldn't find a native directory. Please try to fix the problem with reinstalling the compiler.");
         
         final List<File> files = FileUtils.getAllFiles(nativeDirectory, ".ark");
         for (final File file : files) {
-            final CompilerClass compilerClass = new CompilerClass(this, file.getCanonicalPath(), Files.readAllBytes(file.toPath()));
+            final CompilerClass compilerClass = new CompilerClass(this, file);
             compilerClass.setNative(true);
             this.getClasses().add(compilerClass);
         }
