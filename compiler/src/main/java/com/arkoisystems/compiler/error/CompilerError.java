@@ -56,7 +56,7 @@ public class CompilerError
         
         final StringBuilder stringBuilder = new StringBuilder(String.format(
                 "%s:%s:%s: %s",
-                this.getCausePosition().getCompilerClass().getFilePath(),
+                this.getCausePosition().getFilePath(),
                 this.getCausePosition().getLineRange().getStartLine() + 1,
                 this.getCausePosition().getCharStart() + 1,
                 this.getCauseMessage()

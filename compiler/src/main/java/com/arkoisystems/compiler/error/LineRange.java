@@ -41,4 +41,24 @@ public class LineRange
                 .build();
     }
     
+    @NotNull
+    public static LineRange make(
+            final @NotNull String sourceCode,
+            final int startLine,
+            final int endLine
+    ) {
+        final String[] sourceSplit = sourceCode.split(System.getProperty("line.separator"));
+        final StringBuilder sourceBuilder = new StringBuilder();
+        for (int index = 0; index < sourceSplit.length; index++) {
+            if (index < startLine) continue;
+            if (index > endLine) break;
+            sourceBuilder.append(sourceSplit[index]).append(System.getProperty("line.separator"));
+        }
+        return LineRange.builder()
+                .sourceCode(sourceBuilder.toString())
+                .startLine(startLine)
+                .endLine(endLine)
+                .build();
+    }
+    
 }

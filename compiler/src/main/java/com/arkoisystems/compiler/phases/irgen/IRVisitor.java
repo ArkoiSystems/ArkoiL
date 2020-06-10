@@ -18,6 +18,10 @@
  */
 package com.arkoisystems.compiler.phases.irgen;
 
+import com.arkoisystems.compiler.CompilerClass;
+import com.arkoisystems.compiler.error.CompilerError;
+import com.arkoisystems.compiler.error.ErrorPosition;
+import com.arkoisystems.compiler.error.LineRange;
 import com.arkoisystems.compiler.phases.parser.ast.DataKind;
 import com.arkoisystems.compiler.phases.parser.ast.ParserNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.BlockNode;
@@ -45,12 +49,15 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.SneakyThrows;
 import org.bytedeco.javacpp.PointerPointer;
+import org.bytedeco.javacpp.SizeTPointer;
 import org.bytedeco.llvm.LLVM.LLVMBasicBlockRef;
 import org.bytedeco.llvm.LLVM.LLVMTypeRef;
 import org.bytedeco.llvm.LLVM.LLVMValueRef;
 import org.bytedeco.llvm.global.LLVM;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.File;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -59,6 +66,9 @@ import java.util.Objects;
 @Getter
 public class IRVisitor implements IVisitor<Object>
 {
+    
+    @NotNull
+    private final CompilerClass compilerClass;
     
     @Setter
     @NotNull
@@ -70,6 +80,10 @@ public class IRVisitor implements IVisitor<Object>
     
     @Setter
     private boolean failed;
+    
+    public IRVisitor(@NotNull final CompilerClass compilerClass) {
+        this.compilerClass = compilerClass;
+    }
     
     @Override
     public LLVMTypeRef visit(final @NotNull TypeNode typeNode) {
@@ -128,8 +142,25 @@ public class IRVisitor implements IVisitor<Object>
         rootNode.getNodes().forEach(this::visit);
     
         final String error = module.verify(LLVM.LLVMReturnStatusAction);
-        if (!error.isEmpty())
+        if (!error.isEmpty()) {
+            final File file = new File(String.format(
+                    "%s/error/%s.ll",
+                    this.getCompilerClass().getCompiler().getOutputPath(),
+                    LLVM.LLVMGetModuleIdentifier(module.getModuleRef(), new SizeTPointer(0)).getString()
+            ));
+            if (!file.getParentFile().exists())
+                file.getParentFile().mkdirs();
+        
+            Files.write(file.toPath(), LLVM.LLVMPrintModuleToString(
+                    module.getModuleRef()).getStringBytes()
+            );
+        
+            this.getCompilerClass().getCompiler().getErrorHandler().getCompilerErrors().addAll(
+                    this.getLLVMErrors(error, file.getCanonicalPath())
+            );
             this.setFailed(true);
+        }
+    
         return module;
     }
     
@@ -401,6 +432,71 @@ public class IRVisitor implements IVisitor<Object>
         if (prefixNode.getOperatorType() == PrefixOperators.NEGATE)
             return LLVM.LLVMBuildNeg(this.getBuilder().getBuilderRef(), rhsValue, "");
         return null;
+    }
+    
+    @NotNull
+    private List<CompilerError> getLLVMErrors(
+            @NotNull final String error,
+            @NotNull final String filePath
+    ) {
+        final List<CompilerError> errors = new ArrayList<>();
+        
+        final String source = LLVM.LLVMPrintModuleToString(module.getModuleRef()).getString();
+        final String[] errorSplit = error.split(System.getProperty("line.separator"));
+        
+        for (int index = 0; index < errorSplit.length; index += 2) {
+            final String errorMessage = errorSplit[index];
+            final String errorCause = errorSplit[index + 1];
+            
+            final int indexOfCause = source.indexOf(errorCause);
+            final ErrorPosition errorPosition = this.getErrorPosition(
+                    source,
+                    filePath,
+                    indexOfCause
+            );
+            
+            errors.add(CompilerError.builder()
+                    .causeMessage(errorMessage)
+                    .causePosition(errorPosition)
+                    .build());
+        }
+        
+        return errors;
+    }
+    
+    @NotNull
+    private ErrorPosition getErrorPosition(
+            @NotNull final String sourceCode,
+            @NotNull final String filePath,
+            final int causeIndex
+    ) {
+        int charStart = 0, charEnd = 0, lineStart = 0, lineIndex = 0, charIndex = 0;
+        for (int index = 0; index < sourceCode.length(); index++) {
+            final char currentChar = sourceCode.charAt(index);
+            
+            if (index == causeIndex) {
+                lineStart = lineIndex;
+                charStart = charIndex;
+            } else if (index > causeIndex && (currentChar == '\n' || currentChar == '\r')) {
+                charEnd = charIndex;
+                break;
+            }
+            
+            charIndex++;
+            
+            if (currentChar == '\n' || currentChar == '\r') {
+                charIndex = 0;
+                lineIndex++;
+            }
+        }
+        
+        return ErrorPosition.builder()
+                .sourceCode(sourceCode)
+                .filePath(filePath)
+                .lineRange(LineRange.make(sourceCode, lineStart, lineStart))
+                .charStart(charStart)
+                .charEnd(charEnd)
+                .build();
     }
     
 }

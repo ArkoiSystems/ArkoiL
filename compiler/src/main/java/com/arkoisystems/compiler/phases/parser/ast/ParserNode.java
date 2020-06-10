@@ -151,7 +151,8 @@ public class ParserNode implements Cloneable
     
         compilerClass.getCompiler().getErrorHandler().addError(CompilerError.builder()
                 .causePosition(ErrorPosition.builder()
-                        .compilerClass(tokenClass)
+                        .sourceCode(tokenClass.getContent())
+                        .filePath(tokenClass.getFilePath())
                         .lineRange(lineRange)
                         .charStart(charStart)
                         .charEnd(charEnd)

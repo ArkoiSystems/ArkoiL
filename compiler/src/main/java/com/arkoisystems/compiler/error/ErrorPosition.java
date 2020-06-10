@@ -1,10 +1,8 @@
 package com.arkoisystems.compiler.error;
 
-import com.arkoisystems.compiler.CompilerClass;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.NonNull;
 import org.jetbrains.annotations.NotNull;
 
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
@@ -17,9 +15,9 @@ public class ErrorPosition
     @NotNull
     private final LineRange lineRange;
     
-    @NonNull
+    @EqualsAndHashCode.Include
     @NotNull
-    private final CompilerClass compilerClass;
+    private final String sourceCode, filePath;
     
     @EqualsAndHashCode.Include
     private final int charStart, charEnd;
@@ -32,7 +30,7 @@ public class ErrorPosition
         final String[] sourceLines = this.getLineRange().getSourceCode().split(System.getProperty("line.separator"));
         final int biggestNumber = String.valueOf(endLine + 1).length();
         for (int lineIndex = startLine; lineIndex < startLine + sourceLines.length; lineIndex++) {
-            final LineRange lineRange = LineRange.make(this.getCompilerClass(), lineIndex, lineIndex);
+            final LineRange lineRange = LineRange.make(this.getSourceCode(), lineIndex, lineIndex);
             final String sourceCode = lineRange.getSourceCode().replace("\n", "");
     
             final int leadingSpaces = sourceCode.length() - sourceCode.replaceAll("^\\s+", "").length();
