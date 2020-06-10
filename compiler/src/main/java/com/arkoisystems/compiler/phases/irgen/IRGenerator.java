@@ -43,7 +43,7 @@ public class IRGenerator
     }
     
     public boolean processStage() {
-        final IRVisitor visitor = new IRVisitor();
+        final IRVisitor visitor = new IRVisitor(this.getCompilerClass());
         this.module = visitor.visit(this.getCompilerClass().getParser().getRootNode());
         return !visitor.isFailed();
     }

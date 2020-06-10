@@ -47,7 +47,8 @@ public class StringToken extends LexerToken
             this.getLexer().setFailed(true);
             this.getLexer().getCompilerClass().getCompiler().getErrorHandler().addError(CompilerError.builder()
                     .causePosition(ErrorPosition.builder()
-                            .compilerClass(this.getLexer().getCompilerClass())
+                            .sourceCode(this.getLexer().getCompilerClass().getContent())
+                            .filePath(this.getLexer().getCompilerClass().getFilePath())
                             .lineRange(this.getLineRange())
                             .charStart(this.getCharStart())
                             .charEnd(this.getCharEnd())
