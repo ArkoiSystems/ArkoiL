@@ -40,7 +40,7 @@ import java.util.Objects;
 public class ParameterNode extends ParserNode
 {
     
-    public static ParameterNode GLOBAL_NODE = new ParameterNode(null, null, null, null, null, null);
+    public static ParameterNode GLOBAL_NODE = new ParameterNode(null, null, null, null, null, null, null);
     
     @Printable(name = "name")
     @Nullable
@@ -52,14 +52,15 @@ public class ParameterNode extends ParserNode
     
     @Builder
     protected ParameterNode(
-            final @Nullable Parser parser,
-            final @Nullable SymbolTable currentScope,
-            final @Nullable IdentifierToken name,
-            final @Nullable TypeNode typeNode,
-            final @Nullable LexerToken startToken,
-            final @Nullable LexerToken endToken
+            @Nullable final Parser parser,
+            @Nullable final ParserNode parentNode,
+            @Nullable final SymbolTable currentScope,
+            @Nullable final IdentifierToken name,
+            @Nullable final TypeNode typeNode,
+            @Nullable final LexerToken startToken,
+            @Nullable final LexerToken endToken
     ) {
-        super(parser, currentScope, startToken, endToken);
+        super(parser, parentNode, currentScope, startToken, endToken);
     
         this.typeNode = typeNode;
         this.name = name;
@@ -125,6 +126,7 @@ public class ParameterNode extends ParserNode
         }
         
         final TypeNode typeNodeAST = TypeNode.builder()
+                .parentNode(this)
                 .currentScope(this.getCurrentScope())
                 .parser(this.getParser())
                 .build()
@@ -140,12 +142,12 @@ public class ParameterNode extends ParserNode
     }
     
     @Override
-    public boolean canParse(final @NotNull Parser parser, final int offset) {
+    public boolean canParse(@NotNull final Parser parser, final int offset) {
         return parser.matchesPeekToken(offset, TokenType.IDENTIFIER) != null;
     }
     
     @Override
-    public void accept(final @NotNull IVisitor<?> visitor) {
+    public void accept(@NotNull final IVisitor<?> visitor) {
         visitor.visit(this);
     }
     

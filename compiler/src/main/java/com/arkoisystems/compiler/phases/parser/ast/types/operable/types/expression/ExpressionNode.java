@@ -22,6 +22,7 @@ import com.arkoisystems.compiler.phases.lexer.token.LexerToken;
 import com.arkoisystems.compiler.phases.parser.Parser;
 import com.arkoisystems.compiler.phases.parser.ParserErrorType;
 import com.arkoisystems.compiler.phases.parser.SymbolTable;
+import com.arkoisystems.compiler.phases.parser.ast.ParserNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.OperableNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.IdentifierNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.NumberNode;
@@ -43,16 +44,17 @@ import java.util.Objects;
 public class ExpressionNode extends OperableNode
 {
     
-    public static ExpressionNode GLOBAL_NODE = new ExpressionNode(null, null, null, null);
+    public static ExpressionNode GLOBAL_NODE = new ExpressionNode(null, null, null, null, null);
     
     @Builder(builderMethodName = "expressionBuilder")
     protected ExpressionNode(
-            final @Nullable Parser parser,
-            final @Nullable SymbolTable currentScope,
-            final @Nullable LexerToken startToken,
-            final @Nullable LexerToken endToken
+            @Nullable final Parser parser,
+            @Nullable final ParserNode parentNode,
+            @Nullable final SymbolTable currentScope,
+            @Nullable final LexerToken startToken,
+            @Nullable final LexerToken endToken
     ) {
-        super(parser, currentScope, startToken, endToken);
+        super(parser, parentNode, currentScope, startToken, endToken);
     }
     
     @NotNull
@@ -62,7 +64,7 @@ public class ExpressionNode extends OperableNode
     }
     
     @Override
-    public boolean canParse(final @NotNull Parser parser, final int offset) {
+    public boolean canParse(@NotNull final Parser parser, final int offset) {
         return super.canParse(parser, offset) ||
                 PrefixNode.ADD_GLOBAL_NODE.canParse(parser, offset) ||
                 PrefixNode.SUB_GLOBAL_NODE.canParse(parser, offset) ||
@@ -81,6 +83,7 @@ public class ExpressionNode extends OperableNode
         while (true) {
             if (AssignmentNode.ASSIGN_GLOBAL_NODE.canParse(this.getParser(), 1)) {
                 operableNode = AssignmentNode.builder()
+                        .parentNode(this)
                         .currentScope(this.getCurrentScope())
                         .parser(this.getParser())
                         .leftHandSide(operableNode)
@@ -90,6 +93,7 @@ public class ExpressionNode extends OperableNode
                         .parse();
             } else if (AssignmentNode.ADD_GLOBAL_NODE.canParse(this.getParser(), 1)) {
                 operableNode = AssignmentNode.builder()
+                        .parentNode(this)
                         .currentScope(this.getCurrentScope())
                         .parser(this.getParser())
                         .leftHandSide(operableNode)
@@ -99,6 +103,7 @@ public class ExpressionNode extends OperableNode
                         .parse();
             } else if (AssignmentNode.SUB_GLOBAL_NODE.canParse(this.getParser(), 1)) {
                 operableNode = AssignmentNode.builder()
+                        .parentNode(this)
                         .currentScope(this.getCurrentScope())
                         .parser(this.getParser())
                         .leftHandSide(operableNode)
@@ -108,6 +113,7 @@ public class ExpressionNode extends OperableNode
                         .parse();
             } else if (AssignmentNode.MUL_GLOBAL_NODE.canParse(this.getParser(), 1)) {
                 operableNode = AssignmentNode.builder()
+                        .parentNode(this)
                         .currentScope(this.getCurrentScope())
                         .parser(this.getParser())
                         .leftHandSide(operableNode)
@@ -117,6 +123,7 @@ public class ExpressionNode extends OperableNode
                         .parse();
             } else if (AssignmentNode.DIV_GLOBAL_NODE.canParse(this.getParser(), 1)) {
                 operableNode = AssignmentNode.builder()
+                        .parentNode(this)
                         .currentScope(this.getCurrentScope())
                         .parser(this.getParser())
                         .leftHandSide(operableNode)
@@ -126,6 +133,7 @@ public class ExpressionNode extends OperableNode
                         .parse();
             } else if (AssignmentNode.MOD_GLOBAL_NODE.canParse(this.getParser(), 1)) {
                 operableNode = AssignmentNode.builder()
+                        .parentNode(this)
                         .currentScope(this.getCurrentScope())
                         .parser(this.getParser())
                         .leftHandSide(operableNode)
@@ -148,6 +156,7 @@ public class ExpressionNode extends OperableNode
         while (true) {
             if (BinaryNode.ADD_GLOBAL_NODE.canParse(this.getParser(), 1)) {
                 operableNode = BinaryNode.builder()
+                        .parentNode(this)
                         .currentScope(this.getCurrentScope())
                         .parser(this.getParser())
                         .leftHandSide(operableNode)
@@ -157,6 +166,7 @@ public class ExpressionNode extends OperableNode
                         .parse();
             } else if (BinaryNode.SUB_GLOBAL_NODE.canParse(this.getParser(), 1)) {
                 operableNode = BinaryNode.builder()
+                        .parentNode(this)
                         .currentScope(this.getCurrentScope())
                         .parser(this.getParser())
                         .leftHandSide(operableNode)
@@ -179,6 +189,7 @@ public class ExpressionNode extends OperableNode
         while (true) {
             if (BinaryNode.MUL_GLOBAL_NODE.canParse(this.getParser(), 1)) {
                 operableNode = BinaryNode.builder()
+                        .parentNode(this)
                         .currentScope(this.getCurrentScope())
                         .parser(this.getParser())
                         .leftHandSide(operableNode)
@@ -188,6 +199,7 @@ public class ExpressionNode extends OperableNode
                         .parse();
             } else if (BinaryNode.DIV_GLOBAL_NODE.canParse(this.getParser(), 1)) {
                 operableNode = BinaryNode.builder()
+                        .parentNode(this)
                         .currentScope(this.getCurrentScope())
                         .parser(this.getParser())
                         .leftHandSide(operableNode)
@@ -197,6 +209,7 @@ public class ExpressionNode extends OperableNode
                         .parse();
             } else if (BinaryNode.MOD_GLOBAL_NODE.canParse(this.getParser(), 1)) {
                 operableNode = BinaryNode.builder()
+                        .parentNode(this)
                         .currentScope(this.getCurrentScope())
                         .parser(this.getParser())
                         .leftHandSide(operableNode)
@@ -216,6 +229,7 @@ public class ExpressionNode extends OperableNode
         OperableNode operableNode = null;
         if (PrefixNode.SUB_GLOBAL_NODE.canParse(this.getParser(), 0))
             operableNode = PrefixNode.builder()
+                    .parentNode(this)
                     .currentScope(this.getCurrentScope())
                     .parser(this.getParser())
                     .operatorType(PrefixOperators.PREFIX_SUB)
@@ -223,6 +237,7 @@ public class ExpressionNode extends OperableNode
                     .parse();
         else if (PrefixNode.ADD_GLOBAL_NODE.canParse(this.getParser(), 0))
             operableNode = PrefixNode.builder()
+                    .parentNode(this)
                     .currentScope(this.getCurrentScope())
                     .parser(this.getParser())
                     .operatorType(PrefixOperators.PREFIX_ADD)
@@ -230,6 +245,7 @@ public class ExpressionNode extends OperableNode
                     .parse();
         else if (PrefixNode.NEGATE_GLOBAL_NODE.canParse(this.getParser(), 0))
             operableNode = PrefixNode.builder()
+                    .parentNode(this)
                     .currentScope(this.getCurrentScope())
                     .parser(this.getParser())
                     .operatorType(PrefixOperators.NEGATE)
@@ -237,6 +253,7 @@ public class ExpressionNode extends OperableNode
                     .parse();
         else if (ParenthesizedNode.GLOBAL_NODE.canParse(this.getParser(), 0)) {
             operableNode = ParenthesizedNode.builder()
+                    .parentNode(this)
                     .currentScope(this.getCurrentScope())
                     .parser(this.getParser())
                     .build()
@@ -269,6 +286,7 @@ public class ExpressionNode extends OperableNode
         
         if (PostfixNode.SUB_GLOBAL_NODE.canParse(this.getParser(), 1)) {
             return PostfixNode.builder()
+                    .parentNode(this)
                     .currentScope(this.getCurrentScope())
                     .parser(this.getParser())
                     .leftHandSide(operableNode)
@@ -278,6 +296,7 @@ public class ExpressionNode extends OperableNode
                     .parse();
         } else if (PostfixNode.ADD_GLOBAL_NODE.canParse(this.getParser(), 1)) {
             return PostfixNode.builder()
+                    .parentNode(this)
                     .currentScope(this.getCurrentScope())
                     .parser(this.getParser())
                     .leftHandSide(operableNode)

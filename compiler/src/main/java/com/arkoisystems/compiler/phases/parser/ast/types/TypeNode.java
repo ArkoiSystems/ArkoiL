@@ -40,7 +40,7 @@ import java.util.Objects;
 public class TypeNode extends ParserNode
 {
     
-    public static TypeNode GLOBAL_NODE = new TypeNode(null, null, null, 0, null, null);
+    public static TypeNode GLOBAL_NODE = new TypeNode(null, null, null, null, 0, null, null);
     
     @Printable(name = "data kind")
     @NotNull
@@ -52,13 +52,14 @@ public class TypeNode extends ParserNode
     @Builder
     protected TypeNode(
             @Nullable final Parser parser,
+            @Nullable final ParserNode parentNode,
             @Nullable final SymbolTable currentScope,
             @Nullable final DataKind dataKind,
             final int pointers,
             @Nullable final LexerToken startToken,
             @Nullable final LexerToken endToken
     ) {
-        super(parser, currentScope, startToken, endToken);
+        super(parser, parentNode, currentScope, startToken, endToken);
         
         this.dataKind = dataKind == null ? DataKind.UNDEFINED : dataKind;
         this.pointers = pointers;

@@ -39,7 +39,7 @@ public class SymbolToken extends LexerToken
     public SymbolToken(
             @NonNull
             @NotNull final Lexer lexer,
-            final @Nullable SymbolType symbolType,
+            @Nullable final SymbolType symbolType,
             final int startLine,
             final int endLine,
             final int charStart,
@@ -62,7 +62,7 @@ public class SymbolToken extends LexerToken
     }
     
     public SymbolToken(
-            final @NotNull Lexer lexer,
+            @NotNull final Lexer lexer,
             final int startLine,
             final int endLine,
             final int charStart,

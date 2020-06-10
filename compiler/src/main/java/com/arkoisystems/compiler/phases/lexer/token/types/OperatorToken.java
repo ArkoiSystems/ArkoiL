@@ -39,7 +39,7 @@ public class OperatorToken extends LexerToken
     public OperatorToken(
             @NonNull
             @NotNull final Lexer lexer,
-            final @Nullable OperatorType operatorType,
+            @Nullable final OperatorType operatorType,
             final int startLine,
             final int endLine,
             final int charStart,
@@ -62,7 +62,7 @@ public class OperatorToken extends LexerToken
     }
     
     public OperatorToken(
-            final @NotNull Lexer lexer,
+            @NotNull final Lexer lexer,
             final int startLine,
             final int endLine,
             final int charStart,

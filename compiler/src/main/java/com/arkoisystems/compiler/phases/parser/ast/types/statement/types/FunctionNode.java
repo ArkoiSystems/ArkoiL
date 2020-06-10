@@ -27,6 +27,7 @@ import com.arkoisystems.compiler.phases.parser.Parser;
 import com.arkoisystems.compiler.phases.parser.ParserErrorType;
 import com.arkoisystems.compiler.phases.parser.SymbolTable;
 import com.arkoisystems.compiler.phases.parser.ast.DataKind;
+import com.arkoisystems.compiler.phases.parser.ast.ParserNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.BlockNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.TypeNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.OperableNode;
@@ -47,7 +48,7 @@ import java.util.Objects;
 public class FunctionNode extends StatementNode
 {
     
-    public static FunctionNode GLOBAL_NODE = new FunctionNode(null, null, null, null, null, null, null, null);
+    public static FunctionNode GLOBAL_NODE = new FunctionNode(null, null, null, null, null, null, null, null, null);
     
     @Printable(name = "name")
     @Nullable
@@ -66,16 +67,17 @@ public class FunctionNode extends StatementNode
     
     @Builder
     protected FunctionNode(
-            final @Nullable Parser parser,
-            final @Nullable SymbolTable currentScope,
-            final @Nullable ParameterListNode parameters,
-            final @Nullable IdentifierToken name,
-            final @Nullable TypeNode returnType,
-            final @Nullable BlockNode blockNode,
-            final @Nullable LexerToken startToken,
-            final @Nullable LexerToken endToken
+            @Nullable final Parser parser,
+            @Nullable final ParserNode parentNode,
+            @Nullable final SymbolTable currentScope,
+            @Nullable final ParameterListNode parameters,
+            @Nullable final IdentifierToken name,
+            @Nullable final TypeNode returnType,
+            @Nullable final BlockNode blockNode,
+            @Nullable final LexerToken startToken,
+            @Nullable final LexerToken endToken
     ) {
-        super(parser, currentScope, startToken, endToken);
+        super(parser, parentNode, currentScope, startToken, endToken);
     
         this.parameters = parameters;
         this.returnType = returnType;
@@ -145,6 +147,7 @@ public class FunctionNode extends StatementNode
         this.getParser().nextToken();
         
         final ParameterListNode parameterListNode = ParameterListNode.builder()
+                .parentNode(this)
                 .currentScope(this.getCurrentScope())
                 .parser(this.getParser())
                 .build()
@@ -177,6 +180,7 @@ public class FunctionNode extends StatementNode
             this.getParser().nextToken();
     
             final TypeNode typeNodeAST = TypeNode.builder()
+                    .parentNode(this)
                     .currentScope(this.getCurrentScope())
                     .parser(this.getParser())
                     .build()
@@ -193,6 +197,7 @@ public class FunctionNode extends StatementNode
             this.getParser().nextToken();
     
             final BlockNode blockNodeAST = BlockNode.builder()
+                    .parentNode(this)
                     .currentScope(this.getCurrentScope())
                     .parser(this.getParser())
                     .build()
@@ -210,12 +215,12 @@ public class FunctionNode extends StatementNode
     }
     
     @Override
-    public boolean canParse(final @NotNull Parser parser, final int offset) {
+    public boolean canParse(@NotNull final Parser parser, final int offset) {
         return parser.matchesPeekToken(offset, KeywordType.FUN) != null;
     }
     
     @Override
-    public void accept(final @NotNull IVisitor<?> visitor) {
+    public void accept(@NotNull final IVisitor<?> visitor) {
         visitor.visit(this);
     }
     
@@ -228,15 +233,15 @@ public class FunctionNode extends StatementNode
         return this.getBlockNode().getTypeNode();
     }
     
-    public boolean equalsToFunction(final @NotNull FunctionNode functionNode) {
+    public boolean equalsToFunction(@NotNull final FunctionNode functionNode) {
         Objects.requireNonNull(this.getParameters(), "identifierNode.parameters must not be null.");
         Objects.requireNonNull(this.getName(), "name must not be null.");
         Objects.requireNonNull(functionNode.getParameters(), "functionNode.parameters must not be null.");
         Objects.requireNonNull(functionNode.getName(), "functionNode.name must not be null.");
-    
+        
         if (!functionNode.getName().getTokenContent().equals(this.getName().getTokenContent()))
             return false;
-    
+        
         for (int index = 0; index < this.getParameters().getParameters().size(); index++) {
             if (index >= functionNode.getParameters().getParameters().size())
                 return false;
@@ -250,17 +255,17 @@ public class FunctionNode extends StatementNode
         return true;
     }
     
-    public boolean equalsToIdentifier(final @NotNull IdentifierNode identifierNode) {
+    public boolean equalsToIdentifier(@NotNull final IdentifierNode identifierNode) {
         if (!identifierNode.isFunctionCall())
             return false;
-    
+        
         Objects.requireNonNull(this.getParameters(), "parameters must not be null.");
         Objects.requireNonNull(this.getName(), "name must not be null.");
         Objects.requireNonNull(identifierNode.getIdentifier(), "identifierNode.identifier must not be null.");
-    
+        
         if (!identifierNode.getIdentifier().getTokenContent().equals(this.getName().getTokenContent()))
             return false;
-    
+        
         Objects.requireNonNull(identifierNode.getExpressions(), "identifierNode.expressions must not be null.");
         for (int index = 0; index < this.getParameters().getParameters().size(); index++) {
             final ParameterNode parameterNode = this.getParameters().getParameters().get(index);

@@ -48,7 +48,7 @@ import java.util.stream.Collectors;
 public class BlockNode extends ParserNode
 {
     
-    public static BlockNode GLOBAL_NODE = new BlockNode(null, null, false, null, null);
+    public static BlockNode GLOBAL_NODE = new BlockNode(null, null, null, false, null, null);
     
     @Printable(name = "nodes")
     @NotNull
@@ -59,13 +59,14 @@ public class BlockNode extends ParserNode
     
     @Builder
     protected BlockNode(
-            final @Nullable Parser parser,
-            final @Nullable SymbolTable currentScope,
+            @Nullable final Parser parser,
+            @Nullable final ParserNode parentNode,
+            @Nullable final SymbolTable currentScope,
             final boolean isInlined,
-            final @Nullable LexerToken startToken,
-            final @Nullable LexerToken endToken
+            @Nullable final LexerToken startToken,
+            @Nullable final LexerToken endToken
     ) {
-        super(parser, currentScope, startToken, endToken);
+        super(parser, parentNode, currentScope, startToken, endToken);
         
         this.nodes = new ArrayList<>();
         this.isInlined = isInlined;
@@ -140,6 +141,7 @@ public class BlockNode extends ParserNode
                 variableNode.setLocal(true);
             }
     
+            astNode.setParentNode(this);
             astNode.setParser(this.getParser());
             astNode = astNode.parse();
     
@@ -187,6 +189,7 @@ public class BlockNode extends ParserNode
         }
     
         this.getNodes().add(ReturnNode.builder()
+                .parentNode(this)
                 .parser(operableNode.getParser())
                 .currentScope(operableNode.getCurrentScope())
                 .expression(operableNode)
@@ -196,13 +199,13 @@ public class BlockNode extends ParserNode
     }
     
     @Override
-    public boolean canParse(final @NotNull Parser parser, final int offset) {
+    public boolean canParse(@NotNull final Parser parser, final int offset) {
         return parser.matchesPeekToken(offset, OperatorType.EQUALS) != null ||
                 parser.matchesPeekToken(offset, SymbolType.OPENING_BRACE) != null;
     }
     
     @Override
-    public void accept(final @NotNull IVisitor<?> visitor) {
+    public void accept(@NotNull final IVisitor<?> visitor) {
         visitor.visit(this);
     }
     
@@ -224,6 +227,7 @@ public class BlockNode extends ParserNode
             
             if (returns.size() == 0) {
                 typeNode = TypeNode.builder()
+                        .parentNode(this)
                         .currentScope(this.getCurrentScope())
                         .parser(this.getParser())
                         .dataKind(DataKind.VOID)
@@ -231,6 +235,7 @@ public class BlockNode extends ParserNode
                         .endToken(this.getEndToken())
                         .build();
                 this.getNodes().add(ReturnNode.builder()
+                        .parentNode(this)
                         .currentScope(this.getCurrentScope())
                         .parser(this.getParser())
                         .startToken(this.getStartToken())

@@ -48,6 +48,10 @@ public class ParserNode implements Cloneable
     @Nullable
     private SymbolTable currentScope;
     
+    @Setter
+    @Nullable
+    private ParserNode parentNode;
+    
     @Nullable
     private LineRange lineRange;
     
@@ -60,12 +64,14 @@ public class ParserNode implements Cloneable
     private int startLine;
     
     protected ParserNode(
-            final @Nullable Parser parser,
-            final @Nullable SymbolTable currentScope,
-            final @Nullable LexerToken startToken,
-            final @Nullable LexerToken endToken
+            @Nullable final Parser parser,
+            @Nullable final ParserNode parentNode,
+            @Nullable final SymbolTable currentScope,
+            @Nullable final LexerToken startToken,
+            @Nullable final LexerToken endToken
     ) {
         this.currentScope = currentScope;
+        this.parentNode = parentNode;
         this.parser = parser;
         
         this.startToken = startToken;
@@ -80,11 +86,11 @@ public class ParserNode implements Cloneable
         throw new NullPointerException("Not implemented.");
     }
     
-    public void accept(final @NotNull IVisitor<?> visitor) {
+    public void accept(@NotNull final IVisitor<?> visitor) {
         throw new NullPointerException("Not implemented.");
     }
     
-    public boolean canParse(final @NotNull Parser parser, final int offset) {
+    public boolean canParse(@NotNull final Parser parser, final int offset) {
         throw new NullPointerException("Not implemented.");
     }
     
@@ -105,7 +111,7 @@ public class ParserNode implements Cloneable
         return (ParserNode) super.clone();
     }
     
-    public void startAST(final @Nullable LexerToken token) {
+    public void startAST(@Nullable final LexerToken token) {
         if (token == null)
             return;
         
@@ -113,7 +119,7 @@ public class ParserNode implements Cloneable
         this.startLine = token.getLineRange().getStartLine();
     }
     
-    public void endAST(final @Nullable LexerToken token) {
+    public void endAST(@Nullable final LexerToken token) {
         if (token == null)
             return;
         
@@ -128,10 +134,10 @@ public class ParserNode implements Cloneable
     }
     
     public <E> E addError(
-            final @Nullable E errorSource,
-            final @NotNull CompilerClass compilerClass,
-            final @Nullable LexerToken lexerToken,
-            final @NotNull String causeMessage
+            @Nullable final E errorSource,
+            @NotNull final CompilerClass compilerClass,
+            @Nullable final LexerToken lexerToken,
+            @NotNull final String causeMessage
     ) {
         final LineRange lineRange;
         final CompilerClass tokenClass;
@@ -165,33 +171,26 @@ public class ParserNode implements Cloneable
         return errorSource;
     }
     
-    //    protected void skipToNextValidToken() {
-    //        this.setFailed(true);
-    //        Objects.requireNonNull(this.getParser(), "parser must not be null.");
-    //
-    //        int openBraces = 0;
-    //        while (this.getParser().getPosition() < this.getParser().getTokens().length) {
-    //            if (this.getParser().matchesCurrentToken(SymbolType.OPENING_BRACE) != null)
-    //                openBraces++;
-    //            else if (this.getParser().matchesCurrentToken(SymbolType.CLOSING_BRACE) != null) {
-    //                openBraces--;
-    //                if (openBraces <= 0) {
-    //                    this.getParser().nextToken();
-    //                    break;
-    //                }
-    //            }
-    //            this.getParser().nextToken();
-    //        }
-    //    }
+    @Nullable
+    public <T extends ParserNode> T getParent(@NotNull Class<T> clazz) {
+        if (this.getParentNode() == null)
+            return null;
+        
+        if (this.getParentNode().getClass().equals(clazz))
+            return (T) this.getParentNode();
+        return this.getParentNode().getParent(clazz);
+    }
     
     @SafeVarargs
     @Nullable
-    public final <T extends ParserNode> T getValidNode(final @NotNull T... nodes) {
+    public final <T extends ParserNode> T getValidNode(@NotNull final T... nodes) {
         Objects.requireNonNull(this.getParser(), "parser must not be null");
         
-        for (final T node : nodes)
+        for (final T node : nodes) {
             if (node.canParse(this.getParser(), 0))
                 return node;
+        }
+        
         return null;
     }
     

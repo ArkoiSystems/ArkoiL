@@ -60,40 +60,40 @@ public class TypeVisitor implements IVisitor<DataKind>
     
     @NotNull
     @Override
-    public DataKind visit(final @NotNull TypeNode typeNode) {
+    public DataKind visit(@NotNull final TypeNode typeNode) {
         return typeNode.getDataKind();
     }
     
     @NotNull
     @Override
-    public DataKind visit(final @NotNull RootNode rootNode) {
+    public DataKind visit(@NotNull final RootNode rootNode) {
         rootNode.getNodes().forEach(this::visit);
         return DataKind.UNDEFINED;
     }
     
     @NotNull
     @Override
-    public DataKind visit(final @NotNull ParameterListNode parameterListNode) {
+    public DataKind visit(@NotNull final ParameterListNode parameterListNode) {
         parameterListNode.getParameters().forEach(this::visit);
         return DataKind.UNDEFINED;
     }
     
     @NotNull
     @Override
-    public DataKind visit(final @NotNull ParameterNode parameter) {
+    public DataKind visit(@NotNull final ParameterNode parameter) {
         return parameter.getTypeNode().getDataKind();
     }
     
     @NotNull
     @Override
-    public DataKind visit(final @NotNull BlockNode blockNode) {
+    public DataKind visit(@NotNull final BlockNode blockNode) {
         blockNode.getNodes().forEach(this::visit);
         return blockNode.getTypeNode().getDataKind();
     }
     
     @NotNull
     @Override
-    public DataKind visit(final @NotNull FunctionNode functionNode) {
+    public DataKind visit(@NotNull final FunctionNode functionNode) {
         Objects.requireNonNull(functionNode.getParser(), "functionNode.parser must not be null.");
         Objects.requireNonNull(functionNode.getParameters(), "functionNode.parameters must not be null.");
         
@@ -120,13 +120,13 @@ public class TypeVisitor implements IVisitor<DataKind>
     
     @NotNull
     @Override
-    public DataKind visit(final @NotNull ImportNode importNode) {
+    public DataKind visit(@NotNull final ImportNode importNode) {
         return DataKind.UNDEFINED;
     }
     
     @NotNull
     @Override
-    public DataKind visit(final @NotNull ReturnNode returnNode) {
+    public DataKind visit(@NotNull final ReturnNode returnNode) {
         if (returnNode.getExpression() != null && this.visit(returnNode.getExpression()) == DataKind.ERROR)
             return DataKind.ERROR;
         return returnNode.getTypeNode().getDataKind();
@@ -134,7 +134,7 @@ public class TypeVisitor implements IVisitor<DataKind>
     
     @NotNull
     @Override
-    public DataKind visit(final @NotNull VariableNode variableNode) {
+    public DataKind visit(@NotNull final VariableNode variableNode) {
         Objects.requireNonNull(variableNode.getParser(), "variableNode.parser must not be null.");
         
         if (variableNode.getExpression() == null && variableNode.isConstant())
@@ -174,19 +174,19 @@ public class TypeVisitor implements IVisitor<DataKind>
     
     @NotNull
     @Override
-    public DataKind visit(final @NotNull StringNode stringNode) {
+    public DataKind visit(@NotNull final StringNode stringNode) {
         return stringNode.getTypeNode().getDataKind();
     }
     
     @NotNull
     @Override
-    public DataKind visit(final @NotNull NumberNode numberNode) {
+    public DataKind visit(@NotNull final NumberNode numberNode) {
         return numberNode.getTypeNode().getDataKind();
     }
     
     @NotNull
     @Override
-    public DataKind visit(final @NotNull IdentifierNode identifierNode) {
+    public DataKind visit(@NotNull final IdentifierNode identifierNode) {
         if (identifierNode.isFunctionCall()) {
             Objects.requireNonNull(identifierNode.getExpressions(), "identifierOperable.expressionList must not be null.");
             this.visit(identifierNode.getExpressions());
@@ -195,14 +195,14 @@ public class TypeVisitor implements IVisitor<DataKind>
     }
     
     @Override
-    public DataKind visit(final @NotNull ExpressionListNode expressionListNode) {
+    public DataKind visit(@NotNull final ExpressionListNode expressionListNode) {
         expressionListNode.getExpressions().forEach(this::visit);
         return DataKind.UNDEFINED;
     }
     
     @Nullable
     @Override
-    public DataKind visit(final @NotNull AssignmentNode assignmentNode) {
+    public DataKind visit(@NotNull final AssignmentNode assignmentNode) {
         Objects.requireNonNull(assignmentNode.getLeftHandSide(), "assignmentExpression.leftSideOperable must not be null.");
         Objects.requireNonNull(assignmentNode.getRightHandSide(), "assignmentExpression.rightSideOperable must not be null.");
         Objects.requireNonNull(assignmentNode.getParser(), "assignmentExpression.parser must not be null.");
@@ -236,7 +236,7 @@ public class TypeVisitor implements IVisitor<DataKind>
     
     @Nullable
     @Override
-    public DataKind visit(final @NotNull BinaryNode binaryNode) {
+    public DataKind visit(@NotNull final BinaryNode binaryNode) {
         Objects.requireNonNull(binaryNode.getLeftHandSide(), "binaryExpressionNode.leftSideOperable must not be null.");
         Objects.requireNonNull(binaryNode.getRightHandSide(), "binaryExpressionNode.rightSideOperable must not be null.");
         Objects.requireNonNull(binaryNode.getOperatorType(), "binaryExpressionNode.binaryOperatorType must not be null.");
@@ -276,7 +276,7 @@ public class TypeVisitor implements IVisitor<DataKind>
     
     @NotNull
     @Override
-    public DataKind visit(final @NotNull ParenthesizedNode parenthesizedNode) {
+    public DataKind visit(@NotNull final ParenthesizedNode parenthesizedNode) {
         Objects.requireNonNull(parenthesizedNode.getExpression(), "parenthesizedExpressionNode.expression must not be null.");
         if (this.visit(parenthesizedNode.getExpression()) == DataKind.ERROR)
             return DataKind.ERROR;
@@ -285,7 +285,7 @@ public class TypeVisitor implements IVisitor<DataKind>
     
     @Nullable
     @Override
-    public DataKind visit(final @NotNull PostfixNode postfixNode) {
+    public DataKind visit(@NotNull final PostfixNode postfixNode) {
         Objects.requireNonNull(postfixNode.getLeftHandSide(), "postfixExpressionNode.leftSideOperable must not be null.");
         Objects.requireNonNull(postfixNode.getParser(), "postfixExpressionNode.parser must not be null.");
         
@@ -306,7 +306,7 @@ public class TypeVisitor implements IVisitor<DataKind>
     
     @Nullable
     @Override
-    public DataKind visit(final @NotNull PrefixNode prefixNode) {
+    public DataKind visit(@NotNull final PrefixNode prefixNode) {
         Objects.requireNonNull(prefixNode.getRightHandSide(), "prefixExpressionNode.rightSideOperable must not be null.");
         Objects.requireNonNull(prefixNode.getOperatorType(), "prefixExpressionNode.prefixOperatorType must not be null.");
         Objects.requireNonNull(prefixNode.getParser(), "prefixExpressionNode.parser must not be null.");
@@ -327,10 +327,10 @@ public class TypeVisitor implements IVisitor<DataKind>
     }
     
     public <E> E addError(
-            final @Nullable E errorSource,
-            final @NotNull CompilerClass compilerClass,
-            final @NotNull ParserNode astNode,
-            final @NotNull String causeMessage
+            @Nullable final E errorSource,
+            @NotNull final CompilerClass compilerClass,
+            @NotNull final ParserNode astNode,
+            @NotNull final String causeMessage
     ) {
         compilerClass.getCompiler().getErrorHandler().addError(CompilerError.builder()
                 .causePosition(ErrorPosition.builder()

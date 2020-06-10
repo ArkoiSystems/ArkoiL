@@ -48,14 +48,14 @@ public class Compiler
     @NotNull
     private final String outputPath;
     
-    public Compiler(final @NotNull String outputPath) {
+    public Compiler(@NotNull final String outputPath) {
         this.outputPath = outputPath;
-        
+    
         this.getLibraryPaths().add(new File("../natives"));
         this.errorHandler = new ErrorHandler();
     }
     
-    public void addFile(final @NotNull File file) {
+    public void addFile(@NotNull final File file) {
         this.getClasses().add(new CompilerClass(this, file));
     }
     

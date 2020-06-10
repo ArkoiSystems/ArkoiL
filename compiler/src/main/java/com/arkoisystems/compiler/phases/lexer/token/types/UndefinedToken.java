@@ -60,7 +60,7 @@ public class UndefinedToken extends LexerToken
     }
     
     public UndefinedToken(
-            final @NotNull Lexer lexer,
+            @NotNull final Lexer lexer,
             final int startLine,
             final int endLine,
             final int charStart,

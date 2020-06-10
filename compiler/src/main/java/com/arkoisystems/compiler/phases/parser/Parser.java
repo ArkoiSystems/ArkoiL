@@ -52,7 +52,7 @@ public class Parser
     
     private int position;
     
-    public Parser(final @NotNull CompilerClass compilerClass) {
+    public Parser(@NotNull final CompilerClass compilerClass) {
         this.compilerClass = compilerClass;
     
         this.rootNode = RootNode.builder()
@@ -69,12 +69,12 @@ public class Parser
     }
     
     @Nullable
-    public SymbolToken matchesCurrentToken(final @NotNull SymbolType symbolType) {
+    public SymbolToken matchesCurrentToken(@NotNull final SymbolType symbolType) {
         return this.matchesCurrentToken(symbolType, true);
     }
     
     @Nullable
-    public SymbolToken matchesCurrentToken(final @NotNull SymbolType symbolType, final boolean advance) {
+    public SymbolToken matchesCurrentToken(@NotNull final SymbolType symbolType, final boolean advance) {
         final LexerToken currentToken = this.currentToken(advance);
         if (!(currentToken instanceof SymbolToken))
             return null;
@@ -86,12 +86,12 @@ public class Parser
     }
     
     @Nullable
-    public SymbolToken matchesNextToken(final @NotNull SymbolType symbolType) {
+    public SymbolToken matchesNextToken(@NotNull final SymbolType symbolType) {
         return this.matchesNextToken(symbolType, true);
     }
     
     @Nullable
-    public SymbolToken matchesNextToken(final @NotNull SymbolType symbolType, final boolean advance) {
+    public SymbolToken matchesNextToken(@NotNull final SymbolType symbolType, final boolean advance) {
         final LexerToken nextToken = this.nextToken(advance);
         if (!(nextToken instanceof SymbolToken))
             return null;
@@ -103,12 +103,12 @@ public class Parser
     }
     
     @Nullable
-    public SymbolToken matchesPeekToken(final int offset, final @NotNull SymbolType symbolType) {
+    public SymbolToken matchesPeekToken(final int offset, @NotNull final SymbolType symbolType) {
         return this.matchesPeekToken(offset, symbolType, true);
     }
     
     @Nullable
-    public SymbolToken matchesPeekToken(final int offset, final @NotNull SymbolType symbolType, final boolean advance) {
+    public SymbolToken matchesPeekToken(final int offset, @NotNull final SymbolType symbolType, final boolean advance) {
         if (offset == 0)
             return this.matchesCurrentToken(symbolType, advance);
         
@@ -123,12 +123,12 @@ public class Parser
     }
     
     @Nullable
-    public OperatorToken matchesCurrentToken(final @NotNull OperatorType operatorType) {
+    public OperatorToken matchesCurrentToken(@NotNull final OperatorType operatorType) {
         return this.matchesCurrentToken(operatorType, true);
     }
     
     @Nullable
-    public OperatorToken matchesCurrentToken(final @NotNull OperatorType operatorType, final boolean advance) {
+    public OperatorToken matchesCurrentToken(@NotNull final OperatorType operatorType, final boolean advance) {
         final LexerToken currentToken = this.currentToken(advance);
         if (!(currentToken instanceof OperatorToken))
             return null;
@@ -140,12 +140,12 @@ public class Parser
     }
     
     @Nullable
-    public OperatorToken matchesNextToken(final @NotNull OperatorType operatorType) {
+    public OperatorToken matchesNextToken(@NotNull final OperatorType operatorType) {
         return this.matchesNextToken(operatorType, true);
     }
     
     @Nullable
-    public OperatorToken matchesNextToken(final @NotNull OperatorType operatorType, final boolean advance) {
+    public OperatorToken matchesNextToken(@NotNull final OperatorType operatorType, final boolean advance) {
         final LexerToken nextToken = this.nextToken(advance);
         if (!(nextToken instanceof OperatorToken))
             return null;
@@ -157,12 +157,12 @@ public class Parser
     }
     
     @Nullable
-    public OperatorToken matchesPeekToken(final int offset, final @NotNull OperatorType operatorType) {
+    public OperatorToken matchesPeekToken(final int offset, @NotNull final OperatorType operatorType) {
         return this.matchesPeekToken(offset, operatorType, true);
     }
     
     @Nullable
-    public OperatorToken matchesPeekToken(final int offset, final @NotNull OperatorType operatorType, final boolean advance) {
+    public OperatorToken matchesPeekToken(final int offset, @NotNull final OperatorType operatorType, final boolean advance) {
         if (offset == 0)
             return this.matchesCurrentToken(operatorType, advance);
         
@@ -177,12 +177,12 @@ public class Parser
     }
     
     @Nullable
-    public KeywordToken matchesCurrentToken(final @NotNull KeywordType keywordType) {
+    public KeywordToken matchesCurrentToken(@NotNull final KeywordType keywordType) {
         return this.matchesCurrentToken(keywordType, true);
     }
     
     @Nullable
-    public KeywordToken matchesCurrentToken(final @NotNull KeywordType keywordType, final boolean advance) {
+    public KeywordToken matchesCurrentToken(@NotNull final KeywordType keywordType, final boolean advance) {
         final LexerToken currentToken = this.currentToken(advance);
         if (!(currentToken instanceof KeywordToken))
             return null;
@@ -194,12 +194,12 @@ public class Parser
     }
     
     @Nullable
-    public KeywordToken matchesNextToken(final @NotNull KeywordType keywordType) {
+    public KeywordToken matchesNextToken(@NotNull final KeywordType keywordType) {
         return this.matchesNextToken(keywordType, true);
     }
     
     @Nullable
-    public KeywordToken matchesNextToken(final @NotNull KeywordType keywordType, final boolean advance) {
+    public KeywordToken matchesNextToken(@NotNull final KeywordType keywordType, final boolean advance) {
         final LexerToken nextToken = this.nextToken(advance);
         if (!(nextToken instanceof KeywordToken))
             return null;
@@ -211,12 +211,12 @@ public class Parser
     }
     
     @Nullable
-    public KeywordToken matchesPeekToken(final int offset, final @NotNull KeywordType keywordType) {
+    public KeywordToken matchesPeekToken(final int offset, @NotNull final KeywordType keywordType) {
         return this.matchesPeekToken(offset, keywordType, true);
     }
     
     @Nullable
-    public KeywordToken matchesPeekToken(final int offset, final @NotNull KeywordType keywordType, final boolean advance) {
+    public KeywordToken matchesPeekToken(final int offset, @NotNull final KeywordType keywordType, final boolean advance) {
         if (offset == 0)
             return this.matchesCurrentToken(keywordType, advance);
         
@@ -231,12 +231,12 @@ public class Parser
     }
     
     @Nullable
-    public LexerToken matchesCurrentToken(final @NotNull TokenType tokenType) {
+    public LexerToken matchesCurrentToken(@NotNull final TokenType tokenType) {
         return this.matchesCurrentToken(tokenType, true);
     }
     
     @Nullable
-    public LexerToken matchesCurrentToken(final @NotNull TokenType tokenType, final boolean advance) {
+    public LexerToken matchesCurrentToken(@NotNull final TokenType tokenType, final boolean advance) {
         final LexerToken currentToken = this.currentToken(advance);
         if (currentToken == null || currentToken.getTokenType() != tokenType)
             return null;
@@ -244,12 +244,12 @@ public class Parser
     }
     
     @Nullable
-    public LexerToken matchesNextToken(final @NotNull TokenType tokenType) {
+    public LexerToken matchesNextToken(@NotNull final TokenType tokenType) {
         return this.matchesNextToken(tokenType, true);
     }
     
     @Nullable
-    public LexerToken matchesNextToken(final @NotNull TokenType tokenType, final boolean advance) {
+    public LexerToken matchesNextToken(@NotNull final TokenType tokenType, final boolean advance) {
         final LexerToken nextToken = this.nextToken(advance);
         if (nextToken == null)
             return null;
@@ -259,12 +259,12 @@ public class Parser
     }
     
     @Nullable
-    public LexerToken matchesPeekToken(final int offset, final @NotNull TokenType tokenType) {
+    public LexerToken matchesPeekToken(final int offset, @NotNull final TokenType tokenType) {
         return this.matchesPeekToken(offset, tokenType, true);
     }
     
     @Nullable
-    public LexerToken matchesPeekToken(final int offset, final @NotNull TokenType tokenType, final boolean advance) {
+    public LexerToken matchesPeekToken(final int offset, @NotNull final TokenType tokenType, final boolean advance) {
         if (offset == 0)
             return this.matchesCurrentToken(tokenType, advance);
         

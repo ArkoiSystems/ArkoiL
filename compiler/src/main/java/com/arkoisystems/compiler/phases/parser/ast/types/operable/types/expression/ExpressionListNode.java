@@ -40,7 +40,7 @@ import java.util.Objects;
 public class ExpressionListNode extends ParserNode
 {
     
-    public static ExpressionListNode GLOBAL_NODE = new ExpressionListNode(null, null, null, null);
+    public static ExpressionListNode GLOBAL_NODE = new ExpressionListNode(null, null, null, null, null);
     
     @Printable(name = "expressions")
     @NotNull
@@ -48,12 +48,13 @@ public class ExpressionListNode extends ParserNode
     
     @Builder
     protected ExpressionListNode(
-            final @Nullable Parser parser,
-            final @Nullable SymbolTable currentScope,
-            final @Nullable LexerToken startToken,
-            final @Nullable LexerToken endToken
+            @Nullable final Parser parser,
+            @Nullable final ParserNode parentNode,
+            @Nullable final SymbolTable currentScope,
+            @Nullable final LexerToken startToken,
+            @Nullable final LexerToken endToken
     ) {
-        super(parser, currentScope, startToken, endToken);
+        super(parser, parentNode, currentScope, startToken, endToken);
         
         this.expressions = new ArrayList<>();
     }
@@ -124,12 +125,12 @@ public class ExpressionListNode extends ParserNode
     }
     
     @Override
-    public boolean canParse(final @NotNull Parser parser, final int offset) {
+    public boolean canParse(@NotNull final Parser parser, final int offset) {
         return parser.matchesPeekToken(offset, SymbolType.OPENING_PARENTHESIS) != null;
     }
     
     @Override
-    public void accept(final @NotNull IVisitor<?> visitor) {
+    public void accept(@NotNull final IVisitor<?> visitor) {
         visitor.visit(this);
     }
     

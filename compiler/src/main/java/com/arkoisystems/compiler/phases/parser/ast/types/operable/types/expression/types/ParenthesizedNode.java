@@ -23,6 +23,7 @@ import com.arkoisystems.compiler.phases.lexer.token.enums.SymbolType;
 import com.arkoisystems.compiler.phases.parser.Parser;
 import com.arkoisystems.compiler.phases.parser.ParserErrorType;
 import com.arkoisystems.compiler.phases.parser.SymbolTable;
+import com.arkoisystems.compiler.phases.parser.ast.ParserNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.TypeNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.OperableNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expression.ExpressionNode;
@@ -39,7 +40,7 @@ import java.util.Objects;
 public class ParenthesizedNode extends ExpressionNode
 {
     
-    public static ParenthesizedNode GLOBAL_NODE = new ParenthesizedNode(null, null, null, null, null);
+    public static ParenthesizedNode GLOBAL_NODE = new ParenthesizedNode(null, null, null, null, null, null);
     
     @Printable(name = "expression")
     @Nullable
@@ -48,12 +49,13 @@ public class ParenthesizedNode extends ExpressionNode
     @Builder
     protected ParenthesizedNode(
             final @Nullable Parser parser,
+            @Nullable final ParserNode parentNode,
             final @Nullable SymbolTable currentScope,
             final @Nullable OperableNode expression,
             final @Nullable LexerToken startToken,
             final @Nullable LexerToken endToken
     ) {
-        super(parser, currentScope, startToken, endToken);
+        super(parser, parentNode, currentScope, startToken, endToken);
         
         this.expression = expression;
     }

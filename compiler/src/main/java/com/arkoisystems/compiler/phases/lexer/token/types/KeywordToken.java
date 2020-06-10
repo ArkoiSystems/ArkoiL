@@ -39,7 +39,7 @@ public class KeywordToken extends LexerToken
     public KeywordToken(
             @NonNull
             @NotNull final Lexer lexer,
-            final @Nullable KeywordType keywordType,
+            @Nullable final KeywordType keywordType,
             final int startLine,
             final int endLine,
             final int charStart,
@@ -62,7 +62,7 @@ public class KeywordToken extends LexerToken
     }
     
     public KeywordToken(
-            final @NotNull Lexer lexer,
+            @NotNull final Lexer lexer,
             final int startLine,
             final int endLine,
             final int charStart,

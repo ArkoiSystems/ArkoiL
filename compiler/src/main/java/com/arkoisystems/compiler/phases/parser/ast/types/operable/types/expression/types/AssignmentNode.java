@@ -22,6 +22,7 @@ import com.arkoisystems.compiler.phases.lexer.token.LexerToken;
 import com.arkoisystems.compiler.phases.lexer.token.enums.OperatorType;
 import com.arkoisystems.compiler.phases.parser.Parser;
 import com.arkoisystems.compiler.phases.parser.SymbolTable;
+import com.arkoisystems.compiler.phases.parser.ast.ParserNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.TypeNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.OperableNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expression.ExpressionNode;
@@ -40,17 +41,17 @@ import java.util.Objects;
 public class AssignmentNode extends ExpressionNode
 {
     
-    public static AssignmentNode ASSIGN_GLOBAL_NODE = new AssignmentNode(null, null, AssignmentOperators.ASSIGN, null, null, null, null);
+    public static AssignmentNode ASSIGN_GLOBAL_NODE = new AssignmentNode(null, null, null, AssignmentOperators.ASSIGN, null, null, null, null);
     
-    public static AssignmentNode ADD_GLOBAL_NODE = new AssignmentNode(null, null, AssignmentOperators.ADD_ASSIGN, null, null, null, null);
+    public static AssignmentNode ADD_GLOBAL_NODE = new AssignmentNode(null, null, null, AssignmentOperators.ADD_ASSIGN, null, null, null, null);
     
-    public static AssignmentNode SUB_GLOBAL_NODE = new AssignmentNode(null, null, AssignmentOperators.SUB_ASSIGN, null, null, null, null);
+    public static AssignmentNode SUB_GLOBAL_NODE = new AssignmentNode(null, null, null, AssignmentOperators.SUB_ASSIGN, null, null, null, null);
     
-    public static AssignmentNode MUL_GLOBAL_NODE = new AssignmentNode(null, null, AssignmentOperators.MUL_ASSIGN, null, null, null, null);
+    public static AssignmentNode MUL_GLOBAL_NODE = new AssignmentNode(null, null, null, AssignmentOperators.MUL_ASSIGN, null, null, null, null);
     
-    public static AssignmentNode DIV_GLOBAL_NODE = new AssignmentNode(null, null, AssignmentOperators.DIV_ASSIGN, null, null, null, null);
+    public static AssignmentNode DIV_GLOBAL_NODE = new AssignmentNode(null, null, null, AssignmentOperators.DIV_ASSIGN, null, null, null, null);
     
-    public static AssignmentNode MOD_GLOBAL_NODE = new AssignmentNode(null, null, AssignmentOperators.MOD_ASSIGN, null, null, null, null);
+    public static AssignmentNode MOD_GLOBAL_NODE = new AssignmentNode(null, null, null, AssignmentOperators.MOD_ASSIGN, null, null, null, null);
     
     @Printable(name = "lhs")
     @Nullable
@@ -66,16 +67,17 @@ public class AssignmentNode extends ExpressionNode
     
     @Builder
     protected AssignmentNode(
-            final @Nullable Parser parser,
-            final @Nullable SymbolTable currentScope,
+            @Nullable final Parser parser,
+            @Nullable final ParserNode parentNode,
+            @Nullable final SymbolTable currentScope,
             @NonNull
             @NotNull final AssignmentOperators operatorType,
-            final @Nullable OperableNode rightHandSide,
-            final @Nullable OperableNode leftHandSide,
-            final @Nullable LexerToken startToken,
-            final @Nullable LexerToken endToken
+            @Nullable final OperableNode rightHandSide,
+            @Nullable final OperableNode leftHandSide,
+            @Nullable final LexerToken startToken,
+            @Nullable final LexerToken endToken
     ) {
-        super(parser, currentScope, startToken, endToken);
+        super(parser, parentNode, currentScope, startToken, endToken);
         
         this.rightHandSide = rightHandSide;
         this.operatorType = operatorType;
@@ -103,7 +105,7 @@ public class AssignmentNode extends ExpressionNode
     }
     
     @Override
-    public boolean canParse(final @NotNull Parser parser, final int offset) {
+    public boolean canParse(@NotNull final Parser parser, final int offset) {
         switch (this.getOperatorType()) {
             case ASSIGN:
                 return parser.matchesPeekToken(offset, OperatorType.EQUALS) != null;
@@ -123,7 +125,7 @@ public class AssignmentNode extends ExpressionNode
     }
     
     @Override
-    public void accept(final @NotNull IVisitor<?> visitor) {
+    public void accept(@NotNull final IVisitor<?> visitor) {
         visitor.visit(this);
     }
     

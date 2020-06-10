@@ -38,7 +38,7 @@ import org.jetbrains.annotations.NotNull;
 public interface IVisitor<T>
 {
     
-    default T visit(final @NotNull ParserNode astNode) {
+    default T visit(@NotNull final ParserNode astNode) {
         if (astNode instanceof IdentifierNode)
             return this.visit((IdentifierNode) astNode);
         else if (astNode instanceof TypeNode)
@@ -79,40 +79,40 @@ public interface IVisitor<T>
         throw new NullPointerException(astNode.getClass().getSimpleName() + ", " + astNode.getClass().getSimpleName());
     }
     
-    T visit(final @NotNull TypeNode typeNode);
+    T visit(@NotNull final TypeNode typeNode);
     
-    T visit(final @NotNull RootNode rootNode);
+    T visit(@NotNull final RootNode rootNode);
     
-    T visit(final @NotNull ParameterListNode parameterListNode);
+    T visit(@NotNull final ParameterListNode parameterListNode);
     
-    T visit(final @NotNull ParameterNode parameter);
+    T visit(@NotNull final ParameterNode parameter);
     
-    T visit(final @NotNull BlockNode blockNode);
+    T visit(@NotNull final BlockNode blockNode);
     
-    T visit(final @NotNull FunctionNode functionNode);
+    T visit(@NotNull final FunctionNode functionNode);
     
-    T visit(final @NotNull ImportNode importNode);
+    T visit(@NotNull final ImportNode importNode);
     
-    T visit(final @NotNull ReturnNode returnNode);
+    T visit(@NotNull final ReturnNode returnNode);
     
-    T visit(final @NotNull VariableNode variableNode);
+    T visit(@NotNull final VariableNode variableNode);
     
-    T visit(final @NotNull StringNode stringNode);
+    T visit(@NotNull final StringNode stringNode);
     
-    T visit(final @NotNull NumberNode numberNode);
+    T visit(@NotNull final NumberNode numberNode);
     
-    T visit(final @NotNull IdentifierNode identifierNode);
+    T visit(@NotNull final IdentifierNode identifierNode);
     
-    T visit(final @NotNull ExpressionListNode expressionListNode);
+    T visit(@NotNull final ExpressionListNode expressionListNode);
     
-    T visit(final @NotNull AssignmentNode assignmentNode);
+    T visit(@NotNull final AssignmentNode assignmentNode);
     
-    T visit(final @NotNull BinaryNode binaryNode);
+    T visit(@NotNull final BinaryNode binaryNode);
     
-    T visit(final @NotNull ParenthesizedNode parenthesizedNode);
+    T visit(@NotNull final ParenthesizedNode parenthesizedNode);
     
-    T visit(final @NotNull PostfixNode postfixNode);
+    T visit(@NotNull final PostfixNode postfixNode);
     
-    T visit(final @NotNull PrefixNode prefixNode);
+    T visit(@NotNull final PrefixNode prefixNode);
     
 }
