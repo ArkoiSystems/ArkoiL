@@ -66,14 +66,14 @@ public class CompilerClass
     private String content;
     
     @SneakyThrows
-    public CompilerClass(final @NotNull Compiler compiler, final @NotNull File file) {
+    public CompilerClass(@NotNull final Compiler compiler, @NotNull final File file) {
         this.compiler = compiler;
-        
+    
         this.name = file.getName().substring(0, file.getName().length() - 4);
         this.content = Files.readString(file.toPath());
         this.filePath = file.getCanonicalPath();
         this.isNative = false;
-        
+    
         this.irGenerator = new IRGenerator(this);
         this.rootScope = new SymbolTable(null);
         this.semantic = new Semantic(this);

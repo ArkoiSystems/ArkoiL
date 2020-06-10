@@ -22,6 +22,7 @@ import com.arkoisystems.compiler.phases.lexer.token.LexerToken;
 import com.arkoisystems.compiler.phases.lexer.token.enums.OperatorType;
 import com.arkoisystems.compiler.phases.parser.Parser;
 import com.arkoisystems.compiler.phases.parser.SymbolTable;
+import com.arkoisystems.compiler.phases.parser.ast.ParserNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.TypeNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.OperableNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expression.ExpressionNode;
@@ -40,11 +41,11 @@ import java.util.Objects;
 public class PrefixNode extends ExpressionNode
 {
     
-    public static PrefixNode ADD_GLOBAL_NODE = new PrefixNode(null, null, PrefixOperators.PREFIX_ADD, null, null, null);
+    public static PrefixNode ADD_GLOBAL_NODE = new PrefixNode(null, null, null, PrefixOperators.PREFIX_ADD, null, null, null);
     
-    public static PrefixNode SUB_GLOBAL_NODE = new PrefixNode(null, null, PrefixOperators.PREFIX_SUB, null, null, null);
+    public static PrefixNode SUB_GLOBAL_NODE = new PrefixNode(null, null, null, PrefixOperators.PREFIX_SUB, null, null, null);
     
-    public static PrefixNode NEGATE_GLOBAL_NODE = new PrefixNode(null, null, PrefixOperators.NEGATE, null, null, null);
+    public static PrefixNode NEGATE_GLOBAL_NODE = new PrefixNode(null, null, null, PrefixOperators.NEGATE, null, null, null);
     
     @Printable(name = "operation")
     @NotNull
@@ -56,15 +57,16 @@ public class PrefixNode extends ExpressionNode
     
     @Builder
     protected PrefixNode(
-            final @Nullable Parser parser,
-            final @Nullable SymbolTable currentScope,
+            @Nullable final Parser parser,
+            @Nullable final ParserNode parentNode,
+            @Nullable final SymbolTable currentScope,
             @NonNull
             @NotNull final PrefixOperators operatorType,
-            final @Nullable OperableNode rightHandSide,
-            final @Nullable LexerToken startToken,
-            final @Nullable LexerToken endToken
+            @Nullable final OperableNode rightHandSide,
+            @Nullable final LexerToken startToken,
+            @Nullable final LexerToken endToken
     ) {
-        super(parser, currentScope, startToken, endToken);
+        super(parser, parentNode, currentScope, startToken, endToken);
         
         this.rightHandSide = rightHandSide;
         this.operatorType = operatorType;
@@ -90,7 +92,7 @@ public class PrefixNode extends ExpressionNode
     }
     
     @Override
-    public boolean canParse(final @NotNull Parser parser, final int offset) {
+    public boolean canParse(@NotNull final Parser parser, final int offset) {
         switch (this.getOperatorType()) {
             case PREFIX_ADD:
                 return parser.matchesCurrentToken(OperatorType.PLUS_PLUS) != null;
@@ -104,7 +106,7 @@ public class PrefixNode extends ExpressionNode
     }
     
     @Override
-    public void accept(final @NotNull IVisitor<?> visitor) {
+    public void accept(@NotNull final IVisitor<?> visitor) {
         visitor.visit(this);
     }
     

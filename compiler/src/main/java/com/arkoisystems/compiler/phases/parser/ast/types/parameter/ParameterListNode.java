@@ -40,7 +40,7 @@ import java.util.Objects;
 public class ParameterListNode extends ParserNode
 {
     
-    public static ParameterListNode GLOBAL_NODE = new ParameterListNode(null, null, null, null);
+    public static ParameterListNode GLOBAL_NODE = new ParameterListNode(null, null, null, null, null);
     
     @Printable(name = "parameters")
     @NotNull
@@ -51,12 +51,13 @@ public class ParameterListNode extends ParserNode
     
     @Builder
     protected ParameterListNode(
-            final @Nullable Parser parser,
-            final @Nullable SymbolTable currentScope,
-            final @Nullable LexerToken startToken,
-            final @Nullable LexerToken endToken
+            @Nullable final Parser parser,
+            @Nullable final ParserNode parentNode,
+            @Nullable final SymbolTable currentScope,
+            @Nullable final LexerToken startToken,
+            @Nullable final LexerToken endToken
     ) {
-        super(parser, currentScope, startToken, endToken);
+        super(parser, parentNode, currentScope, startToken, endToken);
         
         this.parameters = new ArrayList<>();
     }
@@ -89,6 +90,7 @@ public class ParameterListNode extends ParserNode
                 break;
     
             final ParameterNode parameterAST = ParameterNode.builder()
+                    .parentNode(this)
                     .currentScope(this.getCurrentScope())
                     .parser(this.getParser())
                     .build()
@@ -131,12 +133,12 @@ public class ParameterListNode extends ParserNode
     }
     
     @Override
-    public boolean canParse(final @NotNull Parser parser, final int offset) {
+    public boolean canParse(@NotNull final Parser parser, final int offset) {
         return parser.matchesPeekToken(offset, SymbolType.OPENING_PARENTHESIS) != null;
     }
     
     @Override
-    public void accept(final @NotNull IVisitor<?> visitor) {
+    public void accept(@NotNull final IVisitor<?> visitor) {
         visitor.visit(this);
     }
     

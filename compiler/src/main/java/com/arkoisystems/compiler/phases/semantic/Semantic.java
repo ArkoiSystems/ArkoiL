@@ -37,7 +37,7 @@ public class Semantic
     @Setter
     private boolean failed;
     
-    public Semantic(final @NotNull CompilerClass compilerClass) {
+    public Semantic(@NotNull final CompilerClass compilerClass) {
         this.compilerClass = compilerClass;
     }
     

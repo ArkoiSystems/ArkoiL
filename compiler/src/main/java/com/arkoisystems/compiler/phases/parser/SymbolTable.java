@@ -37,14 +37,14 @@ public class SymbolTable
     @Nullable
     private final SymbolTable parentScope;
     
-    public SymbolTable(final @Nullable SymbolTable parentScope) {
+    public SymbolTable(@Nullable final SymbolTable parentScope) {
         this.parentScope = parentScope;
-        
+    
         this.symbolTable = new HashMap<>();
     }
     
     @Nullable
-    public List<ParserNode> lookup(final @NotNull String id) {
+    public List<ParserNode> lookup(@NotNull final String id) {
         return this.getSymbolTable().getOrDefault(id, this.getParentScope() != null ?
                 this.getParentScope().lookup(id) :
                 null
@@ -52,11 +52,11 @@ public class SymbolTable
     }
     
     @Nullable
-    public List<ParserNode> lookupScope(final @NotNull String id) {
+    public List<ParserNode> lookupScope(@NotNull final String id) {
         return this.getSymbolTable().get(id);
     }
     
-    public void insert(final @NotNull String id, final @NotNull ParserNode node) {
+    public void insert(@NotNull final String id, @NotNull final ParserNode node) {
         final List<ParserNode> nodes = this.getSymbolTable().getOrDefault(id, new ArrayList<>());
         nodes.add(node);
         this.getSymbolTable().put(id, nodes);

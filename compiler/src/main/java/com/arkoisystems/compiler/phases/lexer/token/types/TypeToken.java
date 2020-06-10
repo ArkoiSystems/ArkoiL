@@ -39,7 +39,7 @@ public class TypeToken extends LexerToken
     public TypeToken(
             @NonNull
             @NotNull final Lexer lexer,
-            final @Nullable DataKind dataKind,
+            @Nullable final DataKind dataKind,
             final int startLine,
             final int endLine,
             final int charStart,
@@ -62,7 +62,7 @@ public class TypeToken extends LexerToken
     }
     
     public TypeToken(
-            final @NotNull Lexer lexer,
+            @NotNull final Lexer lexer,
             final int startLine,
             final int endLine,
             final int charStart,

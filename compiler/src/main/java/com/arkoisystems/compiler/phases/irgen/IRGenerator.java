@@ -38,7 +38,7 @@ public class IRGenerator
     @Nullable
     private Module module;
     
-    public IRGenerator(final @NotNull CompilerClass compilerClass) {
+    public IRGenerator(@NotNull final CompilerClass compilerClass) {
         this.compilerClass = compilerClass;
     }
     

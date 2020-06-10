@@ -50,8 +50,8 @@ public class LexerToken
     private boolean failed;
     
     public LexerToken(
-            final @NotNull Lexer lexer,
-            final @NotNull TokenType tokenType,
+            @NotNull final Lexer lexer,
+            @NotNull final TokenType tokenType,
             final int startLine,
             final int endLine,
             final int charStart,

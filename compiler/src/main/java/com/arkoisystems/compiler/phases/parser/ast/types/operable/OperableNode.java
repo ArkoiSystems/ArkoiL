@@ -35,16 +35,17 @@ public class OperableNode extends ParserNode
     
     @Builder(builderMethodName = "operatorBuilder")
     protected OperableNode(
-            final @Nullable Parser parser,
-            final @Nullable SymbolTable currentScope,
-            final @Nullable LexerToken startToken,
-            final @Nullable LexerToken endToken
+            @Nullable final Parser parser,
+            @Nullable final ParserNode parentNode,
+            @Nullable final SymbolTable currentScope,
+            @Nullable final LexerToken startToken,
+            @Nullable final LexerToken endToken
     ) {
-        super(parser, currentScope, startToken, endToken);
+        super(parser, parentNode, currentScope, startToken, endToken);
     }
     
     @Override
-    public boolean canParse(final @NotNull Parser parser, final int offset) {
+    public boolean canParse(@NotNull final Parser parser, final int offset) {
         return IdentifierNode.GLOBAL_NODE.canParse(parser, offset) ||
                 NumberNode.GLOBAL_NODE.canParse(parser, offset) ||
                 StringNode.GLOBAL_NODE.canParse(parser, offset);

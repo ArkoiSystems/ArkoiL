@@ -22,6 +22,7 @@ import com.arkoisystems.compiler.phases.lexer.token.LexerToken;
 import com.arkoisystems.compiler.phases.lexer.token.enums.OperatorType;
 import com.arkoisystems.compiler.phases.parser.Parser;
 import com.arkoisystems.compiler.phases.parser.SymbolTable;
+import com.arkoisystems.compiler.phases.parser.ast.ParserNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.TypeNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.OperableNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expression.ExpressionNode;
@@ -40,15 +41,15 @@ import java.util.Objects;
 public class BinaryNode extends ExpressionNode
 {
     
-    public static BinaryNode ADD_GLOBAL_NODE = new BinaryNode(null, null, BinaryOperators.ADD, null, null, null, null);
+    public static BinaryNode ADD_GLOBAL_NODE = new BinaryNode(null, null, null, BinaryOperators.ADD, null, null, null, null);
     
-    public static BinaryNode SUB_GLOBAL_NODE = new BinaryNode(null, null, BinaryOperators.SUB, null, null, null, null);
+    public static BinaryNode SUB_GLOBAL_NODE = new BinaryNode(null, null, null, BinaryOperators.SUB, null, null, null, null);
     
-    public static BinaryNode MUL_GLOBAL_NODE = new BinaryNode(null, null, BinaryOperators.MUL, null, null, null, null);
+    public static BinaryNode MUL_GLOBAL_NODE = new BinaryNode(null, null, null, BinaryOperators.MUL, null, null, null, null);
     
-    public static BinaryNode DIV_GLOBAL_NODE = new BinaryNode(null, null, BinaryOperators.DIV, null, null, null, null);
+    public static BinaryNode DIV_GLOBAL_NODE = new BinaryNode(null, null, null, BinaryOperators.DIV, null, null, null, null);
     
-    public static BinaryNode MOD_GLOBAL_NODE = new BinaryNode(null, null, BinaryOperators.MOD, null, null, null, null);
+    public static BinaryNode MOD_GLOBAL_NODE = new BinaryNode(null, null, null, BinaryOperators.MOD, null, null, null, null);
     
     @Printable(name = "lhs")
     @Nullable
@@ -64,16 +65,17 @@ public class BinaryNode extends ExpressionNode
     
     @Builder
     protected BinaryNode(
-            final @Nullable Parser parser,
-            final @Nullable SymbolTable currentScope,
+            @Nullable final Parser parser,
+            @Nullable final ParserNode parentNode,
+            @Nullable final SymbolTable currentScope,
             @NonNull
             @NotNull final BinaryOperators operatorType,
-            final @Nullable OperableNode rightHandSide,
-            final @Nullable OperableNode leftHandSide,
-            final @Nullable LexerToken startToken,
-            final @Nullable LexerToken endToken
+            @Nullable final OperableNode rightHandSide,
+            @Nullable final OperableNode leftHandSide,
+            @Nullable final LexerToken startToken,
+            @Nullable final LexerToken endToken
     ) {
-        super(parser, currentScope, startToken, endToken);
+        super(parser, parentNode, currentScope, startToken, endToken);
     
         this.rightHandSide = rightHandSide;
         this.operatorType = operatorType;
@@ -101,7 +103,7 @@ public class BinaryNode extends ExpressionNode
     }
     
     @Override
-    public boolean canParse(final @NotNull Parser parser, final int offset) {
+    public boolean canParse(@NotNull final Parser parser, final int offset) {
         switch (this.getOperatorType()) {
             case ADD:
                 return parser.matchesPeekToken(offset, OperatorType.PLUS) != null;
@@ -119,7 +121,7 @@ public class BinaryNode extends ExpressionNode
     }
     
     @Override
-    public void accept(final @NotNull IVisitor<?> visitor) {
+    public void accept(@NotNull final IVisitor<?> visitor) {
         visitor.visit(this);
     }
     

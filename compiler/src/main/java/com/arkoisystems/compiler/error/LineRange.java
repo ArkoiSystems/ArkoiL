@@ -23,27 +23,16 @@ public class LineRange
     
     @NotNull
     public static LineRange make(
-            final @NotNull CompilerClass compilerClass,
+            @NotNull final CompilerClass compilerClass,
             final int startLine,
             final int endLine
     ) {
-        final String[] sourceSplit = compilerClass.getContent().split(System.getProperty("line.separator"));
-        final StringBuilder sourceBuilder = new StringBuilder();
-        for (int index = 0; index < sourceSplit.length; index++) {
-            if (index < startLine) continue;
-            if (index > endLine) break;
-            sourceBuilder.append(sourceSplit[index]).append(System.getProperty("line.separator"));
-        }
-        return LineRange.builder()
-                .sourceCode(sourceBuilder.toString())
-                .startLine(startLine)
-                .endLine(endLine)
-                .build();
+        return make(compilerClass.getContent(), startLine, endLine);
     }
     
     @NotNull
     public static LineRange make(
-            final @NotNull String sourceCode,
+            @NotNull final String sourceCode,
             final int startLine,
             final int endLine
     ) {

@@ -22,6 +22,7 @@ import com.arkoisystems.compiler.phases.lexer.token.LexerToken;
 import com.arkoisystems.compiler.phases.lexer.token.enums.OperatorType;
 import com.arkoisystems.compiler.phases.parser.Parser;
 import com.arkoisystems.compiler.phases.parser.SymbolTable;
+import com.arkoisystems.compiler.phases.parser.ast.ParserNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.TypeNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.OperableNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expression.ExpressionNode;
@@ -40,9 +41,9 @@ import java.util.Objects;
 public class PostfixNode extends ExpressionNode
 {
     
-    public static PostfixNode ADD_GLOBAL_NODE = new PostfixNode(null, null, PostfixOperators.POSTFIX_ADD, null, null, null);
+    public static PostfixNode ADD_GLOBAL_NODE = new PostfixNode(null, null, null, PostfixOperators.POSTFIX_ADD, null, null, null);
     
-    public static PostfixNode SUB_GLOBAL_NODE = new PostfixNode(null, null, PostfixOperators.POSTFIX_SUB, null, null, null);
+    public static PostfixNode SUB_GLOBAL_NODE = new PostfixNode(null, null, null, PostfixOperators.POSTFIX_SUB, null, null, null);
     
     @Printable(name = "operation")
     @NotNull
@@ -54,15 +55,16 @@ public class PostfixNode extends ExpressionNode
     
     @Builder
     protected PostfixNode(
-            final @Nullable Parser parser,
-            final @Nullable SymbolTable currentScope,
+            @Nullable final Parser parser,
+            @Nullable final ParserNode parentNode,
+            @Nullable final SymbolTable currentScope,
             @NonNull
             @NotNull final PostfixOperators operatorType,
-            final @Nullable OperableNode leftHandSide,
-            final @Nullable LexerToken startToken,
-            final @Nullable LexerToken endToken
+            @Nullable final OperableNode leftHandSide,
+            @Nullable final LexerToken startToken,
+            @Nullable final LexerToken endToken
     ) {
-        super(parser, currentScope, startToken, endToken);
+        super(parser, parentNode, currentScope, startToken, endToken);
         
         this.operatorType = operatorType;
         this.leftHandSide = leftHandSide;
@@ -81,7 +83,7 @@ public class PostfixNode extends ExpressionNode
     }
     
     @Override
-    public boolean canParse(final @NotNull Parser parser, final int offset) {
+    public boolean canParse(@NotNull final Parser parser, final int offset) {
         switch (this.getOperatorType()) {
             case POSTFIX_ADD:
                 return parser.matchesPeekToken(1, OperatorType.PLUS_PLUS) != null;
@@ -93,7 +95,7 @@ public class PostfixNode extends ExpressionNode
     }
     
     @Override
-    public void accept(final @NotNull IVisitor<?> visitor) {
+    public void accept(@NotNull final IVisitor<?> visitor) {
         visitor.visit(this);
     }
     

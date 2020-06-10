@@ -31,11 +31,11 @@ public class ErrorHandler
     @NotNull
     private final HashSet<CompilerError> compilerErrors = new HashSet<>();
     
-    public void addError(final @NotNull CompilerError compilerError) {
+    public void addError(@NotNull final CompilerError compilerError) {
         this.compilerErrors.add(compilerError);
     }
     
-    public void printStackTrace(final @NotNull PrintStream printStream) {
+    public void printStackTrace(@NotNull final PrintStream printStream) {
         for (final CompilerError error : this.compilerErrors)
             printStream.println(error.toString());
     }

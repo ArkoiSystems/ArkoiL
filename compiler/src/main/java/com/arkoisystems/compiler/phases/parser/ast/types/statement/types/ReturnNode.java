@@ -24,6 +24,7 @@ import com.arkoisystems.compiler.phases.parser.Parser;
 import com.arkoisystems.compiler.phases.parser.ParserErrorType;
 import com.arkoisystems.compiler.phases.parser.SymbolTable;
 import com.arkoisystems.compiler.phases.parser.ast.DataKind;
+import com.arkoisystems.compiler.phases.parser.ast.ParserNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.TypeNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.OperableNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expression.ExpressionNode;
@@ -41,7 +42,7 @@ import java.util.Objects;
 public class ReturnNode extends StatementNode
 {
     
-    public static ReturnNode GLOBAL_NODE = new ReturnNode(null, null, null, null, null);
+    public static ReturnNode GLOBAL_NODE = new ReturnNode(null, null, null, null, null, null);
     
     @Printable(name = "expression")
     @Nullable
@@ -49,13 +50,14 @@ public class ReturnNode extends StatementNode
     
     @Builder
     protected ReturnNode(
-            final @Nullable Parser parser,
-            final @Nullable SymbolTable currentScope,
-            final @Nullable OperableNode expression,
-            final @Nullable LexerToken startToken,
-            final @Nullable LexerToken endToken
+            @Nullable final Parser parser,
+            @Nullable final ParserNode parentNode,
+            @Nullable final SymbolTable currentScope,
+            @Nullable final OperableNode expression,
+            @Nullable final LexerToken startToken,
+            @Nullable final LexerToken endToken
     ) {
-        super(parser, currentScope, startToken, endToken);
+        super(parser, parentNode, currentScope, startToken, endToken);
         
         this.expression = expression;
     }
@@ -103,12 +105,12 @@ public class ReturnNode extends StatementNode
     }
     
     @Override
-    public boolean canParse(final @NotNull Parser parser, final int offset) {
+    public boolean canParse(@NotNull final Parser parser, final int offset) {
         return parser.matchesPeekToken(offset, KeywordType.RETURN) != null;
     }
     
     @Override
-    public void accept(final @NotNull IVisitor<?> visitor) {
+    public void accept(@NotNull final IVisitor<?> visitor) {
         visitor.visit(this);
     }
     
@@ -118,6 +120,7 @@ public class ReturnNode extends StatementNode
             return this.getExpression().getTypeNode();
         
         return TypeNode.builder()
+                .parentNode(this)
                 .currentScope(this.getCurrentScope())
                 .parser(this.getParser())
                 .dataKind(DataKind.VOID)

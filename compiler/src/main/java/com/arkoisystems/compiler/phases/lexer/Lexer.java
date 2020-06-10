@@ -46,9 +46,9 @@ public class Lexer
     @Setter
     private boolean failed;
     
-    public Lexer(final @NotNull CompilerClass compilerClass) {
+    public Lexer(@NotNull final CompilerClass compilerClass) {
         this.compilerClass = compilerClass;
-        
+    
         this.tokens = new ArrayList<>();
     }
     

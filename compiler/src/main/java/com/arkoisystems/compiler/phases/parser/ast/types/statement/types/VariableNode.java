@@ -27,6 +27,7 @@ import com.arkoisystems.compiler.phases.lexer.token.types.IdentifierToken;
 import com.arkoisystems.compiler.phases.parser.Parser;
 import com.arkoisystems.compiler.phases.parser.ParserErrorType;
 import com.arkoisystems.compiler.phases.parser.SymbolTable;
+import com.arkoisystems.compiler.phases.parser.ast.ParserNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.TypeNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.OperableNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expression.ExpressionNode;
@@ -45,7 +46,7 @@ import java.util.Objects;
 public class VariableNode extends StatementNode
 {
     
-    public static VariableNode GLOBAL_NODE = new VariableNode(null, null, null, null, null, null, false, false);
+    public static VariableNode GLOBAL_NODE = new VariableNode(null, null, null, null, null, null, null, false, false);
     
     @Printable(name = "is constant")
     private boolean isConstant;
@@ -68,16 +69,17 @@ public class VariableNode extends StatementNode
     
     @Builder
     protected VariableNode(
-            final @Nullable Parser parser,
-            final @Nullable SymbolTable currentScope,
-            final @Nullable OperableNode expression,
-            final @Nullable IdentifierToken name,
-            final @Nullable LexerToken startToken,
-            final @Nullable LexerToken endToken,
+            @Nullable final Parser parser,
+            @Nullable final ParserNode parentNode,
+            @Nullable final SymbolTable currentScope,
+            @Nullable final OperableNode expression,
+            @Nullable final IdentifierToken name,
+            @Nullable final LexerToken startToken,
+            @Nullable final LexerToken endToken,
             final boolean isConstant,
             final boolean isLocal
     ) {
-        super(parser, currentScope, startToken, endToken);
+        super(parser, parentNode, currentScope, startToken, endToken);
         
         this.expression = expression;
         this.isConstant = isConstant;
@@ -150,6 +152,7 @@ public class VariableNode extends StatementNode
             this.getParser().nextToken();
     
             final TypeNode typeNodeAST = TypeNode.builder()
+                    .parentNode(this)
                     .currentScope(this.getCurrentScope())
                     .parser(this.getParser())
                     .build()
@@ -200,13 +203,13 @@ public class VariableNode extends StatementNode
     }
     
     @Override
-    public boolean canParse(final @NotNull Parser parser, final int offset) {
+    public boolean canParse(@NotNull final Parser parser, final int offset) {
         return parser.matchesPeekToken(offset, KeywordType.VAR) != null ||
                 parser.matchesPeekToken(offset, KeywordType.CONST) != null;
     }
     
     @Override
-    public void accept(final @NotNull IVisitor<?> visitor) {
+    public void accept(@NotNull final IVisitor<?> visitor) {
         visitor.visit(this);
     }
     

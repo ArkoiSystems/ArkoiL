@@ -50,10 +50,11 @@ public class RootNode extends ParserNode
     protected RootNode(
             @NonNull
             @NotNull final Parser parser,
-            final @Nullable LexerToken startToken,
-            final @Nullable LexerToken endToken
+            @Nullable final ParserNode parentNode,
+            @Nullable final LexerToken startToken,
+            @Nullable final LexerToken endToken
     ) {
-        super(parser, parser.getCompilerClass().getRootScope(), startToken, endToken);
+        super(parser, parentNode, parser.getCompilerClass().getRootScope(), startToken, endToken);
         
         this.nodes = new ArrayList<>();
     }
@@ -85,6 +86,7 @@ public class RootNode extends ParserNode
             
             ParserNode astNode = foundNode.clone();
             astNode.setCurrentScope(this.getCurrentScope());
+            astNode.setParentNode(this);
             astNode.setParser(this.getParser());
             astNode = astNode.parse();
             
@@ -103,7 +105,7 @@ public class RootNode extends ParserNode
     }
     
     @Override
-    public void accept(final @NotNull IVisitor<?> visitor) {
+    public void accept(@NotNull final IVisitor<?> visitor) {
         visitor.visit(this);
     }
     

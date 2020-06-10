@@ -28,6 +28,7 @@ import com.arkoisystems.compiler.phases.lexer.token.types.StringToken;
 import com.arkoisystems.compiler.phases.parser.Parser;
 import com.arkoisystems.compiler.phases.parser.ParserErrorType;
 import com.arkoisystems.compiler.phases.parser.SymbolTable;
+import com.arkoisystems.compiler.phases.parser.ast.ParserNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.statement.StatementNode;
 import com.arkoisystems.compiler.visitor.IVisitor;
 import com.arkoisystems.utils.printer.annotations.Printable;
@@ -44,7 +45,7 @@ import java.util.Objects;
 public class ImportNode extends StatementNode
 {
     
-    public static ImportNode GLOBAL_NODE = new ImportNode(null, null, null, null, null, null);
+    public static ImportNode GLOBAL_NODE = new ImportNode(null, null, null, null, null, null, null);
     
     @Printable(name = "file path")
     @Nullable
@@ -56,14 +57,15 @@ public class ImportNode extends StatementNode
     
     @Builder
     protected ImportNode(
-            final @Nullable Parser parser,
-            final @Nullable SymbolTable currentScope,
-            final @Nullable StringToken filePath,
-            final @Nullable IdentifierToken name,
-            final @Nullable LexerToken startToken,
-            final @Nullable LexerToken endToken
+            @Nullable final Parser parser,
+            @Nullable final ParserNode parentNode,
+            @Nullable final SymbolTable currentScope,
+            @Nullable final StringToken filePath,
+            @Nullable final IdentifierToken name,
+            @Nullable final LexerToken startToken,
+            @Nullable final LexerToken endToken
     ) {
-        super(parser, currentScope, startToken, endToken);
+        super(parser, parentNode, currentScope, startToken, endToken);
         
         this.filePath = filePath;
         this.name = name;
@@ -153,12 +155,12 @@ public class ImportNode extends StatementNode
     }
     
     @Override
-    public boolean canParse(final @NotNull Parser parser, final int offset) {
+    public boolean canParse(@NotNull final Parser parser, final int offset) {
         return parser.matchesPeekToken(offset, KeywordType.IMPORT) != null;
     }
     
     @Override
-    public void accept(final @NotNull IVisitor<?> visitor) {
+    public void accept(@NotNull final IVisitor<?> visitor) {
         visitor.visit(this);
     }
     

@@ -30,13 +30,13 @@ public class Bootstrap
 {
     
     @SneakyThrows
-    public static void main(final @NotNull String[] args) {
+    public static void main(@NotNull final String[] args) {
         final Options options = new Options();
         {
             final Option inputDirectory = new Option("ip", "inputPath", true, "target source directory or file");
             inputDirectory.setRequired(true);
             options.addOption(inputDirectory);
-            
+        
             final Option outputFile = new Option("of", "outputFile", true, "output path for the compilation");
             outputFile.setRequired(true);
             options.addOption(outputFile);
@@ -55,7 +55,7 @@ public class Bootstrap
     }
     
     @SneakyThrows
-    public static boolean compile(final @NotNull String inputPath, final @NotNull String outputPath) {
+    public static boolean compile(@NotNull final String inputPath, @NotNull final String outputPath) {
         final File targetPath = new File(inputPath);
         if (!targetPath.exists())
             throw new NullPointerException("The given \"inputPath\" doesn't exists. Please correct the path to a valid file or directory.");

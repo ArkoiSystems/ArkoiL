@@ -23,8 +23,8 @@ public class ErrorPosition
     private final int charStart, charEnd;
     
     public void toString(
-            final @NotNull StringBuilder stringBuilder,
-            final @NotNull String indent
+            @NotNull final StringBuilder stringBuilder,
+            @NotNull final String indent
     ) {
         final int startLine = this.getLineRange().getStartLine(), endLine = this.getLineRange().getEndLine();
         final String[] sourceLines = this.getLineRange().getSourceCode().split(System.getProperty("line.separator"));
