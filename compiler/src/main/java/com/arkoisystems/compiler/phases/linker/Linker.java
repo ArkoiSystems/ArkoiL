@@ -19,7 +19,7 @@
 package com.arkoisystems.compiler.phases.linker;
 
 import com.arkoisystems.compiler.Compiler;
-import com.arkoisystems.llvm.Module;
+import com.arkoisystems.compiler.phases.irgen.llvm.ModuleGen;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.SneakyThrows;
@@ -44,7 +44,7 @@ public class Linker
 {
     
     @NotNull
-    private final List<Module> modules;
+    private final List<ModuleGen> moduleGens;
     
     @NotNull
     private final Compiler compiler;
@@ -52,9 +52,12 @@ public class Linker
     @Setter
     private boolean failed;
     
-    public Linker(@NotNull final Compiler compiler, @NotNull final List<Module> modules) {
+    public Linker(
+            @NotNull final Compiler compiler,
+            @NotNull final List<ModuleGen> moduleGens
+    ) {
+        this.moduleGens = moduleGens;
         this.compiler = compiler;
-        this.modules = modules;
     }
     
     @SneakyThrows
@@ -78,8 +81,8 @@ public class Linker
         LLVM.lto_codegen_set_debug_model(codeGen, LLVM.LTO_DEBUG_MODEL_DWARF);
         
         final List<lto_module_t> ltoModules = new ArrayList<>();
-        for (final Module module : this.getModules()) {
-            final LLVMMemoryBufferRef memoryBuffer = LLVM.LLVMWriteBitcodeToMemoryBuffer(module.getModuleRef());
+        for (final ModuleGen moduleGen : this.getModuleGens()) {
+            final LLVMMemoryBufferRef memoryBuffer = LLVM.LLVMWriteBitcodeToMemoryBuffer(moduleGen.getModuleRef());
             final BytePointer start = LLVM.LLVMGetBufferStart(memoryBuffer);
             final long size = LLVM.LLVMGetBufferSize(memoryBuffer);
             if (!LLVM.lto_module_is_object_file_in_memory(start, size))
