@@ -1,1 +1,5 @@
 /backups/
+*.directory
+*.out
+*.ll
+*.o

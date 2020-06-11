@@ -1,3 +1,7 @@
 fun printf(message: char*, args: ...): int
 
-fun println(message: char*, args: ...): int = printf("$message\n", args)
+fun println(message: char*, args: ...): int {
+    const result = printf(message, args)
+    printf("\n")
+    return result
+}
