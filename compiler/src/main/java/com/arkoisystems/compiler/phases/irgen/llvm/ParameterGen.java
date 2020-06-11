@@ -1,6 +1,6 @@
 /*
  * Copyright © 2019-2020 ArkoiSystems (https://www.arkoisystems.com/) All Rights Reserved.
- * Created ArkoiCompiler on May 11, 2020
+ * Created ArkoiCompiler on June 11, 2020
  * Author єхcsє#5543 aka timo
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,36 +16,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.arkoisystems.compiler.phases.irgen;
+package com.arkoisystems.compiler.phases.irgen.llvm;
 
-import com.arkoisystems.compiler.CompilerClass;
-import com.arkoisystems.compiler.phases.irgen.llvm.ModuleGen;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
+import lombok.NonNull;
+import org.bytedeco.llvm.LLVM.LLVMTypeRef;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
+@AllArgsConstructor
+@Builder
 @Getter
-public class IRGenerator
+public class ParameterGen
 {
     
+    @NonNull
     @NotNull
-    private final CompilerClass compilerClass;
+    private final LLVMTypeRef typeRef;
     
-    @Nullable
-    private ModuleGen moduleGen;
-    
-    @Setter
-    private boolean failed;
-    
-    public IRGenerator(@NotNull final CompilerClass compilerClass) {
-        this.compilerClass = compilerClass;
-    }
-    
-    public boolean processStage() {
-        final IRVisitor visitor = new IRVisitor(this.getCompilerClass());
-        this.moduleGen = visitor.visit(this.getCompilerClass().getParser().getRootNode());
-        return !visitor.isFailed();
-    }
+    @NonNull
+    @NotNull
+    private final String name;
     
 }

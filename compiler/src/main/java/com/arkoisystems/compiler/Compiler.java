@@ -100,7 +100,7 @@ public class Compiler
     
             final long linkerTime = System.nanoTime();
             final Linker linker = new Linker(this, this.getClasses().stream()
-                    .map(clazz -> clazz.getIrGenerator().getModule())
+                    .map(clazz -> clazz.getIrGenerator().getModuleGen())
                     .collect(Collectors.toList()));
             if (!linker.processStage())
                 return false;

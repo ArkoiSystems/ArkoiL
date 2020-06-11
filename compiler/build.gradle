@@ -28,5 +28,4 @@ dependencies {
     compile group: 'org.bytedeco', name: 'llvm-platform', version: '10.0.0-1.5.3'
     
     implementation 'com.github.ArkoiSystems:ArkoiUtils:master-SNAPSHOT'
-    implementation 'com.github.ArkoiSystems:ArkoiLLVM:master-SNAPSHOT'
 }
