@@ -46,7 +46,7 @@ public class NumberToken extends LexerToken
             final int charEnd
     ) {
         super(lexer, TokenType.NUMBER, startLine, endLine, charStart, charEnd);
-    
+        
         this.dataKind = dataKind == null ?
                 this.getTokenContent().contains(".") ? DataKind.FLOAT : DataKind.INTEGER :
                 dataKind;

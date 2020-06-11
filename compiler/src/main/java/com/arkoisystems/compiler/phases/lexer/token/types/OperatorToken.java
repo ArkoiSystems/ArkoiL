@@ -46,18 +46,18 @@ public class OperatorToken extends LexerToken
             final int charEnd
     ) {
         super(lexer, TokenType.OPERATOR, startLine, endLine, charStart, charEnd);
-    
+        
         if (operatorType != null) {
             this.operatorType = operatorType;
             return;
         }
-    
+        
         for (final OperatorType type : OperatorType.values())
             if (type.getName().equals(this.getTokenContent())) {
                 this.operatorType = type;
                 return;
             }
-    
+        
         throw new NullPointerException("operatorType must not be null.");
     }
     

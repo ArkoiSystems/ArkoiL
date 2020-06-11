@@ -90,9 +90,9 @@ public class ImportNode extends StatementNode
                     )
             );
         }
-    
+        
         this.startAST(this.getParser().currentToken());
-    
+        
         if (this.getParser().matchesPeekToken(1, TokenType.STRING) == null) {
             final LexerToken peekedToken = this.getParser().peekToken(1);
             return this.addError(
@@ -107,12 +107,12 @@ public class ImportNode extends StatementNode
                     )
             );
         }
-    
+        
         this.filePath = (StringToken) this.getParser().nextToken();
         Objects.requireNonNull(this.getFilePath(), "filePath must not be null.");
         if (this.getFilePath().getTokenContent().endsWith(".ark"))
             this.getFilePath().setTokenContent(this.getFilePath().getTokenContent().substring(0, this.getFilePath().getTokenContent().length() - 4));
-    
+        
         final CompilerClass resolvedClass = this.resolveClass();
         if (resolvedClass == null)
             return this.addError(
@@ -124,10 +124,10 @@ public class ImportNode extends StatementNode
                             this.getFilePath().getTokenContent()
                     )
             );
-    
+        
         if (this.getParser().matchesPeekToken(1, KeywordType.AS) != null) {
             this.getParser().nextToken();
-        
+            
             if (this.getParser().matchesPeekToken(1, TokenType.IDENTIFIER) == null) {
                 final LexerToken peekedToken = this.getParser().peekToken(1);
                 return this.addError(
@@ -142,14 +142,14 @@ public class ImportNode extends StatementNode
                         )
                 );
             }
-        
+            
             this.name = (IdentifierToken) this.getParser().nextToken();
-        
+            
             Objects.requireNonNull(this.getCurrentScope(), "currentScope must not be null.");
             Objects.requireNonNull(this.getName(), "name must not be null.");
             this.getCurrentScope().insert(this.getName().getTokenContent(), this);
         }
-    
+        
         this.endAST(this.getParser().currentToken());
         return this;
     }
@@ -191,19 +191,19 @@ public class ImportNode extends StatementNode
                 }
             }
         }
-    
+        
         if (!targetFile.exists())
             return null;
-    
+        
         final Compiler compiler = this.getParser().getCompilerClass().getCompiler();
         for (final CompilerClass compilerClass : compiler.getClasses()) {
             if (compilerClass.getFilePath().equals(targetFile.getCanonicalPath()))
                 return compilerClass;
         }
-    
+        
         final CompilerClass compilerClass = new CompilerClass(compiler, targetFile);
         compiler.getClasses().add(compilerClass);
-    
+        
         compilerClass.getLexer().processStage();
         compilerClass.getParser().processStage();
         return compilerClass;

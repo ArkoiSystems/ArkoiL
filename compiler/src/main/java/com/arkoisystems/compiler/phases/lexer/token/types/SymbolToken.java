@@ -46,7 +46,7 @@ public class SymbolToken extends LexerToken
             final int charEnd
     ) {
         super(lexer, TokenType.SYMBOL, startLine, endLine, charStart, charEnd);
-    
+        
         if (symbolType != null) {
             this.symbolType = symbolType;
             return;
@@ -57,7 +57,7 @@ public class SymbolToken extends LexerToken
                 this.symbolType = type;
                 return;
             }
-    
+        
         throw new NullPointerException("symbolType must not be null.");
     }
     

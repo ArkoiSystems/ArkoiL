@@ -80,7 +80,7 @@ public class StringNode extends OperableNode
                     )
             );
         }
-    
+        
         this.startAST(this.getParser().currentToken());
         this.stringToken = (StringToken) this.getParser().currentToken();
         this.endAST(this.getParser().currentToken());

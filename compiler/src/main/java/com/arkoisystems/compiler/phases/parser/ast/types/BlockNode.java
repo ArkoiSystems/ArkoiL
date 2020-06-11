@@ -118,7 +118,7 @@ public class BlockNode extends ParserNode
                     ReturnNode.GLOBAL_NODE,
                     BlockNode.GLOBAL_NODE
             );
-    
+            
             if (foundNode == null) {
                 this.addError(
                         null,
@@ -129,28 +129,28 @@ public class BlockNode extends ParserNode
                 this.findValidToken();
                 continue;
             }
-    
+            
             ParserNode astNode = foundNode.clone();
-    
+            
             if (astNode instanceof BlockNode)
                 astNode.setCurrentScope(new SymbolTable(this.getCurrentScope()));
             else astNode.setCurrentScope(this.getCurrentScope());
-    
+            
             if (astNode instanceof VariableNode) {
                 final VariableNode variableNode = (VariableNode) astNode;
                 variableNode.setLocal(true);
             }
-    
+            
             astNode.setParentNode(this);
             astNode.setParser(this.getParser());
             astNode = astNode.parse();
-    
+            
             if (astNode.isFailed()) {
                 this.setFailed(true);
                 this.findValidToken();
                 continue;
             }
-    
+            
             this.getNodes().add(astNode);
             this.getParser().nextToken();
         }
@@ -159,7 +159,7 @@ public class BlockNode extends ParserNode
     private void parseInlinedBlock() {
         Objects.requireNonNull(this.getParser(), "parser must not be null.");
         this.isInlined = true;
-    
+        
         if (!ExpressionNode.GLOBAL_NODE.canParse(this.getParser(), 1)) {
             final LexerToken peekedToken = this.getParser().peekToken(1);
             this.addError(
@@ -175,9 +175,9 @@ public class BlockNode extends ParserNode
             );
             return;
         }
-    
+        
         this.getParser().nextToken();
-    
+        
         final OperableNode operableNode = ExpressionNode.expressionBuilder()
                 .currentScope(this.getCurrentScope())
                 .parser(this.getParser())
@@ -187,7 +187,7 @@ public class BlockNode extends ParserNode
             this.setFailed(true);
             return;
         }
-    
+        
         this.getNodes().add(ReturnNode.builder()
                 .parentNode(this)
                 .parser(operableNode.getParser())
@@ -259,10 +259,10 @@ public class BlockNode extends ParserNode
                     ReturnNode.GLOBAL_NODE,
                     BlockNode.GLOBAL_NODE
             );
-    
+            
             if (foundNode != null || this.getParser().matchesCurrentToken(SymbolType.CLOSING_BRACE) != null)
                 break;
-    
+            
             this.getParser().nextToken();
         }
     }

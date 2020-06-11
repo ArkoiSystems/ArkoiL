@@ -135,10 +135,10 @@ public class VariableNode extends StatementNode
         Objects.requireNonNull(this.getCurrentScope(), "currentScope must not be null.");
         Objects.requireNonNull(this.getName(), "name must not be null.");
         this.getCurrentScope().insert(this.getName().getTokenContent(), this);
-    
+        
         if (this.getParser().matchesPeekToken(1, SymbolType.COLON) != null) {
             this.getParser().nextToken();
-        
+            
             if (this.getParser().matchesPeekToken(1, TokenType.TYPE) == null) {
                 final LexerToken peekedToken = this.getParser().peekToken(1);
                 return this.addError(
@@ -153,9 +153,9 @@ public class VariableNode extends StatementNode
                         )
                 );
             }
-        
+            
             this.getParser().nextToken();
-    
+            
             final TypeNode typeNodeAST = TypeNode.builder()
                     .parentNode(this)
                     .currentScope(this.getCurrentScope())
@@ -166,13 +166,13 @@ public class VariableNode extends StatementNode
                 this.setFailed(true);
                 return this;
             }
-        
+            
             this.returnType = typeNodeAST;
         }
         
         if (this.getParser().matchesPeekToken(1, OperatorType.EQUALS) != null) {
             this.getParser().nextToken();
-    
+            
             if (!ExpressionNode.GLOBAL_NODE.canParse(this.getParser(), 1)) {
                 final LexerToken peekedToken = this.getParser().peekToken(1);
                 return this.addError(
@@ -187,9 +187,9 @@ public class VariableNode extends StatementNode
                         )
                 );
             }
-    
+            
             this.getParser().nextToken();
-    
+            
             final OperableNode operableNode = ExpressionNode.expressionBuilder()
                     .currentScope(this.getCurrentScope())
                     .parser(this.getParser())
@@ -199,7 +199,7 @@ public class VariableNode extends StatementNode
                 this.setFailed(true);
                 return this;
             }
-    
+            
             this.expression = operableNode;
         }
         

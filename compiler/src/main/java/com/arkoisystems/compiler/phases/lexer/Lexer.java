@@ -48,7 +48,7 @@ public class Lexer
     
     public Lexer(@NotNull final CompilerClass compilerClass) {
         this.compilerClass = compilerClass;
-    
+        
         this.tokens = new ArrayList<>();
     }
     

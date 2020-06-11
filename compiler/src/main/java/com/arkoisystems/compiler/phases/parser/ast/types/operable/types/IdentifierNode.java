@@ -81,7 +81,7 @@ public class IdentifierNode extends OperableNode
             final boolean isFileLocal
     ) {
         super(parser, parentNode, currentScope, startToken, endToken);
-    
+        
         this.nextIdentifier = nextIdentifier;
         this.expressions = expressions;
         this.identifier = identifier;
@@ -91,9 +91,9 @@ public class IdentifierNode extends OperableNode
     @Override
     public IdentifierNode parse() {
         Objects.requireNonNull(this.getParser(), "parser must not be null.");
-    
+        
         this.startAST(this.getParser().currentToken());
-    
+        
         if (this.getParser().matchesCurrentToken(TokenType.IDENTIFIER) == null) {
             final LexerToken currentToken = this.getParser().currentToken();
             return this.addError(
@@ -108,14 +108,14 @@ public class IdentifierNode extends OperableNode
                     )
             );
         }
-    
+        
         this.identifier = (IdentifierToken) this.getParser().currentToken();
-    
+        
         if (ExpressionListNode.GLOBAL_NODE.canParse(this.getParser(), 1)) {
             this.getParser().nextToken();
-        
+            
             this.isFunctionCall = true;
-        
+            
             final ExpressionListNode expressionListNode = ExpressionListNode.builder()
                     .parentNode(this)
                     .currentScope(this.getCurrentScope())
@@ -126,14 +126,14 @@ public class IdentifierNode extends OperableNode
                 this.setFailed(true);
                 return this;
             }
-        
+            
             this.expressions = expressionListNode;
         }
         
         
         if (this.getParser().matchesPeekToken(1, SymbolType.PERIOD) != null) {
             this.getParser().nextToken();
-    
+            
             if (!IdentifierNode.GLOBAL_NODE.canParse(this.getParser(), 1) ||
                     this.getParser().matchesPeekToken(1, KeywordType.THIS) != null) {
                 final LexerToken peekedToken = this.getParser().peekToken(1);
@@ -149,9 +149,9 @@ public class IdentifierNode extends OperableNode
                         )
                 );
             }
-    
+            
             this.getParser().nextToken();
-    
+            
             final IdentifierNode identifierOperable = IdentifierNode.builder()
                     .currentScope(this.getCurrentScope())
                     .parser(this.getParser())
@@ -161,7 +161,7 @@ public class IdentifierNode extends OperableNode
                 this.setFailed(true);
                 return this;
             }
-    
+            
             this.nextIdentifier = identifierOperable;
         }
         
@@ -188,7 +188,7 @@ public class IdentifierNode extends OperableNode
         ParserNode foundNode = null;
         if (this.isFunctionCall()) {
             Objects.requireNonNull(this.getParser().getRootNode().getCurrentScope(), "parser.rootNode.currentScope must not be null.");
-        
+            
             final List<ParserNode> nodes = this.getParser().getRootNode().getCurrentScope().lookupScope(this.getIdentifier().getTokenContent());
             if (nodes != null && !nodes.isEmpty()) {
                 final List<FunctionNode> functions = nodes.stream()

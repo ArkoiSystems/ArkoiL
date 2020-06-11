@@ -86,7 +86,7 @@ public class ReturnNode extends StatementNode
         
         if (ExpressionNode.GLOBAL_NODE.canParse(this.getParser(), 1)) {
             this.getParser().nextToken();
-    
+            
             final OperableNode operableNode = ExpressionNode.expressionBuilder()
                     .currentScope(this.getCurrentScope())
                     .parser(this.getParser())
@@ -96,7 +96,7 @@ public class ReturnNode extends StatementNode
                 this.setFailed(true);
                 return this;
             }
-    
+            
             this.expression = operableNode;
         }
         
