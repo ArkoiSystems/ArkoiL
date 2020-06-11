@@ -191,6 +191,7 @@ public class VariableNode extends StatementNode
             this.getParser().nextToken();
             
             final OperableNode operableNode = ExpressionNode.expressionBuilder()
+                    .parentNode(this)
                     .currentScope(this.getCurrentScope())
                     .parser(this.getParser())
                     .build()

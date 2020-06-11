@@ -277,6 +277,7 @@ public class ExpressionNode extends OperableNode
                 );
             
             operableNode = foundNode.clone();
+            operableNode.setParentNode(this);
             operableNode.setCurrentScope(this.getCurrentScope());
             operableNode.setParser(this.getParser());
             operableNode = (OperableNode) operableNode.parse();

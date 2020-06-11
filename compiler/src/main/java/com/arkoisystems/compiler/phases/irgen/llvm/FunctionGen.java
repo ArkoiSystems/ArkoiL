@@ -71,7 +71,11 @@ public class FunctionGen
         }
         
         if (!foreignFunction)
-            this.entryBlock = LLVM.LLVMAppendBasicBlock(this.getFunctionRef(), "entry");
+            this.entryBlock = LLVM.LLVMAppendBasicBlockInContext(
+                    LLVM.LLVMGetModuleContext(moduleGen.getModuleRef()),
+                    this.getFunctionRef(),
+                    ""
+            );
         else this.entryBlock = null;
     }
     

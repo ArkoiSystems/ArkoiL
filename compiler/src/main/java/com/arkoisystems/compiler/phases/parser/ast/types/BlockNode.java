@@ -18,6 +18,7 @@
  */
 package com.arkoisystems.compiler.phases.parser.ast.types;
 
+import com.arkoisystems.compiler.phases.irgen.llvm.BuilderGen;
 import com.arkoisystems.compiler.phases.lexer.token.LexerToken;
 import com.arkoisystems.compiler.phases.lexer.token.enums.OperatorType;
 import com.arkoisystems.compiler.phases.lexer.token.enums.SymbolType;
@@ -35,6 +36,7 @@ import com.arkoisystems.compiler.visitor.IVisitor;
 import com.arkoisystems.utils.printer.annotations.Printable;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -49,6 +51,10 @@ public class BlockNode extends ParserNode
 {
     
     public static BlockNode GLOBAL_NODE = new BlockNode(null, null, null, false, null, null);
+    
+    @Printable(name = "builder generator")
+    @Setter
+    private BuilderGen builderGen;
     
     @Printable(name = "nodes")
     @NotNull
@@ -179,6 +185,7 @@ public class BlockNode extends ParserNode
         this.getParser().nextToken();
         
         final OperableNode operableNode = ExpressionNode.expressionBuilder()
+                .parentNode(this)
                 .currentScope(this.getCurrentScope())
                 .parser(this.getParser())
                 .build()

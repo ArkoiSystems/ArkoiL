@@ -236,21 +236,24 @@ public class ScopeVisitor implements IVisitor<ParserNode>
         Objects.requireNonNull(identifierNode.getCurrentScope(), "identifierNode.currentScope must not be null.");
         Objects.requireNonNull(identifierNode.getIdentifier(), "identifierNode.identifier must not be null.");
         Objects.requireNonNull(identifierNode.getParser(), "identifierNode.parser must not be null.");
-        
-        final List<ParserNode> nodes = identifierNode.getCurrentScope().lookup(identifierNode.getIdentifier().getTokenContent());
-        if (nodes == null || nodes.size() == 0)
-            return this.addError(
-                    null,
-                    identifierNode.getParser().getCompilerClass(),
-                    identifierNode,
-                    String.format(
-                            "Cannot resolve reference '%s'.",
-                            identifierNode.getIdentifier().getTokenContent()
-                    )
-            );
-        
+    
+    
         final ParserNode foundNode;
         if (identifierNode.isFunctionCall()) {
+            final List<ParserNode> nodes = identifierNode.getParser().getCompilerClass().getRootScope().lookup(
+                    identifierNode.getIdentifier().getTokenContent()
+            );
+            if (nodes == null || nodes.size() == 0)
+                return this.addError(
+                        null,
+                        identifierNode.getParser().getCompilerClass(),
+                        identifierNode,
+                        String.format(
+                                "Cannot resolve reference '%s'.",
+                                identifierNode.getIdentifier().getTokenContent()
+                        )
+                );
+        
             Objects.requireNonNull(identifierNode.getExpressions(), "identifierNode.expressions must not be null.");
             final List<FunctionNode> functions = nodes.stream()
                     .filter(node -> node instanceof FunctionNode)
@@ -259,7 +262,7 @@ public class ScopeVisitor implements IVisitor<ParserNode>
             final List<FunctionNode> matchingFunctions = functions.stream()
                     .filter(node -> node.equalsToIdentifier(identifierNode))
                     .collect(Collectors.toList());
-            
+        
             if (matchingFunctions.size() == 0)
                 return this.addError(
                         null,
@@ -273,6 +276,18 @@ public class ScopeVisitor implements IVisitor<ParserNode>
             this.visit(identifierNode.getExpressions());
             foundNode = matchingFunctions.get(0);
         } else {
+            final List<ParserNode> nodes = identifierNode.getCurrentScope().lookup(identifierNode.getIdentifier().getTokenContent());
+            if (nodes == null || nodes.size() == 0)
+                return this.addError(
+                        null,
+                        identifierNode.getParser().getCompilerClass(),
+                        identifierNode,
+                        String.format(
+                                "Cannot resolve reference '%s'.",
+                                identifierNode.getIdentifier().getTokenContent()
+                        )
+                );
+        
             nodes.sort((o1, o2) -> o2.getStartLine() - o1.getStartLine());
             foundNode = nodes.get(0);
         }

@@ -20,8 +20,11 @@ package com.arkoisystems.compiler.phases.irgen.llvm;
 
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NonNull;
+import org.bytedeco.javacpp.PointerPointer;
 import org.bytedeco.llvm.LLVM.LLVMBasicBlockRef;
 import org.bytedeco.llvm.LLVM.LLVMBuilderRef;
+import org.bytedeco.llvm.LLVM.LLVMTypeRef;
 import org.bytedeco.llvm.LLVM.LLVMValueRef;
 import org.bytedeco.llvm.global.LLVM;
 import org.jetbrains.annotations.NotNull;
@@ -51,6 +54,61 @@ public class BuilderGen
     
     public void returnValue(@NotNull final LLVMValueRef valueRef) {
         LLVM.LLVMBuildRet(this.getBuilderRef(), valueRef);
+    }
+    
+    @NotNull
+    public LLVMValueRef buildInboundsGEP(
+            @NotNull final LLVMValueRef targetValue,
+            @NotNull final LLVMValueRef... indices
+    ) {
+        return LLVM.LLVMBuildInBoundsGEP(
+                this.getBuilderRef(),
+                targetValue,
+                new PointerPointer<>(indices),
+                indices.length,
+                ""
+        );
+    }
+    
+    @NotNull
+    public LLVMValueRef buildBitCast(
+            @NotNull final LLVMValueRef value,
+            @NotNull final LLVMTypeRef toType
+    ) {
+        return LLVM.LLVMBuildBitCast(this.getBuilderRef(), value, toType, "");
+    }
+    
+    @NotNull
+    public LLVMValueRef buildFunctionCall(
+            @NotNull final LLVMValueRef functionRef,
+            @NotNull final LLVMValueRef... arguments
+    ) {
+        return LLVM.LLVMBuildCall(
+                this.getBuilderRef(),
+                functionRef,
+                new PointerPointer<>(arguments),
+                arguments.length,
+                ""
+        );
+    }
+    
+    @NotNull
+    public LLVMValueRef buildGlobalStringPtr(@NotNull final String content) {
+        return LLVM.LLVMBuildGlobalStringPtr(this.getBuilderRef(), content, "");
+    }
+    
+    @NotNull
+    public LLVMValueRef buildAlloca(@NotNull final LLVMTypeRef typeRef) {
+        return LLVM.LLVMBuildAlloca(
+                this.getBuilderRef(),
+                typeRef,
+                ""
+        );
+    }
+    
+    @NotNull
+    public LLVMValueRef buildLoad(@NonNull final LLVMValueRef valueRef) {
+        return LLVM.LLVMBuildLoad(this.getBuilderRef(), valueRef, "");
     }
     
 }
