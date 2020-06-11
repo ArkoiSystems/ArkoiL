@@ -23,6 +23,8 @@ import lombok.Getter;
 import lombok.NonNull;
 import org.bytedeco.javacpp.BytePointer;
 import org.bytedeco.llvm.LLVM.LLVMModuleRef;
+import org.bytedeco.llvm.LLVM.LLVMTypeRef;
+import org.bytedeco.llvm.LLVM.LLVMValueRef;
 import org.bytedeco.llvm.global.LLVM;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -56,6 +58,15 @@ public class ModuleGen
     
     public void dump() {
         LLVM.LLVMDumpModule(this.getModuleRef());
+    }
+    
+    @NotNull
+    public LLVMValueRef buildGlobal(@NotNull final LLVMTypeRef typeRef) {
+        return LLVM.LLVMAddGlobal(
+                this.getModuleRef(),
+                typeRef,
+                ""
+        );
     }
     
     @Override

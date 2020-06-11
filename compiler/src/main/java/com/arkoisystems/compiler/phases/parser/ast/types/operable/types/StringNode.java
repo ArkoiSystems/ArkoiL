@@ -100,7 +100,7 @@ public class StringNode extends OperableNode
     @Override
     public @NotNull TypeNode getTypeNode() {
         return TypeNode.builder()
-                .parentNode(this)
+                .parentNode(this.getParentNode())
                 .currentScope(this.getCurrentScope())
                 .parser(this.getParser())
                 .dataKind(DataKind.CHAR)

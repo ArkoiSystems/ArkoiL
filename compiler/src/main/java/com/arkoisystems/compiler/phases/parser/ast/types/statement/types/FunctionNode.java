@@ -39,6 +39,8 @@ import com.arkoisystems.compiler.visitor.IVisitor;
 import com.arkoisystems.utils.printer.annotations.Printable;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.Setter;
+import org.bytedeco.llvm.LLVM.LLVMValueRef;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -49,6 +51,10 @@ public class FunctionNode extends StatementNode
 {
     
     public static FunctionNode GLOBAL_NODE = new FunctionNode(null, null, null, null, null, null, null, null, null);
+    
+    @Printable(name = "function ref")
+    @Setter
+    private LLVMValueRef functionRef;
     
     @Printable(name = "name")
     @Nullable

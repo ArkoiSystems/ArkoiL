@@ -89,6 +89,7 @@ public class ExpressionListNode extends ParserNode
                 break;
             
             final OperableNode operableNode = ExpressionNode.expressionBuilder()
+                    .parentNode(this)
                     .currentScope(this.getCurrentScope())
                     .parser(this.getParser())
                     .build()

@@ -21,6 +21,7 @@ package com.arkoisystems.compiler.phases.irgen.llvm;
 import lombok.Builder;
 import lombok.Getter;
 import org.bytedeco.llvm.LLVM.LLVMContextRef;
+import org.bytedeco.llvm.LLVM.LLVMTypeRef;
 import org.bytedeco.llvm.global.LLVM;
 import org.jetbrains.annotations.NotNull;
 
@@ -37,7 +38,36 @@ public class ContextGen
     private ContextGen(final boolean usingGlobal) {
         this.usingGlobal = usingGlobal;
         
-        this.contextRef = this.isUsingGlobal() ? LLVM.LLVMGetGlobalContext() : LLVM.LLVMContextCreate();
+        this.contextRef = this.isUsingGlobal() ?
+                LLVM.LLVMGetGlobalContext() :
+                LLVM.LLVMContextCreate();
+    }
+    
+    @Override
+    protected void finalize() throws Throwable {
+        if (!this.isUsingGlobal())
+            LLVM.LLVMContextDispose(this.getContextRef());
+        super.finalize();
+    }
+    
+    @NotNull
+    public LLVMTypeRef makeFloatType() {
+        return LLVM.LLVMFloatTypeInContext(this.getContextRef());
+    }
+    
+    @NotNull
+    public LLVMTypeRef makeIntType(final int bits) {
+        return LLVM.LLVMIntTypeInContext(this.getContextRef(), bits);
+    }
+    
+    @NotNull
+    public LLVMTypeRef makeDoubleType() {
+        return LLVM.LLVMDoubleTypeInContext(this.getContextRef());
+    }
+    
+    @NotNull
+    public LLVMTypeRef makeVoidType() {
+        return LLVM.LLVMVoidTypeInContext(this.getContextRef());
     }
     
 }
