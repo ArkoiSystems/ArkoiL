@@ -1,5 +1,5 @@
 # Hello World
-fun test(): char* = "Hello\u0020World"
+fun test(): char* = "Hello\u0020World, %s :)"
 
 fun iksdeh() {
     return
