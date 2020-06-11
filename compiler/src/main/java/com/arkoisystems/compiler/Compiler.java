@@ -50,7 +50,7 @@ public class Compiler
     
     public Compiler(@NotNull final String outputPath) {
         this.outputPath = outputPath;
-    
+        
         this.getLibraryPaths().add(new File("../natives"));
         this.errorHandler = new ErrorHandler();
     }
@@ -70,7 +70,7 @@ public class Compiler
             if (lexerFailed)
                 return false;
             printStream.printf("The lexical analysis took %sms for all classes (%s in total)\n", (System.nanoTime() - lexerStart) / 1_000_000D, this.classes.size());
-    
+            
             final long parserStart = System.nanoTime();
             boolean parserFailed = false;
             for (final CompilerClass compilerClass : this.getClasses())
@@ -79,7 +79,7 @@ public class Compiler
             if (parserFailed)
                 return false;
             printStream.printf("The syntax analysis took %sms for all classes (%s in total)\n", (System.nanoTime() - parserStart) / 1_000_000D, this.getClasses().size());
-    
+            
             final long semanticStart = System.nanoTime();
             boolean semanticFailed = false;
             for (final CompilerClass compilerClass : this.getClasses())
@@ -88,7 +88,7 @@ public class Compiler
             if (semanticFailed)
                 return false;
             printStream.printf("The semantic analysis took %sms for all classes (%s in total)\n", (System.nanoTime() - semanticStart) / 1_000_000D, this.getClasses().size());
-    
+            
             final long codeGenTime = System.nanoTime();
             boolean codeGenFailed = false;
             for (final CompilerClass compilerClass : this.getClasses())
@@ -97,7 +97,7 @@ public class Compiler
             if (codeGenFailed)
                 return false;
             printStream.printf("The code generation took %sms for all classes (%s in total)\n", (System.nanoTime() - codeGenTime) / 1_000_000D, this.getClasses().size());
-    
+            
             final long linkerTime = System.nanoTime();
             final Linker linker = new Linker(this, this.getClasses().stream()
                     .map(clazz -> clazz.getIrGenerator().getModuleGen())

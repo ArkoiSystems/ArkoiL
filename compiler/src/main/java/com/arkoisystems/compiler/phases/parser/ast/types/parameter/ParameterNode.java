@@ -61,7 +61,7 @@ public class ParameterNode extends ParserNode
             @Nullable final LexerToken endToken
     ) {
         super(parser, parentNode, currentScope, startToken, endToken);
-    
+        
         this.typeNode = typeNode;
         this.name = name;
     }
@@ -85,14 +85,14 @@ public class ParameterNode extends ParserNode
                     )
             );
         }
-    
+        
         this.startAST(this.getParser().currentToken());
         this.name = (IdentifierToken) this.getParser().currentToken();
         
         Objects.requireNonNull(this.getCurrentScope(), "currentScope must not be null.");
         Objects.requireNonNull(this.getName(), "name must not be null.");
         this.getCurrentScope().insert(this.getName().getTokenContent(), this);
-    
+        
         if (this.getParser().matchesPeekToken(1, SymbolType.COLON) == null) {
             final LexerToken peekedToken = this.getParser().peekToken(1);
             return this.addError(
@@ -107,9 +107,9 @@ public class ParameterNode extends ParserNode
                     )
             );
         }
-    
+        
         this.getParser().nextToken(2);
-    
+        
         if (!TypeNode.GLOBAL_NODE.canParse(this.getParser(), 0)) {
             final LexerToken currentToken = this.getParser().currentToken();
             return this.addError(

@@ -41,10 +41,10 @@ public class UndefinedToken extends LexerToken
             final int charEnd
     ) {
         super(lexer, TokenType.UNDEFINED, startLine, endLine, charStart, charEnd);
-    
+        
         if (dummy)
             return;
-    
+        
         this.getLexer().setFailed(true);
         this.getLexer().getCompilerClass().getCompiler().getErrorHandler().addError(CompilerError.builder()
                 .causePosition(ErrorPosition.builder()

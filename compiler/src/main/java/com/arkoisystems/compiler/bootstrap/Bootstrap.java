@@ -36,7 +36,7 @@ public class Bootstrap
             final Option inputDirectory = new Option("ip", "inputPath", true, "target source directory or file");
             inputDirectory.setRequired(true);
             options.addOption(inputDirectory);
-        
+            
             final Option outputFile = new Option("of", "outputFile", true, "output path for the compilation");
             outputFile.setRequired(true);
             options.addOption(outputFile);
@@ -50,7 +50,7 @@ public class Bootstrap
             new HelpFormatter().printHelp("arkoi-compiler", options);
             return;
         }
-    
+        
         compile(commandLine.getOptionValue("inputPath"), commandLine.getOptionValue("outputFile"));
     }
     

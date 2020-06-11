@@ -81,13 +81,13 @@ public class ExpressionListNode extends ParserNode
         
         this.startAST(this.getParser().currentToken());
         this.getParser().nextToken();
-    
+        
         while (this.getParser().getPosition() < this.getParser().getTokens().length) {
             if (this.getParser().matchesCurrentToken(SymbolType.CLOSING_PARENTHESIS) != null)
                 break;
             if (!ExpressionNode.GLOBAL_NODE.canParse(this.getParser(), 0))
                 break;
-    
+            
             final OperableNode operableNode = ExpressionNode.expressionBuilder()
                     .currentScope(this.getCurrentScope())
                     .parser(this.getParser())
@@ -97,9 +97,9 @@ public class ExpressionListNode extends ParserNode
                 this.setFailed(true);
                 return this;
             }
-        
+            
             this.getExpressions().add(operableNode);
-        
+            
             if (this.getParser().matchesNextToken(SymbolType.COMMA) == null)
                 break;
             this.getParser().nextToken();

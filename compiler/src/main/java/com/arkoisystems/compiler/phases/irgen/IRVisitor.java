@@ -186,7 +186,7 @@ public class IRVisitor implements IVisitor<Object>
     ) {
         Objects.requireNonNull(functionNode.getParameters(), "functionNode.parameters must not be null.");
         Objects.requireNonNull(functionNode.getName(), "functionNode.name must not be null.");
-    
+        
         FunctionGen.builder()
                 .moduleGen(this.getModuleGen())
                 .name(functionNode.getName().getTokenContent())
@@ -222,7 +222,7 @@ public class IRVisitor implements IVisitor<Object>
                 this.setFailed(true);
                 return null;
             }
-    
+            
             this.getBuilderGen().setPositionAtEnd(basicBlock);
             this.visit(functionNode.getBlockNode());
         }
@@ -242,7 +242,7 @@ public class IRVisitor implements IVisitor<Object>
                 this.setFailed(true);
                 return null;
             }
-        
+            
             this.getBuilderGen().returnValue(((LLVMValueRef) object));
         } else this.getBuilderGen().returnVoid();
         return returnNode;
@@ -251,7 +251,7 @@ public class IRVisitor implements IVisitor<Object>
     @Override
     public LLVMValueRef visit(@NotNull final VariableNode variableNode) {
         Objects.requireNonNull(variableNode.getName(), "variableNode.name must not be null.");
-    
+        
         if (variableNode.isLocal()) {
             final LLVMValueRef variableRef;
             if (variableNode.getReturnType() != null) {
@@ -267,17 +267,17 @@ public class IRVisitor implements IVisitor<Object>
                         ""
                 );
             }
-        
+            
             variableNode.setVariableRef(variableRef);
-        
+            
             if (variableNode.getExpression() != null) {
                 final Object object = this.visit(variableNode.getExpression());
                 if (!(object instanceof LLVMValueRef))
                     throw new NullPointerException();
-            
+                
                 LLVM.LLVMBuildStore(this.getBuilderGen().getBuilderRef(), (LLVMValueRef) object, variableRef);
             }
-        
+            
             return variableRef;
         } else {
             final LLVMValueRef variableRef;
@@ -294,7 +294,7 @@ public class IRVisitor implements IVisitor<Object>
                         ""
                 );
             }
-        
+            
             variableNode.setVariableRef(variableRef);
             return variableRef;
         }
@@ -375,12 +375,12 @@ public class IRVisitor implements IVisitor<Object>
                     this.setFailed(true);
                     return null;
                 }
-        
+                
                 final ParameterNode targetParameter = (ParameterNode) targetNode;
-        
+                
                 Objects.requireNonNull(targetFunction.getName(), "targetFunction.name must not be null.");
                 Objects.requireNonNull(targetParameter.getName(), "targetParameter.name must not be null.");
-        
+                
                 final LLVMValueRef functionValue = LLVM.LLVMGetNamedFunction(
                         this.getModuleGen().getModuleRef(),
                         targetFunction.getName().getTokenContent()
@@ -389,7 +389,7 @@ public class IRVisitor implements IVisitor<Object>
                     this.setFailed(true);
                     return null;
                 }
-        
+                
                 Objects.requireNonNull(targetFunction.getParameters(), "targetFunction.parameters must not be null.");
                 int index = 0;
                 for (; index < targetFunction.getParameters().getParameters().size(); index++) {
@@ -398,7 +398,7 @@ public class IRVisitor implements IVisitor<Object>
                     if (parameterNode.getName().getTokenContent().equals(targetParameter.getName().getTokenContent()))
                         break;
                 }
-        
+                
                 // TODO: 6/11/20 VARIADIC doesnt work correctly
                 if (targetParameter.getTypeNode().getDataKind() == DataKind.VARIADIC) {
                     final LLVMTypeRef struct = LLVM.LLVMStructCreateNamed(LLVM.LLVMGetGlobalContext(), "struct.va_list");
@@ -408,9 +408,9 @@ public class IRVisitor implements IVisitor<Object>
                             LLVM.LLVMPointerType(LLVM.LLVMInt8Type(), 0),
                             LLVM.LLVMPointerType(LLVM.LLVMInt8Type(), 0)
                     ), 4, 0);
-            
+                    
                     final LLVMValueRef va_list = LLVM.LLVMBuildAlloca(this.getBuilderGen().getBuilderRef(), LLVM.LLVMArrayType(struct, 1), "");
-            
+                    
                     final FunctionGen va_start = FunctionGen.builder()
                             .parameters(new ParameterGen[] {
                                     ParameterGen.builder()
@@ -423,12 +423,12 @@ public class IRVisitor implements IVisitor<Object>
                             .name("llvm.va_start")
                             .returnType(LLVM.LLVMVoidType())
                             .build();
-            
+                    
                     final LLVMValueRef structGEP1 = LLVM.LLVMBuildInBoundsGEP(this.getBuilderGen().getBuilderRef(), va_list, new PointerPointer<>(
                             LLVM.LLVMConstInt(LLVM.LLVMInt32Type(), 0, 1),
                             LLVM.LLVMConstInt(LLVM.LLVMInt32Type(), 0, 1)
                     ), 2, "");
-            
+                    
                     final LLVMValueRef gepBitcast = LLVM.LLVMBuildBitCast(
                             this.getBuilderGen().getBuilderRef(),
                             structGEP1,
@@ -436,24 +436,24 @@ public class IRVisitor implements IVisitor<Object>
                             ,
                             ""
                     );
-            
+                    
                     LLVM.LLVMBuildCall(this.getBuilderGen().getBuilderRef(), va_start.getFunctionRef(), new PointerPointer<>(new LLVMValueRef[] {
                             gepBitcast
                     }), 1, "");
-            
+                    
                     return LLVM.LLVMBuildInBoundsGEP(this.getBuilderGen().getBuilderRef(), va_list, new PointerPointer<>(
                             LLVM.LLVMConstInt(LLVM.LLVMInt32Type(), 0, 1),
                             LLVM.LLVMConstInt(LLVM.LLVMInt32Type(), 0, 1)
                     ), 2, "");
                 }
-        
+                
                 return LLVM.LLVMGetParam(functionValue, index);
             } else if (targetNode instanceof VariableNode) {
                 final VariableNode variableNode = (VariableNode) targetNode;
                 final LLVMValueRef valueRef = variableNode.getVariableRef();
                 if (valueRef == null)
                     throw new NullPointerException();
-        
+                
                 return LLVM.LLVMBuildLoad(this.getBuilderGen().getBuilderRef(), valueRef, "");
             }
         }
@@ -559,31 +559,31 @@ public class IRVisitor implements IVisitor<Object>
             @NotNull final String filePath
     ) {
         final List<CompilerError> errors = new ArrayList<>();
-    
+        
         final String source = LLVM.LLVMPrintModuleToString(moduleGen.getModuleRef()).getString();
         final String[] errorSplit = error.split(System.getProperty("line.separator"));
-    
+        
         for (int index = 0; index < errorSplit.length; ) {
             final String errorMessage = errorSplit[index];
-        
+            
             int errorIndex = index + 1;
             for (; errorIndex < errorSplit.length; errorIndex++) {
                 if (errorSplit[index].startsWith("\\s"))
                     break;
             }
-        
+            
             final int indexOfCause = source.indexOf(errorSplit[index + 1]);
             final ErrorPosition errorPosition = this.getErrorPosition(
                     source,
                     filePath,
                     indexOfCause
             );
-        
+            
             errors.add(CompilerError.builder()
                     .causeMessage(errorMessage)
                     .causePosition(errorPosition)
                     .build());
-        
+            
             index += errorIndex;
         }
         

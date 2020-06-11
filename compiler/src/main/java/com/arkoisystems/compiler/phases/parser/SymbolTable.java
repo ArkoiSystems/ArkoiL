@@ -39,7 +39,7 @@ public class SymbolTable
     
     public SymbolTable(@Nullable final SymbolTable parentScope) {
         this.parentScope = parentScope;
-    
+        
         this.symbolTable = new HashMap<>();
     }
     

@@ -76,7 +76,7 @@ public class BinaryNode extends ExpressionNode
             @Nullable final LexerToken endToken
     ) {
         super(parser, parentNode, currentScope, startToken, endToken);
-    
+        
         this.rightHandSide = rightHandSide;
         this.operatorType = operatorType;
         this.leftHandSide = leftHandSide;

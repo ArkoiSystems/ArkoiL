@@ -46,7 +46,7 @@ public class KeywordToken extends LexerToken
             final int charEnd
     ) {
         super(lexer, TokenType.KEYWORD, startLine, endLine, charStart, charEnd);
-    
+        
         if (keywordType != null) {
             this.keywordType = keywordType;
             return;
@@ -57,7 +57,7 @@ public class KeywordToken extends LexerToken
                 this.keywordType = type;
                 return;
             }
-    
+        
         throw new NullPointerException("keywordType must not be null.");
     }
     

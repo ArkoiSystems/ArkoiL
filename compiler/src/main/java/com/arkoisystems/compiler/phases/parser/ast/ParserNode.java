@@ -154,7 +154,7 @@ public class ParserNode implements Cloneable
             charStart = sourceSplit[sourceSplit.length - 1].length() - 1;
             charEnd = sourceSplit[sourceSplit.length - 1].length();
         }
-    
+        
         compilerClass.getCompiler().getErrorHandler().addError(CompilerError.builder()
                 .causePosition(ErrorPosition.builder()
                         .sourceCode(tokenClass.getContent())
@@ -166,7 +166,7 @@ public class ParserNode implements Cloneable
                 .causeMessage(causeMessage)
                 .build()
         );
-    
+        
         this.setFailed(true);
         return errorSource;
     }

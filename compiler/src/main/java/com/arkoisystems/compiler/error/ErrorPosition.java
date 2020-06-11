@@ -32,13 +32,13 @@ public class ErrorPosition
         for (int lineIndex = startLine; lineIndex < startLine + sourceLines.length; lineIndex++) {
             final LineRange lineRange = LineRange.make(this.getSourceCode(), lineIndex, lineIndex);
             final String sourceCode = lineRange.getSourceCode().replace("\n", "");
-    
+            
             final int leadingSpaces = sourceCode.length() - sourceCode.replaceAll("^\\s+", "").length();
             final int trailingSpaces = sourceCode.length() - sourceCode.replaceAll("\\s+$", "").length();
-    
+            
             final String numberReplacement = " ".repeat(String.valueOf(endLine + 1).length());
             final String whitespacePrefix = " ".repeat(biggestNumber - String.valueOf(lineIndex + 1).length());
-    
+            
             int repeats = sourceCode.length() - leadingSpaces;
             if (repeats <= 0)
                 continue;

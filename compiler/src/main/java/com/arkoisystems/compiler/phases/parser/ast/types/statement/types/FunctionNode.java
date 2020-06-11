@@ -78,7 +78,7 @@ public class FunctionNode extends StatementNode
             @Nullable final LexerToken endToken
     ) {
         super(parser, parentNode, currentScope, startToken, endToken);
-    
+        
         this.parameters = parameters;
         this.returnType = returnType;
         this.blockNode = blockNode;
@@ -178,7 +178,7 @@ public class FunctionNode extends StatementNode
             }
             
             this.getParser().nextToken();
-    
+            
             final TypeNode typeNodeAST = TypeNode.builder()
                     .parentNode(this)
                     .currentScope(this.getCurrentScope())
@@ -189,13 +189,13 @@ public class FunctionNode extends StatementNode
                 this.setFailed(true);
                 return this;
             }
-    
+            
             this.returnType = typeNodeAST;
         }
         
         if (BlockNode.GLOBAL_NODE.canParse(this.getParser(), 1)) {
             this.getParser().nextToken();
-    
+            
             final BlockNode blockNodeAST = BlockNode.builder()
                     .parentNode(this)
                     .currentScope(this.getCurrentScope())
@@ -245,7 +245,7 @@ public class FunctionNode extends StatementNode
         for (int index = 0; index < this.getParameters().getParameters().size(); index++) {
             if (index >= functionNode.getParameters().getParameters().size())
                 return false;
-        
+            
             final ParameterNode ownParameter = this.getParameters().getParameters().get(index);
             final ParameterNode otherParameter = functionNode.getParameters().getParameters().get(index);
             if (ownParameter.getTypeNode().getDataKind() != otherParameter.getTypeNode().getDataKind())

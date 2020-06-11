@@ -54,7 +54,7 @@ public class Parser
     
     public Parser(@NotNull final CompilerClass compilerClass) {
         this.compilerClass = compilerClass;
-    
+        
         this.rootNode = RootNode.builder()
                 .parser(this)
                 .build();
@@ -64,7 +64,7 @@ public class Parser
         this.tokens = this.compilerClass.getLexer().getTokens().toArray(LexerToken[]::new);
         if (this.tokens.length == 0)
             return true;
-    
+        
         return !this.rootNode.parse().isFailed();
     }
     
@@ -337,7 +337,7 @@ public class Parser
                 this.position++;
             }
         }
-    
+        
         if (this.position >= this.tokens.length)
             return null;
         return this.tokens[this.position];

@@ -88,7 +88,7 @@ public class ParameterListNode extends ParserNode
         while (this.getParser().getPosition() < this.getParser().getTokens().length) {
             if (!ParameterNode.GLOBAL_NODE.canParse(this.getParser(), 0))
                 break;
-    
+            
             final ParameterNode parameterAST = ParameterNode.builder()
                     .parentNode(this)
                     .currentScope(this.getCurrentScope())
@@ -99,15 +99,15 @@ public class ParameterListNode extends ParserNode
                 this.setFailed(true);
                 return this;
             }
-    
+            
             this.getParameters().add(parameterAST);
-    
+            
             if (parameterAST.getTypeNode().getDataKind() == DataKind.VARIADIC) {
                 this.getParser().nextToken();
                 this.isVariadic = true;
                 break;
             }
-    
+            
             if (this.getParser().matchesNextToken(SymbolType.COMMA) == null)
                 break;
             this.getParser().nextToken();

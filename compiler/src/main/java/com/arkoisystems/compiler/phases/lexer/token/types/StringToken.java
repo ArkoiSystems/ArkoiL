@@ -40,7 +40,7 @@ public class StringToken extends LexerToken
             final int charEnd
     ) {
         super(lexer, TokenType.STRING, startLine, endLine, charStart, charEnd);
-    
+        
         if (this.getTokenContent().length() < 2 ||
                 this.getTokenContent().endsWith("\\\"") ||
                 !this.getTokenContent().endsWith("\"")) {
@@ -57,7 +57,7 @@ public class StringToken extends LexerToken
                     .build());
             return;
         }
-    
+        
         this.setTokenContent(StringToken.unescapeString(
                 this.getTokenContent().substring(1, this.getTokenContent().length() - 1)
         ));
