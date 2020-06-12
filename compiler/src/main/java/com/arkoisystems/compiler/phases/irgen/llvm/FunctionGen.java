@@ -69,7 +69,7 @@ public class FunctionGen
             final LLVMValueRef parameter = LLVM.LLVMGetParam(this.getFunctionRef(), index);
             LLVM.LLVMSetValueName(parameter, Objects.requireNonNull(parameters[index]).getName());
         }
-        
+    
         if (!foreignFunction)
             this.entryBlock = LLVM.LLVMAppendBasicBlockInContext(
                     LLVM.LLVMGetModuleContext(moduleGen.getModuleRef()),
@@ -77,6 +77,11 @@ public class FunctionGen
                     ""
             );
         else this.entryBlock = null;
+    }
+    
+    @NotNull
+    public LLVMValueRef getParameter(final int index) {
+        return LLVM.LLVMGetParam(this.getFunctionRef(), index);
     }
     
 }
