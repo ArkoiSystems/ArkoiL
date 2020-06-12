@@ -95,11 +95,11 @@ public class PrefixNode extends ExpressionNode
     public boolean canParse(@NotNull final Parser parser, final int offset) {
         switch (this.getOperatorType()) {
             case PREFIX_ADD:
-                return parser.matchesCurrentToken(OperatorType.PLUS_PLUS) != null;
+                return parser.matchesPeekToken(offset, OperatorType.PLUS_PLUS) != null;
             case PREFIX_SUB:
-                return parser.matchesCurrentToken(OperatorType.MINUS_MINUS) != null;
+                return parser.matchesPeekToken(offset, OperatorType.MINUS_MINUS) != null;
             case NEGATE:
-                return parser.matchesCurrentToken(OperatorType.MINUS) != null;
+                return parser.matchesPeekToken(offset, OperatorType.MINUS) != null;
             default:
                 return false;
         }
