@@ -28,6 +28,9 @@ import lombok.NonNull;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Arrays;
+import java.util.regex.Matcher;
+
 @Getter
 public class SymbolToken extends LexerToken
 {
@@ -39,36 +42,37 @@ public class SymbolToken extends LexerToken
     public SymbolToken(
             @NonNull
             @NotNull final Lexer lexer,
-            @Nullable final SymbolType symbolType,
+            @Nullable final Matcher matcher,
+            @Nullable SymbolType symbolType,
             final int startLine,
             final int endLine,
             final int charStart,
             final int charEnd
     ) {
-        super(lexer, TokenType.SYMBOL, startLine, endLine, charStart, charEnd);
+        super(lexer, TokenType.SYMBOL, matcher, startLine, endLine, charStart, charEnd);
         
-        if (symbolType != null) {
-            this.symbolType = symbolType;
-            return;
+        if (symbolType == null) {
+            symbolType = Arrays.stream(SymbolType.values())
+                    .filter(type -> type.getName().equals(this.getTokenContent()))
+                    .findFirst()
+                    .orElse(null);
+            
+            if (symbolType == null)
+                throw new NullPointerException("symbolType must not be null. ");
         }
         
-        for (final SymbolType type : SymbolType.values())
-            if (type.getName().equals(this.getTokenContent())) {
-                this.symbolType = type;
-                return;
-            }
-        
-        throw new NullPointerException("symbolType must not be null.");
+        this.symbolType = symbolType;
     }
     
     public SymbolToken(
             @NotNull final Lexer lexer,
+            @Nullable final Matcher matcher,
             final int startLine,
             final int endLine,
             final int charStart,
             final int charEnd
     ) {
-        this(lexer, null, startLine, endLine, charStart, charEnd);
+        this(lexer, matcher, null, startLine, endLine, charStart, charEnd);
     }
     
 }

@@ -26,6 +26,9 @@ import com.arkoisystems.compiler.phases.lexer.token.enums.TokenType;
 import lombok.Builder;
 import lombok.NonNull;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.regex.Matcher;
 
 public class StringToken extends LexerToken
 {
@@ -34,12 +37,13 @@ public class StringToken extends LexerToken
     public StringToken(
             @NonNull
             @NotNull final Lexer lexer,
+            @Nullable final Matcher matcher,
             final int startLine,
             final int endLine,
             final int charStart,
             final int charEnd
     ) {
-        super(lexer, TokenType.STRING, startLine, endLine, charStart, charEnd);
+        super(lexer, TokenType.STRING, matcher, startLine, endLine, charStart, charEnd);
         
         if (this.getTokenContent().length() < 2 ||
                 this.getTokenContent().endsWith("\\\"") ||

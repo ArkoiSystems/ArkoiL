@@ -25,6 +25,9 @@ import com.arkoisystems.utils.printer.annotations.Printable;
 import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.regex.Matcher;
 
 @Getter
 @Setter
@@ -52,6 +55,7 @@ public class LexerToken
     public LexerToken(
             @NotNull final Lexer lexer,
             @NotNull final TokenType tokenType,
+            @Nullable final Matcher matcher,
             final int startLine,
             final int endLine,
             final int charStart,
