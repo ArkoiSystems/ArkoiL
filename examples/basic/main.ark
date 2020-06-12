@@ -1,7 +1,6 @@
 import "system"
-import "test"
 
-fun main(): int {
+fun main(): i32 {
     const result = println("Something \n %i", 1)
     printf("(%d)\n", result)
     return 0
