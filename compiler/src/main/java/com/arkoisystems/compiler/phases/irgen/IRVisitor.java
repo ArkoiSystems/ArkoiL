@@ -92,18 +92,11 @@ public class IRVisitor implements IVisitor<Object>
             case BOOLEAN:
                 typeRef = this.getContextGen().makeIntType(1);
                 break;
-            case BYTE:
-            case CHAR:
-                typeRef = this.getContextGen().makeIntType(8);
-                break;
             case DOUBLE:
                 typeRef = this.getContextGen().makeDoubleType();
                 break;
             case INTEGER:
-                typeRef = this.getContextGen().makeIntType(32);
-                break;
-            case LONG:
-                typeRef = this.getContextGen().makeIntType(64);
+                typeRef = this.getContextGen().makeIntType(typeNode.getBits());
                 break;
             case VOID:
                 typeRef = this.getContextGen().makeVoidType();
@@ -171,19 +164,16 @@ public class IRVisitor implements IVisitor<Object>
         final FunctionNode targetFunction = parameter.getParent(FunctionNode.class);
         if (targetFunction == null)
             throw new NullPointerException();
-        
+    
         Objects.requireNonNull(targetFunction.getBlockNode(), "targetFunction.blockNode must not be null.");
-        
-        final BuilderGen builderGen = targetFunction.getBlockNode().getBuilderGen();
-        if (builderGen == null)
-            throw new NullPointerException();
-        
-        final LLVMValueRef functionRef = this.visit(targetFunction);
-        
+    
+        final BuilderGen builderGen = this.visit(targetFunction.getBlockNode());
+        final FunctionGen functionGen = this.visit(targetFunction);
+    
         Objects.requireNonNull(targetFunction.getParameters(), "targetFunction.parameters must not be null.");
         Objects.requireNonNull(targetFunction.getName(), "targetFunction.name must not be null.");
         Objects.requireNonNull(parameter.getName(), "parameter.name must not be null.");
-        
+    
         int index = 0;
         for (; index < targetFunction.getParameters().getParameters().size(); index++) {
             final ParameterNode parameterNode = targetFunction.getParameters().getParameters().get(index);
@@ -227,53 +217,57 @@ public class IRVisitor implements IVisitor<Object>
                             LLVM.LLVMPointerType(this.getContextGen().makeIntType(8), 0)
                     )
             );
-            
+    
             return builderGen.buildInboundsGEP(
                     va_list,
                     LLVM.LLVMConstInt(this.getContextGen().makeIntType(32), 0, 1),
                     LLVM.LLVMConstInt(this.getContextGen().makeIntType(32), 0, 1)
             );
         }
-        
-        return LLVM.LLVMGetParam(functionRef, index);
+    
+        return functionGen.getParameter(index);
     }
     
+    @NotNull
     @Override
-    public BlockNode visit(@NotNull final BlockNode blockNode) {
+    public BuilderGen visit(@NotNull final BlockNode blockNode) {
+        if (blockNode.getBuilderGen() != null)
+            return blockNode.getBuilderGen();
+        
         final FunctionNode functionNode = blockNode.getParent(FunctionNode.class);
         if (functionNode == null)
             throw new NullPointerException();
-    
-        final LLVMValueRef functionRef = this.visit(functionNode);
+        
+        final LLVMValueRef functionRef = this.visit(functionNode).getFunctionRef();
         final LLVMBasicBlockRef basicBlock = LLVM.LLVMGetFirstBasicBlock(functionRef);
         if (basicBlock == null)
             throw new NullPointerException();
-    
+        
         final BuilderGen builderGen = BuilderGen.builder()
                 .contextGen(this.getContextGen())
                 .build();
         builderGen.setPositionAtEnd(basicBlock);
         blockNode.setBuilderGen(builderGen);
-    
+        
         blockNode.getNodes().forEach(this::visit);
-        return blockNode;
+        return builderGen;
     }
     
     @NotNull
     @Override
-    public LLVMValueRef visit(@NotNull final FunctionNode functionNode) {
+    public FunctionGen visit(@NotNull final FunctionNode functionNode) {
         Objects.requireNonNull(functionNode.getParameters(), "functionNode.parameters must not be null.");
         Objects.requireNonNull(functionNode.getName(), "functionNode.name must not be null.");
         
-        if (functionNode.getFunctionRef() != null)
-            return functionNode.getFunctionRef();
+        if (functionNode.getFunctionGen() != null)
+            return functionNode.getFunctionGen();
         
         final RootNode rootNode = functionNode.getParent(RootNode.class);
         if (rootNode == null)
             throw new NullPointerException();
         
         final boolean foreign = !rootNode.getNodes().contains(functionNode);
-        final LLVMValueRef functionRef = FunctionGen.builder()
+        final FunctionGen functionGen = FunctionGen.builder()
                 .moduleGen(this.getModuleGen())
                 .name(functionNode.getName().getTokenContent())
                 .parameters(functionNode.getParameters().getParameters().stream()
@@ -286,15 +280,14 @@ public class IRVisitor implements IVisitor<Object>
                 .variadic(functionNode.getParameters().isVariadic())
                 .returnType(this.visit(functionNode.getTypeNode()))
                 .foreignFunction(foreign || functionNode.getBlockNode() == null)
-                .build()
-                .getFunctionRef();
+                .build();
         
-        functionNode.setFunctionRef(functionRef);
+        functionNode.setFunctionGen(functionGen);
         
         if (functionNode.getBlockNode() != null)
             this.visit(functionNode.getBlockNode());
         
-        return functionRef;
+        return functionGen;
     }
     
     @Override
@@ -389,11 +382,10 @@ public class IRVisitor implements IVisitor<Object>
     @Override
     public LLVMValueRef visit(@NotNull final NumberNode numberNode) {
         Objects.requireNonNull(numberNode.getNumberToken(), "numberNode.numberToken must not be null.");
-        
+    
         if (numberNode.getTypeNode().getDataKind() == DataKind.INTEGER) {
-            // TODO: 6/4/20 Signed integers
             final int value = Integer.parseInt(numberNode.getNumberToken().getTokenContent());
-            return LLVM.LLVMConstInt(this.getContextGen().makeIntType(32), value, 1);
+            return LLVM.LLVMConstInt(this.getContextGen().makeIntType(numberNode.getNumberToken().getBits()), value, 1);
         }
         
         return null;
@@ -428,7 +420,7 @@ public class IRVisitor implements IVisitor<Object>
                 throw new NullPointerException();
     
             final FunctionNode targetNode = functions.get(0);
-            final LLVMValueRef functionRef = this.visit(targetNode);
+            final LLVMValueRef functionRef = this.visit(targetNode).getFunctionRef();
     
             final int size = identifierNode.getExpressions().getExpressions().size();
             final LLVMValueRef[] arguments = new LLVMValueRef[size];
