@@ -128,6 +128,9 @@ public class BinaryNode extends ExpressionNode
     @Override
     public @NotNull TypeNode getTypeNode() {
         Objects.requireNonNull(this.getLeftHandSide(), "leftHandSide must not be null.");
+        Objects.requireNonNull(this.getRightHandSide(), "rightHandSide must not be null.");
+        if (this.getRightHandSide().getTypeNode().getDataKind().isFloating())
+            return this.getRightHandSide().getTypeNode();
         return this.getLeftHandSide().getTypeNode();
     }
     

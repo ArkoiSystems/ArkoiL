@@ -100,25 +100,25 @@ public class TypeVisitor implements IVisitor<TypeNode>
     public TypeNode visit(@NotNull final FunctionNode functionNode) {
         Objects.requireNonNull(functionNode.getParser(), "functionNode.parser must not be null.");
         Objects.requireNonNull(functionNode.getParameters(), "functionNode.parameters must not be null.");
-        
+    
         this.visit(functionNode.getParameters());
-        
+    
         if (functionNode.getBlockNode() == null || functionNode.getReturnType() == null)
             return functionNode.getTypeNode();
-        
+    
         final TypeNode expectedType = this.visit(functionNode.getReturnType());
         final TypeNode givenType = this.visit(functionNode.getBlockNode());
         if (expectedType == ERROR_NODE || givenType == ERROR_NODE)
             return ERROR_NODE;
-        
-        if (expectedType.equals(givenType))
+    
+        if (!expectedType.equals(givenType))
             return this.addError(
                     ERROR_NODE,
                     functionNode.getParser().getCompilerClass(),
                     functionNode.getBlockNode(),
                     "The block type doesn't match that of the function."
             );
-        
+    
         return functionNode.getTypeNode();
     }
     
@@ -156,23 +156,23 @@ public class TypeVisitor implements IVisitor<TypeNode>
                     variableNode,
                     "A type must be given if there is no expression."
             );
-        
+    
         if (variableNode.getExpression() == null || variableNode.getReturnType() == null)
             return variableNode.getTypeNode();
-        
+    
         final TypeNode expectedType = this.visit(variableNode.getReturnType());
         final TypeNode givenType = this.visit(variableNode.getExpression());
         if (expectedType == ERROR_NODE || givenType == ERROR_NODE)
             return ERROR_NODE;
-        
-        if (expectedType.equals(givenType))
+    
+        if (!expectedType.equals(givenType))
             return this.addError(
                     ERROR_NODE,
                     variableNode.getParser().getCompilerClass(),
                     variableNode.getExpression(),
                     "The expression type doesn't match that of the function."
             );
-        
+    
         return variableNode.getTypeNode();
     }
     
