@@ -1,7 +1,15 @@
+import "variadics"
+
 fun printf(message: u8*, args: ...): i32
 
+fun vprintf(message: u8*, args: va_list): i32 
+
 fun println(message: u8*, args: ...): i32 {
-    const result = printf(message, args)
+    const list = va_start()
+    
+    const length = vprintf(message, list)
     printf("\n")
-    return result
+    
+    va_end(list);
+    return length
 }
