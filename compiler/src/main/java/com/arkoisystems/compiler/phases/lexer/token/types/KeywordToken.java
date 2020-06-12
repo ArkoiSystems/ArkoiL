@@ -28,6 +28,9 @@ import lombok.NonNull;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Arrays;
+import java.util.regex.Matcher;
+
 @Getter
 public class KeywordToken extends LexerToken
 {
@@ -39,36 +42,37 @@ public class KeywordToken extends LexerToken
     public KeywordToken(
             @NonNull
             @NotNull final Lexer lexer,
-            @Nullable final KeywordType keywordType,
+            @Nullable final Matcher matcher,
+            @Nullable KeywordType keywordType,
             final int startLine,
             final int endLine,
             final int charStart,
             final int charEnd
     ) {
-        super(lexer, TokenType.KEYWORD, startLine, endLine, charStart, charEnd);
+        super(lexer, TokenType.KEYWORD, matcher, startLine, endLine, charStart, charEnd);
         
-        if (keywordType != null) {
-            this.keywordType = keywordType;
-            return;
+        if (keywordType == null) {
+            keywordType = Arrays.stream(KeywordType.values())
+                    .filter(type -> type.getName().equals(this.getTokenContent()))
+                    .findFirst()
+                    .orElse(null);
+            
+            if (keywordType == null)
+                throw new NullPointerException("keywordType must not be null. ");
         }
         
-        for (final KeywordType type : KeywordType.values())
-            if (type.getName().equals(this.getTokenContent())) {
-                this.keywordType = type;
-                return;
-            }
-        
-        throw new NullPointerException("keywordType must not be null.");
+        this.keywordType = keywordType;
     }
     
     public KeywordToken(
             @NotNull final Lexer lexer,
+            @Nullable final Matcher matcher,
             final int startLine,
             final int endLine,
             final int charStart,
             final int charEnd
     ) {
-        this(lexer, null, startLine, endLine, charStart, charEnd);
+        this(lexer, matcher, null, startLine, endLine, charStart, charEnd);
     }
     
 }

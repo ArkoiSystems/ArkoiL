@@ -66,9 +66,10 @@ public class Lexer
                 if (matcher.group(tokenType.name().replace("_", "")) == null) continue;
                 
                 this.getTokens().add(tokenType.getTokenClass().getConstructor(
-                        Lexer.class, int.class, int.class, int.class, int.class
+                        Lexer.class, Matcher.class, int.class, int.class, int.class, int.class
                 ).newInstance(
                         this,
+                        matcher,
                         this.getLineIndex(),
                         this.getLineIndex(),
                         this.charIndex + matcher.start() - lastPosition,

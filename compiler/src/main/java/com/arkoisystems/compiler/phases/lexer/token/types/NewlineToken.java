@@ -24,6 +24,9 @@ import com.arkoisystems.compiler.phases.lexer.token.enums.TokenType;
 import lombok.Builder;
 import lombok.NonNull;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.regex.Matcher;
 
 public class NewlineToken extends LexerToken
 {
@@ -32,12 +35,13 @@ public class NewlineToken extends LexerToken
     public NewlineToken(
             @NonNull
             @NotNull final Lexer lexer,
+            @Nullable final Matcher matcher,
             final int startLine,
             final int endLine,
             final int charStart,
             final int charEnd
     ) {
-        super(lexer, TokenType.WHITESPACE, startLine, endLine, charStart, charEnd);
+        super(lexer, TokenType.WHITESPACE, matcher, startLine, endLine, charStart, charEnd);
     }
     
 }

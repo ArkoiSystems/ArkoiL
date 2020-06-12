@@ -26,6 +26,9 @@ import com.arkoisystems.compiler.phases.lexer.token.enums.TokenType;
 import lombok.Builder;
 import lombok.NonNull;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.regex.Matcher;
 
 public class UndefinedToken extends LexerToken
 {
@@ -34,39 +37,40 @@ public class UndefinedToken extends LexerToken
     public UndefinedToken(
             @NonNull
             @NotNull final Lexer lexer,
+            @Nullable final Matcher matcher,
             final boolean dummy,
             final int startLine,
             final int endLine,
             final int charStart,
             final int charEnd
     ) {
-        super(lexer, TokenType.UNDEFINED, startLine, endLine, charStart, charEnd);
-        
-        if (dummy)
-            return;
-        
-        this.getLexer().setFailed(true);
-        this.getLexer().getCompilerClass().getCompiler().getErrorHandler().addError(CompilerError.builder()
-                .causePosition(ErrorPosition.builder()
-                        .sourceCode(this.getLexer().getCompilerClass().getContent())
-                        .filePath(this.getLexer().getCompilerClass().getFilePath())
-                        .lineRange(this.getLineRange())
-                        .charStart(charStart)
-                        .charEnd(charEnd)
-                        .build())
-                .causeMessage("This character is unknown to the lexer")
-                .build()
-        );
+        super(lexer, TokenType.UNDEFINED, matcher, startLine, endLine, charStart, charEnd);
+    
+        if (!dummy) {
+            this.getLexer().setFailed(true);
+            this.getLexer().getCompilerClass().getCompiler().getErrorHandler().addError(CompilerError.builder()
+                    .causePosition(ErrorPosition.builder()
+                            .sourceCode(this.getLexer().getCompilerClass().getContent())
+                            .filePath(this.getLexer().getCompilerClass().getFilePath())
+                            .lineRange(this.getLineRange())
+                            .charStart(charStart)
+                            .charEnd(charEnd)
+                            .build())
+                    .causeMessage("This character is unknown to the lexer")
+                    .build()
+            );
+        }
     }
     
     public UndefinedToken(
             @NotNull final Lexer lexer,
+            @Nullable final Matcher matcher,
             final int startLine,
             final int endLine,
             final int charStart,
             final int charEnd
     ) {
-        this(lexer, false, startLine, endLine, charStart, charEnd);
+        this(lexer, matcher, false, startLine, endLine, charStart, charEnd);
     }
     
 }
