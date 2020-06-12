@@ -110,15 +110,15 @@ public class AssignmentNode extends ExpressionNode
             case ASSIGN:
                 return parser.matchesPeekToken(offset, OperatorType.EQUALS) != null;
             case ADD_ASSIGN:
-                return parser.matchesPeekToken(1, OperatorType.PLUS_EQUALS) != null;
+                return parser.matchesPeekToken(offset, OperatorType.PLUS_EQUALS) != null;
             case SUB_ASSIGN:
-                return parser.matchesPeekToken(1, OperatorType.MINUS_EQUALS) != null;
+                return parser.matchesPeekToken(offset, OperatorType.MINUS_EQUALS) != null;
             case MUL_ASSIGN:
-                return parser.matchesPeekToken(1, OperatorType.ASTERISK_EQUALS) != null;
+                return parser.matchesPeekToken(offset, OperatorType.ASTERISK_EQUALS) != null;
             case DIV_ASSIGN:
-                return parser.matchesPeekToken(1, OperatorType.SLASH_EQUALS) != null;
+                return parser.matchesPeekToken(offset, OperatorType.SLASH_EQUALS) != null;
             case MOD_ASSIGN:
-                return parser.matchesPeekToken(1, OperatorType.PERCENT_EQUALS) != null;
+                return parser.matchesPeekToken(offset, OperatorType.PERCENT_EQUALS) != null;
             default:
                 return false;
         }

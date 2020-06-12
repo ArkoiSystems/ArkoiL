@@ -78,7 +78,7 @@ public class Linker
         
         final lto_code_gen_t codeGen = LLVM.lto_codegen_create();
         LLVM.lto_codegen_set_pic_model(codeGen, LLVM.LTO_CODEGEN_PIC_MODEL_DEFAULT);
-        LLVM.lto_codegen_set_debug_model(codeGen, LLVM.LTO_DEBUG_MODEL_DWARF);
+        LLVM.lto_codegen_set_debug_model(codeGen, LLVM.LTO_DEBUG_MODEL_NONE);
         
         final List<lto_module_t> ltoModules = new ArrayList<>();
         for (final ModuleGen moduleGen : this.getModuleGens()) {

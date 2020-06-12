@@ -86,9 +86,9 @@ public class PostfixNode extends ExpressionNode
     public boolean canParse(@NotNull final Parser parser, final int offset) {
         switch (this.getOperatorType()) {
             case POSTFIX_ADD:
-                return parser.matchesPeekToken(1, OperatorType.PLUS_PLUS) != null;
+                return parser.matchesPeekToken(offset, OperatorType.PLUS_PLUS) != null;
             case POSTFIX_SUB:
-                return parser.matchesPeekToken(1, OperatorType.MINUS_MINUS) != null;
+                return parser.matchesPeekToken(offset, OperatorType.MINUS_MINUS) != null;
             default:
                 return true;
         }
