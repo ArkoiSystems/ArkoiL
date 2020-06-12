@@ -129,11 +129,10 @@ public class TypeNode extends ParserNode
     public boolean equals(final Object other) {
         if (this == other) return true;
         if (!(other instanceof TypeNode)) return false;
-        if (!super.equals(other)) return false;
         
         final TypeNode typeNode = (TypeNode) other;
-        
         if (this.getPointers() != typeNode.getPointers()) return false;
+        if (this.isSigned() && !typeNode.isSigned()) return false;
         return this.getDataKind() == typeNode.getDataKind();
     }
     

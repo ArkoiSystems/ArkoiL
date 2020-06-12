@@ -379,16 +379,21 @@ public class IRVisitor implements IVisitor<Object>
         );
     }
     
+    @NotNull
     @Override
     public LLVMValueRef visit(@NotNull final NumberNode numberNode) {
         Objects.requireNonNull(numberNode.getNumberToken(), "numberNode.numberToken must not be null.");
-    
+        
         if (numberNode.getTypeNode().getDataKind() == DataKind.INTEGER) {
             final int value = Integer.parseInt(numberNode.getNumberToken().getTokenContent());
             return LLVM.LLVMConstInt(this.getContextGen().makeIntType(numberNode.getNumberToken().getBits()), value, 1);
-        }
-        
-        return null;
+        } else if (numberNode.getTypeNode().getDataKind() == DataKind.FLOAT) {
+            final float value = Float.parseFloat(numberNode.getNumberToken().getTokenContent());
+            return LLVM.LLVMConstReal(LLVM.LLVMFloatType(), value);
+        } else if (numberNode.getTypeNode().getDataKind() == DataKind.DOUBLE) {
+            final double value = Double.parseDouble(numberNode.getNumberToken().getTokenContent());
+            return LLVM.LLVMConstReal(LLVM.LLVMDoubleType(), value);
+        } else throw new NullPointerException();
     }
     
     @Override
@@ -490,25 +495,38 @@ public class IRVisitor implements IVisitor<Object>
         if (!(rhsObject instanceof LLVMValueRef))
             throw new NullPointerException();
     
-        final LLVMValueRef lhsValue = (LLVMValueRef) lhsObject, rhsValue = (LLVMValueRef) rhsObject;
+        final boolean floating = binaryNode.getLeftHandSide().getTypeNode().getDataKind().isFloating() ||
+                binaryNode.getRightHandSide().getTypeNode().getDataKind().isFloating();
         final BuilderGen builderGen = blockNode.getBuilderGen();
+    
+        LLVMValueRef lhsValue = (LLVMValueRef) lhsObject, rhsValue = (LLVMValueRef) rhsObject;
+        if (floating) {
+            if (!binaryNode.getLeftHandSide().getTypeNode().getDataKind().isFloating())
+                lhsValue = LLVM.LLVMBuildFPCast(builderGen.getBuilderRef(), lhsValue, this.visit(binaryNode.getLeftHandSide().getTypeNode()), "");
+            if (!binaryNode.getRightHandSide().getTypeNode().getDataKind().isFloating())
+                rhsValue = LLVM.LLVMBuildFPCast(builderGen.getBuilderRef(), rhsValue, this.visit(binaryNode.getLeftHandSide().getTypeNode()), "");
+        }
+    
         switch (binaryNode.getOperatorType()) {
             case ADD:
-                // TODO: 6/4/20 Check if its floating point/signed or not.
+                if (floating)
+                    return LLVM.LLVMBuildFAdd(builderGen.getBuilderRef(), lhsValue, rhsValue, "");
                 return LLVM.LLVMBuildAdd(builderGen.getBuilderRef(), lhsValue, rhsValue, "");
             case MUL:
-                // TODO: 6/4/20 Check if its floating point/signed or not.
+                if (floating)
+                    return LLVM.LLVMBuildFMul(builderGen.getBuilderRef(), lhsValue, rhsValue, "");
                 return LLVM.LLVMBuildMul(builderGen.getBuilderRef(), lhsValue, rhsValue, "");
             case DIV:
-                // TODO: 6/4/20 Check if its floating point/signed or not.
+                if (floating)
+                    return LLVM.LLVMBuildFDiv(builderGen.getBuilderRef(), lhsValue, rhsValue, "");
                 return LLVM.LLVMBuildUDiv(builderGen.getBuilderRef(), lhsValue, rhsValue, "");
             case SUB:
-                // TODO: 6/4/20 Check if its floating point/signed or not.
+                if (floating)
+                    return LLVM.LLVMBuildFSub(builderGen.getBuilderRef(), lhsValue, rhsValue, "");
                 return LLVM.LLVMBuildSub(builderGen.getBuilderRef(), lhsValue, rhsValue, "");
-            case EXP:
-                throw new NullPointerException();
             case MOD:
-                // TODO: 6/4/20 Check if its floating point/signed or not.
+                if (floating)
+                    throw new NullPointerException();
                 return LLVM.LLVMBuildURem(builderGen.getBuilderRef(), lhsValue, rhsValue, "");
         }
         
@@ -580,7 +598,6 @@ public class IRVisitor implements IVisitor<Object>
                     .causeMessage(errorMessage)
                     .causePosition(errorPosition)
                     .build());
-            
             index += errorIndex;
         }
         

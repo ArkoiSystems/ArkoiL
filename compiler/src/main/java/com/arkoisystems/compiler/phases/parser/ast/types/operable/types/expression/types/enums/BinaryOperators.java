@@ -7,7 +7,6 @@ public enum BinaryOperators
     SUB,
     MUL,
     DIV,
-    EXP,
     MOD
     
 }

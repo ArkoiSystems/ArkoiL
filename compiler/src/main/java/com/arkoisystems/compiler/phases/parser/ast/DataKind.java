@@ -30,33 +30,35 @@ public enum DataKind
     
     /* Integral data types */
     
-    INTEGER("int", true),
-    BOOLEAN("bool", false),
+    INTEGER("int", true, false),
+    BOOLEAN("bool", false, false),
     
     /* Floating-Point data types */
     
-    FLOAT("float", true),
-    DOUBLE("double", true),
+    FLOAT("float", true, true),
+    DOUBLE("double", true, true),
     
     /* Data based data types  */
     
-    STRUCT("struct", false),
-    ENUM("enum", true),
-    UNION("union", false),
+    STRUCT("struct", false, false),
+    ENUM("enum", true, false),
+    UNION("union", false, false),
     
     /* Special data types with no real meaning */
     
-    VARIADIC("...", false),
-    VOID("void", false),
+    VARIADIC("...", false, false),
+    VOID("void", false, false),
     
     /* Compiler only data types */
     
-    UNDEFINED("undefined", false),
-    ERROR("error", false);
+    UNDEFINED("undefined", false, false),
+    ERROR("error", false, false);
     
     @NotNull
     private final String name;
     
     private final boolean isNumeric;
+    
+    private final boolean floating;
     
 }

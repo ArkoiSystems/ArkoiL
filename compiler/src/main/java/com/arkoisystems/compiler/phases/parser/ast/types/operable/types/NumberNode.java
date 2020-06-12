@@ -105,6 +105,7 @@ public class NumberNode extends OperableNode
                 .parser(this.getParser())
                 .dataKind(this.getNumberToken().getDataKind())
                 .bits(this.getNumberToken().getBits())
+                .signed(true)
                 .startToken(this.getStartToken())
                 .endToken(this.getEndToken())
                 .build();
