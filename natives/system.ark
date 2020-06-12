@@ -1,6 +1,6 @@
-fun printf(message: char*, args: ...): int
+fun printf(message: u8*, args: ...): i32
 
-fun println(message: char*, args: ...): int {
+fun println(message: u8*, args: ...): i32 {
     const result = printf(message, args)
     printf("\n")
     return result
