@@ -104,6 +104,7 @@ public class NumberNode extends OperableNode
                 .currentScope(this.getCurrentScope())
                 .parser(this.getParser())
                 .dataKind(this.getNumberToken().getDataKind())
+                .bits(this.getNumberToken().getBits())
                 .startToken(this.getStartToken())
                 .endToken(this.getEndToken())
                 .build();

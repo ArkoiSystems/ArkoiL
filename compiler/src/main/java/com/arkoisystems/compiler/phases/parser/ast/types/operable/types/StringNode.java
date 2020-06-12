@@ -103,8 +103,9 @@ public class StringNode extends OperableNode
                 .parentNode(this.getParentNode())
                 .currentScope(this.getCurrentScope())
                 .parser(this.getParser())
-                .dataKind(DataKind.CHAR)
+                .dataKind(DataKind.INTEGER)
                 .pointers(1)
+                .bits(8)
                 .startToken(this.getStartToken())
                 .endToken(this.getEndToken())
                 .build();

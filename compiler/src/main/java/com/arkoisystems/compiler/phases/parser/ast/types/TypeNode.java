@@ -40,14 +40,20 @@ import java.util.Objects;
 public class TypeNode extends ParserNode
 {
     
-    public static TypeNode GLOBAL_NODE = new TypeNode(null, null, null, null, 0, null, null);
+    public static TypeNode GLOBAL_NODE = new TypeNode(null, null, null, null, false, 0, 0, null, null);
     
     @Printable(name = "data kind")
     @NotNull
     private DataKind dataKind;
     
+    @Printable(name = "signed")
+    private boolean signed;
+    
     @Printable(name = "pointers")
     private int pointers;
+    
+    @Printable(name = "bits")
+    private int bits;
     
     @Builder
     protected TypeNode(
@@ -55,7 +61,9 @@ public class TypeNode extends ParserNode
             @Nullable final ParserNode parentNode,
             @Nullable final SymbolTable currentScope,
             @Nullable final DataKind dataKind,
+            final boolean signed,
             final int pointers,
+            final int bits,
             @Nullable final LexerToken startToken,
             @Nullable final LexerToken endToken
     ) {
@@ -63,6 +71,8 @@ public class TypeNode extends ParserNode
         
         this.dataKind = dataKind == null ? DataKind.UNDEFINED : dataKind;
         this.pointers = pointers;
+        this.signed = signed;
+        this.bits = bits;
     }
     
     // TODO: 6/6/20 Support identifier nodes (like test.struct*)
@@ -80,25 +90,27 @@ public class TypeNode extends ParserNode
                     String.format(
                             ParserErrorType.SYNTAX_ERROR_TEMPLATE,
                             "Type",
-                            "<identifier> or <data type>",
+                            "<data type>",
                             currentToken != null ? currentToken.getTokenContent() : "nothing"
                     )
             );
         }
-        
+    
         this.startAST(this.getParser().currentToken());
-        
+    
         final TypeToken typeToken = (TypeToken) this.getParser().matchesCurrentToken(TokenType.TYPE);
         this.dataKind = Objects.requireNonNull(typeToken).getDataKind();
-        
+        this.signed = typeToken.isSigned();
+        this.bits = typeToken.getBits();
+    
         while (this.getParser().getPosition() < this.getParser().getTokens().length) {
             if (this.getParser().matchesPeekToken(1, OperatorType.ASTERISK) == null)
                 break;
-            
+        
             this.getParser().nextToken();
             this.pointers++;
         }
-        
+    
         this.endAST(this.getParser().currentToken());
         return this;
     }
@@ -111,6 +123,26 @@ public class TypeNode extends ParserNode
     @Override
     public void accept(@NotNull final IVisitor<?> visitor) {
         visitor.visit(this);
+    }
+    
+    @Override
+    public boolean equals(final Object other) {
+        if (this == other) return true;
+        if (!(other instanceof TypeNode)) return false;
+        if (!super.equals(other)) return false;
+        
+        final TypeNode typeNode = (TypeNode) other;
+        
+        if (this.getPointers() != typeNode.getPointers()) return false;
+        return this.getDataKind() == typeNode.getDataKind();
+    }
+    
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + this.getDataKind().hashCode();
+        result = 31 * result + this.getPointers();
+        return result;
     }
     
 }

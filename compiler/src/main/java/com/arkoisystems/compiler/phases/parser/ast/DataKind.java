@@ -31,10 +31,6 @@ public enum DataKind
     /* Integral data types */
     
     INTEGER("int", true),
-    LONG("long", true),
-    SHORT("short", true),
-    CHAR("char", true),
-    BYTE("byte", true),
     BOOLEAN("bool", false),
     
     /* Floating-Point data types */

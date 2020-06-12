@@ -28,6 +28,9 @@ import lombok.NonNull;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Arrays;
+import java.util.regex.Matcher;
+
 @Getter
 public class TypeToken extends LexerToken
 {
@@ -35,40 +38,56 @@ public class TypeToken extends LexerToken
     @NotNull
     private final DataKind dataKind;
     
+    private final boolean signed;
+    
+    private final int bits;
+    
     @Builder
     public TypeToken(
             @NonNull
             @NotNull final Lexer lexer,
-            @Nullable final DataKind dataKind,
+            @Nullable final Matcher matcher,
+            @Nullable DataKind dataKind,
             final int startLine,
             final int endLine,
             final int charStart,
             final int charEnd
     ) {
-        super(lexer, TokenType.TYPE, startLine, endLine, charStart, charEnd);
+        super(lexer, TokenType.TYPE, matcher, startLine, endLine, charStart, charEnd);
         
-        if (dataKind != null) {
-            this.dataKind = dataKind;
-            return;
+        if (dataKind == null) {
+            dataKind = Arrays.stream(DataKind.values())
+                    .filter(type -> type.getName().equals(this.getTokenContent()))
+                    .findFirst()
+                    .orElse(null);
+            
+            if (matcher != null && matcher.group("i") != null)
+                dataKind = DataKind.INTEGER;
+            
+            if (dataKind == null)
+                throw new NullPointerException("typeKind must not be null. ");
         }
         
-        for (final DataKind type : DataKind.values())
-            if (type.getName().equals(this.getTokenContent())) {
-                this.dataKind = type;
-                return;
-            }
+        if (dataKind == DataKind.INTEGER && matcher != null) {
+            this.signed = this.getTokenContent().startsWith("i");
+            this.bits = Integer.parseInt(this.getTokenContent().substring(1));
+        } else {
+            this.signed = true;
+            this.bits = 0;
+        }
         
-        throw new NullPointerException("typeKind must not be null. ");
+        this.dataKind = dataKind;
     }
     
     public TypeToken(
             @NotNull final Lexer lexer,
+            @Nullable final Matcher matcher,
             final int startLine,
             final int endLine,
             final int charStart,
             final int charEnd
     ) {
-        this(lexer, null, startLine, endLine, charStart, charEnd);
+        this(lexer, matcher, null, startLine, endLine, charStart, charEnd);
     }
     
 }
