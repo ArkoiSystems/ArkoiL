@@ -83,16 +83,16 @@ public class ParenthesizedNode extends ExpressionNode
         this.startAST(this.getParser().currentToken());
         
         if (!ExpressionNode.GLOBAL_NODE.canParse(this.getParser(), 1)) {
-            final LexerToken peekedToken = this.getParser().peekToken(1);
+            final LexerToken nextToken = this.getParser().nextToken();
             return this.addError(
                     this,
                     this.getParser().getCompilerClass(),
-                    peekedToken,
+                    nextToken,
                     String.format(
                             ParserErrorType.SYNTAX_ERROR_TEMPLATE,
                             "Parenthesized expression",
                             "<expression>",
-                            peekedToken != null ? peekedToken.getTokenContent() : "nothing"
+                            nextToken != null ? nextToken.getTokenContent() : "nothing"
                     )
             );
         }
@@ -114,16 +114,16 @@ public class ParenthesizedNode extends ExpressionNode
         this.expression = operableNode;
         
         if (this.getParser().matchesPeekToken(1, SymbolType.CLOSING_PARENTHESIS) == null) {
-            final LexerToken peekedToken = this.getParser().peekToken(1);
+            final LexerToken nextToken = this.getParser().nextToken();
             return this.addError(
                     this,
                     this.getParser().getCompilerClass(),
-                    peekedToken,
+                    nextToken,
                     String.format(
                             ParserErrorType.SYNTAX_ERROR_TEMPLATE,
                             "Parenthesized expression",
                             "')'",
-                            peekedToken != null ? peekedToken.getTokenContent() : "nothing"
+                            nextToken != null ? nextToken.getTokenContent() : "nothing"
                     )
             );
         }

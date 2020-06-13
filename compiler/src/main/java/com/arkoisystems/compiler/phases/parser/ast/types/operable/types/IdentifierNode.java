@@ -136,16 +136,16 @@ public class IdentifierNode extends OperableNode
             
             if (!IdentifierNode.GLOBAL_NODE.canParse(this.getParser(), 1) ||
                     this.getParser().matchesPeekToken(1, KeywordType.THIS) != null) {
-                final LexerToken peekedToken = this.getParser().peekToken(1);
+                final LexerToken nextToken = this.getParser().nextToken();
                 return this.addError(
                         this,
                         this.getParser().getCompilerClass(),
-                        peekedToken,
+                        nextToken,
                         String.format(
                                 ParserErrorType.SYNTAX_ERROR_TEMPLATE,
                                 "Identifier call",
                                 "<identifier call>",
-                                peekedToken != null ? peekedToken.getTokenContent() : "nothing"
+                                nextToken != null ? nextToken.getTokenContent() : "nothing"
                         )
                 );
             }

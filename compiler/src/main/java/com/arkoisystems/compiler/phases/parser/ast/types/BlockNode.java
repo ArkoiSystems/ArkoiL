@@ -167,16 +167,16 @@ public class BlockNode extends ParserNode
         this.isInlined = true;
         
         if (!ExpressionNode.GLOBAL_NODE.canParse(this.getParser(), 1)) {
-            final LexerToken peekedToken = this.getParser().peekToken(1);
+            final LexerToken nextToken = this.getParser().nextToken();
             this.addError(
                     this,
                     this.getParser().getCompilerClass(),
-                    peekedToken,
+                    nextToken,
                     String.format(
                             ParserErrorType.SYNTAX_ERROR_TEMPLATE,
                             "Inline block",
                             "<expression>",
-                            peekedToken != null ? peekedToken.getTokenContent() : "nothing"
+                            nextToken != null ? nextToken.getTokenContent() : "nothing"
                     )
             );
             return;

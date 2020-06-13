@@ -63,38 +63,44 @@ public class Linker
     @SneakyThrows
     public boolean processStage() {
         final BytePointer errorPointer = new BytePointer();
-        
+    
         LLVM.LLVMInitializeAllTargetInfos();
         LLVM.LLVMInitializeAllTargets();
         LLVM.LLVMInitializeAllTargetMCs();
         LLVM.LLVMInitializeAllAsmPrinters();
         LLVM.LLVMInitializeAllAsmParsers();
-        
+    
         final BytePointer targetTriple = LLVM.LLVMGetDefaultTargetTriple();
         final LLVMTargetRef targetRef = new LLVMTargetRef();
         LLVM.LLVMGetTargetFromTriple(targetTriple, targetRef, errorPointer);
-        if (!Pointer.isNull(errorPointer))
-            throw new NullPointerException(errorPointer.getString());
-        
+        if (!Pointer.isNull(errorPointer)) {
+            this.setFailed(true);
+            return false;
+        }
+    
         final lto_code_gen_t codeGen = LLVM.lto_codegen_create();
         LLVM.lto_codegen_set_pic_model(codeGen, LLVM.LTO_CODEGEN_PIC_MODEL_DEFAULT);
         LLVM.lto_codegen_set_debug_model(codeGen, LLVM.LTO_DEBUG_MODEL_NONE);
-        
+    
         final List<lto_module_t> ltoModules = new ArrayList<>();
         for (final ModuleGen moduleGen : this.getModuleGens()) {
             final LLVMMemoryBufferRef memoryBuffer = LLVM.LLVMWriteBitcodeToMemoryBuffer(moduleGen.getModuleRef());
             final BytePointer start = LLVM.LLVMGetBufferStart(memoryBuffer);
             final long size = LLVM.LLVMGetBufferSize(memoryBuffer);
-            if (!LLVM.lto_module_is_object_file_in_memory(start, size))
+            if (!LLVM.lto_module_is_object_file_in_memory(start, size)) {
+                this.setFailed(true);
                 return false;
-            
+            }
+        
             final lto_module_t ltoModule = LLVM.lto_module_create_from_memory(start, size);
             LLVM.lto_module_set_target_triple(ltoModule, targetTriple);
             LLVM.LLVMDisposeMemoryBuffer(memoryBuffer);
-            
-            if (LLVM.lto_codegen_add_module(codeGen, ltoModule))
+        
+            if (LLVM.lto_codegen_add_module(codeGen, ltoModule)) {
+                this.setFailed(true);
                 return false;
-            
+            }
+        
             ltoModules.add(ltoModule);
         }
         

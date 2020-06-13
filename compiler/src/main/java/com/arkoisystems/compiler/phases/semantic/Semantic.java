@@ -49,21 +49,25 @@ public class Semantic
                 .forEach(importNode -> {
                     if (importNode.getName() != null)
                         return;
-                    
+    
                     final CompilerClass compilerClass = importNode.resolveClass();
                     if (compilerClass == null)
                         return;
-                    
+    
                     this.getCompilerClass().getRootScope().getSymbolTable().putAll(compilerClass.getRootScope().getSymbolTable());
                 });
-        
+    
         final TypeVisitor typeVisitor = new TypeVisitor(this);
         typeVisitor.visit(this.getCompilerClass().getParser().getRootNode());
-        
+        if (typeVisitor.isFailed())
+            this.setFailed(true);
+    
         final ScopeVisitor scopeVisitor = new ScopeVisitor(this);
         scopeVisitor.visit(this.getCompilerClass().getParser().getRootNode());
-        
-        return !typeVisitor.isFailed() && !scopeVisitor.isFailed();
+        if (scopeVisitor.isFailed())
+            this.setFailed(true);
+    
+        return !this.isFailed();
     }
     
 }
