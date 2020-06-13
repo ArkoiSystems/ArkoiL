@@ -94,16 +94,16 @@ public class ParameterNode extends ParserNode
         this.getCurrentScope().insert(this.getName().getTokenContent(), this);
         
         if (this.getParser().matchesPeekToken(1, SymbolType.COLON) == null) {
-            final LexerToken peekedToken = this.getParser().peekToken(1);
+            final LexerToken nextToken = this.getParser().nextToken();
             return this.addError(
                     this,
                     this.getParser().getCompilerClass(),
-                    peekedToken,
+                    nextToken,
                     String.format(
                             ParserErrorType.SYNTAX_ERROR_TEMPLATE,
                             "Parameter",
                             "':'",
-                            peekedToken != null ? peekedToken.getTokenContent() : "nothing"
+                            nextToken != null ? nextToken.getTokenContent() : "nothing"
                     )
             );
         }

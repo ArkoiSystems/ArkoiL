@@ -23,7 +23,7 @@ public class ParserErrorType
     
     public static final String SYNTAX_ERROR_TEMPLATE = "%s expected %s but got '%s' instead.";
     
-    public static final String ROOT_NO_PARSER_FOUND = "The root node couldn't parse the  token.";
+    public static final String ROOT_NO_PARSER_FOUND = "The root node couldn't parse the token.";
     
     public static final String BLOCK_NO_PARSER_FOUND = "The block couldn't parse the token.";
     

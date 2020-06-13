@@ -64,8 +64,10 @@ public class Parser
         this.tokens = this.compilerClass.getLexer().getTokens().toArray(LexerToken[]::new);
         if (this.tokens.length == 0)
             return true;
-        
-        return !this.rootNode.parse().isFailed();
+    
+        if (this.rootNode.parse().isFailed())
+            this.setFailed(true);
+        return !this.isFailed();
     }
     
     @Nullable
@@ -140,23 +142,6 @@ public class Parser
     }
     
     @Nullable
-    public OperatorToken matchesNextToken(@NotNull final OperatorType operatorType) {
-        return this.matchesNextToken(operatorType, true);
-    }
-    
-    @Nullable
-    public OperatorToken matchesNextToken(@NotNull final OperatorType operatorType, final boolean advance) {
-        final LexerToken nextToken = this.nextToken(advance);
-        if (!(nextToken instanceof OperatorToken))
-            return null;
-        
-        final OperatorToken operatorToken = (OperatorToken) nextToken;
-        if (operatorToken.getOperatorType() != operatorType)
-            return null;
-        return operatorToken;
-    }
-    
-    @Nullable
     public OperatorToken matchesPeekToken(final int offset, @NotNull final OperatorType operatorType) {
         return this.matchesPeekToken(offset, operatorType, true);
     }
@@ -188,23 +173,6 @@ public class Parser
             return null;
         
         final KeywordToken keywordToken = (KeywordToken) currentToken;
-        if (keywordToken.getKeywordType() != keywordType)
-            return null;
-        return keywordToken;
-    }
-    
-    @Nullable
-    public KeywordToken matchesNextToken(@NotNull final KeywordType keywordType) {
-        return this.matchesNextToken(keywordType, true);
-    }
-    
-    @Nullable
-    public KeywordToken matchesNextToken(@NotNull final KeywordType keywordType, final boolean advance) {
-        final LexerToken nextToken = this.nextToken(advance);
-        if (!(nextToken instanceof KeywordToken))
-            return null;
-        
-        final KeywordToken keywordToken = (KeywordToken) nextToken;
         if (keywordToken.getKeywordType() != keywordType)
             return null;
         return keywordToken;
@@ -244,21 +212,6 @@ public class Parser
     }
     
     @Nullable
-    public LexerToken matchesNextToken(@NotNull final TokenType tokenType) {
-        return this.matchesNextToken(tokenType, true);
-    }
-    
-    @Nullable
-    public LexerToken matchesNextToken(@NotNull final TokenType tokenType, final boolean advance) {
-        final LexerToken nextToken = this.nextToken(advance);
-        if (nextToken == null)
-            return null;
-        if (nextToken.getTokenType() != tokenType)
-            return null;
-        return nextToken;
-    }
-    
-    @Nullable
     public LexerToken matchesPeekToken(final int offset, @NotNull final TokenType tokenType) {
         return this.matchesPeekToken(offset, tokenType, true);
     }
@@ -276,10 +229,6 @@ public class Parser
         return peekToken;
     }
     
-    @Nullable
-    public LexerToken peekToken(final int offset) {
-        return this.peekToken(offset, true);
-    }
     
     @Nullable
     public LexerToken peekToken(final int offset, final boolean advance) {

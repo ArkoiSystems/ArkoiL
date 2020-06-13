@@ -21,6 +21,7 @@ package com.arkoisystems.compiler.phases.semantic.routines;
 import com.arkoisystems.compiler.CompilerClass;
 import com.arkoisystems.compiler.error.CompilerError;
 import com.arkoisystems.compiler.error.ErrorPosition;
+import com.arkoisystems.compiler.phases.lexer.token.LexerToken;
 import com.arkoisystems.compiler.phases.parser.ast.ParserNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.BlockNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.RootNode;
@@ -153,7 +154,18 @@ public class ScopeVisitor implements IVisitor<ParserNode>
         Objects.requireNonNull(importNode.getCurrentScope(), "importNode.currentScope must not be null.");
         Objects.requireNonNull(importNode.getFilePath(), "importNode.filePath must not be null.");
         Objects.requireNonNull(importNode.getParser(), "importNode.parser must not be null.");
-        
+    
+        if (importNode.resolveClass() == null)
+            return this.addError(
+                    null,
+                    importNode.getParser().getCompilerClass(),
+                    importNode.getFilePath(),
+                    String.format(
+                            "Path doesn't lead to any file %s.",
+                            importNode.getFilePath().getTokenContent()
+                    )
+            );
+    
         final List<ImportNode> imports = importNode.getParser().getRootNode().getNodes().stream()
                 .filter(node -> node instanceof ImportNode)
                 .map(node -> (ImportNode) node)
@@ -399,6 +411,28 @@ public class ScopeVisitor implements IVisitor<ParserNode>
                         .lineRange(Objects.requireNonNull(astNode.getLineRange(), "astNode.lineRange must not be null."))
                         .charStart(Objects.requireNonNull(astNode.getStartToken(), "astNode.startToken must not be null.").getCharStart())
                         .charEnd(Objects.requireNonNull(astNode.getEndToken(), "astNode.endToken must not be null.").getCharEnd())
+                        .build())
+                .causeMessage(causeMessage)
+                .build()
+        );
+    
+        this.setFailed(true);
+        return errorSource;
+    }
+    
+    public <E> E addError(
+            @Nullable final E errorSource,
+            @NotNull final CompilerClass compilerClass,
+            @NotNull final LexerToken lexerToken,
+            @NotNull final String causeMessage
+    ) {
+        compilerClass.getCompiler().getErrorHandler().addError(CompilerError.builder()
+                .causePosition(ErrorPosition.builder()
+                        .sourceCode(lexerToken.getLexer().getCompilerClass().getContent())
+                        .filePath(lexerToken.getLexer().getCompilerClass().getFilePath())
+                        .lineRange(lexerToken.getLineRange())
+                        .charStart(lexerToken.getCharStart())
+                        .charEnd(lexerToken.getCharEnd())
                         .build())
                 .causeMessage(causeMessage)
                 .build()

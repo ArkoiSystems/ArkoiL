@@ -116,16 +116,16 @@ public class VariableNode extends StatementNode
         this.isConstant = this.getParser().matchesCurrentToken(KeywordType.CONST) != null;
         
         if (this.getParser().matchesPeekToken(1, TokenType.IDENTIFIER) == null) {
-            final LexerToken peekedToken = this.getParser().peekToken(1);
+            final LexerToken nextToken = this.getParser().nextToken();
             return this.addError(
                     this,
                     this.getParser().getCompilerClass(),
-                    peekedToken,
+                    nextToken,
                     String.format(
                             ParserErrorType.SYNTAX_ERROR_TEMPLATE,
                             "Variable",
                             "<identifier>",
-                            peekedToken != null ? peekedToken.getTokenContent() : "nothing"
+                            nextToken != null ? nextToken.getTokenContent() : "nothing"
                     )
             );
         }
@@ -140,16 +140,16 @@ public class VariableNode extends StatementNode
             this.getParser().nextToken();
             
             if (this.getParser().matchesPeekToken(1, TokenType.TYPE) == null) {
-                final LexerToken peekedToken = this.getParser().peekToken(1);
+                final LexerToken nextToken = this.getParser().nextToken();
                 return this.addError(
                         this,
                         this.getParser().getCompilerClass(),
-                        peekedToken,
+                        nextToken,
                         String.format(
                                 ParserErrorType.SYNTAX_ERROR_TEMPLATE,
                                 "Variable",
                                 "<identifier>",
-                                peekedToken != null ? peekedToken.getTokenContent() : "nothing"
+                                nextToken != null ? nextToken.getTokenContent() : "nothing"
                         )
                 );
             }
@@ -174,16 +174,16 @@ public class VariableNode extends StatementNode
             this.getParser().nextToken();
             
             if (!ExpressionNode.GLOBAL_NODE.canParse(this.getParser(), 1)) {
-                final LexerToken peekedToken = this.getParser().peekToken(1);
+                final LexerToken nextToken = this.getParser().nextToken();
                 return this.addError(
                         this,
                         this.getParser().getCompilerClass(),
-                        peekedToken,
+                        nextToken,
                         String.format(
                                 ParserErrorType.SYNTAX_ERROR_TEMPLATE,
                                 "Variable",
                                 "<expression>",
-                                peekedToken != null ? peekedToken.getTokenContent() : "nothing"
+                                nextToken != null ? nextToken.getTokenContent() : "nothing"
                         )
                 );
             }

@@ -94,16 +94,16 @@ public class ImportNode extends StatementNode
         this.startAST(this.getParser().currentToken());
         
         if (this.getParser().matchesPeekToken(1, TokenType.STRING) == null) {
-            final LexerToken peekedToken = this.getParser().peekToken(1);
+            final LexerToken nextToken = this.getParser().nextToken();
             return this.addError(
                     this,
                     this.getParser().getCompilerClass(),
-                    peekedToken,
+                    nextToken,
                     String.format(
                             ParserErrorType.SYNTAX_ERROR_TEMPLATE,
                             "Import",
                             "<string>",
-                            peekedToken != null ? peekedToken.getTokenContent() : "nothing"
+                            nextToken != null ? nextToken.getTokenContent() : "nothing"
                     )
             );
         }
@@ -112,33 +112,23 @@ public class ImportNode extends StatementNode
         Objects.requireNonNull(this.getFilePath(), "filePath must not be null.");
         if (this.getFilePath().getTokenContent().endsWith(".ark"))
             this.getFilePath().setTokenContent(this.getFilePath().getTokenContent().substring(0, this.getFilePath().getTokenContent().length() - 4));
-        
-        final CompilerClass resolvedClass = this.resolveClass();
-        if (resolvedClass == null)
-            return this.addError(
-                    this,
-                    this.getParser().getCompilerClass(),
-                    this.getFilePath(),
-                    String.format(
-                            "Path doesn't lead to any file %s.",
-                            this.getFilePath().getTokenContent()
-                    )
-            );
+    
+        this.resolveClass();
         
         if (this.getParser().matchesPeekToken(1, KeywordType.AS) != null) {
             this.getParser().nextToken();
             
             if (this.getParser().matchesPeekToken(1, TokenType.IDENTIFIER) == null) {
-                final LexerToken peekedToken = this.getParser().peekToken(1);
+                final LexerToken nextToken = this.getParser().nextToken();
                 return this.addError(
                         this,
                         this.getParser().getCompilerClass(),
-                        peekedToken,
+                        nextToken,
                         String.format(
                                 ParserErrorType.SYNTAX_ERROR_TEMPLATE,
                                 "Import",
                                 "<identifier>",
-                                peekedToken != null ? peekedToken.getTokenContent() : "nothing"
+                                nextToken != null ? nextToken.getTokenContent() : "nothing"
                         )
                 );
             }
@@ -194,18 +184,20 @@ public class ImportNode extends StatementNode
         
         if (!targetFile.exists())
             return null;
-        
+    
         final Compiler compiler = this.getParser().getCompilerClass().getCompiler();
         for (final CompilerClass compilerClass : compiler.getClasses()) {
             if (compilerClass.getFilePath().equals(targetFile.getCanonicalPath()))
                 return compilerClass;
         }
-        
+    
         final CompilerClass compilerClass = new CompilerClass(compiler, targetFile);
         compiler.getClasses().add(compilerClass);
-        
-        compilerClass.getLexer().processStage();
-        compilerClass.getParser().processStage();
+    
+        if (!compilerClass.getLexer().processStage())
+            return null;
+        if (!compilerClass.getParser().processStage())
+            return null;
         return compilerClass;
     }
     
