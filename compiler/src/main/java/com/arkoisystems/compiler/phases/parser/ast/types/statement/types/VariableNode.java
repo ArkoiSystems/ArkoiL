@@ -27,6 +27,7 @@ import com.arkoisystems.compiler.phases.lexer.token.types.IdentifierToken;
 import com.arkoisystems.compiler.phases.parser.Parser;
 import com.arkoisystems.compiler.phases.parser.ParserErrorType;
 import com.arkoisystems.compiler.phases.parser.SymbolTable;
+import com.arkoisystems.compiler.phases.parser.ast.DataKind;
 import com.arkoisystems.compiler.phases.parser.ast.ParserNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.TypeNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.OperableNode;
@@ -129,16 +130,19 @@ public class VariableNode extends StatementNode
                     )
             );
         }
-        
-        this.name = (IdentifierToken) this.getParser().nextToken();
-        
+    
+        final IdentifierToken identifierToken = (IdentifierToken) this.getParser().nextToken();
+        if (identifierToken == null)
+            throw new NullPointerException();
+    
+        this.name = identifierToken;
+    
         Objects.requireNonNull(this.getCurrentScope(), "currentScope must not be null.");
-        Objects.requireNonNull(this.getName(), "name must not be null.");
-        this.getCurrentScope().insert(this.getName().getTokenContent(), this);
-        
+        this.getCurrentScope().insert(identifierToken.getTokenContent(), this);
+    
         if (this.getParser().matchesPeekToken(1, SymbolType.COLON) != null) {
             this.getParser().nextToken();
-            
+        
             if (this.getParser().matchesPeekToken(1, TokenType.TYPE) == null) {
                 final LexerToken nextToken = this.getParser().nextToken();
                 return this.addError(
@@ -223,9 +227,17 @@ public class VariableNode extends StatementNode
     public TypeNode getTypeNode() {
         if (this.getReturnType() != null)
             return this.getReturnType();
-        
-        Objects.requireNonNull(this.getExpression(), "expression must not be null.");
-        return this.getExpression().getTypeNode();
+        if (this.getExpression() != null)
+            return this.getExpression().getTypeNode();
+    
+        return TypeNode.builder()
+                .parentNode(this)
+                .currentScope(this.getCurrentScope())
+                .parser(this.getParser())
+                .dataKind(DataKind.UNDEFINED)
+                .startToken(this.getStartToken())
+                .endToken(this.getEndToken())
+                .build();
     }
     
 }

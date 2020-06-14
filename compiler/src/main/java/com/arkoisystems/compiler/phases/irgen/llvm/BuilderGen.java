@@ -111,4 +111,9 @@ public class BuilderGen
         return LLVM.LLVMBuildLoad(this.getBuilderRef(), valueRef, "");
     }
     
+    @NotNull
+    public LLVMValueRef buildNeg(@NonNull final LLVMValueRef rhsValue) {
+        return LLVM.LLVMBuildNeg(this.getBuilderRef(), rhsValue, "");
+    }
+    
 }

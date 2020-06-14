@@ -51,7 +51,7 @@ import java.util.stream.Collectors;
 public class IdentifierNode extends OperableNode
 {
     
-    public static IdentifierNode GLOBAL_NODE = new IdentifierNode(null, null, null, null, null, null, null, null, false);
+    public static IdentifierNode GLOBAL_NODE = new IdentifierNode(null, null, null, null, null, null, null, null);
     
     @Printable(name = "called identifier")
     @Nullable
@@ -77,8 +77,7 @@ public class IdentifierNode extends OperableNode
             @Nullable final ExpressionListNode expressions,
             @Nullable final IdentifierToken identifier,
             @Nullable final LexerToken startToken,
-            @Nullable final LexerToken endToken,
-            final boolean isFileLocal
+            @Nullable final LexerToken endToken
     ) {
         super(parser, parentNode, currentScope, startToken, endToken);
         
@@ -153,6 +152,7 @@ public class IdentifierNode extends OperableNode
             this.getParser().nextToken();
             
             final IdentifierNode identifierOperable = IdentifierNode.builder()
+                    .parentNode(this)
                     .currentScope(this.getCurrentScope())
                     .parser(this.getParser())
                     .build()
@@ -190,12 +190,14 @@ public class IdentifierNode extends OperableNode
             Objects.requireNonNull(this.getParser().getRootNode().getCurrentScope(), "parser.rootNode.currentScope must not be null.");
             
             final List<ParserNode> nodes = this.getParser().getRootNode().getCurrentScope().lookupScope(this.getIdentifier().getTokenContent());
+    
             if (nodes != null && !nodes.isEmpty()) {
                 final List<FunctionNode> functions = nodes.stream()
                         .filter(node -> node instanceof FunctionNode)
                         .map(node -> (FunctionNode) node)
                         .filter(node -> node.equalsToIdentifier(this))
                         .collect(Collectors.toList());
+        
                 if (!functions.isEmpty())
                     foundNode = functions.get(0);
             }
@@ -223,8 +225,9 @@ public class IdentifierNode extends OperableNode
                 return this.getNextIdentifier().getTypeNode();
             }
         }
-        
+    
         return TypeNode.builder()
+                .parentNode(this)
                 .currentScope(this.getCurrentScope())
                 .parser(this.getParser())
                 .dataKind(DataKind.UNDEFINED)

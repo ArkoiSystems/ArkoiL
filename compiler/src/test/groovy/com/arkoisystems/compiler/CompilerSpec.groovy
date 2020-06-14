@@ -24,11 +24,8 @@ import spock.lang.Specification
 class CompilerSpec extends Specification {
     
     def "are natives compilable"() {
-        given:
-        def arkoiCompiler = new Compiler("../natives")
-        
         expect:
-        arkoiCompiler.compile(System.out)
+        Bootstrap.compile("../natives", "../natives/out")
     }
     
     def "can pass basic test"() {

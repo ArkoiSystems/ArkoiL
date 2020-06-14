@@ -23,7 +23,6 @@ import com.arkoisystems.compiler.CompilerClass;
 import com.arkoisystems.compiler.phases.lexer.token.LexerToken;
 import com.arkoisystems.compiler.phases.lexer.token.enums.KeywordType;
 import com.arkoisystems.compiler.phases.lexer.token.enums.TokenType;
-import com.arkoisystems.compiler.phases.lexer.token.types.IdentifierToken;
 import com.arkoisystems.compiler.phases.lexer.token.types.StringToken;
 import com.arkoisystems.compiler.phases.parser.Parser;
 import com.arkoisystems.compiler.phases.parser.ParserErrorType;
@@ -45,15 +44,11 @@ import java.util.Objects;
 public class ImportNode extends StatementNode
 {
     
-    public static ImportNode GLOBAL_NODE = new ImportNode(null, null, null, null, null, null, null);
+    public static ImportNode GLOBAL_NODE = new ImportNode(null, null, null, null, null, null);
     
     @Printable(name = "file path")
     @Nullable
     private StringToken filePath;
-    
-    @Printable(name = "name")
-    @Nullable
-    private IdentifierToken name;
     
     @Builder
     protected ImportNode(
@@ -61,14 +56,12 @@ public class ImportNode extends StatementNode
             @Nullable final ParserNode parentNode,
             @Nullable final SymbolTable currentScope,
             @Nullable final StringToken filePath,
-            @Nullable final IdentifierToken name,
             @Nullable final LexerToken startToken,
             @Nullable final LexerToken endToken
     ) {
         super(parser, parentNode, currentScope, startToken, endToken);
         
         this.filePath = filePath;
-        this.name = name;
     }
     
     @NotNull
@@ -114,31 +107,6 @@ public class ImportNode extends StatementNode
             this.getFilePath().setTokenContent(this.getFilePath().getTokenContent().substring(0, this.getFilePath().getTokenContent().length() - 4));
     
         this.resolveClass();
-        
-        if (this.getParser().matchesPeekToken(1, KeywordType.AS) != null) {
-            this.getParser().nextToken();
-            
-            if (this.getParser().matchesPeekToken(1, TokenType.IDENTIFIER) == null) {
-                final LexerToken nextToken = this.getParser().nextToken();
-                return this.addError(
-                        this,
-                        this.getParser().getCompilerClass(),
-                        nextToken,
-                        String.format(
-                                ParserErrorType.SYNTAX_ERROR_TEMPLATE,
-                                "Import",
-                                "<identifier>",
-                                nextToken != null ? nextToken.getTokenContent() : "nothing"
-                        )
-                );
-            }
-            
-            this.name = (IdentifierToken) this.getParser().nextToken();
-            
-            Objects.requireNonNull(this.getCurrentScope(), "currentScope must not be null.");
-            Objects.requireNonNull(this.getName(), "name must not be null.");
-            this.getCurrentScope().insert(this.getName().getTokenContent(), this);
-        }
         
         this.endAST(this.getParser().currentToken());
         return this;
