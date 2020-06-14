@@ -1,6 +1,6 @@
 import "system"
 
-fun main(): i32 {
+fun main() {
     const result = println("Something \n %i", 1)
     printf("(%d)\n", result)
     return 0
