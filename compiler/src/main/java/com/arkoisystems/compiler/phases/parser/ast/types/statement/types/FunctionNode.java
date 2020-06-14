@@ -54,7 +54,11 @@ public class FunctionNode extends StatementNode
     
     @Printable(name = "function generator")
     @Setter
+    @Nullable
     private FunctionGen functionGen;
+    
+    @Printable(name = "built in")
+    private boolean builtin;
     
     @Printable(name = "name")
     @Nullable
@@ -64,6 +68,7 @@ public class FunctionNode extends StatementNode
     @Nullable
     private TypeNode returnType;
     
+    @Printable(name = "parameters")
     @Nullable
     private ParameterListNode parameters;
     
@@ -110,42 +115,50 @@ public class FunctionNode extends StatementNode
                     )
             );
         }
-        
+    
         this.startAST(this.getParser().currentToken());
-        
+    
+        if (this.getParser().matchesPeekToken(1, SymbolType.AT_SIGN) != null) {
+            this.getParser().nextToken();
+            this.builtin = true;
+        }
+    
         if (this.getParser().matchesPeekToken(1, TokenType.IDENTIFIER) == null) {
-            final LexerToken peekedToken = this.getParser().peekToken(1);
+            final LexerToken nextToken = this.getParser().nextToken();
             return this.addError(
                     this,
                     this.getParser().getCompilerClass(),
-                    peekedToken,
+                    nextToken,
                     String.format(
                             ParserErrorType.SYNTAX_ERROR_TEMPLATE,
                             "Function",
                             "<identifier>",
-                            peekedToken != null ? peekedToken.getTokenContent() : "nothing"
+                            nextToken != null ? nextToken.getTokenContent() : "nothing"
                     )
             );
         }
-        
-        this.name = (IdentifierToken) this.getParser().nextToken();
-        
+    
+        final IdentifierToken identifierToken = (IdentifierToken) this.getParser().nextToken();
+        if (identifierToken == null)
+            throw new NullPointerException();
+    
+        this.name = identifierToken;
+    
         Objects.requireNonNull(this.getCurrentScope(), "currentScope must not be null.");
-        Objects.requireNonNull(this.getName(), "name must not be null.");
-        this.getCurrentScope().insert(this.getName().getTokenContent(), this);
+        this.getCurrentScope().insert(identifierToken.getTokenContent(), this);
         this.setCurrentScope(new SymbolTable(this.getCurrentScope()));
-        
+    
         if (!ParameterListNode.GLOBAL_NODE.canParse(this.getParser(), 1)) {
-            final LexerToken peekedToken = this.getParser().peekToken(1);
+            final LexerToken nextToken = this.getParser().nextToken();
             return this.addError(
                     this,
                     this.getParser().getCompilerClass(),
-                    peekedToken,
+                    nextToken,
                     String.format(
                             ParserErrorType.SYNTAX_ERROR_TEMPLATE,
                             "Function",
                             "'('",
-                            peekedToken != null ? peekedToken.getTokenContent() : "nothing"
+                            nextToken != null ? nextToken.getTokenContent() : "nothing"
                     )
             );
         }
@@ -167,18 +180,18 @@ public class FunctionNode extends StatementNode
         
         if (this.getParser().matchesPeekToken(1, SymbolType.COLON) != null) {
             this.getParser().nextToken();
-            
-            if (this.getParser().matchesPeekToken(1, TokenType.TYPE) == null) {
-                final LexerToken peekedToken = this.getParser().peekToken(1);
+    
+            if (!TypeNode.GLOBAL_NODE.canParse(this.getParser(), 1)) {
+                final LexerToken nextToken = this.getParser().nextToken();
                 return this.addError(
                         this,
                         this.getParser().getCompilerClass(),
-                        peekedToken,
+                        nextToken,
                         String.format(
                                 ParserErrorType.SYNTAX_ERROR_TEMPLATE,
                                 "Function",
-                                "<identifier>",
-                                peekedToken != null ? peekedToken.getTokenContent() : "nothing"
+                                "<type>",
+                                nextToken != null ? nextToken.getTokenContent() : "nothing"
                         )
                 );
             }
@@ -200,8 +213,18 @@ public class FunctionNode extends StatementNode
         }
         
         if (BlockNode.GLOBAL_NODE.canParse(this.getParser(), 1)) {
+            if (this.isBuiltin()) {
+                final LexerToken nextToken = this.getParser().nextToken();
+                return this.addError(
+                        this,
+                        this.getParser().getCompilerClass(),
+                        nextToken,
+                        "A builtin function can't have a block declaration."
+                );
+            }
+    
             this.getParser().nextToken();
-            
+    
             final BlockNode blockNodeAST = BlockNode.builder()
                     .parentNode(this)
                     .currentScope(this.getCurrentScope())
@@ -234,9 +257,17 @@ public class FunctionNode extends StatementNode
     public TypeNode getTypeNode() {
         if (this.getReturnType() != null)
             return this.getReturnType();
-        
-        Objects.requireNonNull(this.getBlockNode(), "blockNode must not be null.");
-        return this.getBlockNode().getTypeNode();
+        if (this.getBlockNode() != null)
+            return this.getBlockNode().getTypeNode();
+    
+        return TypeNode.builder()
+                .parentNode(this)
+                .currentScope(this.getCurrentScope())
+                .parser(this.getParser())
+                .dataKind(DataKind.UNDEFINED)
+                .startToken(this.getStartToken())
+                .endToken(this.getEndToken())
+                .build();
     }
     
     public boolean equalsToFunction(@NotNull final FunctionNode functionNode) {
@@ -274,15 +305,15 @@ public class FunctionNode extends StatementNode
         
         Objects.requireNonNull(identifierNode.getExpressions(), "identifierNode.expressions must not be null.");
         for (int index = 0; index < this.getParameters().getParameters().size(); index++) {
-            final ParameterNode parameterNode = this.getParameters().getParameters().get(index);
-            if (parameterNode.getTypeNode().getDataKind() == DataKind.VARIADIC)
+            final ParameterNode targetParameter = this.getParameters().getParameters().get(index);
+            if (targetParameter.getTypeNode().getDataKind() == DataKind.VARIADIC)
                 break;
-            
+    
             if (index >= identifierNode.getExpressions().getExpressions().size())
                 return false;
-            
-            final OperableNode expressionNode = identifierNode.getExpressions().getExpressions().get(index);
-            if (parameterNode.getTypeNode().getDataKind() != expressionNode.getTypeNode().getDataKind())
+    
+            final OperableNode identifierExpression = identifierNode.getExpressions().getExpressions().get(index);
+            if (!targetParameter.getTypeNode().equals(identifierExpression.getTypeNode()))
                 return false;
         }
         

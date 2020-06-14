@@ -19,6 +19,7 @@
 package com.arkoisystems.compiler.phases.semantic;
 
 import com.arkoisystems.compiler.CompilerClass;
+import com.arkoisystems.compiler.phases.parser.ast.types.RootNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.statement.types.ImportNode;
 import com.arkoisystems.compiler.phases.semantic.routines.ScopeVisitor;
 import com.arkoisystems.compiler.phases.semantic.routines.TypeVisitor;
@@ -42,32 +43,35 @@ public class Semantic
     }
     
     @SneakyThrows
-    public boolean processStage() {
-        this.getCompilerClass().getParser().getRootNode().getNodes().stream()
-                .filter(node -> node instanceof ImportNode)
-                .map(node -> (ImportNode) node)
-                .forEach(importNode -> {
-                    if (importNode.getName() != null)
-                        return;
-    
-                    final CompilerClass compilerClass = importNode.resolveClass();
-                    if (compilerClass == null)
-                        return;
-    
-                    this.getCompilerClass().getRootScope().getSymbolTable().putAll(compilerClass.getRootScope().getSymbolTable());
-                });
-    
+    public void processStage() {
+        this.importAllClasses(this.getCompilerClass().getParser().getRootNode());
+        
         final TypeVisitor typeVisitor = new TypeVisitor(this);
         typeVisitor.visit(this.getCompilerClass().getParser().getRootNode());
         if (typeVisitor.isFailed())
             this.setFailed(true);
-    
+        
         final ScopeVisitor scopeVisitor = new ScopeVisitor(this);
         scopeVisitor.visit(this.getCompilerClass().getParser().getRootNode());
         if (scopeVisitor.isFailed())
             this.setFailed(true);
+    }
     
-        return !this.isFailed();
+    public void importAllClasses(@NotNull final RootNode rootNode) {
+        rootNode.getNodes().stream()
+                .filter(node -> node instanceof ImportNode)
+                .map(node -> (ImportNode) node)
+                .forEach(importNode -> {
+                    final CompilerClass compilerClass = importNode.resolveClass();
+                    if (compilerClass == null)
+                        return;
+                    
+                    this.getCompilerClass().getRootScope().getSymbolTable().putAll(
+                            compilerClass.getRootScope().getSymbolTable()
+                    );
+                    
+                    this.importAllClasses(compilerClass.getParser().getRootNode());
+                });
     }
     
 }

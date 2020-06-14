@@ -70,7 +70,8 @@ public class RootNode extends ParserNode
             final ParserNode foundNode = this.getValidNode(
                     FunctionNode.GLOBAL_NODE,
                     ImportNode.GLOBAL_NODE,
-                    VariableNode.GLOBAL_NODE
+                    VariableNode.GLOBAL_NODE,
+                    StructNode.GLOBAL_NODE
             );
             
             if (foundNode == null) {
@@ -116,7 +117,8 @@ public class RootNode extends ParserNode
             final ParserNode foundNode = this.getValidNode(
                     FunctionNode.GLOBAL_NODE,
                     ImportNode.GLOBAL_NODE,
-                    VariableNode.GLOBAL_NODE
+                    VariableNode.GLOBAL_NODE,
+                    StructNode.GLOBAL_NODE
             );
             
             if (foundNode != null)
