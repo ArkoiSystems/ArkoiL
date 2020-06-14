@@ -20,6 +20,7 @@ package com.arkoisystems.compiler.phases.irgen.llvm;
 
 import lombok.Builder;
 import lombok.Getter;
+import org.bytedeco.llvm.LLVM.LLVMBasicBlockRef;
 import org.bytedeco.llvm.LLVM.LLVMContextRef;
 import org.bytedeco.llvm.LLVM.LLVMTypeRef;
 import org.bytedeco.llvm.global.LLVM;
@@ -68,6 +69,20 @@ public class ContextGen
     @NotNull
     public LLVMTypeRef makeVoidType() {
         return LLVM.LLVMVoidTypeInContext(this.getContextRef());
+    }
+    
+    @NotNull
+    public LLVMTypeRef buildStruct() {
+        return LLVM.LLVMStructCreateNamed(this.getContextRef(), "");
+    }
+    
+    @NotNull
+    public LLVMBasicBlockRef appendBasicBlock(@NotNull final FunctionGen functionGen) {
+        return LLVM.LLVMAppendBasicBlockInContext(
+                this.getContextRef(),
+                functionGen.getFunctionRef(),
+                ""
+        );
     }
     
 }

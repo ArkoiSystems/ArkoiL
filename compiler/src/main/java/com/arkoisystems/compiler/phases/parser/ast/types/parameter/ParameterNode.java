@@ -85,14 +85,18 @@ public class ParameterNode extends ParserNode
                     )
             );
         }
-        
+    
         this.startAST(this.getParser().currentToken());
-        this.name = (IdentifierToken) this.getParser().currentToken();
-        
+    
+        final IdentifierToken identifierToken = (IdentifierToken) this.getParser().currentToken();
+        if (identifierToken == null)
+            throw new NullPointerException();
+    
+        this.name = identifierToken;
+    
         Objects.requireNonNull(this.getCurrentScope(), "currentScope must not be null.");
-        Objects.requireNonNull(this.getName(), "name must not be null.");
-        this.getCurrentScope().insert(this.getName().getTokenContent(), this);
-        
+        this.getCurrentScope().insert(identifierToken.getTokenContent(), this);
+    
         if (this.getParser().matchesPeekToken(1, SymbolType.COLON) == null) {
             final LexerToken nextToken = this.getParser().nextToken();
             return this.addError(
@@ -107,11 +111,11 @@ public class ParameterNode extends ParserNode
                     )
             );
         }
-        
-        this.getParser().nextToken(2);
-        
-        if (!TypeNode.GLOBAL_NODE.canParse(this.getParser(), 0)) {
-            final LexerToken currentToken = this.getParser().currentToken();
+    
+        this.getParser().nextToken();
+    
+        if (!TypeNode.GLOBAL_NODE.canParse(this.getParser(), 1)) {
+            final LexerToken currentToken = this.getParser().nextToken();
             return this.addError(
                     this,
                     this.getParser().getCompilerClass(),
@@ -124,7 +128,9 @@ public class ParameterNode extends ParserNode
                     )
             );
         }
-        
+    
+        this.getParser().nextToken();
+    
         final TypeNode typeNodeAST = TypeNode.builder()
                 .parentNode(this)
                 .currentScope(this.getCurrentScope())

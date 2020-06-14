@@ -54,6 +54,7 @@ public class BlockNode extends ParserNode
     
     @Printable(name = "builder generator")
     @Setter
+    @Nullable
     private BuilderGen builderGen;
     
     @Printable(name = "nodes")

@@ -42,13 +42,12 @@ public class IRGenerator
         this.compilerClass = compilerClass;
     }
     
-    public boolean processStage() {
+    public void processStage() {
         final IRVisitor visitor = new IRVisitor(this.getCompilerClass());
         this.moduleGen = visitor.visit(this.getCompilerClass().getParser().getRootNode());
     
         if (visitor.isFailed())
             this.setFailed(true);
-        return !this.isFailed();
     }
     
 }
