@@ -1,6 +1,6 @@
 /*
  * Copyright © 2019-2020 ArkoiSystems (https://www.arkoisystems.com/) All Rights Reserved.
- * Created ArkoiCompiler on March 27, 2020
+ * Created ArkoiCompiler on June 14, 2020
  * Author єхcsє#5543 aka timo
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,27 +16,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.arkoisystems.compiler.phases.lexer.token.enums;
+package com.arkoisystems.compiler.phases.irgen.builtin.function;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
+import com.arkoisystems.compiler.phases.irgen.IRVisitor;
+import com.arkoisystems.compiler.phases.irgen.builtin.Builtin;
+import com.arkoisystems.compiler.phases.parser.ast.types.statement.types.FunctionNode;
 import org.jetbrains.annotations.NotNull;
 
-@AllArgsConstructor
-@Getter
-public enum KeywordType
+public abstract class BIFunction implements Builtin
 {
     
-    THIS("this"),
-    VAR("var"),
-    CONST("const"),
-    RETURN("return"),
-    FUN("fun"),
-    AS("as"),
-    STRUCT("struct"),
-    IMPORT("import");
-    
-    @NotNull
-    private final String name;
+    public abstract void generateIR(
+            @NotNull final IRVisitor irVisitor,
+            @NotNull final FunctionNode functionNode
+    );
     
 }

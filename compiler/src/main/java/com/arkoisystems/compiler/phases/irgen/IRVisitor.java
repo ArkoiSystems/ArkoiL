@@ -22,11 +22,15 @@ import com.arkoisystems.compiler.CompilerClass;
 import com.arkoisystems.compiler.error.CompilerError;
 import com.arkoisystems.compiler.error.ErrorPosition;
 import com.arkoisystems.compiler.error.LineRange;
+import com.arkoisystems.compiler.phases.irgen.builtin.BIManager;
+import com.arkoisystems.compiler.phases.irgen.builtin.function.BIFunction;
+import com.arkoisystems.compiler.phases.irgen.builtin.structure.BIStructure;
 import com.arkoisystems.compiler.phases.irgen.llvm.*;
 import com.arkoisystems.compiler.phases.parser.ast.DataKind;
 import com.arkoisystems.compiler.phases.parser.ast.ParserNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.BlockNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.RootNode;
+import com.arkoisystems.compiler.phases.parser.ast.types.StructNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.TypeNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.OperableNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.IdentifierNode;
@@ -45,7 +49,6 @@ import com.arkoisystems.compiler.visitor.IVisitor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.SneakyThrows;
-import org.bytedeco.javacpp.PointerPointer;
 import org.bytedeco.javacpp.SizeTPointer;
 import org.bytedeco.llvm.LLVM.LLVMBasicBlockRef;
 import org.bytedeco.llvm.LLVM.LLVMTypeRef;
@@ -101,6 +104,14 @@ public class IRVisitor implements IVisitor<Object>
             case VOID:
                 typeRef = this.getContextGen().makeVoidType();
                 break;
+            case STRUCT:
+                Objects.requireNonNull(typeNode.getTargetNode(), "typeNode.targetNode must not be null.");
+                final Object object = this.visit(typeNode.getTargetNode());
+                if (!(object instanceof LLVMTypeRef))
+                    throw new NullPointerException();
+        
+                typeRef = (LLVMTypeRef) object;
+                break;
             default:
                 throw new NullPointerException("Unhandled type: " + typeNode.getDataKind().name());
         }
@@ -136,19 +147,28 @@ public class IRVisitor implements IVisitor<Object>
             ));
             if (!file.getParentFile().exists())
                 file.getParentFile().mkdirs();
-        
+    
             Files.write(file.toPath(), LLVM.LLVMPrintModuleToString(
                     moduleGen.getModuleRef()).getStringBytes()
             );
-        
+    
             this.getCompilerClass().getCompiler().getErrorHandler().getCompilerErrors().addAll(
                     this.getLLVMErrors(error, file.getCanonicalPath())
             );
             this.setFailed(true);
         }
     
-        moduleGen.dump();
+        final File file = new File(String.format(
+                "%s/test/%s.ll",
+                this.getCompilerClass().getCompiler().getOutputPath(),
+                LLVM.LLVMGetModuleIdentifier(moduleGen.getModuleRef(), new SizeTPointer(0)).getString()
+        ));
+        if (!file.getParentFile().exists())
+            file.getParentFile().mkdirs();
     
+        Files.write(file.toPath(), LLVM.LLVMPrintModuleToString(
+                moduleGen.getModuleRef()).getStringBytes()
+        );
         return moduleGen;
     }
     
@@ -166,13 +186,11 @@ public class IRVisitor implements IVisitor<Object>
             throw new NullPointerException();
     
         Objects.requireNonNull(targetFunction.getBlockNode(), "targetFunction.blockNode must not be null.");
-    
-        final BuilderGen builderGen = this.visit(targetFunction.getBlockNode());
-        final FunctionGen functionGen = this.visit(targetFunction);
-    
         Objects.requireNonNull(targetFunction.getParameters(), "targetFunction.parameters must not be null.");
         Objects.requireNonNull(targetFunction.getName(), "targetFunction.name must not be null.");
         Objects.requireNonNull(parameter.getName(), "parameter.name must not be null.");
+    
+        final FunctionGen functionGen = this.visit(targetFunction);
     
         int index = 0;
         for (; index < targetFunction.getParameters().getParameters().size(); index++) {
@@ -180,49 +198,6 @@ public class IRVisitor implements IVisitor<Object>
             Objects.requireNonNull(parameterNode.getName(), "parameterNode.name must not be null.");
             if (parameterNode.getName().getTokenContent().equals(parameter.getName().getTokenContent()))
                 break;
-        }
-        
-        // TODO: 6/11/20 VARIADIC doesn't work correctly
-        if (parameter.getTypeNode().getDataKind() == DataKind.VARIADIC) {
-            final LLVMTypeRef struct = LLVM.LLVMStructCreateNamed(LLVM.LLVMGetGlobalContext(), "");
-            LLVM.LLVMStructSetBody(struct, new PointerPointer<>(
-                    this.getContextGen().makeIntType(32),
-                    this.getContextGen().makeIntType(32),
-                    LLVM.LLVMPointerType(this.getContextGen().makeIntType(8), 0),
-                    LLVM.LLVMPointerType(this.getContextGen().makeIntType(8), 0)
-            ), 4, 0);
-            
-            final LLVMValueRef va_list = builderGen.buildAlloca(LLVM.LLVMArrayType(struct, 1));
-            final FunctionGen va_start = FunctionGen.builder()
-                    .moduleGen(this.getModuleGen())
-                    .parameters(new ParameterGen[] {
-                            ParameterGen.builder()
-                                    .typeRef(LLVM.LLVMPointerType(this.getContextGen().makeIntType(8), 0))
-                                    .name("")
-                                    .build()
-                    })
-                    .foreignFunction(true)
-                    .name("llvm.va_start")
-                    .returnType(this.getContextGen().makeVoidType())
-                    .build();
-            
-            builderGen.buildFunctionCall(
-                    va_start.getFunctionRef(),
-                    builderGen.buildBitCast(
-                            builderGen.buildInboundsGEP(
-                                    va_list,
-                                    LLVM.LLVMConstInt(this.getContextGen().makeIntType(32), 0, 1),
-                                    LLVM.LLVMConstInt(this.getContextGen().makeIntType(32), 0, 1)
-                            ),
-                            LLVM.LLVMPointerType(this.getContextGen().makeIntType(8), 0)
-                    )
-            );
-    
-            return builderGen.buildInboundsGEP(
-                    va_list,
-                    LLVM.LLVMConstInt(this.getContextGen().makeIntType(32), 0, 1),
-                    LLVM.LLVMConstInt(this.getContextGen().makeIntType(32), 0, 1)
-            );
         }
     
         return functionGen.getParameter(index);
@@ -281,12 +256,20 @@ public class IRVisitor implements IVisitor<Object>
                 .returnType(this.visit(functionNode.getTypeNode()))
                 .foreignFunction(foreign || functionNode.getBlockNode() == null)
                 .build();
-        
+    
         functionNode.setFunctionGen(functionGen);
+    
+        if (functionNode.isBuiltin()) {
+            final BIFunction foundFunction = BIManager.INSTANCE.getFunction(
+                    functionNode.getName().getTokenContent()
+            );
+            if (foundFunction == null)
+                throw new NullPointerException();
         
-        if (functionNode.getBlockNode() != null)
+            foundFunction.generateIR(this, functionNode);
+        } else if (functionNode.getBlockNode() != null)
             this.visit(functionNode.getBlockNode());
-        
+    
         return functionGen;
     }
     
@@ -564,8 +547,31 @@ public class IRVisitor implements IVisitor<Object>
         final LLVMValueRef rhsValue = (LLVMValueRef) rhsObject;
         final BuilderGen builderGen = blockNode.getBuilderGen();
         if (prefixNode.getOperatorType() == PrefixOperators.NEGATE)
-            return LLVM.LLVMBuildNeg(builderGen.getBuilderRef(), rhsValue, "");
+            return builderGen.buildNeg(rhsValue);
         return null;
+    }
+    
+    @Override
+    public LLVMTypeRef visit(final @NotNull StructNode structNode) {
+        Objects.requireNonNull(structNode.getName(), "structNode.name must not be null.");
+        
+        if (structNode.getStructRef() != null)
+            return structNode.getStructRef();
+        
+        final LLVMTypeRef structRef = this.getContextGen().buildStruct();
+        structNode.setStructRef(structRef);
+        
+        if (structNode.isBuiltin()) {
+            final BIStructure foundStructure = BIManager.INSTANCE.getStructure(
+                    structNode.getName().getTokenContent()
+            );
+            if (foundStructure == null)
+                throw new NullPointerException();
+            
+            foundStructure.generateIR(this, structNode);
+        }
+        
+        return structRef;
     }
     
     @NotNull

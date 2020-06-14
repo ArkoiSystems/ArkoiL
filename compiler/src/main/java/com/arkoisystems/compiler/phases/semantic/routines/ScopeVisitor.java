@@ -25,6 +25,7 @@ import com.arkoisystems.compiler.phases.lexer.token.LexerToken;
 import com.arkoisystems.compiler.phases.parser.ast.ParserNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.BlockNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.RootNode;
+import com.arkoisystems.compiler.phases.parser.ast.types.StructNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.TypeNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.IdentifierNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.NumberNode;
@@ -181,21 +182,6 @@ public class ScopeVisitor implements IVisitor<ParserNode>
                     imports.subList(1, imports.size()),
                     "Edit these imports to fix the problem."
             );
-        
-        if (importNode.getName() == null)
-            return importNode;
-        
-        final List<ParserNode> identifiers = importNode.getCurrentScope().lookupScope(importNode.getName().getTokenContent());
-        if (identifiers != null && !identifiers.isEmpty() && identifiers.size() != 1) {
-            return this.addError(
-                    null,
-                    importNode.getParser().getCompilerClass(),
-                    identifiers.get(0),
-                    "There already exists an identifier with the same name is this scope.",
-                    identifiers.subList(1, identifiers.size()),
-                    "Edit these identifiers to fix the problem."
-            );
-        }
         return importNode;
     }
     
@@ -362,6 +348,11 @@ public class ScopeVisitor implements IVisitor<ParserNode>
         Objects.requireNonNull(prefixNode.getRightHandSide(), "prefixNode.rightHandSide must not be null.");
         this.visit(prefixNode.getRightHandSide());
         return prefixNode;
+    }
+    
+    @Override
+    public StructNode visit(final @NotNull StructNode structNode) {
+        return structNode;
     }
     
     public <E> E addError(

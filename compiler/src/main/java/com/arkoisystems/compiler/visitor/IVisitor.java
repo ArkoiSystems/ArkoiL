@@ -21,6 +21,7 @@ package com.arkoisystems.compiler.visitor;
 import com.arkoisystems.compiler.phases.parser.ast.ParserNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.BlockNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.RootNode;
+import com.arkoisystems.compiler.phases.parser.ast.types.StructNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.TypeNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.IdentifierNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.NumberNode;
@@ -75,9 +76,13 @@ public interface IVisitor<T>
             return this.visit((PostfixNode) astNode);
         else if (astNode instanceof PrefixNode)
             return this.visit((PrefixNode) astNode);
-        
-        throw new NullPointerException(astNode.getClass().getSimpleName() + ", " + astNode.getClass().getSimpleName());
+        else if (astNode instanceof StructNode)
+            return this.visit((StructNode) astNode);
+    
+        throw new NullPointerException(astNode.getClass().getSimpleName());
     }
+    
+    T visit(@NotNull final StructNode structNode);
     
     T visit(@NotNull final TypeNode typeNode);
     
