@@ -23,7 +23,6 @@ import com.arkoisystems.compiler.phases.lexer.token.enums.SymbolType;
 import com.arkoisystems.compiler.phases.parser.Parser;
 import com.arkoisystems.compiler.phases.parser.ParserErrorType;
 import com.arkoisystems.compiler.phases.parser.SymbolTable;
-import com.arkoisystems.compiler.phases.parser.ast.DataKind;
 import com.arkoisystems.compiler.phases.parser.ast.ParserNode;
 import com.arkoisystems.compiler.visitor.IVisitor;
 import com.arkoisystems.utils.printer.annotations.Printable;
@@ -99,20 +98,21 @@ public class ParameterListNode extends ParserNode
                 this.setFailed(true);
                 return this;
             }
-            
+    
             this.getParameters().add(parameterAST);
-            
-            if (parameterAST.getTypeNode().getDataKind() == DataKind.VARIADIC) {
-                this.getParser().nextToken();
-                this.isVariadic = true;
-                break;
-            }
-            
+    
             if (this.getParser().matchesNextToken(SymbolType.COMMA) == null)
                 break;
             this.getParser().nextToken();
         }
-        
+    
+        if (this.getParser().matchesCurrentToken(SymbolType.PERIOD) != null &&
+                this.getParser().matchesPeekToken(1, SymbolType.PERIOD) != null &&
+                this.getParser().matchesPeekToken(2, SymbolType.PERIOD) != null) {
+            this.getParser().nextToken(3);
+            this.isVariadic = true;
+        }
+    
         if (this.getParser().matchesCurrentToken(SymbolType.CLOSING_PARENTHESIS) == null) {
             final LexerToken currentToken = this.getParser().currentToken();
             return this.addError(

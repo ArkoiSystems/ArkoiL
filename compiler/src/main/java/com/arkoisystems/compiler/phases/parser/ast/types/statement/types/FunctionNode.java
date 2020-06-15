@@ -305,14 +305,14 @@ public class FunctionNode extends StatementNode
         
         Objects.requireNonNull(identifierNode.getExpressions(), "identifierNode.expressions must not be null.");
         for (int index = 0; index < this.getParameters().getParameters().size(); index++) {
-            final ParameterNode targetParameter = this.getParameters().getParameters().get(index);
-            if (targetParameter.getTypeNode().getDataKind() == DataKind.VARIADIC)
+            if (index >= identifierNode.getExpressions().getExpressions().size()) {
+                if (!this.getParameters().isVariadic())
+                    return false;
                 break;
-    
-            if (index >= identifierNode.getExpressions().getExpressions().size())
-                return false;
+            }
     
             final OperableNode identifierExpression = identifierNode.getExpressions().getExpressions().get(index);
+            final ParameterNode targetParameter = this.getParameters().getParameters().get(index);
             if (!targetParameter.getTypeNode().equals(identifierExpression.getTypeNode()))
                 return false;
         }

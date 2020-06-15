@@ -1,15 +1,15 @@
 import "variadic"
 
-fun printf(message: u8*, args: ...): i32
+fun printf(message: u8*, ...): i32
 
 fun vprintf(message: u8*, args: va_list*): i32 
 
-fun println(message: u8*, args: ...): i32 {
-    const list = va_start()
+fun println(message: u8*, ...): i32 {
+    const args = va_start()
     
-    const length = vprintf(message, list)
+    const length = vprintf(message, args)
     printf("\n")
     
-    va_end(list)
+    va_end(args)
     return length
 }

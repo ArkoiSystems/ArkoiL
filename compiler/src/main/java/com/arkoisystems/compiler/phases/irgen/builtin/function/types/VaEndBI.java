@@ -23,17 +23,12 @@ import com.arkoisystems.compiler.phases.irgen.builtin.function.BIFunction;
 import com.arkoisystems.compiler.phases.irgen.llvm.BuilderGen;
 import com.arkoisystems.compiler.phases.irgen.llvm.FunctionGen;
 import com.arkoisystems.compiler.phases.irgen.llvm.ParameterGen;
-import com.arkoisystems.compiler.phases.parser.ast.ParserNode;
-import com.arkoisystems.compiler.phases.parser.ast.types.StructNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.statement.types.FunctionNode;
 import org.bytedeco.llvm.LLVM.LLVMValueRef;
 import org.bytedeco.llvm.global.LLVM;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 public class VaEndBI extends BIFunction
 {
@@ -81,21 +76,11 @@ public class VaEndBI extends BIFunction
         if (functionRef != null)
             return functionRef;
         
-        final List<StructNode> structNodes = Objects.requireNonNullElse(functionNode.getParser()
-                .getCompilerClass()
-                .getRootScope()
-                .lookup("va_list"), new ArrayList<ParserNode>()).stream()
-                .filter(node -> node instanceof StructNode)
-                .map(node -> (StructNode) node)
-                .collect(Collectors.toList());
-        if (structNodes.size() != 1)
-            throw new NullPointerException();
-        
         return FunctionGen.builder()
                 .moduleGen(irVisitor.getModuleGen())
                 .parameters(new ParameterGen[] {
                         ParameterGen.builder()
-                                .typeRef(irVisitor.visit(structNodes.get(0)))
+                                .typeRef(LLVM.LLVMPointerType(irVisitor.getContextGen().makeIntType(8), 0))
                                 .name("")
                                 .build()
                 })

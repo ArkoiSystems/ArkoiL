@@ -33,7 +33,7 @@ public enum TokenType
     WHITESPACE("\\s", WhitespaceToken.class),
     COMMENT("#[^\\r\\n]*", CommentToken.class),
     KEYWORD("(?:this|var|return|struct|fun|as|import|const)", KeywordToken.class),
-    TYPE("(?:bool|(?<i>[ui]\\d+)|float|double|void|\\.\\.\\.)", TypeToken.class),
+    TYPE("(?:bool|(?<i>[ui]\\d+)|float|double|void)", TypeToken.class),
     OPERATOR("(?:=|\\+=|\\+\\+|\\+|-=|--|-|\\*=|\\*|/=|\\/|%=|%)", OperatorToken.class),
     SYMBOL("(?:@|^|:|\\{|\\}|\\(|\\)|\\[|\\]|,|\\.|<|>)", SymbolToken.class),
     STRING("\"(?:\\\\\"|[^\\n\"])*\\\"?", StringToken.class),
