@@ -114,8 +114,7 @@ public class StructNode extends ParserNode
         }
         
         final IdentifierToken identifierToken = (IdentifierToken) this.getParser().nextToken();
-        if (identifierToken == null)
-            throw new NullPointerException();
+        Objects.requireNonNull(identifierToken, "identifierNode must not be null.");
         
         this.name = identifierToken;
         
@@ -128,7 +127,7 @@ public class StructNode extends ParserNode
     }
     
     @Override
-    public boolean canParse(final @NotNull Parser parser, final int offset) {
+    public boolean canParse(@NotNull final Parser parser, final int offset) {
         return parser.matchesPeekToken(offset, KeywordType.STRUCT) != null;
     }
     

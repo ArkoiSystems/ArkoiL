@@ -47,8 +47,7 @@ public class VaStartBI extends BIFunction
         Objects.requireNonNull(functionNode.getParser(), "functionNode.parser must not be null.");
         
         final FunctionGen functionGen = functionNode.getFunctionGen();
-        if (functionGen == null)
-            throw new NullPointerException();
+        Objects.requireNonNull(functionGen, "functionGen must not be null.");
         
         final List<StructNode> structNodes = Objects.requireNonNullElse(functionNode.getParser()
                 .getCompilerClass()
@@ -103,7 +102,6 @@ public class VaStartBI extends BIFunction
                                 .name("")
                                 .build()
                 })
-                .foreignFunction(true)
                 .name("llvm.va_start")
                 .returnType(irVisitor.getContextGen().makeVoidType())
                 .build()

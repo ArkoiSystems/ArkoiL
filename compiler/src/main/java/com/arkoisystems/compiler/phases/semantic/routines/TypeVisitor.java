@@ -77,8 +77,9 @@ public class TypeVisitor implements IVisitor<TypeNode>
         if (typeNode.getTargetIdentifier() != null) {
             final List<ParserNode> nodes = Objects.requireNonNullElse(this.getSemantic().getCompilerClass().getRootScope().lookup(
                     typeNode.getTargetIdentifier().getTokenContent()
-            ), new ArrayList<ParserNode>())
-                    .stream()
+            ), new ArrayList<>());
+    
+            final List<ParserNode> foundNodes = nodes.stream()
                     .filter(node -> {
                         if (node instanceof StructNode) {
                             final StructNode structNode = (StructNode) node;
@@ -88,18 +89,17 @@ public class TypeVisitor implements IVisitor<TypeNode>
                         return false;
                     })
                     .collect(Collectors.toList());
-        
-            if (nodes.isEmpty())
+            if (foundNodes.isEmpty())
                 return this.addError(
                         ERROR_NODE,
                         typeNode.getParser().getCompilerClass(),
                         typeNode,
                         "No node found for this identifier."
                 );
-        
-            final ParserNode targetNode = nodes.get(0);
+    
+            final ParserNode targetNode = foundNodes.get(0);
             final TypeNode targetType = this.visit(targetNode);
-        
+    
             typeNode.setDataKind(targetType.getDataKind());
             typeNode.setTargetNode(targetNode);
         }
@@ -116,7 +116,7 @@ public class TypeVisitor implements IVisitor<TypeNode>
                 .flatMap((Function<List<ParserNode>, Stream<ParserNode>>) Collection::stream)
                 .filter(node -> node instanceof FunctionNode)
                 .map(node -> (FunctionNode) node)
-                .forEach(node -> this.visit(Objects.requireNonNull(node.getParameters(), "node.parameters must not be null.")));
+                .forEach(node -> this.visit(Objects.requireNonNull(node.getParameterList(), "node.parameters must not be null.")));
     
         rootNode.getNodes().forEach(this::visit);
         return ERROR_NODE;
@@ -146,9 +146,9 @@ public class TypeVisitor implements IVisitor<TypeNode>
     @Override
     public TypeNode visit(@NotNull final FunctionNode functionNode) {
         Objects.requireNonNull(functionNode.getParser(), "functionNode.parser must not be null.");
-        Objects.requireNonNull(functionNode.getParameters(), "functionNode.parameters must not be null.");
+        Objects.requireNonNull(functionNode.getParameterList(), "functionNode.parameters must not be null.");
     
-        this.visit(functionNode.getParameters());
+        this.visit(functionNode.getParameterList());
     
         if (functionNode.getReturnType() == null && functionNode.getBlockNode() == null)
             return this.addError(
@@ -247,8 +247,8 @@ public class TypeVisitor implements IVisitor<TypeNode>
     @Override
     public TypeNode visit(@NotNull final IdentifierNode identifierNode) {
         if (identifierNode.isFunctionCall()) {
-            Objects.requireNonNull(identifierNode.getExpressions(), "identifierOperable.expressionList must not be null.");
-            this.visit(identifierNode.getExpressions());
+            Objects.requireNonNull(identifierNode.getExpressionList(), "identifierOperable.expressionList must not be null.");
+            this.visit(identifierNode.getExpressionList());
         }
         return this.visit(identifierNode.getTypeNode());
     }
@@ -387,7 +387,7 @@ public class TypeVisitor implements IVisitor<TypeNode>
     }
     
     @Override
-    public TypeNode visit(final @NotNull StructNode structNode) {
+    public TypeNode visit(@NotNull final StructNode structNode) {
         return this.visit(structNode.getTypeNode());
     }
     

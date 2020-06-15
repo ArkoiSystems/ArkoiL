@@ -19,6 +19,7 @@
 package com.arkoisystems.compiler.phases.semantic;
 
 import com.arkoisystems.compiler.CompilerClass;
+import com.arkoisystems.compiler.phases.parser.ast.ParserNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.RootNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.statement.types.ImportNode;
 import com.arkoisystems.compiler.phases.semantic.routines.ScopeVisitor;
@@ -27,6 +28,11 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Getter
 public class Semantic
@@ -65,11 +71,23 @@ public class Semantic
                     final CompilerClass compilerClass = importNode.resolveClass();
                     if (compilerClass == null)
                         return;
-                    
-                    this.getCompilerClass().getRootScope().getSymbolTable().putAll(
-                            compilerClass.getRootScope().getSymbolTable()
-                    );
-                    
+    
+                    final HashMap<String, List<ParserNode>> symbolTable = compilerClass.getRootScope().getSymbolTable();
+                    for (final Map.Entry<String, List<ParserNode>> entry : symbolTable.entrySet()) {
+                        final List<ParserNode> original = entry.getValue();
+                        final List<ParserNode> copy = new ArrayList<>();
+        
+                        for (final ParserNode parserNode : original) {
+                            try {
+                                copy.add(parserNode.clone());
+                            } catch (final CloneNotSupportedException ignored) {
+                            }
+                        }
+        
+                        entry.setValue(copy);
+                    }
+    
+                    this.getCompilerClass().getRootScope().getSymbolTable().putAll(symbolTable);
                     this.importAllClasses(compilerClass.getParser().getRootNode());
                 });
     }

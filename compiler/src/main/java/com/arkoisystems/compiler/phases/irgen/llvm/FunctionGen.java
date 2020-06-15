@@ -22,7 +22,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NonNull;
 import org.bytedeco.javacpp.PointerPointer;
-import org.bytedeco.llvm.LLVM.LLVMBasicBlockRef;
 import org.bytedeco.llvm.LLVM.LLVMTypeRef;
 import org.bytedeco.llvm.LLVM.LLVMValueRef;
 import org.bytedeco.llvm.global.LLVM;
@@ -34,9 +33,6 @@ import java.util.Objects;
 @Getter
 public class FunctionGen
 {
-    
-    @Nullable
-    private final LLVMBasicBlockRef entryBlock;
     
     @NotNull
     private final LLVMValueRef functionRef;
@@ -50,7 +46,6 @@ public class FunctionGen
             @NonNull
             @NotNull final LLVMTypeRef returnType,
             @Nullable final ParameterGen[] parameters,
-            final boolean foreignFunction,
             final boolean variadic
     ) {
         final int parameterLength = parameters == null ? 0 : parameters.length;
@@ -69,14 +64,6 @@ public class FunctionGen
             final LLVMValueRef parameter = LLVM.LLVMGetParam(this.getFunctionRef(), index);
             LLVM.LLVMSetValueName(parameter, Objects.requireNonNull(parameters[index]).getName());
         }
-    
-        if (!foreignFunction)
-            this.entryBlock = LLVM.LLVMAppendBasicBlockInContext(
-                    LLVM.LLVMGetModuleContext(moduleGen.getModuleRef()),
-                    this.getFunctionRef(),
-                    ""
-            );
-        else this.entryBlock = null;
     }
     
     @NotNull

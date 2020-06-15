@@ -48,34 +48,33 @@ public class CompilerError
     @Nullable
     private final String causeMessage;
     
-    
     @Override
     public String toString() {
         Objects.requireNonNull(this.getCauseMessage(), "message must not be null.");
         Objects.requireNonNull(this.getCausePosition(), "positions must not be null.");
-        
-        final StringBuilder stringBuilder = new StringBuilder(String.format(
+    
+        final StringBuilder messageBuilder = new StringBuilder(String.format(
                 "%s:%s:%s: %s",
                 this.getCausePosition().getFilePath(),
                 this.getCausePosition().getLineRange().getStartLine() + 1,
                 this.getCausePosition().getCharStart() + 1,
                 this.getCauseMessage()
         )).append("\r\n");
-        this.getCausePosition().toString(stringBuilder, " ");
-        
+        this.getCausePosition().toString(messageBuilder, " ");
+    
         if (this.getOtherPositions() == null || this.getOtherPositions().isEmpty())
-            return stringBuilder.toString();
-        
-        stringBuilder.append("\r\n").append(" ");
+            return messageBuilder.toString();
+    
+        messageBuilder.append("\r\n").append(" ");
         if (this.getOtherMessage() != null)
-            stringBuilder.append(this.getOtherMessage());
-        
+            messageBuilder.append(this.getOtherMessage());
+    
         for (final ErrorPosition errorPosition : this.getOtherPositions()) {
-            stringBuilder.append("\r\n");
-            errorPosition.toString(stringBuilder, " ");
+            messageBuilder.append("\r\n");
+            errorPosition.toString(messageBuilder, " ");
         }
-        
-        return stringBuilder.toString();
+    
+        return messageBuilder.toString();
     }
     
 }

@@ -38,7 +38,6 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 
-// https://github.com/intel/cm-compiler/blob/master/llvm/tools/llvm-lto/llvm-lto.cpp
 @Getter
 public class Linker
 {
