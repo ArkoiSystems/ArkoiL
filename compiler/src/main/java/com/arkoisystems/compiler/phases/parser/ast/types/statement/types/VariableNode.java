@@ -38,7 +38,6 @@ import com.arkoisystems.utils.printer.annotations.Printable;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
-import org.bytedeco.llvm.LLVM.LLVMValueRef;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -49,10 +48,6 @@ public class VariableNode extends StatementNode
 {
     
     public static VariableNode GLOBAL_NODE = new VariableNode(null, null, null, null, null, null, null, false, false);
-    
-    @Printable(name = "variable ref")
-    @Setter
-    private LLVMValueRef variableRef;
     
     @Printable(name = "is constant")
     private boolean isConstant;

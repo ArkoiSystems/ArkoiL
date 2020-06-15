@@ -47,6 +47,7 @@ import com.arkoisystems.compiler.phases.parser.ast.types.statement.types.ReturnN
 import com.arkoisystems.compiler.phases.parser.ast.types.statement.types.VariableNode;
 import com.arkoisystems.compiler.visitor.IVisitor;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.Setter;
 import lombok.SneakyThrows;
 import org.bytedeco.llvm.LLVM.LLVMBasicBlockRef;
@@ -58,6 +59,7 @@ import org.jetbrains.annotations.NotNull;
 import java.io.File;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -65,6 +67,9 @@ import java.util.stream.Collectors;
 @Getter
 public class IRVisitor implements IVisitor<Object>
 {
+    
+    @NonNull
+    private final HashMap<ParserNode, Object> nodeRefs;
     
     @NotNull
     private final CompilerClass compilerClass;
@@ -82,6 +87,8 @@ public class IRVisitor implements IVisitor<Object>
     
     public IRVisitor(@NotNull final CompilerClass compilerClass) {
         this.compilerClass = compilerClass;
+    
+        this.nodeRefs = new HashMap<>();
     }
     
     @NotNull
@@ -148,17 +155,17 @@ public class IRVisitor implements IVisitor<Object>
             ));
             if (!file.getParentFile().exists())
                 file.getParentFile().mkdirs();
-            
+    
             Files.write(file.toPath(), LLVM.LLVMPrintModuleToString(
                     moduleGen.getModuleRef()
             ).getStringBytes());
-            
+    
             this.getCompilerClass().getCompiler().getErrorHandler().getCompilerErrors().addAll(
                     this.getLLVMErrors(error, file.getCanonicalPath())
             );
             this.setFailed(true);
         }
-        
+    
         return moduleGen;
     }
     
@@ -196,8 +203,12 @@ public class IRVisitor implements IVisitor<Object>
     @NotNull
     @Override
     public BuilderGen visit(@NotNull final BlockNode blockNode) {
-        if (blockNode.getBuilderGen() != null)
-            return blockNode.getBuilderGen();
+        if (this.getNodeRefs().containsKey(blockNode)) {
+            final Object object = this.getNodeRefs().get(blockNode);
+            if (!(object instanceof BuilderGen))
+                throw new NullPointerException();
+            return (BuilderGen) object;
+        }
     
         final FunctionNode functionNode = blockNode.getParent(FunctionNode.class);
         Objects.requireNonNull(functionNode, "functionNode must not be null.");
@@ -210,8 +221,8 @@ public class IRVisitor implements IVisitor<Object>
                 .contextGen(this.getContextGen())
                 .build();
         builderGen.setPositionAtEnd(basicBlock);
+        this.getNodeRefs().put(blockNode, builderGen);
     
-        blockNode.setBuilderGen(builderGen);
         blockNode.getNodes().forEach(this::visit);
         return builderGen;
     }
@@ -222,8 +233,12 @@ public class IRVisitor implements IVisitor<Object>
         Objects.requireNonNull(functionNode.getParameterList(), "functionNode.parameters must not be null.");
         Objects.requireNonNull(functionNode.getName(), "functionNode.name must not be null.");
     
-        if (functionNode.getFunctionGen() != null)
-            return functionNode.getFunctionGen();
+        if (this.getNodeRefs().containsKey(functionNode)) {
+            final Object object = this.getNodeRefs().get(functionNode);
+            if (!(object instanceof FunctionGen))
+                throw new NullPointerException();
+            return (FunctionGen) object;
+        }
     
         final boolean foreign = !this.getCompilerClass().getParser().getRootNode().getNodes().contains(functionNode);
         final FunctionGen functionGen = FunctionGen.builder()
@@ -238,7 +253,7 @@ public class IRVisitor implements IVisitor<Object>
                 .variadic(functionNode.getParameterList().isVariadic())
                 .returnType(this.visit(functionNode.getTypeNode()))
                 .build();
-        functionNode.setFunctionGen(functionGen);
+        this.getNodeRefs().put(functionNode, functionGen);
     
         if (foreign)
             return functionGen;
@@ -267,16 +282,22 @@ public class IRVisitor implements IVisitor<Object>
     public ReturnNode visit(@NotNull final ReturnNode returnNode) {
         final BlockNode blockNode = returnNode.getParent(BlockNode.class);
         Objects.requireNonNull(blockNode, "blockNode must not be null.");
-        
-        final BuilderGen builderGen = blockNode.getBuilderGen();
+    
+        final Object builderObject = this.getNodeRefs().getOrDefault(blockNode, null);
+        Objects.requireNonNull(builderObject, "builderObject must not be null.");
+    
+        if (!(builderObject instanceof BuilderGen))
+            throw new NullPointerException();
+    
+        final BuilderGen builderGen = (BuilderGen) builderObject;
         Objects.requireNonNull(builderGen, "builderGen must not be null.");
-        
+    
         if (returnNode.getExpression() != null) {
-            final Object object = this.visit(returnNode.getExpression());
-            if (!(object instanceof LLVMValueRef))
+            final Object expressionObject = this.visit(returnNode.getExpression());
+            if (!(expressionObject instanceof LLVMValueRef))
                 throw new NullPointerException();
-            
-            builderGen.returnValue(((LLVMValueRef) object));
+        
+            builderGen.returnValue(((LLVMValueRef) expressionObject));
         } else builderGen.returnVoid();
         
         return returnNode;
@@ -286,42 +307,40 @@ public class IRVisitor implements IVisitor<Object>
     @Override
     public LLVMValueRef visit(@NotNull final VariableNode variableNode) {
         Objects.requireNonNull(variableNode.getName(), "variableNode.name must not be null.");
-        
-        if (variableNode.getVariableRef() != null) {
-            final LLVMValueRef valueRef = variableNode.getVariableRef();
-            if (!variableNode.isLocal())
-                return valueRef;
-            
-            final BlockNode blockNode = variableNode.getParent(BlockNode.class);
-            Objects.requireNonNull(blockNode, "blockNode must not be null.");
-            
-            final BuilderGen builderGen = blockNode.getBuilderGen();
-            Objects.requireNonNull(builderGen, "builderGen must not be null.");
-            
-            return builderGen.buildLoad(valueRef);
+    
+        final BlockNode blockNode = variableNode.getParent(BlockNode.class);
+        Objects.requireNonNull(blockNode, "blockNode must not be null.");
+    
+        final Object builderObject = this.getNodeRefs().getOrDefault(blockNode, null);
+        Objects.requireNonNull(builderObject, "builderObject must not be null.");
+    
+        if (!(builderObject instanceof BuilderGen))
+            throw new NullPointerException();
+    
+        final BuilderGen builderGen = (BuilderGen) builderObject;
+    
+        if (this.getNodeRefs().containsKey(variableNode)) {
+            final Object object = this.getNodeRefs().get(variableNode);
+            if (!(object instanceof LLVMValueRef))
+                throw new NullPointerException();
+            return builderGen.buildLoad((LLVMValueRef) object);
         }
-        
+    
         final LLVMValueRef variableRef;
         if (variableNode.isLocal()) {
-            final BlockNode blockNode = variableNode.getParent(BlockNode.class);
-            Objects.requireNonNull(blockNode, "blockNode must not be null.");
-            
-            final BuilderGen builderGen = blockNode.getBuilderGen();
-            Objects.requireNonNull(builderGen, "builderGen must not be null.");
-            
             variableRef = builderGen.buildAlloca(
                     variableNode.getReturnType() == null ?
                             this.visit(variableNode.getTypeNode()) :
                             this.visit(variableNode.getReturnType())
             );
-            
-            variableNode.setVariableRef(variableRef);
-            
+        
+            this.getNodeRefs().put(variableNode, variableRef);
+        
             if (variableNode.getExpression() != null) {
                 final Object object = this.visit(variableNode.getExpression());
                 if (!(object instanceof LLVMValueRef))
                     throw new NullPointerException();
-                
+            
                 LLVM.LLVMBuildStore(builderGen.getBuilderRef(), (LLVMValueRef) object, variableRef);
             }
         } else {
@@ -330,8 +349,8 @@ public class IRVisitor implements IVisitor<Object>
                             this.visit(variableNode.getTypeNode()) :
                             this.visit(variableNode.getReturnType())
             );
-            
-            variableNode.setVariableRef(variableRef);
+        
+            this.getNodeRefs().put(variableNode, variableRef);
         }
         
         return variableRef;
@@ -341,13 +360,17 @@ public class IRVisitor implements IVisitor<Object>
     @Override
     public LLVMValueRef visit(@NotNull final StringNode stringNode) {
         Objects.requireNonNull(stringNode.getStringToken(), "stringNode.stringToken must not be null.");
-        
+    
         final BlockNode blockNode = stringNode.getParent(BlockNode.class);
         Objects.requireNonNull(blockNode, "blockNode must not be null.");
-        
-        final BuilderGen builderGen = blockNode.getBuilderGen();
-        Objects.requireNonNull(builderGen, "builderGen must not be null.");
-        
+    
+        final Object builderObject = this.getNodeRefs().getOrDefault(blockNode, null);
+        Objects.requireNonNull(builderObject, "builderObject must not be null.");
+    
+        if (!(builderObject instanceof BuilderGen))
+            throw new NullPointerException();
+    
+        final BuilderGen builderGen = (BuilderGen) builderObject;
         return builderGen.buildGlobalStringPtr(stringNode.getStringToken().getTokenContent());
     }
     
@@ -380,13 +403,17 @@ public class IRVisitor implements IVisitor<Object>
             Objects.requireNonNull(identifierNode.getExpressionList(), "identifierNode.expressions must not be null.");
             Objects.requireNonNull(identifierNode.getExpressionList(), "identifierNode.expression must not be null.");
             Objects.requireNonNull(identifierNode.getParser(), "identifierNode.parser must not be null.");
-            
+    
             final BlockNode blockNode = identifierNode.getParent(BlockNode.class);
             Objects.requireNonNull(blockNode, "blockNode must not be null.");
-            
-            final BuilderGen builderGen = blockNode.getBuilderGen();
-            Objects.requireNonNull(builderGen, "builderGen must not be null.");
-            
+    
+            final Object builderObject = this.getNodeRefs().getOrDefault(blockNode, null);
+            Objects.requireNonNull(builderObject, "builderObject must not be null.");
+    
+            if (!(builderObject instanceof BuilderGen))
+                throw new NullPointerException();
+    
+            final BuilderGen builderGen = (BuilderGen) builderObject;
             final List<ParserNode> nodes = Objects.requireNonNullElse(
                     identifierNode.getParser()
                             .getCompilerClass()
@@ -394,7 +421,7 @@ public class IRVisitor implements IVisitor<Object>
                             .lookup(identifierNode.getIdentifier().getTokenContent()),
                     new ArrayList<>()
             );
-            
+    
             final List<FunctionNode> functions = nodes.stream()
                     .filter(node -> node instanceof FunctionNode)
                     .map(node -> (FunctionNode) node)
@@ -461,21 +488,26 @@ public class IRVisitor implements IVisitor<Object>
     public LLVMValueRef visit(@NotNull final BinaryNode binaryNode) {
         Objects.requireNonNull(binaryNode.getLeftHandSide(), "binaryNode.leftHandSide must not be null.");
         Objects.requireNonNull(binaryNode.getRightHandSide(), "binaryNode.rightHandSide must not be null.");
-        
+    
         final BlockNode blockNode = binaryNode.getParent(BlockNode.class);
         Objects.requireNonNull(blockNode, "blockNode must not be null.");
-        
-        final BuilderGen builderGen = blockNode.getBuilderGen();
-        Objects.requireNonNull(builderGen, "builderGen must not be null.");
-        
+    
+        final Object builderObject = this.getNodeRefs().getOrDefault(blockNode, null);
+        Objects.requireNonNull(builderObject, "builderObject must not be null.");
+    
+        if (!(builderObject instanceof BuilderGen))
+            throw new NullPointerException();
+    
+        final BuilderGen builderGen = (BuilderGen) builderObject;
+    
         final Object lhsObject = this.visit(binaryNode.getLeftHandSide());
         if (!(lhsObject instanceof LLVMValueRef))
             throw new NullPointerException();
-        
+    
         final Object rhsObject = this.visit(binaryNode.getRightHandSide());
         if (!(rhsObject instanceof LLVMValueRef))
             throw new NullPointerException();
-        
+    
         final boolean floating = binaryNode.getLeftHandSide().getTypeNode().getDataKind().isFloating() ||
                 binaryNode.getRightHandSide().getTypeNode().getDataKind().isFloating();
         LLVMValueRef lhsValue = (LLVMValueRef) lhsObject, rhsValue = (LLVMValueRef) rhsObject;
@@ -524,31 +556,38 @@ public class IRVisitor implements IVisitor<Object>
     
     @NotNull
     @Override
-    public PostfixNode visit(@NotNull final PostfixNode postfixNode) {
+    public LLVMValueRef visit(@NotNull final PostfixNode postfixNode) {
         Objects.requireNonNull(postfixNode.getLeftHandSide(), "postfixNode.leftHandSide must not be null.");
-        this.visit(postfixNode.getLeftHandSide());
-        return postfixNode;
+        final Object object = this.visit(postfixNode.getLeftHandSide());
+        if (!(object instanceof LLVMValueRef))
+            throw new NullPointerException();
+        return (LLVMValueRef) object;
     }
     
     @NotNull
     @Override
     public LLVMValueRef visit(@NotNull final PrefixNode prefixNode) {
         Objects.requireNonNull(prefixNode.getRightHandSide(), "prefixNode.rightHandSide must not be null.");
-        
+    
         final BlockNode blockNode = prefixNode.getParent(BlockNode.class);
         Objects.requireNonNull(blockNode, "blockNode must not be null.");
-        
-        final BuilderGen builderGen = blockNode.getBuilderGen();
-        Objects.requireNonNull(builderGen, "builderGen must not be null.");
-        
+    
+        final Object builderObject = this.getNodeRefs().getOrDefault(blockNode, null);
+        Objects.requireNonNull(builderObject, "builderObject must not be null.");
+    
+        if (!(builderObject instanceof BuilderGen))
+            throw new NullPointerException();
+    
+        final BuilderGen builderGen = (BuilderGen) builderObject;
+    
         final Object rhsObject = this.visit(prefixNode.getRightHandSide());
         if (!(rhsObject instanceof LLVMValueRef))
             throw new NullPointerException();
-        
+    
         final LLVMValueRef rhsValue = (LLVMValueRef) rhsObject;
         if (prefixNode.getOperatorType() == PrefixOperators.NEGATE)
             return builderGen.buildNeg(rhsValue);
-        
+    
         throw new NullPointerException();
     }
     
@@ -556,22 +595,26 @@ public class IRVisitor implements IVisitor<Object>
     @Override
     public LLVMTypeRef visit(@NotNull final StructNode structNode) {
         Objects.requireNonNull(structNode.getName(), "structNode.name must not be null.");
-        
-        if (structNode.getStructRef() != null)
-            return structNode.getStructRef();
-        
+    
+        if (this.getNodeRefs().containsKey(structNode)) {
+            final Object object = this.getNodeRefs().get(structNode);
+            if (!(object instanceof LLVMTypeRef))
+                throw new NullPointerException();
+            return (LLVMTypeRef) object;
+        }
+    
         final LLVMTypeRef structRef = this.getContextGen().buildStruct();
-        structNode.setStructRef(structRef);
-        
+        this.getNodeRefs().put(structNode, structRef);
+    
         if (structNode.isBuiltin()) {
             final BIStructure foundStructure = BIManager.INSTANCE.getStructure(
                     structNode.getName().getTokenContent()
             );
             Objects.requireNonNull(foundStructure, "foundStructure must not be null.");
-            
+        
             foundStructure.generateIR(this, structNode);
         }
-        
+    
         return structRef;
     }
     

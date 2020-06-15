@@ -45,10 +45,7 @@ public class VaStartBI extends BIFunction
             @NotNull final FunctionNode functionNode
     ) {
         Objects.requireNonNull(functionNode.getParser(), "functionNode.parser must not be null.");
-        
-        final FunctionGen functionGen = functionNode.getFunctionGen();
-        Objects.requireNonNull(functionGen, "functionGen must not be null.");
-        
+    
         final List<StructNode> structNodes = Objects.requireNonNullElse(functionNode.getParser()
                 .getCompilerClass()
                 .getRootScope()
@@ -58,16 +55,18 @@ public class VaStartBI extends BIFunction
                 .collect(Collectors.toList());
         if (structNodes.size() != 1)
             throw new NullPointerException();
-        
+    
+        final FunctionGen functionGen = irVisitor.visit(functionNode);
+    
         final BuilderGen builderGen = BuilderGen.builder()
                 .contextGen(irVisitor.getContextGen())
                 .build();
         builderGen.setPositionAtEnd(irVisitor.getContextGen().appendBasicBlock(functionGen));
-        
+    
         final LLVMValueRef functionRef = this.getLLVMVaStart(irVisitor, functionNode);
         final LLVMTypeRef listStructure = irVisitor.visit(structNodes.get(0));
         final LLVMValueRef va_list = builderGen.buildAlloca(listStructure);
-        
+    
         builderGen.buildFunctionCall(functionRef, builderGen.buildBitCast(
                 va_list,
                 LLVM.LLVMPointerType(irVisitor.getContextGen().makeIntType(8), 0)

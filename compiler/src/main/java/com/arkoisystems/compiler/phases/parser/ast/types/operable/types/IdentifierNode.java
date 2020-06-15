@@ -188,9 +188,10 @@ public class IdentifierNode extends OperableNode
         ParserNode foundNode = null;
         if (this.isFunctionCall()) {
             Objects.requireNonNull(this.getParser().getRootNode().getCurrentScope(), "parser.rootNode.currentScope must not be null.");
-            
-            final List<ParserNode> nodes = this.getParser().getRootNode().getCurrentScope().lookupScope(this.getIdentifier().getTokenContent());
     
+            final List<ParserNode> nodes = this.getParser().getRootNode().getCurrentScope().lookupScope(
+                    this.getIdentifier().getTokenContent()
+            );
             if (nodes != null && !nodes.isEmpty()) {
                 final List<FunctionNode> functions = nodes.stream()
                         .filter(node -> node instanceof FunctionNode)

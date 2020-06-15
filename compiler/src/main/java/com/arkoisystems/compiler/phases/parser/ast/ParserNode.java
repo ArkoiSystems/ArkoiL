@@ -26,6 +26,7 @@ import com.arkoisystems.compiler.phases.lexer.token.LexerToken;
 import com.arkoisystems.compiler.phases.parser.Parser;
 import com.arkoisystems.compiler.phases.parser.SymbolTable;
 import com.arkoisystems.compiler.visitor.IVisitor;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
@@ -33,10 +34,12 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Getter
 public class ParserNode implements Cloneable
 {
     
+    @EqualsAndHashCode.Include
     @Setter
     @Nullable
     private LexerToken startToken, endToken;

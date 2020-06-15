@@ -30,8 +30,6 @@ import com.arkoisystems.compiler.phases.parser.ast.DataKind;
 import com.arkoisystems.compiler.phases.parser.ast.ParserNode;
 import com.arkoisystems.utils.printer.annotations.Printable;
 import lombok.Getter;
-import lombok.Setter;
-import org.bytedeco.llvm.LLVM.LLVMTypeRef;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -41,12 +39,7 @@ import java.util.Objects;
 public class StructNode extends ParserNode
 {
     
-    public static StructNode GLOBAL_NODE = new StructNode(null, null, null, null, false, null, null, null);
-    
-    @Printable(name = "struct")
-    @Setter
-    @Nullable
-    private LLVMTypeRef structRef;
+    public static StructNode GLOBAL_NODE = new StructNode(null, null, null, false, null, null, null);
     
     @Printable(name = "built in")
     private boolean builtin;
@@ -59,7 +52,6 @@ public class StructNode extends ParserNode
             @Nullable final Parser parser,
             @Nullable final ParserNode parentNode,
             @Nullable final SymbolTable currentScope,
-            @Nullable final LLVMTypeRef structRef,
             final boolean builtin,
             @Nullable final IdentifierToken name,
             @Nullable final LexerToken startToken,
@@ -67,7 +59,6 @@ public class StructNode extends ParserNode
     ) {
         super(parser, parentNode, currentScope, startToken, endToken);
         
-        this.structRef = structRef;
         this.builtin = builtin;
         this.name = name;
     }

@@ -40,10 +40,9 @@ public class VaEndBI extends BIFunction
     ) {
         Objects.requireNonNull(functionNode.getParser(), "functionNode.parser must not be null.");
         
-        final FunctionGen functionGen = functionNode.getFunctionGen();
-        Objects.requireNonNull(functionGen, "functionGen must not be null.");
-        
+        final FunctionGen functionGen = irVisitor.visit(functionNode);
         final LLVMValueRef functionRef = this.getLLVMVaEnd(irVisitor, functionNode);
+    
         final BuilderGen builderGen = BuilderGen.builder()
                 .contextGen(irVisitor.getContextGen())
                 .build();
