@@ -18,7 +18,6 @@
  */
 package com.arkoisystems.compiler.phases.parser.ast.types.statement.types;
 
-import com.arkoisystems.compiler.phases.irgen.llvm.FunctionGen;
 import com.arkoisystems.compiler.phases.lexer.token.LexerToken;
 import com.arkoisystems.compiler.phases.lexer.token.enums.KeywordType;
 import com.arkoisystems.compiler.phases.lexer.token.enums.SymbolType;
@@ -40,7 +39,6 @@ import com.arkoisystems.compiler.visitor.IVisitor;
 import com.arkoisystems.utils.printer.annotations.Printable;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -51,11 +49,6 @@ public class FunctionNode extends StatementNode
 {
     
     public static FunctionNode GLOBAL_NODE = new FunctionNode(null, null, null, null, null, null, null, null, null);
-    
-    @Printable(name = "function generator")
-    @Setter
-    @Nullable
-    private FunctionGen functionGen;
     
     @Printable(name = "built in")
     private boolean builtin;

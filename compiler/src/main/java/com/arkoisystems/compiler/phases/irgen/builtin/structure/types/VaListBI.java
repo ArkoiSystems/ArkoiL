@@ -34,7 +34,7 @@ public class VaListBI extends BIStructure
             @NotNull final StructNode structNode
     ) {
         // TODO: 6/14/20 Make compatible with other systems
-        LLVM.LLVMStructSetBody(structNode.getStructRef(), new PointerPointer<>(
+        LLVM.LLVMStructSetBody(irVisitor.visit(structNode), new PointerPointer<>(
                 irVisitor.getContextGen().makeIntType(32),
                 irVisitor.getContextGen().makeIntType(32),
                 LLVM.LLVMPointerType(irVisitor.getContextGen().makeIntType(8), 0),

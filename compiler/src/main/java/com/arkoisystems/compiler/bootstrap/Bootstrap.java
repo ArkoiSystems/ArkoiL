@@ -46,7 +46,7 @@ public class Bootstrap
         try {
             commandLine = new DefaultParser().parse(options, args);
         } catch (final ParseException ex) {
-            System.out.println(ex.getMessage());
+            ex.printStackTrace();
             new HelpFormatter().printHelp("arkoi-compiler", options);
             return;
         }
