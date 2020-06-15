@@ -60,9 +60,9 @@ public class IdentifierNode extends OperableNode
     @Printable(name = "function call")
     private boolean isFunctionCall;
     
-    @Printable(name = "expressions")
+    @Printable(name = "expression list")
     @Nullable
-    private ExpressionListNode expressions;
+    private ExpressionListNode expressionList;
     
     @Printable(name = "next call")
     @Nullable
@@ -74,15 +74,15 @@ public class IdentifierNode extends OperableNode
             @Nullable final ParserNode parentNode,
             @Nullable final SymbolTable currentScope,
             @Nullable final IdentifierNode nextIdentifier,
-            @Nullable final ExpressionListNode expressions,
+            @Nullable final ExpressionListNode expressionList,
             @Nullable final IdentifierToken identifier,
             @Nullable final LexerToken startToken,
             @Nullable final LexerToken endToken
     ) {
         super(parser, parentNode, currentScope, startToken, endToken);
-        
+    
         this.nextIdentifier = nextIdentifier;
-        this.expressions = expressions;
+        this.expressionList = expressionList;
         this.identifier = identifier;
     }
     
@@ -114,7 +114,7 @@ public class IdentifierNode extends OperableNode
             this.getParser().nextToken();
             
             this.isFunctionCall = true;
-            
+    
             final ExpressionListNode expressionListNode = ExpressionListNode.builder()
                     .parentNode(this)
                     .currentScope(this.getCurrentScope())
@@ -125,8 +125,8 @@ public class IdentifierNode extends OperableNode
                 this.setFailed(true);
                 return this;
             }
-            
-            this.expressions = expressionListNode;
+    
+            this.expressionList = expressionListNode;
         }
         
         

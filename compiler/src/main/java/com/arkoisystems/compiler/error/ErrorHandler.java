@@ -32,12 +32,11 @@ public class ErrorHandler
     private final HashSet<CompilerError> compilerErrors = new HashSet<>();
     
     public void addError(@NotNull final CompilerError compilerError) {
-        this.compilerErrors.add(compilerError);
+        this.getCompilerErrors().add(compilerError);
     }
     
     public void printStackTrace(@NotNull final PrintStream printStream) {
-        for (final CompilerError error : this.compilerErrors)
-            printStream.println(error.toString());
+        this.getCompilerErrors().forEach(printStream::println);
     }
     
 }

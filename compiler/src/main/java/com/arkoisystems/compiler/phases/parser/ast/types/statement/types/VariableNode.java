@@ -132,8 +132,7 @@ public class VariableNode extends StatementNode
         }
     
         final IdentifierToken identifierToken = (IdentifierToken) this.getParser().nextToken();
-        if (identifierToken == null)
-            throw new NullPointerException();
+        Objects.requireNonNull(identifierToken, "identifierToken must not be null.");
     
         this.name = identifierToken;
     

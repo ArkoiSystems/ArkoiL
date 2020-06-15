@@ -48,12 +48,12 @@ public class ParenthesizedNode extends ExpressionNode
     
     @Builder
     protected ParenthesizedNode(
-            final @Nullable Parser parser,
+            @Nullable final Parser parser,
             @Nullable final ParserNode parentNode,
-            final @Nullable SymbolTable currentScope,
-            final @Nullable OperableNode expression,
-            final @Nullable LexerToken startToken,
-            final @Nullable LexerToken endToken
+            @Nullable final SymbolTable currentScope,
+            @Nullable final OperableNode expression,
+            @Nullable final LexerToken startToken,
+            @Nullable final LexerToken endToken
     ) {
         super(parser, parentNode, currentScope, startToken, endToken);
         
@@ -133,12 +133,12 @@ public class ParenthesizedNode extends ExpressionNode
     }
     
     @Override
-    public boolean canParse(final @NotNull Parser parser, final int offset) {
+    public boolean canParse(@NotNull final Parser parser, final int offset) {
         return parser.matchesPeekToken(offset, SymbolType.OPENING_PARENTHESIS) != null;
     }
     
     @Override
-    public void accept(final @NotNull IVisitor<?> visitor) {
+    public void accept(@NotNull final IVisitor<?> visitor) {
         visitor.visit(this);
     }
     

@@ -41,8 +41,7 @@ public class VaEndBI extends BIFunction
         Objects.requireNonNull(functionNode.getParser(), "functionNode.parser must not be null.");
         
         final FunctionGen functionGen = functionNode.getFunctionGen();
-        if (functionGen == null)
-            throw new NullPointerException();
+        Objects.requireNonNull(functionGen, "functionGen must not be null.");
         
         final LLVMValueRef functionRef = this.getLLVMVaEnd(irVisitor, functionNode);
         final BuilderGen builderGen = BuilderGen.builder()
@@ -84,7 +83,6 @@ public class VaEndBI extends BIFunction
                                 .name("")
                                 .build()
                 })
-                .foreignFunction(true)
                 .name("llvm.va_end")
                 .returnType(irVisitor.getContextGen().makeVoidType())
                 .build()

@@ -89,8 +89,7 @@ public class ParameterNode extends ParserNode
         this.startAST(this.getParser().currentToken());
     
         final IdentifierToken identifierToken = (IdentifierToken) this.getParser().currentToken();
-        if (identifierToken == null)
-            throw new NullPointerException();
+        Objects.requireNonNull(identifierToken, "identifierToken must not be null.");
     
         this.name = identifierToken;
     

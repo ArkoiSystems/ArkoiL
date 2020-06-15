@@ -20,7 +20,6 @@ package com.arkoisystems.compiler;
 
 import com.arkoisystems.compiler.error.ErrorHandler;
 import com.arkoisystems.compiler.phases.linker.Linker;
-import com.arkoisystems.utils.general.FileUtils;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
@@ -35,7 +34,6 @@ import java.util.stream.Collectors;
 public class Compiler
 {
     
-    // TODO: 6/10/20 Think about it
     @NotNull
     private final List<CompilerClass> classes = new CopyOnWriteArrayList<>();
     
@@ -96,19 +94,6 @@ public class Compiler
         }
         printStream.printf("The compilation took %sms for all classes (%s in total)\n", (System.nanoTime() - compileStart) / 1_000_000D, this.getClasses().size());
         return true;
-    }
-    
-    private void addNativeFiles() {
-        final File nativeDirectory = new File("../natives");
-        if (!nativeDirectory.exists())
-            throw new NullPointerException("Couldn't find a native directory. Please try to fix the problem with reinstalling the compiler.");
-        
-        final List<File> files = FileUtils.getAllFiles(nativeDirectory, ".ark");
-        for (final File file : files) {
-            final CompilerClass compilerClass = new CompilerClass(this, file);
-            compilerClass.setNative(true);
-            this.getClasses().add(compilerClass);
-        }
     }
     
 }
