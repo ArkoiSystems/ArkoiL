@@ -1,7 +1,13 @@
 import "system"
+import "test"
 
 fun main() {
-    const result = println("Something \n %i", 1)
-    printf("(%d)\n", result)
+    # Calls the method in test.ark
+    printf(test(), "Arkoi here.")
+    
+    # Calls this internal method
+    printf("f(5) = 2 + y: %i\n", test2(5, 2))  
     return 0
 }
+
+fun test2(x: u32, y: u32) = x + y

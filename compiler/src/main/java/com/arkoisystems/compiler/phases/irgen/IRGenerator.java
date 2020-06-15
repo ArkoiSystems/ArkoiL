@@ -25,6 +25,8 @@ import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Objects;
+
 @Getter
 public class IRGenerator
 {
@@ -35,6 +37,9 @@ public class IRGenerator
     @Nullable
     private ModuleGen moduleGen;
     
+    @Nullable
+    private IRVisitor irVisitor;
+    
     @Setter
     private boolean failed;
     
@@ -43,10 +48,11 @@ public class IRGenerator
     }
     
     public void processStage() {
-        final IRVisitor visitor = new IRVisitor(this.getCompilerClass());
-        this.moduleGen = visitor.visit(this.getCompilerClass().getParser().getRootNode());
-    
-        if (visitor.isFailed())
+        this.irVisitor = new IRVisitor(this.getCompilerClass());
+        Objects.requireNonNull(this.getIrVisitor(), "irVisitor must not be null.");
+        
+        this.moduleGen = this.getIrVisitor().visit(this.getCompilerClass().getParser().getRootNode());
+        if (this.getIrVisitor().isFailed())
             this.setFailed(true);
     }
     
