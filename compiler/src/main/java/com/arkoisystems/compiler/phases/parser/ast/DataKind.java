@@ -46,7 +46,6 @@ public enum DataKind
     
     /* Special data types with no real meaning */
     
-    VARIADIC("...", false, false),
     VOID("void", false, false),
     
     /* Compiler only data types */
