@@ -59,16 +59,17 @@ public class Linker
         this.compiler = compiler;
     }
     
+    // TODO: 6/15/20 Two same function names can't be compiled because every loaded class is merged.
     @SneakyThrows
     public boolean processStage() {
         final BytePointer errorPointer = new BytePointer();
-    
+        
         LLVM.LLVMInitializeAllTargetInfos();
         LLVM.LLVMInitializeAllTargets();
         LLVM.LLVMInitializeAllTargetMCs();
         LLVM.LLVMInitializeAllAsmPrinters();
         LLVM.LLVMInitializeAllAsmParsers();
-    
+        
         final BytePointer targetTriple = LLVM.LLVMGetDefaultTargetTriple();
         final LLVMTargetRef targetRef = new LLVMTargetRef();
         LLVM.LLVMGetTargetFromTriple(targetTriple, targetRef, errorPointer);
@@ -76,11 +77,11 @@ public class Linker
             this.setFailed(true);
             return false;
         }
-    
+        
         final lto_code_gen_t codeGen = LLVM.lto_codegen_create();
         LLVM.lto_codegen_set_pic_model(codeGen, LLVM.LTO_CODEGEN_PIC_MODEL_DEFAULT);
         LLVM.lto_codegen_set_debug_model(codeGen, LLVM.LTO_DEBUG_MODEL_NONE);
-    
+        
         final List<lto_module_t> ltoModules = new ArrayList<>();
         for (final ModuleGen moduleGen : this.getModuleGens()) {
             final LLVMMemoryBufferRef memoryBuffer = LLVM.LLVMWriteBitcodeToMemoryBuffer(moduleGen.getModuleRef());
@@ -90,16 +91,16 @@ public class Linker
                 this.setFailed(true);
                 return false;
             }
-        
+            
             final lto_module_t ltoModule = LLVM.lto_module_create_from_memory(start, size);
             LLVM.lto_module_set_target_triple(ltoModule, targetTriple);
             LLVM.LLVMDisposeMemoryBuffer(memoryBuffer);
-        
+            
             if (LLVM.lto_codegen_add_module(codeGen, ltoModule)) {
                 this.setFailed(true);
                 return false;
             }
-        
+            
             ltoModules.add(ltoModule);
         }
         

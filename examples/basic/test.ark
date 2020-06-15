@@ -1,2 +1,2 @@
 # Hello World
-fun test(): u8* = "Hello\u0020World, %s :)"
+fun test(): u8* = "Hello\u0020World, %s :)\n"
