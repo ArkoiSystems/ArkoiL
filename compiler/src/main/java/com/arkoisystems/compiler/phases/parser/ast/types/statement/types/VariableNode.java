@@ -136,8 +136,8 @@ public class VariableNode extends StatementNode
     
         if (this.getParser().matchesPeekToken(1, SymbolType.COLON) != null) {
             this.getParser().nextToken();
-        
-            if (this.getParser().matchesPeekToken(1, TokenType.TYPE) == null) {
+    
+            if (!TypeNode.GLOBAL_NODE.canParse(this.getParser(), 1)) {
                 final LexerToken nextToken = this.getParser().nextToken();
                 return this.addError(
                         this,
@@ -146,7 +146,7 @@ public class VariableNode extends StatementNode
                         String.format(
                                 ParserErrorType.SYNTAX_ERROR_TEMPLATE,
                                 "Variable",
-                                "<identifier>",
+                                "<type>",
                                 nextToken != null ? nextToken.getTokenContent() : "nothing"
                         )
                 );
