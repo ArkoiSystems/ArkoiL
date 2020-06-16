@@ -158,11 +158,17 @@ public class TypeVisitor implements IVisitor<TypeNode>
                     "There must be specified a return type if no block exists."
             );
     
-        if (functionNode.getBlockNode() == null || functionNode.getReturnType() == null)
+        TypeNode expectedType = null;
+        if (functionNode.getReturnType() != null)
+            expectedType = this.visit(functionNode.getReturnType());
+    
+        TypeNode givenType = null;
+        if (functionNode.getBlockNode() != null)
+            givenType = this.visit(functionNode.getBlockNode());
+    
+        if (expectedType == null || givenType == null)
             return this.visit(functionNode.getTypeNode());
     
-        final TypeNode expectedType = this.visit(functionNode.getReturnType());
-        final TypeNode givenType = this.visit(functionNode.getBlockNode());
         if (expectedType == ERROR_NODE || givenType == ERROR_NODE)
             return ERROR_NODE;
     
@@ -195,7 +201,11 @@ public class TypeVisitor implements IVisitor<TypeNode>
     @Override
     public TypeNode visit(@NotNull final VariableNode variableNode) {
         Objects.requireNonNull(variableNode.getParser(), "variableNode.parser must not be null.");
-        
+    
+        if (variableNode.getReturnType() != null) {
+            this.visit(variableNode.getReturnType());
+        }
+    
         if (variableNode.getExpression() == null && variableNode.isConstant())
             return this.addError(
                     ERROR_NODE,
@@ -203,7 +213,7 @@ public class TypeVisitor implements IVisitor<TypeNode>
                     variableNode,
                     "Constant variables need an expression."
             );
-        
+    
         if (variableNode.getReturnType() == null && variableNode.getExpression() == null)
             return this.addError(
                     ERROR_NODE,
@@ -388,6 +398,7 @@ public class TypeVisitor implements IVisitor<TypeNode>
     
     @Override
     public TypeNode visit(@NotNull final StructNode structNode) {
+        structNode.getVariables().forEach(this::visit);
         return this.visit(structNode.getTypeNode());
     }
     
