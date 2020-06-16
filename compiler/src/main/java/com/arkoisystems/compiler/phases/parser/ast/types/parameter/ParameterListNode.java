@@ -20,6 +20,7 @@ package com.arkoisystems.compiler.phases.parser.ast.types.parameter;
 
 import com.arkoisystems.compiler.phases.lexer.token.LexerToken;
 import com.arkoisystems.compiler.phases.lexer.token.enums.SymbolType;
+import com.arkoisystems.compiler.phases.lexer.token.types.IdentifierToken;
 import com.arkoisystems.compiler.phases.parser.Parser;
 import com.arkoisystems.compiler.phases.parser.ParserErrorType;
 import com.arkoisystems.compiler.phases.parser.SymbolTable;
@@ -28,6 +29,7 @@ import com.arkoisystems.compiler.visitor.IVisitor;
 import com.arkoisystems.utils.printer.annotations.Printable;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -61,6 +63,7 @@ public class ParameterListNode extends ParserNode
         this.parameters = new ArrayList<>();
     }
     
+    @SneakyThrows
     @NotNull
     @Override
     public ParameterListNode parse() {
@@ -84,35 +87,63 @@ public class ParameterListNode extends ParserNode
         this.startAST(this.getParser().currentToken());
         this.getParser().nextToken();
         
+        final List<IdentifierToken> chainedIdentifiers = new ArrayList<>();
         while (this.getParser().getPosition() < this.getParser().getTokens().length) {
             if (!ParameterNode.GLOBAL_NODE.canParse(this.getParser(), 0))
                 break;
             
-            final ParameterNode parameterAST = ParameterNode.builder()
+            if (this.getParser().matchesPeekToken(1, SymbolType.COMMA) != null) {
+                chainedIdentifiers.add((IdentifierToken) this.getParser().currentToken());
+                this.getParser().nextToken(2);
+                continue;
+            }
+            
+            final ParameterNode parameterNode = ParameterNode.builder()
                     .parentNode(this)
                     .currentScope(this.getCurrentScope())
                     .parser(this.getParser())
                     .build()
                     .parse();
-            if (parameterAST.isFailed()) {
+            if (parameterNode.isFailed()) {
                 this.setFailed(true);
                 return this;
             }
-    
-            this.getParameters().add(parameterAST);
-    
+            
+            if (!chainedIdentifiers.isEmpty()) {
+                Objects.requireNonNull(this.getCurrentScope(), "currentScope must not be null.");
+                
+                for (final IdentifierToken nameToken : chainedIdentifiers) {
+                    final ParameterNode chainedNode = ParameterNode.builder()
+                            .parser(parameterNode.getParser())
+                            .parentNode(parameterNode.getParentNode())
+                            .currentScope(parameterNode.getCurrentScope())
+                            .startToken(nameToken)
+                            .typeNode(parameterNode.getTypeNode().clone())
+                            .name(nameToken)
+                            .endToken(nameToken)
+                            .build();
+                    
+                    this.getCurrentScope().insert(nameToken.getTokenContent(), chainedNode);
+                    this.getParameters().add(chainedNode);
+                }
+                
+                chainedIdentifiers.clear();
+            }
+            
+            this.getParameters().add(parameterNode);
+            
             if (this.getParser().matchesNextToken(SymbolType.COMMA) == null)
                 break;
             this.getParser().nextToken();
         }
-    
+        
         if (this.getParser().matchesCurrentToken(SymbolType.PERIOD) != null &&
                 this.getParser().matchesPeekToken(1, SymbolType.PERIOD) != null &&
                 this.getParser().matchesPeekToken(2, SymbolType.PERIOD) != null) {
             this.getParser().nextToken(3);
             this.isVariadic = true;
         }
-    
+        
         if (this.getParser().matchesCurrentToken(SymbolType.CLOSING_PARENTHESIS) == null) {
             final LexerToken currentToken = this.getParser().currentToken();
             return this.addError(

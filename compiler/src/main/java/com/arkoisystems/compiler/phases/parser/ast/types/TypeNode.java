@@ -120,9 +120,7 @@ public class TypeNode extends ParserNode
             this.dataKind = Objects.requireNonNull(typeToken).getDataKind();
             this.signed = typeToken.isSigned();
             this.bits = typeToken.getBits();
-        } else {
-            this.targetIdentifier = (IdentifierToken) this.getParser().currentToken();
-        }
+        } else this.targetIdentifier = (IdentifierToken) this.getParser().currentToken();
     
         while (this.getParser().getPosition() < this.getParser().getTokens().length) {
             if (this.getParser().matchesPeekToken(1, OperatorType.ASTERISK) == null)
@@ -145,6 +143,11 @@ public class TypeNode extends ParserNode
     @Override
     public void accept(@NotNull final IVisitor<?> visitor) {
         visitor.visit(this);
+    }
+    
+    @Override
+    public TypeNode clone() throws CloneNotSupportedException {
+        return (TypeNode) super.clone();
     }
     
     @Override
