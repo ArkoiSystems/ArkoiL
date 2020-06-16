@@ -100,30 +100,30 @@ public class Linker
                 this.setFailed(true);
                 return false;
             }
-            
+    
             ltoModules.add(ltoModule);
         }
-        
+    
         LLVM.lto_codegen_set_cpu(codeGen, LLVM.LLVMGetHostCPUName());
         LLVM.lto_codegen_add_must_preserve_symbol(codeGen, "main");
-        
+    
         final File file = new File(String.format(
                 "%s/output.o",
                 this.getCompiler().getOutputPath()
         ));
         if (!file.getParentFile().exists())
             file.getParentFile().mkdirs();
-        
+    
         final SizeTPointer sizeT = new SizeTPointer(0);
         final BytePointer bytePointer = new BytePointer(LLVM.lto_codegen_compile(codeGen, sizeT));
-        
+    
         final int size = (int) sizeT.get();
         final byte[] bytes = new byte[size];
         for (int index = 0; index < size; index++)
             bytes[index] = bytePointer.get(index);
-        
+    
         Files.write(file.toPath(), bytes);
-        
+    
         for (final lto_module_t ltoModule : ltoModules)
             LLVM.lto_module_dispose(ltoModule);
         LLVM.lto_codegen_dispose(codeGen);

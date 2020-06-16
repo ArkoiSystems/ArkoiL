@@ -394,6 +394,7 @@ public class ScopeVisitor implements IVisitor<ParserNode>
                     "Edit these identifiers to fix the problem."
             );
         
+        structNode.getVariables().forEach(this::visit);
         return structNode;
     }
     

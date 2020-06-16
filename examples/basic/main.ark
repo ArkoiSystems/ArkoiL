@@ -1,13 +1,35 @@
-import "system"
+import "console"
 import "test"
 
+struct Vector { 
+    var x: i32
+    var y: i32 
+}
+
 fun main() {
+    var test: Vector
+
     # Calls the method in test.ark
     printf(test(), "Arkoi here.")
     
     # Calls this internal method
-    printf("f(5) = 2 + y: %i\n", test2(5, 2))  
+    printf("f(5) = 2 + x: %i\n", test2(2, 5))  
+    printf("f(5.2) = 2 + x: %f\n", test3(2.3234242424240, 5.2444444))
+    
+    # const vector_1 = create(10, 10)
+    # const vector_2 = Vector { x: 10, y: 10 }
+    
+    # const vector_3 = vector_1 + vector_2
     return 0
 }
 
-fun test2(x: u32, y: u32) = x + y
+fun test2(x, y: u32) = x + y
+
+fun test3(x, y: float) = x + y
+
+# fun create(x, y: i32) = Vector { x: x, y: y }
+
+# overload add(first, second: Vector) = Vector {
+#     x: first.x + second.x,
+#     y: first.y + second.y
+# }

@@ -28,11 +28,14 @@ import com.arkoisystems.compiler.phases.parser.ParserErrorType;
 import com.arkoisystems.compiler.phases.parser.SymbolTable;
 import com.arkoisystems.compiler.phases.parser.ast.DataKind;
 import com.arkoisystems.compiler.phases.parser.ast.ParserNode;
+import com.arkoisystems.compiler.phases.parser.ast.types.statement.types.VariableNode;
 import com.arkoisystems.utils.printer.annotations.Printable;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 @Getter
@@ -40,6 +43,10 @@ public class StructNode extends ParserNode
 {
     
     public static StructNode GLOBAL_NODE = new StructNode(null, null, null, false, null, null, null);
+    
+    @Printable(name = "variables")
+    @NotNull
+    private final List<VariableNode> variables;
     
     @Printable(name = "built in")
     private boolean builtin;
@@ -61,6 +68,8 @@ public class StructNode extends ParserNode
         
         this.builtin = builtin;
         this.name = name;
+        
+        this.variables = new ArrayList<>();
     }
     
     @Override
@@ -103,16 +112,72 @@ public class StructNode extends ParserNode
                     )
             );
         }
-        
+    
         final IdentifierToken identifierToken = (IdentifierToken) this.getParser().nextToken();
         Objects.requireNonNull(identifierToken, "identifierNode must not be null.");
-        
+    
         this.name = identifierToken;
-        
+    
         Objects.requireNonNull(this.getCurrentScope(), "currentScope must not be null.");
         this.getCurrentScope().insert(identifierToken.getTokenContent(), this);
         this.setCurrentScope(new SymbolTable(this.getCurrentScope()));
+    
+        if (this.isBuiltin()) {
+            this.endAST(this.getParser().currentToken());
+            return this;
+        }
+    
+        if (this.getParser().matchesPeekToken(1, SymbolType.OPENING_BRACE) == null) {
+            final LexerToken nextToken = this.getParser().nextToken();
+            return this.addError(
+                    this,
+                    this.getParser().getCompilerClass(),
+                    nextToken,
+                    String.format(
+                            ParserErrorType.SYNTAX_ERROR_TEMPLATE,
+                            "Struct",
+                            "'{'",
+                            nextToken != null ? nextToken.getTokenContent() : "nothing"
+                    )
+            );
+        }
+    
+        this.getParser().nextToken(2);
+    
+        while (this.getParser().getPosition() < this.getParser().getTokens().length) {
+            if (!VariableNode.GLOBAL_NODE.canParse(this.getParser(), 0))
+                break;
         
+            final VariableNode variableNode = VariableNode.builder()
+                    .parser(this.getParser())
+                    .currentScope(this.getCurrentScope())
+                    .parentNode(this)
+                    .build()
+                    .parse();
+            if (variableNode.isFailed()) {
+                this.setFailed(true);
+                return this;
+            }
+        
+            this.getVariables().add(variableNode);
+            this.getParser().nextToken();
+        }
+    
+        if (this.getParser().matchesCurrentToken(SymbolType.CLOSING_BRACE) == null) {
+            final LexerToken currentToken = this.getParser().currentToken();
+            return this.addError(
+                    this,
+                    this.getParser().getCompilerClass(),
+                    currentToken,
+                    String.format(
+                            ParserErrorType.SYNTAX_ERROR_TEMPLATE,
+                            "Struct",
+                            "'}'",
+                            currentToken != null ? currentToken.getTokenContent() : "nothing"
+                    )
+            );
+        }
+    
         this.endAST(this.getParser().currentToken());
         return this;
     }
