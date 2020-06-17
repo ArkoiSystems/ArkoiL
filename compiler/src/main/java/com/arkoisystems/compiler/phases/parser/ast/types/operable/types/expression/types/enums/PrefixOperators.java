@@ -3,8 +3,6 @@ package com.arkoisystems.compiler.phases.parser.ast.types.operable.types.express
 public enum PrefixOperators
 {
     
-    PREFIX_ADD,
-    PREFIX_SUB,
     NEGATE
     
 }

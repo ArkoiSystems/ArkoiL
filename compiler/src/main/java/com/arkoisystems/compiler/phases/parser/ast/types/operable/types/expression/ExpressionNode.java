@@ -24,14 +24,12 @@ import com.arkoisystems.compiler.phases.parser.ParserErrorType;
 import com.arkoisystems.compiler.phases.parser.SymbolTable;
 import com.arkoisystems.compiler.phases.parser.ast.ParserNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.OperableNode;
-import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.IdentifierNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.NumberNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.StringNode;
-import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expression.types.*;
-import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expression.types.enums.AssignmentOperators;
-import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expression.types.enums.BinaryOperators;
-import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expression.types.enums.PostfixOperators;
-import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expression.types.enums.PrefixOperators;
+import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expression.types.AssignmentNode;
+import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expression.types.ParenthesizedNode;
+import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expression.types.PrefixNode;
+import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.identifier.IdentifierNode;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.SneakyThrows;
@@ -60,207 +58,34 @@ public class ExpressionNode extends OperableNode
     @NotNull
     @Override
     public OperableNode parse() {
-        return this.parseAssignment();
-    }
-    
-    @Override
-    public boolean canParse(@NotNull final Parser parser, final int offset) {
-        return super.canParse(parser, offset) ||
-                PrefixNode.ADD_GLOBAL_NODE.canParse(parser, offset) ||
-                PrefixNode.SUB_GLOBAL_NODE.canParse(parser, offset) ||
-                PrefixNode.NEGATE_GLOBAL_NODE.canParse(parser, offset) ||
-                ParenthesizedNode.GLOBAL_NODE.canParse(parser, offset);
-    }
-    
-    @NotNull
-    public OperableNode parseAssignment() {
-        Objects.requireNonNull(this.getParser(), "parser must not be null.");
-        
-        OperableNode operableNode = this.parseAdditive();
-        if (operableNode.isFailed())
-            return operableNode;
-        
-        while (true) {
-            if (AssignmentNode.ASSIGN_GLOBAL_NODE.canParse(this.getParser(), 1)) {
-                operableNode = AssignmentNode.builder()
-                        .parentNode(this)
-                        .currentScope(this.getCurrentScope())
-                        .parser(this.getParser())
-                        .leftHandSide(operableNode)
-                        .operatorType(AssignmentOperators.ASSIGN)
-                        .startToken(operableNode.getStartToken())
-                        .build()
-                        .parse();
-            } else if (AssignmentNode.ADD_GLOBAL_NODE.canParse(this.getParser(), 1)) {
-                operableNode = AssignmentNode.builder()
-                        .parentNode(this)
-                        .currentScope(this.getCurrentScope())
-                        .parser(this.getParser())
-                        .leftHandSide(operableNode)
-                        .operatorType(AssignmentOperators.ADD_ASSIGN)
-                        .startToken(operableNode.getStartToken())
-                        .build()
-                        .parse();
-            } else if (AssignmentNode.SUB_GLOBAL_NODE.canParse(this.getParser(), 1)) {
-                operableNode = AssignmentNode.builder()
-                        .parentNode(this)
-                        .currentScope(this.getCurrentScope())
-                        .parser(this.getParser())
-                        .leftHandSide(operableNode)
-                        .operatorType(AssignmentOperators.SUB_ASSIGN)
-                        .startToken(operableNode.getStartToken())
-                        .build()
-                        .parse();
-            } else if (AssignmentNode.MUL_GLOBAL_NODE.canParse(this.getParser(), 1)) {
-                operableNode = AssignmentNode.builder()
-                        .parentNode(this)
-                        .currentScope(this.getCurrentScope())
-                        .parser(this.getParser())
-                        .leftHandSide(operableNode)
-                        .operatorType(AssignmentOperators.MUL_ASSIGN)
-                        .startToken(operableNode.getStartToken())
-                        .build()
-                        .parse();
-            } else if (AssignmentNode.DIV_GLOBAL_NODE.canParse(this.getParser(), 1)) {
-                operableNode = AssignmentNode.builder()
-                        .parentNode(this)
-                        .currentScope(this.getCurrentScope())
-                        .parser(this.getParser())
-                        .leftHandSide(operableNode)
-                        .operatorType(AssignmentOperators.DIV_ASSIGN)
-                        .startToken(operableNode.getStartToken())
-                        .build()
-                        .parse();
-            } else if (AssignmentNode.MOD_GLOBAL_NODE.canParse(this.getParser(), 1)) {
-                operableNode = AssignmentNode.builder()
-                        .parentNode(this)
-                        .currentScope(this.getCurrentScope())
-                        .parser(this.getParser())
-                        .leftHandSide(operableNode)
-                        .operatorType(AssignmentOperators.MOD_ASSIGN)
-                        .startToken(operableNode.getStartToken())
-                        .build()
-                        .parse();
-            } else return operableNode;
-        }
-    }
-    
-    @NotNull
-    public OperableNode parseAdditive() {
-        Objects.requireNonNull(this.getParser(), "parser must not be null.");
-        
-        OperableNode operableNode = this.parseMultiplicative();
-        if (operableNode.isFailed())
-            return operableNode;
-        
-        while (true) {
-            if (BinaryNode.ADD_GLOBAL_NODE.canParse(this.getParser(), 1)) {
-                operableNode = BinaryNode.builder()
-                        .parentNode(this)
-                        .currentScope(this.getCurrentScope())
-                        .parser(this.getParser())
-                        .leftHandSide(operableNode)
-                        .operatorType(BinaryOperators.ADD)
-                        .startToken(operableNode.getStartToken())
-                        .build()
-                        .parse();
-            } else if (BinaryNode.SUB_GLOBAL_NODE.canParse(this.getParser(), 1)) {
-                operableNode = BinaryNode.builder()
-                        .parentNode(this)
-                        .currentScope(this.getCurrentScope())
-                        .parser(this.getParser())
-                        .leftHandSide(operableNode)
-                        .operatorType(BinaryOperators.SUB)
-                        .startToken(operableNode.getStartToken())
-                        .build()
-                        .parse();
-            } else return operableNode;
-        }
-    }
-    
-    @NotNull
-    protected OperableNode parseMultiplicative() {
-        Objects.requireNonNull(this.getParser(), "parser must not be null.");
-        
-        OperableNode operableNode = this.parseOperable();
-        if (operableNode.isFailed())
-            return operableNode;
-        
-        while (true) {
-            if (BinaryNode.MUL_GLOBAL_NODE.canParse(this.getParser(), 1)) {
-                operableNode = BinaryNode.builder()
-                        .parentNode(this)
-                        .currentScope(this.getCurrentScope())
-                        .parser(this.getParser())
-                        .leftHandSide(operableNode)
-                        .operatorType(BinaryOperators.MUL)
-                        .startToken(operableNode.getStartToken())
-                        .build()
-                        .parse();
-            } else if (BinaryNode.DIV_GLOBAL_NODE.canParse(this.getParser(), 1)) {
-                operableNode = BinaryNode.builder()
-                        .parentNode(this)
-                        .currentScope(this.getCurrentScope())
-                        .parser(this.getParser())
-                        .leftHandSide(operableNode)
-                        .operatorType(BinaryOperators.DIV)
-                        .startToken(operableNode.getStartToken())
-                        .build()
-                        .parse();
-            } else if (BinaryNode.MOD_GLOBAL_NODE.canParse(this.getParser(), 1)) {
-                operableNode = BinaryNode.builder()
-                        .parentNode(this)
-                        .currentScope(this.getCurrentScope())
-                        .parser(this.getParser())
-                        .leftHandSide(operableNode)
-                        .operatorType(BinaryOperators.MOD)
-                        .startToken(operableNode.getStartToken())
-                        .build()
-                        .parse();
-            } else return operableNode;
-        }
+        return AssignmentNode.builder()
+                .parser(this.getParser())
+                .parentNode(this.getParentNode())
+                .currentScope(this.getCurrentScope())
+                .build()
+                .parse();
     }
     
     @SneakyThrows
     @NotNull
-    public OperableNode parseOperable() {
+    protected OperableNode parseOperable() {
         Objects.requireNonNull(this.getParser(), "parser must not be null.");
         
-        OperableNode operableNode = null;
-        if (PrefixNode.SUB_GLOBAL_NODE.canParse(this.getParser(), 0))
-            operableNode = PrefixNode.builder()
-                    .parentNode(this)
-                    .currentScope(this.getCurrentScope())
+        if (PrefixNode.GLOBAL_NODE.canParse(this.getParser(), 0)) {
+            return PrefixNode.builder()
                     .parser(this.getParser())
-                    .operatorType(PrefixOperators.PREFIX_SUB)
+                    .currentScope(this.getCurrentScope())
+                    .parentNode(this)
                     .build()
                     .parse();
-        else if (PrefixNode.ADD_GLOBAL_NODE.canParse(this.getParser(), 0))
-            operableNode = PrefixNode.builder()
-                    .parentNode(this)
-                    .currentScope(this.getCurrentScope())
+        } else if (ParenthesizedNode.GLOBAL_NODE.canParse(this.getParser(), 0)) {
+            return ParenthesizedNode.builder()
                     .parser(this.getParser())
-                    .operatorType(PrefixOperators.PREFIX_ADD)
+                    .currentScope(this.getCurrentScope())
+                    .parentNode(this)
                     .build()
                     .parse();
-        else if (PrefixNode.NEGATE_GLOBAL_NODE.canParse(this.getParser(), 0))
-            operableNode = PrefixNode.builder()
-                    .parentNode(this)
-                    .currentScope(this.getCurrentScope())
-                    .parser(this.getParser())
-                    .operatorType(PrefixOperators.NEGATE)
-                    .build()
-                    .parse();
-        else if (ParenthesizedNode.GLOBAL_NODE.canParse(this.getParser(), 0)) {
-            operableNode = ParenthesizedNode.builder()
-                    .parentNode(this)
-                    .currentScope(this.getCurrentScope())
-                    .parser(this.getParser())
-                    .build()
-                    .parse();
-        }
-        
-        if (operableNode == null) {
+        } else {
             final OperableNode foundNode = this.getValidNode(
                     StringNode.GLOBAL_NODE,
                     NumberNode.GLOBAL_NODE,
@@ -276,37 +101,20 @@ public class ExpressionNode extends OperableNode
                         ParserErrorType.OPERABLE_NOT_SUPPORTED
                 );
             
-            operableNode = foundNode.clone();
+            final OperableNode operableNode = foundNode.clone();
             operableNode.setParentNode(this);
             operableNode.setCurrentScope(this.getCurrentScope());
             operableNode.setParser(this.getParser());
-            operableNode = (OperableNode) operableNode.parse();
+            
+            return (OperableNode) operableNode.parse();
         }
-        if (operableNode.isFailed())
-            return operableNode;
-        
-        if (PostfixNode.SUB_GLOBAL_NODE.canParse(this.getParser(), 1)) {
-            return PostfixNode.builder()
-                    .parentNode(this)
-                    .currentScope(this.getCurrentScope())
-                    .parser(this.getParser())
-                    .leftHandSide(operableNode)
-                    .operatorType(PostfixOperators.POSTFIX_SUB)
-                    .startToken(operableNode.getStartToken())
-                    .build()
-                    .parse();
-        } else if (PostfixNode.ADD_GLOBAL_NODE.canParse(this.getParser(), 1)) {
-            return PostfixNode.builder()
-                    .parentNode(this)
-                    .currentScope(this.getCurrentScope())
-                    .parser(this.getParser())
-                    .leftHandSide(operableNode)
-                    .operatorType(PostfixOperators.POSTFIX_ADD)
-                    .startToken(operableNode.getStartToken())
-                    .build()
-                    .parse();
-        }
-        return operableNode;
+    }
+    
+    @Override
+    public boolean canParse(@NotNull final Parser parser, final int offset) {
+        return super.canParse(parser, offset) ||
+                PrefixNode.GLOBAL_NODE.canParse(parser, offset) ||
+                ParenthesizedNode.GLOBAL_NODE.canParse(parser, offset);
     }
     
 }

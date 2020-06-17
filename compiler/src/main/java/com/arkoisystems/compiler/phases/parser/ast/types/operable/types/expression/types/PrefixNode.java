@@ -21,6 +21,7 @@ package com.arkoisystems.compiler.phases.parser.ast.types.operable.types.express
 import com.arkoisystems.compiler.phases.lexer.token.LexerToken;
 import com.arkoisystems.compiler.phases.lexer.token.enums.OperatorType;
 import com.arkoisystems.compiler.phases.parser.Parser;
+import com.arkoisystems.compiler.phases.parser.ParserErrorType;
 import com.arkoisystems.compiler.phases.parser.SymbolTable;
 import com.arkoisystems.compiler.phases.parser.ast.ParserNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.TypeNode;
@@ -31,7 +32,6 @@ import com.arkoisystems.compiler.visitor.IVisitor;
 import com.arkoisystems.utils.printer.annotations.Printable;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NonNull;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -41,14 +41,10 @@ import java.util.Objects;
 public class PrefixNode extends ExpressionNode
 {
     
-    public static PrefixNode ADD_GLOBAL_NODE = new PrefixNode(null, null, null, PrefixOperators.PREFIX_ADD, null, null, null);
-    
-    public static PrefixNode SUB_GLOBAL_NODE = new PrefixNode(null, null, null, PrefixOperators.PREFIX_SUB, null, null, null);
-    
-    public static PrefixNode NEGATE_GLOBAL_NODE = new PrefixNode(null, null, null, PrefixOperators.NEGATE, null, null, null);
+    public static PrefixNode GLOBAL_NODE = new PrefixNode(null, null, null, null, null, null, null);
     
     @Printable(name = "operation")
-    @NotNull
+    @Nullable
     private final PrefixOperators operatorType;
     
     @Printable(name = "rhs")
@@ -60,8 +56,7 @@ public class PrefixNode extends ExpressionNode
             @Nullable final Parser parser,
             @Nullable final ParserNode parentNode,
             @Nullable final SymbolTable currentScope,
-            @NonNull
-            @NotNull final PrefixOperators operatorType,
+            @Nullable final PrefixOperators operatorType,
             @Nullable final OperableNode rightHandSide,
             @Nullable final LexerToken startToken,
             @Nullable final LexerToken endToken
@@ -76,16 +71,32 @@ public class PrefixNode extends ExpressionNode
     @Override
     public PrefixNode parse() {
         Objects.requireNonNull(this.getParser(), "parser must not be null.");
-        
+    
         this.startAST(this.getParser().currentToken());
-        this.getParser().nextToken(1);
-        
+    
+        if (this.getParser().matchesCurrentToken(OperatorType.MINUS) == null) {
+            final LexerToken currentToken = this.getParser().currentToken();
+            return this.addError(
+                    this,
+                    this.getParser().getCompilerClass(),
+                    currentToken,
+                    String.format(
+                            ParserErrorType.SYNTAX_ERROR_TEMPLATE,
+                            "Prefix expression",
+                            "'-'",
+                            currentToken != null ? currentToken.getTokenContent() : "nothing"
+                    )
+            );
+        }
+    
+        this.getParser().nextToken();
+    
         final OperableNode operableNode = this.parseOperable();
         if (operableNode.isFailed()) {
             this.setFailed(true);
             return this;
         }
-        
+    
         this.rightHandSide = operableNode;
         this.endAST(this.rightHandSide.getEndToken());
         return this;
@@ -93,16 +104,7 @@ public class PrefixNode extends ExpressionNode
     
     @Override
     public boolean canParse(@NotNull final Parser parser, final int offset) {
-        switch (this.getOperatorType()) {
-            case PREFIX_ADD:
-                return parser.matchesPeekToken(offset, OperatorType.PLUS_PLUS) != null;
-            case PREFIX_SUB:
-                return parser.matchesPeekToken(offset, OperatorType.MINUS_MINUS) != null;
-            case NEGATE:
-                return parser.matchesPeekToken(offset, OperatorType.MINUS) != null;
-            default:
-                return false;
-        }
+        return parser.matchesPeekToken(offset, OperatorType.MINUS) != null;
     }
     
     @Override
