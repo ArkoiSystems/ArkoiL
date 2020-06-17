@@ -2,12 +2,12 @@ import "console"
 import "test"
 
 struct Vector { 
-    var x: i32
-    var y: i32 
+    var x: i32 = 0
+    var y: i32 = 0
 }
 
 fun main() {
-    var test: Vector
+    # var test: Vector?
 
     # Calls the method in test.ark
     printf(test(), "Arkoi here.")
@@ -16,10 +16,17 @@ fun main() {
     printf("f(5) = 2 + x: %i\n", test2(2, 5))  
     printf("f(5.2) = 2 + x: %f\n", test3(2.3234242424240, 5.2444444))
     
+    test.x = 2
+    
     # const vector_1 = create(10, 10)
     # const vector_2 = Vector { x: 10, y: 10 }
     
     # const vector_3 = vector_1 + vector_2
+    
+    # const vector_4 = vector_1 * 2
+    
+    # const helloWorld = "Hello" + "World"
+    
     return 0
 }
 
@@ -32,4 +39,15 @@ fun test3(x, y: float) = x + y
 # overload add(first, second: Vector) = Vector {
 #     x: first.x + second.x,
 #     y: first.y + second.y
+# }
+
+# overload mul(first: Vector, second: i32) = Vector {
+#     x: first.x * second
+#     y: first.y * second
+# }
+
+# [compile-time]
+# overload add(first, second: u8*) {
+#     while(*first++ = *second++);
+#     return first
 # }
