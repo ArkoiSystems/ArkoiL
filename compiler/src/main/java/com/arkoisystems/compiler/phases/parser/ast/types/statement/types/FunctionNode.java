@@ -31,7 +31,7 @@ import com.arkoisystems.compiler.phases.parser.ast.ParserNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.BlockNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.TypeNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.OperableNode;
-import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.IdentifierNode;
+import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.identifier.IdentifierNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.parameter.ParameterListNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.parameter.ParameterNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.statement.StatementNode;
@@ -200,11 +200,12 @@ public class FunctionNode extends StatementNode
                 this.setFailed(true);
                 return this;
             }
-            
+    
             this.returnType = typeNodeAST;
         }
-        
-        if (BlockNode.GLOBAL_NODE.canParse(this.getParser(), 1)) {
+    
+        if (BlockNode.BRACE_NODE.canParse(this.getParser(), 1) ||
+                BlockNode.INLINED_NODE.canParse(this.getParser(), 1)) {
             if (this.isBuiltin()) {
                 final LexerToken nextToken = this.getParser().nextToken();
                 return this.addError(

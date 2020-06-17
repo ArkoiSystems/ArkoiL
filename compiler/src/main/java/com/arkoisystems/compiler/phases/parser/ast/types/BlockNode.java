@@ -27,8 +27,8 @@ import com.arkoisystems.compiler.phases.parser.SymbolTable;
 import com.arkoisystems.compiler.phases.parser.ast.DataKind;
 import com.arkoisystems.compiler.phases.parser.ast.ParserNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.OperableNode;
-import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.IdentifierNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expression.ExpressionNode;
+import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.identifier.IdentifierNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.statement.types.ReturnNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.statement.types.VariableNode;
 import com.arkoisystems.compiler.visitor.IVisitor;
@@ -48,7 +48,9 @@ import java.util.stream.Collectors;
 public class BlockNode extends ParserNode
 {
     
-    public static BlockNode GLOBAL_NODE = new BlockNode(null, null, null, false, null, null);
+    public static BlockNode BRACE_NODE = new BlockNode(null, null, null, false, null, null);
+    
+    public static BlockNode INLINED_NODE = new BlockNode(null, null, null, true, null, null);
     
     @Printable(name = "nodes")
     @NotNull
@@ -111,14 +113,16 @@ public class BlockNode extends ParserNode
         while (this.getParser().getPosition() < this.getParser().getTokens().length) {
             if (this.getParser().matchesCurrentToken(SymbolType.CLOSING_BRACE) != null)
                 break;
-            
+    
             final ParserNode foundNode = this.getValidNode(
                     VariableNode.GLOBAL_NODE,
                     IdentifierNode.GLOBAL_NODE,
                     ReturnNode.GLOBAL_NODE,
-                    BlockNode.GLOBAL_NODE
+                    BlockNode.BRACE_NODE
             );
-            
+    
+            //            System.out.println(this.getParser().currentToken().getTokenContent() + ", " + foundNode);
+    
             if (foundNode == null) {
                 this.addError(
                         null,
@@ -201,8 +205,8 @@ public class BlockNode extends ParserNode
     
     @Override
     public boolean canParse(@NotNull final Parser parser, final int offset) {
-        return parser.matchesPeekToken(offset, OperatorType.EQUALS) != null ||
-                parser.matchesPeekToken(offset, SymbolType.OPENING_BRACE) != null;
+        return (this.isInlined() && parser.matchesPeekToken(offset, OperatorType.EQUALS) != null) ||
+                (!this.isInlined() && parser.matchesPeekToken(offset, SymbolType.OPENING_BRACE) != null);
     }
     
     @Override
@@ -258,7 +262,7 @@ public class BlockNode extends ParserNode
                     VariableNode.GLOBAL_NODE,
                     IdentifierNode.GLOBAL_NODE,
                     ReturnNode.GLOBAL_NODE,
-                    BlockNode.GLOBAL_NODE
+                    BlockNode.BRACE_NODE
             );
             
             if (foundNode != null || this.getParser().matchesCurrentToken(SymbolType.CLOSING_BRACE) != null)
