@@ -47,7 +47,7 @@ import java.util.Objects;
 public class VariableNode extends StatementNode
 {
     
-    public static VariableNode GLOBAL_NODE = new VariableNode(null, null, null, null, null, null, null, false, false);
+    public static VariableNode GLOBAL_NODE = new VariableNode(null, null, null, null, false, false, null, false, null, null);
     
     @Printable(name = "is constant")
     private boolean isConstant;
@@ -64,6 +64,9 @@ public class VariableNode extends StatementNode
     @Nullable
     private TypeNode returnType;
     
+    @Printable(name = "is optional")
+    private boolean isOptional;
+    
     @Printable(name = "expression")
     @Nullable
     private OperableNode expression;
@@ -74,16 +77,18 @@ public class VariableNode extends StatementNode
             @Nullable final ParserNode parentNode,
             @Nullable final SymbolTable currentScope,
             @Nullable final OperableNode expression,
-            @Nullable final IdentifierToken name,
-            @Nullable final LexerToken startToken,
-            @Nullable final LexerToken endToken,
             final boolean isConstant,
-            final boolean isLocal
+            final boolean isLocal,
+            @Nullable final IdentifierToken name,
+            final boolean isOptional,
+            @Nullable final LexerToken startToken,
+            @Nullable final LexerToken endToken
     ) {
         super(parser, parentNode, currentScope, startToken, endToken);
         
         this.expression = expression;
         this.isConstant = isConstant;
+        this.isOptional = isOptional;
         this.isLocal = isLocal;
         this.name = name;
     }
@@ -164,8 +169,13 @@ public class VariableNode extends StatementNode
                 this.setFailed(true);
                 return this;
             }
-            
+    
             this.returnType = typeNodeAST;
+    
+            if (this.getParser().matchesPeekToken(1, SymbolType.QUESTION_MARK) != null) {
+                this.getParser().nextToken();
+                this.isOptional = true;
+            }
         }
         
         if (this.getParser().matchesPeekToken(1, OperatorType.EQUALS) != null) {

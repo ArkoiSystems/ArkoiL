@@ -23,7 +23,9 @@ public enum SymbolType
     PERIOD("."),
     
     OPENING_ARROW("<"),
-    CLOSING_ARROW(">");
+    CLOSING_ARROW(">"),
+    
+    QUESTION_MARK("?");
     
     @Getter
     private final String name;
