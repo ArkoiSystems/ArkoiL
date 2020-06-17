@@ -31,7 +31,6 @@ import com.arkoisystems.compiler.visitor.IVisitor;
 import com.arkoisystems.utils.printer.annotations.Printable;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NonNull;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -41,37 +40,26 @@ import java.util.Objects;
 public class AssignmentNode extends ExpressionNode
 {
     
-    public static AssignmentNode ASSIGN_GLOBAL_NODE = new AssignmentNode(null, null, null, AssignmentOperators.ASSIGN, null, null, null, null);
-    
-    public static AssignmentNode ADD_GLOBAL_NODE = new AssignmentNode(null, null, null, AssignmentOperators.ADD_ASSIGN, null, null, null, null);
-    
-    public static AssignmentNode SUB_GLOBAL_NODE = new AssignmentNode(null, null, null, AssignmentOperators.SUB_ASSIGN, null, null, null, null);
-    
-    public static AssignmentNode MUL_GLOBAL_NODE = new AssignmentNode(null, null, null, AssignmentOperators.MUL_ASSIGN, null, null, null, null);
-    
-    public static AssignmentNode DIV_GLOBAL_NODE = new AssignmentNode(null, null, null, AssignmentOperators.DIV_ASSIGN, null, null, null, null);
-    
-    public static AssignmentNode MOD_GLOBAL_NODE = new AssignmentNode(null, null, null, AssignmentOperators.MOD_ASSIGN, null, null, null, null);
+    public static AssignmentNode GLOBAL_NODE = new AssignmentNode(null, null, null, null, null, null, null, null);
     
     @Printable(name = "lhs")
     @Nullable
     private final OperableNode leftHandSide;
     
     @Printable(name = "operation")
-    @NotNull
+    @Nullable
     private final AssignmentOperators operatorType;
     
     @Printable(name = "rhs")
     @Nullable
-    private OperableNode rightHandSide;
+    private final OperableNode rightHandSide;
     
     @Builder
     protected AssignmentNode(
             @Nullable final Parser parser,
             @Nullable final ParserNode parentNode,
             @Nullable final SymbolTable currentScope,
-            @NonNull
-            @NotNull final AssignmentOperators operatorType,
+            @Nullable final AssignmentOperators operatorType,
             @Nullable final OperableNode rightHandSide,
             @Nullable final OperableNode leftHandSide,
             @Nullable final LexerToken startToken,
@@ -86,42 +74,108 @@ public class AssignmentNode extends ExpressionNode
     
     @NotNull
     @Override
-    public AssignmentNode parse() {
+    public OperableNode parse() {
         Objects.requireNonNull(this.getParser(), "parser must not be null.");
-        Objects.requireNonNull(this.getLeftHandSide(), "leftSideOperable must not be null.");
         
-        this.startAST(this.getLeftHandSide().getStartToken());
-        this.getParser().nextToken(2);
-        
-        final OperableNode operableNode = this.parseAdditive();
+        OperableNode operableNode = BinaryNode.builder()
+                .parser(this.getParser())
+                .currentScope(this.getCurrentScope())
+                .parentNode(this.getParentNode())
+                .build()
+                .parseAdditive();
         if (operableNode.isFailed()) {
             this.setFailed(true);
             return this;
         }
         
-        this.rightHandSide = operableNode;
-        this.endAST(this.rightHandSide.getEndToken());
-        return this;
+        while (true) {
+            if (this.getParser().matchesPeekToken(1, OperatorType.EQUALS) != null) {
+                this.getParser().nextToken(2);
+                
+                operableNode = AssignmentNode.builder()
+                        .parser(this.getParser())
+                        .currentScope(this.getCurrentScope())
+                        .parentNode(this)
+                        .startToken(operableNode.getStartToken())
+                        .leftHandSide(operableNode)
+                        .operatorType(AssignmentOperators.ASSIGN)
+                        .build()
+                        .parse();
+            } else if (this.getParser().matchesPeekToken(1, OperatorType.PLUS_EQUALS) != null) {
+                this.getParser().nextToken(2);
+                
+                operableNode = AssignmentNode.builder()
+                        .parser(this.getParser())
+                        .currentScope(this.getCurrentScope())
+                        .parentNode(this)
+                        .startToken(operableNode.getStartToken())
+                        .leftHandSide(operableNode)
+                        .operatorType(AssignmentOperators.ADD_ASSIGN)
+                        .build()
+                        .parse();
+            } else if (this.getParser().matchesPeekToken(1, OperatorType.MINUS_EQUALS) != null) {
+                this.getParser().nextToken(2);
+                
+                operableNode = AssignmentNode.builder()
+                        .parser(this.getParser())
+                        .currentScope(this.getCurrentScope())
+                        .parentNode(this)
+                        .startToken(operableNode.getStartToken())
+                        .leftHandSide(operableNode)
+                        .operatorType(AssignmentOperators.SUB_ASSIGN)
+                        .build()
+                        .parse();
+            } else if (this.getParser().matchesPeekToken(1, OperatorType.ASTERISK_EQUALS) != null) {
+                this.getParser().nextToken(2);
+                
+                operableNode = AssignmentNode.builder()
+                        .parser(this.getParser())
+                        .currentScope(this.getCurrentScope())
+                        .parentNode(this)
+                        .startToken(operableNode.getStartToken())
+                        .leftHandSide(operableNode)
+                        .operatorType(AssignmentOperators.MUL_ASSIGN)
+                        .build()
+                        .parse();
+            } else if (this.getParser().matchesPeekToken(1, OperatorType.SLASH_EQUALS) != null) {
+                this.getParser().nextToken(2);
+                
+                operableNode = AssignmentNode.builder()
+                        .parser(this.getParser())
+                        .currentScope(this.getCurrentScope())
+                        .parentNode(this)
+                        .startToken(operableNode.getStartToken())
+                        .leftHandSide(operableNode)
+                        .operatorType(AssignmentOperators.DIV_ASSIGN)
+                        .build()
+                        .parse();
+            } else if (this.getParser().matchesPeekToken(1, OperatorType.PERCENT_EQUALS) != null) {
+                this.getParser().nextToken(2);
+                
+                operableNode = AssignmentNode.builder()
+                        .parser(this.getParser())
+                        .currentScope(this.getCurrentScope())
+                        .parentNode(this)
+                        .startToken(operableNode.getStartToken())
+                        .leftHandSide(operableNode)
+                        .operatorType(AssignmentOperators.MOD_ASSIGN)
+                        .build()
+                        .parse();
+            } else {
+                this.setEndToken(this.getParser().currentToken());
+                return operableNode;
+            }
+        }
     }
     
     @Override
     public boolean canParse(@NotNull final Parser parser, final int offset) {
-        switch (this.getOperatorType()) {
-            case ASSIGN:
-                return parser.matchesPeekToken(offset, OperatorType.EQUALS) != null;
-            case ADD_ASSIGN:
-                return parser.matchesPeekToken(offset, OperatorType.PLUS_EQUALS) != null;
-            case SUB_ASSIGN:
-                return parser.matchesPeekToken(offset, OperatorType.MINUS_EQUALS) != null;
-            case MUL_ASSIGN:
-                return parser.matchesPeekToken(offset, OperatorType.ASTERISK_EQUALS) != null;
-            case DIV_ASSIGN:
-                return parser.matchesPeekToken(offset, OperatorType.SLASH_EQUALS) != null;
-            case MOD_ASSIGN:
-                return parser.matchesPeekToken(offset, OperatorType.PERCENT_EQUALS) != null;
-            default:
-                return false;
-        }
+        return parser.matchesPeekToken(offset, OperatorType.EQUALS) != null ||
+                parser.matchesPeekToken(offset, OperatorType.PLUS_EQUALS) != null ||
+                parser.matchesPeekToken(offset, OperatorType.MINUS_EQUALS) != null ||
+                parser.matchesPeekToken(offset, OperatorType.ASTERISK_EQUALS) != null ||
+                parser.matchesPeekToken(offset, OperatorType.SLASH_EQUALS) != null ||
+                parser.matchesPeekToken(offset, OperatorType.PERCENT_EQUALS) != null;
     }
     
     @Override

@@ -31,7 +31,7 @@ import com.arkoisystems.compiler.visitor.IVisitor;
 import com.arkoisystems.utils.printer.annotations.Printable;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NonNull;
+import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -41,42 +41,33 @@ import java.util.Objects;
 public class BinaryNode extends ExpressionNode
 {
     
-    public static BinaryNode ADD_GLOBAL_NODE = new BinaryNode(null, null, null, BinaryOperators.ADD, null, null, null, null);
-    
-    public static BinaryNode SUB_GLOBAL_NODE = new BinaryNode(null, null, null, BinaryOperators.SUB, null, null, null, null);
-    
-    public static BinaryNode MUL_GLOBAL_NODE = new BinaryNode(null, null, null, BinaryOperators.MUL, null, null, null, null);
-    
-    public static BinaryNode DIV_GLOBAL_NODE = new BinaryNode(null, null, null, BinaryOperators.DIV, null, null, null, null);
-    
-    public static BinaryNode MOD_GLOBAL_NODE = new BinaryNode(null, null, null, BinaryOperators.MOD, null, null, null, null);
+    public static BinaryNode MOD_GLOBAL_NODE = new BinaryNode(null, null, null, null, null, null, null, null);
     
     @Printable(name = "lhs")
     @Nullable
     private final OperableNode leftHandSide;
     
     @Printable(name = "operation")
-    @NotNull
+    @Nullable
     private final BinaryOperators operatorType;
     
     @Printable(name = "rhs")
     @Nullable
-    private OperableNode rightHandSide;
+    private final OperableNode rightHandSide;
     
     @Builder
     protected BinaryNode(
             @Nullable final Parser parser,
             @Nullable final ParserNode parentNode,
             @Nullable final SymbolTable currentScope,
-            @NonNull
-            @NotNull final BinaryOperators operatorType,
+            @Nullable final BinaryOperators operatorType,
             @Nullable final OperableNode rightHandSide,
             @Nullable final OperableNode leftHandSide,
             @Nullable final LexerToken startToken,
             @Nullable final LexerToken endToken
     ) {
         super(parser, parentNode, currentScope, startToken, endToken);
-        
+    
         this.rightHandSide = rightHandSide;
         this.operatorType = operatorType;
         this.leftHandSide = leftHandSide;
@@ -84,40 +75,120 @@ public class BinaryNode extends ExpressionNode
     
     @NotNull
     @Override
-    public BinaryNode parse() {
+    public OperableNode parse() {
+        throw new NullPointerException();
+    }
+    
+    @NotNull
+    public OperableNode parseAdditive() {
         Objects.requireNonNull(this.getParser(), "parser must not be null.");
-        Objects.requireNonNull(this.getLeftHandSide(), "leftSideOperable must not be null.");
         
-        this.startAST(this.getLeftHandSide().getStartToken());
-        this.getParser().nextToken(2);
+        OperableNode lhsNode = this.parseMultiplicative();
+        if (lhsNode.isFailed())
+            return lhsNode;
         
-        final OperableNode operableNode = this.parseMultiplicative();
-        if (operableNode.isFailed()) {
-            this.setFailed(true);
-            return this;
+        while (true) {
+            if (this.getParser().matchesPeekToken(1, OperatorType.PLUS) != null) {
+                this.getParser().nextToken(2);
+                
+                final OperableNode rhsNode = this.parseAdditive();
+                lhsNode = BinaryNode.builder()
+                        .parser(this.getParser())
+                        .currentScope(this.getCurrentScope())
+                        .parentNode(this)
+                        .startToken(lhsNode.getStartToken())
+                        .leftHandSide(lhsNode)
+                        .operatorType(BinaryOperators.ADD)
+                        .rightHandSide(rhsNode)
+                        .endToken(rhsNode.getEndToken())
+                        .build();
+            } else if (this.getParser().matchesPeekToken(1, OperatorType.MINUS) != null) {
+                this.getParser().nextToken(2);
+                
+                final OperableNode rhsNode = this.parseAdditive();
+                lhsNode = BinaryNode.builder()
+                        .parser(this.getParser())
+                        .currentScope(this.getCurrentScope())
+                        .parentNode(this)
+                        .startToken(lhsNode.getStartToken())
+                        .leftHandSide(lhsNode)
+                        .operatorType(BinaryOperators.SUB)
+                        .rightHandSide(rhsNode)
+                        .endToken(rhsNode.getEndToken())
+                        .build();
+            } else {
+                this.setEndToken(this.getParser().currentToken());
+                return lhsNode;
+            }
         }
+    }
+    
+    @SneakyThrows
+    @NotNull
+    protected OperableNode parseMultiplicative() {
+        Objects.requireNonNull(this.getParser(), "parser must not be null.");
         
-        this.rightHandSide = operableNode;
-        this.endAST(this.rightHandSide.getEndToken());
-        return this;
+        OperableNode operableNode = this.parseOperable();
+        if (operableNode.isFailed())
+            return operableNode;
+        
+        while (true) {
+            if (this.getParser().matchesPeekToken(1, OperatorType.ASTERISK) != null) {
+                this.getParser().nextToken(2);
+                
+                final OperableNode rhsNode = this.parseMultiplicative();
+                operableNode = BinaryNode.builder()
+                        .parser(this.getParser())
+                        .currentScope(this.getCurrentScope())
+                        .parentNode(this)
+                        .startToken(operableNode.getStartToken())
+                        .leftHandSide(operableNode)
+                        .operatorType(BinaryOperators.MUL)
+                        .rightHandSide(rhsNode)
+                        .endToken(rhsNode.getEndToken())
+                        .build();
+            } else if (this.getParser().matchesPeekToken(1, OperatorType.SLASH) != null) {
+                this.getParser().nextToken(2);
+                
+                final OperableNode rhsNode = this.parseMultiplicative();
+                operableNode = BinaryNode.builder()
+                        .parser(this.getParser())
+                        .currentScope(this.getCurrentScope())
+                        .parentNode(this)
+                        .startToken(operableNode.getStartToken())
+                        .leftHandSide(operableNode)
+                        .operatorType(BinaryOperators.DIV)
+                        .rightHandSide(rhsNode)
+                        .endToken(rhsNode.getEndToken())
+                        .build();
+            } else if (this.getParser().matchesPeekToken(1, OperatorType.PERCENT) != null) {
+                this.getParser().nextToken(2);
+                
+                final OperableNode rhsNode = this.parseMultiplicative();
+                operableNode = BinaryNode.builder()
+                        .parser(this.getParser())
+                        .currentScope(this.getCurrentScope())
+                        .parentNode(this)
+                        .startToken(operableNode.getStartToken())
+                        .leftHandSide(operableNode)
+                        .operatorType(BinaryOperators.MOD)
+                        .rightHandSide(rhsNode)
+                        .endToken(rhsNode.getEndToken())
+                        .build();
+            } else {
+                this.setEndToken(this.getParser().currentToken());
+                return operableNode;
+            }
+        }
     }
     
     @Override
     public boolean canParse(@NotNull final Parser parser, final int offset) {
-        switch (this.getOperatorType()) {
-            case ADD:
-                return parser.matchesPeekToken(offset, OperatorType.PLUS) != null;
-            case SUB:
-                return parser.matchesPeekToken(offset, OperatorType.MINUS) != null;
-            case MUL:
-                return parser.matchesPeekToken(offset, OperatorType.ASTERISK) != null;
-            case DIV:
-                return parser.matchesPeekToken(offset, OperatorType.SLASH) != null;
-            case MOD:
-                return parser.matchesPeekToken(offset, OperatorType.PERCENT) != null;
-            default:
-                return false;
-        }
+        return parser.matchesPeekToken(offset, OperatorType.PLUS) != null ||
+                parser.matchesPeekToken(offset, OperatorType.MINUS) != null ||
+                parser.matchesPeekToken(offset, OperatorType.ASTERISK) != null ||
+                parser.matchesPeekToken(offset, OperatorType.SLASH) != null ||
+                parser.matchesPeekToken(offset, OperatorType.PERCENT) != null;
     }
     
     @Override

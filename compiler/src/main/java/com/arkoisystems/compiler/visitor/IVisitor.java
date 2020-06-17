@@ -23,11 +23,14 @@ import com.arkoisystems.compiler.phases.parser.ast.types.BlockNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.RootNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.StructNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.TypeNode;
-import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.IdentifierNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.NumberNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.StringNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expression.ExpressionListNode;
-import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expression.types.*;
+import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expression.types.AssignmentNode;
+import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expression.types.BinaryNode;
+import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expression.types.ParenthesizedNode;
+import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expression.types.PrefixNode;
+import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.identifier.IdentifierNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.parameter.ParameterListNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.parameter.ParameterNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.statement.types.FunctionNode;
@@ -72,8 +75,6 @@ public interface IVisitor<T>
             return this.visit((BinaryNode) astNode);
         else if (astNode instanceof ParenthesizedNode)
             return this.visit((ParenthesizedNode) astNode);
-        else if (astNode instanceof PostfixNode)
-            return this.visit((PostfixNode) astNode);
         else if (astNode instanceof PrefixNode)
             return this.visit((PrefixNode) astNode);
         else if (astNode instanceof StructNode)
@@ -115,8 +116,6 @@ public interface IVisitor<T>
     T visit(@NotNull final BinaryNode binaryNode);
     
     T visit(@NotNull final ParenthesizedNode parenthesizedNode);
-    
-    T visit(@NotNull final PostfixNode postfixNode);
     
     T visit(@NotNull final PrefixNode prefixNode);
     
