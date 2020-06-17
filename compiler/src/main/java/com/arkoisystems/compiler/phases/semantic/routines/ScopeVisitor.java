@@ -27,11 +27,14 @@ import com.arkoisystems.compiler.phases.parser.ast.types.BlockNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.RootNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.StructNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.TypeNode;
-import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.IdentifierNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.NumberNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.StringNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expression.ExpressionListNode;
-import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expression.types.*;
+import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expression.types.AssignmentNode;
+import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expression.types.BinaryNode;
+import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expression.types.ParenthesizedNode;
+import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expression.types.PrefixNode;
+import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.identifier.IdentifierNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.parameter.ParameterListNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.parameter.ParameterNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.statement.types.FunctionNode;
@@ -246,7 +249,6 @@ public class ScopeVisitor implements IVisitor<ParserNode>
         Objects.requireNonNull(identifierNode.getIdentifier(), "identifierNode.identifier must not be null.");
         Objects.requireNonNull(identifierNode.getParser(), "identifierNode.parser must not be null.");
         
-        
         final ParserNode foundNode;
         if (identifierNode.isFunctionCall()) {
             final List<ParserNode> nodes = Objects.requireNonNullElse(identifierNode.getParser()
@@ -330,10 +332,28 @@ public class ScopeVisitor implements IVisitor<ParserNode>
     
     @Override
     public AssignmentNode visit(@NotNull final AssignmentNode assignmentNode) {
+        Objects.requireNonNull(assignmentNode.getParser(), "assignmentNode.parser must not be null.");
         Objects.requireNonNull(assignmentNode.getLeftHandSide(), "assignmentNode.leftHandSide must not be null.");
         Objects.requireNonNull(assignmentNode.getRightHandSide(), "assignmentNode.rightHandSide must not be null.");
-        
-        this.visit(assignmentNode.getLeftHandSide());
+    
+        final Object lhsObject = this.visit(assignmentNode.getLeftHandSide());
+        if (!(lhsObject instanceof VariableNode))
+            return this.addError(
+                    null,
+                    assignmentNode.getParser().getCompilerClass(),
+                    assignmentNode.getLeftHandSide(),
+                    "Left side isn't a variable."
+            );
+    
+        final VariableNode variableNode = (VariableNode) lhsObject;
+        if (variableNode.isConstant())
+            return this.addError(
+                    null,
+                    assignmentNode.getParser().getCompilerClass(),
+                    assignmentNode.getLeftHandSide(),
+                    "Can't re-assign a constant variable."
+            );
+    
         this.visit(assignmentNode.getRightHandSide());
         return assignmentNode;
     }
@@ -354,14 +374,6 @@ public class ScopeVisitor implements IVisitor<ParserNode>
         
         this.visit(parenthesizedNode.getExpression());
         return parenthesizedNode;
-    }
-    
-    @Override
-    public PostfixNode visit(@NotNull final PostfixNode postfixNode) {
-        Objects.requireNonNull(postfixNode.getLeftHandSide(), "postfixNode.leftHandSide must not be null.");
-        
-        this.visit(postfixNode.getLeftHandSide());
-        return postfixNode;
     }
     
     @Override

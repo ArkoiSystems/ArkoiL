@@ -27,11 +27,14 @@ import com.arkoisystems.compiler.phases.parser.ast.types.BlockNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.RootNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.StructNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.TypeNode;
-import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.IdentifierNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.NumberNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.StringNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expression.ExpressionListNode;
-import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expression.types.*;
+import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expression.types.AssignmentNode;
+import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expression.types.BinaryNode;
+import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expression.types.ParenthesizedNode;
+import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expression.types.PrefixNode;
+import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.identifier.IdentifierNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.parameter.ParameterListNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.parameter.ParameterNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.statement.types.FunctionNode;
@@ -202,9 +205,8 @@ public class TypeVisitor implements IVisitor<TypeNode>
     public TypeNode visit(@NotNull final VariableNode variableNode) {
         Objects.requireNonNull(variableNode.getParser(), "variableNode.parser must not be null.");
     
-        if (variableNode.getReturnType() != null) {
+        if (variableNode.getReturnType() != null)
             this.visit(variableNode.getReturnType());
-        }
     
         if (variableNode.getExpression() == null && variableNode.isConstant())
             return this.addError(
@@ -212,6 +214,14 @@ public class TypeVisitor implements IVisitor<TypeNode>
                     variableNode.getParser().getCompilerClass(),
                     variableNode,
                     "Constant variables need an expression."
+            );
+    
+        if (variableNode.getExpression() == null && !variableNode.isOptional())
+            return this.addError(
+                    ERROR_NODE,
+                    variableNode.getParser().getCompilerClass(),
+                    variableNode,
+                    "Variables with no default content need to be declared optional."
             );
     
         if (variableNode.getReturnType() == null && variableNode.getExpression() == null)
@@ -222,11 +232,17 @@ public class TypeVisitor implements IVisitor<TypeNode>
                     "There must be specified a return type if no expression exists."
             );
     
-        if (variableNode.getExpression() == null || variableNode.getReturnType() == null)
+        TypeNode expectedType = null;
+        if (variableNode.getReturnType() != null)
+            expectedType = this.visit(variableNode.getReturnType());
+    
+        TypeNode givenType = null;
+        if (variableNode.getExpression() != null)
+            givenType = this.visit(variableNode.getExpression());
+    
+        if (expectedType == null || givenType == null)
             return this.visit(variableNode.getTypeNode());
     
-        final TypeNode expectedType = this.visit(variableNode.getReturnType());
-        final TypeNode givenType = this.visit(variableNode.getExpression());
         if (expectedType == ERROR_NODE || givenType == ERROR_NODE)
             return ERROR_NODE;
     
@@ -276,17 +292,6 @@ public class TypeVisitor implements IVisitor<TypeNode>
         Objects.requireNonNull(assignmentNode.getLeftHandSide(), "assignmentExpression.leftSideOperable must not be null.");
         Objects.requireNonNull(assignmentNode.getRightHandSide(), "assignmentExpression.rightSideOperable must not be null.");
         Objects.requireNonNull(assignmentNode.getParser(), "assignmentExpression.parser must not be null.");
-        
-        if (!(assignmentNode.getLeftHandSide() instanceof IdentifierNode) ||
-                ((IdentifierNode) assignmentNode.getLeftHandSide()).isFunctionCall()) {
-            // TODO: 5/29/20 Check if its mutable or not
-            return this.addError(
-                    ERROR_NODE,
-                    assignmentNode.getParser().getCompilerClass(),
-                    assignmentNode.getLeftHandSide(),
-                    "Left side isn't an identifier operable which can be re-assigned."
-            );
-        }
         
         final TypeNode leftHandSide = this.visit(assignmentNode.getLeftHandSide());
         final TypeNode rightHandSide = this.visit(assignmentNode.getRightHandSide());
@@ -351,27 +356,6 @@ public class TypeVisitor implements IVisitor<TypeNode>
         if (this.visit(parenthesizedNode.getExpression()) == ERROR_NODE)
             return ERROR_NODE;
         return this.visit(parenthesizedNode.getTypeNode());
-    }
-    
-    @NotNull
-    @Override
-    public TypeNode visit(@NotNull final PostfixNode postfixNode) {
-        Objects.requireNonNull(postfixNode.getLeftHandSide(), "postfixExpressionNode.leftSideOperable must not be null.");
-        Objects.requireNonNull(postfixNode.getParser(), "postfixExpressionNode.parser must not be null.");
-        
-        final TypeNode leftHandSide = this.visit(postfixNode.getLeftHandSide());
-        if (leftHandSide == ERROR_NODE)
-            return ERROR_NODE;
-    
-        if (!leftHandSide.getDataKind().isNumeric())
-            return this.addError(
-                    ERROR_NODE,
-                    postfixNode.getParser().getCompilerClass(),
-                    postfixNode,
-                    "Left side is not numeric."
-            );
-    
-        return this.visit(postfixNode.getTypeNode());
     }
     
     @NotNull

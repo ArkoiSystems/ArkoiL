@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.arkoisystems.compiler.phases.parser.ast.types.operable.types;
+package com.arkoisystems.compiler.phases.parser.ast.types.operable.types.identifier;
 
 import com.arkoisystems.compiler.CompilerClass;
 import com.arkoisystems.compiler.phases.lexer.token.LexerToken;

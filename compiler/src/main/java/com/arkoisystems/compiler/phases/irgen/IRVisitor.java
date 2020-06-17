@@ -33,12 +33,15 @@ import com.arkoisystems.compiler.phases.parser.ast.types.RootNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.StructNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.TypeNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.OperableNode;
-import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.IdentifierNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.NumberNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.StringNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expression.ExpressionListNode;
-import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expression.types.*;
+import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expression.types.AssignmentNode;
+import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expression.types.BinaryNode;
+import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expression.types.ParenthesizedNode;
+import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expression.types.PrefixNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expression.types.enums.PrefixOperators;
+import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.identifier.IdentifierNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.parameter.ParameterListNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.parameter.ParameterNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.statement.types.FunctionNode;
@@ -319,16 +322,19 @@ public class IRVisitor implements IVisitor<Object>
         
         if (!(builderObject instanceof BuilderGen))
             throw new NullPointerException();
-        
+    
         final BuilderGen builderGen = (BuilderGen) builderObject;
-        
+    
         if (this.getNodeRefs().containsKey(variableNode)) {
             final Object object = this.getNodeRefs().get(variableNode);
             if (!(object instanceof LLVMValueRef))
                 throw new NullPointerException();
             return builderGen.buildLoad((LLVMValueRef) object);
         }
-        
+    
+        if (variableNode.isOptional())
+            throw new NullPointerException("Not implemented.");
+    
         final LLVMValueRef variableRef;
         if (variableNode.isLocal()) {
             variableRef = builderGen.buildAlloca(
@@ -336,7 +342,7 @@ public class IRVisitor implements IVisitor<Object>
                             this.visit(variableNode.getTypeNode()) :
                             this.visit(variableNode.getReturnType())
             );
-            
+        
             this.getNodeRefs().put(variableNode, variableRef);
             
             if (variableNode.getExpression() != null) {
@@ -568,16 +574,6 @@ public class IRVisitor implements IVisitor<Object>
     public LLVMValueRef visit(@NotNull final ParenthesizedNode parenthesizedNode) {
         Objects.requireNonNull(parenthesizedNode.getExpression(), "parenthesizedNode.expression must not be null.");
         final Object object = this.visit(parenthesizedNode.getExpression());
-        if (!(object instanceof LLVMValueRef))
-            throw new NullPointerException();
-        return (LLVMValueRef) object;
-    }
-    
-    @NotNull
-    @Override
-    public LLVMValueRef visit(@NotNull final PostfixNode postfixNode) {
-        Objects.requireNonNull(postfixNode.getLeftHandSide(), "postfixNode.leftHandSide must not be null.");
-        final Object object = this.visit(postfixNode.getLeftHandSide());
         if (!(object instanceof LLVMValueRef))
             throw new NullPointerException();
         return (LLVMValueRef) object;
