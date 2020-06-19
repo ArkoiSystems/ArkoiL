@@ -44,6 +44,9 @@ public class LexerToken
     private final LineRange lineRange;
     
     @NotNull
+    private final Matcher matcher;
+    
+    @NotNull
     private final Lexer lexer;
     
     @Printable(name = "content")
@@ -63,6 +66,7 @@ public class LexerToken
     ) {
         this.tokenType = tokenType;
         this.charStart = charStart;
+        this.matcher = matcher;
         this.charEnd = charEnd;
         this.lexer = lexer;
         
