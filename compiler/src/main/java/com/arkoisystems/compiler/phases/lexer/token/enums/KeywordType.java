@@ -27,7 +27,6 @@ import org.jetbrains.annotations.NotNull;
 public enum KeywordType
 {
     
-    THIS("this"),
     VAR("var"),
     CONST("const"),
     RETURN("return"),

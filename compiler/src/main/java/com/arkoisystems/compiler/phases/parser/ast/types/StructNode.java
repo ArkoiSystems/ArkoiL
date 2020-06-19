@@ -55,6 +55,9 @@ public class StructNode extends ParserNode
     @Nullable
     private IdentifierToken name;
     
+    @Nullable
+    private TypeNode typeNode;
+    
     protected StructNode(
             @Nullable final Parser parser,
             @Nullable final ParserNode parentNode,
@@ -117,6 +120,15 @@ public class StructNode extends ParserNode
         Objects.requireNonNull(identifierToken, "identifierNode must not be null.");
     
         this.name = identifierToken;
+        this.typeNode = TypeNode.builder()
+                .parentNode(this)
+                .currentScope(this.getCurrentScope())
+                .parser(this.getParser())
+                .startToken(this.getStartToken())
+                .dataKind(DataKind.STRUCT)
+                .targetIdentifier(this.getName())
+                .endToken(this.getEndToken())
+                .build();
     
         Objects.requireNonNull(this.getCurrentScope(), "currentScope must not be null.");
         this.getCurrentScope().insert(identifierToken.getTokenContent(), this);
@@ -189,14 +201,8 @@ public class StructNode extends ParserNode
     
     @NotNull
     public TypeNode getTypeNode() {
-        return TypeNode.builder()
-                .parentNode(this)
-                .currentScope(this.getCurrentScope())
-                .parser(this.getParser())
-                .dataKind(DataKind.STRUCT)
-                .startToken(this.getStartToken())
-                .endToken(this.getEndToken())
-                .build();
+        Objects.requireNonNull(this.typeNode, "typeNode must not be null.");
+        return this.typeNode;
     }
     
 }
