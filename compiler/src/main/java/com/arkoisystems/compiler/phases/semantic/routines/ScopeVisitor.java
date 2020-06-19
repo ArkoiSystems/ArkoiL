@@ -35,6 +35,9 @@ import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expressi
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expression.types.ParenthesizedNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expression.types.PrefixNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.identifier.IdentifierNode;
+import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.identifier.types.AssignNode;
+import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.identifier.types.FunctionCallNode;
+import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.identifier.types.StructCreationNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.parameter.ParameterListNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.parameter.ParameterNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.statement.types.FunctionNode;
@@ -249,79 +252,118 @@ public class ScopeVisitor implements IVisitor<ParserNode>
         Objects.requireNonNull(identifierNode.getIdentifier(), "identifierNode.identifier must not be null.");
         Objects.requireNonNull(identifierNode.getParser(), "identifierNode.parser must not be null.");
         
-        final ParserNode foundNode;
-        if (identifierNode.isFunctionCall()) {
-            final List<ParserNode> nodes = Objects.requireNonNullElse(identifierNode.getParser()
-                            .getCompilerClass()
-                            .getRootScope()
-                            .lookup(identifierNode.getIdentifier().getTokenContent()),
-                    new ArrayList<>()
+        final List<ParserNode> nodes = Objects.requireNonNullElse(identifierNode.getCurrentScope().lookup(
+                identifierNode.getIdentifier().getTokenContent()
+        ), new ArrayList<ParserNode>()).stream()
+                .filter(node -> !(node instanceof FunctionNode))
+                .collect(Collectors.toList());
+        if (nodes.size() == 0)
+            return this.addError(
+                    null,
+                    identifierNode.getParser().getCompilerClass(),
+                    identifierNode.getIdentifier(),
+                    String.format(
+                            "Cannot resolve reference '%s'.",
+                            identifierNode.getIdentifier().getTokenContent()
+                    )
             );
-            if (nodes.size() == 0)
-                return this.addError(
-                        null,
-                        identifierNode.getParser().getCompilerClass(),
-                        identifierNode,
-                        String.format(
-                                "Cannot resolve reference '%s'.",
-                                identifierNode.getIdentifier().getTokenContent()
-                        )
-                );
-            
-            Objects.requireNonNull(identifierNode.getExpressionList(), "identifierNode.expressions must not be null.");
-            
-            final List<FunctionNode> functions = nodes.stream()
-                    .filter(node -> node instanceof FunctionNode)
-                    .map(node -> (FunctionNode) node)
-                    .collect(Collectors.toList());
-            
-            final List<FunctionNode> matchingFunctions = functions.stream()
-                    .filter(node -> node.equalsToIdentifier(identifierNode))
-                    .collect(Collectors.toList());
-            if (matchingFunctions.size() == 0)
-                return this.addError(
-                        null,
-                        identifierNode.getParser().getCompilerClass(),
-                        identifierNode,
-                        "No matching function found with this name and arguments.",
-                        functions,
-                        "These functions matches with the identifier name. Did you mean one of those?"
-                );
-            
-            this.visit(identifierNode.getExpressionList());
-            foundNode = matchingFunctions.get(0);
-        } else {
-            final List<ParserNode> nodes = Objects.requireNonNullElse(identifierNode.getCurrentScope()
-                            .lookup(identifierNode.getIdentifier().getTokenContent()),
-                    new ArrayList<>()
-            );
-            if (nodes.size() == 0)
-                return this.addError(
-                        null,
-                        identifierNode.getParser().getCompilerClass(),
-                        identifierNode,
-                        String.format(
-                                "Cannot resolve reference '%s'.",
-                                identifierNode.getIdentifier().getTokenContent()
-                        )
-                );
-        
-            nodes.sort((o1, o2) -> o2.getStartLine() - o1.getStartLine());
-            foundNode = nodes.get(0);
-        }
         
         if (identifierNode.getNextIdentifier() != null) {
+            nodes.sort((o1, o2) -> o2.getStartLine() - o1.getStartLine());
+            
+            final ParserNode foundNode = nodes.get(0);
             if (foundNode instanceof ImportNode) {
                 final ImportNode importNode = (ImportNode) foundNode;
                 final CompilerClass compilerClass = Objects.requireNonNull(importNode.resolveClass(), "importNode.resolveClass must not be null.");
                 identifierNode.getNextIdentifier().setCurrentScope(compilerClass.getRootScope());
                 identifierNode.getNextIdentifier().setParser(compilerClass.getParser());
-            } else throw new NullPointerException(foundNode.toString());
+            } else if (foundNode instanceof VariableNode) {
+                final VariableNode variableNode = (VariableNode) foundNode;
+                final TypeNode typeNode = variableNode.getTypeNode();
+                
+                if (typeNode.getTargetNode() == null)
+                    return this.addError(
+                            null,
+                            identifierNode.getParser().getCompilerClass(),
+                            identifierNode.getIdentifier(),
+                            String.format(
+                                    "Unknown target for '%s'.",
+                                    identifierNode.getIdentifier().getTokenContent()
+                            )
+                    );
+                
+                identifierNode.getNextIdentifier().setCurrentScope(typeNode.getTargetNode().getCurrentScope());
+                identifierNode.getNextIdentifier().setParser(typeNode.getTargetNode().getParser());
+            }
             
             this.visit(identifierNode.getNextIdentifier());
         }
         
         return identifierNode;
+    }
+    
+    @Override
+    public ParserNode visit(@NotNull final FunctionCallNode functionCallNode) {
+        Objects.requireNonNull(functionCallNode.getCurrentScope(), "functionCallNode.currentScope must not be null.");
+        Objects.requireNonNull(functionCallNode.getIdentifier(), "functionCallNode.identifier must not be null.");
+        Objects.requireNonNull(functionCallNode.getParser(), "functionCallNode.parser must not be null.");
+        
+        final List<ParserNode> nodes = Objects.requireNonNullElse(functionCallNode.getParser()
+                        .getCompilerClass()
+                        .getRootScope()
+                        .lookup(functionCallNode.getIdentifier().getTokenContent()),
+                new ArrayList<>()
+        );
+        if (nodes.size() == 0)
+            return this.addError(
+                    null,
+                    functionCallNode.getParser().getCompilerClass(),
+                    functionCallNode,
+                    String.format(
+                            "Cannot resolve reference '%s'.",
+                            functionCallNode.getIdentifier().getTokenContent()
+                    )
+            );
+        
+        Objects.requireNonNull(functionCallNode.getExpressionList(), "identifierNode.expressions must not be null.");
+        
+        final List<FunctionNode> functions = nodes.stream()
+                .filter(node -> node instanceof FunctionNode)
+                .map(node -> (FunctionNode) node)
+                .collect(Collectors.toList());
+        
+        final List<FunctionNode> matchingFunctions = functions.stream()
+                .filter(node -> node.equalsToIdentifier(functionCallNode))
+                .collect(Collectors.toList());
+        if (matchingFunctions.size() == 0)
+            return this.addError(
+                    null,
+                    functionCallNode.getParser().getCompilerClass(),
+                    functionCallNode,
+                    "No matching function found with this name and arguments.",
+                    functions,
+                    "These functions matches with the identifier name. Did you mean one of those?"
+            );
+        
+        this.visit(functionCallNode.getExpressionList());
+        
+        if (functionCallNode.getNextIdentifier() != null)
+            throw new NullPointerException("Not implemented.");
+        return functionCallNode;
+    }
+    
+    @Override
+    public AssignNode visit(@NotNull final AssignNode assignNode) {
+        Objects.requireNonNull(assignNode.getExpression(), "assignNode.expression must not be null.");
+        if (this.visit((IdentifierNode) assignNode) == null)
+            return null;
+        this.visit(assignNode.getExpression());
+        return assignNode;
+    }
+    
+    @Override
+    public StructCreationNode visit(@NotNull final StructCreationNode structCreationNode) {
+        return structCreationNode;
     }
     
     @Override

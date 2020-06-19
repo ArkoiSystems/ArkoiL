@@ -46,7 +46,7 @@ public class OperableNode extends ParserNode
     
     @Override
     public boolean canParse(@NotNull final Parser parser, final int offset) {
-        return IdentifierNode.GLOBAL_NODE.canParse(parser, offset) ||
+        return IdentifierNode.PARSER_NODE.canParse(parser, offset) ||
                 NumberNode.GLOBAL_NODE.canParse(parser, offset) ||
                 StringNode.GLOBAL_NODE.canParse(parser, offset);
     }

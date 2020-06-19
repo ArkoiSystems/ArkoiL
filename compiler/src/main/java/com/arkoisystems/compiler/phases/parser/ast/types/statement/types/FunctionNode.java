@@ -26,12 +26,11 @@ import com.arkoisystems.compiler.phases.lexer.token.types.IdentifierToken;
 import com.arkoisystems.compiler.phases.parser.Parser;
 import com.arkoisystems.compiler.phases.parser.ParserErrorType;
 import com.arkoisystems.compiler.phases.parser.SymbolTable;
-import com.arkoisystems.compiler.phases.parser.ast.DataKind;
 import com.arkoisystems.compiler.phases.parser.ast.ParserNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.BlockNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.TypeNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.OperableNode;
-import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.identifier.IdentifierNode;
+import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.identifier.types.FunctionCallNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.parameter.ParameterListNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.parameter.ParameterNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.statement.StatementNode;
@@ -253,14 +252,7 @@ public class FunctionNode extends StatementNode
         if (this.getBlockNode() != null)
             return this.getBlockNode().getTypeNode();
     
-        return TypeNode.builder()
-                .parentNode(this)
-                .currentScope(this.getCurrentScope())
-                .parser(this.getParser())
-                .dataKind(DataKind.UNDEFINED)
-                .startToken(this.getStartToken())
-                .endToken(this.getEndToken())
-                .build();
+        throw new NullPointerException();
     }
     
     public boolean equalsToFunction(@NotNull final FunctionNode functionNode) {
@@ -275,7 +267,7 @@ public class FunctionNode extends StatementNode
         for (int index = 0; index < this.getParameterList().getParameters().size(); index++) {
             if (index >= functionNode.getParameterList().getParameters().size())
                 return false;
-        
+    
             final ParameterNode ownParameter = this.getParameterList().getParameters().get(index);
             final ParameterNode otherParameter = functionNode.getParameterList().getParameters().get(index);
             if (ownParameter.getTypeNode().getDataKind() != otherParameter.getTypeNode().getDataKind())
@@ -285,26 +277,23 @@ public class FunctionNode extends StatementNode
         return true;
     }
     
-    public boolean equalsToIdentifier(@NotNull final IdentifierNode identifierNode) {
-        if (!identifierNode.isFunctionCall())
-            return false;
-    
+    public boolean equalsToIdentifier(@NotNull final FunctionCallNode functionCallNode) {
+        Objects.requireNonNull(functionCallNode.getIdentifier(), "identifierNode.identifier must not be null.");
         Objects.requireNonNull(this.getParameterList(), "parameters must not be null.");
         Objects.requireNonNull(this.getName(), "name must not be null.");
-        Objects.requireNonNull(identifierNode.getIdentifier(), "identifierNode.identifier must not be null.");
-    
-        if (!identifierNode.getIdentifier().getTokenContent().equals(this.getName().getTokenContent()))
+        
+        if (!functionCallNode.getIdentifier().getTokenContent().equals(this.getName().getTokenContent()))
             return false;
-    
-        Objects.requireNonNull(identifierNode.getExpressionList(), "identifierNode.expressions must not be null.");
+        
+        Objects.requireNonNull(functionCallNode.getExpressionList(), "identifierNode.expressions must not be null.");
         for (int index = 0; index < this.getParameterList().getParameters().size(); index++) {
-            if (index >= identifierNode.getExpressionList().getExpressions().size()) {
+            if (index >= functionCallNode.getExpressionList().getExpressions().size()) {
                 if (!this.getParameterList().isVariadic())
                     return false;
                 break;
             }
-        
-            final OperableNode identifierExpression = identifierNode.getExpressionList().getExpressions().get(index);
+            
+            final OperableNode identifierExpression = functionCallNode.getExpressionList().getExpressions().get(index);
             final ParameterNode targetParameter = this.getParameterList().getParameters().get(index);
             if (!targetParameter.getTypeNode().equals(identifierExpression.getTypeNode()))
                 return false;
