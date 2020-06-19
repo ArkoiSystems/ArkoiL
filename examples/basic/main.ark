@@ -7,7 +7,7 @@ struct Vector {
 }
 
 fun main() {
-    # var test: Vector?
+    var test = Vector { }
 
     # Calls the method in test.ark
     printf(test(), "Arkoi here.")

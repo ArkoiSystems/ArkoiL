@@ -20,18 +20,19 @@ package com.arkoisystems.compiler.phases.parser.ast.types.operable.types.identif
 
 import com.arkoisystems.compiler.CompilerClass;
 import com.arkoisystems.compiler.phases.lexer.token.LexerToken;
-import com.arkoisystems.compiler.phases.lexer.token.enums.KeywordType;
 import com.arkoisystems.compiler.phases.lexer.token.enums.SymbolType;
 import com.arkoisystems.compiler.phases.lexer.token.enums.TokenType;
 import com.arkoisystems.compiler.phases.lexer.token.types.IdentifierToken;
 import com.arkoisystems.compiler.phases.parser.Parser;
 import com.arkoisystems.compiler.phases.parser.ParserErrorType;
 import com.arkoisystems.compiler.phases.parser.SymbolTable;
-import com.arkoisystems.compiler.phases.parser.ast.DataKind;
 import com.arkoisystems.compiler.phases.parser.ast.ParserNode;
+import com.arkoisystems.compiler.phases.parser.ast.types.StructNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.TypeNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.OperableNode;
-import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expression.ExpressionListNode;
+import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.identifier.types.AssignNode;
+import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.identifier.types.FunctionCallNode;
+import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.identifier.types.StructCreationNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.parameter.ParameterNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.statement.types.FunctionNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.statement.types.ImportNode;
@@ -45,44 +46,38 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 @Getter
 public class IdentifierNode extends OperableNode
 {
     
-    public static IdentifierNode GLOBAL_NODE = new IdentifierNode(null, null, null, null, null, null, null, null);
+    public static IdentifierNode PARSER_NODE = new IdentifierNode(null, null, null, null, null, true, null, null);
     
     @Printable(name = "called identifier")
     @Nullable
     private IdentifierToken identifier;
     
-    @Printable(name = "function call")
-    private boolean isFunctionCall;
-    
-    @Printable(name = "expression list")
-    @Nullable
-    private ExpressionListNode expressionList;
-    
     @Printable(name = "next call")
     @Nullable
     private IdentifierNode nextIdentifier;
     
-    @Builder
+    private final boolean parseFunction;
+    
+    @Builder(builderMethodName = "identifierBuilder")
     protected IdentifierNode(
             @Nullable final Parser parser,
             @Nullable final ParserNode parentNode,
             @Nullable final SymbolTable currentScope,
             @Nullable final IdentifierNode nextIdentifier,
-            @Nullable final ExpressionListNode expressionList,
             @Nullable final IdentifierToken identifier,
+            final boolean parseFunction,
             @Nullable final LexerToken startToken,
             @Nullable final LexerToken endToken
     ) {
         super(parser, parentNode, currentScope, startToken, endToken);
-    
+        
         this.nextIdentifier = nextIdentifier;
-        this.expressionList = expressionList;
+        this.parseFunction = parseFunction;
         this.identifier = identifier;
     }
     
@@ -101,40 +96,33 @@ public class IdentifierNode extends OperableNode
                     currentToken,
                     String.format(
                             ParserErrorType.SYNTAX_ERROR_TEMPLATE,
-                            "Identifier call",
+                            "Identifier",
                             "<identifier>",
                             currentToken != null ? currentToken.getTokenContent() : "nothing"
                     )
             );
         }
-        
-        this.identifier = (IdentifierToken) this.getParser().currentToken();
-        
-        if (ExpressionListNode.GLOBAL_NODE.canParse(this.getParser(), 1)) {
-            this.getParser().nextToken();
-            
-            this.isFunctionCall = true;
     
-            final ExpressionListNode expressionListNode = ExpressionListNode.builder()
-                    .parentNode(this)
-                    .currentScope(this.getCurrentScope())
+        this.identifier = (IdentifierToken) this.getParser().currentToken();
+    
+        final IdentifierNode identifierNode;
+        if (this.isParseFunction() && FunctionCallNode.GLOBAL_NODE.canParse(this.getParser(), 1)) {
+            this.getParser().nextToken();
+        
+            identifierNode = FunctionCallNode.builder()
                     .parser(this.getParser())
+                    .currentScope(this.getCurrentScope())
+                    .parentNode(this.getParentNode())
+                    .startToken(this.getStartToken())
+                    .identifier(this.getIdentifier())
                     .build()
                     .parse();
-            if (expressionListNode.isFailed()) {
-                this.setFailed(true);
-                return this;
-            }
+        } else identifierNode = this;
     
-            this.expressionList = expressionListNode;
-        }
-        
-        
         if (this.getParser().matchesPeekToken(1, SymbolType.PERIOD) != null) {
             this.getParser().nextToken();
-            
-            if (!IdentifierNode.GLOBAL_NODE.canParse(this.getParser(), 1) ||
-                    this.getParser().matchesPeekToken(1, KeywordType.THIS) != null) {
+        
+            if (!this.canParse(this.getParser(), 1)) {
                 final LexerToken nextToken = this.getParser().nextToken();
                 return this.addError(
                         this,
@@ -142,37 +130,68 @@ public class IdentifierNode extends OperableNode
                         nextToken,
                         String.format(
                                 ParserErrorType.SYNTAX_ERROR_TEMPLATE,
-                                "Identifier call",
-                                "<identifier call>",
+                                "Identifier",
+                                "<identifier>",
                                 nextToken != null ? nextToken.getTokenContent() : "nothing"
                         )
                 );
             }
-            
+        
             this.getParser().nextToken();
-            
-            final IdentifierNode identifierOperable = IdentifierNode.builder()
+        
+            final IdentifierNode identifierOperable = IdentifierNode.identifierBuilder()
                     .parentNode(this)
                     .currentScope(this.getCurrentScope())
                     .parser(this.getParser())
+                    .parseFunction(this.isParseFunction())
                     .build()
                     .parse();
             if (identifierOperable.isFailed()) {
                 this.setFailed(true);
                 return this;
             }
-            
+        
             this.nextIdentifier = identifierOperable;
         }
-        
+    
         this.endAST(this.getParser().currentToken());
-        return this;
+    
+        if (AssignNode.GLOBAL_NODE.canParse(this.getParser(), 1)) {
+            this.getParser().nextToken();
+        
+            return AssignNode.builder()
+                    .parser(this.getParser())
+                    .currentScope(this.getCurrentScope())
+                    .parentNode(this.getParentNode())
+                    .startToken(this.getStartToken())
+                    .identifier(this.getIdentifier())
+                    .nextIdentifier(this.getNextIdentifier())
+                    .parseFunction(this.isParseFunction())
+                    .endToken(this.getEndToken())
+                    .build()
+                    .parse();
+        } else if (StructCreationNode.GLOBAL_NODE.canParse(this.getParser(), 1)) {
+            this.getParser().nextToken();
+        
+            return StructCreationNode.builder()
+                    .parser(this.getParser())
+                    .currentScope(this.getCurrentScope())
+                    .parentNode(this.getParentNode())
+                    .startToken(this.getStartToken())
+                    .identifier(this.getIdentifier())
+                    .nextIdentifier(this.getNextIdentifier())
+                    .parseFunction(this.isParseFunction())
+                    .endToken(this.getEndToken())
+                    .build()
+                    .parse();
+        }
+    
+        return identifierNode;
     }
     
     @Override
     public boolean canParse(@NotNull final Parser parser, final int offset) {
-        return parser.matchesPeekToken(offset, KeywordType.THIS) != null ||
-                parser.matchesPeekToken(offset, TokenType.IDENTIFIER) != null;
+        return parser.matchesPeekToken(offset, TokenType.IDENTIFIER) != null;
     }
     
     @Override
@@ -182,34 +201,15 @@ public class IdentifierNode extends OperableNode
     
     @NotNull
     public TypeNode getTypeNode() {
-        Objects.requireNonNull(this.getParser(), "parser must not be null.");
+        Objects.requireNonNull(this.getCurrentScope(), "currentScope must not be null.");
         Objects.requireNonNull(this.getIdentifier(), "identifier must not be null.");
-        
-        ParserNode foundNode = null;
-        if (this.isFunctionCall()) {
-            Objects.requireNonNull(this.getParser().getRootNode().getCurrentScope(), "parser.rootNode.currentScope must not be null.");
+        Objects.requireNonNull(this.getParser(), "parser must not be null.");
     
-            final List<ParserNode> nodes = this.getParser().getRootNode().getCurrentScope().lookupScope(
-                    this.getIdentifier().getTokenContent()
-            );
-            if (nodes != null && !nodes.isEmpty()) {
-                final List<FunctionNode> functions = nodes.stream()
-                        .filter(node -> node instanceof FunctionNode)
-                        .map(node -> (FunctionNode) node)
-                        .filter(node -> node.equalsToIdentifier(this))
-                        .collect(Collectors.toList());
-        
-                if (!functions.isEmpty())
-                    foundNode = functions.get(0);
-            }
-        } else {
-            Objects.requireNonNull(this.getCurrentScope(), "parser.currentScope must not be null.");
-            
-            final List<ParserNode> nodes = this.getCurrentScope().lookup(this.getIdentifier().getTokenContent());
-            if (nodes != null && !nodes.isEmpty())
-                foundNode = nodes.get(0);
-        }
-        
+        final List<ParserNode> nodes = this.getCurrentScope().lookup(this.getIdentifier().getTokenContent());
+        ParserNode foundNode = null;
+        if (nodes != null && !nodes.isEmpty())
+            foundNode = nodes.get(0);
+    
         if (foundNode instanceof VariableNode)
             return ((VariableNode) foundNode).getTypeNode();
         else if (foundNode instanceof ParameterNode)
@@ -218,23 +218,17 @@ public class IdentifierNode extends OperableNode
             return ((FunctionNode) foundNode).getTypeNode();
         else if (foundNode instanceof ImportNode) {
             final ImportNode importNode = (ImportNode) foundNode;
-            
+        
             if (this.getNextIdentifier() != null) {
                 final CompilerClass compilerClass = Objects.requireNonNull(importNode.resolveClass(), "importNode.resolveClass must not be null.");
                 this.getNextIdentifier().setCurrentScope(compilerClass.getRootScope());
                 this.getNextIdentifier().setParser(compilerClass.getParser());
                 return this.getNextIdentifier().getTypeNode();
             }
-        }
+        } else if (foundNode instanceof StructNode)
+            return ((StructNode) foundNode).getTypeNode();
     
-        return TypeNode.builder()
-                .parentNode(this)
-                .currentScope(this.getCurrentScope())
-                .parser(this.getParser())
-                .dataKind(DataKind.UNDEFINED)
-                .startToken(this.getStartToken())
-                .endToken(this.getEndToken())
-                .build();
+        throw new NullPointerException();
     }
     
 }

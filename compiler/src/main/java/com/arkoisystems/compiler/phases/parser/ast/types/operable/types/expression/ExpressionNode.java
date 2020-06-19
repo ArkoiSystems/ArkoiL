@@ -89,7 +89,7 @@ public class ExpressionNode extends OperableNode
             final OperableNode foundNode = this.getValidNode(
                     StringNode.GLOBAL_NODE,
                     NumberNode.GLOBAL_NODE,
-                    IdentifierNode.GLOBAL_NODE
+                    IdentifierNode.PARSER_NODE
             );
             
             if (foundNode == null)

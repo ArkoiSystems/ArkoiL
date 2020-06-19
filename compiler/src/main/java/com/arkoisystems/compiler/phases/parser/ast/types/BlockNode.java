@@ -116,7 +116,7 @@ public class BlockNode extends ParserNode
     
             final ParserNode foundNode = this.getValidNode(
                     VariableNode.GLOBAL_NODE,
-                    IdentifierNode.GLOBAL_NODE,
+                    IdentifierNode.PARSER_NODE,
                     ReturnNode.GLOBAL_NODE,
                     BlockNode.BRACE_NODE
             );
@@ -260,7 +260,7 @@ public class BlockNode extends ParserNode
         while (this.getParser().getPosition() < this.getParser().getTokens().length) {
             final ParserNode foundNode = this.getValidNode(
                     VariableNode.GLOBAL_NODE,
-                    IdentifierNode.GLOBAL_NODE,
+                    IdentifierNode.PARSER_NODE,
                     ReturnNode.GLOBAL_NODE,
                     BlockNode.BRACE_NODE
             );

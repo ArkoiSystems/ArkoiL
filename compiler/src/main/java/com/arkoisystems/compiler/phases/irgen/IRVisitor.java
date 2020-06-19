@@ -42,6 +42,9 @@ import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expressi
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expression.types.PrefixNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expression.types.enums.PrefixOperators;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.identifier.IdentifierNode;
+import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.identifier.types.AssignNode;
+import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.identifier.types.FunctionCallNode;
+import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.identifier.types.StructCreationNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.parameter.ParameterListNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.parameter.ParameterNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.statement.types.FunctionNode;
@@ -161,11 +164,11 @@ public class IRVisitor implements IVisitor<Object>
             ));
             if (!file.getParentFile().exists())
                 file.getParentFile().mkdirs();
-            
+    
             Files.write(file.toPath(), LLVM.LLVMPrintModuleToString(
                     moduleGen.getModuleRef()
             ).getStringBytes());
-            
+    
             this.getCompilerClass().getCompiler().getErrorHandler().getCompilerErrors().addAll(
                     this.getLLVMErrors(error, file.getCanonicalPath())
             );
@@ -398,7 +401,7 @@ public class IRVisitor implements IVisitor<Object>
             final double value = Double.parseDouble(numberNode.getNumberToken().getTokenContent());
             return LLVM.LLVMConstReal(LLVM.LLVMDoubleType(), value);
         }
-        
+    
         throw new NullPointerException();
     }
     
@@ -408,12 +411,97 @@ public class IRVisitor implements IVisitor<Object>
         Objects.requireNonNull(identifierNode.getCurrentScope(), "identifierNode.currentScope must not be null.");
         Objects.requireNonNull(identifierNode.getIdentifier(), "identifierNode.identifier must not be null.");
         
-        if (identifierNode.isFunctionCall()) {
-            Objects.requireNonNull(identifierNode.getExpressionList(), "identifierNode.expressions must not be null.");
-            Objects.requireNonNull(identifierNode.getExpressionList(), "identifierNode.expression must not be null.");
-            Objects.requireNonNull(identifierNode.getParser(), "identifierNode.parser must not be null.");
+        final List<ParserNode> nodes = Objects.requireNonNullElse(identifierNode.getCurrentScope().lookup(
+                identifierNode.getIdentifier().getTokenContent()
+        ), new ArrayList<>());
+        if (nodes.size() != 1)
+            throw new NullPointerException();
+        
+        final ParserNode targetNode = nodes.get(0);
+        if (targetNode instanceof ParameterNode) {
+            final ParameterNode targetParameter = (ParameterNode) targetNode;
+            return this.visit(targetParameter);
+        } else if (targetNode instanceof VariableNode) {
+            final VariableNode variableNode = (VariableNode) targetNode;
+            return this.visit(variableNode);
+        }
+        
+        throw new NullPointerException();
+    }
+    
+    @Override
+    public LLVMValueRef visit(@NotNull final FunctionCallNode functionCallNode) {
+        Objects.requireNonNull(functionCallNode.getExpressionList(), "functionCallNode.expressions must not be null.");
+        Objects.requireNonNull(functionCallNode.getIdentifier(), "functionCallNode.identifier must not be null.");
+        Objects.requireNonNull(functionCallNode.getParser(), "functionCallNode.parser must not be null.");
+        
+        final BlockNode blockNode = functionCallNode.getParent(BlockNode.class);
+        Objects.requireNonNull(blockNode, "blockNode must not be null.");
+        
+        final Object builderObject = this.getNodeRefs().getOrDefault(blockNode, null);
+        Objects.requireNonNull(builderObject, "builderObject must not be null.");
+        
+        if (!(builderObject instanceof BuilderGen))
+            throw new NullPointerException();
+        
+        final BuilderGen builderGen = (BuilderGen) builderObject;
+        final List<ParserNode> nodes = Objects.requireNonNullElse(
+                functionCallNode.getParser()
+                        .getCompilerClass()
+                        .getRootScope()
+                        .lookup(functionCallNode.getIdentifier().getTokenContent()),
+                new ArrayList<>()
+        );
+        
+        final List<FunctionNode> functions = nodes.stream()
+                .filter(node -> node instanceof FunctionNode)
+                .map(node -> (FunctionNode) node)
+                .filter(node -> node.equalsToIdentifier(functionCallNode))
+                .collect(Collectors.toList());
+        if (functions.size() != 1)
+            throw new NullPointerException();
+        
+        final FunctionNode targetNode = functions.get(0);
+        final LLVMValueRef functionRef = this.visit(targetNode).getFunctionRef();
+        
+        Objects.requireNonNull(targetNode.getParameterList(), "targetNode.parameterList must not be null.");
+        
+        final int size = functionCallNode.getExpressionList().getExpressions().size();
+        final LLVMValueRef[] arguments = new LLVMValueRef[size];
+        for (int index = 0; index < size; index++) {
+            final OperableNode expression = functionCallNode.getExpressionList().getExpressions().get(index);
+            final Object object = this.visit(expression);
+            if (!(object instanceof LLVMValueRef))
+                throw new NullPointerException();
             
-            final BlockNode blockNode = identifierNode.getParent(BlockNode.class);
+            LLVMValueRef valueRef = (LLVMValueRef) object;
+            if (index > targetNode.getParameterList().getParameters().size() - 1)
+                valueRef = this.promoteValue(
+                        builderGen,
+                        expression.getTypeNode(),
+                        valueRef
+                );
+            arguments[index] = valueRef;
+        }
+        
+        return builderGen.buildFunctionCall(functionRef, arguments);
+    }
+    
+    @Override
+    public AssignNode visit(@NotNull final AssignNode assignNode) {
+        // TODO: 6/19/20 Make it working.
+        return assignNode;
+    }
+    
+    @Override
+    public LLVMValueRef visit(@NotNull final StructCreationNode structCreationNode) {
+        Objects.requireNonNull(structCreationNode.getIdentifier(), "structCreationNode.identifier must not be null.");
+        Objects.requireNonNull(structCreationNode.getParser(), "structCreationNode.parser must not be null.");
+        
+        final VariableNode variableNode = structCreationNode.getParent(VariableNode.class);
+        final LLVMValueRef valueRef;
+        if (variableNode == null) {
+            final BlockNode blockNode = structCreationNode.getParent(BlockNode.class);
             Objects.requireNonNull(blockNode, "blockNode must not be null.");
             
             final Object builderObject = this.getNodeRefs().getOrDefault(blockNode, null);
@@ -423,64 +511,26 @@ public class IRVisitor implements IVisitor<Object>
                 throw new NullPointerException();
             
             final BuilderGen builderGen = (BuilderGen) builderObject;
-            final List<ParserNode> nodes = Objects.requireNonNullElse(
-                    identifierNode.getParser()
+            final List<StructNode> structNodes = Objects.requireNonNullElse(
+                    structCreationNode.getParser()
                             .getCompilerClass()
                             .getRootScope()
-                            .lookup(identifierNode.getIdentifier().getTokenContent()),
-                    new ArrayList<>()
-            );
-            
-            final List<FunctionNode> functions = nodes.stream()
-                    .filter(node -> node instanceof FunctionNode)
-                    .map(node -> (FunctionNode) node)
-                    .filter(node -> node.equalsToIdentifier(identifierNode))
+                            .lookup(structCreationNode.getIdentifier().getTokenContent()),
+                    new ArrayList<ParserNode>()
+            ).stream()
+                    .filter(node -> node instanceof StructNode)
+                    .map(node -> (StructNode) node)
                     .collect(Collectors.toList());
-            if (functions.size() != 1)
+            if (structNodes.size() != 1)
                 throw new NullPointerException();
             
-            final FunctionNode targetNode = functions.get(0);
-            final LLVMValueRef functionRef = this.visit(targetNode).getFunctionRef();
-            
-            Objects.requireNonNull(targetNode.getParameterList(), "targetNode.parameterList must not be null.");
-            
-            final int size = identifierNode.getExpressionList().getExpressions().size();
-            final LLVMValueRef[] arguments = new LLVMValueRef[size];
-            for (int index = 0; index < size; index++) {
-                final OperableNode expression = identifierNode.getExpressionList().getExpressions().get(index);
-                final Object object = this.visit(expression);
-                if (!(object instanceof LLVMValueRef))
-                    throw new NullPointerException();
-                
-                LLVMValueRef valueRef = (LLVMValueRef) object;
-                if (index > targetNode.getParameterList().getParameters().size() - 1)
-                    valueRef = this.promoteValue(
-                            builderGen,
-                            expression.getTypeNode(),
-                            valueRef
-                    );
-                arguments[index] = valueRef;
-            }
-            
-            return builderGen.buildFunctionCall(functionRef, arguments);
-        } else {
-            final List<ParserNode> nodes = Objects.requireNonNullElse(identifierNode.getCurrentScope().lookup(
-                    identifierNode.getIdentifier().getTokenContent()
-            ), new ArrayList<>());
-            if (nodes.size() != 1)
-                throw new NullPointerException();
-            
-            final ParserNode targetNode = nodes.get(0);
-            if (targetNode instanceof ParameterNode) {
-                final ParameterNode targetParameter = (ParameterNode) targetNode;
-                return this.visit(targetParameter);
-            } else if (targetNode instanceof VariableNode) {
-                final VariableNode variableNode = (VariableNode) targetNode;
-                return this.visit(variableNode);
-            }
-            
-            throw new NullPointerException();
-        }
+            final StructNode targetStruct = structNodes.get(0);
+            valueRef = builderGen.buildAlloca(this.visit(targetStruct));
+        } else
+            valueRef = this.visit(variableNode);
+        
+        // TODO: 6/19/20  Call default constructor
+        return valueRef;
     }
     
     @NotNull
@@ -504,15 +554,16 @@ public class IRVisitor implements IVisitor<Object>
     @NotNull
     @Override
     public LLVMValueRef visit(@NotNull final BinaryNode binaryNode) {
-        Objects.requireNonNull(binaryNode.getLeftHandSide(), "binaryNode.leftHandSide must not be null.");
         Objects.requireNonNull(binaryNode.getRightHandSide(), "binaryNode.rightHandSide must not be null.");
-        
+        Objects.requireNonNull(binaryNode.getOperatorType(), "binaryNode.operatorType must not be null.");
+        Objects.requireNonNull(binaryNode.getLeftHandSide(), "binaryNode.leftHandSide must not be null.");
+    
         final BlockNode blockNode = binaryNode.getParent(BlockNode.class);
         Objects.requireNonNull(blockNode, "blockNode must not be null.");
-        
+    
         final Object builderObject = this.getNodeRefs().getOrDefault(blockNode, null);
         Objects.requireNonNull(builderObject, "builderObject must not be null.");
-        
+    
         if (!(builderObject instanceof BuilderGen))
             throw new NullPointerException();
         

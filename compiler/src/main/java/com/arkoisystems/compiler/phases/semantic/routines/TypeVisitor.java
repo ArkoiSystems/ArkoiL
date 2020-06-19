@@ -35,6 +35,9 @@ import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expressi
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expression.types.ParenthesizedNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expression.types.PrefixNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.identifier.IdentifierNode;
+import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.identifier.types.AssignNode;
+import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.identifier.types.FunctionCallNode;
+import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.identifier.types.StructCreationNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.parameter.ParameterListNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.parameter.ParameterNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.statement.types.FunctionNode;
@@ -77,11 +80,11 @@ public class TypeVisitor implements IVisitor<TypeNode>
     public TypeNode visit(@NotNull final TypeNode typeNode) {
         Objects.requireNonNull(typeNode.getParser(), "typeNode.parser must not be null.");
     
-        if (typeNode.getTargetIdentifier() != null) {
+        if (typeNode.getTargetIdentifier() != null && typeNode.getTargetNode() == null) {
             final List<ParserNode> nodes = Objects.requireNonNullElse(this.getSemantic().getCompilerClass().getRootScope().lookup(
                     typeNode.getTargetIdentifier().getTokenContent()
             ), new ArrayList<>());
-    
+        
             final List<ParserNode> foundNodes = nodes.stream()
                     .filter(node -> {
                         if (node instanceof StructNode) {
@@ -99,12 +102,12 @@ public class TypeVisitor implements IVisitor<TypeNode>
                         typeNode,
                         "No node found for this identifier."
                 );
-    
+        
             final ParserNode targetNode = foundNodes.get(0);
-            final TypeNode targetType = this.visit(targetNode);
-    
-            typeNode.setDataKind(targetType.getDataKind());
             typeNode.setTargetNode(targetNode);
+        
+            final TypeNode targetType = this.visit(targetNode);
+            typeNode.setDataKind(targetType.getDataKind());
         }
     
         return typeNode;
@@ -272,11 +275,26 @@ public class TypeVisitor implements IVisitor<TypeNode>
     @NotNull
     @Override
     public TypeNode visit(@NotNull final IdentifierNode identifierNode) {
-        if (identifierNode.isFunctionCall()) {
-            Objects.requireNonNull(identifierNode.getExpressionList(), "identifierOperable.expressionList must not be null.");
-            this.visit(identifierNode.getExpressionList());
-        }
         return this.visit(identifierNode.getTypeNode());
+    }
+    
+    @Override
+    public TypeNode visit(@NotNull final FunctionCallNode functionCallNode) {
+        Objects.requireNonNull(functionCallNode.getExpressionList(), "identifierOperable.expressionList must not be null.");
+        this.visit(functionCallNode.getExpressionList());
+        return this.visit(functionCallNode.getTypeNode());
+    }
+    
+    @Override
+    public TypeNode visit(@NotNull final AssignNode assignNode) {
+        Objects.requireNonNull(assignNode.getExpression(), "assignNode.expression must not be null.");
+        this.visit(assignNode.getExpression());
+        return this.visit(assignNode.getTypeNode());
+    }
+    
+    @Override
+    public TypeNode visit(@NotNull final StructCreationNode structCreationNode) {
+        return this.visit(structCreationNode.getTypeNode());
     }
     
     @NotNull

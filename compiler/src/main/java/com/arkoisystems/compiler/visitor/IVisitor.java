@@ -31,6 +31,9 @@ import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expressi
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expression.types.ParenthesizedNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expression.types.PrefixNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.identifier.IdentifierNode;
+import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.identifier.types.AssignNode;
+import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.identifier.types.FunctionCallNode;
+import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.identifier.types.StructCreationNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.parameter.ParameterListNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.parameter.ParameterNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.statement.types.FunctionNode;
@@ -43,7 +46,11 @@ public interface IVisitor<T>
 {
     
     default T visit(@NotNull final ParserNode astNode) {
-        if (astNode instanceof IdentifierNode)
+        if (astNode instanceof FunctionCallNode)
+            return this.visit((FunctionCallNode) astNode);
+        else if (astNode instanceof StructCreationNode)
+            return this.visit((StructCreationNode) astNode);
+        else if (astNode instanceof IdentifierNode)
             return this.visit((IdentifierNode) astNode);
         else if (astNode instanceof TypeNode)
             return this.visit((TypeNode) astNode);
@@ -108,6 +115,12 @@ public interface IVisitor<T>
     T visit(@NotNull final NumberNode numberNode);
     
     T visit(@NotNull final IdentifierNode identifierNode);
+    
+    T visit(@NotNull final FunctionCallNode functionCallNode);
+    
+    T visit(@NotNull final AssignNode assignNode);
+    
+    T visit(@NotNull final StructCreationNode structCreationNode);
     
     T visit(@NotNull final ExpressionListNode expressionListNode);
     
