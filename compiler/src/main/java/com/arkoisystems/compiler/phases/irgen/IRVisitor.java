@@ -102,8 +102,9 @@ public class IRVisitor implements IVisitor<Object>
     @NotNull
     @Override
     public LLVMTypeRef visit(@NotNull final TypeNode typeNode) {
+        Objects.requireNonNull(typeNode.getDataKind(), "typeNode.dataKind must not be null.");
+    
         LLVMTypeRef typeRef;
-        
         switch (typeNode.getDataKind()) {
             case FLOAT:
                 typeRef = this.getContextGen().makeFloatType();
@@ -174,7 +175,9 @@ public class IRVisitor implements IVisitor<Object>
             );
             this.setFailed(true);
         }
-        
+    
+        this.getModuleGen().dump();
+    
         return moduleGen;
     }
     
@@ -488,49 +491,96 @@ public class IRVisitor implements IVisitor<Object>
     }
     
     @Override
-    public AssignNode visit(@NotNull final AssignNode assignNode) {
-        // TODO: 6/19/20 Make it working.
-        return assignNode;
+    public LLVMValueRef visit(@NotNull final AssignNode assignNode) {
+        // TODO: 6/20/20 Make this working
+        return null;
     }
     
     @Override
     public LLVMValueRef visit(@NotNull final StructCreationNode structCreationNode) {
         Objects.requireNonNull(structCreationNode.getIdentifier(), "structCreationNode.identifier must not be null.");
         Objects.requireNonNull(structCreationNode.getParser(), "structCreationNode.parser must not be null.");
+    
+        final BlockNode blockNode = structCreationNode.getParent(BlockNode.class);
+        Objects.requireNonNull(blockNode, "blockNode must not be null.");
+    
+        final Object builderObject = this.getNodeRefs().getOrDefault(blockNode, null);
+        Objects.requireNonNull(builderObject, "builderObject must not be null.");
+    
+        if (!(builderObject instanceof BuilderGen))
+            throw new NullPointerException();
+    
+        final BuilderGen builderGen = (BuilderGen) builderObject;
+        final List<StructNode> structNodes = Objects.requireNonNullElse(
+                structCreationNode.getParser()
+                        .getCompilerClass()
+                        .getRootScope()
+                        .lookup(structCreationNode.getIdentifier().getTokenContent()),
+                new ArrayList<ParserNode>()
+        ).stream()
+                .filter(node -> node instanceof StructNode)
+                .map(node -> (StructNode) node)
+                .collect(Collectors.toList());
+        if (structNodes.size() != 1)
+            throw new NullPointerException();
+    
+        final StructNode targetStruct = structNodes.get(0);
+        final LLVMTypeRef structRef = this.visit(targetStruct);
+        final LLVMValueRef valueRef = builderGen.buildAlloca(structRef);
+    
+        LLVMValueRef functionRef = LLVM.LLVMGetNamedFunction(
+                this.getModuleGen().getModuleRef(),
+                structCreationNode.getIdentifier().getTokenContent() + "_default"
+        );
+        if (functionRef == null) {
+            final FunctionGen functionGen = FunctionGen.builder()
+                    .moduleGen(this.getModuleGen())
+                    .parameters(new ParameterGen[] {
+                            ParameterGen.builder()
+                                    .typeRef(LLVM.LLVMPointerType(structRef, 0))
+                                    .name("this")
+                                    .build()
+                    })
+                    .name(structCreationNode.getIdentifier().getTokenContent() + "_default")
+                    .returnType(this.getContextGen().makeVoidType())
+                    .build();
+            functionRef = functionGen.getFunctionRef();
         
-        final VariableNode variableNode = structCreationNode.getParent(VariableNode.class);
-        final LLVMValueRef valueRef;
-        if (variableNode == null) {
-            final BlockNode blockNode = structCreationNode.getParent(BlockNode.class);
-            Objects.requireNonNull(blockNode, "blockNode must not be null.");
+            {
+                final BlockNode functionBlock = BlockNode.builder()
+                        .build();
             
-            final Object builderObject = this.getNodeRefs().getOrDefault(blockNode, null);
-            Objects.requireNonNull(builderObject, "builderObject must not be null.");
+                final BuilderGen functionBuilder = BuilderGen.builder()
+                        .contextGen(this.getContextGen())
+                        .build();
+                functionBuilder.setPositionAtEnd(this.getContextGen().appendBasicBlock(functionGen));
             
-            if (!(builderObject instanceof BuilderGen))
-                throw new NullPointerException();
+                targetStruct.getVariables().forEach(variableNode -> variableNode.setParentNode(functionBlock));
+                this.getNodeRefs().put(functionBlock, functionBuilder);
             
-            final BuilderGen builderGen = (BuilderGen) builderObject;
-            final List<StructNode> structNodes = Objects.requireNonNullElse(
-                    structCreationNode.getParser()
-                            .getCompilerClass()
-                            .getRootScope()
-                            .lookup(structCreationNode.getIdentifier().getTokenContent()),
-                    new ArrayList<ParserNode>()
-            ).stream()
-                    .filter(node -> node instanceof StructNode)
-                    .map(node -> (StructNode) node)
-                    .collect(Collectors.toList());
-            if (structNodes.size() != 1)
-                throw new NullPointerException();
+                for (int index = 0; index < targetStruct.getVariables().size(); index++) {
+                    final VariableNode variableNode = targetStruct.getVariables().get(index);
+                    Objects.requireNonNull(variableNode.getExpression(), "variableNode.expression must not be null.");
+                
+                    final Object object = this.visit(variableNode.getExpression());
+                    if (!(object instanceof LLVMValueRef))
+                        throw new NullPointerException();
+                
+                    final LLVMValueRef gep = LLVM.LLVMBuildStructGEP(
+                            functionBuilder.getBuilderRef(),
+                            functionGen.getParameter(0),
+                            index,
+                            ""
+                    );
+                    LLVM.LLVMBuildStore(functionBuilder.getBuilderRef(), (LLVMValueRef) object, gep);
+                }
             
-            final StructNode targetStruct = structNodes.get(0);
-            valueRef = builderGen.buildAlloca(this.visit(targetStruct));
-        } else
-            valueRef = this.visit(variableNode);
-        
-        // TODO: 6/19/20  Call default constructor
-        return valueRef;
+                functionBuilder.returnVoid();
+            }
+        }
+    
+        builderGen.buildFunctionCall(functionRef, valueRef);
+        return builderGen.buildLoad(valueRef);
     }
     
     @NotNull
@@ -566,19 +616,24 @@ public class IRVisitor implements IVisitor<Object>
     
         if (!(builderObject instanceof BuilderGen))
             throw new NullPointerException();
-        
+    
         final BuilderGen builderGen = (BuilderGen) builderObject;
-        
+    
         final Object lhsObject = this.visit(binaryNode.getLeftHandSide());
         if (!(lhsObject instanceof LLVMValueRef))
             throw new NullPointerException();
-        
+    
         final Object rhsObject = this.visit(binaryNode.getRightHandSide());
         if (!(rhsObject instanceof LLVMValueRef))
             throw new NullPointerException();
-        
-        final boolean floating = binaryNode.getLeftHandSide().getTypeNode().getDataKind().isFloating() ||
-                binaryNode.getRightHandSide().getTypeNode().getDataKind().isFloating();
+    
+        final TypeNode rhsType = binaryNode.getRightHandSide().getTypeNode();
+        final TypeNode lhsType = binaryNode.getLeftHandSide().getTypeNode();
+    
+        Objects.requireNonNull(rhsType.getDataKind(), "rhsType.dataKind must not be null.");
+        Objects.requireNonNull(lhsType.getDataKind(), "lhsType.dataKind must not be null.");
+    
+        final boolean floating = lhsType.getDataKind().isFloating() || rhsType.getDataKind().isFloating();
         LLVMValueRef lhsValue = (LLVMValueRef) lhsObject, rhsValue = (LLVMValueRef) rhsObject;
         if (floating) {
             if (binaryNode.getRightHandSide().getTypeNode().getDataKind() == DataKind.INTEGER) {

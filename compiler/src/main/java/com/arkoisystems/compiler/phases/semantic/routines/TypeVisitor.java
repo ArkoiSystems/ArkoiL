@@ -66,7 +66,7 @@ import java.util.stream.Stream;
 public class TypeVisitor implements IVisitor<TypeNode>
 {
     
-    private static TypeNode ERROR_NODE = TypeNode.builder()
+    public static TypeNode ERROR_NODE = TypeNode.builder()
             .dataKind(DataKind.ERROR)
             .build();
     
@@ -78,6 +78,9 @@ public class TypeVisitor implements IVisitor<TypeNode>
     @NotNull
     @Override
     public TypeNode visit(@NotNull final TypeNode typeNode) {
+        if (typeNode == ERROR_NODE)
+            return ERROR_NODE;
+    
         Objects.requireNonNull(typeNode.getParser(), "typeNode.parser must not be null.");
     
         if (typeNode.getTargetIdentifier() != null && typeNode.getTargetNode() == null) {
@@ -288,7 +291,21 @@ public class TypeVisitor implements IVisitor<TypeNode>
     @Override
     public TypeNode visit(@NotNull final AssignNode assignNode) {
         Objects.requireNonNull(assignNode.getExpression(), "assignNode.expression must not be null.");
-        this.visit(assignNode.getExpression());
+        Objects.requireNonNull(assignNode.getParser(), "assignNode.parser must not be null.");
+    
+        final TypeNode leftHandSide = this.visit(assignNode.getTypeNode());
+        final TypeNode rightHandSide = this.visit(assignNode.getExpression());
+        if (leftHandSide == ERROR_NODE || rightHandSide == ERROR_NODE)
+            return ERROR_NODE;
+    
+        if (!rightHandSide.equals(leftHandSide))
+            return this.addError(
+                    ERROR_NODE,
+                    assignNode.getParser().getCompilerClass(),
+                    assignNode.getExpression(),
+                    "Expression doesn't match the left type."
+            );
+    
         return this.visit(assignNode.getTypeNode());
     }
     
@@ -316,7 +333,7 @@ public class TypeVisitor implements IVisitor<TypeNode>
         if (leftHandSide == ERROR_NODE || rightHandSide == ERROR_NODE)
             return ERROR_NODE;
     
-        if (rightHandSide.equals(leftHandSide))
+        if (!rightHandSide.equals(leftHandSide))
             return this.addError(
                     ERROR_NODE,
                     assignmentNode.getParser().getCompilerClass(),
@@ -334,12 +351,14 @@ public class TypeVisitor implements IVisitor<TypeNode>
         Objects.requireNonNull(binaryNode.getRightHandSide(), "binaryExpressionNode.rightSideOperable must not be null.");
         Objects.requireNonNull(binaryNode.getOperatorType(), "binaryExpressionNode.binaryOperatorType must not be null.");
         Objects.requireNonNull(binaryNode.getParser(), "binaryExpressionNode.parser must not be null.");
-        
+    
         final TypeNode leftHandSide = this.visit(binaryNode.getLeftHandSide());
         final TypeNode rightHandSide = this.visit(binaryNode.getRightHandSide());
         if (leftHandSide == ERROR_NODE || rightHandSide == ERROR_NODE)
             return ERROR_NODE;
-        
+    
+        Objects.requireNonNull(rightHandSide.getDataKind(), "rightHandSide.dataKind must not be null.");
+        Objects.requireNonNull(leftHandSide.getDataKind(), "leftHandSide.dataKind must not be null.");
         if (!leftHandSide.getDataKind().isNumeric() && !rightHandSide.getDataKind().isNumeric())
             return this.addError(
                     ERROR_NODE,
@@ -347,7 +366,7 @@ public class TypeVisitor implements IVisitor<TypeNode>
                     binaryNode,
                     "Both sides are not numeric."
             );
-        
+    
         if (!leftHandSide.getDataKind().isNumeric())
             return this.addError(
                     ERROR_NODE,
@@ -387,6 +406,7 @@ public class TypeVisitor implements IVisitor<TypeNode>
         if (rightHandSide == ERROR_NODE)
             return ERROR_NODE;
     
+        Objects.requireNonNull(rightHandSide.getDataKind(), "rightHandSide.dataKind must not be null.");
         if (!rightHandSide.getDataKind().isNumeric())
             return this.addError(
                     ERROR_NODE,

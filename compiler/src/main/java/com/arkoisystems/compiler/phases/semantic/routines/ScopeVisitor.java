@@ -246,8 +246,9 @@ public class ScopeVisitor implements IVisitor<ParserNode>
         return numberNode;
     }
     
+    @NotNull
     @Override
-    public IdentifierNode visit(@NotNull final IdentifierNode identifierNode) {
+    public ParserNode visit(@NotNull final IdentifierNode identifierNode) {
         Objects.requireNonNull(identifierNode.getCurrentScope(), "identifierNode.currentScope must not be null.");
         Objects.requireNonNull(identifierNode.getIdentifier(), "identifierNode.identifier must not be null.");
         Objects.requireNonNull(identifierNode.getParser(), "identifierNode.parser must not be null.");
@@ -268,10 +269,11 @@ public class ScopeVisitor implements IVisitor<ParserNode>
                     )
             );
         
+        nodes.sort((o1, o2) -> o2.getStartLine() - o1.getStartLine());
+        final ParserNode foundNode = nodes.get(0);
+        identifierNode.setTargetNode(foundNode);
+        
         if (identifierNode.getNextIdentifier() != null) {
-            nodes.sort((o1, o2) -> o2.getStartLine() - o1.getStartLine());
-            
-            final ParserNode foundNode = nodes.get(0);
             if (foundNode instanceof ImportNode) {
                 final ImportNode importNode = (ImportNode) foundNode;
                 final CompilerClass compilerClass = Objects.requireNonNull(importNode.resolveClass(), "importNode.resolveClass must not be null.");
@@ -296,10 +298,10 @@ public class ScopeVisitor implements IVisitor<ParserNode>
                 identifierNode.getNextIdentifier().setParser(typeNode.getTargetNode().getParser());
             }
             
-            this.visit(identifierNode.getNextIdentifier());
+            return this.visit(identifierNode.getNextIdentifier());
         }
         
-        return identifierNode;
+        return foundNode;
     }
     
     @Override
@@ -355,16 +357,34 @@ public class ScopeVisitor implements IVisitor<ParserNode>
     @Override
     public AssignNode visit(@NotNull final AssignNode assignNode) {
         Objects.requireNonNull(assignNode.getExpression(), "assignNode.expression must not be null.");
-        if (this.visit((IdentifierNode) assignNode) == null)
-            return null;
+        Objects.requireNonNull(assignNode.getIdentifier(), "assignNode.identifier must not be null.");
+        Objects.requireNonNull(assignNode.getParser(), "assignNode.parser must not be null.");
+    
+        final ParserNode targetNode = this.visit((IdentifierNode) assignNode);
+        if (!(targetNode instanceof VariableNode))
+            return this.addError(
+                    null,
+                    assignNode.getParser().getCompilerClass(),
+                    assignNode,
+                    "Left side isn't a variable."
+            );
+    
+        final VariableNode variableNode = (VariableNode) targetNode;
+        if (variableNode.isConstant())
+            return this.addError(
+                    null,
+                    assignNode.getParser().getCompilerClass(),
+                    assignNode,
+                    "Can't re-assign a constant variable."
+            );
+    
         this.visit(assignNode.getExpression());
         return assignNode;
     }
     
     @Override
     public StructCreationNode visit(@NotNull final StructCreationNode structCreationNode) {
-        if (this.visit((IdentifierNode) structCreationNode) == null)
-            return null;
+        this.visit((IdentifierNode) structCreationNode);
         return structCreationNode;
     }
     
