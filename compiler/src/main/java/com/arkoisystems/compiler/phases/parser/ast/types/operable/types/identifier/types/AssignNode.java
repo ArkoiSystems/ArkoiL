@@ -80,8 +80,6 @@ public class AssignNode extends IdentifierNode
             );
         }
         
-        this.startAST(this.getParser().currentToken());
-        
         if (!ExpressionNode.GLOBAL_NODE.canParse(this.getParser(), 1)) {
             final LexerToken nextToken = this.getParser().nextToken();
             return this.addError(

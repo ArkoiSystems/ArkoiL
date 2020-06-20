@@ -48,6 +48,8 @@ public interface IVisitor<T>
     default T visit(@NotNull final ParserNode astNode) {
         if (astNode instanceof FunctionCallNode)
             return this.visit((FunctionCallNode) astNode);
+        else if (astNode instanceof AssignNode)
+            return this.visit((AssignNode) astNode);
         else if (astNode instanceof StructCreationNode)
             return this.visit((StructCreationNode) astNode);
         else if (astNode instanceof IdentifierNode)

@@ -8,15 +8,15 @@ struct Vector {
 
 fun main() {
     var test = Vector { }
-
+    
+    test.x = 1337
+    
     # Calls the method in test.ark
     printf(test(), "Arkoi here.")
     
     # Calls this internal method
     printf("f(5) = 2 + x: %i\n", test2(2, 5))  
     printf("f(5.2) = 2 + x: %f\n", test3(2.3234242424240, 5.2444444))
-    
-    test.x = 2
     
     # const vector_1 = create(10, 10)
     # const vector_2 = Vector { x: 10, y: 10 }
