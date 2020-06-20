@@ -50,7 +50,6 @@ public enum DataKind
     
     /* Compiler only data types */
     
-    UNDEFINED("undefined", false, false),
     ERROR("error", false, false);
     
     @NotNull

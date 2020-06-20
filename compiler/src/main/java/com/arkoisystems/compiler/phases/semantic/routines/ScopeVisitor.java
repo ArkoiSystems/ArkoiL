@@ -363,6 +363,8 @@ public class ScopeVisitor implements IVisitor<ParserNode>
     
     @Override
     public StructCreationNode visit(@NotNull final StructCreationNode structCreationNode) {
+        if (this.visit((IdentifierNode) structCreationNode) == null)
+            return null;
         return structCreationNode;
     }
     

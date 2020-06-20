@@ -38,7 +38,7 @@ import java.util.Objects;
 public class StructCreationNode extends IdentifierNode
 {
     
-    public static StructCreationNode GLOBAL_NODE = new StructCreationNode(null, null, null, null, null, false, null, null);
+    public static StructCreationNode GLOBAL_NODE = new StructCreationNode(null, null, null, null, null, null, null);
     
     @Builder
     protected StructCreationNode(
@@ -47,11 +47,10 @@ public class StructCreationNode extends IdentifierNode
             @Nullable final SymbolTable currentScope,
             @Nullable final IdentifierNode nextIdentifier,
             @Nullable final IdentifierToken identifier,
-            final boolean parseFunction,
             @Nullable final LexerToken startToken,
             @Nullable final LexerToken endToken
     ) {
-        super(parser, parentNode, currentScope, nextIdentifier, identifier, parseFunction, startToken, endToken);
+        super(parser, parentNode, currentScope, nextIdentifier, identifier, false, startToken, endToken);
     }
     
     @Override
@@ -96,7 +95,7 @@ public class StructCreationNode extends IdentifierNode
     
     @Override
     public boolean canParse(@NotNull final Parser parser, final int offset) {
-        return parser.matchesPeekToken(1, SymbolType.OPENING_BRACE) != null;
+        return parser.matchesPeekToken(offset, SymbolType.OPENING_BRACE) != null;
     }
     
     @Override
