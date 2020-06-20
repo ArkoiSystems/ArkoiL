@@ -59,7 +59,6 @@ public class Linker
         this.compiler = compiler;
     }
     
-    // TODO: 6/15/20 Two same function names can't be compiled because every loaded class is merged.
     @SneakyThrows
     public boolean processStage() {
         final BytePointer errorPointer = new BytePointer();

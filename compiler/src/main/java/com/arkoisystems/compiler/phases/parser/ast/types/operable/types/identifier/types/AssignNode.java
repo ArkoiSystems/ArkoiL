@@ -42,7 +42,7 @@ import java.util.Objects;
 public class AssignNode extends IdentifierNode
 {
     
-    public static AssignNode GLOBAL_NODE = new AssignNode(null, null, null, null, null, false, null, null);
+    public static AssignNode GLOBAL_NODE = new AssignNode(null, null, null, null, null, null, null);
     
     @Printable(name = "expression")
     @Nullable
@@ -55,11 +55,10 @@ public class AssignNode extends IdentifierNode
             @Nullable final SymbolTable currentScope,
             @Nullable final IdentifierNode nextIdentifier,
             @Nullable final IdentifierToken identifier,
-            final boolean parseFunction,
             @Nullable final LexerToken startToken,
             @Nullable final LexerToken endToken
     ) {
-        super(parser, parentNode, currentScope, nextIdentifier, identifier, parseFunction, startToken, endToken);
+        super(parser, parentNode, currentScope, nextIdentifier, identifier, false, startToken, endToken);
     }
     
     @Override
@@ -119,7 +118,7 @@ public class AssignNode extends IdentifierNode
     
     @Override
     public boolean canParse(@NotNull final Parser parser, final int offset) {
-        return parser.matchesPeekToken(1, OperatorType.EQUALS) != null;
+        return parser.matchesPeekToken(offset, OperatorType.EQUALS) != null;
     }
     
     @Override

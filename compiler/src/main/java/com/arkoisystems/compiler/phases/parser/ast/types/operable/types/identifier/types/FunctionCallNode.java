@@ -24,12 +24,12 @@ import com.arkoisystems.compiler.phases.lexer.token.types.IdentifierToken;
 import com.arkoisystems.compiler.phases.parser.Parser;
 import com.arkoisystems.compiler.phases.parser.ParserErrorType;
 import com.arkoisystems.compiler.phases.parser.SymbolTable;
-import com.arkoisystems.compiler.phases.parser.ast.DataKind;
 import com.arkoisystems.compiler.phases.parser.ast.ParserNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.TypeNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expression.ExpressionListNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.identifier.IdentifierNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.statement.types.FunctionNode;
+import com.arkoisystems.compiler.phases.semantic.routines.TypeVisitor;
 import com.arkoisystems.compiler.visitor.IVisitor;
 import com.arkoisystems.utils.printer.annotations.Printable;
 import lombok.Builder;
@@ -129,22 +129,15 @@ public class FunctionCallNode extends IdentifierNode
                     .map(node -> (FunctionNode) node)
                     .filter(node -> node.equalsToIdentifier(this))
                     .collect(Collectors.toList());
-            
+    
             if (!functions.isEmpty())
                 foundNode = functions.get(0);
         }
-        
+    
         if (foundNode != null)
             return foundNode.getTypeNode();
-        
-        return TypeNode.builder()
-                .parentNode(this)
-                .currentScope(this.getCurrentScope())
-                .parser(this.getParser())
-                .dataKind(DataKind.UNDEFINED)
-                .startToken(this.getStartToken())
-                .endToken(this.getEndToken())
-                .build();
+    
+        return TypeVisitor.ERROR_NODE;
     }
     
 }

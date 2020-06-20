@@ -55,7 +55,7 @@ public class TypeNode extends ParserNode
     
     @Printable(name = "data kind")
     @Setter
-    @NotNull
+    @Nullable
     private DataKind dataKind;
     
     @Printable(name = "signed")
@@ -89,7 +89,7 @@ public class TypeNode extends ParserNode
         this.signed = signed;
         this.bits = bits;
     
-        this.dataKind = dataKind == null ? DataKind.UNDEFINED : dataKind;
+        this.dataKind = dataKind;
     }
     
     @NotNull
@@ -159,14 +159,17 @@ public class TypeNode extends ParserNode
         if (this.getPointers() != typeNode.getPointers()) return false;
         if (this.isSigned() && !typeNode.isSigned()) return false;
         if (this.getTargetNode() != typeNode.getTargetNode()) return false;
+        if (this.getBits() != typeNode.getBits()) return false;
         return this.getDataKind() == typeNode.getDataKind();
     }
     
     @Override
     public int hashCode() {
         int result = super.hashCode();
-        result = 31 * result + this.getDataKind().hashCode();
+        result = 31 * result + (this.getDataKind() != null ? this.getDataKind().hashCode() : 0);
+        result = 31 * result + (this.isSigned() ? 1 : 0);
         result = 31 * result + this.getPointers();
+        result = 31 * result + this.getBits();
         return result;
     }
     

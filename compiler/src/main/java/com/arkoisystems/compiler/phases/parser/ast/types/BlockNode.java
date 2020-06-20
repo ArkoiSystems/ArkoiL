@@ -117,11 +117,9 @@ public class BlockNode extends ParserNode
             final ParserNode foundNode = this.getValidNode(
                     VariableNode.GLOBAL_NODE,
                     IdentifierNode.PARSER_NODE,
-                    ReturnNode.GLOBAL_NODE,
-                    BlockNode.BRACE_NODE
+                    ReturnNode.GLOBAL_NODE
+                    //                    BlockNode.BRACE_NODE
             );
-    
-            //            System.out.println(this.getParser().currentToken().getTokenContent() + ", " + foundNode);
     
             if (foundNode == null) {
                 this.addError(
@@ -133,28 +131,24 @@ public class BlockNode extends ParserNode
                 this.findValidToken();
                 continue;
             }
-            
+    
             ParserNode astNode = foundNode.clone();
-            
-            if (astNode instanceof BlockNode)
-                astNode.setCurrentScope(new SymbolTable(this.getCurrentScope()));
-            else astNode.setCurrentScope(this.getCurrentScope());
-            
+            astNode.setCurrentScope(this.getCurrentScope());
+            astNode.setParentNode(this);
+            astNode.setParser(this.getParser());
+            astNode = astNode.parse();
+    
             if (astNode instanceof VariableNode) {
                 final VariableNode variableNode = (VariableNode) astNode;
                 variableNode.setLocal(true);
             }
-            
-            astNode.setParentNode(this);
-            astNode.setParser(this.getParser());
-            astNode = astNode.parse();
-            
+    
             if (astNode.isFailed()) {
                 this.setFailed(true);
                 this.findValidToken();
                 continue;
             }
-            
+    
             this.getNodes().add(astNode);
             this.getParser().nextToken();
         }
