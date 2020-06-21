@@ -1,15 +1,25 @@
 import "console"
 import "test"
 
-struct Vector { 
-    var x: i32 = 0
-    var y: i32 = 0
+struct Test {
+    var z = 3
 }
 
+struct Vector { 
+    var x = 0
+    var y = 0
+    const u = Test { }
+}
+
+var test23 = Test {} 
+
 fun main() {
-    var test = Vector { }
+    var vector = Vector {}
+    vector.y = 1337
+
+    vector.u.z = 1337
     
-    test.x = 1337
+    test23.z = 2
     
     # Calls the method in test.ark
     printf(test(), "Arkoi here.")
