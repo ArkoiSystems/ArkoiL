@@ -32,6 +32,8 @@ import com.arkoisystems.compiler.phases.parser.ast.types.BlockNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.RootNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.StructNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.TypeNode;
+import com.arkoisystems.compiler.phases.parser.ast.types.argument.ArgumentListNode;
+import com.arkoisystems.compiler.phases.parser.ast.types.argument.ArgumentNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.OperableNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.NumberNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.StringNode;
@@ -44,7 +46,7 @@ import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expressi
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.identifier.IdentifierNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.identifier.types.AssignNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.identifier.types.FunctionCallNode;
-import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.identifier.types.StructCreationNode;
+import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.identifier.types.StructCreateNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.parameter.ParameterListNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.parameter.ParameterNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.statement.types.FunctionNode;
@@ -191,13 +193,14 @@ public class IRVisitor implements IVisitor<Object>
     @NotNull
     @Override
     public LLVMValueRef visit(@NotNull final ParameterNode parameter) {
+        Objects.requireNonNull(parameter.getName(), "parameter.name must not be null.");
+    
         final FunctionNode targetFunction = parameter.getParent(FunctionNode.class);
         Objects.requireNonNull(targetFunction, "targetFunction must not be null.");
     
         Objects.requireNonNull(targetFunction.getBlockNode(), "targetFunction.blockNode must not be null.");
         Objects.requireNonNull(targetFunction.getParameterList(), "targetFunction.parameters must not be null.");
         Objects.requireNonNull(targetFunction.getName(), "targetFunction.name must not be null.");
-        Objects.requireNonNull(parameter.getName(), "parameter.name must not be null.");
     
         final FunctionGen functionGen = this.visit(targetFunction);
         for (int index = 0; index < targetFunction.getParameterList().getParameters().size(); index++) {
@@ -208,6 +211,22 @@ public class IRVisitor implements IVisitor<Object>
         }
     
         throw new NullPointerException();
+    }
+    
+    @Override
+    public ArgumentListNode visit(final @NotNull ArgumentListNode argumentListNode) {
+        argumentListNode.getArguments().forEach(this::visit);
+        return argumentListNode;
+    }
+    
+    @Override
+    public LLVMValueRef visit(final @NotNull ArgumentNode argumentNode) {
+        Objects.requireNonNull(argumentNode.getExpression(), "argumentNode.expression must not be null.");
+        
+        final Object expressionObject = this.visit(argumentNode.getExpression());
+        if (!(expressionObject instanceof LLVMValueRef))
+            throw new NullPointerException();
+        return (LLVMValueRef) expressionObject;
     }
     
     @NotNull
@@ -327,45 +346,36 @@ public class IRVisitor implements IVisitor<Object>
         if (variableNode.isLocal()) {
             final BlockNode blockNode = variableNode.getParent(BlockNode.class);
             Objects.requireNonNull(blockNode, "blockNode must not be null.");
-        
+    
             final Object builderObject = this.getNodeRefs().getOrDefault(blockNode, null);
             Objects.requireNonNull(builderObject, "builderObject must not be null.");
-        
+    
             if (!(builderObject instanceof BuilderGen))
                 throw new NullPointerException();
-        
+    
             final BuilderGen builderGen = (BuilderGen) builderObject;
-            final LLVMValueRef variableRef = builderGen.buildAlloca(
-                    variableNode.getReturnType() == null ?
-                            this.visit(variableNode.getTypeNode()) :
-                            this.visit(variableNode.getReturnType())
-            );
-        
+    
+            final LLVMValueRef variableRef = builderGen.buildAlloca(this.visit(variableNode.getTypeNode()));
             this.getNodeRefs().put(variableNode, variableRef);
-        
+    
             if (variableNode.getExpression() != null) {
                 final Object object = this.visit(variableNode.getExpression());
                 if (!(object instanceof LLVMValueRef))
                     throw new NullPointerException();
-            
+        
                 LLVM.LLVMBuildStore(builderGen.getBuilderRef(), (LLVMValueRef) object, variableRef);
             }
-        
+    
             return variableRef;
         } else {
-            final LLVMValueRef variableRef = this.getModuleGen().buildGlobal(
-                    variableNode.getReturnType() == null ?
-                            this.visit(variableNode.getTypeNode()) :
-                            this.visit(variableNode.getReturnType())
-            );
-        
+            final LLVMValueRef variableRef = this.getModuleGen().buildGlobal(this.visit(variableNode.getTypeNode()));
             this.getNodeRefs().put(variableNode, variableRef);
-        
+    
             if (variableNode.getExpression() != null) {
                 final Object object = this.visit(variableNode.getExpression());
                 if (!(object instanceof LLVMValueRef))
                     throw new NullPointerException();
-            
+        
                 LLVM.LLVMSetInitializer(variableRef, (LLVMValueRef) object);
             }
         
@@ -377,18 +387,25 @@ public class IRVisitor implements IVisitor<Object>
     @Override
     public LLVMValueRef visit(@NotNull final StringNode stringNode) {
         Objects.requireNonNull(stringNode.getStringToken(), "stringNode.stringToken must not be null.");
-        
+    
         final BlockNode blockNode = stringNode.getParent(BlockNode.class);
-        Objects.requireNonNull(blockNode, "blockNode must not be null.");
+        if (blockNode != null) {
+            final Object builderObject = this.getNodeRefs().getOrDefault(blockNode, null);
+            Objects.requireNonNull(builderObject, "builderObject must not be null.");
         
-        final Object builderObject = this.getNodeRefs().getOrDefault(blockNode, null);
-        Objects.requireNonNull(builderObject, "builderObject must not be null.");
+            if (!(builderObject instanceof BuilderGen))
+                throw new NullPointerException();
         
-        if (!(builderObject instanceof BuilderGen))
-            throw new NullPointerException();
-        
-        final BuilderGen builderGen = (BuilderGen) builderObject;
-        return builderGen.buildGlobalStringPtr(stringNode.getStringToken().getTokenContent());
+            final BuilderGen builderGen = (BuilderGen) builderObject;
+            return builderGen.buildGlobalStringPtr(stringNode.getStringToken().getTokenContent());
+        } else {
+            return LLVM.LLVMConstStringInContext(
+                    this.getContextGen().getContextRef(),
+                    stringNode.getStringToken().getTokenContent(),
+                    stringNode.getStringToken().getTokenContent().length(),
+                    0
+            );
+        }
     }
     
     @NotNull
@@ -560,15 +577,16 @@ public class IRVisitor implements IVisitor<Object>
     }
     
     @Override
-    public LLVMValueRef visit(@NotNull final StructCreationNode structCreationNode) {
-        Objects.requireNonNull(structCreationNode.getIdentifier(), "structCreationNode.identifier must not be null.");
-        Objects.requireNonNull(structCreationNode.getParser(), "structCreationNode.parser must not be null.");
+    public LLVMValueRef visit(@NotNull final StructCreateNode structCreateNode) {
+        Objects.requireNonNull(structCreateNode.getArgumentList(), "structCreationNode.argumentList must not be null.");
+        Objects.requireNonNull(structCreateNode.getIdentifier(), "structCreationNode.identifier must not be null.");
+        Objects.requireNonNull(structCreateNode.getParser(), "structCreationNode.parser must not be null.");
         
         final List<StructNode> structNodes = Objects.requireNonNullElse(
-                structCreationNode.getParser()
+                structCreateNode.getParser()
                         .getCompilerClass()
                         .getRootScope()
-                        .lookup(structCreationNode.getIdentifier().getTokenContent()),
+                        .lookup(structCreateNode.getIdentifier().getTokenContent()),
                 new ArrayList<ParserNode>()
         ).stream()
                 .filter(node -> node instanceof StructNode)
@@ -580,15 +598,31 @@ public class IRVisitor implements IVisitor<Object>
         final StructNode targetStruct = structNodes.get(0);
         final LLVMTypeRef structRef = this.visit(targetStruct);
         
-        final LLVMValueRef[] arguments = targetStruct.getVariables().stream()
-                .map(node -> {
-                    Objects.requireNonNull(node.getExpression(), "node.expression must not be null.");
-                    final Object object = this.visit(node.getExpression());
-                    if (!(object instanceof LLVMValueRef))
-                        throw new NullPointerException();
-                    return (LLVMValueRef) object;
-                })
-                .toArray(LLVMValueRef[]::new);
+        final LLVMValueRef[] arguments = new LLVMValueRef[targetStruct.getVariables().size()];
+        for (int argumentIndex = 0; argumentIndex < structCreateNode.getArgumentList().getArguments().size(); argumentIndex++) {
+            final ArgumentNode argumentNode = structCreateNode.getArgumentList().getArguments().get(argumentIndex);
+            Objects.requireNonNull(argumentNode.getName(), "argumentNode.name must not be null.");
+            
+            for (int variableIndex = 0; variableIndex < targetStruct.getVariables().size(); variableIndex++) {
+                final VariableNode variableNode = targetStruct.getVariables().get(variableIndex);
+                Objects.requireNonNull(variableNode.getName(), "variableNode.name must not be null.");
+                
+                if (variableNode.getName().getTokenContent().equals(argumentNode.getName().getTokenContent()))
+                    arguments[variableIndex] = this.visit(argumentNode);
+            }
+        }
+        
+        for (int index = 0; index < targetStruct.getVariables().size(); index++) {
+            if (arguments[index] != null) continue;
+            
+            final VariableNode variableNode = targetStruct.getVariables().get(index);
+            Objects.requireNonNull(variableNode.getExpression(), "variableNode.expression must not be null.");
+            final Object object = this.visit(variableNode.getExpression());
+            if (!(object instanceof LLVMValueRef))
+                throw new NullPointerException();
+            arguments[index] = (LLVMValueRef) object;
+        }
+        
         return LLVM.LLVMConstNamedStruct(structRef, new PointerPointer<>(arguments), arguments.length);
     }
     
@@ -778,14 +812,16 @@ public class IRVisitor implements IVisitor<Object>
             @NotNull final String error,
             @NotNull final String filePath
     ) {
+        System.out.println(error);
+    
         final List<CompilerError> errors = new ArrayList<>();
-        
+    
         final String source = LLVM.LLVMPrintModuleToString(moduleGen.getModuleRef()).getString();
         final String[] errorSplit = error.split(System.getProperty("line.separator"));
-        
+    
         for (int index = 0; index < errorSplit.length; ) {
             final String errorMessage = errorSplit[index];
-            
+        
             int errorIndex = index + 1;
             for (; errorIndex < errorSplit.length; errorIndex++) {
                 if (errorSplit[index].startsWith("\\s"))

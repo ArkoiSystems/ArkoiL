@@ -139,7 +139,7 @@ public class FunctionNode extends StatementNode
         this.getCurrentScope().insert(identifierToken.getTokenContent(), this);
         this.setCurrentScope(new SymbolTable(this.getCurrentScope()));
     
-        if (!ParameterListNode.GLOBAL_NODE.canParse(this.getParser(), 1)) {
+        if (this.getParser().matchesPeekToken(1, SymbolType.OPENING_PARENTHESIS) == null) {
             final LexerToken nextToken = this.getParser().nextToken();
             return this.addError(
                     this,
@@ -153,8 +153,8 @@ public class FunctionNode extends StatementNode
                     )
             );
         }
-        
-        this.getParser().nextToken();
+    
+        this.getParser().nextToken(2);
     
         final ParameterListNode parameterListNode = ParameterListNode.builder()
                 .parentNode(this)
@@ -168,6 +168,21 @@ public class FunctionNode extends StatementNode
         }
     
         this.parameterList = parameterListNode;
+    
+        if (this.getParser().matchesCurrentToken(SymbolType.CLOSING_PARENTHESIS) == null) {
+            final LexerToken currentToken = this.getParser().currentToken();
+            return this.addError(
+                    this,
+                    this.getParser().getCompilerClass(),
+                    currentToken,
+                    String.format(
+                            ParserErrorType.SYNTAX_ERROR_TEMPLATE,
+                            "Function",
+                            "')'",
+                            currentToken != null ? currentToken.getTokenContent() : "nothing"
+                    )
+            );
+        }
     
         if (this.getParser().matchesPeekToken(1, SymbolType.COLON) != null) {
             this.getParser().nextToken();

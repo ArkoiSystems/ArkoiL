@@ -27,6 +27,8 @@ import com.arkoisystems.compiler.phases.parser.ast.types.BlockNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.RootNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.StructNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.TypeNode;
+import com.arkoisystems.compiler.phases.parser.ast.types.argument.ArgumentListNode;
+import com.arkoisystems.compiler.phases.parser.ast.types.argument.ArgumentNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.NumberNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.StringNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expression.ExpressionListNode;
@@ -37,7 +39,7 @@ import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expressi
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.identifier.IdentifierNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.identifier.types.AssignNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.identifier.types.FunctionCallNode;
-import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.identifier.types.StructCreationNode;
+import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.identifier.types.StructCreateNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.parameter.ParameterListNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.parameter.ParameterNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.statement.types.FunctionNode;
@@ -142,6 +144,17 @@ public class TypeVisitor implements IVisitor<TypeNode>
     @Override
     public TypeNode visit(@NotNull final ParameterNode parameter) {
         return this.visit(parameter.getTypeNode());
+    }
+    
+    @Override
+    public TypeNode visit(final @NotNull ArgumentListNode argumentListNode) {
+        argumentListNode.getArguments().forEach(this::visit);
+        return ERROR_NODE;
+    }
+    
+    @Override
+    public TypeNode visit(final @NotNull ArgumentNode argumentNode) {
+        return this.visit(argumentNode.getTypeNode());
     }
     
     @NotNull
@@ -310,8 +323,8 @@ public class TypeVisitor implements IVisitor<TypeNode>
     }
     
     @Override
-    public TypeNode visit(@NotNull final StructCreationNode structCreationNode) {
-        return this.visit(structCreationNode.getTypeNode());
+    public TypeNode visit(@NotNull final StructCreateNode structCreateNode) {
+        return this.visit(structCreateNode.getTypeNode());
     }
     
     @NotNull

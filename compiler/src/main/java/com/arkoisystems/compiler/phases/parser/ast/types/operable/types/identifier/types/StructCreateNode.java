@@ -25,8 +25,10 @@ import com.arkoisystems.compiler.phases.parser.Parser;
 import com.arkoisystems.compiler.phases.parser.ParserErrorType;
 import com.arkoisystems.compiler.phases.parser.SymbolTable;
 import com.arkoisystems.compiler.phases.parser.ast.ParserNode;
+import com.arkoisystems.compiler.phases.parser.ast.types.argument.ArgumentListNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.identifier.IdentifierNode;
 import com.arkoisystems.compiler.visitor.IVisitor;
+import com.arkoisystems.utils.printer.annotations.Printable;
 import lombok.Builder;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
@@ -35,13 +37,17 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Objects;
 
 @Getter
-public class StructCreationNode extends IdentifierNode
+public class StructCreateNode extends IdentifierNode
 {
     
-    public static StructCreationNode GLOBAL_NODE = new StructCreationNode(null, null, null, null, null, null, null);
+    public static StructCreateNode GLOBAL_NODE = new StructCreateNode(null, null, null, null, null, null, null);
+    
+    @Printable(name = "arguments")
+    @Nullable
+    private ArgumentListNode argumentList;
     
     @Builder
-    protected StructCreationNode(
+    protected StructCreateNode(
             @Nullable final Parser parser,
             @Nullable final ParserNode parentNode,
             @Nullable final SymbolTable currentScope,
@@ -54,7 +60,7 @@ public class StructCreationNode extends IdentifierNode
     }
     
     @Override
-    public @NotNull StructCreationNode parse() {
+    public @NotNull StructCreateNode parse() {
         Objects.requireNonNull(this.getParser(), "parser must not be null.");
         
         if (this.getParser().matchesCurrentToken(SymbolType.OPENING_BRACE) == null) {
@@ -73,23 +79,37 @@ public class StructCreationNode extends IdentifierNode
         }
         
         this.startAST(this.getParser().currentToken());
+        this.getParser().nextToken();
         
-        if (this.getParser().matchesPeekToken(1, SymbolType.CLOSING_BRACE) == null) {
-            final LexerToken nextToken = this.getParser().nextToken();
+        final ArgumentListNode argumentList = ArgumentListNode.builder()
+                .parentNode(this)
+                .currentScope(this.getCurrentScope())
+                .parser(this.getParser())
+                .build()
+                .parse();
+        if (argumentList.isFailed()) {
+            this.setFailed(true);
+            return this;
+        }
+        
+        this.argumentList = argumentList;
+        
+        if (this.getParser().matchesCurrentToken(SymbolType.CLOSING_BRACE) == null) {
+            final LexerToken currentToken = this.getParser().currentToken();
             return this.addError(
                     this,
                     this.getParser().getCompilerClass(),
-                    nextToken,
+                    currentToken,
                     String.format(
                             ParserErrorType.SYNTAX_ERROR_TEMPLATE,
                             "Struct creation",
                             "'}'",
-                            nextToken != null ? nextToken.getTokenContent() : "nothing"
+                            currentToken != null ? currentToken.getTokenContent() : "nothing"
                     )
             );
         }
         
-        this.endAST(this.getParser().nextToken());
+        this.endAST(this.getParser().currentToken());
         return this;
     }
     

@@ -27,6 +27,8 @@ import com.arkoisystems.compiler.phases.parser.ast.types.BlockNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.RootNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.StructNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.TypeNode;
+import com.arkoisystems.compiler.phases.parser.ast.types.argument.ArgumentListNode;
+import com.arkoisystems.compiler.phases.parser.ast.types.argument.ArgumentNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.NumberNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.StringNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expression.ExpressionListNode;
@@ -37,7 +39,7 @@ import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expressi
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.identifier.IdentifierNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.identifier.types.AssignNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.identifier.types.FunctionCallNode;
-import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.identifier.types.StructCreationNode;
+import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.identifier.types.StructCreateNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.parameter.ParameterListNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.parameter.ParameterNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.statement.types.FunctionNode;
@@ -92,25 +94,37 @@ public class ScopeVisitor implements IVisitor<ParserNode>
     @NotNull
     @Override
     public ParameterNode visit(@NotNull final ParameterNode parameter) {
-        Objects.requireNonNull(parameter.getCurrentScope(), "parameter.currentScope must not be null.");
-        Objects.requireNonNull(parameter.getParser(), "parameter.parser must not be null.");
-        Objects.requireNonNull(parameter.getName(), "parameter.name must not be null.");
+        // TODO: 6/21/20 Check if there are multiple instances and also if the target variable is constant or not.
+        return parameter;
+    }
+    
+    @Override
+    public ArgumentListNode visit(final @NotNull ArgumentListNode argumentListNode) {
+        argumentListNode.getArguments().forEach(this::visit);
+        return argumentListNode;
+    }
+    
+    @Override
+    public ParserNode visit(final @NotNull ArgumentNode argumentNode) {
+        Objects.requireNonNull(argumentNode.getCurrentScope(), "parameter.currentScope must not be null.");
+        Objects.requireNonNull(argumentNode.getParser(), "parameter.parser must not be null.");
+        Objects.requireNonNull(argumentNode.getName(), "parameter.name must not be null.");
         
         final List<ParserNode> identifiers = Objects.requireNonNullElse(
-                parameter.getCurrentScope().lookupScope(parameter.getName().getTokenContent()),
+                argumentNode.getCurrentScope().lookupScope(argumentNode.getName().getTokenContent()),
                 new ArrayList<>()
         );
         if (identifiers.size() > 1)
             return this.addError(
                     null,
-                    parameter.getParser().getCompilerClass(),
+                    argumentNode.getParser().getCompilerClass(),
                     identifiers.get(0),
                     "There already exists an identifier with the same name is this scope.",
                     identifiers.subList(1, identifiers.size()),
                     "Edit these identifiers to fix the problem."
             );
         
-        return parameter;
+        return argumentNode;
     }
     
     @NotNull
@@ -383,9 +397,9 @@ public class ScopeVisitor implements IVisitor<ParserNode>
     }
     
     @Override
-    public StructCreationNode visit(@NotNull final StructCreationNode structCreationNode) {
-        this.visit((IdentifierNode) structCreationNode);
-        return structCreationNode;
+    public StructCreateNode visit(@NotNull final StructCreateNode structCreateNode) {
+        this.visit((IdentifierNode) structCreateNode);
+        return structCreateNode;
     }
     
     @Override
