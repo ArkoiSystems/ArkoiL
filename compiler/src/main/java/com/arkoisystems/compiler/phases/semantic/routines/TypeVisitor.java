@@ -257,7 +257,7 @@ public class TypeVisitor implements IVisitor<TypeNode>
                     ERROR_NODE,
                     variableNode.getParser().getCompilerClass(),
                     variableNode.getExpression(),
-                    "The expression type doesn't match that of the function."
+                    "The expression type doesn't match that of the variable."
             );
     
         return this.visit(variableNode.getTypeNode());

@@ -67,14 +67,36 @@ public class RootNode extends ParserNode
         
         this.startAST(this.getParser().currentToken(false));
         while (this.getParser().getPosition() < this.getParser().getTokens().length) {
-            final ParserNode foundNode = this.getValidNode(
-                    FunctionNode.GLOBAL_NODE,
-                    ImportNode.GLOBAL_NODE,
-                    VariableNode.GLOBAL_NODE,
-                    StructNode.GLOBAL_NODE
-            );
-            
-            if (foundNode == null) {
+            final ParserNode parserNode;
+            if (FunctionNode.GLOBAL_NODE.canParse(this.getParser(), 0)) {
+                parserNode = FunctionNode.builder()
+                        .parser(this.getParser())
+                        .currentScope(this.getCurrentScope())
+                        .parentNode(this)
+                        .build()
+                        .parse();
+            } else if (ImportNode.GLOBAL_NODE.canParse(this.getParser(), 0)) {
+                parserNode = ImportNode.builder()
+                        .parser(this.getParser())
+                        .currentScope(this.getCurrentScope())
+                        .parentNode(this)
+                        .build()
+                        .parse();
+            } else if (VariableNode.GLOBAL_NODE.canParse(this.getParser(), 0)) {
+                parserNode = VariableNode.builder()
+                        .parser(this.getParser())
+                        .currentScope(this.getCurrentScope())
+                        .parentNode(this)
+                        .build()
+                        .parse();
+            } else if (StructNode.GLOBAL_NODE.canParse(this.getParser(), 0)) {
+                parserNode = StructNode.builder()
+                        .parser(this.getParser())
+                        .currentScope(this.getCurrentScope())
+                        .parentNode(this)
+                        .build()
+                        .parse();
+            } else {
                 this.addError(
                         null,
                         this.getParser().getCompilerClass(),
@@ -84,20 +106,14 @@ public class RootNode extends ParserNode
                 this.findValidToken();
                 continue;
             }
-            
-            ParserNode astNode = foundNode.clone();
-            astNode.setCurrentScope(this.getCurrentScope());
-            astNode.setParentNode(this);
-            astNode.setParser(this.getParser());
-            astNode = astNode.parse();
-            
-            if (astNode.isFailed()) {
+    
+            if (parserNode.isFailed()) {
                 this.setFailed(true);
                 this.findValidToken();
                 continue;
             }
-            
-            this.getNodes().add(astNode);
+    
+            this.getNodes().add(parserNode);
             this.getParser().nextToken();
         }
         
@@ -114,16 +130,12 @@ public class RootNode extends ParserNode
         Objects.requireNonNull(this.getParser(), "parser must not be null.");
         
         while (this.getParser().getPosition() < this.getParser().getTokens().length) {
-            final ParserNode foundNode = this.getValidNode(
-                    FunctionNode.GLOBAL_NODE,
-                    ImportNode.GLOBAL_NODE,
-                    VariableNode.GLOBAL_NODE,
-                    StructNode.GLOBAL_NODE
-            );
-            
-            if (foundNode != null)
+            if (FunctionNode.GLOBAL_NODE.canParse(this.getParser(), 0) ||
+                    ImportNode.GLOBAL_NODE.canParse(this.getParser(), 0) ||
+                    VariableNode.GLOBAL_NODE.canParse(this.getParser(), 0) ||
+                    StructNode.GLOBAL_NODE.canParse(this.getParser(), 0))
                 break;
-            
+    
             this.getParser().nextToken();
         }
     }
