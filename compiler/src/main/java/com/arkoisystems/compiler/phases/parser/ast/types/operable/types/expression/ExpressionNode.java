@@ -86,27 +86,42 @@ public class ExpressionNode extends OperableNode
                     .build()
                     .parse();
         } else {
-            final OperableNode foundNode = this.getValidNode(
-                    StringNode.GLOBAL_NODE,
-                    NumberNode.GLOBAL_NODE,
-                    IdentifierNode.PARSER_NODE
+            final OperableNode operableNode;
+            if (StringNode.GLOBAL_NODE.canParse(this.getParser(), 0)) {
+                operableNode = StringNode.builder()
+                        .parser(this.getParser())
+                        .currentScope(this.getCurrentScope())
+                        .parentNode(this)
+                        .build()
+                        .parse();
+            } else if (NumberNode.GLOBAL_NODE.canParse(this.getParser(), 0)) {
+                operableNode = NumberNode.builder()
+                        .parser(this.getParser())
+                        .currentScope(this.getCurrentScope())
+                        .parentNode(this)
+                        .build()
+                        .parse();
+            } else if (IdentifierNode.PARSER_NODE.canParse(this.getParser(), 0)) {
+                operableNode = IdentifierNode.identifierBuilder()
+                        .parser(this.getParser())
+                        .currentScope(this.getCurrentScope())
+                        .parentNode(this)
+                        .parseFunction(true)
+                        .build()
+                        .parse();
+            } else return this.addError(
+                    null,
+                    this.getParser().getCompilerClass(),
+                    this.getParser().currentToken(),
+                    ParserErrorType.OPERABLE_NOT_SUPPORTED
             );
-            
-            if (foundNode == null)
-                return this.addError(
-                        this,
-                        this.getParser().getCompilerClass(),
-                        this.getParser().currentToken(),
-                        
-                        ParserErrorType.OPERABLE_NOT_SUPPORTED
-                );
-            
-            final OperableNode operableNode = foundNode.clone();
-            operableNode.setParentNode(this);
-            operableNode.setCurrentScope(this.getCurrentScope());
-            operableNode.setParser(this.getParser());
-            
-            return (OperableNode) operableNode.parse();
+    
+            if (operableNode.isFailed()) {
+                this.setFailed(true);
+                return this;
+            }
+    
+            return operableNode;
         }
     }
     

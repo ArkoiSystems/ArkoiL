@@ -114,14 +114,32 @@ public class BlockNode extends ParserNode
             if (this.getParser().matchesCurrentToken(SymbolType.CLOSING_BRACE) != null)
                 break;
     
-            final ParserNode foundNode = this.getValidNode(
-                    VariableNode.GLOBAL_NODE,
-                    IdentifierNode.PARSER_NODE,
-                    ReturnNode.GLOBAL_NODE
-                    //                    BlockNode.BRACE_NODE
-            );
-    
-            if (foundNode == null) {
+            final ParserNode parserNode;
+            if (VariableNode.GLOBAL_NODE.canParse(this.getParser(), 0)) {
+                final VariableNode variableNode = VariableNode.builder()
+                        .parser(this.getParser())
+                        .currentScope(this.getCurrentScope())
+                        .parentNode(this)
+                        .build()
+                        .parse();
+                variableNode.setLocal(true);
+                parserNode = variableNode;
+            } else if (IdentifierNode.PARSER_NODE.canParse(this.getParser(), 0)) {
+                parserNode = IdentifierNode.identifierBuilder()
+                        .parser(this.getParser())
+                        .currentScope(this.getCurrentScope())
+                        .parentNode(this)
+                        .parseFunction(true)
+                        .build()
+                        .parse();
+            } else if (ReturnNode.GLOBAL_NODE.canParse(this.getParser(), 0)) {
+                parserNode = ReturnNode.builder()
+                        .parser(this.getParser())
+                        .currentScope(this.getCurrentScope())
+                        .parentNode(this)
+                        .build()
+                        .parse();
+            } else {
                 this.addError(
                         null,
                         this.getParser().getCompilerClass(),
@@ -132,24 +150,13 @@ public class BlockNode extends ParserNode
                 continue;
             }
     
-            ParserNode astNode = foundNode.clone();
-            astNode.setCurrentScope(this.getCurrentScope());
-            astNode.setParentNode(this);
-            astNode.setParser(this.getParser());
-            astNode = astNode.parse();
-    
-            if (astNode instanceof VariableNode) {
-                final VariableNode variableNode = (VariableNode) astNode;
-                variableNode.setLocal(true);
-            }
-    
-            if (astNode.isFailed()) {
+            if (parserNode.isFailed()) {
                 this.setFailed(true);
                 this.findValidToken();
                 continue;
             }
     
-            this.getNodes().add(astNode);
+            this.getNodes().add(parserNode);
             this.getParser().nextToken();
         }
     }
@@ -252,16 +259,12 @@ public class BlockNode extends ParserNode
         Objects.requireNonNull(this.getParser(), "parser must not be null.");
         
         while (this.getParser().getPosition() < this.getParser().getTokens().length) {
-            final ParserNode foundNode = this.getValidNode(
-                    VariableNode.GLOBAL_NODE,
-                    IdentifierNode.PARSER_NODE,
-                    ReturnNode.GLOBAL_NODE,
-                    BlockNode.BRACE_NODE
-            );
-            
-            if (foundNode != null || this.getParser().matchesCurrentToken(SymbolType.CLOSING_BRACE) != null)
+            if (ReturnNode.GLOBAL_NODE.canParse(this.getParser(), 0) ||
+                    VariableNode.GLOBAL_NODE.canParse(this.getParser(), 0) ||
+                    IdentifierNode.PARSER_NODE.canParse(this.getParser(), 0) ||
+                    this.getParser().matchesCurrentToken(SymbolType.CLOSING_BRACE) != null)
                 break;
-            
+    
             this.getParser().nextToken();
         }
     }

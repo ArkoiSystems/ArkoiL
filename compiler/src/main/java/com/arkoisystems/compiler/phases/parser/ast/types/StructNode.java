@@ -30,6 +30,7 @@ import com.arkoisystems.compiler.phases.parser.ast.DataKind;
 import com.arkoisystems.compiler.phases.parser.ast.ParserNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.statement.types.VariableNode;
 import com.arkoisystems.utils.printer.annotations.Printable;
+import lombok.Builder;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -58,6 +59,7 @@ public class StructNode extends ParserNode
     @Nullable
     private TypeNode typeNode;
     
+    @Builder
     protected StructNode(
             @Nullable final Parser parser,
             @Nullable final ParserNode parentNode,

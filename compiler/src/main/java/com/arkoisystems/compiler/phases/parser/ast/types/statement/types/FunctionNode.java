@@ -270,7 +270,7 @@ public class FunctionNode extends StatementNode
     
             final ParameterNode ownParameter = this.getParameterList().getParameters().get(index);
             final ParameterNode otherParameter = functionNode.getParameterList().getParameters().get(index);
-            if (ownParameter.getTypeNode().getDataKind() != otherParameter.getTypeNode().getDataKind())
+            if (!ownParameter.getTypeNode().equals(otherParameter.getTypeNode()))
                 return false;
         }
     

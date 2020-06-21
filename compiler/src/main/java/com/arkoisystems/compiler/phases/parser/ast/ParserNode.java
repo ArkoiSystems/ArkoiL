@@ -181,17 +181,4 @@ public class ParserNode implements Cloneable
         return this.getParentNode().getParent(clazz);
     }
     
-    @SafeVarargs
-    @Nullable
-    public final <T extends ParserNode> T getValidNode(@NotNull final T... nodes) {
-        Objects.requireNonNull(this.getParser(), "parser must not be null");
-        
-        for (final T node : nodes) {
-            if (node.canParse(this.getParser(), 0))
-                return node;
-        }
-        
-        return null;
-    }
-    
 }

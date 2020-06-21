@@ -82,8 +82,10 @@ public class StringToken extends LexerToken
                         final int charIndex = octalIndex + index + 1;
                         if (charIndex > input.length() - 1)
                             break;
-                        
+    
                         final char octalChar = input.charAt(index + 1 + octalIndex);
+                        if (!(octalChar >= '0' && octalChar <= '8'))
+                            break;
                         octalBuilder.append(octalChar);
                     }
                     index += octalIndex;
