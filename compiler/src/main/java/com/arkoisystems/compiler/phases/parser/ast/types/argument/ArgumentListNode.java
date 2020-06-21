@@ -16,11 +16,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.arkoisystems.compiler.phases.parser.ast.types.parameter;
+package com.arkoisystems.compiler.phases.parser.ast.types.argument;
 
 import com.arkoisystems.compiler.phases.lexer.token.LexerToken;
 import com.arkoisystems.compiler.phases.lexer.token.enums.SymbolType;
-import com.arkoisystems.compiler.phases.lexer.token.types.IdentifierToken;
 import com.arkoisystems.compiler.phases.parser.Parser;
 import com.arkoisystems.compiler.phases.parser.SymbolTable;
 import com.arkoisystems.compiler.phases.parser.ast.ParserNode;
@@ -37,20 +36,17 @@ import java.util.List;
 import java.util.Objects;
 
 @Getter
-public class ParameterListNode extends ParserNode
+public class ArgumentListNode extends ParserNode
 {
     
-    public static ParameterListNode GLOBAL_NODE = new ParameterListNode(null, null, null, null, null);
+    public static ArgumentListNode GLOBAL_NODE = new ArgumentListNode(null, null, null, null, null);
     
-    @Printable(name = "parameters")
+    @Printable(name = "arguments")
     @NotNull
-    private final List<ParameterNode> parameters;
-    
-    @Printable(name = "variadic")
-    private boolean isVariadic;
+    private final List<ArgumentNode> arguments;
     
     @Builder
-    protected ParameterListNode(
+    protected ArgumentListNode(
             @Nullable final Parser parser,
             @Nullable final ParserNode parentNode,
             @Nullable final SymbolTable currentScope,
@@ -59,72 +55,37 @@ public class ParameterListNode extends ParserNode
     ) {
         super(parser, parentNode, currentScope, startToken, endToken);
         
-        this.parameters = new ArrayList<>();
+        this.arguments = new ArrayList<>();
     }
     
     @SneakyThrows
     @NotNull
     @Override
-    public ParameterListNode parse() {
+    public ArgumentListNode parse() {
         Objects.requireNonNull(this.getParser(), "parser must not be null.");
         
         this.startAST(this.getParser().currentToken());
         
-        final List<IdentifierToken> chainedIdentifiers = new ArrayList<>();
         while (this.getParser().getPosition() < this.getParser().getTokens().length) {
-            if (!ParameterNode.GLOBAL_NODE.canParse(this.getParser(), 0))
+            if (!ArgumentNode.GLOBAL_NODE.canParse(this.getParser(), 0))
                 break;
             
-            if (this.getParser().matchesPeekToken(1, SymbolType.COMMA) != null) {
-                chainedIdentifiers.add((IdentifierToken) this.getParser().currentToken());
-                this.getParser().nextToken(2);
-                continue;
-            }
-            
-            final ParameterNode parameterNode = ParameterNode.builder()
+            final ArgumentNode argumentNode = ArgumentNode.builder()
                     .parentNode(this)
                     .currentScope(this.getCurrentScope())
                     .parser(this.getParser())
                     .build()
                     .parse();
-            if (parameterNode.isFailed()) {
+            if (argumentNode.isFailed()) {
                 this.setFailed(true);
                 return this;
             }
             
-            if (!chainedIdentifiers.isEmpty()) {
-                Objects.requireNonNull(this.getCurrentScope(), "currentScope must not be null.");
-                
-                for (final IdentifierToken nameToken : chainedIdentifiers) {
-                    final ParameterNode chainedNode = ParameterNode.builder()
-                            .parser(parameterNode.getParser())
-                            .parentNode(parameterNode.getParentNode())
-                            .currentScope(parameterNode.getCurrentScope())
-                            .startToken(nameToken)
-                            .typeNode(parameterNode.getTypeNode().clone())
-                            .name(nameToken)
-                            .endToken(nameToken)
-                            .build();
-                    
-                    this.getCurrentScope().insert(nameToken.getTokenContent(), chainedNode);
-                    this.getParameters().add(chainedNode);
-                }
-                
-                chainedIdentifiers.clear();
-            }
-            
-            this.getParameters().add(parameterNode);
+            this.getArguments().add(argumentNode);
             
             if (this.getParser().matchesNextToken(SymbolType.COMMA) == null)
                 break;
             this.getParser().nextToken();
-        }
-        
-        if (this.getParser().matchesCurrentToken(SymbolType.PERIOD) != null &&
-                this.getParser().matchesPeekToken(1, SymbolType.PERIOD) != null &&
-                this.getParser().matchesPeekToken(2, SymbolType.PERIOD) != null) {
-            this.getParser().nextToken(3);
-            this.isVariadic = true;
         }
         
         this.endAST(this.getParser().currentToken());

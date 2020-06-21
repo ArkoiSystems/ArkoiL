@@ -23,6 +23,8 @@ import com.arkoisystems.compiler.phases.parser.ast.types.BlockNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.RootNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.StructNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.TypeNode;
+import com.arkoisystems.compiler.phases.parser.ast.types.argument.ArgumentListNode;
+import com.arkoisystems.compiler.phases.parser.ast.types.argument.ArgumentNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.NumberNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.StringNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expression.ExpressionListNode;
@@ -33,7 +35,7 @@ import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expressi
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.identifier.IdentifierNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.identifier.types.AssignNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.identifier.types.FunctionCallNode;
-import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.identifier.types.StructCreationNode;
+import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.identifier.types.StructCreateNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.parameter.ParameterListNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.parameter.ParameterNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.statement.types.FunctionNode;
@@ -46,12 +48,16 @@ public interface IVisitor<T>
 {
     
     default T visit(@NotNull final ParserNode astNode) {
-        if (astNode instanceof FunctionCallNode)
+        if (astNode instanceof ArgumentNode)
+            return this.visit((ArgumentNode) astNode);
+        else if (astNode instanceof ArgumentListNode)
+            return this.visit((ArgumentListNode) astNode);
+        else if (astNode instanceof FunctionCallNode)
             return this.visit((FunctionCallNode) astNode);
         else if (astNode instanceof AssignNode)
             return this.visit((AssignNode) astNode);
-        else if (astNode instanceof StructCreationNode)
-            return this.visit((StructCreationNode) astNode);
+        else if (astNode instanceof StructCreateNode)
+            return this.visit((StructCreateNode) astNode);
         else if (astNode instanceof IdentifierNode)
             return this.visit((IdentifierNode) astNode);
         else if (astNode instanceof TypeNode)
@@ -102,6 +108,10 @@ public interface IVisitor<T>
     
     T visit(@NotNull final ParameterNode parameter);
     
+    T visit(@NotNull final ArgumentListNode argumentListNode);
+    
+    T visit(@NotNull final ArgumentNode argumentNode);
+    
     T visit(@NotNull final BlockNode blockNode);
     
     T visit(@NotNull final FunctionNode functionNode);
@@ -122,7 +132,7 @@ public interface IVisitor<T>
     
     T visit(@NotNull final AssignNode assignNode);
     
-    T visit(@NotNull final StructCreationNode structCreationNode);
+    T visit(@NotNull final StructCreateNode structCreateNode);
     
     T visit(@NotNull final ExpressionListNode expressionListNode);
     

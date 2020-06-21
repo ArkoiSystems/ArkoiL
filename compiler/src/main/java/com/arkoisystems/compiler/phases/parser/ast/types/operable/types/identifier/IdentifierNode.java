@@ -32,7 +32,7 @@ import com.arkoisystems.compiler.phases.parser.ast.types.TypeNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.OperableNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.identifier.types.AssignNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.identifier.types.FunctionCallNode;
-import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.identifier.types.StructCreationNode;
+import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.identifier.types.StructCreateNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.parameter.ParameterNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.statement.types.FunctionNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.statement.types.ImportNode;
@@ -198,7 +198,7 @@ public class IdentifierNode extends OperableNode
     
         if (AssignNode.GLOBAL_NODE.canParse(this.getParser(), 1)) {
             this.getParser().nextToken();
-        
+    
             return AssignNode.builder()
                     .parser(this.getParser())
                     .currentScope(this.getCurrentScope())
@@ -209,10 +209,10 @@ public class IdentifierNode extends OperableNode
                     .endToken(this.getEndToken())
                     .build()
                     .parse();
-        } else if (StructCreationNode.GLOBAL_NODE.canParse(this.getParser(), 1)) {
+        } else if (StructCreateNode.GLOBAL_NODE.canParse(this.getParser(), 1)) {
             this.getParser().nextToken();
-        
-            return StructCreationNode.builder()
+    
+            return StructCreateNode.builder()
                     .parser(this.getParser())
                     .currentScope(this.getCurrentScope())
                     .parentNode(this.getParentNode())

@@ -13,8 +13,11 @@ struct Vector {
 
 var test23 = Test {} 
 
+# TODO: Fix this reee
+# var test32 = "Hello World"
+
 fun main() {
-    var vector = Vector {}
+    var vector = Vector { x: 420 }
     vector.y = 1337
 
     vector.u.z = 1337
@@ -29,7 +32,7 @@ fun main() {
     printf("f(5.2) = 2 + x: %f\n", test3(2.3234242424240, 5.2444444))
     
     # const vector_1 = create(10, 10)
-    # const vector_2 = Vector { x: 10, y: 10 }
+    const vector_2 = Vector { y: 10, u: Test { z: 1337 } }
     
     # const vector_3 = vector_1 + vector_2
     
