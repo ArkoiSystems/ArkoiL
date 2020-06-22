@@ -77,10 +77,12 @@ public class StructCreateNode extends IdentifierNode
                     )
             );
         }
-        
+    
         this.startAST(this.getParser().currentToken());
         this.getParser().nextToken();
-        
+    
+        this.setCurrentScope(new SymbolTable(this.getCurrentScope()));
+    
         final ArgumentListNode argumentList = ArgumentListNode.builder()
                 .parentNode(this)
                 .currentScope(this.getCurrentScope())

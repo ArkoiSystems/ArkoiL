@@ -457,12 +457,11 @@ public class IRVisitor implements IVisitor<Object>
         } else if (targetNode instanceof VariableNode) {
             final VariableNode variableNode = (VariableNode) targetNode;
             valueTarget = this.visit(variableNode);
-        
+    
             if (variableNode.getTypeNode().getDataKind() == DataKind.STRUCT)
                 targetStruct = (StructNode) variableNode.getTypeNode().getTargetNode();
         } else throw new NullPointerException();
     
-        // TODO: 6/21/20 Add such a check in the scope visitor
         if (targetStruct == null && identifierNode.getNextIdentifier() != null)
             throw new NullPointerException();
     
@@ -481,15 +480,19 @@ public class IRVisitor implements IVisitor<Object>
             
                 final VariableNode variableNode = (VariableNode) targetNode;
                 final int index = targetStruct.getVariables().indexOf(variableNode);
-            
+    
                 currentValue = LLVM.LLVMBuildStructGEP(builderGen.getBuilderRef(), currentValue, index, "");
-            
+    
                 if (variableNode.getTypeNode().getDataKind() == DataKind.STRUCT)
                     targetStruct = (StructNode) variableNode.getTypeNode().getTargetNode();
             }
-        
+    
             currentIdentifier = currentIdentifier.getNextIdentifier();
         }
+    
+        final int typeKind = LLVM.LLVMGetTypeKind(LLVM.LLVMTypeOf(valueTarget));
+        if (!(identifierNode instanceof AssignNode) && typeKind == LLVM.LLVMPointerTypeKind)
+            currentValue = builderGen.buildLoad(currentValue);
     
         return currentValue;
     }
@@ -499,25 +502,21 @@ public class IRVisitor implements IVisitor<Object>
         Objects.requireNonNull(functionCallNode.getExpressionList(), "functionCallNode.expressions must not be null.");
         Objects.requireNonNull(functionCallNode.getIdentifier(), "functionCallNode.identifier must not be null.");
         Objects.requireNonNull(functionCallNode.getParser(), "functionCallNode.parser must not be null.");
-        
+    
         final BlockNode blockNode = functionCallNode.getParent(BlockNode.class);
         Objects.requireNonNull(blockNode, "blockNode must not be null.");
-        
+    
         final Object builderObject = this.getNodeRefs().getOrDefault(blockNode, null);
         Objects.requireNonNull(builderObject, "builderObject must not be null.");
-        
+    
         if (!(builderObject instanceof BuilderGen))
             throw new NullPointerException();
-        
+    
         final BuilderGen builderGen = (BuilderGen) builderObject;
-        final List<ParserNode> nodes = Objects.requireNonNullElse(
-                functionCallNode.getParser()
-                        .getCompilerClass()
-                        .getRootScope()
-                        .lookup(functionCallNode.getIdentifier().getTokenContent()),
-                new ArrayList<>()
-        );
-        
+        final List<ParserNode> nodes = functionCallNode.getParser().getCompilerClass()
+                .getRootScope()
+                .lookup(functionCallNode.getIdentifier().getTokenContent());
+    
         final List<FunctionNode> functions = nodes.stream()
                 .filter(node -> node instanceof FunctionNode)
                 .map(node -> (FunctionNode) node)
@@ -525,7 +524,7 @@ public class IRVisitor implements IVisitor<Object>
                 .collect(Collectors.toList());
         if (functions.size() != 1)
             throw new NullPointerException();
-        
+    
         final FunctionNode targetNode = functions.get(0);
         final LLVMValueRef functionRef = this.visit(targetNode).getFunctionRef();
         
@@ -538,7 +537,7 @@ public class IRVisitor implements IVisitor<Object>
             final Object object = this.visit(expression);
             if (!(object instanceof LLVMValueRef))
                 throw new NullPointerException();
-            
+    
             LLVMValueRef valueRef = (LLVMValueRef) object;
             if (index > targetNode.getParameterList().getParameters().size() - 1)
                 valueRef = this.promoteValue(
@@ -581,23 +580,21 @@ public class IRVisitor implements IVisitor<Object>
         Objects.requireNonNull(structCreateNode.getArgumentList(), "structCreationNode.argumentList must not be null.");
         Objects.requireNonNull(structCreateNode.getIdentifier(), "structCreationNode.identifier must not be null.");
         Objects.requireNonNull(structCreateNode.getParser(), "structCreationNode.parser must not be null.");
-        
-        final List<StructNode> structNodes = Objects.requireNonNullElse(
-                structCreateNode.getParser()
-                        .getCompilerClass()
-                        .getRootScope()
-                        .lookup(structCreateNode.getIdentifier().getTokenContent()),
-                new ArrayList<ParserNode>()
-        ).stream()
-                .filter(node -> node instanceof StructNode)
+    
+        final List<StructNode> structNodes = structCreateNode.getParser().getCompilerClass()
+                .getRootScope()
+                .lookup(
+                        structCreateNode.getIdentifier().getTokenContent(),
+                        parserNode -> parserNode instanceof StructNode
+                ).stream()
                 .map(node -> (StructNode) node)
                 .collect(Collectors.toList());
         if (structNodes.size() != 1)
             throw new NullPointerException();
-        
+    
         final StructNode targetStruct = structNodes.get(0);
         final LLVMTypeRef structRef = this.visit(targetStruct);
-        
+    
         final LLVMValueRef[] arguments = new LLVMValueRef[targetStruct.getVariables().size()];
         for (int argumentIndex = 0; argumentIndex < structCreateNode.getArgumentList().getArguments().size(); argumentIndex++) {
             final ArgumentNode argumentNode = structCreateNode.getArgumentList().getArguments().get(argumentIndex);
@@ -796,9 +793,12 @@ public class IRVisitor implements IVisitor<Object>
             @NotNull final TypeNode typeNode,
             @NotNull final LLVMValueRef valueRef
     ) {
+        if (typeNode.getPointers() > 0)
+            return valueRef;
+    
         if (typeNode.getDataKind() == DataKind.FLOAT)
             return LLVM.LLVMBuildFPExt(builderGen.getBuilderRef(), valueRef, this.getContextGen().makeDoubleType(), "");
-        else if (typeNode.getDataKind() == DataKind.INTEGER) {
+        else if (typeNode.getDataKind() == DataKind.INTEGER && typeNode.getBits() != 32) {
             if (typeNode.isSigned())
                 return LLVM.LLVMBuildSExt(builderGen.getBuilderRef(), valueRef, this.getContextGen().makeIntType(32), "");
             else
