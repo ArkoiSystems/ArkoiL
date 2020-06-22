@@ -73,8 +73,6 @@ public class ArgumentNode extends ParserNode
     public ArgumentNode parse() {
         Objects.requireNonNull(this.getParser(), "parser must not be null.");
         
-        this.startAST(this.getParser().currentToken());
-        
         if (this.getParser().matchesCurrentToken(TokenType.IDENTIFIER) == null) {
             final LexerToken currentToken = this.getParser().currentToken();
             return this.addError(
@@ -89,14 +87,17 @@ public class ArgumentNode extends ParserNode
                     )
             );
         }
-        
+    
         this.startAST(this.getParser().currentToken());
-        
+    
         final IdentifierToken identifierToken = (IdentifierToken) this.getParser().currentToken();
         Objects.requireNonNull(identifierToken, "identifierToken must not be null.");
-        
+    
         this.name = identifierToken;
-        
+    
+        Objects.requireNonNull(this.getCurrentScope(), "currentScope must not be null.");
+        this.getCurrentScope().insert(identifierToken.getTokenContent(), this);
+    
         if (this.getParser().matchesPeekToken(1, SymbolType.COLON) == null) {
             final LexerToken nextToken = this.getParser().nextToken();
             return this.addError(
