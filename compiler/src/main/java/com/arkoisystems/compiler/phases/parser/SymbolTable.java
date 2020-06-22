@@ -26,6 +26,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 @Getter
 public class SymbolTable
@@ -43,12 +45,27 @@ public class SymbolTable
         this.symbolTable = new HashMap<>();
     }
     
-    @Nullable
+    @NotNull
     public List<ParserNode> lookup(@NotNull final String id) {
-        return this.getSymbolTable().getOrDefault(id, this.getParentScope() != null ?
-                this.getParentScope().lookup(id) :
-                null
-        );
+        return this.lookup(id, node -> true);
+    }
+    
+    @NotNull
+    public List<ParserNode> lookup(
+            @NotNull final String id,
+            @NotNull final Predicate<ParserNode> predicate
+    ) {
+        if (this.getSymbolTable().containsKey(id)) {
+            final List<ParserNode> nodes = this.getSymbolTable().get(id);
+            final List<ParserNode> newList = nodes.stream()
+                    .filter(predicate)
+                    .collect(Collectors.toList());
+            if (!newList.isEmpty())
+                return newList;
+        }
+        if (this.getParentScope() != null)
+            return this.getParentScope().lookup(id);
+        return new ArrayList<>();
     }
     
     @Nullable

@@ -245,7 +245,7 @@ public class IdentifierNode extends OperableNode
     
         final List<ParserNode> nodes = this.getCurrentScope().lookup(this.getIdentifier().getTokenContent());
         ParserNode foundNode = null;
-        if (nodes != null && !nodes.isEmpty())
+        if (!nodes.isEmpty())
             foundNode = nodes.get(0);
     
         if (foundNode instanceof VariableNode) {
