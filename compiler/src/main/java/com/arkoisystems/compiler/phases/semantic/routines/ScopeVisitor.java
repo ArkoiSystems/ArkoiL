@@ -94,7 +94,24 @@ public class ScopeVisitor implements IVisitor<ParserNode>
     @NotNull
     @Override
     public ParameterNode visit(@NotNull final ParameterNode parameter) {
-        // TODO: 6/21/20 Check if there are multiple instances and also if the target variable is constant or not.
+        Objects.requireNonNull(parameter.getCurrentScope(), "parameter.currentScope must not be null.");
+        Objects.requireNonNull(parameter.getParser(), "parameter.parser must not be null.");
+        Objects.requireNonNull(parameter.getName(), "parameter.name must not be null.");
+    
+        final List<ParserNode> identifiers = Objects.requireNonNullElse(
+                parameter.getCurrentScope().lookupScope(parameter.getName().getTokenContent()),
+                new ArrayList<>()
+        );
+        if (identifiers.size() > 1)
+            return this.addError(
+                    null,
+                    parameter.getParser().getCompilerClass(),
+                    identifiers.get(0),
+                    "There already exists an identifier with the same name is this scope.",
+                    identifiers.subList(1, identifiers.size()),
+                    "Edit these identifiers to fix the problem."
+            );
+    
         return parameter;
     }
     
@@ -107,6 +124,7 @@ public class ScopeVisitor implements IVisitor<ParserNode>
     @Override
     public ParserNode visit(final @NotNull ArgumentNode argumentNode) {
         Objects.requireNonNull(argumentNode.getCurrentScope(), "parameter.currentScope must not be null.");
+        Objects.requireNonNull(argumentNode.getExpression(), "parameter.expression must not be null.");
         Objects.requireNonNull(argumentNode.getParser(), "parameter.parser must not be null.");
         Objects.requireNonNull(argumentNode.getName(), "parameter.name must not be null.");
         
@@ -123,7 +141,8 @@ public class ScopeVisitor implements IVisitor<ParserNode>
                     identifiers.subList(1, identifiers.size()),
                     "Edit these identifiers to fix the problem."
             );
-        
+    
+        this.visit(argumentNode.getExpression());
         return argumentNode;
     }
     
@@ -266,12 +285,11 @@ public class ScopeVisitor implements IVisitor<ParserNode>
         Objects.requireNonNull(identifierNode.getCurrentScope(), "identifierNode.currentScope must not be null.");
         Objects.requireNonNull(identifierNode.getIdentifier(), "identifierNode.identifier must not be null.");
         Objects.requireNonNull(identifierNode.getParser(), "identifierNode.parser must not be null.");
-        
-        final List<ParserNode> nodes = Objects.requireNonNullElse(identifierNode.getCurrentScope().lookup(
-                identifierNode.getIdentifier().getTokenContent()
-        ), new ArrayList<ParserNode>()).stream()
-                .filter(node -> !(node instanceof FunctionNode))
-                .collect(Collectors.toList());
+    
+        final List<ParserNode> nodes = new ArrayList<>(identifierNode.getCurrentScope().lookup(
+                identifierNode.getIdentifier().getTokenContent(),
+                parserNode -> !(parserNode instanceof FunctionNode) && !(parserNode instanceof ArgumentNode)
+        ));
         if (nodes.size() == 0)
             return this.addError(
                     null,
@@ -286,7 +304,7 @@ public class ScopeVisitor implements IVisitor<ParserNode>
         nodes.sort((o1, o2) -> o2.getStartLine() - o1.getStartLine());
         final ParserNode foundNode = nodes.get(0);
         identifierNode.setTargetNode(foundNode);
-        
+
         if (identifierNode.getNextIdentifier() != null) {
             if (foundNode instanceof ImportNode) {
                 final ImportNode importNode = (ImportNode) foundNode;
@@ -323,13 +341,10 @@ public class ScopeVisitor implements IVisitor<ParserNode>
         Objects.requireNonNull(functionCallNode.getCurrentScope(), "functionCallNode.currentScope must not be null.");
         Objects.requireNonNull(functionCallNode.getIdentifier(), "functionCallNode.identifier must not be null.");
         Objects.requireNonNull(functionCallNode.getParser(), "functionCallNode.parser must not be null.");
-        
-        final List<ParserNode> nodes = Objects.requireNonNullElse(functionCallNode.getParser()
-                        .getCompilerClass()
-                        .getRootScope()
-                        .lookup(functionCallNode.getIdentifier().getTokenContent()),
-                new ArrayList<>()
-        );
+    
+        final List<ParserNode> nodes = functionCallNode.getParser().getCompilerClass()
+                .getRootScope()
+                .lookup(functionCallNode.getIdentifier().getTokenContent());
         if (nodes.size() == 0)
             return this.addError(
                     null,
@@ -398,7 +413,55 @@ public class ScopeVisitor implements IVisitor<ParserNode>
     
     @Override
     public StructCreateNode visit(@NotNull final StructCreateNode structCreateNode) {
+        Objects.requireNonNull(structCreateNode.getTypeNode().getTargetNode(), "structCreateNode.typeNode.targetNode must not be null.");
+        Objects.requireNonNull(structCreateNode.getArgumentList(), "structCreateNode.argumentList must not be null.");
+        Objects.requireNonNull(structCreateNode.getParser(), "structCreateNode.parser must not be null.");
+    
         this.visit((IdentifierNode) structCreateNode);
+    
+        final ParserNode targetNode = structCreateNode.getTypeNode().getTargetNode();
+        if (!(targetNode instanceof StructNode))
+            return this.addError(
+                    null,
+                    structCreateNode.getParser().getCompilerClass(),
+                    structCreateNode,
+                    "The target node is'nt a struct."
+            );
+    
+        this.visit(structCreateNode.getArgumentList());
+    
+        final StructNode structNode = (StructNode) targetNode;
+        for (final ArgumentNode argumentNode : structCreateNode.getArgumentList().getArguments()) {
+            Objects.requireNonNull(argumentNode.getParser(), "argumentNode.parser must not be null.");
+            Objects.requireNonNull(argumentNode.getName(), "argumentNode.name must not be null.");
+        
+            final VariableNode variableNode = structNode.getVariables().stream()
+                    .filter(node -> {
+                        final String name = Objects.requireNonNull(node.getName(), "node.name must not be null.").getTokenContent();
+                        return name.equals(argumentNode.getName().getTokenContent());
+                    })
+                    .findFirst()
+                    .orElse(null);
+            if (variableNode == null)
+                return this.addError(
+                        null,
+                        argumentNode.getParser().getCompilerClass(),
+                        argumentNode,
+                        String.format(
+                                "Cannot resolve reference '%s'.",
+                                argumentNode.getName().getTokenContent()
+                        )
+                );
+        
+            if (variableNode.isConstant())
+                return this.addError(
+                        null,
+                        argumentNode.getParser().getCompilerClass(),
+                        argumentNode,
+                        "Can't re-assign a constant variable."
+                );
+        }
+    
         return structCreateNode;
     }
     
@@ -467,13 +530,10 @@ public class ScopeVisitor implements IVisitor<ParserNode>
         Objects.requireNonNull(structNode.getParser(), "structNode.parser must not be null.");
         Objects.requireNonNull(structNode.getParser().getRootNode().getCurrentScope(), "structNode.parser.rootNode.currentScope must not be null.");
         Objects.requireNonNull(structNode.getName(), "structNode.name must not be null.");
-        
-        final List<ParserNode> nodes = Objects.requireNonNullElse(structNode.getParser()
-                        .getRootNode()
-                        .getCurrentScope()
-                        .lookup(structNode.getName().getTokenContent()),
-                new ArrayList<>()
-        );
+    
+        final List<ParserNode> nodes = structNode.getParser().getRootNode()
+                .getCurrentScope()
+                .lookup(structNode.getName().getTokenContent());
         if (nodes.size() > 1)
             return this.addError(
                     null,

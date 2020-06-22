@@ -54,7 +54,6 @@ import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
@@ -86,10 +85,9 @@ public class TypeVisitor implements IVisitor<TypeNode>
         Objects.requireNonNull(typeNode.getParser(), "typeNode.parser must not be null.");
     
         if (typeNode.getTargetIdentifier() != null && typeNode.getTargetNode() == null) {
-            final List<ParserNode> nodes = Objects.requireNonNullElse(this.getSemantic().getCompilerClass().getRootScope().lookup(
-                    typeNode.getTargetIdentifier().getTokenContent()
-            ), new ArrayList<>());
-        
+            final List<ParserNode> nodes = this.getSemantic().getCompilerClass()
+                    .getRootScope()
+                    .lookup(typeNode.getTargetIdentifier().getTokenContent());
             final List<ParserNode> foundNodes = nodes.stream()
                     .filter(node -> {
                         if (node instanceof StructNode) {
@@ -315,7 +313,7 @@ public class TypeVisitor implements IVisitor<TypeNode>
             return this.addError(
                     ERROR_NODE,
                     assignNode.getParser().getCompilerClass(),
-                    assignNode.getExpression(),
+                    assignNode,
                     "Expression doesn't match the left type."
             );
     
@@ -324,6 +322,44 @@ public class TypeVisitor implements IVisitor<TypeNode>
     
     @Override
     public TypeNode visit(@NotNull final StructCreateNode structCreateNode) {
+        Objects.requireNonNull(structCreateNode.getTypeNode().getTargetNode(), "structCreateNode.typeNode.targetNode must not be null.");
+        Objects.requireNonNull(structCreateNode.getArgumentList(), "structCreateNode.argumentList must not be null.");
+        Objects.requireNonNull(structCreateNode.getParser(), "structCreateNode.parser must not be null.");
+    
+        final ParserNode targetNode = structCreateNode.getTypeNode().getTargetNode();
+        if (!(targetNode instanceof StructNode))
+            return this.visit(structCreateNode.getTypeNode());
+    
+        final StructNode structNode = (StructNode) targetNode;
+        for (final ArgumentNode argumentNode : structCreateNode.getArgumentList().getArguments()) {
+            Objects.requireNonNull(argumentNode.getExpression(), "argumentNode.expression must not be null.");
+            Objects.requireNonNull(argumentNode.getParser(), "argumentNode.parser must not be null.");
+            Objects.requireNonNull(argumentNode.getName(), "argumentNode.name must not be null.");
+        
+            final VariableNode variableNode = structNode.getVariables().stream()
+                    .filter(node -> {
+                        final String name = Objects.requireNonNull(node.getName(), "node.name must not be null.").getTokenContent();
+                        return name.equals(argumentNode.getName().getTokenContent());
+                    })
+                    .findFirst()
+                    .orElse(null);
+            if (variableNode == null)
+                continue;
+        
+            final TypeNode leftHandSide = this.visit(variableNode.getTypeNode());
+            final TypeNode rightHandSide = this.visit(argumentNode.getExpression());
+            if (leftHandSide == ERROR_NODE || rightHandSide == ERROR_NODE)
+                return ERROR_NODE;
+        
+            if (!rightHandSide.equals(leftHandSide))
+                return this.addError(
+                        ERROR_NODE,
+                        argumentNode.getParser().getCompilerClass(),
+                        argumentNode.getExpression(),
+                        "Expression doesn't match the left type."
+                );
+        }
+    
         return this.visit(structCreateNode.getTypeNode());
     }
     
