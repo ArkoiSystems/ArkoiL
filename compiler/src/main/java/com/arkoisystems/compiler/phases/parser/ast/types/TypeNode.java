@@ -158,7 +158,6 @@ public class TypeNode extends ParserNode
         final TypeNode typeNode = (TypeNode) other;
         if (this.getPointers() != typeNode.getPointers()) return false;
         if (this.isSigned() && !typeNode.isSigned()) return false;
-        if (this.getTargetNode() != typeNode.getTargetNode()) return false;
         if (this.getBits() != typeNode.getBits()) return false;
         return this.getDataKind() == typeNode.getDataKind();
     }

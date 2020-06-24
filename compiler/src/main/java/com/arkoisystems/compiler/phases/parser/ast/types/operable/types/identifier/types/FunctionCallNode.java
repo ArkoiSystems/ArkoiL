@@ -127,7 +127,7 @@ public class FunctionCallNode extends IdentifierNode
             final List<FunctionNode> functions = nodes.stream()
                     .filter(node -> node instanceof FunctionNode)
                     .map(node -> (FunctionNode) node)
-                    .filter(node -> node.equalsToIdentifier(this))
+                    .filter(node -> node.equalsToCall(this))
                     .collect(Collectors.toList());
     
             if (!functions.isEmpty())
