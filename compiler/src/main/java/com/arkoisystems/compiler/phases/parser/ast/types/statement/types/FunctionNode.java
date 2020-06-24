@@ -292,14 +292,14 @@ public class FunctionNode extends StatementNode
         return true;
     }
     
-    public boolean equalsToIdentifier(@NotNull final FunctionCallNode functionCallNode) {
+    public boolean equalsToCall(@NotNull final FunctionCallNode functionCallNode) {
         Objects.requireNonNull(functionCallNode.getIdentifier(), "identifierNode.identifier must not be null.");
         Objects.requireNonNull(this.getParameterList(), "parameters must not be null.");
         Objects.requireNonNull(this.getName(), "name must not be null.");
-        
+    
         if (!functionCallNode.getIdentifier().getTokenContent().equals(this.getName().getTokenContent()))
             return false;
-        
+    
         Objects.requireNonNull(functionCallNode.getExpressionList(), "identifierNode.expressions must not be null.");
         for (int index = 0; index < this.getParameterList().getParameters().size(); index++) {
             if (index >= functionCallNode.getExpressionList().getExpressions().size()) {

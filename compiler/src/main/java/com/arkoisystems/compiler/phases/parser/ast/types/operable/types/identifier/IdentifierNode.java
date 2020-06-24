@@ -55,7 +55,6 @@ public class IdentifierNode extends OperableNode
     
     public static IdentifierNode PARSER_NODE = new IdentifierNode(null, null, null, null, null, true, null, null);
     
-    @Printable(name = "target node")
     @Setter
     @Nullable
     private ParserNode targetNode;

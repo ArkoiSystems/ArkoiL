@@ -36,12 +36,13 @@ public class ErrorPosition
             final int leadingSpaces = sourceCode.length() - sourceCode.replaceAll("^\\s+", "").length();
             final int trailingSpaces = sourceCode.length() - sourceCode.replaceAll("\\s+$", "").length();
             
-            final String numberReplacement = " ".repeat(String.valueOf(endLine + 1).length());
+            final String numberReplacement = " ".repeat(biggestNumber);
             final String whitespacePrefix = " ".repeat(biggestNumber - String.valueOf(lineIndex + 1).length());
             
             int repeats = sourceCode.length() - leadingSpaces;
             if (repeats <= 0)
                 continue;
+    
             stringBuilder.append(indent)
                     .append("> ")
                     .append(whitespacePrefix)
@@ -52,7 +53,6 @@ public class ErrorPosition
             if (lineIndex == startLine) {
                 repeats = startLine == endLine ? this.getCharEnd() - this.getCharStart() : (sourceCode.length() - this.getCharStart()) - trailingSpaces;
                 stringBuilder.append(indent)
-                        .append(whitespacePrefix)
                         .append(numberReplacement)
                         .append("   │ ")
                         .append(" ".repeat(this.getCharStart()))
@@ -61,7 +61,6 @@ public class ErrorPosition
                         .append("\r\n");
             } else if (lineIndex == endLine) {
                 stringBuilder.append(indent)
-                        .append(whitespacePrefix)
                         .append(numberReplacement)
                         .append("   │ ")
                         .append(" ".repeat(leadingSpaces))
@@ -70,7 +69,6 @@ public class ErrorPosition
                         .append("\r\n");
             } else {
                 stringBuilder.append(indent)
-                        .append(whitespacePrefix)
                         .append(numberReplacement)
                         .append("   │ ")
                         .append(" ".repeat(leadingSpaces))
