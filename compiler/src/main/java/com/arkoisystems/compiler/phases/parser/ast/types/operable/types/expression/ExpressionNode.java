@@ -26,7 +26,7 @@ import com.arkoisystems.compiler.phases.parser.ast.ParserNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.OperableNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.NumberNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.StringNode;
-import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expression.types.AssignmentNode;
+import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expression.types.BinaryNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expression.types.ParenthesizedNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expression.types.PrefixNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.identifier.IdentifierNode;
@@ -58,12 +58,12 @@ public class ExpressionNode extends OperableNode
     @NotNull
     @Override
     public OperableNode parse() {
-        return AssignmentNode.builder()
+        return BinaryNode.builder()
                 .parser(this.getParser())
                 .parentNode(this.getParentNode())
                 .currentScope(this.getCurrentScope())
                 .build()
-                .parse();
+                .parseAdditive();
     }
     
     @SneakyThrows

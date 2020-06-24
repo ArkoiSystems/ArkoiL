@@ -32,7 +32,6 @@ import com.arkoisystems.compiler.phases.parser.ast.types.argument.ArgumentNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.NumberNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.StringNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expression.ExpressionListNode;
-import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expression.types.AssignmentNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expression.types.BinaryNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expression.types.ParenthesizedNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expression.types.PrefixNode;
@@ -368,29 +367,6 @@ public class TypeVisitor implements IVisitor<TypeNode>
     public TypeNode visit(@NotNull final ExpressionListNode expressionListNode) {
         expressionListNode.getExpressions().forEach(this::visit);
         return ERROR_NODE;
-    }
-    
-    @NotNull
-    @Override
-    public TypeNode visit(@NotNull final AssignmentNode assignmentNode) {
-        Objects.requireNonNull(assignmentNode.getLeftHandSide(), "assignmentExpression.leftSideOperable must not be null.");
-        Objects.requireNonNull(assignmentNode.getRightHandSide(), "assignmentExpression.rightSideOperable must not be null.");
-        Objects.requireNonNull(assignmentNode.getParser(), "assignmentExpression.parser must not be null.");
-        
-        final TypeNode leftHandSide = this.visit(assignmentNode.getLeftHandSide());
-        final TypeNode rightHandSide = this.visit(assignmentNode.getRightHandSide());
-        if (leftHandSide == ERROR_NODE || rightHandSide == ERROR_NODE)
-            return ERROR_NODE;
-    
-        if (!rightHandSide.equals(leftHandSide))
-            return this.addError(
-                    ERROR_NODE,
-                    assignmentNode.getParser().getCompilerClass(),
-                    assignmentNode.getRightHandSide(),
-                    "Right side doesn't match the left one."
-            );
-    
-        return this.visit(assignmentNode.getTypeNode());
     }
     
     @NotNull
