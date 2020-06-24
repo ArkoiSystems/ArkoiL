@@ -32,7 +32,6 @@ import com.arkoisystems.compiler.phases.parser.ast.types.argument.ArgumentNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.NumberNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.StringNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expression.ExpressionListNode;
-import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expression.types.AssignmentNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expression.types.BinaryNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expression.types.ParenthesizedNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expression.types.PrefixNode;
@@ -364,7 +363,7 @@ public class ScopeVisitor implements IVisitor<ParserNode>
                 .collect(Collectors.toList());
         
         final List<FunctionNode> matchingFunctions = functions.stream()
-                .filter(node -> node.equalsToIdentifier(functionCallNode))
+                .filter(node -> node.equalsToCall(functionCallNode))
                 .collect(Collectors.toList());
         if (matchingFunctions.size() == 0)
             return this.addError(
@@ -469,34 +468,6 @@ public class ScopeVisitor implements IVisitor<ParserNode>
     public ExpressionListNode visit(@NotNull final ExpressionListNode expressionListNode) {
         expressionListNode.getExpressions().forEach(this::visit);
         return expressionListNode;
-    }
-    
-    @Override
-    public AssignmentNode visit(@NotNull final AssignmentNode assignmentNode) {
-        Objects.requireNonNull(assignmentNode.getParser(), "assignmentNode.parser must not be null.");
-        Objects.requireNonNull(assignmentNode.getLeftHandSide(), "assignmentNode.leftHandSide must not be null.");
-        Objects.requireNonNull(assignmentNode.getRightHandSide(), "assignmentNode.rightHandSide must not be null.");
-    
-        final Object lhsObject = this.visit(assignmentNode.getLeftHandSide());
-        if (!(lhsObject instanceof VariableNode))
-            return this.addError(
-                    null,
-                    assignmentNode.getParser().getCompilerClass(),
-                    assignmentNode.getLeftHandSide(),
-                    "Left side isn't a variable."
-            );
-    
-        final VariableNode variableNode = (VariableNode) lhsObject;
-        if (variableNode.isConstant())
-            return this.addError(
-                    null,
-                    assignmentNode.getParser().getCompilerClass(),
-                    assignmentNode.getLeftHandSide(),
-                    "Can't re-assign a constant variable."
-            );
-    
-        this.visit(assignmentNode.getRightHandSide());
-        return assignmentNode;
     }
     
     @Override

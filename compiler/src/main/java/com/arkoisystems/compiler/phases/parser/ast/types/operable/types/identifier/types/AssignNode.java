@@ -37,7 +37,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
-// TODO: 6/19/20 Replace with AssignmentNode.
 @Getter
 public class AssignNode extends IdentifierNode
 {
