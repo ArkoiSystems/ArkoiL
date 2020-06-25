@@ -141,13 +141,13 @@ public class TypeVisitor implements IVisitor<TypeNode>
     }
     
     @Override
-    public TypeNode visit(final @NotNull ArgumentListNode argumentListNode) {
+    public TypeNode visit(@NotNull final ArgumentListNode argumentListNode) {
         argumentListNode.getArguments().forEach(this::visit);
         return ERROR_NODE;
     }
     
     @Override
-    public TypeNode visit(final @NotNull ArgumentNode argumentNode) {
+    public TypeNode visit(@NotNull final ArgumentNode argumentNode) {
         return this.visit(argumentNode.getTypeNode());
     }
     
@@ -447,7 +447,7 @@ public class TypeVisitor implements IVisitor<TypeNode>
     }
     
     @Override
-    public TypeNode visit(final @NotNull IfNode ifNode) {
+    public TypeNode visit(@NotNull final IfNode ifNode) {
         Objects.requireNonNull(ifNode.getExpression(), "ifNode.expression must not be null.");
         Objects.requireNonNull(ifNode.getBlock(), "ifNode.block must not be null.");
         
@@ -460,7 +460,7 @@ public class TypeVisitor implements IVisitor<TypeNode>
     }
     
     @Override
-    public TypeNode visit(final @NotNull ElseNode elseNode) {
+    public TypeNode visit(@NotNull final ElseNode elseNode) {
         Objects.requireNonNull(elseNode.getBlock(), "ifNode.block must not be null.");
         
         if (elseNode.getExpression() != null)
