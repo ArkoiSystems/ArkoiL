@@ -20,7 +20,6 @@ package com.arkoisystems.compiler.phases.irgen.builtin.function.types;
 
 import com.arkoisystems.compiler.phases.irgen.IRVisitor;
 import com.arkoisystems.compiler.phases.irgen.builtin.function.BIFunction;
-import com.arkoisystems.compiler.phases.irgen.llvm.BuilderGen;
 import com.arkoisystems.compiler.phases.irgen.llvm.FunctionGen;
 import com.arkoisystems.compiler.phases.irgen.llvm.ParameterGen;
 import com.arkoisystems.compiler.phases.parser.ast.ParserNode;
@@ -58,20 +57,17 @@ public class VaStartBI extends BIFunction
     
         final FunctionGen functionGen = irVisitor.visit(functionNode);
     
-        final BuilderGen builderGen = BuilderGen.builder()
-                .contextGen(irVisitor.getContextGen())
-                .build();
-        builderGen.setPositionAtEnd(irVisitor.getContextGen().appendBasicBlock(functionGen));
+        irVisitor.getBuilderGen().setPositionAtEnd(irVisitor.getContextGen().appendBasicBlock(functionGen));
     
         final LLVMValueRef functionRef = this.getLLVMVaStart(irVisitor, functionNode);
         final LLVMTypeRef listStructure = irVisitor.visit(structNodes.get(0));
-        final LLVMValueRef va_list = builderGen.buildAlloca(listStructure);
+        final LLVMValueRef va_list = irVisitor.getBuilderGen().buildAlloca(listStructure);
     
-        builderGen.buildFunctionCall(functionRef, builderGen.buildBitCast(
+        irVisitor.getBuilderGen().buildFunctionCall(functionRef, irVisitor.getBuilderGen().buildBitCast(
                 va_list,
                 LLVM.LLVMPointerType(irVisitor.getContextGen().makeIntType(8), 0)
         ));
-        builderGen.returnValue(va_list);
+        irVisitor.getBuilderGen().returnValue(va_list);
     }
     
     @Override

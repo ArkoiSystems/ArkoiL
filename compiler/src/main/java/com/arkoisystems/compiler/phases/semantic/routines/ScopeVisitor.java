@@ -34,17 +34,14 @@ import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.StringNo
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expression.ExpressionListNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expression.types.BinaryNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expression.types.ParenthesizedNode;
-import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expression.types.PrefixNode;
+import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expression.types.UnaryNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.identifier.IdentifierNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.identifier.types.AssignNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.identifier.types.FunctionCallNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.identifier.types.StructCreateNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.parameter.ParameterListNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.parameter.ParameterNode;
-import com.arkoisystems.compiler.phases.parser.ast.types.statement.types.FunctionNode;
-import com.arkoisystems.compiler.phases.parser.ast.types.statement.types.ImportNode;
-import com.arkoisystems.compiler.phases.parser.ast.types.statement.types.ReturnNode;
-import com.arkoisystems.compiler.phases.parser.ast.types.statement.types.VariableNode;
+import com.arkoisystems.compiler.phases.parser.ast.types.statement.types.*;
 import com.arkoisystems.compiler.phases.semantic.Semantic;
 import com.arkoisystems.compiler.visitor.IVisitor;
 import lombok.Getter;
@@ -489,11 +486,11 @@ public class ScopeVisitor implements IVisitor<ParserNode>
     }
     
     @Override
-    public PrefixNode visit(@NotNull final PrefixNode prefixNode) {
-        Objects.requireNonNull(prefixNode.getRightHandSide(), "prefixNode.rightHandSide must not be null.");
+    public UnaryNode visit(@NotNull final UnaryNode unaryNode) {
+        Objects.requireNonNull(unaryNode.getRightHandSide(), "prefixNode.rightHandSide must not be null.");
         
-        this.visit(prefixNode.getRightHandSide());
-        return prefixNode;
+        this.visit(unaryNode.getRightHandSide());
+        return unaryNode;
     }
     
     @Override
@@ -514,9 +511,35 @@ public class ScopeVisitor implements IVisitor<ParserNode>
                     nodes.subList(1, nodes.size()),
                     "Edit these identifiers to fix the problem."
             );
-        
+    
         structNode.getVariables().forEach(this::visit);
         return structNode;
+    }
+    
+    @Override
+    public IfNode visit(final @NotNull IfNode ifNode) {
+        Objects.requireNonNull(ifNode.getExpression(), "ifNode.expression must not be null.");
+        Objects.requireNonNull(ifNode.getBlock(), "ifNode.block must not be null.");
+        
+        this.visit(ifNode.getExpression());
+        this.visit(ifNode.getBlock());
+        
+        if (ifNode.getNextBranch() != null)
+            this.visit(ifNode.getNextBranch());
+        return ifNode;
+    }
+    
+    @Override
+    public ElseNode visit(final @NotNull ElseNode elseNode) {
+        Objects.requireNonNull(elseNode.getBlock(), "ifNode.block must not be null.");
+        
+        if (elseNode.getExpression() != null)
+            this.visit(elseNode.getExpression());
+        this.visit(elseNode.getBlock());
+        
+        if (elseNode.getNextBranch() != null)
+            this.visit(elseNode.getNextBranch());
+        return elseNode;
     }
     
     public <E> E addError(

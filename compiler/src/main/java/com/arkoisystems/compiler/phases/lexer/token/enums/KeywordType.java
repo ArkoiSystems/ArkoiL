@@ -33,7 +33,9 @@ public enum KeywordType
     FUN("fun"),
     AS("as"),
     STRUCT("struct"),
-    IMPORT("import");
+    IMPORT("import"),
+    IF("if"),
+    ELSE("else");
     
     @NotNull
     private final String name;
