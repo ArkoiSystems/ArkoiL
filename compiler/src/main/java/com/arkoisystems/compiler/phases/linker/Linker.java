@@ -94,7 +94,7 @@ public class Linker
             final lto_module_t ltoModule = LLVM.lto_module_create_from_memory(start, size);
             LLVM.lto_module_set_target_triple(ltoModule, targetTriple);
             LLVM.LLVMDisposeMemoryBuffer(memoryBuffer);
-            
+    
             if (LLVM.lto_codegen_add_module(codeGen, ltoModule)) {
                 this.setFailed(true);
                 return false;

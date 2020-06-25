@@ -215,13 +215,13 @@ public class IRVisitor implements IVisitor<Object>
     }
     
     @Override
-    public ArgumentListNode visit(final @NotNull ArgumentListNode argumentListNode) {
+    public ArgumentListNode visit(@NotNull final ArgumentListNode argumentListNode) {
         argumentListNode.getArguments().forEach(this::visit);
         return argumentListNode;
     }
     
     @Override
-    public LLVMValueRef visit(final @NotNull ArgumentNode argumentNode) {
+    public LLVMValueRef visit(@NotNull final ArgumentNode argumentNode) {
         Objects.requireNonNull(argumentNode.getExpression(), "argumentNode.expression must not be null.");
         
         final Object expressionObject = this.visit(argumentNode.getExpression());
@@ -739,7 +739,7 @@ public class IRVisitor implements IVisitor<Object>
     }
     
     @Override
-    public LLVMBasicBlockRef visit(final @NotNull IfNode ifNode) {
+    public LLVMBasicBlockRef visit(@NotNull final IfNode ifNode) {
         if (this.getNodeRefs().containsKey(ifNode)) {
             final Object recoveryObject = this.getNodeRefs().get(ifNode);
             if (!(recoveryObject instanceof LLVMBasicBlockRef))
@@ -805,7 +805,7 @@ public class IRVisitor implements IVisitor<Object>
     }
     
     @Override
-    public LLVMBasicBlockRef visit(final @NotNull ElseNode elseNode) {
+    public LLVMBasicBlockRef visit(@NotNull final ElseNode elseNode) {
         if (this.getNodeRefs().containsKey(elseNode)) {
             final Object recoveryObject = this.getNodeRefs().get(elseNode);
             if (!(recoveryObject instanceof LLVMBasicBlockRef))

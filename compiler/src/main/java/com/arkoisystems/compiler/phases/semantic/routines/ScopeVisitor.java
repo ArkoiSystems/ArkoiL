@@ -112,13 +112,13 @@ public class ScopeVisitor implements IVisitor<ParserNode>
     }
     
     @Override
-    public ArgumentListNode visit(final @NotNull ArgumentListNode argumentListNode) {
+    public ArgumentListNode visit(@NotNull final ArgumentListNode argumentListNode) {
         argumentListNode.getArguments().forEach(this::visit);
         return argumentListNode;
     }
     
     @Override
-    public ParserNode visit(final @NotNull ArgumentNode argumentNode) {
+    public ParserNode visit(@NotNull final ArgumentNode argumentNode) {
         Objects.requireNonNull(argumentNode.getCurrentScope(), "parameter.currentScope must not be null.");
         Objects.requireNonNull(argumentNode.getExpression(), "parameter.expression must not be null.");
         Objects.requireNonNull(argumentNode.getParser(), "parameter.parser must not be null.");
@@ -517,7 +517,7 @@ public class ScopeVisitor implements IVisitor<ParserNode>
     }
     
     @Override
-    public IfNode visit(final @NotNull IfNode ifNode) {
+    public IfNode visit(@NotNull final IfNode ifNode) {
         Objects.requireNonNull(ifNode.getExpression(), "ifNode.expression must not be null.");
         Objects.requireNonNull(ifNode.getBlock(), "ifNode.block must not be null.");
         
@@ -530,7 +530,7 @@ public class ScopeVisitor implements IVisitor<ParserNode>
     }
     
     @Override
-    public ElseNode visit(final @NotNull ElseNode elseNode) {
+    public ElseNode visit(@NotNull final ElseNode elseNode) {
         Objects.requireNonNull(elseNode.getBlock(), "ifNode.block must not be null.");
         
         if (elseNode.getExpression() != null)

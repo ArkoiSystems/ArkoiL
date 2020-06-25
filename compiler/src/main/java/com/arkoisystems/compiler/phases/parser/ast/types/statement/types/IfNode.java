@@ -59,14 +59,14 @@ public class IfNode extends StatementNode
     
     @Builder
     protected IfNode(
-            final @Nullable Parser parser,
-            final @Nullable ParserNode parentNode,
-            final @Nullable SymbolTable currentScope,
-            final @Nullable LexerToken startToken,
-            final @Nullable OperableNode expression,
-            final @Nullable BlockNode block,
-            final @Nullable ElseNode nextBranch,
-            final @Nullable LexerToken endToken
+            @Nullable final Parser parser,
+            @Nullable final ParserNode parentNode,
+            @Nullable final SymbolTable currentScope,
+            @Nullable final LexerToken startToken,
+            @Nullable final OperableNode expression,
+            @Nullable final BlockNode block,
+            @Nullable final ElseNode nextBranch,
+            @Nullable final LexerToken endToken
     ) {
         super(parser, parentNode, currentScope, startToken, endToken);
         
@@ -208,12 +208,12 @@ public class IfNode extends StatementNode
     }
     
     @Override
-    public void accept(final @NotNull IVisitor<?> visitor) {
+    public void accept(@NotNull final IVisitor<?> visitor) {
         visitor.visit(this);
     }
     
     @Override
-    public boolean canParse(final @NotNull Parser parser, final int offset) {
+    public boolean canParse(@NotNull final Parser parser, final int offset) {
         return parser.matchesPeekToken(offset, KeywordType.IF) != null;
     }
     
