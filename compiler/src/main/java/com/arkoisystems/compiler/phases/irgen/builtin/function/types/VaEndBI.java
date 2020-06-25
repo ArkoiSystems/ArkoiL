@@ -20,7 +20,6 @@ package com.arkoisystems.compiler.phases.irgen.builtin.function.types;
 
 import com.arkoisystems.compiler.phases.irgen.IRVisitor;
 import com.arkoisystems.compiler.phases.irgen.builtin.function.BIFunction;
-import com.arkoisystems.compiler.phases.irgen.llvm.BuilderGen;
 import com.arkoisystems.compiler.phases.irgen.llvm.FunctionGen;
 import com.arkoisystems.compiler.phases.irgen.llvm.ParameterGen;
 import com.arkoisystems.compiler.phases.parser.ast.types.statement.types.FunctionNode;
@@ -39,20 +38,17 @@ public class VaEndBI extends BIFunction
             @NotNull final FunctionNode functionNode
     ) {
         Objects.requireNonNull(functionNode.getParser(), "functionNode.parser must not be null.");
-        
+    
         final FunctionGen functionGen = irVisitor.visit(functionNode);
         final LLVMValueRef functionRef = this.getLLVMVaEnd(irVisitor, functionNode);
     
-        final BuilderGen builderGen = BuilderGen.builder()
-                .contextGen(irVisitor.getContextGen())
-                .build();
-        builderGen.setPositionAtEnd(irVisitor.getContextGen().appendBasicBlock(functionGen));
-        
-        builderGen.buildFunctionCall(functionRef, builderGen.buildBitCast(
+        irVisitor.getBuilderGen().setPositionAtEnd(irVisitor.getContextGen().appendBasicBlock(functionGen));
+    
+        irVisitor.getBuilderGen().buildFunctionCall(functionRef, irVisitor.getBuilderGen().buildBitCast(
                 functionGen.getParameter(0),
                 LLVM.LLVMPointerType(irVisitor.getContextGen().makeIntType(8), 0)
         ));
-        builderGen.returnVoid();
+        irVisitor.getBuilderGen().returnVoid();
     }
     
     @Override

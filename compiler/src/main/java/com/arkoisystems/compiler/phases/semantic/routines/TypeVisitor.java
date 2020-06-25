@@ -34,17 +34,14 @@ import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.StringNo
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expression.ExpressionListNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expression.types.BinaryNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expression.types.ParenthesizedNode;
-import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expression.types.PrefixNode;
+import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expression.types.UnaryNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.identifier.IdentifierNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.identifier.types.AssignNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.identifier.types.FunctionCallNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.identifier.types.StructCreateNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.parameter.ParameterListNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.parameter.ParameterNode;
-import com.arkoisystems.compiler.phases.parser.ast.types.statement.types.FunctionNode;
-import com.arkoisystems.compiler.phases.parser.ast.types.statement.types.ImportNode;
-import com.arkoisystems.compiler.phases.parser.ast.types.statement.types.ReturnNode;
-import com.arkoisystems.compiler.phases.parser.ast.types.statement.types.VariableNode;
+import com.arkoisystems.compiler.phases.parser.ast.types.statement.types.*;
 import com.arkoisystems.compiler.phases.semantic.Semantic;
 import com.arkoisystems.compiler.visitor.IVisitor;
 import lombok.Getter;
@@ -422,31 +419,57 @@ public class TypeVisitor implements IVisitor<TypeNode>
     
     @NotNull
     @Override
-    public TypeNode visit(@NotNull final PrefixNode prefixNode) {
-        Objects.requireNonNull(prefixNode.getRightHandSide(), "prefixExpressionNode.rightSideOperable must not be null.");
-        Objects.requireNonNull(prefixNode.getOperatorType(), "prefixExpressionNode.prefixOperatorType must not be null.");
-        Objects.requireNonNull(prefixNode.getParser(), "prefixExpressionNode.parser must not be null.");
+    public TypeNode visit(@NotNull final UnaryNode unaryNode) {
+        Objects.requireNonNull(unaryNode.getRightHandSide(), "prefixExpressionNode.rightSideOperable must not be null.");
+        Objects.requireNonNull(unaryNode.getOperatorType(), "prefixExpressionNode.prefixOperatorType must not be null.");
+        Objects.requireNonNull(unaryNode.getParser(), "prefixExpressionNode.parser must not be null.");
         
-        final TypeNode rightHandSide = this.visit(prefixNode.getRightHandSide());
+        final TypeNode rightHandSide = this.visit(unaryNode.getRightHandSide());
         if (rightHandSide == ERROR_NODE)
             return ERROR_NODE;
-    
+        
         Objects.requireNonNull(rightHandSide.getDataKind(), "rightHandSide.dataKind must not be null.");
         if (!rightHandSide.getDataKind().isNumeric())
             return this.addError(
                     ERROR_NODE,
-                    prefixNode.getParser().getCompilerClass(),
-                    prefixNode,
+                    unaryNode.getParser().getCompilerClass(),
+                    unaryNode,
                     "Right side is not numeric."
             );
-    
-        return this.visit(prefixNode.getTypeNode());
+        
+        return this.visit(unaryNode.getTypeNode());
     }
     
     @Override
     public TypeNode visit(@NotNull final StructNode structNode) {
         structNode.getVariables().forEach(this::visit);
         return this.visit(structNode.getTypeNode());
+    }
+    
+    @Override
+    public TypeNode visit(final @NotNull IfNode ifNode) {
+        Objects.requireNonNull(ifNode.getExpression(), "ifNode.expression must not be null.");
+        Objects.requireNonNull(ifNode.getBlock(), "ifNode.block must not be null.");
+        
+        this.visit(ifNode.getExpression());
+        this.visit(ifNode.getBlock());
+        
+        if (ifNode.getNextBranch() != null)
+            this.visit(ifNode.getNextBranch());
+        return this.visit(ifNode.getTypeNode());
+    }
+    
+    @Override
+    public TypeNode visit(final @NotNull ElseNode elseNode) {
+        Objects.requireNonNull(elseNode.getBlock(), "ifNode.block must not be null.");
+        
+        if (elseNode.getExpression() != null)
+            this.visit(elseNode.getExpression());
+        this.visit(elseNode.getBlock());
+        
+        if (elseNode.getNextBranch() != null)
+            this.visit(elseNode.getNextBranch());
+        return this.visit(elseNode.getTypeNode());
     }
     
     public <E> E addError(

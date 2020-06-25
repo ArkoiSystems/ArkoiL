@@ -29,6 +29,7 @@ import com.arkoisystems.compiler.phases.parser.ast.ParserNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.OperableNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expression.ExpressionNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.identifier.IdentifierNode;
+import com.arkoisystems.compiler.phases.parser.ast.types.statement.types.IfNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.statement.types.ReturnNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.statement.types.VariableNode;
 import com.arkoisystems.compiler.visitor.IVisitor;
@@ -115,7 +116,14 @@ public class BlockNode extends ParserNode
                 break;
     
             final ParserNode parserNode;
-            if (VariableNode.GLOBAL_NODE.canParse(this.getParser(), 0)) {
+            if (IfNode.GLOBAL_NODE.canParse(this.getParser(), 0)) {
+                parserNode = IfNode.builder()
+                        .parser(this.getParser())
+                        .currentScope(this.getCurrentScope())
+                        .parentNode(this)
+                        .build()
+                        .parse();
+            } else if (VariableNode.GLOBAL_NODE.canParse(this.getParser(), 0)) {
                 final VariableNode variableNode = VariableNode.builder()
                         .parser(this.getParser())
                         .currentScope(this.getCurrentScope())
@@ -230,9 +238,8 @@ public class BlockNode extends ParserNode
                     .filter(node -> node instanceof ReturnNode)
                     .map(node -> (ReturnNode) node)
                     .collect(Collectors.toList());
-            
-            if (returns.size() == 0) {
-                typeNode = TypeNode.builder()
+            if (returns.size() == 0)
+                return TypeNode.builder()
                         .parentNode(this)
                         .currentScope(this.getCurrentScope())
                         .parser(this.getParser())
@@ -240,17 +247,8 @@ public class BlockNode extends ParserNode
                         .startToken(this.getStartToken())
                         .endToken(this.getEndToken())
                         .build();
-                this.getNodes().add(ReturnNode.builder()
-                        .parentNode(this)
-                        .currentScope(this.getCurrentScope())
-                        .parser(this.getParser())
-                        .startToken(this.getStartToken())
-                        .endToken(this.getEndToken())
-                        .build());
-            } else {
-                final ReturnNode returnNode = returns.get(0);
-                typeNode = returnNode.getTypeNode();
-            }
+    
+            return returns.get(0).getTypeNode();
         }
         return typeNode;
     }

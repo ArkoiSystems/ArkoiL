@@ -30,17 +30,14 @@ import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.StringNo
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expression.ExpressionListNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expression.types.BinaryNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expression.types.ParenthesizedNode;
-import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expression.types.PrefixNode;
+import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expression.types.UnaryNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.identifier.IdentifierNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.identifier.types.AssignNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.identifier.types.FunctionCallNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.identifier.types.StructCreateNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.parameter.ParameterListNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.parameter.ParameterNode;
-import com.arkoisystems.compiler.phases.parser.ast.types.statement.types.FunctionNode;
-import com.arkoisystems.compiler.phases.parser.ast.types.statement.types.ImportNode;
-import com.arkoisystems.compiler.phases.parser.ast.types.statement.types.ReturnNode;
-import com.arkoisystems.compiler.phases.parser.ast.types.statement.types.VariableNode;
+import com.arkoisystems.compiler.phases.parser.ast.types.statement.types.*;
 import org.jetbrains.annotations.NotNull;
 
 public interface IVisitor<T>
@@ -87,10 +84,14 @@ public interface IVisitor<T>
             return this.visit((BinaryNode) astNode);
         else if (astNode instanceof ParenthesizedNode)
             return this.visit((ParenthesizedNode) astNode);
-        else if (astNode instanceof PrefixNode)
-            return this.visit((PrefixNode) astNode);
+        else if (astNode instanceof UnaryNode)
+            return this.visit((UnaryNode) astNode);
         else if (astNode instanceof StructNode)
             return this.visit((StructNode) astNode);
+        else if (astNode instanceof IfNode)
+            return this.visit((IfNode) astNode);
+        else if (astNode instanceof ElseNode)
+            return this.visit((ElseNode) astNode);
     
         throw new NullPointerException(astNode.getClass().getSimpleName());
     }
@@ -137,6 +138,10 @@ public interface IVisitor<T>
     
     T visit(@NotNull final ParenthesizedNode parenthesizedNode);
     
-    T visit(@NotNull final PrefixNode prefixNode);
+    T visit(@NotNull final UnaryNode unaryNode);
+    
+    T visit(@NotNull final IfNode ifNode);
+    
+    T visit(@NotNull final ElseNode elseNode);
     
 }
