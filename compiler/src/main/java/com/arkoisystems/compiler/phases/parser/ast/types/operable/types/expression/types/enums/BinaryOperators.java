@@ -3,10 +3,15 @@ package com.arkoisystems.compiler.phases.parser.ast.types.operable.types.express
 public enum BinaryOperators
 {
     
-    ADD,
-    SUB,
-    MUL,
-    DIV,
-    MOD
+    ADDITION,
+    SUBTRACTION,
+    MULTIPLICATION,
+    DIVISION,
+    REMAINING,
+    
+    LESS_THAN,
+    GREATER_THAN,
+    LESS_EQUAL_THAN,
+    GREATER_EQUAL_THAN
     
 }

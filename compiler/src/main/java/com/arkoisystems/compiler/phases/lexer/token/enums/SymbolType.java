@@ -22,9 +22,6 @@ public enum SymbolType
     COMMA(","),
     PERIOD("."),
     
-    OPENING_ARROW("<"),
-    CLOSING_ARROW(">"),
-    
     QUESTION_MARK("?");
     
     @Getter

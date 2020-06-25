@@ -28,7 +28,7 @@ import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.NumberNo
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.StringNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expression.types.BinaryNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expression.types.ParenthesizedNode;
-import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expression.types.PrefixNode;
+import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expression.types.UnaryNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.identifier.IdentifierNode;
 import lombok.Builder;
 import lombok.Getter;
@@ -63,16 +63,16 @@ public class ExpressionNode extends OperableNode
                 .parentNode(this.getParentNode())
                 .currentScope(this.getCurrentScope())
                 .build()
-                .parseAdditive();
+                .parseRelational();
     }
     
     @SneakyThrows
     @NotNull
     protected OperableNode parseOperable() {
         Objects.requireNonNull(this.getParser(), "parser must not be null.");
-        
-        if (PrefixNode.GLOBAL_NODE.canParse(this.getParser(), 0)) {
-            return PrefixNode.builder()
+    
+        if (UnaryNode.GLOBAL_NODE.canParse(this.getParser(), 0)) {
+            return UnaryNode.builder()
                     .parser(this.getParser())
                     .currentScope(this.getCurrentScope())
                     .parentNode(this)
@@ -128,7 +128,7 @@ public class ExpressionNode extends OperableNode
     @Override
     public boolean canParse(@NotNull final Parser parser, final int offset) {
         return super.canParse(parser, offset) ||
-                PrefixNode.GLOBAL_NODE.canParse(parser, offset) ||
+                UnaryNode.GLOBAL_NODE.canParse(parser, offset) ||
                 ParenthesizedNode.GLOBAL_NODE.canParse(parser, offset);
     }
     

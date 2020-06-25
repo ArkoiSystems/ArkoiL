@@ -80,6 +80,78 @@ public class BinaryNode extends ExpressionNode
     }
     
     @NotNull
+    public OperableNode parseRelational() {
+        Objects.requireNonNull(this.getParser(), "parser must not be null.");
+        
+        OperableNode lhsNode = this.parseAdditive();
+        if (lhsNode.isFailed())
+            return lhsNode;
+        
+        while (true) {
+            if (this.getParser().matchesPeekToken(1, OperatorType.CLOSING_ARROW) != null) {
+                this.getParser().nextToken(2);
+                
+                final OperableNode rhsNode = this.parseRelational();
+                lhsNode = BinaryNode.builder()
+                        .parser(this.getParser())
+                        .currentScope(this.getCurrentScope())
+                        .parentNode(this)
+                        .startToken(lhsNode.getStartToken())
+                        .leftHandSide(lhsNode)
+                        .operatorType(BinaryOperators.GREATER_THAN)
+                        .rightHandSide(rhsNode)
+                        .endToken(rhsNode.getEndToken())
+                        .build();
+            } else if (this.getParser().matchesPeekToken(1, OperatorType.OPENING_ARROW) != null) {
+                this.getParser().nextToken(2);
+                
+                final OperableNode rhsNode = this.parseRelational();
+                lhsNode = BinaryNode.builder()
+                        .parser(this.getParser())
+                        .currentScope(this.getCurrentScope())
+                        .parentNode(this)
+                        .startToken(lhsNode.getStartToken())
+                        .leftHandSide(lhsNode)
+                        .operatorType(BinaryOperators.LESS_THAN)
+                        .rightHandSide(rhsNode)
+                        .endToken(rhsNode.getEndToken())
+                        .build();
+            } else if (this.getParser().matchesPeekToken(1, OperatorType.CLOSING_ARROW_EQUALS) != null) {
+                this.getParser().nextToken(2);
+                
+                final OperableNode rhsNode = this.parseRelational();
+                lhsNode = BinaryNode.builder()
+                        .parser(this.getParser())
+                        .currentScope(this.getCurrentScope())
+                        .parentNode(this)
+                        .startToken(lhsNode.getStartToken())
+                        .leftHandSide(lhsNode)
+                        .operatorType(BinaryOperators.GREATER_EQUAL_THAN)
+                        .rightHandSide(rhsNode)
+                        .endToken(rhsNode.getEndToken())
+                        .build();
+            } else if (this.getParser().matchesPeekToken(1, OperatorType.OPENING_ARROW_EQUALS) != null) {
+                this.getParser().nextToken(2);
+                
+                final OperableNode rhsNode = this.parseRelational();
+                lhsNode = BinaryNode.builder()
+                        .parser(this.getParser())
+                        .currentScope(this.getCurrentScope())
+                        .parentNode(this)
+                        .startToken(lhsNode.getStartToken())
+                        .leftHandSide(lhsNode)
+                        .operatorType(BinaryOperators.LESS_EQUAL_THAN)
+                        .rightHandSide(rhsNode)
+                        .endToken(rhsNode.getEndToken())
+                        .build();
+            } else {
+                this.setEndToken(this.getParser().currentToken());
+                return lhsNode;
+            }
+        }
+    }
+    
+    @NotNull
     public OperableNode parseAdditive() {
         Objects.requireNonNull(this.getParser(), "parser must not be null.");
         
@@ -98,7 +170,7 @@ public class BinaryNode extends ExpressionNode
                         .parentNode(this)
                         .startToken(lhsNode.getStartToken())
                         .leftHandSide(lhsNode)
-                        .operatorType(BinaryOperators.ADD)
+                        .operatorType(BinaryOperators.ADDITION)
                         .rightHandSide(rhsNode)
                         .endToken(rhsNode.getEndToken())
                         .build();
@@ -112,7 +184,7 @@ public class BinaryNode extends ExpressionNode
                         .parentNode(this)
                         .startToken(lhsNode.getStartToken())
                         .leftHandSide(lhsNode)
-                        .operatorType(BinaryOperators.SUB)
+                        .operatorType(BinaryOperators.SUBTRACTION)
                         .rightHandSide(rhsNode)
                         .endToken(rhsNode.getEndToken())
                         .build();
@@ -143,7 +215,7 @@ public class BinaryNode extends ExpressionNode
                         .parentNode(this)
                         .startToken(operableNode.getStartToken())
                         .leftHandSide(operableNode)
-                        .operatorType(BinaryOperators.MUL)
+                        .operatorType(BinaryOperators.MULTIPLICATION)
                         .rightHandSide(rhsNode)
                         .endToken(rhsNode.getEndToken())
                         .build();
@@ -157,7 +229,7 @@ public class BinaryNode extends ExpressionNode
                         .parentNode(this)
                         .startToken(operableNode.getStartToken())
                         .leftHandSide(operableNode)
-                        .operatorType(BinaryOperators.DIV)
+                        .operatorType(BinaryOperators.DIVISION)
                         .rightHandSide(rhsNode)
                         .endToken(rhsNode.getEndToken())
                         .build();
@@ -171,7 +243,7 @@ public class BinaryNode extends ExpressionNode
                         .parentNode(this)
                         .startToken(operableNode.getStartToken())
                         .leftHandSide(operableNode)
-                        .operatorType(BinaryOperators.MOD)
+                        .operatorType(BinaryOperators.REMAINING)
                         .rightHandSide(rhsNode)
                         .endToken(rhsNode.getEndToken())
                         .build();
