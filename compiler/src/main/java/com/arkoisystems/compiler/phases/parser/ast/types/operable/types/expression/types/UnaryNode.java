@@ -38,10 +38,10 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Objects;
 
 @Getter
-public class PrefixNode extends ExpressionNode
+public class UnaryNode extends ExpressionNode
 {
     
-    public static PrefixNode GLOBAL_NODE = new PrefixNode(null, null, null, null, null, null, null);
+    public static UnaryNode GLOBAL_NODE = new UnaryNode(null, null, null, null, null, null, null);
     
     @Printable(name = "operation")
     @Nullable
@@ -52,7 +52,7 @@ public class PrefixNode extends ExpressionNode
     private OperableNode rightHandSide;
     
     @Builder
-    protected PrefixNode(
+    protected UnaryNode(
             @Nullable final Parser parser,
             @Nullable final ParserNode parentNode,
             @Nullable final SymbolTable currentScope,
@@ -69,11 +69,11 @@ public class PrefixNode extends ExpressionNode
     
     @NotNull
     @Override
-    public PrefixNode parse() {
+    public UnaryNode parse() {
         Objects.requireNonNull(this.getParser(), "parser must not be null.");
-    
+        
         this.startAST(this.getParser().currentToken());
-    
+        
         if (this.getParser().matchesCurrentToken(OperatorType.MINUS) == null) {
             final LexerToken currentToken = this.getParser().currentToken();
             return this.addError(

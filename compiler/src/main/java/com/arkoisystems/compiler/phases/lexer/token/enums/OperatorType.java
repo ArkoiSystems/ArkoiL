@@ -39,7 +39,11 @@ public enum OperatorType
     SLASH_EQUALS("/="),
     SLASH("/"),
     PERCENT_EQUALS("%="),
-    PERCENT("%");
+    PERCENT("%"),
+    OPENING_ARROW("<"),
+    CLOSING_ARROW(">"),
+    OPENING_ARROW_EQUALS("<="),
+    CLOSING_ARROW_EQUALS(">=");
     
     @NotNull
     private final String name;
