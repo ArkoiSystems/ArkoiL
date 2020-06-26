@@ -375,23 +375,22 @@ public class IRVisitor implements IVisitor<Object>
     @Override
     public LLVMValueRef visit(@NotNull final StringNode stringNode) {
         Objects.requireNonNull(stringNode.getStringToken(), "stringNode.stringToken must not be null.");
+        final LLVMValueRef stringConstant = LLVM.LLVMConstString(
+                stringNode.getStringToken().getTokenContent(),
+                stringNode.getStringToken().getTokenContent().length(),
+                0
+        );
+    
         final LLVMValueRef variableRef = LLVM.LLVMAddGlobal(
                 this.getModuleGen().getModuleRef(),
-                LLVM.LLVMArrayType(
-                        this.getContextGen().makeIntType(8),
-                        stringNode.getStringToken().getTokenContent().length()
-                ),
+                LLVM.LLVMTypeOf(stringConstant),
                 ""
         );
     
         LLVM.LLVMSetLinkage(variableRef, LLVM.LLVMPrivateLinkage);
         LLVM.LLVMSetUnnamedAddress(variableRef, LLVM.LLVMGlobalUnnamedAddr);
         LLVM.LLVMSetGlobalConstant(variableRef, 1);
-        LLVM.LLVMSetInitializer(variableRef, LLVM.LLVMConstString(
-                stringNode.getStringToken().getTokenContent(),
-                stringNode.getStringToken().getTokenContent().length(),
-                1
-        ));
+        LLVM.LLVMSetInitializer(variableRef, stringConstant);
     
         return LLVM.LLVMConstInBoundsGEP(variableRef, new PointerPointer<>(
                 LLVM.LLVMConstInt(this.getContextGen().makeIntType(32), 0, 1),
