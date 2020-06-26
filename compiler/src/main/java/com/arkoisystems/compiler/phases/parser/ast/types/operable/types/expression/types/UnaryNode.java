@@ -45,7 +45,7 @@ public class UnaryNode extends ExpressionNode
     
     @Printable(name = "operation")
     @Nullable
-    private final PrefixOperators operatorType;
+    private PrefixOperators operatorType;
     
     @Printable(name = "rhs")
     @Nullable
@@ -89,6 +89,7 @@ public class UnaryNode extends ExpressionNode
             );
         }
     
+        this.operatorType = PrefixOperators.NEGATE;
         this.getParser().nextToken();
     
         final OperableNode operableNode = this.parseOperable();
