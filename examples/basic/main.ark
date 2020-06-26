@@ -5,10 +5,18 @@ fun main() {
     
     printf(" - %d\n", test)
     
-    if(3 < 2) { 
+    if(test < 2) { 
         printf("1) Ok..\n")
-    } else if(2 >= 2) { 
+    } else if(test >= 2) { 
         printf("2) Ok..??\n")
+        
+        if(test > 1) {
+            printf("Ya yeet\n")
+        } else {
+            printf("Naa\n")
+        }
+        
+        printf("Okay\n")
     }
     
     return 0

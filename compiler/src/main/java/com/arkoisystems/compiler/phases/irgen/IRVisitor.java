@@ -60,6 +60,7 @@ import org.bytedeco.llvm.LLVM.LLVMTypeRef;
 import org.bytedeco.llvm.LLVM.LLVMValueRef;
 import org.bytedeco.llvm.global.LLVM;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -181,6 +182,7 @@ public class IRVisitor implements IVisitor<Object>
             this.setFailed(true);
         }
     
+        this.getModuleGen().dump();
         return moduleGen;
     }
     
@@ -759,22 +761,24 @@ public class IRVisitor implements IVisitor<Object>
         
         final LLVMValueRef expressionValue = (LLVMValueRef) expressionObject;
         final FunctionGen functionGen = this.visit(functionNode);
-        
+    
         final LLVMBasicBlockRef recoveryBranch = this.getContextGen().appendBasicBlock(functionGen);
         this.getNodeRefs().put(ifNode, recoveryBranch);
-        
+    
         final LLVMBasicBlockRef startBranch = this.getBuilderGen().getCurrentBlock();
         Objects.requireNonNull(startBranch, "startBranch must not be null.");
-        
+    
         final LLVMBasicBlockRef thenBranch = this.visit(ifNode.getBlock());
         this.getBuilderGen().setPositionAtEnd(thenBranch);
-        LLVM.LLVMBuildBr(this.getBuilderGen().getBuilderRef(), recoveryBranch);
-        
+        final LLVMValueRef lastInstruction = LLVM.LLVMGetLastInstruction(thenBranch);
+        if (lastInstruction == null || LLVM.LLVMGetInstructionOpcode(lastInstruction) != LLVM.LLVMBr)
+            LLVM.LLVMBuildBr(this.getBuilderGen().getBuilderRef(), recoveryBranch);
+    
         final LLVMBasicBlockRef elseBranch;
         if (ifNode.getNextBranch() != null)
             elseBranch = this.visit(ifNode.getNextBranch());
         else elseBranch = recoveryBranch;
-        
+    
         this.getBuilderGen().setPositionAtEnd(startBranch);
         LLVM.LLVMBuildCondBr(
                 this.getBuilderGen().getBuilderRef(),
@@ -782,25 +786,58 @@ public class IRVisitor implements IVisitor<Object>
                 thenBranch,
                 elseBranch
         );
-        
+    
         this.getBuilderGen().setPositionAtEnd(recoveryBranch);
-        
-        LLVMBasicBlockRef lastBranch = null;
-        if (ifNode.getNextBranch() != null) {
-            ElseNode currentElse = ifNode.getNextBranch();
-            while (currentElse != null) {
-                if (currentElse.getNextBranch() == null) {
-                    lastBranch = this.visit(currentElse);
+    
+        final LLVMBasicBlockRef lastBranch = ifNode.getNextBranch() != null ?
+                this.getLastBlock(ifNode.getNextBranch()) :
+                thenBranch;
+        if (lastBranch != null)
+            LLVM.LLVMMoveBasicBlockAfter(recoveryBranch, lastBranch);
+    
+        final List<IfNode> childNodes = ifNode.getBlock().getNodes().stream()
+                .filter(node -> node instanceof IfNode)
+                .map(node -> (IfNode) node)
+                .collect(Collectors.toList());
+    
+        final LLVMBasicBlockRef currentBlock = this.getBuilderGen().getCurrentBlock();
+        for (final IfNode childNode : childNodes) {
+            final LLVMBasicBlockRef childRecovery = this.visit(childNode);
+            this.getBuilderGen().setPositionAtEnd(childRecovery);
+            LLVM.LLVMBuildBr(this.getBuilderGen().getBuilderRef(), recoveryBranch);
+        }
+    
+        if (currentBlock != null)
+            this.getBuilderGen().setCurrentBlock(currentBlock);
+    
+        return recoveryBranch;
+    }
+    
+    @Nullable
+    private LLVMBasicBlockRef getLastBlock(@NotNull final ElseNode elseNode) {
+        LLVMBasicBlockRef lastBlock = null;
+        ElseNode currentElse = elseNode;
+        while (currentElse != null) {
+            if (currentElse.getNextBranch() == null) {
+                Objects.requireNonNull(currentElse.getBlock(), "currentElse.block must not be null.");
+                
+                final List<IfNode> childNodes = currentElse.getBlock().getNodes().stream()
+                        .filter(node -> node instanceof IfNode)
+                        .map(node -> (IfNode) node)
+                        .collect(Collectors.toList());
+                if (childNodes.size() == 0) {
+                    lastBlock = this.visit(currentElse);
                     break;
                 }
                 
-                currentElse = currentElse.getNextBranch();
+                lastBlock = this.visit(childNodes.get(childNodes.size() - 1));
+                break;
             }
-        } else lastBranch = thenBranch;
+            
+            currentElse = currentElse.getNextBranch();
+        }
         
-        if (lastBranch != null)
-            LLVM.LLVMMoveBasicBlockAfter(recoveryBranch, lastBranch);
-        return recoveryBranch;
+        return lastBlock;
     }
     
     @Override
@@ -812,48 +849,75 @@ public class IRVisitor implements IVisitor<Object>
             return (LLVMBasicBlockRef) recoveryObject;
         }
         
-        Objects.requireNonNull(elseNode.getExpression(), "elseNode.expression must not be null.");
         Objects.requireNonNull(elseNode.getBlock(), "elseNode.block must not be null.");
         
-        final IfNode ifNode = elseNode.getParent(IfNode.class);
-        if (ifNode == null)
+        final IfNode parentNode = elseNode.getParent(IfNode.class);
+        if (parentNode == null)
             throw new NullPointerException();
         
         final FunctionNode functionNode = elseNode.getParent(FunctionNode.class);
         if (functionNode == null)
             throw new NullPointerException();
         
+        final LLVMBasicBlockRef recoveryBranch = this.visit(parentNode);
         final FunctionGen functionGen = this.visit(functionNode);
         
-        final LLVMBasicBlockRef startBranch = this.getContextGen().appendBasicBlock(functionGen);
-        this.getBuilderGen().setPositionAtEnd(startBranch);
-        
-        final Object expressionObject = this.visit(elseNode.getExpression());
-        if (!(expressionObject instanceof LLVMValueRef))
-            throw new NullPointerException();
-        
-        final LLVMValueRef expressionValue = (LLVMValueRef) expressionObject;
-        final LLVMBasicBlockRef thenBranch = this.visit(elseNode.getBlock());
-        final LLVMBasicBlockRef recoveryBranch = this.visit(ifNode);
-        
-        this.getNodeRefs().put(elseNode, thenBranch);
-        this.getBuilderGen().setPositionAtEnd(thenBranch);
-        LLVM.LLVMBuildBr(this.getBuilderGen().getBuilderRef(), recoveryBranch);
-        
-        final LLVMBasicBlockRef elseBranch;
-        if (elseNode.getNextBranch() != null)
-            elseBranch = this.visit(elseNode.getNextBranch());
-        else elseBranch = recoveryBranch;
-        
-        this.getBuilderGen().setPositionAtEnd(startBranch);
-        LLVM.LLVMBuildCondBr(
-                this.getBuilderGen().getBuilderRef(),
-                expressionValue,
-                thenBranch,
-                elseBranch
-        );
-        
-        return startBranch;
+        if (elseNode.getExpression() != null) {
+            final LLVMBasicBlockRef startBranch = this.getContextGen().appendBasicBlock(functionGen);
+            this.getBuilderGen().setPositionAtEnd(startBranch);
+            
+            final Object expressionObject = this.visit(elseNode.getExpression());
+            if (!(expressionObject instanceof LLVMValueRef))
+                throw new NullPointerException();
+            
+            final LLVMValueRef expressionValue = (LLVMValueRef) expressionObject;
+            
+            final LLVMBasicBlockRef thenBranch = this.visit(elseNode.getBlock());
+            this.getBuilderGen().setPositionAtEnd(thenBranch);
+            final LLVMValueRef lastInstruction = LLVM.LLVMGetLastInstruction(thenBranch);
+            if (lastInstruction == null || LLVM.LLVMGetInstructionOpcode(lastInstruction) != LLVM.LLVMBr)
+                LLVM.LLVMBuildBr(this.getBuilderGen().getBuilderRef(), recoveryBranch);
+            this.getNodeRefs().put(elseNode, thenBranch);
+            
+            final LLVMBasicBlockRef elseBranch;
+            if (elseNode.getNextBranch() != null)
+                elseBranch = this.visit(elseNode.getNextBranch());
+            else elseBranch = recoveryBranch;
+            
+            this.getBuilderGen().setPositionAtEnd(startBranch);
+            LLVM.LLVMBuildCondBr(
+                    this.getBuilderGen().getBuilderRef(),
+                    expressionValue,
+                    thenBranch,
+                    elseBranch
+            );
+            
+            final List<IfNode> childNodes = elseNode.getBlock().getNodes().stream()
+                    .filter(node -> node instanceof IfNode)
+                    .map(node -> (IfNode) node)
+                    .collect(Collectors.toList());
+            
+            final LLVMBasicBlockRef currentBlock = this.getBuilderGen().getCurrentBlock();
+            for (final IfNode childNode : childNodes) {
+                final LLVMBasicBlockRef childRecovery = this.visit(childNode);
+                this.getBuilderGen().setPositionAtEnd(childRecovery);
+                LLVM.LLVMBuildBr(this.getBuilderGen().getBuilderRef(), recoveryBranch);
+            }
+            
+            if (currentBlock != null)
+                this.getBuilderGen().setCurrentBlock(currentBlock);
+            
+            return startBranch;
+        } else {
+            final LLVMBasicBlockRef thenBranch = this.visit(elseNode.getBlock());
+            this.getBuilderGen().setPositionAtEnd(thenBranch);
+            final LLVMValueRef lastInstruction = LLVM.LLVMGetLastInstruction(thenBranch);
+            if (lastInstruction == null || LLVM.LLVMGetInstructionOpcode(lastInstruction) != LLVM.LLVMBr)
+                LLVM.LLVMBuildBr(this.getBuilderGen().getBuilderRef(), recoveryBranch);
+            this.getNodeRefs().put(elseNode, thenBranch);
+            
+            return thenBranch;
+        }
     }
     
     // TODO: 6/16/20 Make a conversion system (c++ standard is pretty good)
