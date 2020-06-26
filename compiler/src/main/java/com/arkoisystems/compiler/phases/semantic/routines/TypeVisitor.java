@@ -174,27 +174,10 @@ public class TypeVisitor implements IVisitor<TypeNode>
                     "There must be specified a return type if no block exists."
             );
     
-        TypeNode expectedType = null;
         if (functionNode.getReturnType() != null)
-            expectedType = this.visit(functionNode.getReturnType());
-    
-        TypeNode givenType = null;
+            this.visit(functionNode.getReturnType());
         if (functionNode.getBlockNode() != null)
-            givenType = this.visit(functionNode.getBlockNode());
-    
-        if (expectedType == null || givenType == null)
-            return this.visit(functionNode.getTypeNode());
-    
-        if (expectedType == ERROR_NODE || givenType == ERROR_NODE)
-            return ERROR_NODE;
-    
-        if (!expectedType.equals(givenType))
-            return this.addError(
-                    ERROR_NODE,
-                    functionNode.getParser().getCompilerClass(),
-                    functionNode.getBlockNode(),
-                    "The block type doesn't match that of the function."
-            );
+            this.visit(functionNode.getBlockNode());
     
         return this.visit(functionNode.getTypeNode());
     }
@@ -208,8 +191,29 @@ public class TypeVisitor implements IVisitor<TypeNode>
     @NotNull
     @Override
     public TypeNode visit(@NotNull final ReturnNode returnNode) {
+        Objects.requireNonNull(returnNode.getParser(), "returnNode.parser must not be null.");
+    
         if (returnNode.getExpression() != null && this.visit(returnNode.getExpression()) == ERROR_NODE)
             return ERROR_NODE;
+    
+        final FunctionNode functionNode = returnNode.getParent(FunctionNode.class);
+        if (functionNode == null)
+            throw new NullPointerException();
+    
+        final TypeNode expectedType = this.visit(functionNode.getTypeNode());
+        final TypeNode givenType = this.visit(returnNode.getTypeNode());
+    
+        if (expectedType == ERROR_NODE || givenType == ERROR_NODE)
+            return ERROR_NODE;
+    
+        if (!expectedType.equals(givenType))
+            return this.addError(
+                    ERROR_NODE,
+                    returnNode.getParser().getCompilerClass(),
+                    returnNode,
+                    "The return type doesn't match that of the function."
+            );
+    
         return this.visit(returnNode.getTypeNode());
     }
     
@@ -376,34 +380,43 @@ public class TypeVisitor implements IVisitor<TypeNode>
     
         final TypeNode leftHandSide = this.visit(binaryNode.getLeftHandSide());
         final TypeNode rightHandSide = this.visit(binaryNode.getRightHandSide());
+    
         if (leftHandSide == ERROR_NODE || rightHandSide == ERROR_NODE)
             return ERROR_NODE;
     
         Objects.requireNonNull(rightHandSide.getDataKind(), "rightHandSide.dataKind must not be null.");
         Objects.requireNonNull(leftHandSide.getDataKind(), "leftHandSide.dataKind must not be null.");
-        if (!leftHandSide.getDataKind().isNumeric() && !rightHandSide.getDataKind().isNumeric())
-            return this.addError(
-                    ERROR_NODE,
-                    binaryNode.getParser().getCompilerClass(),
-                    binaryNode,
-                    "Both sides are not numeric."
-            );
     
-        if (!leftHandSide.getDataKind().isNumeric())
-            return this.addError(
-                    ERROR_NODE,
-                    binaryNode.getParser().getCompilerClass(),
-                    binaryNode.getLeftHandSide(),
-                    "Left side is not numeric."
-            );
-    
-        if (!rightHandSide.getDataKind().isNumeric())
-            return this.addError(
-                    ERROR_NODE,
-                    binaryNode.getParser().getCompilerClass(),
-                    binaryNode.getRightHandSide(),
-                    "Right side is not numeric."
-            );
+        switch (binaryNode.getOperatorType()) {
+            case LESS_EQUAL_THAN:
+            case LESS_THAN:
+            case GREATER_EQUAL_THAN:
+            case GREATER_THAN:
+        
+            case ADDITION:
+            case MULTIPLICATION:
+            case SUBTRACTION:
+            case DIVISION:
+            case REMAINING:
+                if (!leftHandSide.getDataKind().isNumeric() || leftHandSide.getPointers() > 0)
+                    return this.addError(
+                            ERROR_NODE,
+                            binaryNode.getParser().getCompilerClass(),
+                            binaryNode.getLeftHandSide(),
+                            "Left side is not numeric."
+                    );
+            
+                if (!rightHandSide.getDataKind().isNumeric() || rightHandSide.getPointers() > 0)
+                    return this.addError(
+                            ERROR_NODE,
+                            binaryNode.getParser().getCompilerClass(),
+                            binaryNode.getRightHandSide(),
+                            "Right side is not numeric."
+                    );
+                break;
+            default:
+                throw new NullPointerException();
+        }
     
         return this.visit(binaryNode.getTypeNode());
     }
@@ -429,7 +442,7 @@ public class TypeVisitor implements IVisitor<TypeNode>
             return ERROR_NODE;
         
         Objects.requireNonNull(rightHandSide.getDataKind(), "rightHandSide.dataKind must not be null.");
-        if (!rightHandSide.getDataKind().isNumeric())
+        if (!rightHandSide.getDataKind().isNumeric() || rightHandSide.getPointers() > 0)
             return this.addError(
                     ERROR_NODE,
                     unaryNode.getParser().getCompilerClass(),
@@ -449,11 +462,20 @@ public class TypeVisitor implements IVisitor<TypeNode>
     @Override
     public TypeNode visit(@NotNull final IfNode ifNode) {
         Objects.requireNonNull(ifNode.getExpression(), "ifNode.expression must not be null.");
+        Objects.requireNonNull(ifNode.getParser(), "ifNode.parser must not be null.");
         Objects.requireNonNull(ifNode.getBlock(), "ifNode.block must not be null.");
-        
-        this.visit(ifNode.getExpression());
+    
+        final TypeNode typeNode = this.visit(ifNode.getExpression());
+        if (typeNode.getDataKind() != DataKind.INTEGER || typeNode.getBits() != 1)
+            return this.addError(
+                    ERROR_NODE,
+                    ifNode.getParser().getCompilerClass(),
+                    ifNode.getExpression(),
+                    "The branch condition needs to be from a boolean type."
+            );
+    
         this.visit(ifNode.getBlock());
-        
+    
         if (ifNode.getNextBranch() != null)
             this.visit(ifNode.getNextBranch());
         return this.visit(ifNode.getTypeNode());
@@ -461,12 +483,22 @@ public class TypeVisitor implements IVisitor<TypeNode>
     
     @Override
     public TypeNode visit(@NotNull final ElseNode elseNode) {
-        Objects.requireNonNull(elseNode.getBlock(), "ifNode.block must not be null.");
-        
-        if (elseNode.getExpression() != null)
-            this.visit(elseNode.getExpression());
+        Objects.requireNonNull(elseNode.getParser(), "elseNode.parser must not be null.");
+        Objects.requireNonNull(elseNode.getBlock(), "elseNode.block must not be null.");
+    
+        if (elseNode.getExpression() != null) {
+            final TypeNode typeNode = this.visit(elseNode.getExpression());
+            if (typeNode.getDataKind() != DataKind.INTEGER || typeNode.getBits() != 1)
+                return this.addError(
+                        ERROR_NODE,
+                        elseNode.getParser().getCompilerClass(),
+                        elseNode.getExpression(),
+                        "The branch condition needs to be from a boolean type."
+                );
+        }
+    
         this.visit(elseNode.getBlock());
-        
+    
         if (elseNode.getNextBranch() != null)
             this.visit(elseNode.getNextBranch());
         return this.visit(elseNode.getTypeNode());

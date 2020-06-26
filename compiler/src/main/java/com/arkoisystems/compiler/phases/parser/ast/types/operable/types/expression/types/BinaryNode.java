@@ -22,6 +22,7 @@ import com.arkoisystems.compiler.phases.lexer.token.LexerToken;
 import com.arkoisystems.compiler.phases.lexer.token.enums.OperatorType;
 import com.arkoisystems.compiler.phases.parser.Parser;
 import com.arkoisystems.compiler.phases.parser.SymbolTable;
+import com.arkoisystems.compiler.phases.parser.ast.DataKind;
 import com.arkoisystems.compiler.phases.parser.ast.ParserNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.TypeNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.OperableNode;
@@ -260,7 +261,10 @@ public class BinaryNode extends ExpressionNode
                 parser.matchesPeekToken(offset, OperatorType.MINUS) != null ||
                 parser.matchesPeekToken(offset, OperatorType.ASTERISK) != null ||
                 parser.matchesPeekToken(offset, OperatorType.SLASH) != null ||
-                parser.matchesPeekToken(offset, OperatorType.PERCENT) != null;
+                parser.matchesPeekToken(offset, OperatorType.CLOSING_ARROW) != null ||
+                parser.matchesPeekToken(offset, OperatorType.CLOSING_ARROW_EQUALS) != null ||
+                parser.matchesPeekToken(offset, OperatorType.OPENING_ARROW_EQUALS) != null ||
+                parser.matchesPeekToken(offset, OperatorType.OPENING_ARROW) != null;
     }
     
     @Override
@@ -270,11 +274,30 @@ public class BinaryNode extends ExpressionNode
     
     @Override
     public @NotNull TypeNode getTypeNode() {
-        Objects.requireNonNull(this.getLeftHandSide(), "leftHandSide must not be null.");
         Objects.requireNonNull(this.getRightHandSide(), "rightHandSide must not be null.");
-        if (this.getRightHandSide().getTypeNode().getDataKind().isFloating())
-            return this.getRightHandSide().getTypeNode();
-        return this.getLeftHandSide().getTypeNode();
+        Objects.requireNonNull(this.getRightHandSide().getTypeNode().getDataKind(), "rightHandSide.typeNode.dataKind must not be null.");
+        Objects.requireNonNull(this.getLeftHandSide(), "leftHandSide must not be null.");
+        Objects.requireNonNull(this.getOperatorType(), "operatorType must not be null.");
+    
+        switch (this.getOperatorType()) {
+            case LESS_THAN:
+            case LESS_EQUAL_THAN:
+            case GREATER_THAN:
+            case GREATER_EQUAL_THAN:
+                return TypeNode.builder()
+                        .parentNode(this.getParentNode())
+                        .currentScope(this.getCurrentScope())
+                        .parser(this.getParser())
+                        .dataKind(DataKind.INTEGER)
+                        .bits(1)
+                        .startToken(this.getStartToken())
+                        .endToken(this.getEndToken())
+                        .build();
+            default:
+                if (this.getRightHandSide().getTypeNode().getDataKind().isFloating())
+                    return this.getRightHandSide().getTypeNode();
+                return this.getLeftHandSide().getTypeNode();
+        }
     }
     
 }

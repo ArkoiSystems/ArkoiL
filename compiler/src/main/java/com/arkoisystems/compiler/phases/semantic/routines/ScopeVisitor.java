@@ -145,7 +145,29 @@ public class ScopeVisitor implements IVisitor<ParserNode>
     @NotNull
     @Override
     public BlockNode visit(@NotNull final BlockNode blockNode) {
+        Objects.requireNonNull(blockNode.getParser(), "blockNode.parser must not be null.");
+    
         blockNode.getNodes().forEach(this::visit);
+    
+        final List<ReturnNode> returns = blockNode.getNodes().stream()
+                .filter(node -> node instanceof ReturnNode)
+                .map(node -> (ReturnNode) node)
+                .collect(Collectors.toList());
+        if (returns.isEmpty())
+            return blockNode;
+    
+        final ReturnNode firstNode = returns.get(0);
+        final int returnIndex = blockNode.getNodes().indexOf(firstNode);
+        if (blockNode.getNodes().indexOf(firstNode) != blockNode.getNodes().size() - 1)
+            return this.addError(
+                    null,
+                    blockNode.getParser().getCompilerClass(),
+                    firstNode,
+                    "Everything after a return statement is unreachable.",
+                    blockNode.getNodes().subList(returnIndex + 1, blockNode.getNodes().size()),
+                    "Remove these statements to fix the problem."
+            );
+    
         return blockNode;
     }
     
