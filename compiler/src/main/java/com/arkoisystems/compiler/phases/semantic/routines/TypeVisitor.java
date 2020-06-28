@@ -161,21 +161,13 @@ public class TypeVisitor implements IVisitor<TypeNode>
     @NotNull
     @Override
     public TypeNode visit(@NotNull final FunctionNode functionNode) {
-        Objects.requireNonNull(functionNode.getParser(), "functionNode.parser must not be null.");
         Objects.requireNonNull(functionNode.getParameterList(), "functionNode.parameters must not be null.");
+        Objects.requireNonNull(functionNode.getReturnType(), "functionNode.returnType must not be null.");
+        Objects.requireNonNull(functionNode.getParser(), "functionNode.parser must not be null.");
     
         this.visit(functionNode.getParameterList());
+        this.visit(functionNode.getReturnType());
     
-        if (functionNode.getReturnType() == null && functionNode.getBlockNode() == null)
-            return this.addError(
-                    ERROR_NODE,
-                    functionNode.getParser().getCompilerClass(),
-                    functionNode,
-                    "There must be specified a return type if no block exists."
-            );
-    
-        if (functionNode.getReturnType() != null)
-            this.visit(functionNode.getReturnType());
         if (functionNode.getBlockNode() != null)
             this.visit(functionNode.getBlockNode());
     
@@ -221,9 +213,6 @@ public class TypeVisitor implements IVisitor<TypeNode>
     @Override
     public TypeNode visit(@NotNull final VariableNode variableNode) {
         Objects.requireNonNull(variableNode.getParser(), "variableNode.parser must not be null.");
-    
-        if (variableNode.getReturnType() != null)
-            this.visit(variableNode.getReturnType());
     
         if (variableNode.getExpression() == null && variableNode.isConstant())
             return this.addError(

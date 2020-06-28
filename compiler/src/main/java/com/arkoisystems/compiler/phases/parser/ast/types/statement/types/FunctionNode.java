@@ -184,39 +184,51 @@ public class FunctionNode extends StatementNode
             );
         }
     
-        if (this.getParser().matchesPeekToken(1, SymbolType.COLON) != null) {
-            this.getParser().nextToken();
-        
-            if (!TypeNode.GLOBAL_NODE.canParse(this.getParser(), 1)) {
-                final LexerToken nextToken = this.getParser().nextToken();
-                return this.addError(
-                        this,
-                        this.getParser().getCompilerClass(),
-                        nextToken,
-                        String.format(
-                                ParserErrorType.SYNTAX_ERROR_TEMPLATE,
-                                "Function",
-                                "<type>",
-                                nextToken != null ? nextToken.getTokenContent() : "nothing"
-                        )
-                );
-            }
-            
-            this.getParser().nextToken();
-            
-            final TypeNode typeNodeAST = TypeNode.builder()
-                    .parentNode(this)
-                    .currentScope(this.getCurrentScope())
-                    .parser(this.getParser())
-                    .build()
-                    .parse();
-            if (typeNodeAST.isFailed()) {
-                this.setFailed(true);
-                return this;
-            }
-    
-            this.returnType = typeNodeAST;
+        if (this.getParser().matchesNextToken(SymbolType.COLON) == null) {
+            final LexerToken currentToken = this.getParser().currentToken();
+            return this.addError(
+                    this,
+                    this.getParser().getCompilerClass(),
+                    currentToken,
+                    String.format(
+                            ParserErrorType.SYNTAX_ERROR_TEMPLATE,
+                            "Function",
+                            "':'",
+                            currentToken != null ? currentToken.getTokenContent() : "nothing"
+                    )
+            );
         }
+    
+    
+        if (!TypeNode.GLOBAL_NODE.canParse(this.getParser(), 1)) {
+            final LexerToken nextToken = this.getParser().nextToken();
+            return this.addError(
+                    this,
+                    this.getParser().getCompilerClass(),
+                    nextToken,
+                    String.format(
+                            ParserErrorType.SYNTAX_ERROR_TEMPLATE,
+                            "Function",
+                            "<type>",
+                            nextToken != null ? nextToken.getTokenContent() : "nothing"
+                    )
+            );
+        }
+    
+        this.getParser().nextToken();
+    
+        final TypeNode typeNodeAST = TypeNode.builder()
+                .parentNode(this)
+                .currentScope(this.getCurrentScope())
+                .parser(this.getParser())
+                .build()
+                .parse();
+        if (typeNodeAST.isFailed()) {
+            this.setFailed(true);
+            return this;
+        }
+    
+        this.returnType = typeNodeAST;
     
         if (BlockNode.BRACE_NODE.canParse(this.getParser(), 1) ||
                 BlockNode.INLINED_NODE.canParse(this.getParser(), 1)) {
@@ -262,12 +274,8 @@ public class FunctionNode extends StatementNode
     
     @NotNull
     public TypeNode getTypeNode() {
-        if (this.getReturnType() != null)
-            return this.getReturnType();
-        if (this.getBlockNode() != null)
-            return this.getBlockNode().getTypeNode();
-    
-        throw new NullPointerException();
+        Objects.requireNonNull(this.getReturnType(), "returnType must not be null.");
+        return this.getReturnType();
     }
     
     public boolean equalsToFunction(@NotNull final FunctionNode functionNode) {

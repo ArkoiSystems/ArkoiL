@@ -22,6 +22,7 @@ import com.arkoisystems.compiler.CompilerClass;
 import com.arkoisystems.compiler.error.CompilerError;
 import com.arkoisystems.compiler.error.ErrorPosition;
 import com.arkoisystems.compiler.phases.lexer.token.LexerToken;
+import com.arkoisystems.compiler.phases.parser.ast.DataKind;
 import com.arkoisystems.compiler.phases.parser.ast.ParserNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.BlockNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.RootNode;
@@ -174,26 +175,38 @@ public class ScopeVisitor implements IVisitor<ParserNode>
     @NotNull
     @Override
     public FunctionNode visit(@NotNull final FunctionNode functionNode) {
-        Objects.requireNonNull(functionNode.getParameterList(), "functionNode.parameters must not be null.");
         Objects.requireNonNull(functionNode.getCurrentScope(), "functionNode.currentScope must not be null.");
+        Objects.requireNonNull(functionNode.getParameterList(), "functionNode.parameters must not be null.");
+        Objects.requireNonNull(functionNode.getReturnType(), "functionNode.returnType must not be null.");
         Objects.requireNonNull(functionNode.getParser(), "functionNode.parser must not be null.");
         Objects.requireNonNull(functionNode.getName(), "functionNode.name must not be null.");
-        
+    
         this.visit(functionNode.getParameterList());
-        
-        if (functionNode.getReturnType() != null)
-            this.visit(functionNode.getReturnType());
-        
-        if (functionNode.getBlockNode() != null)
+        this.visit(functionNode.getReturnType());
+    
+        if (functionNode.getBlockNode() != null) {
             this.visit(functionNode.getBlockNode());
         
+            final boolean hasReturn = functionNode.getBlockNode().getNodes().stream()
+                    .filter(node -> node instanceof ReturnNode)
+                    .count() == 1;
+            if (!hasReturn && functionNode.getReturnType().getDataKind() != DataKind.VOID)
+                return this.addError(
+                        null,
+                        functionNode.getParser().getCompilerClass(),
+                        functionNode,
+                        "Non void functions always need a return statement."
+                );
+        }
+    
+    
         final List<ParserNode> nodes = Objects.requireNonNullElse(functionNode.getParser()
                         .getCompilerClass()
                         .getRootScope()
                         .lookupScope(functionNode.getName().getTokenContent()),
                 new ArrayList<>()
         );
-        
+    
         final List<FunctionNode> functions = nodes.stream()
                 .filter(node -> node instanceof FunctionNode)
                 .map(node -> (FunctionNode) node)
