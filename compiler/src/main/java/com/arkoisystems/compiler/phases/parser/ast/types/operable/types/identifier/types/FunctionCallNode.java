@@ -83,8 +83,6 @@ public class FunctionCallNode extends IdentifierNode
             );
         }
         
-        this.startAST(this.getParser().currentToken());
-        
         final ExpressionListNode expressionListNode = ExpressionListNode.builder()
                 .parentNode(this)
                 .currentScope(this.getCurrentScope())
