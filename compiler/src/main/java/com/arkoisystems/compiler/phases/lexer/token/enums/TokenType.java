@@ -34,7 +34,7 @@ public enum TokenType
     COMMENT("#[^\\r\\n]*", CommentToken.class),
     KEYWORD("(?:this|var|return|struct|fun|as|import|if|const|else)", KeywordToken.class),
     TYPE("(?:bool|(?<i>[ui]\\d+)|float|double|void)", TypeToken.class),
-    OPERATOR("(?:=|\\+=|\\+\\+|\\+|-=|--|-|\\*=|\\*|/=|\\/|%=|%|<=|>=|<|>)", OperatorToken.class),
+    OPERATOR("(?:==|!=|=|\\+=|\\+\\+|\\+|-=|--|-|\\*=|\\*|/=|\\/|%=|%|<=|>=|<|>)", OperatorToken.class),
     SYMBOL("(?:@|^|:|\\{|\\}|\\(|\\)|\\[|\\]|,|\\.|\\?)", SymbolToken.class),
     STRING("\"(?:\\\\\"|[^\\n\"])*\\\"?", StringToken.class),
     NUMBER("(?:(?<hex>0[xX][a-zA-Z0-9]*)|(?:(?<fp>(?:\\d_|\\d)*\\.\\d*)|(?<int>(?:\\d_|\\d)+))(?<sn>E[-+]\\d+)?)", NumberToken.class),

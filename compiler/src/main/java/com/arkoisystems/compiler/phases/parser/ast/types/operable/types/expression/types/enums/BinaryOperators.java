@@ -12,6 +12,8 @@ public enum BinaryOperators
     LESS_THAN,
     GREATER_THAN,
     LESS_EQUAL_THAN,
-    GREATER_EQUAL_THAN
+    GREATER_EQUAL_THAN,
+    EQUAL,
+    NOT_EQUAL
     
 }

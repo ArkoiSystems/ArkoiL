@@ -392,7 +392,9 @@ public class TypeVisitor implements IVisitor<TypeNode>
             case LESS_THAN:
             case GREATER_EQUAL_THAN:
             case GREATER_THAN:
-        
+            case EQUAL:
+            case NOT_EQUAL:
+    
             case ADDITION:
             case MULTIPLICATION:
             case SUBTRACTION:

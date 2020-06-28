@@ -43,7 +43,9 @@ public enum OperatorType
     OPENING_ARROW("<"),
     CLOSING_ARROW(">"),
     OPENING_ARROW_EQUALS("<="),
-    CLOSING_ARROW_EQUALS(">=");
+    CLOSING_ARROW_EQUALS(">="),
+    EQUALS_EQUAL("=="),
+    EXCLAMATION_EQUAL("!=");
     
     @NotNull
     private final String name;

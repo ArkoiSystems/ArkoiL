@@ -145,6 +145,34 @@ public class BinaryNode extends ExpressionNode
                         .rightHandSide(rhsNode)
                         .endToken(rhsNode.getEndToken())
                         .build();
+            } else if (this.getParser().matchesPeekToken(1, OperatorType.EQUALS_EQUAL) != null) {
+                this.getParser().nextToken(2);
+    
+                final OperableNode rhsNode = this.parseRelational();
+                lhsNode = BinaryNode.builder()
+                        .parser(this.getParser())
+                        .currentScope(this.getCurrentScope())
+                        .parentNode(this)
+                        .startToken(lhsNode.getStartToken())
+                        .leftHandSide(lhsNode)
+                        .operatorType(BinaryOperators.EQUAL)
+                        .rightHandSide(rhsNode)
+                        .endToken(rhsNode.getEndToken())
+                        .build();
+            } else if (this.getParser().matchesPeekToken(1, OperatorType.EXCLAMATION_EQUAL) != null) {
+                this.getParser().nextToken(2);
+    
+                final OperableNode rhsNode = this.parseRelational();
+                lhsNode = BinaryNode.builder()
+                        .parser(this.getParser())
+                        .currentScope(this.getCurrentScope())
+                        .parentNode(this)
+                        .startToken(lhsNode.getStartToken())
+                        .leftHandSide(lhsNode)
+                        .operatorType(BinaryOperators.NOT_EQUAL)
+                        .rightHandSide(rhsNode)
+                        .endToken(rhsNode.getEndToken())
+                        .build();
             } else {
                 this.setEndToken(this.getParser().currentToken());
                 return lhsNode;
@@ -264,7 +292,9 @@ public class BinaryNode extends ExpressionNode
                 parser.matchesPeekToken(offset, OperatorType.CLOSING_ARROW) != null ||
                 parser.matchesPeekToken(offset, OperatorType.CLOSING_ARROW_EQUALS) != null ||
                 parser.matchesPeekToken(offset, OperatorType.OPENING_ARROW_EQUALS) != null ||
-                parser.matchesPeekToken(offset, OperatorType.OPENING_ARROW) != null;
+                parser.matchesPeekToken(offset, OperatorType.OPENING_ARROW) != null ||
+                parser.matchesPeekToken(offset, OperatorType.EXCLAMATION_EQUAL) != null ||
+                parser.matchesPeekToken(offset, OperatorType.EQUALS_EQUAL) != null;
     }
     
     @Override
@@ -284,6 +314,8 @@ public class BinaryNode extends ExpressionNode
             case LESS_EQUAL_THAN:
             case GREATER_THAN:
             case GREATER_EQUAL_THAN:
+            case EQUAL:
+            case NOT_EQUAL:
                 return TypeNode.builder()
                         .parentNode(this.getParentNode())
                         .currentScope(this.getCurrentScope())
