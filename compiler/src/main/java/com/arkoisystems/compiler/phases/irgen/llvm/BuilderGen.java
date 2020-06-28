@@ -217,4 +217,26 @@ public class BuilderGen
         return LLVM.LLVMBuildICmp(this.getBuilderRef(), LLVM.LLVMIntUGE, lhsValue, rhsValue, "");
     }
     
+    @NotNull
+    public LLVMValueRef buildEQ(
+            final boolean floatingPoint,
+            @NotNull final LLVMValueRef lhsValue,
+            @NotNull final LLVMValueRef rhsValue
+    ) {
+        if (floatingPoint)
+            return LLVM.LLVMBuildFCmp(this.getBuilderRef(), LLVM.LLVMRealOEQ, lhsValue, rhsValue, "");
+        return LLVM.LLVMBuildICmp(this.getBuilderRef(), LLVM.LLVMIntEQ, lhsValue, rhsValue, "");
+    }
+    
+    @NotNull
+    public LLVMValueRef buildNE(
+            final boolean floatingPoint,
+            @NotNull final LLVMValueRef lhsValue,
+            @NotNull final LLVMValueRef rhsValue
+    ) {
+        if (floatingPoint)
+            return LLVM.LLVMBuildFCmp(this.getBuilderRef(), LLVM.LLVMRealONE, lhsValue, rhsValue, "");
+        return LLVM.LLVMBuildICmp(this.getBuilderRef(), LLVM.LLVMIntNE, lhsValue, rhsValue, "");
+    }
+    
 }
