@@ -234,33 +234,6 @@ public class IRVisitor implements IVisitor<Object>
     
     @NotNull
     @Override
-    public LLVMBasicBlockRef visit(@NotNull final BlockNode blockNode) {
-        if (this.getNodeRefs().containsKey(blockNode)) {
-            final Object object = this.getNodeRefs().get(blockNode);
-            if (!(object instanceof LLVMBasicBlockRef))
-                throw new NullPointerException();
-            return (LLVMBasicBlockRef) object;
-        }
-        
-        final FunctionNode functionNode = blockNode.getParent(FunctionNode.class);
-        Objects.requireNonNull(functionNode, "functionNode must not be null.");
-        
-        final LLVMBasicBlockRef currentBlock = this.getBuilderGen().getCurrentBlock();
-        final LLVMBasicBlockRef basicBlockRef = this.getContextGen().appendBasicBlock(
-                this.visit(functionNode)
-        );
-        
-        this.getBuilderGen().setPositionAtEnd(basicBlockRef);
-        this.getNodeRefs().put(blockNode, basicBlockRef);
-        blockNode.getNodes().forEach(this::visit);
-        if (currentBlock != null)
-            this.getBuilderGen().setPositionAtEnd(currentBlock);
-        
-        return basicBlockRef;
-    }
-    
-    @NotNull
-    @Override
     public FunctionGen visit(@NotNull final FunctionNode functionNode) {
         if (this.getNodeRefs().containsKey(functionNode)) {
             final Object object = this.getNodeRefs().get(functionNode);
@@ -293,20 +266,10 @@ public class IRVisitor implements IVisitor<Object>
                         functionNode.getName().getTokenContent()
                 );
                 Objects.requireNonNull(foundFunction, "foundFunction must no be null.");
-        
+    
                 foundFunction.generateIR(this, functionNode);
-            } else if (functionNode.getBlockNode() != null) {
+            } else if (functionNode.getBlockNode() != null)
                 this.visit(functionNode.getBlockNode());
-        
-                if (functionNode.getBlockNode().getTypeNode().getDataKind() == DataKind.VOID) {
-                    final List<ReturnNode> returns = functionNode.getBlockNode().getNodes().stream()
-                            .filter(node -> node instanceof ReturnNode)
-                            .map(node -> (ReturnNode) node)
-                            .collect(Collectors.toList());
-                    if (returns.size() == 0)
-                        this.getBuilderGen().returnVoid();
-                }
-            }
         }
     
         return functionGen;
@@ -314,22 +277,112 @@ public class IRVisitor implements IVisitor<Object>
     
     @NotNull
     @Override
-    public ImportNode visit(@NotNull final ImportNode importNode) {
-        return importNode;
+    public LLVMBasicBlockRef visit(@NotNull final BlockNode blockNode) {
+        if (this.getNodeRefs().containsKey(blockNode)) {
+            final Object object = this.getNodeRefs().get(blockNode);
+            if (!(object instanceof List<?>))
+                throw new NullPointerException();
+            
+            final List<?> blockData = (List<?>) object;
+            if (blockData.size() == 0)
+                throw new NullPointerException();
+            
+            return (LLVMBasicBlockRef) blockData.get(0);
+        }
+        
+        final FunctionNode functionNode = blockNode.getParent(FunctionNode.class);
+        Objects.requireNonNull(functionNode, "functionNode must not be null.");
+        
+        final FunctionGen functionGen = this.visit(functionNode);
+        
+        final LLVMBasicBlockRef currentBlock = this.getBuilderGen().getCurrentBlock();
+        final LLVMBasicBlockRef startBlock = this.getContextGen().appendBasicBlock(functionGen);
+        
+        final boolean hasReturn = blockNode.getNodes().stream()
+                .anyMatch(node -> node instanceof ReturnNode);
+        final boolean isFunctionBlock = functionNode == blockNode.getParentNode();
+        final List<Object> returnData = new ArrayList<>();
+        
+        returnData.add(startBlock);
+        this.getBuilderGen().setPositionAtEnd(startBlock);
+        this.getNodeRefs().put(blockNode, returnData);
+        
+        final LLVMBasicBlockRef returnBlock;
+        if (isFunctionBlock) {
+            final LLVMValueRef returnVariable;
+            if (blockNode.getTypeNode().getDataKind() != DataKind.VOID) {
+                returnVariable = this.getBuilderGen().buildAlloca(
+                        this.visit(blockNode.getTypeNode())
+                );
+                returnData.add(returnVariable);
+            } else returnVariable = null;
+            
+            returnBlock = this.getContextGen().appendBasicBlock(functionGen);
+            this.getBuilderGen().setPositionAtEnd(returnBlock);
+            returnData.add(returnBlock);
+            
+            if (blockNode.getTypeNode().getDataKind() != DataKind.VOID) {
+                final LLVMValueRef returnValue = this.getBuilderGen().buildLoad(returnVariable);
+                this.getBuilderGen().returnValue(returnValue);
+            } else this.getBuilderGen().returnVoid();
+            
+            this.getBuilderGen().setPositionAtEnd(startBlock);
+        } else returnBlock = null;
+        
+        blockNode.getNodes().forEach(this::visit);
+        
+        if (!hasReturn && isFunctionBlock)
+            LLVM.LLVMBuildBr(this.getBuilderGen().getBuilderRef(), returnBlock);
+        
+        if (isFunctionBlock) {
+            LLVM.LLVMMoveBasicBlockAfter(returnBlock, LLVM.LLVMGetLastBasicBlock(
+                    functionGen.getFunctionRef()
+            ));
+        }
+        
+        if (currentBlock != null)
+            this.getBuilderGen().setPositionAtEnd(currentBlock);
+        
+        return startBlock;
     }
     
     @NotNull
     @Override
     public ReturnNode visit(@NotNull final ReturnNode returnNode) {
-        if (returnNode.getExpression() != null) {
+        final FunctionNode functionNode = returnNode.getParent(FunctionNode.class);
+        Objects.requireNonNull(functionNode, "functionNode must not be null.");
+    
+        final Object object = this.getNodeRefs().get(functionNode.getBlockNode());
+        if (!(object instanceof List<?>))
+            throw new NullPointerException();
+    
+        final List<?> blockData = (List<?>) object;
+        if (functionNode.getTypeNode().getDataKind() == DataKind.VOID) {
+            final LLVMBasicBlockRef returnBlock = (LLVMBasicBlockRef) blockData.get(1);
+            LLVM.LLVMBuildBr(this.getBuilderGen().getBuilderRef(), returnBlock);
+        } else {
+            Objects.requireNonNull(returnNode.getExpression(), "returnNode.expression must not be null.");
+        
             final Object expressionObject = this.visit(returnNode.getExpression());
             if (!(expressionObject instanceof LLVMValueRef))
                 throw new NullPointerException();
         
-            this.getBuilderGen().returnValue(((LLVMValueRef) expressionObject));
-        } else this.getBuilderGen().returnVoid();
+            final LLVMValueRef expressionValue = (LLVMValueRef) expressionObject;
+            final LLVMValueRef variableRef = (LLVMValueRef) blockData.get(1);
         
+            LLVM.LLVMBuildStore(this.getBuilderGen().getBuilderRef(), expressionValue, variableRef);
+        
+            final LLVMBasicBlockRef returnBlock = (LLVMBasicBlockRef) blockData.get(2);
+            LLVM.LLVMBuildBr(this.getBuilderGen().getBuilderRef(), returnBlock);
+        }
+    
         return returnNode;
+    }
+    
+    @NotNull
+    @Override
+    public ImportNode visit(@NotNull final ImportNode importNode) {
+        return importNode;
     }
     
     @NotNull
@@ -676,6 +729,10 @@ public class IRVisitor implements IVisitor<Object>
                 return this.getBuilderGen().buildLE(floatingPoint, signed, lhsValue, rhsValue);
             case GREATER_EQUAL_THAN:
                 return this.getBuilderGen().buildGE(floatingPoint, signed, lhsValue, rhsValue);
+            case EQUAL:
+                return this.getBuilderGen().buildEQ(floatingPoint, lhsValue, rhsValue);
+            case NOT_EQUAL:
+                return this.getBuilderGen().buildNE(floatingPoint, lhsValue, rhsValue);
             default:
                 throw new NullPointerException();
         }
