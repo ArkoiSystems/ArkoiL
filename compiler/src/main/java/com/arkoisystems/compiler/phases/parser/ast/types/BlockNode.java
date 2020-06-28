@@ -36,7 +36,6 @@ import com.arkoisystems.compiler.visitor.IVisitor;
 import com.arkoisystems.utils.printer.annotations.Printable;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -80,12 +79,10 @@ public class BlockNode extends ParserNode
     public BlockNode parse() {
         Objects.requireNonNull(this.getParser(), "parser must not be null.");
         
-        this.startAST(this.getParser().currentToken());
-        
         if (this.getParser().matchesCurrentToken(SymbolType.OPENING_BRACE) != null) {
-            this.parseBlock();
+            return this.parseBlock();
         } else if (this.getParser().matchesCurrentToken(OperatorType.EQUALS) != null) {
-            this.parseInlinedBlock();
+            return this.parseInlinedBlock();
         } else {
             final LexerToken currentToken = this.getParser().currentToken();
             return this.addError(
@@ -100,82 +97,95 @@ public class BlockNode extends ParserNode
                     )
             );
         }
-        
-        this.endAST(this.getParser().currentToken());
-        return this;
     }
     
-    @SneakyThrows
-    private void parseBlock() {
+    @NotNull
+    public BlockNode parseBlock() {
         Objects.requireNonNull(this.getParser(), "parser must not be null.");
         this.isInlined = false;
+        
+        this.startAST(this.getParser().currentToken());
         
         this.getParser().nextToken();
         while (this.getParser().getPosition() < this.getParser().getTokens().length) {
             if (this.getParser().matchesCurrentToken(SymbolType.CLOSING_BRACE) != null)
                 break;
-    
-            final ParserNode parserNode;
-            if (IfNode.GLOBAL_NODE.canParse(this.getParser(), 0)) {
-                parserNode = IfNode.builder()
-                        .parser(this.getParser())
-                        .currentScope(this.getCurrentScope())
-                        .parentNode(this)
-                        .build()
-                        .parse();
-            } else if (VariableNode.GLOBAL_NODE.canParse(this.getParser(), 0)) {
-                final VariableNode variableNode = VariableNode.builder()
-                        .parser(this.getParser())
-                        .currentScope(this.getCurrentScope())
-                        .parentNode(this)
-                        .build()
-                        .parse();
-                variableNode.setLocal(true);
-                parserNode = variableNode;
-            } else if (IdentifierNode.PARSER_NODE.canParse(this.getParser(), 0)) {
-                parserNode = IdentifierNode.identifierBuilder()
-                        .parser(this.getParser())
-                        .currentScope(this.getCurrentScope())
-                        .parentNode(this)
-                        .parseFunction(true)
-                        .build()
-                        .parse();
-            } else if (ReturnNode.GLOBAL_NODE.canParse(this.getParser(), 0)) {
-                parserNode = ReturnNode.builder()
-                        .parser(this.getParser())
-                        .currentScope(this.getCurrentScope())
-                        .parentNode(this)
-                        .build()
-                        .parse();
-            } else {
-                this.addError(
-                        null,
-                        this.getParser().getCompilerClass(),
-                        this.getParser().currentToken(),
-                        ParserErrorType.BLOCK_NO_PARSER_FOUND
-                );
-                this.findValidToken();
-                continue;
-            }
-    
-            if (parserNode.isFailed()) {
-                this.setFailed(true);
-                this.findValidToken();
-                continue;
-            }
-    
-            this.getNodes().add(parserNode);
+            
+            this.parseStatement();
             this.getParser().nextToken();
         }
+        
+        this.endAST(this.getParser().currentToken());
+        return this;
     }
     
-    private void parseInlinedBlock() {
+    @NotNull
+    public BlockNode parseStatement() {
+        Objects.requireNonNull(this.getParser(), "parser must not be null.");
+        
+        final ParserNode parserNode;
+        if (IfNode.GLOBAL_NODE.canParse(this.getParser(), 0)) {
+            parserNode = IfNode.builder()
+                    .parser(this.getParser())
+                    .currentScope(this.getCurrentScope())
+                    .parentNode(this)
+                    .build()
+                    .parse();
+        } else if (VariableNode.GLOBAL_NODE.canParse(this.getParser(), 0)) {
+            final VariableNode variableNode = VariableNode.builder()
+                    .parser(this.getParser())
+                    .currentScope(this.getCurrentScope())
+                    .parentNode(this)
+                    .build()
+                    .parse();
+            variableNode.setLocal(true);
+            parserNode = variableNode;
+        } else if (IdentifierNode.PARSER_NODE.canParse(this.getParser(), 0)) {
+            parserNode = IdentifierNode.identifierBuilder()
+                    .parser(this.getParser())
+                    .currentScope(this.getCurrentScope())
+                    .parentNode(this)
+                    .parseFunction(true)
+                    .build()
+                    .parse();
+        } else if (ReturnNode.GLOBAL_NODE.canParse(this.getParser(), 0)) {
+            parserNode = ReturnNode.builder()
+                    .parser(this.getParser())
+                    .currentScope(this.getCurrentScope())
+                    .parentNode(this)
+                    .build()
+                    .parse();
+        } else {
+            this.addError(
+                    null,
+                    this.getParser().getCompilerClass(),
+                    this.getParser().currentToken(),
+                    ParserErrorType.BLOCK_NO_PARSER_FOUND
+            );
+            this.findValidToken();
+            return this;
+        }
+        
+        if (parserNode.isFailed()) {
+            this.setFailed(true);
+            this.findValidToken();
+            return this;
+        }
+        
+        this.getNodes().add(parserNode);
+        return this;
+    }
+    
+    @NotNull
+    public BlockNode parseInlinedBlock() {
         Objects.requireNonNull(this.getParser(), "parser must not be null.");
         this.isInlined = true;
         
+        this.startAST(this.getParser().currentToken());
+        
         if (!ExpressionNode.GLOBAL_NODE.canParse(this.getParser(), 1)) {
             final LexerToken nextToken = this.getParser().nextToken();
-            this.addError(
+            return this.addError(
                     this,
                     this.getParser().getCompilerClass(),
                     nextToken,
@@ -186,7 +196,6 @@ public class BlockNode extends ParserNode
                             nextToken != null ? nextToken.getTokenContent() : "nothing"
                     )
             );
-            return;
         }
         
         this.getParser().nextToken();
@@ -199,7 +208,7 @@ public class BlockNode extends ParserNode
                 .parse();
         if (operableNode.isFailed()) {
             this.setFailed(true);
-            return;
+            return this;
         }
         
         this.getNodes().add(ReturnNode.builder()
@@ -210,6 +219,9 @@ public class BlockNode extends ParserNode
                 .startToken(operableNode.getStartToken())
                 .endToken(operableNode.getEndToken())
                 .build());
+        
+        this.endAST(this.getParser().currentToken());
+        return this;
     }
     
     @Override
