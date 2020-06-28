@@ -161,43 +161,80 @@ public class ElseNode extends StatementNode
                 );
             }
         } else isElseIf = false;
+    
+        final boolean singleStatement = this.getParser().matchesPeekToken(1, SymbolType.OPENING_BRACE) == null;
+        if (singleStatement) {
+            this.getParser().nextToken();
         
-        if (!BlockNode.BRACE_NODE.canParse(this.getParser(), 1)) {
-            final LexerToken nextToken = this.getParser().nextToken();
-            return this.addError(
-                    this,
-                    this.getParser().getCompilerClass(),
-                    nextToken,
-                    String.format(
-                            ParserErrorType.SYNTAX_ERROR_TEMPLATE,
-                            "If",
-                            "<braced block>",
-                            nextToken != null ? nextToken.getTokenContent() : "nothing"
-                    )
-            );
+            final BlockNode blockNode = BlockNode.builder()
+                    .parser(this.getParser())
+                    .currentScope(this.getCurrentScope())
+                    .isInlined(false)
+                    .parentNode(this)
+                    .build()
+                    .parseStatement();
+            if (blockNode.isFailed()) {
+                this.setFailed(true);
+                return this;
+            }
+        
+            this.block = blockNode;
+        
+            if (blockNode.getNodes().size() != 1) {
+                return this.addError(
+                        this,
+                        this.getParser().getCompilerClass(),
+                        this.getStartToken(),
+                        String.format(
+                                ParserErrorType.SYNTAX_ERROR_TEMPLATE,
+                                "If",
+                                "only one statement",
+                                blockNode.getNodes().size()
+                        )
+                );
+            }
+        
+            final ParserNode parserNode = blockNode.getNodes().get(0);
+            blockNode.startAST(parserNode.getStartToken());
+            blockNode.endAST(parserNode.getEndToken());
+        } else {
+            if (!BlockNode.BRACE_NODE.canParse(this.getParser(), 1)) {
+                final LexerToken nextToken = this.getParser().nextToken();
+                return this.addError(
+                        this,
+                        this.getParser().getCompilerClass(),
+                        nextToken,
+                        String.format(
+                                ParserErrorType.SYNTAX_ERROR_TEMPLATE,
+                                "If",
+                                "<braced block>",
+                                nextToken != null ? nextToken.getTokenContent() : "nothing"
+                        )
+                );
+            }
+        
+            this.getParser().nextToken();
+        
+            final BlockNode blockNode = BlockNode.builder()
+                    .parser(this.getParser())
+                    .currentScope(this.getCurrentScope())
+                    .parentNode(this)
+                    .build()
+                    .parse();
+            if (blockNode.isFailed()) {
+                this.setFailed(true);
+                return this;
+            }
+        
+            this.block = blockNode;
         }
-        
-        this.getParser().nextToken();
-        
-        final BlockNode blockNode = BlockNode.builder()
-                .parser(this.getParser())
-                .currentScope(this.getCurrentScope())
-                .parentNode(this)
-                .build()
-                .parse();
-        if (blockNode.isFailed()) {
-            this.setFailed(true);
-            return this;
-        }
-        
-        this.block = blockNode;
-        
+    
         this.endAST(this.getParser().currentToken());
-        
+    
         if (isElseIf) {
             if (ElseNode.GLOBAL_NODE.canParse(this.getParser(), 1)) {
                 this.getParser().nextToken();
-                
+            
                 final ElseNode elseNode = ElseNode.builder()
                         .parser(this.getParser())
                         .currentScope(this.getCurrentScope())
