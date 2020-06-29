@@ -63,7 +63,7 @@ public class ParenthesizedNode extends ExpressionNode
     @NotNull
     @Override
     public ParenthesizedNode parse() {
-        Objects.requireNonNull(this.getParser(), "parser must not be null.");
+        Objects.requireNonNull(this.getParser());
         
         if (this.getParser().matchesCurrentToken(SymbolType.OPENING_PARENTHESIS) == null) {
             final LexerToken currentToken = this.getParser().currentToken();
@@ -144,7 +144,7 @@ public class ParenthesizedNode extends ExpressionNode
     
     @Override
     public @NotNull TypeNode getTypeNode() {
-        Objects.requireNonNull(this.getExpression(), "expression must not be null.");
+        Objects.requireNonNull(this.getExpression());
         return this.getExpression().getTypeNode();
     }
     

@@ -67,7 +67,7 @@ public class ImportNode extends StatementNode
     @NotNull
     @Override
     public ImportNode parse() {
-        Objects.requireNonNull(this.getParser(), "parser must not be null.");
+        Objects.requireNonNull(this.getParser());
         
         if (this.getParser().matchesCurrentToken(KeywordType.IMPORT) == null) {
             final LexerToken currentToken = this.getParser().currentToken();
@@ -100,9 +100,9 @@ public class ImportNode extends StatementNode
                     )
             );
         }
-        
+    
         this.filePath = (StringToken) this.getParser().nextToken();
-        Objects.requireNonNull(this.getFilePath(), "filePath must not be null.");
+        Objects.requireNonNull(this.getFilePath());
         if (this.getFilePath().getTokenContent().endsWith(".ark"))
             this.getFilePath().setTokenContent(this.getFilePath().getTokenContent().substring(0, this.getFilePath().getTokenContent().length() - 4));
     
@@ -125,16 +125,16 @@ public class ImportNode extends StatementNode
     @SneakyThrows
     @Nullable
     public CompilerClass resolveClass() {
-        Objects.requireNonNull(this.getFilePath(), "filePath must not be null.");
-        Objects.requireNonNull(this.getParser(), "parser must not be null.");
-        
+        Objects.requireNonNull(this.getFilePath());
+        Objects.requireNonNull(this.getParser());
+    
         File targetFile = new File(this.getFilePath().getTokenContent() + ".ark");
         if (!targetFile.isAbsolute()) {
             targetFile = new File(
                     new File(this.getParser().getCompilerClass().getFilePath()).getParent(),
                     this.getFilePath().getTokenContent() + ".ark"
             );
-            
+        
             if (!targetFile.exists()) {
                 for (final File libraryDirectory : this.getParser().getCompilerClass().getCompiler().getLibraryPaths()) {
                     final File file = new File(

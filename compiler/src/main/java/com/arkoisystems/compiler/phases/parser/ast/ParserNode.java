@@ -100,7 +100,7 @@ public class ParserNode implements Cloneable
             return;
         }
         
-        Objects.requireNonNull(this.getParser(), "parser must not be null.");
+        Objects.requireNonNull(this.getParser());
         
         this.endAST(this.getParser().currentToken());
         this.failed = true;
@@ -122,8 +122,8 @@ public class ParserNode implements Cloneable
     public void endAST(@Nullable final LexerToken token) {
         if (token == null)
             return;
-        
-        Objects.requireNonNull(this.getParser(), "parser must not be null.");
+    
+        Objects.requireNonNull(this.getParser());
         
         this.endToken = token;
         this.lineRange = LineRange.make(

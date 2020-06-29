@@ -49,7 +49,7 @@ public class IRGenerator
     
     public void processStage() {
         this.irVisitor = new IRVisitor(this.getCompilerClass());
-        Objects.requireNonNull(this.getIrVisitor(), "irVisitor must not be null.");
+        Objects.requireNonNull(this.getIrVisitor());
         
         this.moduleGen = this.getIrVisitor().visit(this.getCompilerClass().getParser().getRootNode());
         if (this.getIrVisitor().isFailed())

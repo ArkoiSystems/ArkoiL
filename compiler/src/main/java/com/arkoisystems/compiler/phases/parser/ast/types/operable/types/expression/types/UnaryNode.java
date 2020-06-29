@@ -70,7 +70,7 @@ public class UnaryNode extends ExpressionNode
     @NotNull
     @Override
     public UnaryNode parse() {
-        Objects.requireNonNull(this.getParser(), "parser must not be null.");
+        Objects.requireNonNull(this.getParser());
         
         this.startAST(this.getParser().currentToken());
         
@@ -115,7 +115,7 @@ public class UnaryNode extends ExpressionNode
     
     @Override
     public @NotNull TypeNode getTypeNode() {
-        Objects.requireNonNull(this.getRightHandSide(), "rightHandSide must not be null.");
+        Objects.requireNonNull(this.getRightHandSide());
         return this.getRightHandSide().getTypeNode();
     }
     

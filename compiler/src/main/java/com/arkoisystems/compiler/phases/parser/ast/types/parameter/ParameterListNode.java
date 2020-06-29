@@ -66,7 +66,7 @@ public class ParameterListNode extends ParserNode
     @NotNull
     @Override
     public ParameterListNode parse() {
-        Objects.requireNonNull(this.getParser(), "parser must not be null.");
+        Objects.requireNonNull(this.getParser());
         
         this.startAST(this.getParser().currentToken());
         
@@ -93,7 +93,7 @@ public class ParameterListNode extends ParserNode
             }
             
             if (!chainedIdentifiers.isEmpty()) {
-                Objects.requireNonNull(this.getCurrentScope(), "currentScope must not be null.");
+                Objects.requireNonNull(this.getCurrentScope());
                 
                 for (final IdentifierToken nameToken : chainedIdentifiers) {
                     final ParameterNode chainedNode = ParameterNode.builder()

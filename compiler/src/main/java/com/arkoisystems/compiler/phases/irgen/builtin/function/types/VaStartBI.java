@@ -43,7 +43,7 @@ public class VaStartBI extends BIFunction
             @NotNull final IRVisitor irVisitor,
             @NotNull final FunctionNode functionNode
     ) {
-        Objects.requireNonNull(functionNode.getParser(), "functionNode.parser must not be null.");
+        Objects.requireNonNull(functionNode.getParser());
     
         final List<StructNode> structNodes = Objects.requireNonNullElse(functionNode.getParser()
                 .getCompilerClass()
@@ -80,7 +80,7 @@ public class VaStartBI extends BIFunction
             @NotNull final IRVisitor irVisitor,
             @NotNull final FunctionNode functionNode
     ) {
-        Objects.requireNonNull(functionNode.getParser(), "functionNode.parser must not be null.");
+        Objects.requireNonNull(functionNode.getParser());
         
         final LLVMValueRef functionRef = LLVM.LLVMGetNamedFunction(
                 irVisitor.getModuleGen().getModuleRef(),

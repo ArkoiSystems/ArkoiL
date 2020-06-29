@@ -61,7 +61,7 @@ public class StructCreateNode extends IdentifierNode
     
     @Override
     public @NotNull StructCreateNode parse() {
-        Objects.requireNonNull(this.getParser(), "parser must not be null.");
+        Objects.requireNonNull(this.getParser());
         
         if (this.getParser().matchesCurrentToken(SymbolType.OPENING_BRACE) == null) {
             final LexerToken currentToken = this.getParser().currentToken();

@@ -77,7 +77,7 @@ public class IfNode extends StatementNode
     
     @Override
     public @NotNull IfNode parse() {
-        Objects.requireNonNull(this.getParser(), "parser must not be null.");
+        Objects.requireNonNull(this.getParser());
         
         if (this.getParser().matchesCurrentToken(KeywordType.IF) == null) {
             final LexerToken currentToken = this.getParser().currentToken();
@@ -256,7 +256,7 @@ public class IfNode extends StatementNode
     
     @NotNull
     public TypeNode getTypeNode() {
-        Objects.requireNonNull(this.getBlock(), "block must not be null.");
+        Objects.requireNonNull(this.getBlock());
         return this.getBlock().getTypeNode();
     }
     

@@ -91,7 +91,7 @@ public class FunctionNode extends StatementNode
     @NotNull
     @Override
     public FunctionNode parse() {
-        Objects.requireNonNull(this.getParser(), "parser must not be null.");
+        Objects.requireNonNull(this.getParser());
         
         if (this.getParser().matchesCurrentToken(KeywordType.FUN) == null) {
             final LexerToken currentToken = this.getParser().currentToken();
@@ -135,7 +135,7 @@ public class FunctionNode extends StatementNode
     
         this.name = identifierToken;
     
-        Objects.requireNonNull(this.getCurrentScope(), "currentScope must not be null.");
+        Objects.requireNonNull(this.getCurrentScope());
         this.getCurrentScope().insert(identifierToken.getTokenContent(), this);
         this.setCurrentScope(new SymbolTable(this.getCurrentScope()));
     
@@ -274,15 +274,15 @@ public class FunctionNode extends StatementNode
     
     @NotNull
     public TypeNode getTypeNode() {
-        Objects.requireNonNull(this.getReturnType(), "returnType must not be null.");
+        Objects.requireNonNull(this.getReturnType());
         return this.getReturnType();
     }
     
     public boolean equalsToFunction(@NotNull final FunctionNode functionNode) {
-        Objects.requireNonNull(this.getParameterList(), "identifierNode.parameters must not be null.");
-        Objects.requireNonNull(this.getName(), "name must not be null.");
-        Objects.requireNonNull(functionNode.getParameterList(), "functionNode.parameters must not be null.");
-        Objects.requireNonNull(functionNode.getName(), "functionNode.name must not be null.");
+        Objects.requireNonNull(this.getParameterList());
+        Objects.requireNonNull(this.getName());
+        Objects.requireNonNull(functionNode.getParameterList());
+        Objects.requireNonNull(functionNode.getName());
     
         if (!functionNode.getName().getTokenContent().equals(this.getName().getTokenContent()))
             return false;
@@ -290,7 +290,7 @@ public class FunctionNode extends StatementNode
         for (int index = 0; index < this.getParameterList().getParameters().size(); index++) {
             if (index >= functionNode.getParameterList().getParameters().size())
                 return false;
-    
+        
             final ParameterNode ownParameter = this.getParameterList().getParameters().get(index);
             final ParameterNode otherParameter = functionNode.getParameterList().getParameters().get(index);
             if (!ownParameter.getTypeNode().equals(otherParameter.getTypeNode()))
@@ -301,14 +301,14 @@ public class FunctionNode extends StatementNode
     }
     
     public boolean equalsToCall(@NotNull final FunctionCallNode functionCallNode) {
-        Objects.requireNonNull(functionCallNode.getIdentifier(), "identifierNode.identifier must not be null.");
-        Objects.requireNonNull(this.getParameterList(), "parameters must not be null.");
-        Objects.requireNonNull(this.getName(), "name must not be null.");
+        Objects.requireNonNull(functionCallNode.getIdentifier());
+        Objects.requireNonNull(this.getParameterList());
+        Objects.requireNonNull(this.getName());
     
         if (!functionCallNode.getIdentifier().getTokenContent().equals(this.getName().getTokenContent()))
             return false;
     
-        Objects.requireNonNull(functionCallNode.getExpressionList(), "identifierNode.expressions must not be null.");
+        Objects.requireNonNull(functionCallNode.getExpressionList());
         for (int index = 0; index < this.getParameterList().getParameters().size(); index++) {
             if (index >= functionCallNode.getExpressionList().getExpressions().size()) {
                 if (!this.getParameterList().isVariadic())

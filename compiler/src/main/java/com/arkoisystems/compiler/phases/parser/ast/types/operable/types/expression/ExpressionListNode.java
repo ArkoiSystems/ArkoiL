@@ -62,7 +62,7 @@ public class ExpressionListNode extends ParserNode
     @NotNull
     @Override
     public ExpressionListNode parse() {
-        Objects.requireNonNull(this.getParser(), "parser must not be null.");
+        Objects.requireNonNull(this.getParser());
         
         if (this.getParser().matchesCurrentToken(SymbolType.OPENING_PARENTHESIS) == null) {
             final LexerToken currentToken = this.getParser().currentToken();

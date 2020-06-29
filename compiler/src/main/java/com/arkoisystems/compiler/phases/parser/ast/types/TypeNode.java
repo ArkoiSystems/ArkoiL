@@ -95,7 +95,7 @@ public class TypeNode extends ParserNode
     @NotNull
     @Override
     public TypeNode parse() {
-        Objects.requireNonNull(this.getParser(), "parser must not be null.");
+        Objects.requireNonNull(this.getParser());
     
         if (this.getParser().matchesCurrentToken(TokenType.TYPE) == null &&
                 this.getParser().matchesCurrentToken(TokenType.IDENTIFIER) == null) {

@@ -69,7 +69,7 @@ public class ExpressionNode extends OperableNode
     @SneakyThrows
     @NotNull
     protected OperableNode parseOperable() {
-        Objects.requireNonNull(this.getParser(), "parser must not be null.");
+        Objects.requireNonNull(this.getParser());
     
         if (UnaryNode.GLOBAL_NODE.canParse(this.getParser(), 0)) {
             return UnaryNode.builder()

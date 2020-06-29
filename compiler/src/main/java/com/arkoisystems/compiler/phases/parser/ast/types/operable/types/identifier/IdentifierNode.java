@@ -91,7 +91,7 @@ public class IdentifierNode extends OperableNode
     @NotNull
     @Override
     public IdentifierNode parse() {
-        Objects.requireNonNull(this.getParser(), "parser must not be null.");
+        Objects.requireNonNull(this.getParser());
         
         this.startAST(this.getParser().currentToken());
         
@@ -238,9 +238,9 @@ public class IdentifierNode extends OperableNode
     
     @NotNull
     public TypeNode getTypeNode() {
-        Objects.requireNonNull(this.getCurrentScope(), "currentScope must not be null.");
-        Objects.requireNonNull(this.getIdentifier(), "identifier must not be null.");
-        Objects.requireNonNull(this.getParser(), "parser must not be null.");
+        Objects.requireNonNull(this.getCurrentScope());
+        Objects.requireNonNull(this.getIdentifier());
+        Objects.requireNonNull(this.getParser());
     
         final List<ParserNode> nodes = this.getCurrentScope().lookup(this.getIdentifier().getTokenContent());
         ParserNode foundNode = null;
@@ -268,7 +268,7 @@ public class IdentifierNode extends OperableNode
             final ImportNode importNode = (ImportNode) foundNode;
         
             if (this.getNextIdentifier() != null) {
-                final CompilerClass compilerClass = Objects.requireNonNull(importNode.resolveClass(), "importNode.resolveClass must not be null.");
+                final CompilerClass compilerClass = Objects.requireNonNull(importNode.resolveClass());
                 this.getNextIdentifier().setCurrentScope(compilerClass.getRootScope());
                 this.getNextIdentifier().setParser(compilerClass.getParser());
                 return this.getNextIdentifier().getTypeNode();

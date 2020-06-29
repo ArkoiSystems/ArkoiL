@@ -78,7 +78,7 @@ public class TypeVisitor implements IVisitor<TypeNode>
         if (typeNode == ERROR_NODE)
             return ERROR_NODE;
     
-        Objects.requireNonNull(typeNode.getParser(), "typeNode.parser must not be null.");
+        Objects.requireNonNull(typeNode.getParser());
     
         if (typeNode.getTargetIdentifier() != null && typeNode.getTargetNode() == null) {
             final List<ParserNode> nodes = this.getSemantic().getCompilerClass()
@@ -88,7 +88,7 @@ public class TypeVisitor implements IVisitor<TypeNode>
                     .filter(node -> {
                         if (node instanceof StructNode) {
                             final StructNode structNode = (StructNode) node;
-                            final String name = Objects.requireNonNull(structNode.getName(), "structNode.name must not be null.").getTokenContent();
+                            final String name = Objects.requireNonNull(structNode.getName()).getTokenContent();
                             return name.equals(typeNode.getTargetIdentifier().getTokenContent());
                         }
                         return false;
@@ -115,13 +115,13 @@ public class TypeVisitor implements IVisitor<TypeNode>
     @NotNull
     @Override
     public TypeNode visit(@NotNull final RootNode rootNode) {
-        Objects.requireNonNull(rootNode.getCurrentScope(), "rootNode.currentScope must not be null.");
+        Objects.requireNonNull(rootNode.getCurrentScope());
     
         rootNode.getCurrentScope().getSymbolTable().values().stream()
                 .flatMap((Function<List<ParserNode>, Stream<ParserNode>>) Collection::stream)
                 .filter(node -> node instanceof FunctionNode)
                 .map(node -> (FunctionNode) node)
-                .forEach(node -> this.visit(Objects.requireNonNull(node.getParameterList(), "node.parameters must not be null.")));
+                .forEach(node -> this.visit(Objects.requireNonNull(node.getParameterList())));
     
         rootNode.getNodes().forEach(this::visit);
         return ERROR_NODE;
@@ -161,9 +161,9 @@ public class TypeVisitor implements IVisitor<TypeNode>
     @NotNull
     @Override
     public TypeNode visit(@NotNull final FunctionNode functionNode) {
-        Objects.requireNonNull(functionNode.getParameterList(), "functionNode.parameters must not be null.");
-        Objects.requireNonNull(functionNode.getReturnType(), "functionNode.returnType must not be null.");
-        Objects.requireNonNull(functionNode.getParser(), "functionNode.parser must not be null.");
+        Objects.requireNonNull(functionNode.getParameterList());
+        Objects.requireNonNull(functionNode.getReturnType());
+        Objects.requireNonNull(functionNode.getParser());
     
         this.visit(functionNode.getParameterList());
         this.visit(functionNode.getReturnType());
@@ -183,7 +183,7 @@ public class TypeVisitor implements IVisitor<TypeNode>
     @NotNull
     @Override
     public TypeNode visit(@NotNull final ReturnNode returnNode) {
-        Objects.requireNonNull(returnNode.getParser(), "returnNode.parser must not be null.");
+        Objects.requireNonNull(returnNode.getParser());
     
         if (returnNode.getExpression() != null && this.visit(returnNode.getExpression()) == ERROR_NODE)
             return ERROR_NODE;
@@ -212,7 +212,7 @@ public class TypeVisitor implements IVisitor<TypeNode>
     @NotNull
     @Override
     public TypeNode visit(@NotNull final VariableNode variableNode) {
-        Objects.requireNonNull(variableNode.getParser(), "variableNode.parser must not be null.");
+        Objects.requireNonNull(variableNode.getParser());
     
         if (variableNode.getExpression() == null && variableNode.isConstant())
             return this.addError(
@@ -283,15 +283,15 @@ public class TypeVisitor implements IVisitor<TypeNode>
     
     @Override
     public TypeNode visit(@NotNull final FunctionCallNode functionCallNode) {
-        Objects.requireNonNull(functionCallNode.getExpressionList(), "identifierOperable.expressionList must not be null.");
+        Objects.requireNonNull(functionCallNode.getExpressionList());
         this.visit(functionCallNode.getExpressionList());
         return this.visit(functionCallNode.getTypeNode());
     }
     
     @Override
     public TypeNode visit(@NotNull final AssignNode assignNode) {
-        Objects.requireNonNull(assignNode.getExpression(), "assignNode.expression must not be null.");
-        Objects.requireNonNull(assignNode.getParser(), "assignNode.parser must not be null.");
+        Objects.requireNonNull(assignNode.getExpression());
+        Objects.requireNonNull(assignNode.getParser());
     
         final TypeNode leftHandSide = this.visit(assignNode.getTypeNode());
         final TypeNode rightHandSide = this.visit(assignNode.getExpression());
@@ -311,9 +311,9 @@ public class TypeVisitor implements IVisitor<TypeNode>
     
     @Override
     public TypeNode visit(@NotNull final StructCreateNode structCreateNode) {
-        Objects.requireNonNull(structCreateNode.getTypeNode().getTargetNode(), "structCreateNode.typeNode.targetNode must not be null.");
-        Objects.requireNonNull(structCreateNode.getArgumentList(), "structCreateNode.argumentList must not be null.");
-        Objects.requireNonNull(structCreateNode.getParser(), "structCreateNode.parser must not be null.");
+        Objects.requireNonNull(structCreateNode.getTypeNode().getTargetNode());
+        Objects.requireNonNull(structCreateNode.getArgumentList());
+        Objects.requireNonNull(structCreateNode.getParser());
     
         final ParserNode targetNode = structCreateNode.getTypeNode().getTargetNode();
         if (!(targetNode instanceof StructNode))
@@ -321,13 +321,13 @@ public class TypeVisitor implements IVisitor<TypeNode>
     
         final StructNode structNode = (StructNode) targetNode;
         for (final ArgumentNode argumentNode : structCreateNode.getArgumentList().getArguments()) {
-            Objects.requireNonNull(argumentNode.getExpression(), "argumentNode.expression must not be null.");
-            Objects.requireNonNull(argumentNode.getParser(), "argumentNode.parser must not be null.");
-            Objects.requireNonNull(argumentNode.getName(), "argumentNode.name must not be null.");
+            Objects.requireNonNull(argumentNode.getExpression());
+            Objects.requireNonNull(argumentNode.getParser());
+            Objects.requireNonNull(argumentNode.getName());
         
             final VariableNode variableNode = structNode.getVariables().stream()
                     .filter(node -> {
-                        final String name = Objects.requireNonNull(node.getName(), "node.name must not be null.").getTokenContent();
+                        final String name = Objects.requireNonNull(node.getName()).getTokenContent();
                         return name.equals(argumentNode.getName().getTokenContent());
                     })
                     .findFirst()
@@ -362,10 +362,10 @@ public class TypeVisitor implements IVisitor<TypeNode>
     @NotNull
     @Override
     public TypeNode visit(@NotNull final BinaryNode binaryNode) {
-        Objects.requireNonNull(binaryNode.getLeftHandSide(), "binaryExpressionNode.leftSideOperable must not be null.");
-        Objects.requireNonNull(binaryNode.getRightHandSide(), "binaryExpressionNode.rightSideOperable must not be null.");
-        Objects.requireNonNull(binaryNode.getOperatorType(), "binaryExpressionNode.binaryOperatorType must not be null.");
-        Objects.requireNonNull(binaryNode.getParser(), "binaryExpressionNode.parser must not be null.");
+        Objects.requireNonNull(binaryNode.getLeftHandSide());
+        Objects.requireNonNull(binaryNode.getRightHandSide());
+        Objects.requireNonNull(binaryNode.getOperatorType());
+        Objects.requireNonNull(binaryNode.getParser());
     
         final TypeNode leftHandSide = this.visit(binaryNode.getLeftHandSide());
         final TypeNode rightHandSide = this.visit(binaryNode.getRightHandSide());
@@ -373,8 +373,8 @@ public class TypeVisitor implements IVisitor<TypeNode>
         if (leftHandSide == ERROR_NODE || rightHandSide == ERROR_NODE)
             return ERROR_NODE;
     
-        Objects.requireNonNull(rightHandSide.getDataKind(), "rightHandSide.dataKind must not be null.");
-        Objects.requireNonNull(leftHandSide.getDataKind(), "leftHandSide.dataKind must not be null.");
+        Objects.requireNonNull(rightHandSide.getDataKind());
+        Objects.requireNonNull(leftHandSide.getDataKind());
     
         switch (binaryNode.getOperatorType()) {
             case LESS_EQUAL_THAN:
@@ -383,7 +383,7 @@ public class TypeVisitor implements IVisitor<TypeNode>
             case GREATER_THAN:
             case EQUAL:
             case NOT_EQUAL:
-    
+        
             case ADDITION:
             case MULTIPLICATION:
             case SUBTRACTION:
@@ -415,7 +415,7 @@ public class TypeVisitor implements IVisitor<TypeNode>
     @NotNull
     @Override
     public TypeNode visit(@NotNull final ParenthesizedNode parenthesizedNode) {
-        Objects.requireNonNull(parenthesizedNode.getExpression(), "parenthesizedExpressionNode.expression must not be null.");
+        Objects.requireNonNull(parenthesizedNode.getExpression());
         if (this.visit(parenthesizedNode.getExpression()) == ERROR_NODE)
             return ERROR_NODE;
         return this.visit(parenthesizedNode.getTypeNode());
@@ -424,15 +424,15 @@ public class TypeVisitor implements IVisitor<TypeNode>
     @NotNull
     @Override
     public TypeNode visit(@NotNull final UnaryNode unaryNode) {
-        Objects.requireNonNull(unaryNode.getRightHandSide(), "prefixExpressionNode.rightSideOperable must not be null.");
-        Objects.requireNonNull(unaryNode.getOperatorType(), "prefixExpressionNode.prefixOperatorType must not be null.");
-        Objects.requireNonNull(unaryNode.getParser(), "prefixExpressionNode.parser must not be null.");
-        
+        Objects.requireNonNull(unaryNode.getRightHandSide());
+        Objects.requireNonNull(unaryNode.getOperatorType());
+        Objects.requireNonNull(unaryNode.getParser());
+    
         final TypeNode rightHandSide = this.visit(unaryNode.getRightHandSide());
         if (rightHandSide == ERROR_NODE)
             return ERROR_NODE;
-        
-        Objects.requireNonNull(rightHandSide.getDataKind(), "rightHandSide.dataKind must not be null.");
+    
+        Objects.requireNonNull(rightHandSide.getDataKind());
         if (!rightHandSide.getDataKind().isNumeric() || rightHandSide.getPointers() > 0)
             return this.addError(
                     ERROR_NODE,
@@ -452,9 +452,9 @@ public class TypeVisitor implements IVisitor<TypeNode>
     
     @Override
     public TypeNode visit(@NotNull final IfNode ifNode) {
-        Objects.requireNonNull(ifNode.getExpression(), "ifNode.expression must not be null.");
-        Objects.requireNonNull(ifNode.getParser(), "ifNode.parser must not be null.");
-        Objects.requireNonNull(ifNode.getBlock(), "ifNode.block must not be null.");
+        Objects.requireNonNull(ifNode.getExpression());
+        Objects.requireNonNull(ifNode.getParser());
+        Objects.requireNonNull(ifNode.getBlock());
     
         final TypeNode typeNode = this.visit(ifNode.getExpression());
         if (typeNode.getDataKind() != DataKind.INTEGER || typeNode.getBits() != 1)
@@ -474,8 +474,8 @@ public class TypeVisitor implements IVisitor<TypeNode>
     
     @Override
     public TypeNode visit(@NotNull final ElseNode elseNode) {
-        Objects.requireNonNull(elseNode.getParser(), "elseNode.parser must not be null.");
-        Objects.requireNonNull(elseNode.getBlock(), "elseNode.block must not be null.");
+        Objects.requireNonNull(elseNode.getParser());
+        Objects.requireNonNull(elseNode.getBlock());
     
         if (elseNode.getExpression() != null) {
             final TypeNode typeNode = this.visit(elseNode.getExpression());
@@ -503,11 +503,11 @@ public class TypeVisitor implements IVisitor<TypeNode>
     ) {
         compilerClass.getCompiler().getErrorHandler().addError(CompilerError.builder()
                 .causePosition(ErrorPosition.builder()
-                        .sourceCode(Objects.requireNonNull(astNode.getParser(), "astNode.parser must not be null.").getCompilerClass().getContent())
-                        .filePath(Objects.requireNonNull(astNode.getParser(), "astNode.parser must not be null.").getCompilerClass().getFilePath())
-                        .lineRange(Objects.requireNonNull(astNode.getLineRange(), "astNode.lineRange must not be null."))
-                        .charStart(Objects.requireNonNull(astNode.getStartToken(), "astNode.startToken must not be null.").getCharStart())
-                        .charEnd(Objects.requireNonNull(astNode.getEndToken(), "astNode.endToken must not be null.").getCharEnd())
+                        .sourceCode(Objects.requireNonNull(astNode.getParser()).getCompilerClass().getContent())
+                        .filePath(Objects.requireNonNull(astNode.getParser()).getCompilerClass().getFilePath())
+                        .lineRange(Objects.requireNonNull(astNode.getLineRange()))
+                        .charStart(Objects.requireNonNull(astNode.getStartToken()).getCharStart())
+                        .charEnd(Objects.requireNonNull(astNode.getEndToken()).getCharEnd())
                         .build())
                 .causeMessage(causeMessage)
                 .build()
