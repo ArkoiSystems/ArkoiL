@@ -82,7 +82,7 @@ public class BinaryNode extends ExpressionNode
     
     @NotNull
     public OperableNode parseRelational() {
-        Objects.requireNonNull(this.getParser(), "parser must not be null.");
+        Objects.requireNonNull(this.getParser());
         
         OperableNode lhsNode = this.parseAdditive();
         if (lhsNode.isFailed())
@@ -182,7 +182,7 @@ public class BinaryNode extends ExpressionNode
     
     @NotNull
     public OperableNode parseAdditive() {
-        Objects.requireNonNull(this.getParser(), "parser must not be null.");
+        Objects.requireNonNull(this.getParser());
         
         OperableNode lhsNode = this.parseMultiplicative();
         if (lhsNode.isFailed())
@@ -227,7 +227,7 @@ public class BinaryNode extends ExpressionNode
     @SneakyThrows
     @NotNull
     protected OperableNode parseMultiplicative() {
-        Objects.requireNonNull(this.getParser(), "parser must not be null.");
+        Objects.requireNonNull(this.getParser());
         
         OperableNode operableNode = this.parseOperable();
         if (operableNode.isFailed())
@@ -304,10 +304,10 @@ public class BinaryNode extends ExpressionNode
     
     @Override
     public @NotNull TypeNode getTypeNode() {
-        Objects.requireNonNull(this.getRightHandSide(), "rightHandSide must not be null.");
-        Objects.requireNonNull(this.getRightHandSide().getTypeNode().getDataKind(), "rightHandSide.typeNode.dataKind must not be null.");
-        Objects.requireNonNull(this.getLeftHandSide(), "leftHandSide must not be null.");
-        Objects.requireNonNull(this.getOperatorType(), "operatorType must not be null.");
+        Objects.requireNonNull(this.getRightHandSide());
+        Objects.requireNonNull(this.getRightHandSide().getTypeNode().getDataKind());
+        Objects.requireNonNull(this.getLeftHandSide());
+        Objects.requireNonNull(this.getOperatorType());
     
         switch (this.getOperatorType()) {
             case LESS_THAN:

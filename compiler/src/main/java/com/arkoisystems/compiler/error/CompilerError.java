@@ -50,8 +50,8 @@ public class CompilerError
     
     @Override
     public String toString() {
-        Objects.requireNonNull(this.getCauseMessage(), "message must not be null.");
-        Objects.requireNonNull(this.getCausePosition(), "positions must not be null.");
+        Objects.requireNonNull(this.getCauseMessage());
+        Objects.requireNonNull(this.getCausePosition());
     
         final StringBuilder messageBuilder = new StringBuilder(String.format(
                 "%s:%s:%s: %s",

@@ -71,7 +71,7 @@ public class ArgumentNode extends ParserNode
     @NotNull
     @Override
     public ArgumentNode parse() {
-        Objects.requireNonNull(this.getParser(), "parser must not be null.");
+        Objects.requireNonNull(this.getParser());
         
         if (this.getParser().matchesCurrentToken(TokenType.IDENTIFIER) == null) {
             final LexerToken currentToken = this.getParser().currentToken();
@@ -95,7 +95,7 @@ public class ArgumentNode extends ParserNode
     
         this.name = identifierToken;
     
-        Objects.requireNonNull(this.getCurrentScope(), "currentScope must not be null.");
+        Objects.requireNonNull(this.getCurrentScope());
         this.getCurrentScope().insert(identifierToken.getTokenContent(), this);
     
         if (this.getParser().matchesPeekToken(1, SymbolType.COLON) == null) {
@@ -160,7 +160,7 @@ public class ArgumentNode extends ParserNode
     
     @NotNull
     public TypeNode getTypeNode() {
-        Objects.requireNonNull(this.getExpression(), "operableNode must not be null.");
+        Objects.requireNonNull(this.getExpression());
         return this.getExpression().getTypeNode();
     }
     

@@ -69,7 +69,7 @@ public class ParameterNode extends ParserNode
     @NotNull
     @Override
     public ParameterNode parse() {
-        Objects.requireNonNull(this.getParser(), "parser must not be null.");
+        Objects.requireNonNull(this.getParser());
         
         if (this.getParser().matchesCurrentToken(TokenType.IDENTIFIER) == null) {
             final LexerToken currentToken = this.getParser().currentToken();
@@ -93,7 +93,7 @@ public class ParameterNode extends ParserNode
     
         this.name = identifierToken;
     
-        Objects.requireNonNull(this.getCurrentScope(), "currentScope must not be null.");
+        Objects.requireNonNull(this.getCurrentScope());
         this.getCurrentScope().insert(identifierToken.getTokenContent(), this);
     
         if (this.getParser().matchesPeekToken(1, SymbolType.COLON) == null) {

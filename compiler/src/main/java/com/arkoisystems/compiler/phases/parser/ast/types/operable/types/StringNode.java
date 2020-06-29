@@ -64,7 +64,7 @@ public class StringNode extends OperableNode
     @NotNull
     @Override
     public StringNode parse() {
-        Objects.requireNonNull(this.getParser(), "parser must not be null.");
+        Objects.requireNonNull(this.getParser());
         
         if (this.getParser().matchesCurrentToken(TokenType.STRING) == null) {
             final LexerToken currentToken = this.getParser().currentToken();

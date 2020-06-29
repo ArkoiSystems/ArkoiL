@@ -66,7 +66,7 @@ public class FunctionCallNode extends IdentifierNode
     
     @Override
     public @NotNull FunctionCallNode parse() {
-        Objects.requireNonNull(this.getParser(), "parser must not be null.");
+        Objects.requireNonNull(this.getParser());
         
         if (!ExpressionListNode.GLOBAL_NODE.canParse(this.getParser(), 0)) {
             final LexerToken currentToken = this.getParser().currentToken();
@@ -112,14 +112,14 @@ public class FunctionCallNode extends IdentifierNode
     
     @Override
     public @NotNull TypeNode getTypeNode() {
-        Objects.requireNonNull(this.getIdentifier(), "identifier must not be null.");
-        Objects.requireNonNull(this.getParser(), "parser must not be null.");
-        Objects.requireNonNull(this.getParser().getRootNode().getCurrentScope(), "parser.rootNode.currentScope must not be null.");
-        
+        Objects.requireNonNull(this.getIdentifier());
+        Objects.requireNonNull(this.getParser());
+        Objects.requireNonNull(this.getParser().getRootNode().getCurrentScope());
+    
         final List<ParserNode> nodes = this.getParser().getRootNode().getCurrentScope().lookupScope(
                 this.getIdentifier().getTokenContent()
         );
-        
+    
         FunctionNode foundNode = null;
         if (nodes != null && !nodes.isEmpty()) {
             final List<FunctionNode> functions = nodes.stream()

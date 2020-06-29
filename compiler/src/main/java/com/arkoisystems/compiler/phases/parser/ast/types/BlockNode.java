@@ -77,7 +77,7 @@ public class BlockNode extends ParserNode
     @NotNull
     @Override
     public BlockNode parse() {
-        Objects.requireNonNull(this.getParser(), "parser must not be null.");
+        Objects.requireNonNull(this.getParser());
         
         if (this.getParser().matchesCurrentToken(SymbolType.OPENING_BRACE) != null) {
             return this.parseBlock();
@@ -101,7 +101,7 @@ public class BlockNode extends ParserNode
     
     @NotNull
     public BlockNode parseBlock() {
-        Objects.requireNonNull(this.getParser(), "parser must not be null.");
+        Objects.requireNonNull(this.getParser());
         this.isInlined = false;
         
         this.startAST(this.getParser().currentToken());
@@ -121,7 +121,7 @@ public class BlockNode extends ParserNode
     
     @NotNull
     public BlockNode parseStatement() {
-        Objects.requireNonNull(this.getParser(), "parser must not be null.");
+        Objects.requireNonNull(this.getParser());
         
         final ParserNode parserNode;
         if (IfNode.GLOBAL_NODE.canParse(this.getParser(), 0)) {
@@ -178,7 +178,7 @@ public class BlockNode extends ParserNode
     
     @NotNull
     public BlockNode parseInlinedBlock() {
-        Objects.requireNonNull(this.getParser(), "parser must not be null.");
+        Objects.requireNonNull(this.getParser());
         this.isInlined = true;
         
         this.startAST(this.getParser().currentToken());
@@ -266,7 +266,7 @@ public class BlockNode extends ParserNode
     }
     
     private void findValidToken() {
-        Objects.requireNonNull(this.getParser(), "parser must not be null.");
+        Objects.requireNonNull(this.getParser());
         
         while (this.getParser().getPosition() < this.getParser().getTokens().length) {
             if (ReturnNode.GLOBAL_NODE.canParse(this.getParser(), 0) ||

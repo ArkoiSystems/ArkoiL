@@ -63,7 +63,7 @@ public class NumberNode extends OperableNode
     @NotNull
     @Override
     public NumberNode parse() {
-        Objects.requireNonNull(this.getParser(), "parser must not be null.");
+        Objects.requireNonNull(this.getParser());
         
         if (this.getParser().matchesCurrentToken(TokenType.NUMBER) == null) {
             final LexerToken currentToken = this.getParser().currentToken();
@@ -98,7 +98,7 @@ public class NumberNode extends OperableNode
     
     @Override
     public @NotNull TypeNode getTypeNode() {
-        Objects.requireNonNull(this.getNumberToken(), "numberToken must not be null.");
+        Objects.requireNonNull(this.getNumberToken());
         return TypeNode.builder()
                 .parentNode(this)
                 .currentScope(this.getCurrentScope())

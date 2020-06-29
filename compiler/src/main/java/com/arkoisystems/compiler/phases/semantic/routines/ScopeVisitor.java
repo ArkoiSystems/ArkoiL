@@ -91,9 +91,9 @@ public class ScopeVisitor implements IVisitor<ParserNode>
     @NotNull
     @Override
     public ParameterNode visit(@NotNull final ParameterNode parameter) {
-        Objects.requireNonNull(parameter.getCurrentScope(), "parameter.currentScope must not be null.");
-        Objects.requireNonNull(parameter.getParser(), "parameter.parser must not be null.");
-        Objects.requireNonNull(parameter.getName(), "parameter.name must not be null.");
+        Objects.requireNonNull(parameter.getCurrentScope());
+        Objects.requireNonNull(parameter.getParser());
+        Objects.requireNonNull(parameter.getName());
     
         final List<ParserNode> identifiers = Objects.requireNonNullElse(
                 parameter.getCurrentScope().lookupScope(parameter.getName().getTokenContent()),
@@ -120,11 +120,11 @@ public class ScopeVisitor implements IVisitor<ParserNode>
     
     @Override
     public ParserNode visit(@NotNull final ArgumentNode argumentNode) {
-        Objects.requireNonNull(argumentNode.getCurrentScope(), "parameter.currentScope must not be null.");
-        Objects.requireNonNull(argumentNode.getExpression(), "parameter.expression must not be null.");
-        Objects.requireNonNull(argumentNode.getParser(), "parameter.parser must not be null.");
-        Objects.requireNonNull(argumentNode.getName(), "parameter.name must not be null.");
-        
+        Objects.requireNonNull(argumentNode.getCurrentScope());
+        Objects.requireNonNull(argumentNode.getExpression());
+        Objects.requireNonNull(argumentNode.getParser());
+        Objects.requireNonNull(argumentNode.getName());
+    
         final List<ParserNode> identifiers = Objects.requireNonNullElse(
                 argumentNode.getCurrentScope().lookupScope(argumentNode.getName().getTokenContent()),
                 new ArrayList<>()
@@ -146,7 +146,7 @@ public class ScopeVisitor implements IVisitor<ParserNode>
     @NotNull
     @Override
     public BlockNode visit(@NotNull final BlockNode blockNode) {
-        Objects.requireNonNull(blockNode.getParser(), "blockNode.parser must not be null.");
+        Objects.requireNonNull(blockNode.getParser());
     
         blockNode.getNodes().forEach(this::visit);
     
@@ -175,11 +175,11 @@ public class ScopeVisitor implements IVisitor<ParserNode>
     @NotNull
     @Override
     public FunctionNode visit(@NotNull final FunctionNode functionNode) {
-        Objects.requireNonNull(functionNode.getCurrentScope(), "functionNode.currentScope must not be null.");
-        Objects.requireNonNull(functionNode.getParameterList(), "functionNode.parameters must not be null.");
-        Objects.requireNonNull(functionNode.getReturnType(), "functionNode.returnType must not be null.");
-        Objects.requireNonNull(functionNode.getParser(), "functionNode.parser must not be null.");
-        Objects.requireNonNull(functionNode.getName(), "functionNode.name must not be null.");
+        Objects.requireNonNull(functionNode.getCurrentScope());
+        Objects.requireNonNull(functionNode.getParameterList());
+        Objects.requireNonNull(functionNode.getReturnType());
+        Objects.requireNonNull(functionNode.getParser());
+        Objects.requireNonNull(functionNode.getName());
     
         this.visit(functionNode.getParameterList());
         this.visit(functionNode.getReturnType());
@@ -228,10 +228,10 @@ public class ScopeVisitor implements IVisitor<ParserNode>
     @NotNull
     @Override
     public ImportNode visit(@NotNull final ImportNode importNode) {
-        Objects.requireNonNull(importNode.getCurrentScope(), "importNode.currentScope must not be null.");
-        Objects.requireNonNull(importNode.getFilePath(), "importNode.filePath must not be null.");
-        Objects.requireNonNull(importNode.getParser(), "importNode.parser must not be null.");
-        
+        Objects.requireNonNull(importNode.getCurrentScope());
+        Objects.requireNonNull(importNode.getFilePath());
+        Objects.requireNonNull(importNode.getParser());
+    
         if (importNode.resolveClass() == null)
             return this.addError(
                     null,
@@ -246,7 +246,7 @@ public class ScopeVisitor implements IVisitor<ParserNode>
         final List<ImportNode> imports = importNode.getParser().getRootNode().getNodes().stream()
                 .filter(node -> node instanceof ImportNode)
                 .map(node -> (ImportNode) node)
-                .filter(node -> Objects.requireNonNull(node.getFilePath(), "node.filePath must not be null.")
+                .filter(node -> Objects.requireNonNull(node.getFilePath())
                         .getTokenContent().equals(importNode.getFilePath().getTokenContent()))
                 .sorted(Comparator.comparingInt(ParserNode::getStartLine))
                 .collect(Collectors.toList());
@@ -274,10 +274,10 @@ public class ScopeVisitor implements IVisitor<ParserNode>
     @NotNull
     @Override
     public VariableNode visit(@NotNull final VariableNode variableNode) {
-        Objects.requireNonNull(variableNode.getCurrentScope(), "variableNode.currentScope must not be null.");
-        Objects.requireNonNull(variableNode.getParser(), "variableNode.parser must not be null.");
-        Objects.requireNonNull(variableNode.getName(), "variableNode.name must not be null.");
-        
+        Objects.requireNonNull(variableNode.getCurrentScope());
+        Objects.requireNonNull(variableNode.getParser());
+        Objects.requireNonNull(variableNode.getName());
+    
         final List<ParserNode> nodes = Objects.requireNonNullElse(
                 variableNode.getCurrentScope().lookupScope(variableNode.getName().getTokenContent()),
                 new ArrayList<>()
@@ -313,9 +313,9 @@ public class ScopeVisitor implements IVisitor<ParserNode>
     @NotNull
     @Override
     public ParserNode visit(@NotNull final IdentifierNode identifierNode) {
-        Objects.requireNonNull(identifierNode.getCurrentScope(), "identifierNode.currentScope must not be null.");
-        Objects.requireNonNull(identifierNode.getIdentifier(), "identifierNode.identifier must not be null.");
-        Objects.requireNonNull(identifierNode.getParser(), "identifierNode.parser must not be null.");
+        Objects.requireNonNull(identifierNode.getCurrentScope());
+        Objects.requireNonNull(identifierNode.getIdentifier());
+        Objects.requireNonNull(identifierNode.getParser());
     
         final List<ParserNode> nodes = new ArrayList<>(identifierNode.getCurrentScope().lookup(
                 identifierNode.getIdentifier().getTokenContent(),
@@ -339,7 +339,7 @@ public class ScopeVisitor implements IVisitor<ParserNode>
         if (identifierNode.getNextIdentifier() != null) {
             if (foundNode instanceof ImportNode) {
                 final ImportNode importNode = (ImportNode) foundNode;
-                final CompilerClass compilerClass = Objects.requireNonNull(importNode.resolveClass(), "importNode.resolveClass must not be null.");
+                final CompilerClass compilerClass = Objects.requireNonNull(importNode.resolveClass());
                 identifierNode.getNextIdentifier().setCurrentScope(compilerClass.getRootScope());
                 identifierNode.getNextIdentifier().setParser(compilerClass.getParser());
             } else if (foundNode instanceof VariableNode) {
@@ -369,9 +369,9 @@ public class ScopeVisitor implements IVisitor<ParserNode>
     
     @Override
     public ParserNode visit(@NotNull final FunctionCallNode functionCallNode) {
-        Objects.requireNonNull(functionCallNode.getCurrentScope(), "functionCallNode.currentScope must not be null.");
-        Objects.requireNonNull(functionCallNode.getIdentifier(), "functionCallNode.identifier must not be null.");
-        Objects.requireNonNull(functionCallNode.getParser(), "functionCallNode.parser must not be null.");
+        Objects.requireNonNull(functionCallNode.getCurrentScope());
+        Objects.requireNonNull(functionCallNode.getIdentifier());
+        Objects.requireNonNull(functionCallNode.getParser());
     
         final List<ParserNode> nodes = functionCallNode.getParser().getCompilerClass()
                 .getRootScope()
@@ -386,8 +386,8 @@ public class ScopeVisitor implements IVisitor<ParserNode>
                             functionCallNode.getIdentifier().getTokenContent()
                     )
             );
-        
-        Objects.requireNonNull(functionCallNode.getExpressionList(), "identifierNode.expressions must not be null.");
+    
+        Objects.requireNonNull(functionCallNode.getExpressionList());
         
         final List<FunctionNode> functions = nodes.stream()
                 .filter(node -> node instanceof FunctionNode)
@@ -416,9 +416,9 @@ public class ScopeVisitor implements IVisitor<ParserNode>
     
     @Override
     public AssignNode visit(@NotNull final AssignNode assignNode) {
-        Objects.requireNonNull(assignNode.getExpression(), "assignNode.expression must not be null.");
-        Objects.requireNonNull(assignNode.getIdentifier(), "assignNode.identifier must not be null.");
-        Objects.requireNonNull(assignNode.getParser(), "assignNode.parser must not be null.");
+        Objects.requireNonNull(assignNode.getExpression());
+        Objects.requireNonNull(assignNode.getIdentifier());
+        Objects.requireNonNull(assignNode.getParser());
     
         final ParserNode targetNode = this.visit((IdentifierNode) assignNode);
         if (!(targetNode instanceof VariableNode))
@@ -444,9 +444,9 @@ public class ScopeVisitor implements IVisitor<ParserNode>
     
     @Override
     public StructCreateNode visit(@NotNull final StructCreateNode structCreateNode) {
-        Objects.requireNonNull(structCreateNode.getTypeNode().getTargetNode(), "structCreateNode.typeNode.targetNode must not be null.");
-        Objects.requireNonNull(structCreateNode.getArgumentList(), "structCreateNode.argumentList must not be null.");
-        Objects.requireNonNull(structCreateNode.getParser(), "structCreateNode.parser must not be null.");
+        Objects.requireNonNull(structCreateNode.getTypeNode().getTargetNode());
+        Objects.requireNonNull(structCreateNode.getArgumentList());
+        Objects.requireNonNull(structCreateNode.getParser());
     
         this.visit((IdentifierNode) structCreateNode);
     
@@ -463,12 +463,12 @@ public class ScopeVisitor implements IVisitor<ParserNode>
     
         final StructNode structNode = (StructNode) targetNode;
         for (final ArgumentNode argumentNode : structCreateNode.getArgumentList().getArguments()) {
-            Objects.requireNonNull(argumentNode.getParser(), "argumentNode.parser must not be null.");
-            Objects.requireNonNull(argumentNode.getName(), "argumentNode.name must not be null.");
-        
+            Objects.requireNonNull(argumentNode.getParser());
+            Objects.requireNonNull(argumentNode.getName());
+    
             final VariableNode variableNode = structNode.getVariables().stream()
                     .filter(node -> {
-                        final String name = Objects.requireNonNull(node.getName(), "node.name must not be null.").getTokenContent();
+                        final String name = Objects.requireNonNull(node.getName()).getTokenContent();
                         return name.equals(argumentNode.getName().getTokenContent());
                     })
                     .findFirst()
@@ -504,9 +504,9 @@ public class ScopeVisitor implements IVisitor<ParserNode>
     
     @Override
     public BinaryNode visit(@NotNull final BinaryNode binaryNode) {
-        Objects.requireNonNull(binaryNode.getLeftHandSide(), "binaryNode.leftHandSide must not be null.");
-        Objects.requireNonNull(binaryNode.getRightHandSide(), "binaryNode.rightHandSide must not be null.");
-        
+        Objects.requireNonNull(binaryNode.getLeftHandSide());
+        Objects.requireNonNull(binaryNode.getRightHandSide());
+    
         this.visit(binaryNode.getLeftHandSide());
         this.visit(binaryNode.getRightHandSide());
         return binaryNode;
@@ -514,7 +514,7 @@ public class ScopeVisitor implements IVisitor<ParserNode>
     
     @Override
     public ParenthesizedNode visit(@NotNull final ParenthesizedNode parenthesizedNode) {
-        Objects.requireNonNull(parenthesizedNode.getExpression(), "parenthesizedNode.expression must not be null.");
+        Objects.requireNonNull(parenthesizedNode.getExpression());
         
         this.visit(parenthesizedNode.getExpression());
         return parenthesizedNode;
@@ -522,7 +522,7 @@ public class ScopeVisitor implements IVisitor<ParserNode>
     
     @Override
     public UnaryNode visit(@NotNull final UnaryNode unaryNode) {
-        Objects.requireNonNull(unaryNode.getRightHandSide(), "prefixNode.rightHandSide must not be null.");
+        Objects.requireNonNull(unaryNode.getRightHandSide());
         
         this.visit(unaryNode.getRightHandSide());
         return unaryNode;
@@ -530,9 +530,9 @@ public class ScopeVisitor implements IVisitor<ParserNode>
     
     @Override
     public StructNode visit(@NotNull final StructNode structNode) {
-        Objects.requireNonNull(structNode.getParser(), "structNode.parser must not be null.");
-        Objects.requireNonNull(structNode.getParser().getRootNode().getCurrentScope(), "structNode.parser.rootNode.currentScope must not be null.");
-        Objects.requireNonNull(structNode.getName(), "structNode.name must not be null.");
+        Objects.requireNonNull(structNode.getParser());
+        Objects.requireNonNull(structNode.getParser().getRootNode().getCurrentScope());
+        Objects.requireNonNull(structNode.getName());
     
         final List<ParserNode> nodes = structNode.getParser().getRootNode()
                 .getCurrentScope()
@@ -553,12 +553,12 @@ public class ScopeVisitor implements IVisitor<ParserNode>
     
     @Override
     public IfNode visit(@NotNull final IfNode ifNode) {
-        Objects.requireNonNull(ifNode.getExpression(), "ifNode.expression must not be null.");
-        Objects.requireNonNull(ifNode.getBlock(), "ifNode.block must not be null.");
-        
+        Objects.requireNonNull(ifNode.getExpression());
+        Objects.requireNonNull(ifNode.getBlock());
+    
         this.visit(ifNode.getExpression());
         this.visit(ifNode.getBlock());
-        
+    
         if (ifNode.getNextBranch() != null)
             this.visit(ifNode.getNextBranch());
         return ifNode;
@@ -566,7 +566,7 @@ public class ScopeVisitor implements IVisitor<ParserNode>
     
     @Override
     public ElseNode visit(@NotNull final ElseNode elseNode) {
-        Objects.requireNonNull(elseNode.getBlock(), "ifNode.block must not be null.");
+        Objects.requireNonNull(elseNode.getBlock());
         
         if (elseNode.getExpression() != null)
             this.visit(elseNode.getExpression());
@@ -587,20 +587,20 @@ public class ScopeVisitor implements IVisitor<ParserNode>
     ) {
         compilerClass.getCompiler().getErrorHandler().addError(CompilerError.builder()
                 .causePosition(ErrorPosition.builder()
-                        .sourceCode(Objects.requireNonNull(causeNode.getParser(), "causeNode.parser must not be null.").getCompilerClass().getContent())
-                        .filePath(Objects.requireNonNull(causeNode.getParser(), "causeNode.parser must not be null.").getCompilerClass().getFilePath())
-                        .lineRange(Objects.requireNonNull(causeNode.getLineRange(), "causeNode.lineRange must not be null."))
-                        .charStart(Objects.requireNonNull(causeNode.getStartToken(), "causeNode.startToken must not be null.").getCharStart())
-                        .charEnd(Objects.requireNonNull(causeNode.getEndToken(), "causeNode.endToken must not be null.").getCharEnd())
+                        .sourceCode(Objects.requireNonNull(causeNode.getParser()).getCompilerClass().getContent())
+                        .filePath(Objects.requireNonNull(causeNode.getParser()).getCompilerClass().getFilePath())
+                        .lineRange(Objects.requireNonNull(causeNode.getLineRange()))
+                        .charStart(Objects.requireNonNull(causeNode.getStartToken()).getCharStart())
+                        .charEnd(Objects.requireNonNull(causeNode.getEndToken()).getCharEnd())
                         .build())
                 .causeMessage(causeMessage)
                 .otherPositions(nodes.stream()
                         .map(node -> ErrorPosition.builder()
-                                .sourceCode(Objects.requireNonNull(node.getParser(), "node.parser must not be null.").getCompilerClass().getContent())
-                                .filePath(Objects.requireNonNull(node.getParser(), "node.parser must not be null.").getCompilerClass().getFilePath())
-                                .lineRange(Objects.requireNonNull(node.getLineRange(), "node.lineRange must not be null."))
-                                .charStart(Objects.requireNonNull(node.getStartToken(), "node.startToken must not be null.").getCharStart())
-                                .charEnd(Objects.requireNonNull(node.getEndToken(), "node.endToken must not be null.").getCharEnd())
+                                .sourceCode(Objects.requireNonNull(node.getParser()).getCompilerClass().getContent())
+                                .filePath(Objects.requireNonNull(node.getParser()).getCompilerClass().getFilePath())
+                                .lineRange(Objects.requireNonNull(node.getLineRange()))
+                                .charStart(Objects.requireNonNull(node.getStartToken()).getCharStart())
+                                .charEnd(Objects.requireNonNull(node.getEndToken()).getCharEnd())
                                 .build())
                         .collect(Collectors.toList()))
                 .otherMessage(otherMessage)
@@ -619,11 +619,11 @@ public class ScopeVisitor implements IVisitor<ParserNode>
     ) {
         compilerClass.getCompiler().getErrorHandler().addError(CompilerError.builder()
                 .causePosition(ErrorPosition.builder()
-                        .sourceCode(Objects.requireNonNull(astNode.getParser(), "astNode.parser must not be null.").getCompilerClass().getContent())
-                        .filePath(Objects.requireNonNull(astNode.getParser(), "astNode.parser must not be null.").getCompilerClass().getFilePath())
-                        .lineRange(Objects.requireNonNull(astNode.getLineRange(), "astNode.lineRange must not be null."))
-                        .charStart(Objects.requireNonNull(astNode.getStartToken(), "astNode.startToken must not be null.").getCharStart())
-                        .charEnd(Objects.requireNonNull(astNode.getEndToken(), "astNode.endToken must not be null.").getCharEnd())
+                        .sourceCode(Objects.requireNonNull(astNode.getParser()).getCompilerClass().getContent())
+                        .filePath(Objects.requireNonNull(astNode.getParser()).getCompilerClass().getFilePath())
+                        .lineRange(Objects.requireNonNull(astNode.getLineRange()))
+                        .charStart(Objects.requireNonNull(astNode.getStartToken()).getCharStart())
+                        .charEnd(Objects.requireNonNull(astNode.getEndToken()).getCharEnd())
                         .build())
                 .causeMessage(causeMessage)
                 .build()

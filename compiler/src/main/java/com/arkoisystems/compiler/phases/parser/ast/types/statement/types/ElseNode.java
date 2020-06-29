@@ -77,7 +77,7 @@ public class ElseNode extends StatementNode
     
     @Override
     public @NotNull ElseNode parse() {
-        Objects.requireNonNull(this.getParser(), "parser must not be null.");
+        Objects.requireNonNull(this.getParser());
         
         if (this.getParser().matchesCurrentToken(KeywordType.ELSE) == null) {
             final LexerToken currentToken = this.getParser().currentToken();
@@ -265,7 +265,7 @@ public class ElseNode extends StatementNode
     
     @NotNull
     public TypeNode getTypeNode() {
-        Objects.requireNonNull(this.getBlock(), "block must not be null.");
+        Objects.requireNonNull(this.getBlock());
         return this.getBlock().getTypeNode();
     }
     

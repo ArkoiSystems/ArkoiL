@@ -62,7 +62,7 @@ public class ArgumentListNode extends ParserNode
     @NotNull
     @Override
     public ArgumentListNode parse() {
-        Objects.requireNonNull(this.getParser(), "parser must not be null.");
+        Objects.requireNonNull(this.getParser());
         
         this.startAST(this.getParser().currentToken());
         

@@ -63,7 +63,7 @@ public class RootNode extends ParserNode
     @NotNull
     @Override
     public RootNode parse() {
-        Objects.requireNonNull(this.getParser(), "parser must not be null.");
+        Objects.requireNonNull(this.getParser());
         
         this.startAST(this.getParser().currentToken(false));
         while (this.getParser().getPosition() < this.getParser().getTokens().length) {
@@ -127,7 +127,7 @@ public class RootNode extends ParserNode
     }
     
     private void findValidToken() {
-        Objects.requireNonNull(this.getParser(), "parser must not be null.");
+        Objects.requireNonNull(this.getParser());
         
         while (this.getParser().getPosition() < this.getParser().getTokens().length) {
             if (FunctionNode.GLOBAL_NODE.canParse(this.getParser(), 0) ||

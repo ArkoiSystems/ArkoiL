@@ -79,7 +79,7 @@ public class StructNode extends ParserNode
     
     @Override
     public @NotNull StructNode parse() {
-        Objects.requireNonNull(this.getParser(), "parser must not be null.");
+        Objects.requireNonNull(this.getParser());
         
         if (this.getParser().matchesCurrentToken(KeywordType.STRUCT) == null) {
             final LexerToken currentToken = this.getParser().currentToken();
@@ -132,7 +132,7 @@ public class StructNode extends ParserNode
                 .endToken(this.getEndToken())
                 .build();
     
-        Objects.requireNonNull(this.getCurrentScope(), "currentScope must not be null.");
+        Objects.requireNonNull(this.getCurrentScope());
         this.getCurrentScope().insert(identifierToken.getTokenContent(), this);
         this.setCurrentScope(new SymbolTable(this.getCurrentScope()));
     

@@ -65,7 +65,7 @@ public class ReturnNode extends StatementNode
     @NotNull
     @Override
     public ReturnNode parse() {
-        Objects.requireNonNull(this.getParser(), "parser must not be null.");
+        Objects.requireNonNull(this.getParser());
         
         if (this.getParser().matchesCurrentToken(KeywordType.RETURN) == null) {
             final LexerToken currentToken = this.getParser().currentToken();

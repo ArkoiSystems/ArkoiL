@@ -37,7 +37,7 @@ public class VaEndBI extends BIFunction
             @NotNull final IRVisitor irVisitor,
             @NotNull final FunctionNode functionNode
     ) {
-        Objects.requireNonNull(functionNode.getParser(), "functionNode.parser must not be null.");
+        Objects.requireNonNull(functionNode.getParser());
     
         final FunctionGen functionGen = irVisitor.visit(functionNode);
         final LLVMValueRef functionRef = this.getLLVMVaEnd(irVisitor, functionNode);
@@ -61,7 +61,7 @@ public class VaEndBI extends BIFunction
             @NotNull final IRVisitor irVisitor,
             @NotNull final FunctionNode functionNode
     ) {
-        Objects.requireNonNull(functionNode.getParser(), "functionNode.parser must not be null.");
+        Objects.requireNonNull(functionNode.getParser());
         
         final LLVMValueRef functionRef = LLVM.LLVMGetNamedFunction(
                 irVisitor.getModuleGen().getModuleRef(),

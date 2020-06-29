@@ -62,7 +62,7 @@ public class AssignNode extends IdentifierNode
     
     @Override
     public @NotNull AssignNode parse() {
-        Objects.requireNonNull(this.getParser(), "parser must not be null.");
+        Objects.requireNonNull(this.getParser());
         
         if (this.getParser().matchesCurrentToken(OperatorType.EQUALS) == null) {
             final LexerToken currentToken = this.getParser().currentToken();
