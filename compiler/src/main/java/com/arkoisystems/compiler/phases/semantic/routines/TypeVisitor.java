@@ -311,11 +311,10 @@ public class TypeVisitor implements IVisitor<TypeNode>
     
     @Override
     public TypeNode visit(@NotNull final StructCreateNode structCreateNode) {
-        Objects.requireNonNull(structCreateNode.getTypeNode().getTargetNode());
         Objects.requireNonNull(structCreateNode.getArgumentList());
         Objects.requireNonNull(structCreateNode.getParser());
     
-        final ParserNode targetNode = structCreateNode.getTypeNode().getTargetNode();
+        final ParserNode targetNode = this.visit(structCreateNode.getTypeNode()).getTargetNode();
         if (!(targetNode instanceof StructNode))
             return this.visit(structCreateNode.getTypeNode());
     

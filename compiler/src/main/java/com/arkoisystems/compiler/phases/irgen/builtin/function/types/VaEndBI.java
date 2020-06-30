@@ -42,7 +42,7 @@ public class VaEndBI extends BIFunction
         final FunctionGen functionGen = irVisitor.visit(functionNode);
         final LLVMValueRef functionRef = this.getLLVMVaEnd(irVisitor, functionNode);
     
-        irVisitor.getBuilderGen().setPositionAtEnd(irVisitor.getContextGen().appendBasicBlock(functionGen));
+        irVisitor.getBuilderGen().setPositionAtEnd(irVisitor.getContextGen().appendBasicBlock(functionGen.getFunctionRef()));
     
         irVisitor.getBuilderGen().buildFunctionCall(functionRef, irVisitor.getBuilderGen().buildBitCast(
                 functionGen.getParameter(0),
