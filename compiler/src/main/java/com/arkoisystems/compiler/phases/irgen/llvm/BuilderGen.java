@@ -239,4 +239,15 @@ public class BuilderGen
         return LLVM.LLVMBuildICmp(this.getBuilderRef(), LLVM.LLVMIntNE, lhsValue, rhsValue, "");
     }
     
+    @NotNull
+    public LLVMValueRef buildIntToFP(
+            @NotNull final LLVMValueRef lhsValue,
+            @NotNull final LLVMTypeRef targetType,
+            final boolean signed
+    ) {
+        if (signed)
+            return LLVM.LLVMBuildSIToFP(this.getBuilderRef(), lhsValue, targetType, "");
+        return LLVM.LLVMBuildUIToFP(this.getBuilderRef(), lhsValue, targetType, "");
+    }
+    
 }

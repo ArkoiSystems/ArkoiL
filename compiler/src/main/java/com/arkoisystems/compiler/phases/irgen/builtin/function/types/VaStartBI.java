@@ -57,7 +57,7 @@ public class VaStartBI extends BIFunction
     
         final FunctionGen functionGen = irVisitor.visit(functionNode);
     
-        irVisitor.getBuilderGen().setPositionAtEnd(irVisitor.getContextGen().appendBasicBlock(functionGen));
+        irVisitor.getBuilderGen().setPositionAtEnd(irVisitor.getContextGen().appendBasicBlock(functionGen.getFunctionRef()));
     
         final LLVMValueRef functionRef = this.getLLVMVaStart(irVisitor, functionNode);
         final LLVMTypeRef listStructure = irVisitor.visit(structNodes.get(0));

@@ -310,7 +310,7 @@ public class ScopeVisitor implements IVisitor<ParserNode>
         return numberNode;
     }
     
-    @NotNull
+    @Nullable
     @Override
     public ParserNode visit(@NotNull final IdentifierNode identifierNode) {
         Objects.requireNonNull(identifierNode.getCurrentScope());
@@ -347,15 +347,7 @@ public class ScopeVisitor implements IVisitor<ParserNode>
                 final TypeNode typeNode = variableNode.getTypeNode();
                 
                 if (typeNode.getTargetNode() == null)
-                    return this.addError(
-                            null,
-                            identifierNode.getParser().getCompilerClass(),
-                            identifierNode.getIdentifier(),
-                            String.format(
-                                    "Unknown target for '%s'.",
-                                    identifierNode.getIdentifier().getTokenContent()
-                            )
-                    );
+                    return null;
                 
                 identifierNode.getNextIdentifier().setCurrentScope(typeNode.getTargetNode().getCurrentScope());
                 identifierNode.getNextIdentifier().setParser(typeNode.getTargetNode().getParser());
@@ -444,11 +436,11 @@ public class ScopeVisitor implements IVisitor<ParserNode>
     
     @Override
     public StructCreateNode visit(@NotNull final StructCreateNode structCreateNode) {
-        Objects.requireNonNull(structCreateNode.getTypeNode().getTargetNode());
         Objects.requireNonNull(structCreateNode.getArgumentList());
         Objects.requireNonNull(structCreateNode.getParser());
     
-        this.visit((IdentifierNode) structCreateNode);
+        if (this.visit((IdentifierNode) structCreateNode) == null)
+            return null;
     
         final ParserNode targetNode = structCreateNode.getTypeNode().getTargetNode();
         if (!(targetNode instanceof StructNode))

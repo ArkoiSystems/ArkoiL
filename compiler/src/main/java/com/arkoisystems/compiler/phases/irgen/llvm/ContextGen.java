@@ -23,6 +23,7 @@ import lombok.Getter;
 import org.bytedeco.llvm.LLVM.LLVMBasicBlockRef;
 import org.bytedeco.llvm.LLVM.LLVMContextRef;
 import org.bytedeco.llvm.LLVM.LLVMTypeRef;
+import org.bytedeco.llvm.LLVM.LLVMValueRef;
 import org.bytedeco.llvm.global.LLVM;
 import org.jetbrains.annotations.NotNull;
 
@@ -77,10 +78,10 @@ public class ContextGen
     }
     
     @NotNull
-    public LLVMBasicBlockRef appendBasicBlock(@NotNull final FunctionGen functionGen) {
+    public LLVMBasicBlockRef appendBasicBlock(@NotNull final LLVMValueRef functionRef) {
         return LLVM.LLVMAppendBasicBlockInContext(
                 this.getContextRef(),
-                functionGen.getFunctionRef(),
+                functionRef,
                 ""
         );
     }

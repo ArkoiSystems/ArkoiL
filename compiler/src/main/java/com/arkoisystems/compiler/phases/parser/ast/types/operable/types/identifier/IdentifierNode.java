@@ -29,6 +29,7 @@ import com.arkoisystems.compiler.phases.parser.SymbolTable;
 import com.arkoisystems.compiler.phases.parser.ast.ParserNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.StructNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.TypeNode;
+import com.arkoisystems.compiler.phases.parser.ast.types.argument.ArgumentNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.OperableNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.identifier.types.AssignNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.identifier.types.FunctionCallNode;
@@ -242,7 +243,10 @@ public class IdentifierNode extends OperableNode
         Objects.requireNonNull(this.getIdentifier());
         Objects.requireNonNull(this.getParser());
     
-        final List<ParserNode> nodes = this.getCurrentScope().lookup(this.getIdentifier().getTokenContent());
+        final List<ParserNode> nodes = this.getCurrentScope().lookup(
+                this.getIdentifier().getTokenContent(),
+                node -> !(node instanceof ArgumentNode)
+        );
         ParserNode foundNode = null;
         if (!nodes.isEmpty())
             foundNode = nodes.get(0);
