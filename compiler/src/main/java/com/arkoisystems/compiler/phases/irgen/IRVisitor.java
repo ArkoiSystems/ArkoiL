@@ -69,17 +69,25 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 // TODO: 6/16/20 Add promotion and demotion of data types when calling etc
 @Getter
 public class IRVisitor implements IVisitor<Object>
 {
     
+    @NotNull
+    private final HashMap<StructCreateNode, List<ParserNode>> structCreateNodes;
+    
     @NonNull
     private final HashMap<ParserNode, Object> nodeRefs;
     
     @NotNull
     private final CompilerClass compilerClass;
+    
+    @Setter
+    @Nullable
+    private StructCreateNode currentStructCreate;
     
     @Setter
     @NotNull
@@ -98,7 +106,8 @@ public class IRVisitor implements IVisitor<Object>
     
     public IRVisitor(@NotNull final CompilerClass compilerClass) {
         this.compilerClass = compilerClass;
-        
+    
+        this.structCreateNodes = new HashMap<>();
         this.nodeRefs = new HashMap<>();
     }
     
@@ -320,26 +329,26 @@ public class IRVisitor implements IVisitor<Object>
             returnBlock = this.getContextGen().appendBasicBlock(functionGen.getFunctionRef());
             this.getBuilderGen().setPositionAtEnd(returnBlock);
             returnData.add(returnBlock);
-            
+    
             if (blockNode.getTypeNode().getDataKind() != DataKind.VOID) {
                 final LLVMValueRef returnValue = this.getBuilderGen().buildLoad(returnVariable);
                 this.getBuilderGen().returnValue(returnValue);
             } else this.getBuilderGen().returnVoid();
-            
+    
             this.getBuilderGen().setPositionAtEnd(startBlock);
         } else returnBlock = null;
-        
+    
         blockNode.getNodes().forEach(this::visit);
-        
+    
         if (!hasReturn && isFunctionBlock)
             LLVM.LLVMBuildBr(this.getBuilderGen().getBuilderRef(), returnBlock);
-        
+    
         if (isFunctionBlock) {
             LLVM.LLVMMoveBasicBlockAfter(returnBlock, LLVM.LLVMGetLastBasicBlock(
                     functionGen.getFunctionRef()
             ));
         }
-        
+    
         if (currentBlock != null)
             this.getBuilderGen().setPositionAtEnd(currentBlock);
         
@@ -395,10 +404,16 @@ public class IRVisitor implements IVisitor<Object>
             return (LLVMValueRef) object;
         }
     
+        if (this.getCurrentStructCreate() != null) {
+            final List<ParserNode> nodes = this.getStructCreateNodes().get(this.getCurrentStructCreate());
+            nodes.add(variableNode);
+        }
+    
         Objects.requireNonNull(variableNode.getName());
     
+        final LLVMValueRef variableRef;
         if (variableNode.isLocal()) {
-            final LLVMValueRef variableRef = this.getBuilderGen().buildAlloca(this.visit(variableNode.getTypeNode()));
+            variableRef = this.getBuilderGen().buildAlloca(this.visit(variableNode.getTypeNode()));
             this.getNodeRefs().put(variableNode, variableRef);
         
             if (variableNode.getExpression() != null) {
@@ -408,10 +423,8 @@ public class IRVisitor implements IVisitor<Object>
             
                 LLVM.LLVMBuildStore(this.getBuilderGen().getBuilderRef(), (LLVMValueRef) object, variableRef);
             }
-        
-            return variableRef;
         } else {
-            final LLVMValueRef variableRef = this.getModuleGen().buildGlobal(this.visit(variableNode.getTypeNode()));
+            variableRef = this.getModuleGen().buildGlobal(this.visit(variableNode.getTypeNode()));
             this.getNodeRefs().put(variableNode, variableRef);
         
             if (variableNode.getExpression() != null) {
@@ -421,9 +434,9 @@ public class IRVisitor implements IVisitor<Object>
             
                 LLVM.LLVMSetInitializer(variableRef, (LLVMValueRef) object);
             }
-        
-            return variableRef;
         }
+    
+        return variableRef;
     }
     
     @NotNull
@@ -608,81 +621,66 @@ public class IRVisitor implements IVisitor<Object>
         if (structNodes.size() != 1)
             throw new NullPointerException();
     
+        final StructCreateNode oldStructCreate = this.getCurrentStructCreate();
+        final List<ParserNode> nodes = new ArrayList<>();
+        this.getStructCreateNodes().put(structCreateNode, nodes);
+        this.setCurrentStructCreate(structCreateNode);
+    
         final StructNode targetStruct = structNodes.get(0);
         final LLVMTypeRef structRef = this.visit(targetStruct);
     
-        final LLVMValueRef[] arguments = new LLVMValueRef[targetStruct.getVariables().size()];
-        for (int argumentIndex = 0; argumentIndex < structCreateNode.getArgumentList().getArguments().size(); argumentIndex++) {
-            final ArgumentNode argumentNode = structCreateNode.getArgumentList().getArguments().get(argumentIndex);
-            Objects.requireNonNull(argumentNode.getName());
-            
-            for (int variableIndex = 0; variableIndex < targetStruct.getVariables().size(); variableIndex++) {
-                final VariableNode variableNode = targetStruct.getVariables().get(variableIndex);
-                Objects.requireNonNull(variableNode.getName());
-                
-                if (variableNode.getName().getTokenContent().equals(argumentNode.getName().getTokenContent()))
-                    arguments[variableIndex] = this.visit(argumentNode);
-            }
-        }
+        final List<OperableNode> oldExpressions = new ArrayList<>();
+        targetStruct.getVariables().forEach(variableNode -> oldExpressions.add(variableNode.getExpression()));
+    
+        IntStream.range(0, targetStruct.getVariables().size()).forEach(variableIndex -> {
+            final VariableNode variableNode = targetStruct.getVariables().get(variableIndex);
+            Objects.requireNonNull(variableNode.getName());
         
-        for (int index = 0; index < targetStruct.getVariables().size(); index++) {
-            if (arguments[index] != null) continue;
+            OperableNode expressionNode = null;
+            for (int index = 0; index < structCreateNode.getArgumentList().getArguments().size(); index++) {
+                final ArgumentNode argumentNode = structCreateNode.getArgumentList().getArguments().get(index);
+                Objects.requireNonNull(argumentNode.getName());
+            
+                if (variableNode.getName().getTokenContent().equals(argumentNode.getName().getTokenContent())) {
+                    expressionNode = argumentNode.getExpression();
+                    break;
+                }
+            }
+        
+            if (expressionNode == null && variableNode.getExpression() != null)
+                expressionNode = variableNode.getExpression();
+        
+            variableNode.setExpression(expressionNode);
+        });
     
-            final VariableNode variableNode = targetStruct.getVariables().get(index);
-            if (variableNode.getExpression() == null)
-                continue;
-    
+        final LLVMValueRef structVariable = this.getBuilderGen().buildAlloca(structRef);
+        IntStream.range(0, targetStruct.getVariables().size()).forEach(variableIndex -> {
+            final VariableNode variableNode = targetStruct.getVariables().get(variableIndex);
+            Objects.requireNonNull(variableNode.getExpression());
+        
+            final LLVMValueRef variableGEP = LLVM.LLVMBuildStructGEP(
+                    this.getBuilderGen().getBuilderRef(),
+                    structVariable,
+                    variableIndex,
+                    ""
+            );
+        
             final Object object = this.visit(variableNode.getExpression());
             if (!(object instanceof LLVMValueRef))
                 throw new NullPointerException();
-            arguments[index] = (LLVMValueRef) object;
-        }
+        
+            LLVM.LLVMBuildStore(this.getBuilderGen().getBuilderRef(), (LLVMValueRef) object, variableGEP);
+        });
     
-        LLVMValueRef functionRef = LLVM.LLVMGetNamedFunction(
-                this.getModuleGen().getModuleRef(),
-                "create_" + structCreateNode.getIdentifier().getTokenContent()
-        );
-        if (functionRef == null) {
-            functionRef = FunctionGen.builder()
-                    .moduleGen(this.getModuleGen())
-                    .parameters(targetStruct.getVariables().stream().map(node -> {
-                        Objects.requireNonNull(node.getName());
-                        return ParameterGen.builder()
-                                .name(node.getName().getTokenContent())
-                                .typeRef(this.visit(node.getTypeNode()))
-                                .build();
-                    }).toArray(ParameterGen[]::new))
-                    .name("create_" + structCreateNode.getIdentifier().getTokenContent())
-                    .returnType(structRef)
-                    .build()
-                    .getFunctionRef();
-        
-            final LLVMBasicBlockRef currentBlock = this.getBuilderGen().getCurrentBlock();
-            final LLVMBasicBlockRef functionBlock = this.getContextGen().appendBasicBlock(functionRef);
-            this.getBuilderGen().setPositionAtEnd(functionBlock);
-        
-            final LLVMValueRef variable = this.getBuilderGen().buildAlloca(structRef);
-            for (int index = 0; index < targetStruct.getVariables().size(); index++) {
-                final LLVMValueRef variableGEP = LLVM.LLVMBuildStructGEP(
-                        this.getBuilderGen().getBuilderRef(),
-                        variable,
-                        index,
-                        ""
-                );
-                LLVM.LLVMBuildStore(
-                        this.getBuilderGen().getBuilderRef(),
-                        LLVM.LLVMGetParam(functionRef, index),
-                        variableGEP
-                );
-            }
-        
-            this.getBuilderGen().returnValue(this.getBuilderGen().buildLoad(variable));
-        
-            if (currentBlock != null)
-                this.getBuilderGen().setPositionAtEnd(currentBlock);
-        }
+        IntStream.range(0, targetStruct.getVariables().size()).forEach(index -> {
+            final VariableNode variableNode = targetStruct.getVariables().get(index);
+            variableNode.setExpression(oldExpressions.get(index));
+        });
     
-        return this.getBuilderGen().buildFunctionCall(functionRef, arguments);
+        nodes.forEach(node -> this.getNodeRefs().remove(node));
+        this.setCurrentStructCreate(oldStructCreate);
+    
+        return this.getBuilderGen().buildLoad(structVariable);
     }
     
     @NotNull
