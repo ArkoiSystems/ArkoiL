@@ -32,6 +32,7 @@ import com.arkoisystems.compiler.phases.parser.ast.types.TypeNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.OperableNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expression.ExpressionNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.statement.StatementNode;
+import com.arkoisystems.compiler.phases.semantic.routines.TypeVisitor;
 import com.arkoisystems.compiler.visitor.IVisitor;
 import com.arkoisystems.utils.printer.annotations.Printable;
 import lombok.Builder;
@@ -234,7 +235,7 @@ public class VariableNode extends StatementNode
         if (this.getExpression() != null)
             return this.getExpression().getTypeNode();
     
-        throw new NullPointerException();
+        return TypeVisitor.ERROR_NODE;
     }
     
 }
