@@ -38,6 +38,7 @@ import com.arkoisystems.compiler.phases.parser.ast.types.parameter.ParameterNode
 import com.arkoisystems.compiler.phases.parser.ast.types.statement.types.FunctionNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.statement.types.ImportNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.statement.types.VariableNode;
+import com.arkoisystems.compiler.phases.semantic.routines.TypeVisitor;
 import com.arkoisystems.compiler.visitor.IVisitor;
 import com.arkoisystems.utils.printer.annotations.Printable;
 import lombok.Builder;
@@ -283,7 +284,7 @@ public class IdentifierNode extends OperableNode
             return structNode.getTypeNode();
         }
     
-        throw new NullPointerException();
+        return TypeVisitor.ERROR_NODE;
     }
     
 }
