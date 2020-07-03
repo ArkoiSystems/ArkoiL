@@ -287,7 +287,7 @@ public class ScopeVisitor implements IVisitor<ParserNode>
                     null,
                     variableNode.getParser().getCompilerClass(),
                     nodes.get(0),
-                    "There already exists an identifier with the same name is this scope.",
+                    "There already exists an identifier with the same name is this scope.3",
                     nodes.subList(1, nodes.size()),
                     "Edit these identifiers to fix the problem."
             );
@@ -319,7 +319,9 @@ public class ScopeVisitor implements IVisitor<ParserNode>
     
         final List<ParserNode> nodes = new ArrayList<>(identifierNode.getCurrentScope().lookup(
                 identifierNode.getIdentifier().getTokenContent(),
-                parserNode -> !(parserNode instanceof FunctionNode) && !(parserNode instanceof ArgumentNode)
+                node -> !(node instanceof FunctionNode) &&
+                        !(node instanceof ArgumentNode) &&
+                        this.comesBefore(node, identifierNode)
         ));
         if (nodes.size() == 0)
             return this.addError(
@@ -559,14 +561,26 @@ public class ScopeVisitor implements IVisitor<ParserNode>
     @Override
     public ElseNode visit(@NotNull final ElseNode elseNode) {
         Objects.requireNonNull(elseNode.getBlock());
-        
+    
         if (elseNode.getExpression() != null)
             this.visit(elseNode.getExpression());
         this.visit(elseNode.getBlock());
-        
+    
         if (elseNode.getNextBranch() != null)
             this.visit(elseNode.getNextBranch());
         return elseNode;
+    }
+    
+    private boolean comesBefore(
+            @NotNull final ParserNode firstNode,
+            @NotNull final ParserNode secondNode
+    ) {
+        Objects.requireNonNull(secondNode.getStartToken());
+        Objects.requireNonNull(firstNode.getStartToken());
+        
+        if (firstNode.getStartLine() == secondNode.getStartLine())
+            return firstNode.getStartToken().getCharStart() < secondNode.getStartToken().getCharStart();
+        return firstNode.getStartLine() < secondNode.getStartLine();
     }
     
     public <E> E addError(

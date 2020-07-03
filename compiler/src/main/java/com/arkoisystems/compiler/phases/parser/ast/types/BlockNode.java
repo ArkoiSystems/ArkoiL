@@ -122,8 +122,18 @@ public class BlockNode extends ParserNode
     @NotNull
     public BlockNode parseStatement() {
         Objects.requireNonNull(this.getParser());
-        
+    
         final ParserNode parserNode;
+        if (BlockNode.BRACE_NODE.canParse(this.getParser(), 0)) {
+            final LexerToken currentToken = this.getParser().currentToken();
+            return this.addError(
+                    this,
+                    this.getParser().getCompilerClass(),
+                    currentToken,
+                    "Nested blocks are not supported because of the difficulty to read the source."
+            );
+        }
+    
         if (IfNode.GLOBAL_NODE.canParse(this.getParser(), 0)) {
             parserNode = IfNode.builder()
                     .parser(this.getParser())

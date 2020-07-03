@@ -100,7 +100,7 @@ public class ReturnNode extends StatementNode
             
             this.expression = operableNode;
         }
-        
+    
         this.endAST(this.getParser().currentToken());
         return this;
     }
