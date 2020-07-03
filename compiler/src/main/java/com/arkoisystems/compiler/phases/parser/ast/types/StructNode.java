@@ -161,7 +161,7 @@ public class StructNode extends ParserNode
         while (this.getParser().getPosition() < this.getParser().getTokens().length) {
             if (!VariableNode.GLOBAL_NODE.canParse(this.getParser(), 0))
                 break;
-        
+    
             final VariableNode variableNode = VariableNode.builder()
                     .parser(this.getParser())
                     .currentScope(this.getCurrentScope())
@@ -172,7 +172,9 @@ public class StructNode extends ParserNode
                 this.setFailed(true);
                 return this;
             }
-        
+    
+            variableNode.setLocal(true);
+    
             this.getVariables().add(variableNode);
             this.getParser().nextToken();
         }

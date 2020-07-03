@@ -64,7 +64,7 @@ public class SymbolTable
                 return newList;
         }
         if (this.getParentScope() != null)
-            return this.getParentScope().lookup(id);
+            return this.getParentScope().lookup(id, predicate);
         return new ArrayList<>();
     }
     

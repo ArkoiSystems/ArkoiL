@@ -29,7 +29,6 @@ import com.arkoisystems.compiler.phases.parser.ast.types.TypeNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expression.ExpressionListNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.identifier.IdentifierNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.statement.types.FunctionNode;
-import com.arkoisystems.compiler.phases.semantic.routines.TypeVisitor;
 import com.arkoisystems.compiler.visitor.IVisitor;
 import com.arkoisystems.utils.printer.annotations.Printable;
 import lombok.Builder;
@@ -135,7 +134,7 @@ public class FunctionCallNode extends IdentifierNode
         if (foundNode != null)
             return foundNode.getTypeNode();
     
-        return TypeVisitor.ERROR_NODE;
+        throw new NullPointerException();
     }
     
 }

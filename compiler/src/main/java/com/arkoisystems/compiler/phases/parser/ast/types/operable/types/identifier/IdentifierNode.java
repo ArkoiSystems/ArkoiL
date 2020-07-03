@@ -38,7 +38,6 @@ import com.arkoisystems.compiler.phases.parser.ast.types.parameter.ParameterNode
 import com.arkoisystems.compiler.phases.parser.ast.types.statement.types.FunctionNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.statement.types.ImportNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.statement.types.VariableNode;
-import com.arkoisystems.compiler.phases.semantic.routines.TypeVisitor;
 import com.arkoisystems.compiler.visitor.IVisitor;
 import com.arkoisystems.utils.printer.annotations.Printable;
 import lombok.Builder;
@@ -167,7 +166,6 @@ public class IdentifierNode extends OperableNode
             }
         
             final IdentifierToken identifierToken = (IdentifierToken) this.getParser().currentToken();
-        
             final IdentifierNode nextNode;
             if (this.isParseFunction() && FunctionCallNode.GLOBAL_NODE.canParse(this.getParser(), 1)) {
                 this.getParser().nextToken();
@@ -189,16 +187,19 @@ public class IdentifierNode extends OperableNode
                     .identifier(identifierToken)
                     .endToken(identifierToken)
                     .build();
-        
+    
             lastNode.setNextIdentifier(nextNode);
             lastNode = nextNode;
         }
     
         this.endAST(this.getParser().currentToken());
     
+        if (lastNode instanceof FunctionCallNode)
+            return identifierNode;
+    
         if (AssignNode.GLOBAL_NODE.canParse(this.getParser(), 1)) {
             this.getParser().nextToken();
-    
+        
             return AssignNode.builder()
                     .parser(this.getParser())
                     .currentScope(this.getCurrentScope())
@@ -282,7 +283,7 @@ public class IdentifierNode extends OperableNode
             return structNode.getTypeNode();
         }
     
-        return TypeVisitor.ERROR_NODE;
+        throw new NullPointerException();
     }
     
 }
