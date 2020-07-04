@@ -278,11 +278,17 @@ public class BlockNode extends ParserNode
     private void findValidToken() {
         Objects.requireNonNull(this.getParser());
         
+        int braces = 0;
         while (this.getParser().getPosition() < this.getParser().getTokens().length) {
+            if (this.getParser().matchesCurrentToken(SymbolType.OPENING_BRACE) != null)
+                braces++;
+            if (this.getParser().matchesCurrentToken(SymbolType.CLOSING_BRACE) != null)
+                braces--;
+    
             if (ReturnNode.GLOBAL_NODE.canParse(this.getParser(), 0) ||
                     VariableNode.GLOBAL_NODE.canParse(this.getParser(), 0) ||
                     IdentifierNode.PARSER_NODE.canParse(this.getParser(), 0) ||
-                    this.getParser().matchesCurrentToken(SymbolType.CLOSING_BRACE) != null)
+                    braces <= 0)
                 break;
     
             this.getParser().nextToken();
