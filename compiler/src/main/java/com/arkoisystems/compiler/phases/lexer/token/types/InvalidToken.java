@@ -30,11 +30,11 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.regex.Matcher;
 
-public class UndefinedToken extends LexerToken
+public class InvalidToken extends LexerToken
 {
     
     @Builder
-    public UndefinedToken(
+    public InvalidToken(
             @NonNull
             @NotNull final Lexer lexer,
             @Nullable final Matcher matcher,
@@ -44,7 +44,7 @@ public class UndefinedToken extends LexerToken
             final int charStart,
             final int charEnd
     ) {
-        super(lexer, TokenType.UNDEFINED, matcher, startLine, endLine, charStart, charEnd);
+        super(lexer, TokenType.INVALID, matcher, startLine, endLine, charStart, charEnd);
     
         if (!dummy) {
             this.getLexer().setFailed(true);
@@ -62,7 +62,7 @@ public class UndefinedToken extends LexerToken
         }
     }
     
-    public UndefinedToken(
+    public InvalidToken(
             @NotNull final Lexer lexer,
             @Nullable final Matcher matcher,
             final int startLine,
