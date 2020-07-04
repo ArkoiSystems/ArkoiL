@@ -32,7 +32,6 @@ import com.arkoisystems.compiler.phases.parser.ast.types.argument.ArgumentListNo
 import com.arkoisystems.compiler.phases.parser.ast.types.argument.ArgumentNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.NumberNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.StringNode;
-import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expression.ExpressionListNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expression.types.BinaryNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expression.types.ParenthesizedNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expression.types.UnaryNode;
@@ -123,7 +122,11 @@ public class ScopeVisitor implements IVisitor<ParserNode>
         Objects.requireNonNull(argumentNode.getCurrentScope());
         Objects.requireNonNull(argumentNode.getExpression());
         Objects.requireNonNull(argumentNode.getParser());
-        Objects.requireNonNull(argumentNode.getName());
+    
+        if (argumentNode.getName() == null) {
+            this.visit(argumentNode.getExpression());
+            return argumentNode;
+        }
     
         final List<ParserNode> identifiers = Objects.requireNonNullElse(
                 argumentNode.getCurrentScope().lookupScope(argumentNode.getName().getTokenContent()),
@@ -381,7 +384,7 @@ public class ScopeVisitor implements IVisitor<ParserNode>
                     )
             );
     
-        Objects.requireNonNull(functionCallNode.getExpressionList());
+        Objects.requireNonNull(functionCallNode.getArgumentList());
         
         final List<FunctionNode> functions = nodes.stream()
                 .filter(node -> node instanceof FunctionNode)
@@ -400,8 +403,8 @@ public class ScopeVisitor implements IVisitor<ParserNode>
                     functions,
                     "These functions matches with the identifier name. Did you mean one of those?"
             );
-        
-        this.visit(functionCallNode.getExpressionList());
+    
+        this.visit(functionCallNode.getArgumentList());
         
         if (functionCallNode.getNextIdentifier() != null)
             throw new NullPointerException("Not implemented.");
@@ -488,12 +491,6 @@ public class ScopeVisitor implements IVisitor<ParserNode>
         }
     
         return structCreateNode;
-    }
-    
-    @Override
-    public ExpressionListNode visit(@NotNull final ExpressionListNode expressionListNode) {
-        expressionListNode.getExpressions().forEach(this::visit);
-        return expressionListNode;
     }
     
     @Override

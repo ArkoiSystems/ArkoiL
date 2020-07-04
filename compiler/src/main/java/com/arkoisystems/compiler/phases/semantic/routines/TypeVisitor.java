@@ -31,7 +31,6 @@ import com.arkoisystems.compiler.phases.parser.ast.types.argument.ArgumentListNo
 import com.arkoisystems.compiler.phases.parser.ast.types.argument.ArgumentNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.NumberNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.StringNode;
-import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expression.ExpressionListNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expression.types.BinaryNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expression.types.ParenthesizedNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expression.types.UnaryNode;
@@ -283,8 +282,8 @@ public class TypeVisitor implements IVisitor<TypeNode>
     
     @Override
     public TypeNode visit(@NotNull final FunctionCallNode functionCallNode) {
-        Objects.requireNonNull(functionCallNode.getExpressionList());
-        this.visit(functionCallNode.getExpressionList());
+        Objects.requireNonNull(functionCallNode.getArgumentList());
+        this.visit(functionCallNode.getArgumentList());
         return this.visit(functionCallNode.getTypeNode());
     }
     
@@ -349,13 +348,6 @@ public class TypeVisitor implements IVisitor<TypeNode>
         }
     
         return this.visit(structCreateNode.getTypeNode());
-    }
-    
-    @NotNull
-    @Override
-    public TypeNode visit(@NotNull final ExpressionListNode expressionListNode) {
-        expressionListNode.getExpressions().forEach(this::visit);
-        return ERROR_NODE;
     }
     
     @NotNull

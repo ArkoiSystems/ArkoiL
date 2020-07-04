@@ -26,7 +26,7 @@ import com.arkoisystems.compiler.phases.parser.ParserErrorType;
 import com.arkoisystems.compiler.phases.parser.SymbolTable;
 import com.arkoisystems.compiler.phases.parser.ast.ParserNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.TypeNode;
-import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expression.ExpressionListNode;
+import com.arkoisystems.compiler.phases.parser.ast.types.argument.ArgumentListNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.identifier.IdentifierNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.statement.types.FunctionNode;
 import com.arkoisystems.compiler.phases.semantic.routines.TypeVisitor;
@@ -47,9 +47,9 @@ public class FunctionCallNode extends IdentifierNode
     
     public static FunctionCallNode GLOBAL_NODE = new FunctionCallNode(null, null, null, null, null, null, null);
     
-    @Printable(name = "expression list")
+    @Printable(name = "arguments")
     @Nullable
-    private ExpressionListNode expressionList;
+    private ArgumentListNode argumentList;
     
     @Builder
     protected FunctionCallNode(
@@ -67,8 +67,8 @@ public class FunctionCallNode extends IdentifierNode
     @Override
     public @NotNull FunctionCallNode parse() {
         Objects.requireNonNull(this.getParser());
-        
-        if (!ExpressionListNode.GLOBAL_NODE.canParse(this.getParser(), 0)) {
+    
+        if (this.getParser().matchesCurrentToken(SymbolType.OPENING_PARENTHESIS) == null) {
             final LexerToken currentToken = this.getParser().currentToken();
             return this.addError(
                     this,
@@ -77,25 +77,58 @@ public class FunctionCallNode extends IdentifierNode
                     String.format(
                             ParserErrorType.SYNTAX_ERROR_TEMPLATE,
                             "Function call",
-                            "<expression list>",
+                            "'('",
                             currentToken != null ? currentToken.getTokenContent() : "nothing"
                     )
             );
         }
-        
-        final ExpressionListNode expressionListNode = ExpressionListNode.builder()
+    
+        if (!ArgumentListNode.MIXED_NAMED_NODE.canParse(this.getParser(), 1)) {
+            final LexerToken nextToken = this.getParser().nextToken();
+            return this.addError(
+                    this,
+                    this.getParser().getCompilerClass(),
+                    nextToken,
+                    String.format(
+                            ParserErrorType.SYNTAX_ERROR_TEMPLATE,
+                            "Function call",
+                            "<argument list>",
+                            nextToken != null ? nextToken.getTokenContent() : "nothing"
+                    )
+            );
+        }
+    
+        this.getParser().nextToken();
+    
+        final ArgumentListNode argumentListNode = ArgumentListNode.builder()
                 .parentNode(this)
-                .currentScope(this.getCurrentScope())
+                .currentScope(new SymbolTable(this.getCurrentScope()))
                 .parser(this.getParser())
+                .allNamed(false)
                 .build()
                 .parse();
-        if (expressionListNode.isFailed()) {
+        if (argumentListNode.isFailed()) {
             this.setFailed(true);
             return this;
         }
-        
-        this.expressionList = expressionListNode;
-        
+    
+        this.argumentList = argumentListNode;
+    
+        if (this.getParser().matchesCurrentToken(SymbolType.CLOSING_PARENTHESIS) == null) {
+            final LexerToken currentToken = this.getParser().currentToken();
+            return this.addError(
+                    this,
+                    this.getParser().getCompilerClass(),
+                    currentToken,
+                    String.format(
+                            ParserErrorType.SYNTAX_ERROR_TEMPLATE,
+                            "Function call",
+                            "')'",
+                            currentToken != null ? currentToken.getTokenContent() : "nothing"
+                    )
+            );
+        }
+    
         this.endAST(this.getParser().currentToken());
         return this;
     }

@@ -42,7 +42,11 @@ import java.util.Objects;
 public class ArgumentNode extends ParserNode
 {
     
-    public static ArgumentNode GLOBAL_NODE = new ArgumentNode(null, null, null, null, null, null, null);
+    public static ArgumentNode NAMED_NODE = new ArgumentNode(null, null, null, null, true, null, null, null);
+    
+    public static ArgumentNode UNNAMED_NODE = new ArgumentNode(null, null, null, null, false, null, null, null);
+    
+    private final boolean named;
     
     @Printable(name = "name")
     @Nullable
@@ -58,12 +62,14 @@ public class ArgumentNode extends ParserNode
             @Nullable final ParserNode parentNode,
             @Nullable final SymbolTable currentScope,
             @Nullable final IdentifierToken name,
+            final boolean named,
             @Nullable final OperableNode expression,
             @Nullable final LexerToken startToken,
             @Nullable final LexerToken endToken
     ) {
         super(parser, parentNode, currentScope, startToken, endToken);
         
+        this.named = named;
         this.expression = expression;
         this.name = name;
     }
@@ -72,51 +78,53 @@ public class ArgumentNode extends ParserNode
     @Override
     public ArgumentNode parse() {
         Objects.requireNonNull(this.getParser());
-        
-        if (this.getParser().matchesCurrentToken(TokenType.IDENTIFIER) == null) {
-            final LexerToken currentToken = this.getParser().currentToken();
-            return this.addError(
-                    this,
-                    this.getParser().getCompilerClass(),
-                    currentToken,
-                    String.format(
-                            ParserErrorType.SYNTAX_ERROR_TEMPLATE,
-                            "Parameter",
-                            "<identifier>",
-                            currentToken != null ? currentToken.getTokenContent() : "nothing"
-                    )
-            );
-        }
     
         this.startAST(this.getParser().currentToken());
     
-        final IdentifierToken identifierToken = (IdentifierToken) this.getParser().currentToken();
-        Objects.requireNonNull(identifierToken, "identifierToken must not be null.");
-    
-        this.name = identifierToken;
-    
-        Objects.requireNonNull(this.getCurrentScope());
-        this.getCurrentScope().insert(identifierToken.getTokenContent(), this);
-    
-        if (this.getParser().matchesPeekToken(1, SymbolType.COLON) == null) {
-            final LexerToken nextToken = this.getParser().nextToken();
-            return this.addError(
-                    this,
-                    this.getParser().getCompilerClass(),
-                    nextToken,
-                    String.format(
-                            ParserErrorType.SYNTAX_ERROR_TEMPLATE,
-                            "Argument",
-                            "':'",
-                            nextToken != null ? nextToken.getTokenContent() : "nothing"
-                    )
-            );
+        if (this.isNamed()) {
+            if (this.getParser().matchesCurrentToken(TokenType.IDENTIFIER) == null) {
+                final LexerToken currentToken = this.getParser().currentToken();
+                return this.addError(
+                        this,
+                        this.getParser().getCompilerClass(),
+                        currentToken,
+                        String.format(
+                                ParserErrorType.SYNTAX_ERROR_TEMPLATE,
+                                "Parameter",
+                                "<identifier>",
+                                currentToken != null ? currentToken.getTokenContent() : "nothing"
+                        )
+                );
+            }
+        
+            final IdentifierToken identifierToken = (IdentifierToken) this.getParser().currentToken();
+            Objects.requireNonNull(identifierToken, "identifierToken must not be null.");
+        
+            this.name = identifierToken;
+        
+            Objects.requireNonNull(this.getCurrentScope());
+            this.getCurrentScope().insert(identifierToken.getTokenContent(), this);
+        
+            if (this.getParser().matchesPeekToken(1, SymbolType.COLON) == null) {
+                final LexerToken nextToken = this.getParser().nextToken();
+                return this.addError(
+                        this,
+                        this.getParser().getCompilerClass(),
+                        nextToken,
+                        String.format(
+                                ParserErrorType.SYNTAX_ERROR_TEMPLATE,
+                                "Argument",
+                                "':'",
+                                nextToken != null ? nextToken.getTokenContent() : "nothing"
+                        )
+                );
+            }
+        
+            this.getParser().nextToken(2);
         }
-        
-        this.getParser().nextToken();
-        
-        if (!ExpressionNode.GLOBAL_NODE.canParse(this.getParser(), 1)) {
-            final LexerToken currentToken = this.getParser().nextToken();
+    
+        if (!ExpressionNode.GLOBAL_NODE.canParse(this.getParser(), 0)) {
+            final LexerToken currentToken = this.getParser().currentToken();
             return this.addError(
                     this,
                     this.getParser().getCompilerClass(),
@@ -129,8 +137,6 @@ public class ArgumentNode extends ParserNode
                     )
             );
         }
-        
-        this.getParser().nextToken();
         
         final OperableNode operableNode = ExpressionNode.expressionBuilder()
                 .parentNode(this)
@@ -150,7 +156,9 @@ public class ArgumentNode extends ParserNode
     
     @Override
     public boolean canParse(@NotNull final Parser parser, final int offset) {
-        return parser.matchesPeekToken(offset, TokenType.IDENTIFIER) != null;
+        return this.isNamed() ?
+                (parser.matchesPeekToken(offset, TokenType.IDENTIFIER) != null && parser.matchesPeekToken(offset + 1, SymbolType.COLON) != null) :
+                ExpressionNode.GLOBAL_NODE.canParse(parser, offset);
     }
     
     @Override

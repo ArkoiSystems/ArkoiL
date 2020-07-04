@@ -27,7 +27,6 @@ import com.arkoisystems.compiler.phases.parser.ast.types.argument.ArgumentListNo
 import com.arkoisystems.compiler.phases.parser.ast.types.argument.ArgumentNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.NumberNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.StringNode;
-import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expression.ExpressionListNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expression.types.BinaryNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expression.types.ParenthesizedNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expression.types.UnaryNode;
@@ -78,8 +77,6 @@ public interface IVisitor<T>
             return this.visit((StringNode) astNode);
         else if (astNode instanceof NumberNode)
             return this.visit((NumberNode) astNode);
-        else if (astNode instanceof ExpressionListNode)
-            return this.visit((ExpressionListNode) astNode);
         else if (astNode instanceof BinaryNode)
             return this.visit((BinaryNode) astNode);
         else if (astNode instanceof ParenthesizedNode)
@@ -131,8 +128,6 @@ public interface IVisitor<T>
     T visit(@NotNull final AssignNode assignNode);
     
     T visit(@NotNull final StructCreateNode structCreateNode);
-    
-    T visit(@NotNull final ExpressionListNode expressionListNode);
     
     T visit(@NotNull final BinaryNode binaryNode);
     

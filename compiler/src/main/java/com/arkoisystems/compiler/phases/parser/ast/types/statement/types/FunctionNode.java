@@ -29,6 +29,7 @@ import com.arkoisystems.compiler.phases.parser.SymbolTable;
 import com.arkoisystems.compiler.phases.parser.ast.ParserNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.BlockNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.TypeNode;
+import com.arkoisystems.compiler.phases.parser.ast.types.argument.ArgumentNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.OperableNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.identifier.types.FunctionCallNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.parameter.ParameterListNode;
@@ -308,15 +309,18 @@ public class FunctionNode extends StatementNode
         if (!functionCallNode.getIdentifier().getTokenContent().equals(this.getName().getTokenContent()))
             return false;
     
-        Objects.requireNonNull(functionCallNode.getExpressionList());
+        Objects.requireNonNull(functionCallNode.getArgumentList());
         for (int index = 0; index < this.getParameterList().getParameters().size(); index++) {
-            if (index >= functionCallNode.getExpressionList().getExpressions().size()) {
+            if (index >= functionCallNode.getArgumentList().getArguments().size()) {
                 if (!this.getParameterList().isVariadic())
                     return false;
                 break;
             }
     
-            final OperableNode identifierExpression = functionCallNode.getExpressionList().getExpressions().get(index);
+            final ArgumentNode argumentNode = functionCallNode.getArgumentList().getArguments().get(index);
+            Objects.requireNonNull(argumentNode.getExpression());
+    
+            final OperableNode identifierExpression = argumentNode.getExpression();
             final ParameterNode targetParameter = this.getParameterList().getParameters().get(index);
             if (!targetParameter.getTypeNode().equals(identifierExpression.getTypeNode()))
                 return false;
