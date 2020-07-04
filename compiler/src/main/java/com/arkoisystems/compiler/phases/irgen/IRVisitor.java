@@ -581,22 +581,35 @@ public class IRVisitor implements IVisitor<Object>
                     break;
                 }
             }
-        
+    
             if (foundParameter == null)
                 throw new NullPointerException();
-        
+    
             final int parameterIndex = targetNode.getParameterList().getParameters().indexOf(foundParameter);
             arguments.remove(argumentNode);
             arguments.add(parameterIndex, argumentNode);
         }
     
-        return this.getBuilderGen().buildFunctionCall(functionRef, arguments.stream().map(node -> {
-            Objects.requireNonNull(node.getExpression());
-            final Object object = this.visit(node.getExpression());
+        final LLVMValueRef[] functionArguments = new LLVMValueRef[arguments.size()];
+        for (int index = 0; index < functionArguments.length; index++) {
+            final ArgumentNode argumentNode = arguments.get(index);
+            Objects.requireNonNull(argumentNode.getExpression());
+        
+            final Object object = this.visit(argumentNode.getExpression());
             if (!(object instanceof LLVMValueRef))
                 throw new NullPointerException();
-            return (LLVMValueRef) object;
-        }).toArray(LLVMValueRef[]::new));
+        
+            LLVMValueRef expression = (LLVMValueRef) object;
+            if (index >= targetNode.getParameterList().getParameters().size())
+                expression = this.promoteValue(
+                        argumentNode.getExpression().getTypeNode(),
+                        expression
+                );
+        
+            functionArguments[index] = expression;
+        }
+    
+        return this.getBuilderGen().buildFunctionCall(functionRef, functionArguments);
     }
     
     @Override
@@ -1007,7 +1020,6 @@ public class IRVisitor implements IVisitor<Object>
     // https://en.cppreference.com/w/c/language/conversion
     @NotNull
     private LLVMValueRef promoteValue(
-            @NotNull final BuilderGen builderGen,
             @NotNull final TypeNode typeNode,
             @NotNull final LLVMValueRef valueRef
     ) {
@@ -1015,11 +1027,11 @@ public class IRVisitor implements IVisitor<Object>
             return valueRef;
     
         if (typeNode.getDataKind() == DataKind.FLOAT) {
-            return LLVM.LLVMBuildFPExt(builderGen.getBuilderRef(), valueRef, this.getContextGen().makeDoubleType(), "");
+            return LLVM.LLVMBuildFPExt(this.getBuilderGen().getBuilderRef(), valueRef, this.getContextGen().makeDoubleType(), "");
         } else if (typeNode.getDataKind() == DataKind.INTEGER && typeNode.getBits() != 32) {
             if (typeNode.isSigned())
-                return LLVM.LLVMBuildSExt(builderGen.getBuilderRef(), valueRef, this.getContextGen().makeIntType(32), "");
-            return LLVM.LLVMBuildZExt(builderGen.getBuilderRef(), valueRef, this.getContextGen().makeIntType(32), "");
+                return LLVM.LLVMBuildSExt(this.getBuilderGen().getBuilderRef(), valueRef, this.getContextGen().makeIntType(32), "");
+            return LLVM.LLVMBuildZExt(this.getBuilderGen().getBuilderRef(), valueRef, this.getContextGen().makeIntType(32), "");
         }
     
         return valueRef;
