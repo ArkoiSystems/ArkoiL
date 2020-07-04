@@ -87,6 +87,7 @@ public class StructCreateNode extends IdentifierNode
                 .parentNode(this)
                 .currentScope(this.getCurrentScope())
                 .parser(this.getParser())
+                .allNamed(true)
                 .build()
                 .parse();
         if (argumentList.isFailed()) {

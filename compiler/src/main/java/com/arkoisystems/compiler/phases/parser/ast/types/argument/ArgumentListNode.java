@@ -21,6 +21,7 @@ package com.arkoisystems.compiler.phases.parser.ast.types.argument;
 import com.arkoisystems.compiler.phases.lexer.token.LexerToken;
 import com.arkoisystems.compiler.phases.lexer.token.enums.SymbolType;
 import com.arkoisystems.compiler.phases.parser.Parser;
+import com.arkoisystems.compiler.phases.parser.ParserErrorType;
 import com.arkoisystems.compiler.phases.parser.SymbolTable;
 import com.arkoisystems.compiler.phases.parser.ast.ParserNode;
 import com.arkoisystems.compiler.visitor.IVisitor;
@@ -39,7 +40,11 @@ import java.util.Objects;
 public class ArgumentListNode extends ParserNode
 {
     
-    public static ArgumentListNode GLOBAL_NODE = new ArgumentListNode(null, null, null, null, null);
+    public static ArgumentListNode ALL_NAMED_NODE = new ArgumentListNode(null, null, null, null, true, null);
+    
+    public static ArgumentListNode MIXED_NAMED_NODE = new ArgumentListNode(null, null, null, null, false, null);
+    
+    private final boolean allNamed;
     
     @Printable(name = "arguments")
     @NotNull
@@ -51,10 +56,12 @@ public class ArgumentListNode extends ParserNode
             @Nullable final ParserNode parentNode,
             @Nullable final SymbolTable currentScope,
             @Nullable final LexerToken startToken,
+            final boolean allNamed,
             @Nullable final LexerToken endToken
     ) {
         super(parser, parentNode, currentScope, startToken, endToken);
         
+        this.allNamed = allNamed;
         this.arguments = new ArrayList<>();
     }
     
@@ -63,38 +70,69 @@ public class ArgumentListNode extends ParserNode
     @Override
     public ArgumentListNode parse() {
         Objects.requireNonNull(this.getParser());
-        
+    
         this.startAST(this.getParser().currentToken());
-        
+    
+        boolean mustBeNamed = this.isAllNamed();
+        LexerToken mixedUp = null;
         while (this.getParser().getPosition() < this.getParser().getTokens().length) {
-            if (!ArgumentNode.GLOBAL_NODE.canParse(this.getParser(), 0))
-                break;
+            final ArgumentNode argumentNode;
+            if (ArgumentNode.NAMED_NODE.canParse(this.getParser(), 0)) {
+                argumentNode = ArgumentNode.builder()
+                        .parentNode(this)
+                        .currentScope(this.getCurrentScope())
+                        .parser(this.getParser())
+                        .named(true)
+                        .build()
+                        .parse();
+                mustBeNamed = true;
+            } else if (ArgumentNode.UNNAMED_NODE.canParse(this.getParser(), 0)) {
+                if (mustBeNamed)
+                    mixedUp = this.getParser().currentToken();
             
-            final ArgumentNode argumentNode = ArgumentNode.builder()
-                    .parentNode(this)
-                    .currentScope(this.getCurrentScope())
-                    .parser(this.getParser())
-                    .build()
-                    .parse();
+                argumentNode = ArgumentNode.builder()
+                        .parentNode(this)
+                        .currentScope(this.getCurrentScope())
+                        .parser(this.getParser())
+                        .named(false)
+                        .build()
+                        .parse();
+            } else break;
+        
             if (argumentNode.isFailed()) {
                 this.setFailed(true);
                 return this;
             }
-            
+        
             this.getArguments().add(argumentNode);
-            
+        
             if (this.getParser().matchesNextToken(SymbolType.COMMA) == null)
                 break;
             this.getParser().nextToken();
         }
-        
+    
+        if (mixedUp != null) {
+            return this.addError(
+                    this,
+                    this.getParser().getCompilerClass(),
+                    mixedUp,
+                    this.isAllNamed() ? String.format(
+                            ParserErrorType.SYNTAX_ERROR_TEMPLATE,
+                            "Argument list",
+                            "<named argument>",
+                            mixedUp.getTokenContent()
+                    ) : "You can't mix up unnamed and named arguments."
+            );
+        }
+    
         this.endAST(this.getParser().currentToken());
         return this;
     }
     
     @Override
     public boolean canParse(@NotNull final Parser parser, final int offset) {
-        return true;
+        return this.isAllNamed() ? ArgumentNode.NAMED_NODE.canParse(parser, offset) :
+                ArgumentNode.NAMED_NODE.canParse(parser, offset) || ArgumentNode.UNNAMED_NODE.canParse(parser, offset);
     }
     
     @Override

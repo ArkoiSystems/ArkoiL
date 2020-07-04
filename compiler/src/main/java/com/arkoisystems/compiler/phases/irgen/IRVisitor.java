@@ -37,7 +37,6 @@ import com.arkoisystems.compiler.phases.parser.ast.types.argument.ArgumentNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.OperableNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.NumberNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.StringNode;
-import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expression.ExpressionListNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expression.types.BinaryNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expression.types.ParenthesizedNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expression.types.UnaryNode;
@@ -69,7 +68,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 // TODO: 6/16/20 Add promotion and demotion of data types when calling etc
 @Getter
@@ -547,7 +545,7 @@ public class IRVisitor implements IVisitor<Object>
     
     @Override
     public LLVMValueRef visit(@NotNull final FunctionCallNode functionCallNode) {
-        Objects.requireNonNull(functionCallNode.getExpressionList());
+        Objects.requireNonNull(functionCallNode.getArgumentList());
         Objects.requireNonNull(functionCallNode.getIdentifier());
         Objects.requireNonNull(functionCallNode.getParser());
     
@@ -567,26 +565,38 @@ public class IRVisitor implements IVisitor<Object>
         final LLVMValueRef functionRef = this.visit(targetNode).getFunctionRef();
     
         Objects.requireNonNull(targetNode.getParameterList());
-        
-        final int size = functionCallNode.getExpressionList().getExpressions().size();
-        final LLVMValueRef[] arguments = new LLVMValueRef[size];
-        for (int index = 0; index < size; index++) {
-            final OperableNode expression = functionCallNode.getExpressionList().getExpressions().get(index);
-            final Object object = this.visit(expression);
-            if (!(object instanceof LLVMValueRef))
-                throw new NullPointerException();
     
-            LLVMValueRef valueRef = (LLVMValueRef) object;
-            if (index > targetNode.getParameterList().getParameters().size() - 1)
-                valueRef = this.promoteValue(
-                        this.getBuilderGen(),
-                        expression.getTypeNode(),
-                        valueRef
-                );
-            arguments[index] = valueRef;
+        final List<ArgumentNode> arguments = new ArrayList<>(functionCallNode.getArgumentList().getArguments());
+        for (final ArgumentNode argumentNode : functionCallNode.getArgumentList().getArguments()) {
+            if (argumentNode.getName() == null)
+                continue;
+        
+            ParameterNode foundParameter = null;
+            for (int index = 0; index < targetNode.getParameterList().getParameters().size(); index++) {
+                final ParameterNode parameterNode = targetNode.getParameterList().getParameters().get(index);
+                Objects.requireNonNull(parameterNode.getName());
+            
+                if (parameterNode.getName().getTokenContent().equals(argumentNode.getName().getTokenContent())) {
+                    foundParameter = parameterNode;
+                    break;
+                }
+            }
+        
+            if (foundParameter == null)
+                throw new NullPointerException();
+        
+            final int parameterIndex = targetNode.getParameterList().getParameters().indexOf(foundParameter);
+            arguments.remove(argumentNode);
+            arguments.add(parameterIndex, argumentNode);
         }
     
-        return this.getBuilderGen().buildFunctionCall(functionRef, arguments);
+        return this.getBuilderGen().buildFunctionCall(functionRef, arguments.stream().map(node -> {
+            Objects.requireNonNull(node.getExpression());
+            final Object object = this.visit(node.getExpression());
+            if (!(object instanceof LLVMValueRef))
+                throw new NullPointerException();
+            return (LLVMValueRef) object;
+        }).toArray(LLVMValueRef[]::new));
     }
     
     @Override
@@ -632,7 +642,7 @@ public class IRVisitor implements IVisitor<Object>
         final List<OperableNode> oldExpressions = new ArrayList<>();
         targetStruct.getVariables().forEach(variableNode -> oldExpressions.add(variableNode.getExpression()));
     
-        IntStream.range(0, targetStruct.getVariables().size()).forEach(variableIndex -> {
+        for (int variableIndex = 0; variableIndex < targetStruct.getVariables().size(); variableIndex++) {
             final VariableNode variableNode = targetStruct.getVariables().get(variableIndex);
             Objects.requireNonNull(variableNode.getName());
         
@@ -651,17 +661,17 @@ public class IRVisitor implements IVisitor<Object>
                 expressionNode = variableNode.getExpression();
         
             variableNode.setExpression(expressionNode);
-        });
+        }
     
         final LLVMValueRef structVariable = this.getBuilderGen().buildAlloca(structRef);
-        IntStream.range(0, targetStruct.getVariables().size()).forEach(variableIndex -> {
-            final VariableNode variableNode = targetStruct.getVariables().get(variableIndex);
+        for (int index = 0; index < targetStruct.getVariables().size(); index++) {
+            final VariableNode variableNode = targetStruct.getVariables().get(index);
             Objects.requireNonNull(variableNode.getExpression());
         
             final LLVMValueRef variableGEP = LLVM.LLVMBuildStructGEP(
                     this.getBuilderGen().getBuilderRef(),
                     structVariable,
-                    variableIndex,
+                    index,
                     ""
             );
         
@@ -670,24 +680,17 @@ public class IRVisitor implements IVisitor<Object>
                 throw new NullPointerException();
         
             LLVM.LLVMBuildStore(this.getBuilderGen().getBuilderRef(), (LLVMValueRef) object, variableGEP);
-        });
+        }
     
-        IntStream.range(0, targetStruct.getVariables().size()).forEach(index -> {
+        for (int index = 0; index < targetStruct.getVariables().size(); index++) {
             final VariableNode variableNode = targetStruct.getVariables().get(index);
             variableNode.setExpression(oldExpressions.get(index));
-        });
+        }
     
         nodes.forEach(node -> this.getNodeRefs().remove(node));
         this.setCurrentStructCreate(oldStructCreate);
     
         return this.getBuilderGen().buildLoad(structVariable);
-    }
-    
-    @NotNull
-    @Override
-    public ExpressionListNode visit(@NotNull final ExpressionListNode expressionListNode) {
-        expressionListNode.getExpressions().forEach(this::visit);
-        return expressionListNode;
     }
     
     @NotNull
