@@ -62,6 +62,10 @@ import java.util.stream.Stream;
 public class TypeVisitor implements IVisitor<TypeNode>
 {
     
+    public static TypeNode LOOPING_NODE = TypeNode.builder()
+            .dataKind(DataKind.ERROR)
+            .build();
+    
     public static TypeNode ERROR_NODE = TypeNode.builder()
             .dataKind(DataKind.ERROR)
             .build();
@@ -74,11 +78,11 @@ public class TypeVisitor implements IVisitor<TypeNode>
     @NotNull
     @Override
     public TypeNode visit(@NotNull final TypeNode typeNode) {
-        if (typeNode == ERROR_NODE)
-            return ERROR_NODE;
-    
+        if (typeNode.getDataKind() == DataKind.ERROR)
+            return typeNode;
+        
         Objects.requireNonNull(typeNode.getParser());
-    
+        
         if (typeNode.getTargetIdentifier() != null && typeNode.getTargetNode() == null) {
             final List<ParserNode> nodes = this.getSemantic().getCompilerClass()
                     .getRootScope()
@@ -184,7 +188,8 @@ public class TypeVisitor implements IVisitor<TypeNode>
     public TypeNode visit(@NotNull final ReturnNode returnNode) {
         Objects.requireNonNull(returnNode.getParser());
     
-        if (returnNode.getExpression() != null && this.visit(returnNode.getExpression()) == ERROR_NODE)
+        if (returnNode.getExpression() != null &&
+                this.visit(returnNode.getExpression()).getDataKind() == DataKind.ERROR)
             return ERROR_NODE;
     
         final FunctionNode functionNode = returnNode.getParent(FunctionNode.class);
@@ -192,10 +197,14 @@ public class TypeVisitor implements IVisitor<TypeNode>
             throw new NullPointerException();
     
         final TypeNode expectedType = this.visit(functionNode.getTypeNode());
+        Objects.requireNonNull(expectedType.getDataKind());
         final TypeNode givenType = this.visit(returnNode.getTypeNode());
+        Objects.requireNonNull(givenType.getDataKind());
     
-        if (expectedType == ERROR_NODE || givenType == ERROR_NODE)
-            return ERROR_NODE;
+        if (expectedType.getDataKind() == DataKind.ERROR)
+            return expectedType;
+        if (givenType.getDataKind() == DataKind.ERROR)
+            return givenType;
     
         if (!expectedType.equals(givenType))
             return this.addError(
@@ -237,19 +246,27 @@ public class TypeVisitor implements IVisitor<TypeNode>
                     "There must be specified a return type if no expression exists."
             );
     
-        TypeNode expectedType = null;
-        if (variableNode.getReturnType() != null)
-            expectedType = this.visit(variableNode.getReturnType());
+        final TypeNode givenType = this.visit(variableNode.getTypeNode());
+        Objects.requireNonNull(givenType.getDataKind());
     
-        TypeNode givenType = null;
-        if (variableNode.getExpression() != null)
-            givenType = this.visit(variableNode.getExpression());
+        if (givenType == LOOPING_NODE)
+            return this.addError(
+                    ERROR_NODE,
+                    variableNode.getParser().getCompilerClass(),
+                    variableNode,
+                    "This variable causes an endless loop."
+            );
     
-        if (expectedType == null || givenType == null)
-            return this.visit(variableNode.getTypeNode());
+        if (variableNode.getReturnType() == null)
+            return givenType;
     
-        if (expectedType == ERROR_NODE || givenType == ERROR_NODE)
-            return ERROR_NODE;
+        final TypeNode expectedType = this.visit(variableNode.getReturnType());
+        Objects.requireNonNull(expectedType.getDataKind());
+    
+        if (expectedType.getDataKind() == DataKind.ERROR)
+            return expectedType;
+        if (givenType.getDataKind() == DataKind.ERROR)
+            return givenType;
     
         if (!expectedType.equals(givenType))
             return this.addError(
@@ -259,7 +276,7 @@ public class TypeVisitor implements IVisitor<TypeNode>
                     "The expression type doesn't match that of the variable."
             );
     
-        return this.visit(variableNode.getTypeNode());
+        return givenType;
     }
     
     @NotNull
@@ -277,6 +294,7 @@ public class TypeVisitor implements IVisitor<TypeNode>
     @NotNull
     @Override
     public TypeNode visit(@NotNull final IdentifierNode identifierNode) {
+        Objects.requireNonNull(identifierNode.getParser());
         return this.visit(identifierNode.getTypeNode());
     }
     
@@ -293,9 +311,14 @@ public class TypeVisitor implements IVisitor<TypeNode>
         Objects.requireNonNull(assignNode.getParser());
     
         final TypeNode leftHandSide = this.visit(assignNode.getTypeNode());
+        Objects.requireNonNull(leftHandSide.getDataKind());
         final TypeNode rightHandSide = this.visit(assignNode.getExpression());
-        if (leftHandSide == ERROR_NODE || rightHandSide == ERROR_NODE)
-            return ERROR_NODE;
+        Objects.requireNonNull(rightHandSide.getDataKind());
+    
+        if (leftHandSide.getDataKind() == DataKind.ERROR)
+            return leftHandSide;
+        if (rightHandSide.getDataKind() == DataKind.ERROR)
+            return rightHandSide;
     
         if (!rightHandSide.equals(leftHandSide))
             return this.addError(
@@ -322,7 +345,7 @@ public class TypeVisitor implements IVisitor<TypeNode>
             Objects.requireNonNull(argumentNode.getExpression());
             Objects.requireNonNull(argumentNode.getParser());
             Objects.requireNonNull(argumentNode.getName());
-        
+    
             final VariableNode variableNode = structNode.getVariables().stream()
                     .filter(node -> {
                         final String name = Objects.requireNonNull(node.getName()).getTokenContent();
@@ -332,13 +355,18 @@ public class TypeVisitor implements IVisitor<TypeNode>
                     .orElse(null);
             if (variableNode == null)
                 continue;
-        
-            final TypeNode leftHandSide = this.visit(variableNode.getTypeNode());
-            final TypeNode rightHandSide = this.visit(argumentNode.getExpression());
-            if (leftHandSide == ERROR_NODE || rightHandSide == ERROR_NODE)
-                return ERROR_NODE;
-        
-            if (!rightHandSide.equals(leftHandSide))
+    
+            final TypeNode expectedType = this.visit(variableNode.getTypeNode());
+            Objects.requireNonNull(expectedType.getDataKind());
+            final TypeNode givenType = this.visit(argumentNode.getExpression());
+            Objects.requireNonNull(givenType.getDataKind());
+    
+            if (expectedType.getDataKind() == DataKind.ERROR)
+                return expectedType;
+            if (givenType.getDataKind() == DataKind.ERROR)
+                return givenType;
+    
+            if (!givenType.equals(expectedType))
                 return this.addError(
                         ERROR_NODE,
                         argumentNode.getParser().getCompilerClass(),
@@ -359,13 +387,14 @@ public class TypeVisitor implements IVisitor<TypeNode>
         Objects.requireNonNull(binaryNode.getParser());
     
         final TypeNode leftHandSide = this.visit(binaryNode.getLeftHandSide());
-        final TypeNode rightHandSide = this.visit(binaryNode.getRightHandSide());
-    
-        if (leftHandSide == ERROR_NODE || rightHandSide == ERROR_NODE)
-            return ERROR_NODE;
-    
-        Objects.requireNonNull(rightHandSide.getDataKind());
         Objects.requireNonNull(leftHandSide.getDataKind());
+        final TypeNode rightHandSide = this.visit(binaryNode.getRightHandSide());
+        Objects.requireNonNull(rightHandSide.getDataKind());
+    
+        if (leftHandSide.getDataKind() == DataKind.ERROR)
+            return leftHandSide;
+        if (rightHandSide.getDataKind() == DataKind.ERROR)
+            return rightHandSide;
     
         switch (binaryNode.getOperatorType()) {
             case LESS_EQUAL_THAN:
@@ -407,8 +436,13 @@ public class TypeVisitor implements IVisitor<TypeNode>
     @Override
     public TypeNode visit(@NotNull final ParenthesizedNode parenthesizedNode) {
         Objects.requireNonNull(parenthesizedNode.getExpression());
-        if (this.visit(parenthesizedNode.getExpression()) == ERROR_NODE)
-            return ERROR_NODE;
+    
+        final TypeNode expressionType = this.visit(parenthesizedNode.getExpression());
+        Objects.requireNonNull(expressionType.getDataKind());
+    
+        if (expressionType.getDataKind() == DataKind.ERROR)
+            return expressionType;
+    
         return this.visit(parenthesizedNode.getTypeNode());
     }
     
@@ -420,10 +454,11 @@ public class TypeVisitor implements IVisitor<TypeNode>
         Objects.requireNonNull(unaryNode.getParser());
     
         final TypeNode rightHandSide = this.visit(unaryNode.getRightHandSide());
-        if (rightHandSide == ERROR_NODE)
-            return ERROR_NODE;
-    
         Objects.requireNonNull(rightHandSide.getDataKind());
+    
+        if (rightHandSide.getDataKind() == DataKind.ERROR)
+            return rightHandSide;
+    
         if (!rightHandSide.getDataKind().isNumeric() || rightHandSide.getPointers() > 0)
             return this.addError(
                     ERROR_NODE,
@@ -431,7 +466,7 @@ public class TypeVisitor implements IVisitor<TypeNode>
                     unaryNode,
                     "Right side is not numeric."
             );
-        
+    
         return this.visit(unaryNode.getTypeNode());
     }
     

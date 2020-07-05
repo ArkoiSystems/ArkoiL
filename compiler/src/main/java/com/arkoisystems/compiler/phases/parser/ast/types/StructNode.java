@@ -173,8 +173,6 @@ public class StructNode extends ParserNode
                 return this;
             }
     
-            variableNode.setLocal(true);
-    
             this.getVariables().add(variableNode);
             this.getParser().nextToken();
         }
