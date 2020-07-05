@@ -110,7 +110,7 @@ public class ExpressionNode extends OperableNode
                         .build()
                         .parse();
             } else return this.addError(
-                    null,
+                    this,
                     this.getParser().getCompilerClass(),
                     this.getParser().currentToken(),
                     ParserErrorType.OPERABLE_NOT_SUPPORTED

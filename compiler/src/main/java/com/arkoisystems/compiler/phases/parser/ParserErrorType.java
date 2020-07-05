@@ -27,6 +27,6 @@ public class ParserErrorType
     
     public static final String BLOCK_NO_PARSER_FOUND = "The block couldn't parse the token.";
     
-    public static final String OPERABLE_NOT_SUPPORTED = "This token is not a supported operable.";
+    public static final String OPERABLE_NOT_SUPPORTED = "This is not a supported operable.";
     
 }
