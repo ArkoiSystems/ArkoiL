@@ -255,14 +255,16 @@ public class IdentifierNode extends OperableNode
     
         if (foundNode instanceof VariableNode) {
             final VariableNode variableNode = (VariableNode) foundNode;
-        
+            if (variableNode.isGettingInitialized())
+                return TypeVisitor.LOOPING_NODE;
+    
             final ParserNode targetNode = variableNode.getTypeNode().getTargetNode();
             if (this.getNextIdentifier() != null && targetNode != null) {
                 this.getNextIdentifier().setCurrentScope(targetNode.getCurrentScope());
                 this.getNextIdentifier().setParser(targetNode.getParser());
                 return this.getNextIdentifier().getTypeNode();
             }
-        
+    
             return variableNode.getTypeNode();
         } else if (foundNode instanceof ParameterNode) {
             final ParameterNode parameterNode = (ParameterNode) foundNode;

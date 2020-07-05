@@ -410,15 +410,15 @@ public class IRVisitor implements IVisitor<Object>
         Objects.requireNonNull(variableNode.getName());
     
         final LLVMValueRef variableRef;
-        if (variableNode.isLocal()) {
+        if (variableNode.isLocal() || variableNode.getParentNode() instanceof StructNode) {
             variableRef = this.getBuilderGen().buildAlloca(this.visit(variableNode.getTypeNode()));
             this.getNodeRefs().put(variableNode, variableRef);
-        
+    
             if (variableNode.getExpression() != null) {
                 final Object object = this.visit(variableNode.getExpression());
                 if (!(object instanceof LLVMValueRef))
                     throw new NullPointerException();
-            
+        
                 LLVM.LLVMBuildStore(this.getBuilderGen().getBuilderRef(), (LLVMValueRef) object, variableRef);
             }
         } else {

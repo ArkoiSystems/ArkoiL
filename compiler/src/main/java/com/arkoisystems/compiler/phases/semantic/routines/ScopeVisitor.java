@@ -202,7 +202,6 @@ public class ScopeVisitor implements IVisitor<ParserNode>
                 );
         }
     
-    
         final List<ParserNode> nodes = Objects.requireNonNullElse(functionNode.getParser()
                         .getCompilerClass()
                         .getRootScope()
@@ -295,7 +294,7 @@ public class ScopeVisitor implements IVisitor<ParserNode>
                     "Edit these identifiers to fix the problem."
             );
         }
-        
+    
         if (variableNode.getExpression() != null)
             this.visit(variableNode.getExpression());
         return variableNode;
@@ -320,12 +319,22 @@ public class ScopeVisitor implements IVisitor<ParserNode>
         Objects.requireNonNull(identifierNode.getIdentifier());
         Objects.requireNonNull(identifierNode.getParser());
     
-        final List<ParserNode> nodes = new ArrayList<>(identifierNode.getCurrentScope().lookup(
+        final List<ParserNode> nodes = identifierNode.getCurrentScope().lookup(
                 identifierNode.getIdentifier().getTokenContent(),
-                node -> !(node instanceof FunctionNode) &&
-                        !(node instanceof ArgumentNode) &&
-                        this.comesBefore(node, identifierNode)
-        ));
+                node -> {
+                    if (node instanceof FunctionNode)
+                        return false;
+                    if (node instanceof ArgumentNode)
+                        return false;
+                    if (node instanceof VariableNode) {
+                        final VariableNode variableNode = (VariableNode) node;
+                        if (!variableNode.isLocal())
+                            return true;
+                    }
+                
+                    return this.comesBefore(node, identifierNode);
+                }
+        );
         if (nodes.size() == 0)
             return this.addError(
                     null,
@@ -350,7 +359,7 @@ public class ScopeVisitor implements IVisitor<ParserNode>
             } else if (foundNode instanceof VariableNode) {
                 final VariableNode variableNode = (VariableNode) foundNode;
                 final TypeNode typeNode = variableNode.getTypeNode();
-                
+    
                 if (typeNode.getTargetNode() == null)
                     return null;
                 

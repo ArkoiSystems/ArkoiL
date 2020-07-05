@@ -49,6 +49,8 @@ public class VariableNode extends StatementNode
     
     public static VariableNode GLOBAL_NODE = new VariableNode(null, null, null, null, false, false, null, false, null, null);
     
+    private boolean gettingInitialized;
+    
     @Printable(name = "is constant")
     private boolean isConstant;
     
@@ -232,8 +234,12 @@ public class VariableNode extends StatementNode
     public TypeNode getTypeNode() {
         if (this.getReturnType() != null)
             return this.getReturnType();
-        if (this.getExpression() != null)
-            return this.getExpression().getTypeNode();
+        if (this.getExpression() != null) {
+            this.gettingInitialized = true;
+            final TypeNode typeNode = this.getExpression().getTypeNode();
+            this.gettingInitialized = false;
+            return typeNode;
+        }
     
         return TypeVisitor.ERROR_NODE;
     }
