@@ -549,14 +549,19 @@ public class IRVisitor implements IVisitor<Object>
         Objects.requireNonNull(functionCallNode.getIdentifier());
         Objects.requireNonNull(functionCallNode.getParser());
     
-        final List<ParserNode> nodes = functionCallNode.getParser().getCompilerClass()
+        final List<FunctionNode> functions = functionCallNode.getParser().getCompilerClass()
                 .getRootScope()
-                .lookup(functionCallNode.getIdentifier().getTokenContent());
-    
-        final List<FunctionNode> functions = nodes.stream()
-                .filter(node -> node instanceof FunctionNode)
+                .lookup(
+                        functionCallNode.getIdentifier().getTokenContent(),
+                        node -> {
+                            if (!(node instanceof FunctionNode))
+                                return false;
+                    
+                            final FunctionNode functionNode = (FunctionNode) node;
+                            return functionNode.equalsToCall(functionCallNode);
+                        }
+                ).stream()
                 .map(node -> (FunctionNode) node)
-                .filter(node -> node.equalsToCall(functionCallNode))
                 .collect(Collectors.toList());
         if (functions.size() != 1)
             throw new NullPointerException();
@@ -566,33 +571,10 @@ public class IRVisitor implements IVisitor<Object>
     
         Objects.requireNonNull(targetNode.getParameterList());
     
-        final List<ArgumentNode> arguments = new ArrayList<>(functionCallNode.getArgumentList().getArguments());
-        for (final ArgumentNode argumentNode : functionCallNode.getArgumentList().getArguments()) {
-            if (argumentNode.getName() == null)
-                continue;
-        
-            ParameterNode foundParameter = null;
-            for (int index = 0; index < targetNode.getParameterList().getParameters().size(); index++) {
-                final ParameterNode parameterNode = targetNode.getParameterList().getParameters().get(index);
-                Objects.requireNonNull(parameterNode.getName());
-            
-                if (parameterNode.getName().getTokenContent().equals(argumentNode.getName().getTokenContent())) {
-                    foundParameter = parameterNode;
-                    break;
-                }
-            }
-    
-            if (foundParameter == null)
-                throw new NullPointerException();
-    
-            final int parameterIndex = targetNode.getParameterList().getParameters().indexOf(foundParameter);
-            arguments.remove(argumentNode);
-            arguments.add(parameterIndex, argumentNode);
-        }
-    
-        final LLVMValueRef[] functionArguments = new LLVMValueRef[arguments.size()];
+        final List<ArgumentNode> sortedArguments = functionCallNode.getSortedArguments(targetNode);
+        final LLVMValueRef[] functionArguments = new LLVMValueRef[sortedArguments.size()];
         for (int index = 0; index < functionArguments.length; index++) {
-            final ArgumentNode argumentNode = arguments.get(index);
+            final ArgumentNode argumentNode = sortedArguments.get(index);
             Objects.requireNonNull(argumentNode.getExpression());
         
             final Object object = this.visit(argumentNode.getExpression());

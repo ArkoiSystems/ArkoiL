@@ -27,7 +27,9 @@ import com.arkoisystems.compiler.phases.parser.SymbolTable;
 import com.arkoisystems.compiler.phases.parser.ast.ParserNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.TypeNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.argument.ArgumentListNode;
+import com.arkoisystems.compiler.phases.parser.ast.types.argument.ArgumentNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.identifier.IdentifierNode;
+import com.arkoisystems.compiler.phases.parser.ast.types.parameter.ParameterNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.statement.types.FunctionNode;
 import com.arkoisystems.compiler.phases.semantic.routines.TypeVisitor;
 import com.arkoisystems.compiler.visitor.IVisitor;
@@ -37,6 +39,7 @@ import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -169,6 +172,40 @@ public class FunctionCallNode extends IdentifierNode
             return foundNode.getTypeNode();
     
         return TypeVisitor.ERROR_NODE;
+    }
+    
+    @NotNull
+    public List<ArgumentNode> getSortedArguments(
+            @NotNull final FunctionNode functionNode
+    ) {
+        Objects.requireNonNull(functionNode.getParameterList());
+        Objects.requireNonNull(this.getArgumentList());
+        
+        final List<ArgumentNode> sortedArguments = new ArrayList<>(this.getArgumentList().getArguments());
+        for (final ArgumentNode argumentNode : this.getArgumentList().getArguments()) {
+            if (argumentNode.getName() == null)
+                continue;
+            
+            ParameterNode foundParameter = null;
+            for (int index = 0; index < functionNode.getParameterList().getParameters().size(); index++) {
+                final ParameterNode parameterNode = functionNode.getParameterList().getParameters().get(index);
+                Objects.requireNonNull(parameterNode.getName());
+                
+                if (parameterNode.getName().getTokenContent().equals(argumentNode.getName().getTokenContent())) {
+                    foundParameter = parameterNode;
+                    break;
+                }
+            }
+            
+            if (foundParameter == null)
+                throw new NullPointerException();
+            
+            final int parameterIndex = functionNode.getParameterList().getParameters().indexOf(foundParameter);
+            sortedArguments.remove(argumentNode);
+            sortedArguments.add(parameterIndex, argumentNode);
+        }
+        
+        return sortedArguments;
     }
     
 }
