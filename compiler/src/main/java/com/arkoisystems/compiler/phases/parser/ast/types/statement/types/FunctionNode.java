@@ -42,6 +42,7 @@ import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
 import java.util.Objects;
 
 @Getter
@@ -309,15 +310,15 @@ public class FunctionNode extends StatementNode
         if (!functionCallNode.getIdentifier().getTokenContent().equals(this.getName().getTokenContent()))
             return false;
     
-        Objects.requireNonNull(functionCallNode.getArgumentList());
+        final List<ArgumentNode> sortedArguments = functionCallNode.getSortedArguments(this);
         for (int index = 0; index < this.getParameterList().getParameters().size(); index++) {
-            if (index >= functionCallNode.getArgumentList().getArguments().size()) {
+            if (index >= sortedArguments.size()) {
                 if (!this.getParameterList().isVariadic())
                     return false;
                 break;
             }
     
-            final ArgumentNode argumentNode = functionCallNode.getArgumentList().getArguments().get(index);
+            final ArgumentNode argumentNode = sortedArguments.get(index);
             Objects.requireNonNull(argumentNode.getExpression());
     
             final OperableNode identifierExpression = argumentNode.getExpression();

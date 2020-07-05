@@ -372,7 +372,10 @@ public class ScopeVisitor implements IVisitor<ParserNode>
     
         final List<ParserNode> nodes = functionCallNode.getParser().getCompilerClass()
                 .getRootScope()
-                .lookup(functionCallNode.getIdentifier().getTokenContent());
+                .lookup(
+                        functionCallNode.getIdentifier().getTokenContent(),
+                        node -> node instanceof FunctionNode
+                );
         if (nodes.size() == 0)
             return this.addError(
                     null,
@@ -387,10 +390,8 @@ public class ScopeVisitor implements IVisitor<ParserNode>
         Objects.requireNonNull(functionCallNode.getArgumentList());
         
         final List<FunctionNode> functions = nodes.stream()
-                .filter(node -> node instanceof FunctionNode)
                 .map(node -> (FunctionNode) node)
                 .collect(Collectors.toList());
-        
         final List<FunctionNode> matchingFunctions = functions.stream()
                 .filter(node -> node.equalsToCall(functionCallNode))
                 .collect(Collectors.toList());
