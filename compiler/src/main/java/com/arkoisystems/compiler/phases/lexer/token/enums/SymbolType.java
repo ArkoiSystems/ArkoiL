@@ -22,6 +22,7 @@ public enum SymbolType
     COMMA(","),
     PERIOD("."),
     
+    AMPERSAND("&"),
     QUESTION_MARK("?");
     
     @Getter

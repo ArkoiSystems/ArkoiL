@@ -1,3 +1,5 @@
 import "variadic"
 
 fun printf(message: u8*, ...): i32
+
+fun scanf(format: u8*, ...): void

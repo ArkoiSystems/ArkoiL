@@ -56,6 +56,9 @@ public class IdentifierNode extends OperableNode
     
     public static IdentifierNode PARSER_NODE = new IdentifierNode(null, null, null, null, null, true, null, null);
     
+    @Printable(name = "is pointer")
+    private boolean isPointer;
+    
     @Setter
     @Nullable
     private ParserNode targetNode;
@@ -93,9 +96,14 @@ public class IdentifierNode extends OperableNode
     @Override
     public IdentifierNode parse() {
         Objects.requireNonNull(this.getParser());
-        
+    
         this.startAST(this.getParser().currentToken());
-        
+    
+        if (this.getParser().matchesCurrentToken(SymbolType.AMPERSAND) != null) {
+            this.getParser().nextToken();
+            this.isPointer = true;
+        }
+    
         if (this.getParser().matchesCurrentToken(TokenType.IDENTIFIER) == null) {
             final LexerToken currentToken = this.getParser().currentToken();
             return this.addError(
@@ -231,7 +239,8 @@ public class IdentifierNode extends OperableNode
     
     @Override
     public boolean canParse(@NotNull final Parser parser, final int offset) {
-        return parser.matchesPeekToken(offset, TokenType.IDENTIFIER) != null;
+        return parser.matchesPeekToken(offset, SymbolType.AMPERSAND) != null ||
+                parser.matchesPeekToken(offset, TokenType.IDENTIFIER) != null;
     }
     
     @Override
