@@ -457,6 +457,7 @@ public class IRVisitor implements IVisitor<Object>
         LLVM.LLVMSetUnnamedAddress(variableRef, LLVM.LLVMGlobalUnnamedAddr);
         LLVM.LLVMSetGlobalConstant(variableRef, 1);
         LLVM.LLVMSetInitializer(variableRef, stringConstant);
+        LLVM.LLVMSetAlignment(variableRef, 1);
     
         return LLVM.LLVMConstInBoundsGEP(variableRef, new PointerPointer<>(
                 LLVM.LLVMConstInt(this.getContextGen().makeIntType(32), 0, 1),
@@ -471,7 +472,13 @@ public class IRVisitor implements IVisitor<Object>
         
         if (numberNode.getTypeNode().getDataKind() == DataKind.INTEGER) {
             final int value = Integer.parseInt(numberNode.getNumberToken().getTokenContent());
-            return LLVM.LLVMConstInt(this.getContextGen().makeIntType(numberNode.getNumberToken().getBits()), value, 1);
+            final LLVMValueRef numberRef = LLVM.LLVMConstInt(
+                    this.getContextGen().makeIntType(numberNode.getNumberToken().getBits()),
+                    value,
+                    numberNode.getTypeNode().isSigned() ? 1 : 0
+            );
+            LLVM.LLVMSetAlignment(numberRef, numberNode.getTypeNode().getBits() / 8);
+            return numberRef;
         } else if (numberNode.getTypeNode().getDataKind() == DataKind.FLOAT) {
             final float value = Float.parseFloat(numberNode.getNumberToken().getTokenContent());
             return LLVM.LLVMConstReal(LLVM.LLVMFloatType(), value);
@@ -535,9 +542,9 @@ public class IRVisitor implements IVisitor<Object>
             currentIdentifier = currentIdentifier.getNextIdentifier();
         }
     
-        final int instOp = LLVM.LLVMGetInstructionOpcode(currentValue);
-        if (!(identifierNode instanceof AssignNode) &&
-                (instOp == LLVM.LLVMGetElementPtr || instOp == LLVM.LLVMAlloca))
+        final int instructionOpcode = LLVM.LLVMGetInstructionOpcode(currentValue);
+        if (!identifierNode.isPointer() && !(identifierNode instanceof AssignNode) &&
+                (instructionOpcode == LLVM.LLVMGetElementPtr || instructionOpcode == LLVM.LLVMAlloca))
             return this.getBuilderGen().buildLoad(currentValue);
     
         return currentValue;

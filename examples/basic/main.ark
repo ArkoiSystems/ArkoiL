@@ -1,30 +1,22 @@
 import "console"
 
-struct Single {
-    var first = 1337
-    var second = (first * 5) + 5
-}
-
-struct Pair {
-    var first = Single {
-        first: 1337
-    }
-    var second = (first.first * 10) + 5
+fun factorial(n: i32): i32 {
+    if(n == 0)
+        return 1
+    return n * factorial(n - 1)
 }
 
 fun main(): i32 {
-    const test1 = make_pair(5, third: 20, second: 10)
-    printf("1) %i -> %i: %i\n", test1.first.first, test1.first.second, test1.second)
+    const number = 1
+    printf("Enter a number:\n")
+    scanf("%d", &number)
     
-    const test2 = make_pair(10, 5, third: 20)
-    printf("2) %i -> %i: %i\n", test2.first.first, test2.first.second, test2.second)
+    if(number < 0) {
+        printf("No negatives please\n")
+        return -1
+    }
+    
+    const result = factorial(number)
+    printf("%d! = %i\n", number, result)
     return 0
-}
-
-fun make_pair(second, third, fourth: i32): Pair = Pair {
-    first: Single {
-        first: third, 
-        second: fourth
-    },
-    second: second
 }
