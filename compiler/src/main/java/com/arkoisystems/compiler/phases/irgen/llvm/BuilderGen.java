@@ -44,9 +44,9 @@ public class BuilderGen
     
     @Builder
     private BuilderGen(@Nullable final ContextGen contextGen) {
-        this.builderRef = contextGen == null ?
-                LLVM.LLVMCreateBuilder() :
-                LLVM.LLVMCreateBuilderInContext(contextGen.getContextRef());
+        this.builderRef = contextGen == null
+                ? LLVM.LLVMCreateBuilder()
+                : LLVM.LLVMCreateBuilderInContext(contextGen.getContextRef());
     }
     
     public void setPositionAtEnd(@NotNull final LLVMBasicBlockRef basicBlockRef) {

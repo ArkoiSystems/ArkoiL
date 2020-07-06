@@ -51,7 +51,9 @@ public class ErrorPosition
                     .append(sourceCode)
                     .append("\r\n");
             if (lineIndex == startLine) {
-                repeats = startLine == endLine ? this.getCharEnd() - this.getCharStart() : (sourceCode.length() - this.getCharStart()) - trailingSpaces;
+                repeats = startLine == endLine
+                        ? this.getCharEnd() - this.getCharStart()
+                        : (sourceCode.length() - this.getCharStart()) - trailingSpaces;
                 stringBuilder.append(indent)
                         .append(numberReplacement)
                         .append("   │ ")

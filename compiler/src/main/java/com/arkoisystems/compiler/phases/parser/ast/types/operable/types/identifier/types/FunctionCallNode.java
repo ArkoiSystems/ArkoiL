@@ -48,7 +48,7 @@ import java.util.stream.Collectors;
 public class FunctionCallNode extends IdentifierNode
 {
     
-    public static FunctionCallNode GLOBAL_NODE = new FunctionCallNode(null, null, null, null, null, null, null);
+    public static FunctionCallNode GLOBAL_NODE = new FunctionCallNode(null, null, null, null, null, false, false, null, null);
     
     @Printable(name = "arguments")
     @Nullable
@@ -61,10 +61,12 @@ public class FunctionCallNode extends IdentifierNode
             @Nullable final SymbolTable currentScope,
             @Nullable final IdentifierNode nextIdentifier,
             @Nullable final IdentifierToken identifier,
+            final boolean isDereference,
+            final boolean isPointer,
             @Nullable final LexerToken startToken,
             @Nullable final LexerToken endToken
     ) {
-        super(parser, parentNode, currentScope, nextIdentifier, identifier, true, startToken, endToken);
+        super(parser, parentNode, currentScope, nextIdentifier, identifier, true, isDereference, isPointer, startToken, endToken);
     }
     
     @Override
