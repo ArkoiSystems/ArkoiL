@@ -499,10 +499,27 @@ public class IRVisitor implements IVisitor<Object>
         ParserNode targetNode = identifierNode.getTargetNode();
         StructNode targetStruct = null;
     
-        final LLVMValueRef valueTarget;
+        LLVMValueRef valueTarget;
         if (targetNode instanceof ParameterNode) {
             final ParameterNode parameterNode = (ParameterNode) targetNode;
-            valueTarget = this.visit(parameterNode);
+            final LLVMValueRef parameterRef = this.visit(parameterNode);
+    
+            if (this.getNodeRefs().containsKey(parameterNode)) {
+                final Object object = this.getNodeRefs().get(parameterNode);
+                if (!(object instanceof LLVMValueRef))
+                    throw new NullPointerException();
+                valueTarget = (LLVMValueRef) object;
+            } else {
+                valueTarget = this.getBuilderGen().buildAlloca(
+                        this.visit(parameterNode.getTypeNode())
+                );
+                this.getNodeRefs().put(parameterNode, valueTarget);
+                LLVM.LLVMBuildStore(
+                        this.getBuilderGen().getBuilderRef(),
+                        parameterRef,
+                        valueTarget
+                );
+            }
     
             if (parameterNode.getTypeNode().getDataKind() == DataKind.STRUCT)
                 targetStruct = (StructNode) parameterNode.getTypeNode().getTargetNode();
@@ -517,11 +534,15 @@ public class IRVisitor implements IVisitor<Object>
         if (targetStruct == null && identifierNode.getNextIdentifier() != null)
             throw new NullPointerException();
     
+        valueTarget = identifierNode.isDereference()
+                ? this.getBuilderGen().buildLoad(valueTarget)
+                : valueTarget;
+    
         IdentifierNode currentIdentifier = identifierNode;
         LLVMValueRef currentValue = valueTarget;
         while (currentIdentifier.getNextIdentifier() != null) {
             Objects.requireNonNull(targetStruct, "targetStruct must not be null.");
-    
+        
             final IdentifierNode nextIdentifier = currentIdentifier.getNextIdentifier();
             if (nextIdentifier instanceof FunctionCallNode) {
                 currentValue = this.visit((FunctionCallNode) nextIdentifier);
@@ -532,19 +553,17 @@ public class IRVisitor implements IVisitor<Object>
     
                 final VariableNode variableNode = (VariableNode) targetNode;
                 final int index = targetStruct.getVariables().indexOf(variableNode);
-    
+            
                 currentValue = LLVM.LLVMBuildStructGEP(this.getBuilderGen().getBuilderRef(), currentValue, index, "");
-    
+            
                 if (variableNode.getTypeNode().getDataKind() == DataKind.STRUCT)
                     targetStruct = (StructNode) variableNode.getTypeNode().getTargetNode();
             }
-    
+        
             currentIdentifier = currentIdentifier.getNextIdentifier();
         }
     
-        final int instructionOpcode = LLVM.LLVMGetInstructionOpcode(currentValue);
-        if (!identifierNode.isPointer() && !(identifierNode instanceof AssignNode) &&
-                (instructionOpcode == LLVM.LLVMGetElementPtr || instructionOpcode == LLVM.LLVMAlloca))
+        if (!(identifierNode instanceof AssignNode) && !identifierNode.isPointer())
             return this.getBuilderGen().buildLoad(currentValue);
     
         return currentValue;
@@ -872,9 +891,9 @@ public class IRVisitor implements IVisitor<Object>
     
         this.getBuilderGen().setPositionAtEnd(recoveryBranch);
     
-        final LLVMBasicBlockRef lastBranch = ifNode.getNextBranch() != null ?
-                this.getLastBlock(ifNode.getNextBranch()) :
-                thenBranch;
+        final LLVMBasicBlockRef lastBranch = ifNode.getNextBranch() != null
+                ? this.getLastBlock(ifNode.getNextBranch())
+                : thenBranch;
         if (lastBranch != null)
             LLVM.LLVMMoveBasicBlockAfter(recoveryBranch, lastBranch);
     

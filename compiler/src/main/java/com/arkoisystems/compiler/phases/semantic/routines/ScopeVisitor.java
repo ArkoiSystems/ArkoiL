@@ -428,25 +428,27 @@ public class ScopeVisitor implements IVisitor<ParserNode>
         Objects.requireNonNull(assignNode.getParser());
     
         final ParserNode targetNode = this.visit((IdentifierNode) assignNode);
-        if (!(targetNode instanceof VariableNode))
-            return this.addError(
-                    null,
-                    assignNode.getParser().getCompilerClass(),
-                    assignNode,
-                    "Left side isn't a variable."
-            );
-    
-        final VariableNode variableNode = (VariableNode) targetNode;
-        if (variableNode.isConstant())
-            return this.addError(
-                    null,
-                    assignNode.getParser().getCompilerClass(),
-                    assignNode,
-                    "Can't re-assign a constant variable."
-            );
-    
-        this.visit(assignNode.getExpression());
-        return assignNode;
+        if (targetNode instanceof ParameterNode) {
+            this.visit(assignNode.getExpression());
+            return assignNode;
+        } else if (targetNode instanceof VariableNode) {
+            final VariableNode variableNode = (VariableNode) targetNode;
+            if (variableNode.isConstant())
+                return this.addError(
+                        null,
+                        assignNode.getParser().getCompilerClass(),
+                        assignNode,
+                        "Can't re-assign a constant variable."
+                );
+        
+            this.visit(assignNode.getExpression());
+            return assignNode;
+        } else return this.addError(
+                null,
+                assignNode.getParser().getCompilerClass(),
+                assignNode,
+                "Left side can't be assigned."
+        );
     }
     
     @Override

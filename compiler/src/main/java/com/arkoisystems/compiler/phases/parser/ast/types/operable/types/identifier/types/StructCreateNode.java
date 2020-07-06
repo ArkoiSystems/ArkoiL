@@ -40,7 +40,7 @@ import java.util.Objects;
 public class StructCreateNode extends IdentifierNode
 {
     
-    public static StructCreateNode GLOBAL_NODE = new StructCreateNode(null, null, null, null, null, null, null);
+    public static StructCreateNode GLOBAL_NODE = new StructCreateNode(null, null, null, null, null, false, false, null, null);
     
     @Printable(name = "arguments")
     @Nullable
@@ -53,10 +53,12 @@ public class StructCreateNode extends IdentifierNode
             @Nullable final SymbolTable currentScope,
             @Nullable final IdentifierNode nextIdentifier,
             @Nullable final IdentifierToken identifier,
+            final boolean isDereference,
+            final boolean isPointer,
             @Nullable final LexerToken startToken,
             @Nullable final LexerToken endToken
     ) {
-        super(parser, parentNode, currentScope, nextIdentifier, identifier, false, startToken, endToken);
+        super(parser, parentNode, currentScope, nextIdentifier, identifier, false, isDereference, isPointer, startToken, endToken);
     }
     
     @Override

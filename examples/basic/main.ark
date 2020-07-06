@@ -1,22 +1,12 @@
 import "console"
 
-fun factorial(n: i32): i32 {
-    if(n == 0)
-        return 1
-    return n * factorial(n - 1)
+fun main(): i32 {
+    var number = 1337
+    test(&number)
+    printf("hehe -> %i\n", number)
+    return 0
 }
 
-fun main(): i32 {
-    const number = 1
-    printf("Enter a number:\n")
-    scanf("%d", &number)
-    
-    if(number < 0) {
-        printf("No negatives please\n")
-        return -1
-    }
-    
-    const result = factorial(number)
-    printf("%d! = %i\n", number, result)
-    return 0
+fun test(ok: i32*): void {
+    @ok = 10
 }

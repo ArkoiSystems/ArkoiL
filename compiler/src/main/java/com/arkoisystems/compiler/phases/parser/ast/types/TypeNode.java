@@ -62,6 +62,7 @@ public class TypeNode extends ParserNode
     private boolean signed;
     
     @Printable(name = "pointers")
+    @Setter
     private int pointers;
     
     @Printable(name = "bits")

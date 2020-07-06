@@ -42,9 +42,9 @@ public class ModuleGen
             @NonNull
             @NotNull final String name
     ) {
-        this.moduleRef = contextGen == null ?
-                LLVM.LLVMModuleCreateWithName(name) :
-                LLVM.LLVMModuleCreateWithNameInContext(name, contextGen.getContextRef());
+        this.moduleRef = contextGen == null
+                ? LLVM.LLVMModuleCreateWithName(name)
+                : LLVM.LLVMModuleCreateWithNameInContext(name, contextGen.getContextRef());
     }
     
     @NotNull

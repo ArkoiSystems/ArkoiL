@@ -39,10 +39,10 @@ public class ContextGen
     @Builder
     private ContextGen(final boolean usingGlobal) {
         this.usingGlobal = usingGlobal;
-        
-        this.contextRef = this.isUsingGlobal() ?
-                LLVM.LLVMGetGlobalContext() :
-                LLVM.LLVMContextCreate();
+    
+        this.contextRef = this.isUsingGlobal()
+                ? LLVM.LLVMGetGlobalContext()
+                : LLVM.LLVMContextCreate();
     }
     
     @Override

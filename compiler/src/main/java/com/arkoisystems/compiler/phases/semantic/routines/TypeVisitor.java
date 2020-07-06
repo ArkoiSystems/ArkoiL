@@ -151,6 +151,8 @@ public class TypeVisitor implements IVisitor<TypeNode>
     
     @Override
     public TypeNode visit(@NotNull final ArgumentNode argumentNode) {
+        Objects.requireNonNull(argumentNode.getExpression());
+        this.visit(argumentNode.getExpression());
         return this.visit(argumentNode.getTypeNode());
     }
     
@@ -295,6 +297,15 @@ public class TypeVisitor implements IVisitor<TypeNode>
     @Override
     public TypeNode visit(@NotNull final IdentifierNode identifierNode) {
         Objects.requireNonNull(identifierNode.getParser());
+    
+        if (identifierNode.isDereference() && identifierNode.getTypeNode().getPointers() < 0)
+            return this.addError(
+                    ERROR_NODE,
+                    identifierNode.getParser().getCompilerClass(),
+                    identifierNode,
+                    "You can't dereference a non pointer type."
+            );
+    
         return this.visit(identifierNode.getTypeNode());
     }
     
