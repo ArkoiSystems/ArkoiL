@@ -22,7 +22,6 @@ import com.arkoisystems.compiler.phases.irgen.IRVisitor;
 import com.arkoisystems.compiler.phases.irgen.builtin.function.BIFunction;
 import com.arkoisystems.compiler.phases.irgen.llvm.FunctionGen;
 import com.arkoisystems.compiler.phases.irgen.llvm.ParameterGen;
-import com.arkoisystems.compiler.phases.parser.ast.ParserNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.StructNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.statement.types.FunctionNode;
 import org.bytedeco.llvm.LLVM.LLVMTypeRef;
@@ -30,7 +29,6 @@ import org.bytedeco.llvm.LLVM.LLVMValueRef;
 import org.bytedeco.llvm.global.LLVM;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -45,10 +43,10 @@ public class VaStartBI extends BIFunction
     ) {
         Objects.requireNonNull(functionNode.getParser());
     
-        final List<StructNode> structNodes = Objects.requireNonNullElse(functionNode.getParser()
+        final List<StructNode> structNodes = functionNode.getParser()
                 .getCompilerClass()
                 .getRootScope()
-                .lookup("va_list"), new ArrayList<ParserNode>()).stream()
+                .lookup("va_list").stream()
                 .filter(node -> node instanceof StructNode)
                 .map(node -> (StructNode) node)
                 .collect(Collectors.toList());
@@ -56,12 +54,16 @@ public class VaStartBI extends BIFunction
             throw new NullPointerException();
     
         final FunctionGen functionGen = irVisitor.visit(functionNode);
+        final StructNode targetStruct = structNodes.get(0);
     
         irVisitor.getBuilderGen().setPositionAtEnd(irVisitor.getContextGen().appendBasicBlock(functionGen.getFunctionRef()));
     
         final LLVMValueRef functionRef = this.getLLVMVaStart(irVisitor, functionNode);
-        final LLVMTypeRef listStructure = irVisitor.visit(structNodes.get(0));
-        final LLVMValueRef va_list = irVisitor.getBuilderGen().buildAlloca(listStructure);
+        final LLVMTypeRef listStructure = irVisitor.visit(targetStruct);
+        final LLVMValueRef va_list = irVisitor.getBuilderGen().buildAlloca(
+                targetStruct,
+                listStructure
+        );
     
         irVisitor.getBuilderGen().buildFunctionCall(functionRef, irVisitor.getBuilderGen().buildBitCast(
                 va_list,

@@ -22,6 +22,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NonNull;
 import org.bytedeco.javacpp.PointerPointer;
+import org.bytedeco.llvm.LLVM.LLVMBasicBlockRef;
 import org.bytedeco.llvm.LLVM.LLVMTypeRef;
 import org.bytedeco.llvm.LLVM.LLVMValueRef;
 import org.bytedeco.llvm.global.LLVM;
@@ -69,6 +70,11 @@ public class FunctionGen
     @NotNull
     public LLVMValueRef getParameter(final int index) {
         return LLVM.LLVMGetParam(this.getFunctionRef(), index);
+    }
+    
+    @NotNull
+    public LLVMBasicBlockRef getLastBasicBlock() {
+        return LLVM.LLVMGetLastBasicBlock(this.getFunctionRef());
     }
     
 }
