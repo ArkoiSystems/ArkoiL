@@ -42,7 +42,7 @@ import java.util.Objects;
 public class BinaryNode extends ExpressionNode
 {
     
-    public static BinaryNode MOD_GLOBAL_NODE = new BinaryNode(null, null, null, null, null, null, null, null);
+    public static BinaryNode MOD_GLOBAL_NODE = new BinaryNode(null, null, null, null, null, null, null, null, null);
     
     @Printable(name = "lhs")
     @Nullable
@@ -61,13 +61,14 @@ public class BinaryNode extends ExpressionNode
             @Nullable final Parser parser,
             @Nullable final ParserNode parentNode,
             @Nullable final SymbolTable currentScope,
+            @Nullable final LexerToken startToken,
             @Nullable final BinaryOperators operatorType,
             @Nullable final OperableNode rightHandSide,
             @Nullable final OperableNode leftHandSide,
-            @Nullable final LexerToken startToken,
+            @Nullable final TypeNode givenType,
             @Nullable final LexerToken endToken
     ) {
-        super(parser, parentNode, currentScope, startToken, endToken);
+        super(parser, parentNode, currentScope, startToken, givenType, endToken);
     
         this.rightHandSide = rightHandSide;
         this.operatorType = operatorType;
@@ -302,13 +303,14 @@ public class BinaryNode extends ExpressionNode
         visitor.visit(this);
     }
     
+    @NotNull
     @Override
-    public @NotNull TypeNode getTypeNode() {
+    public TypeNode getTypeNode() {
         Objects.requireNonNull(this.getRightHandSide());
         Objects.requireNonNull(this.getRightHandSide().getTypeNode().getDataKind());
         Objects.requireNonNull(this.getLeftHandSide());
         Objects.requireNonNull(this.getOperatorType());
-    
+        
         switch (this.getOperatorType()) {
             case LESS_THAN:
             case LESS_EQUAL_THAN:

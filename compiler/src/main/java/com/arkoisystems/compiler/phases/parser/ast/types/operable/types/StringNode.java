@@ -41,7 +41,7 @@ import java.util.Objects;
 public class StringNode extends OperableNode
 {
     
-    public static StringNode GLOBAL_NODE = new StringNode(null, null, null, null, null, null);
+    public static StringNode GLOBAL_NODE = new StringNode(null, null, null, null, null, null, null);
     
     @Printable(name = "string")
     @Nullable
@@ -52,11 +52,12 @@ public class StringNode extends OperableNode
             @Nullable final Parser parser,
             @Nullable final ParserNode parentNode,
             @Nullable final SymbolTable currentScope,
-            @Nullable final StringToken stringToken,
             @Nullable final LexerToken startToken,
+            @Nullable final StringToken stringToken,
+            @Nullable final TypeNode givenType,
             @Nullable final LexerToken endToken
     ) {
-        super(parser, parentNode, currentScope, startToken, endToken);
+        super(parser, parentNode, currentScope, startToken, givenType, endToken);
         
         this.stringToken = stringToken;
     }
@@ -97,8 +98,9 @@ public class StringNode extends OperableNode
         visitor.visit(this);
     }
     
+    @NotNull
     @Override
-    public @NotNull TypeNode getTypeNode() {
+    public TypeNode getTypeNode() {
         return TypeNode.builder()
                 .parentNode(this.getParentNode())
                 .currentScope(this.getCurrentScope())

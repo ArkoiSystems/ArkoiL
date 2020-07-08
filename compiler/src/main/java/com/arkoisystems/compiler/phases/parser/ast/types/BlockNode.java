@@ -26,6 +26,7 @@ import com.arkoisystems.compiler.phases.parser.ParserErrorType;
 import com.arkoisystems.compiler.phases.parser.SymbolTable;
 import com.arkoisystems.compiler.phases.parser.ast.DataKind;
 import com.arkoisystems.compiler.phases.parser.ast.ParserNode;
+import com.arkoisystems.compiler.phases.parser.ast.TypedNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.OperableNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expression.ExpressionNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.identifier.IdentifierNode;
@@ -45,12 +46,12 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Getter
-public class BlockNode extends ParserNode
+public class BlockNode extends TypedNode
 {
     
-    public static BlockNode BRACE_NODE = new BlockNode(null, null, null, false, null, null);
+    public static BlockNode BRACE_NODE = new BlockNode(null, null, null, null, false, null, null);
     
-    public static BlockNode INLINED_NODE = new BlockNode(null, null, null, true, null, null);
+    public static BlockNode INLINED_NODE = new BlockNode(null, null, null, null, true, null, null);
     
     @Printable(name = "nodes")
     @NotNull
@@ -64,11 +65,12 @@ public class BlockNode extends ParserNode
             @Nullable final Parser parser,
             @Nullable final ParserNode parentNode,
             @Nullable final SymbolTable currentScope,
-            final boolean isInlined,
             @Nullable final LexerToken startToken,
+            final boolean isInlined,
+            @Nullable final TypeNode givenType,
             @Nullable final LexerToken endToken
     ) {
-        super(parser, parentNode, currentScope, startToken, endToken);
+        super(parser, parentNode, currentScope, startToken, givenType, endToken);
         
         this.nodes = new ArrayList<>();
         this.isInlined = isInlined;
@@ -246,6 +248,7 @@ public class BlockNode extends ParserNode
     }
     
     @NotNull
+    @Override
     public TypeNode getTypeNode() {
         final TypeNode typeNode;
         if (this.isInlined()) {

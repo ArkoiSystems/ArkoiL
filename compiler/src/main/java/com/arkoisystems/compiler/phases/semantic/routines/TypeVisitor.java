@@ -110,6 +110,7 @@ public class TypeVisitor implements IVisitor<TypeNode>
         
             final TypeNode targetType = this.visit(targetNode);
             typeNode.setDataKind(targetType.getDataKind());
+            typeNode.setBits(targetType.getBits());
         }
     
         return typeNode;

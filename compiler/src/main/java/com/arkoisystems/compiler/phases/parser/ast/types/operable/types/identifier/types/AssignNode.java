@@ -25,6 +25,7 @@ import com.arkoisystems.compiler.phases.parser.Parser;
 import com.arkoisystems.compiler.phases.parser.ParserErrorType;
 import com.arkoisystems.compiler.phases.parser.SymbolTable;
 import com.arkoisystems.compiler.phases.parser.ast.ParserNode;
+import com.arkoisystems.compiler.phases.parser.ast.types.TypeNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.OperableNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expression.ExpressionNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.identifier.IdentifierNode;
@@ -41,7 +42,7 @@ import java.util.Objects;
 public class AssignNode extends IdentifierNode
 {
     
-    public static AssignNode GLOBAL_NODE = new AssignNode(null, null, null, null, null, false, false, null, null);
+    public static AssignNode GLOBAL_NODE = new AssignNode(null, null, null, null, null, null, false, false, null, null);
     
     @Printable(name = "expression")
     @Nullable
@@ -52,14 +53,27 @@ public class AssignNode extends IdentifierNode
             @Nullable final Parser parser,
             @Nullable final ParserNode parentNode,
             @Nullable final SymbolTable currentScope,
+            @Nullable final LexerToken startToken,
             @Nullable final IdentifierNode nextIdentifier,
             @Nullable final IdentifierToken identifier,
             final boolean isDereference,
             final boolean isPointer,
-            @Nullable final LexerToken startToken,
+            @Nullable final TypeNode givenType,
             @Nullable final LexerToken endToken
     ) {
-        super(parser, parentNode, currentScope, nextIdentifier, identifier, false, isDereference, isPointer, startToken, endToken);
+        super(
+                parser,
+                parentNode,
+                currentScope,
+                startToken,
+                nextIdentifier,
+                identifier,
+                false,
+                isDereference,
+                isPointer,
+                givenType,
+                endToken
+        );
     }
     
     @Override

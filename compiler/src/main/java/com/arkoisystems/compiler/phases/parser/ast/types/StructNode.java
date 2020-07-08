@@ -28,6 +28,7 @@ import com.arkoisystems.compiler.phases.parser.ParserErrorType;
 import com.arkoisystems.compiler.phases.parser.SymbolTable;
 import com.arkoisystems.compiler.phases.parser.ast.DataKind;
 import com.arkoisystems.compiler.phases.parser.ast.ParserNode;
+import com.arkoisystems.compiler.phases.parser.ast.TypedNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.statement.types.VariableNode;
 import com.arkoisystems.utils.printer.annotations.Printable;
 import lombok.Builder;
@@ -40,10 +41,10 @@ import java.util.List;
 import java.util.Objects;
 
 @Getter
-public class StructNode extends ParserNode
+public class StructNode extends TypedNode
 {
     
-    public static StructNode GLOBAL_NODE = new StructNode(null, null, null, false, null, null, null);
+    public static StructNode GLOBAL_NODE = new StructNode(null, null, null, null, false, null, null, null);
     
     @Printable(name = "variables")
     @NotNull
@@ -64,12 +65,13 @@ public class StructNode extends ParserNode
             @Nullable final Parser parser,
             @Nullable final ParserNode parentNode,
             @Nullable final SymbolTable currentScope,
+            @Nullable final LexerToken startToken,
             final boolean builtin,
             @Nullable final IdentifierToken name,
-            @Nullable final LexerToken startToken,
+            @Nullable final TypeNode givenType,
             @Nullable final LexerToken endToken
     ) {
-        super(parser, parentNode, currentScope, startToken, endToken);
+        super(parser, parentNode, currentScope, startToken, givenType, endToken);
         
         this.builtin = builtin;
         this.name = name;
@@ -119,7 +121,7 @@ public class StructNode extends ParserNode
         }
     
         final IdentifierToken identifierToken = (IdentifierToken) this.getParser().nextToken();
-        Objects.requireNonNull(identifierToken, "identifierNode must not be null.");
+        Objects.requireNonNull(identifierToken);
     
         this.name = identifierToken;
         this.typeNode = TypeNode.builder()
@@ -177,6 +179,10 @@ public class StructNode extends ParserNode
             this.getParser().nextToken();
         }
     
+        this.getTypeNode().setBits(this.getVariables().stream()
+                .map(node -> node.getTypeNode().getBits())
+                .reduce(0, Integer::sum));
+    
         if (this.getParser().matchesCurrentToken(SymbolType.CLOSING_BRACE) == null) {
             final LexerToken currentToken = this.getParser().currentToken();
             return this.addError(
@@ -202,8 +208,9 @@ public class StructNode extends ParserNode
     }
     
     @NotNull
+    @Override
     public TypeNode getTypeNode() {
-        Objects.requireNonNull(this.typeNode, "typeNode must not be null.");
+        Objects.requireNonNull(this.typeNode);
         return this.typeNode;
     }
     

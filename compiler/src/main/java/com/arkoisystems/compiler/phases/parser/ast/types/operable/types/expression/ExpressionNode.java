@@ -23,6 +23,7 @@ import com.arkoisystems.compiler.phases.parser.Parser;
 import com.arkoisystems.compiler.phases.parser.ParserErrorType;
 import com.arkoisystems.compiler.phases.parser.SymbolTable;
 import com.arkoisystems.compiler.phases.parser.ast.ParserNode;
+import com.arkoisystems.compiler.phases.parser.ast.types.TypeNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.OperableNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.NumberNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.StringNode;
@@ -42,7 +43,7 @@ import java.util.Objects;
 public class ExpressionNode extends OperableNode
 {
     
-    public static ExpressionNode GLOBAL_NODE = new ExpressionNode(null, null, null, null, null);
+    public static ExpressionNode GLOBAL_NODE = new ExpressionNode(null, null, null, null, null, null);
     
     @Builder(builderMethodName = "expressionBuilder")
     protected ExpressionNode(
@@ -50,9 +51,10 @@ public class ExpressionNode extends OperableNode
             @Nullable final ParserNode parentNode,
             @Nullable final SymbolTable currentScope,
             @Nullable final LexerToken startToken,
+            @Nullable final TypeNode givenType,
             @Nullable final LexerToken endToken
     ) {
-        super(parser, parentNode, currentScope, startToken, endToken);
+        super(parser, parentNode, currentScope, startToken, givenType, endToken);
     }
     
     @NotNull

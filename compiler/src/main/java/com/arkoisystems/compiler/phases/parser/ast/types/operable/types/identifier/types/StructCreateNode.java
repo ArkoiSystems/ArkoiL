@@ -25,6 +25,7 @@ import com.arkoisystems.compiler.phases.parser.Parser;
 import com.arkoisystems.compiler.phases.parser.ParserErrorType;
 import com.arkoisystems.compiler.phases.parser.SymbolTable;
 import com.arkoisystems.compiler.phases.parser.ast.ParserNode;
+import com.arkoisystems.compiler.phases.parser.ast.types.TypeNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.argument.ArgumentListNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.identifier.IdentifierNode;
 import com.arkoisystems.compiler.visitor.IVisitor;
@@ -40,7 +41,7 @@ import java.util.Objects;
 public class StructCreateNode extends IdentifierNode
 {
     
-    public static StructCreateNode GLOBAL_NODE = new StructCreateNode(null, null, null, null, null, false, false, null, null);
+    public static StructCreateNode GLOBAL_NODE = new StructCreateNode(null, null, null, null, null, null, false, false, null, null);
     
     @Printable(name = "arguments")
     @Nullable
@@ -51,14 +52,27 @@ public class StructCreateNode extends IdentifierNode
             @Nullable final Parser parser,
             @Nullable final ParserNode parentNode,
             @Nullable final SymbolTable currentScope,
+            @Nullable final LexerToken startToken,
             @Nullable final IdentifierNode nextIdentifier,
             @Nullable final IdentifierToken identifier,
             final boolean isDereference,
             final boolean isPointer,
-            @Nullable final LexerToken startToken,
+            @Nullable final TypeNode givenType,
             @Nullable final LexerToken endToken
     ) {
-        super(parser, parentNode, currentScope, nextIdentifier, identifier, false, isDereference, isPointer, startToken, endToken);
+        super(
+                parser,
+                parentNode,
+                currentScope,
+                startToken,
+                nextIdentifier,
+                identifier,
+                false,
+                isDereference,
+                isPointer,
+                givenType,
+                endToken
+        );
     }
     
     @Override
@@ -96,9 +110,9 @@ public class StructCreateNode extends IdentifierNode
             this.setFailed(true);
             return this;
         }
-        
+    
         this.argumentList = argumentList;
-        
+    
         if (this.getParser().matchesCurrentToken(SymbolType.CLOSING_BRACE) == null) {
             final LexerToken currentToken = this.getParser().currentToken();
             return this.addError(

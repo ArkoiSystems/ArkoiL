@@ -47,7 +47,7 @@ import java.util.Objects;
 public class VariableNode extends StatementNode
 {
     
-    public static VariableNode GLOBAL_NODE = new VariableNode(null, null, null, null, false, false, null, false, null, null);
+    public static VariableNode GLOBAL_NODE = new VariableNode(null, null, null, null, null, false, false, null, false, null, null);
     
     private boolean gettingInitialized;
     
@@ -79,15 +79,16 @@ public class VariableNode extends StatementNode
             @Nullable final Parser parser,
             @Nullable final ParserNode parentNode,
             @Nullable final SymbolTable currentScope,
+            @Nullable final LexerToken startToken,
             @Nullable final OperableNode expression,
             final boolean isConstant,
             final boolean isLocal,
             @Nullable final IdentifierToken name,
             final boolean isOptional,
-            @Nullable final LexerToken startToken,
+            @Nullable final TypeNode givenType,
             @Nullable final LexerToken endToken
     ) {
-        super(parser, parentNode, currentScope, startToken, endToken);
+        super(parser, parentNode, currentScope, startToken, givenType, endToken);
         
         this.expression = expression;
         this.isConstant = isConstant;
@@ -135,7 +136,7 @@ public class VariableNode extends StatementNode
         }
     
         final IdentifierToken identifierToken = (IdentifierToken) this.getParser().nextToken();
-        Objects.requireNonNull(identifierToken, "identifierToken must not be null.");
+        Objects.requireNonNull(identifierToken);
     
         this.name = identifierToken;
     
@@ -231,15 +232,15 @@ public class VariableNode extends StatementNode
     }
     
     @NotNull
+    @Override
     public TypeNode getTypeNode() {
-        if (this.getReturnType() != null)
-            return this.getReturnType();
         if (this.getExpression() != null) {
             this.gettingInitialized = true;
             final TypeNode typeNode = this.getExpression().getTypeNode();
             this.gettingInitialized = false;
             return typeNode;
-        }
+        } else if (this.getReturnType() != null)
+            return this.getReturnType();
     
         return TypeVisitor.ERROR_NODE;
     }
