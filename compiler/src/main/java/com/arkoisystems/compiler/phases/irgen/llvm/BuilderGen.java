@@ -18,9 +18,9 @@
  */
 package com.arkoisystems.compiler.phases.irgen.llvm;
 
+import com.arkoisystems.compiler.phases.parser.ast.TypedNode;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NonNull;
 import lombok.Setter;
 import org.bytedeco.javacpp.PointerPointer;
 import org.bytedeco.llvm.LLVM.LLVMBasicBlockRef;
@@ -85,21 +85,28 @@ public class BuilderGen
     }
     
     @NotNull
-    public LLVMValueRef buildAlloca(@NotNull final LLVMTypeRef typeRef) {
-        return LLVM.LLVMBuildAlloca(
+    public LLVMValueRef buildAlloca(@NotNull final TypedNode typedNode, @NotNull final LLVMTypeRef typeRef) {
+        final LLVMValueRef variableRef = LLVM.LLVMBuildAlloca(
                 this.getBuilderRef(),
                 typeRef,
                 ""
         );
+        LLVM.LLVMSetAlignment(variableRef, typedNode.getTypeNode().getBits() / 8);
+        return variableRef;
     }
     
     @NotNull
-    public LLVMValueRef buildLoad(@NonNull final LLVMValueRef valueRef) {
-        return LLVM.LLVMBuildLoad(this.getBuilderRef(), valueRef, "");
+    public LLVMValueRef buildLoad(
+            @NotNull final TypedNode typedNode,
+            @NotNull final LLVMValueRef valueRef
+    ) {
+        final LLVMValueRef loadRef = LLVM.LLVMBuildLoad(this.getBuilderRef(), valueRef, "");
+        LLVM.LLVMSetAlignment(loadRef, typedNode.getTypeNode().getBits() / 8);
+        return loadRef;
     }
     
     @NotNull
-    public LLVMValueRef buildNeg(@NonNull final LLVMValueRef rhsValue) {
+    public LLVMValueRef buildNeg(@NotNull final LLVMValueRef rhsValue) {
         return LLVM.LLVMBuildNeg(this.getBuilderRef(), rhsValue, "");
     }
     
@@ -248,6 +255,49 @@ public class BuilderGen
         if (signed)
             return LLVM.LLVMBuildSIToFP(this.getBuilderRef(), lhsValue, targetType, "");
         return LLVM.LLVMBuildUIToFP(this.getBuilderRef(), lhsValue, targetType, "");
+    }
+    
+    @NotNull
+    public LLVMValueRef buildStructGEP(
+            @NotNull final LLVMValueRef structRef,
+            final int index
+    ) {
+        return LLVM.LLVMBuildStructGEP(
+                this.getBuilderRef(),
+                structRef,
+                index,
+                ""
+        );
+    }
+    
+    @NotNull
+    public LLVMValueRef buildGEP(
+            @NotNull final LLVMValueRef valueRef,
+            @NotNull final LLVMValueRef... indices
+    ) {
+        return LLVM.LLVMBuildGEP(
+                this.getBuilderRef(),
+                valueRef,
+                new PointerPointer<>(indices),
+                indices.length,
+                ""
+        );
+    }
+    
+    @NotNull
+    public LLVMValueRef buildStore(
+            @NotNull final TypedNode typedNode,
+            @NotNull final LLVMValueRef variableRef,
+            @NotNull final LLVMValueRef valueRef
+    ) {
+        final LLVMValueRef storeRef = LLVM.LLVMBuildStore(this.getBuilderRef(), valueRef, variableRef);
+        LLVM.LLVMSetAlignment(storeRef, typedNode.getTypeNode().getBits() / 8);
+        return storeRef;
+    }
+    
+    @NotNull
+    public LLVMValueRef buildBr(@NotNull final LLVMBasicBlockRef destination) {
+        return LLVM.LLVMBuildBr(this.getBuilderRef(), destination);
     }
     
 }

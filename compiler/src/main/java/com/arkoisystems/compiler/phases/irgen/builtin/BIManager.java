@@ -24,7 +24,6 @@ import com.arkoisystems.compiler.phases.irgen.builtin.function.types.VaStartBI;
 import com.arkoisystems.compiler.phases.irgen.builtin.structure.BIStructure;
 import com.arkoisystems.compiler.phases.irgen.builtin.structure.types.VaListBI;
 import lombok.Getter;
-import lombok.NonNull;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -37,7 +36,7 @@ public final class BIManager
     
     public static BIManager INSTANCE = new BIManager();
     
-    @NonNull
+    @NotNull
     private final List<Builtin> builtin;
     
     private BIManager() {
