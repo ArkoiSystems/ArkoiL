@@ -22,6 +22,7 @@ import com.arkoisystems.compiler.phases.lexer.token.LexerToken;
 import com.arkoisystems.compiler.phases.parser.Parser;
 import com.arkoisystems.compiler.phases.parser.SymbolTable;
 import com.arkoisystems.compiler.phases.parser.ast.ParserNode;
+import com.arkoisystems.compiler.phases.parser.ast.TypedNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.TypeNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.NumberNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.StringNode;
@@ -30,7 +31,7 @@ import lombok.Builder;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class OperableNode extends ParserNode
+public class OperableNode extends TypedNode
 {
     
     @Builder(builderMethodName = "operatorBuilder")
@@ -39,9 +40,10 @@ public class OperableNode extends ParserNode
             @Nullable final ParserNode parentNode,
             @Nullable final SymbolTable currentScope,
             @Nullable final LexerToken startToken,
+            @Nullable final TypeNode givenType,
             @Nullable final LexerToken endToken
     ) {
-        super(parser, parentNode, currentScope, startToken, endToken);
+        super(parser, parentNode, currentScope, startToken, givenType, endToken);
     }
     
     @Override
@@ -57,6 +59,7 @@ public class OperableNode extends ParserNode
     }
     
     @NotNull
+    @Override
     public TypeNode getTypeNode() {
         throw new NullPointerException(this.toString());
     }

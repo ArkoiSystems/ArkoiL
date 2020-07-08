@@ -26,6 +26,7 @@ import com.arkoisystems.compiler.phases.parser.Parser;
 import com.arkoisystems.compiler.phases.parser.ParserErrorType;
 import com.arkoisystems.compiler.phases.parser.SymbolTable;
 import com.arkoisystems.compiler.phases.parser.ast.ParserNode;
+import com.arkoisystems.compiler.phases.parser.ast.TypedNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.TypeNode;
 import com.arkoisystems.compiler.visitor.IVisitor;
 import com.arkoisystems.utils.printer.annotations.Printable;
@@ -37,10 +38,10 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Objects;
 
 @Getter
-public class ParameterNode extends ParserNode
+public class ParameterNode extends TypedNode
 {
     
-    public static ParameterNode GLOBAL_NODE = new ParameterNode(null, null, null, null, null, null, null);
+    public static ParameterNode GLOBAL_NODE = new ParameterNode(null, null, null, null, null, null, null, null);
     
     @Printable(name = "name")
     @Nullable
@@ -55,12 +56,13 @@ public class ParameterNode extends ParserNode
             @Nullable final Parser parser,
             @Nullable final ParserNode parentNode,
             @Nullable final SymbolTable currentScope,
+            @Nullable final LexerToken startToken,
             @Nullable final IdentifierToken name,
             @Nullable final TypeNode typeNode,
-            @Nullable final LexerToken startToken,
+            @Nullable final TypeNode givenType,
             @Nullable final LexerToken endToken
     ) {
-        super(parser, parentNode, currentScope, startToken, endToken);
+        super(parser, parentNode, currentScope, startToken, givenType, endToken);
         
         this.typeNode = typeNode;
         this.name = name;
@@ -89,7 +91,7 @@ public class ParameterNode extends ParserNode
         this.startAST(this.getParser().currentToken());
     
         final IdentifierToken identifierToken = (IdentifierToken) this.getParser().currentToken();
-        Objects.requireNonNull(identifierToken, "identifierToken must not be null.");
+        Objects.requireNonNull(identifierToken);
     
         this.name = identifierToken;
     
@@ -157,8 +159,9 @@ public class ParameterNode extends ParserNode
     }
     
     @NotNull
+    @Override
     public TypeNode getTypeNode() {
-        Objects.requireNonNull(this.typeNode, "typeNode must not be null.");
+        Objects.requireNonNull(this.typeNode);
         return this.typeNode;
     }
     

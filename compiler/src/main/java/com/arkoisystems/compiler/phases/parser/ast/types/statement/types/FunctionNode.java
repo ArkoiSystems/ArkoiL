@@ -49,7 +49,7 @@ import java.util.Objects;
 public class FunctionNode extends StatementNode
 {
     
-    public static FunctionNode GLOBAL_NODE = new FunctionNode(null, null, null, null, null, null, null, null, null);
+    public static FunctionNode GLOBAL_NODE = new FunctionNode(null, null, null, null, null, null, null, null, null, null);
     
     @Printable(name = "built in")
     private boolean builtin;
@@ -75,14 +75,15 @@ public class FunctionNode extends StatementNode
             @Nullable final Parser parser,
             @Nullable final ParserNode parentNode,
             @Nullable final SymbolTable currentScope,
+            @Nullable final LexerToken startToken,
             @Nullable final ParameterListNode parameterList,
             @Nullable final IdentifierToken name,
             @Nullable final TypeNode returnType,
             @Nullable final BlockNode blockNode,
-            @Nullable final LexerToken startToken,
+            @Nullable final TypeNode givenType,
             @Nullable final LexerToken endToken
     ) {
-        super(parser, parentNode, currentScope, startToken, endToken);
+        super(parser, parentNode, currentScope, startToken, givenType, endToken);
     
         this.parameterList = parameterList;
         this.returnType = returnType;
@@ -133,7 +134,7 @@ public class FunctionNode extends StatementNode
         }
     
         final IdentifierToken identifierToken = (IdentifierToken) this.getParser().nextToken();
-        Objects.requireNonNull(identifierToken, "identifierToken must not be null.");
+        Objects.requireNonNull(identifierToken);
     
         this.name = identifierToken;
     
@@ -275,6 +276,7 @@ public class FunctionNode extends StatementNode
     }
     
     @NotNull
+    @Override
     public TypeNode getTypeNode() {
         Objects.requireNonNull(this.getReturnType());
         return this.getReturnType();

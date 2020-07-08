@@ -28,6 +28,7 @@ import com.arkoisystems.compiler.phases.parser.Parser;
 import com.arkoisystems.compiler.phases.parser.ParserErrorType;
 import com.arkoisystems.compiler.phases.parser.SymbolTable;
 import com.arkoisystems.compiler.phases.parser.ast.ParserNode;
+import com.arkoisystems.compiler.phases.parser.ast.types.TypeNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.statement.StatementNode;
 import com.arkoisystems.compiler.visitor.IVisitor;
 import com.arkoisystems.utils.printer.annotations.Printable;
@@ -44,7 +45,7 @@ import java.util.Objects;
 public class ImportNode extends StatementNode
 {
     
-    public static ImportNode GLOBAL_NODE = new ImportNode(null, null, null, null, null, null);
+    public static ImportNode GLOBAL_NODE = new ImportNode(null, null, null, null, null, null, null);
     
     @Printable(name = "file path")
     @Nullable
@@ -55,11 +56,12 @@ public class ImportNode extends StatementNode
             @Nullable final Parser parser,
             @Nullable final ParserNode parentNode,
             @Nullable final SymbolTable currentScope,
-            @Nullable final StringToken filePath,
             @Nullable final LexerToken startToken,
+            @Nullable final StringToken filePath,
+            @Nullable final TypeNode givenType,
             @Nullable final LexerToken endToken
     ) {
-        super(parser, parentNode, currentScope, startToken, endToken);
+        super(parser, parentNode, currentScope, startToken, givenType, endToken);
         
         this.filePath = filePath;
     }

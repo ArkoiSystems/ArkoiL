@@ -41,7 +41,7 @@ import java.util.Objects;
 public class UnaryNode extends ExpressionNode
 {
     
-    public static UnaryNode GLOBAL_NODE = new UnaryNode(null, null, null, null, null, null, null);
+    public static UnaryNode GLOBAL_NODE = new UnaryNode(null, null, null, null, null, null, null, null);
     
     @Printable(name = "operation")
     @Nullable
@@ -56,12 +56,13 @@ public class UnaryNode extends ExpressionNode
             @Nullable final Parser parser,
             @Nullable final ParserNode parentNode,
             @Nullable final SymbolTable currentScope,
+            @Nullable final LexerToken startToken,
             @Nullable final PrefixOperators operatorType,
             @Nullable final OperableNode rightHandSide,
-            @Nullable final LexerToken startToken,
+            @Nullable final TypeNode givenType,
             @Nullable final LexerToken endToken
     ) {
-        super(parser, parentNode, currentScope, startToken, endToken);
+        super(parser, parentNode, currentScope, startToken, givenType, endToken);
         
         this.rightHandSide = rightHandSide;
         this.operatorType = operatorType;
@@ -113,8 +114,9 @@ public class UnaryNode extends ExpressionNode
         visitor.visit(this);
     }
     
+    @NotNull
     @Override
-    public @NotNull TypeNode getTypeNode() {
+    public TypeNode getTypeNode() {
         Objects.requireNonNull(this.getRightHandSide());
         return this.getRightHandSide().getTypeNode();
     }

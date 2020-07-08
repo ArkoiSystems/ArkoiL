@@ -43,7 +43,7 @@ import java.util.Objects;
 public class IfNode extends StatementNode
 {
     
-    public static IfNode GLOBAL_NODE = new IfNode(null, null, null, null, null, null, null, null);
+    public static IfNode GLOBAL_NODE = new IfNode(null, null, null, null, null, null, null, null, null);
     
     @Printable(name = "expression")
     @Nullable
@@ -66,9 +66,10 @@ public class IfNode extends StatementNode
             @Nullable final OperableNode expression,
             @Nullable final BlockNode block,
             @Nullable final ElseNode nextBranch,
+            @Nullable final TypeNode givenType,
             @Nullable final LexerToken endToken
     ) {
-        super(parser, parentNode, currentScope, startToken, endToken);
+        super(parser, parentNode, currentScope, startToken, givenType, endToken);
         
         this.nextBranch = nextBranch;
         this.expression = expression;
@@ -255,6 +256,7 @@ public class IfNode extends StatementNode
     }
     
     @NotNull
+    @Override
     public TypeNode getTypeNode() {
         Objects.requireNonNull(this.getBlock());
         return this.getBlock().getTypeNode();

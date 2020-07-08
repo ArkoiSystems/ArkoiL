@@ -42,7 +42,7 @@ import java.util.Objects;
 public class ReturnNode extends StatementNode
 {
     
-    public static ReturnNode GLOBAL_NODE = new ReturnNode(null, null, null, null, null, null);
+    public static ReturnNode GLOBAL_NODE = new ReturnNode(null, null, null, null, null, null, null);
     
     @Printable(name = "expression")
     @Nullable
@@ -53,11 +53,12 @@ public class ReturnNode extends StatementNode
             @Nullable final Parser parser,
             @Nullable final ParserNode parentNode,
             @Nullable final SymbolTable currentScope,
-            @Nullable final OperableNode expression,
             @Nullable final LexerToken startToken,
+            @Nullable final OperableNode expression,
+            @Nullable final TypeNode givenType,
             @Nullable final LexerToken endToken
     ) {
-        super(parser, parentNode, currentScope, startToken, endToken);
+        super(parser, parentNode, currentScope, startToken, givenType, endToken);
         
         this.expression = expression;
     }
@@ -116,6 +117,7 @@ public class ReturnNode extends StatementNode
     }
     
     @NotNull
+    @Override
     public TypeNode getTypeNode() {
         if (this.getExpression() != null)
             return this.getExpression().getTypeNode();

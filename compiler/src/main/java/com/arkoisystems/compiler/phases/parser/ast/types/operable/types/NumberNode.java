@@ -40,7 +40,7 @@ import java.util.Objects;
 public class NumberNode extends OperableNode
 {
     
-    public static NumberNode GLOBAL_NODE = new NumberNode(null, null, null, null, null, null);
+    public static NumberNode GLOBAL_NODE = new NumberNode(null, null, null, null, null, null, null);
     
     @Printable(name = "number")
     @Nullable
@@ -51,11 +51,12 @@ public class NumberNode extends OperableNode
             @Nullable final Parser parser,
             @Nullable final ParserNode parentNode,
             @Nullable final SymbolTable currentScope,
-            @Nullable final NumberToken numberToken,
             @Nullable final LexerToken startToken,
+            @Nullable final NumberToken numberToken,
+            @Nullable final TypeNode givenType,
             @Nullable final LexerToken endToken
     ) {
-        super(parser, parentNode, currentScope, startToken, endToken);
+        super(parser, parentNode, currentScope, startToken, givenType, endToken);
         
         this.numberToken = numberToken;
     }
@@ -96,8 +97,9 @@ public class NumberNode extends OperableNode
         visitor.visit(this);
     }
     
+    @NotNull
     @Override
-    public @NotNull TypeNode getTypeNode() {
+    public TypeNode getTypeNode() {
         Objects.requireNonNull(this.getNumberToken());
         return TypeNode.builder()
                 .parentNode(this)

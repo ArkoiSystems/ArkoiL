@@ -22,10 +22,12 @@ import com.arkoisystems.compiler.phases.lexer.token.LexerToken;
 import com.arkoisystems.compiler.phases.parser.Parser;
 import com.arkoisystems.compiler.phases.parser.SymbolTable;
 import com.arkoisystems.compiler.phases.parser.ast.ParserNode;
+import com.arkoisystems.compiler.phases.parser.ast.TypedNode;
+import com.arkoisystems.compiler.phases.parser.ast.types.TypeNode;
 import lombok.Builder;
 import org.jetbrains.annotations.Nullable;
 
-public class StatementNode extends ParserNode
+public class StatementNode extends TypedNode
 {
     
     @Builder(builderMethodName = "statementBuilder")
@@ -34,9 +36,10 @@ public class StatementNode extends ParserNode
             @Nullable final ParserNode parentNode,
             @Nullable final SymbolTable currentScope,
             @Nullable final LexerToken startToken,
+            @Nullable final TypeNode givenType,
             @Nullable final LexerToken endToken
     ) {
-        super(parser, parentNode, currentScope, startToken, endToken);
+        super(parser, parentNode, currentScope, startToken, givenType, endToken);
     }
     
 }

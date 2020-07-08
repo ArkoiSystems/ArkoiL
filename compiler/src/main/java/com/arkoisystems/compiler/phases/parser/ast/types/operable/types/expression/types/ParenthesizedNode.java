@@ -40,7 +40,7 @@ import java.util.Objects;
 public class ParenthesizedNode extends ExpressionNode
 {
     
-    public static ParenthesizedNode GLOBAL_NODE = new ParenthesizedNode(null, null, null, null, null, null);
+    public static ParenthesizedNode GLOBAL_NODE = new ParenthesizedNode(null, null, null, null, null, null, null);
     
     @Printable(name = "expression")
     @Nullable
@@ -51,11 +51,12 @@ public class ParenthesizedNode extends ExpressionNode
             @Nullable final Parser parser,
             @Nullable final ParserNode parentNode,
             @Nullable final SymbolTable currentScope,
-            @Nullable final OperableNode expression,
             @Nullable final LexerToken startToken,
+            @Nullable final OperableNode expression,
+            @Nullable final TypeNode givenType,
             @Nullable final LexerToken endToken
     ) {
-        super(parser, parentNode, currentScope, startToken, endToken);
+        super(parser, parentNode, currentScope, startToken, givenType, endToken);
         
         this.expression = expression;
     }
@@ -142,8 +143,9 @@ public class ParenthesizedNode extends ExpressionNode
         visitor.visit(this);
     }
     
+    @NotNull
     @Override
-    public @NotNull TypeNode getTypeNode() {
+    public TypeNode getTypeNode() {
         Objects.requireNonNull(this.getExpression());
         return this.getExpression().getTypeNode();
     }

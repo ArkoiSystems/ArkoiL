@@ -43,7 +43,7 @@ import java.util.Objects;
 public class ElseNode extends StatementNode
 {
     
-    public static ElseNode GLOBAL_NODE = new ElseNode(null, null, null, null, null, null, null, null);
+    public static ElseNode GLOBAL_NODE = new ElseNode(null, null, null, null, null, null, null, null, null);
     
     @Printable(name = "expression")
     @Nullable
@@ -66,9 +66,10 @@ public class ElseNode extends StatementNode
             @Nullable final OperableNode expression,
             @Nullable final BlockNode block,
             @Nullable final ElseNode nextBranch,
+            @Nullable final TypeNode givenType,
             @Nullable final LexerToken endToken
     ) {
-        super(parser, parentNode, currentScope, startToken, endToken);
+        super(parser, parentNode, currentScope, startToken, givenType, endToken);
         
         this.nextBranch = nextBranch;
         this.expression = expression;
@@ -264,6 +265,7 @@ public class ElseNode extends StatementNode
     }
     
     @NotNull
+    @Override
     public TypeNode getTypeNode() {
         Objects.requireNonNull(this.getBlock());
         return this.getBlock().getTypeNode();

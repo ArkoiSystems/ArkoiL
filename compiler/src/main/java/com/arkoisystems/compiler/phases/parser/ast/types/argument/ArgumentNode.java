@@ -26,6 +26,7 @@ import com.arkoisystems.compiler.phases.parser.Parser;
 import com.arkoisystems.compiler.phases.parser.ParserErrorType;
 import com.arkoisystems.compiler.phases.parser.SymbolTable;
 import com.arkoisystems.compiler.phases.parser.ast.ParserNode;
+import com.arkoisystems.compiler.phases.parser.ast.TypedNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.TypeNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.OperableNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.expression.ExpressionNode;
@@ -39,12 +40,12 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Objects;
 
 @Getter
-public class ArgumentNode extends ParserNode
+public class ArgumentNode extends TypedNode
 {
     
-    public static ArgumentNode NAMED_NODE = new ArgumentNode(null, null, null, null, true, null, null, null);
+    public static ArgumentNode NAMED_NODE = new ArgumentNode(null, null, null, null, null, true, null, null, null);
     
-    public static ArgumentNode UNNAMED_NODE = new ArgumentNode(null, null, null, null, false, null, null, null);
+    public static ArgumentNode UNNAMED_NODE = new ArgumentNode(null, null, null, null, null, false, null, null, null);
     
     private final boolean named;
     
@@ -61,16 +62,17 @@ public class ArgumentNode extends ParserNode
             @Nullable final Parser parser,
             @Nullable final ParserNode parentNode,
             @Nullable final SymbolTable currentScope,
+            @Nullable final LexerToken startToken,
             @Nullable final IdentifierToken name,
             final boolean named,
             @Nullable final OperableNode expression,
-            @Nullable final LexerToken startToken,
+            @Nullable final TypeNode givenType,
             @Nullable final LexerToken endToken
     ) {
-        super(parser, parentNode, currentScope, startToken, endToken);
-        
-        this.named = named;
+        super(parser, parentNode, currentScope, startToken, givenType, endToken);
+    
         this.expression = expression;
+        this.named = named;
         this.name = name;
     }
     
@@ -167,6 +169,7 @@ public class ArgumentNode extends ParserNode
     }
     
     @NotNull
+    @Override
     public TypeNode getTypeNode() {
         Objects.requireNonNull(this.getExpression());
         return this.getExpression().getTypeNode();

@@ -48,7 +48,7 @@ import java.util.stream.Collectors;
 public class FunctionCallNode extends IdentifierNode
 {
     
-    public static FunctionCallNode GLOBAL_NODE = new FunctionCallNode(null, null, null, null, null, false, false, null, null);
+    public static FunctionCallNode GLOBAL_NODE = new FunctionCallNode(null, null, null, null, null, null, false, false, null, null);
     
     @Printable(name = "arguments")
     @Nullable
@@ -59,14 +59,27 @@ public class FunctionCallNode extends IdentifierNode
             @Nullable final Parser parser,
             @Nullable final ParserNode parentNode,
             @Nullable final SymbolTable currentScope,
+            @Nullable final LexerToken startToken,
             @Nullable final IdentifierNode nextIdentifier,
             @Nullable final IdentifierToken identifier,
             final boolean isDereference,
             final boolean isPointer,
-            @Nullable final LexerToken startToken,
+            @Nullable final TypeNode givenType,
             @Nullable final LexerToken endToken
     ) {
-        super(parser, parentNode, currentScope, nextIdentifier, identifier, true, isDereference, isPointer, startToken, endToken);
+        super(
+                parser,
+                parentNode,
+                currentScope,
+                startToken,
+                nextIdentifier,
+                identifier,
+                true,
+                isDereference,
+                isPointer,
+                givenType,
+                endToken
+        );
     }
     
     @Override
@@ -148,16 +161,17 @@ public class FunctionCallNode extends IdentifierNode
         visitor.visit(this);
     }
     
+    @NotNull
     @Override
-    public @NotNull TypeNode getTypeNode() {
+    public TypeNode getTypeNode() {
         Objects.requireNonNull(this.getIdentifier());
         Objects.requireNonNull(this.getParser());
         Objects.requireNonNull(this.getParser().getRootNode().getCurrentScope());
-    
+        
         final List<ParserNode> nodes = this.getParser().getRootNode().getCurrentScope().lookupScope(
                 this.getIdentifier().getTokenContent()
         );
-    
+        
         FunctionNode foundNode = null;
         if (nodes != null && !nodes.isEmpty()) {
             final List<FunctionNode> functions = nodes.stream()
@@ -165,14 +179,14 @@ public class FunctionCallNode extends IdentifierNode
                     .map(node -> (FunctionNode) node)
                     .filter(node -> node.equalsToCall(this))
                     .collect(Collectors.toList());
-    
+            
             if (!functions.isEmpty())
                 foundNode = functions.get(0);
         }
-    
+        
         if (foundNode != null)
             return foundNode.getTypeNode();
-    
+        
         return TypeVisitor.ERROR_NODE;
     }
     
