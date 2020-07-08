@@ -55,7 +55,7 @@ import java.util.Objects;
 public class IdentifierNode extends OperableNode
 {
     
-    public static IdentifierNode PARSER_NODE = new IdentifierNode(null, null, null, null, null, true, false, false, null, null);
+    public static IdentifierNode PARSER_NODE = new IdentifierNode(null, null, null, null, null, null, true, false, false, null, null);
     
     @Printable(name = "is dereference")
     private boolean isDereference;
@@ -83,15 +83,16 @@ public class IdentifierNode extends OperableNode
             @Nullable final Parser parser,
             @Nullable final ParserNode parentNode,
             @Nullable final SymbolTable currentScope,
+            @Nullable final LexerToken startToken,
             @Nullable final IdentifierNode nextIdentifier,
             @Nullable final IdentifierToken identifier,
             final boolean parseFunction,
             final boolean isDereference,
             final boolean isPointer,
-            @Nullable final LexerToken startToken,
+            @Nullable final TypeNode givenType,
             @Nullable final LexerToken endToken
     ) {
-        super(parser, parentNode, currentScope, startToken, endToken);
+        super(parser, parentNode, currentScope, startToken, givenType, endToken);
     
         this.nextIdentifier = nextIdentifier;
         this.isDereference = isDereference;
@@ -167,9 +168,18 @@ public class IdentifierNode extends OperableNode
                         )
                 );
             }
-        
+    
             this.getParser().nextToken();
-        
+    
+            boolean isPointer = false, isDereference = false;
+            if (this.getParser().matchesCurrentToken(SymbolType.AMPERSAND) != null) {
+                this.getParser().nextToken();
+                isPointer = true;
+            } else if (this.getParser().matchesCurrentToken(SymbolType.AT_SIGN) != null) {
+                this.getParser().nextToken();
+                isDereference = true;
+            }
+    
             if (this.getParser().matchesCurrentToken(TokenType.IDENTIFIER) == null) {
                 final LexerToken currentToken = this.getParser().currentToken();
                 return this.addError(
@@ -195,6 +205,8 @@ public class IdentifierNode extends OperableNode
                         .currentScope(this.getCurrentScope())
                         .parentNode(lastNode)
                         .startToken(identifierToken)
+                        .isDereference(isDereference)
+                        .isPointer(isPointer)
                         .identifier(identifierToken)
                         .build()
                         .parse();
@@ -204,6 +216,8 @@ public class IdentifierNode extends OperableNode
                     .parentNode(lastNode)
                     .parseFunction(this.isParseFunction())
                     .startToken(identifierToken)
+                    .isDereference(isDereference)
+                    .isPointer(isPointer)
                     .identifier(identifierToken)
                     .endToken(identifierToken)
                     .build();
@@ -266,6 +280,7 @@ public class IdentifierNode extends OperableNode
     
     @SneakyThrows
     @NotNull
+    @Override
     public TypeNode getTypeNode() {
         Objects.requireNonNull(this.getCurrentScope());
         Objects.requireNonNull(this.getIdentifier());
@@ -293,7 +308,13 @@ public class IdentifierNode extends OperableNode
             } else typeNode = variableNode.getTypeNode().clone();
         } else if (foundNode instanceof ParameterNode) {
             final ParameterNode parameterNode = (ParameterNode) foundNode;
-            typeNode = parameterNode.getTypeNode().clone();
+    
+            final ParserNode targetNode = parameterNode.getTypeNode().getTargetNode();
+            if (this.getNextIdentifier() != null && targetNode != null) {
+                this.getNextIdentifier().setCurrentScope(targetNode.getCurrentScope());
+                this.getNextIdentifier().setParser(targetNode.getParser());
+                return this.getNextIdentifier().getTypeNode().clone();
+            } else typeNode = parameterNode.getTypeNode().clone();
         } else if (foundNode instanceof FunctionNode) {
             final FunctionNode functionNode = (FunctionNode) foundNode;
             typeNode = functionNode.getTypeNode().clone();
@@ -305,13 +326,13 @@ public class IdentifierNode extends OperableNode
                 this.getNextIdentifier().setParser(compilerClass.getParser());
                 return this.getNextIdentifier().getTypeNode();
             }
-            
+    
             return TypeVisitor.ERROR_NODE;
         } else if (foundNode instanceof StructNode) {
             final StructNode structNode = (StructNode) foundNode;
             return structNode.getTypeNode();
         } else return TypeVisitor.ERROR_NODE;
-        
+    
         typeNode.setPointers(typeNode.getPointers() + (this.isPointer() ? 1 : 0));
         typeNode.setPointers(typeNode.getPointers() - (this.isDereference() ? 1 : 0));
         return typeNode;

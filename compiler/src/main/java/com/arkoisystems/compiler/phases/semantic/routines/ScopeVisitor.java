@@ -331,7 +331,7 @@ public class ScopeVisitor implements IVisitor<ParserNode>
                         if (!variableNode.isLocal())
                             return true;
                     }
-                
+    
                     return this.comesBefore(node, identifierNode);
                 }
         );
@@ -349,7 +349,7 @@ public class ScopeVisitor implements IVisitor<ParserNode>
         nodes.sort((o1, o2) -> o2.getStartLine() - o1.getStartLine());
         final ParserNode foundNode = nodes.get(0);
         identifierNode.setTargetNode(foundNode);
-
+    
         if (identifierNode.getNextIdentifier() != null) {
             if (foundNode instanceof ImportNode) {
                 final ImportNode importNode = (ImportNode) foundNode;
@@ -362,11 +362,20 @@ public class ScopeVisitor implements IVisitor<ParserNode>
     
                 if (typeNode.getTargetNode() == null)
                     return null;
-                
+    
                 identifierNode.getNextIdentifier().setCurrentScope(typeNode.getTargetNode().getCurrentScope());
                 identifierNode.getNextIdentifier().setParser(typeNode.getTargetNode().getParser());
-            }
-            
+            } else if (foundNode instanceof ParameterNode) {
+                final ParameterNode parameterNode = (ParameterNode) foundNode;
+                final TypeNode typeNode = parameterNode.getTypeNode();
+    
+                if (typeNode.getTargetNode() == null)
+                    return null;
+    
+                identifierNode.getNextIdentifier().setCurrentScope(typeNode.getTargetNode().getCurrentScope());
+                identifierNode.getNextIdentifier().setParser(typeNode.getTargetNode().getParser());
+            } else throw new NullPointerException();
+        
             return this.visit(identifierNode.getNextIdentifier());
         }
         
