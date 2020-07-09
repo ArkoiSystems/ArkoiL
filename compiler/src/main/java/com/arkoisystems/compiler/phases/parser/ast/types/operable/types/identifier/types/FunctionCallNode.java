@@ -101,7 +101,8 @@ public class FunctionCallNode extends IdentifierNode
             );
         }
     
-        if (!ArgumentListNode.MIXED_NAMED_NODE.canParse(this.getParser(), 1)) {
+        if (!ArgumentListNode.MIXED_NAMED_NODE.canParse(this.getParser(), 1) &&
+                this.getParser().matchesPeekToken(1, SymbolType.CLOSING_PARENTHESIS) == null) {
             final LexerToken nextToken = this.getParser().nextToken();
             return this.addError(
                     this,

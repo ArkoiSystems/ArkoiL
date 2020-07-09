@@ -23,11 +23,12 @@ import com.arkoisystems.compiler.phases.irgen.builtin.function.BIFunction;
 import com.arkoisystems.compiler.phases.irgen.llvm.FunctionGen;
 import com.arkoisystems.compiler.phases.irgen.llvm.ParameterGen;
 import com.arkoisystems.compiler.phases.parser.ast.types.StructNode;
+import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.identifier.types.FunctionCallNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.statement.types.FunctionNode;
-import org.bytedeco.llvm.LLVM.LLVMTypeRef;
 import org.bytedeco.llvm.LLVM.LLVMValueRef;
 import org.bytedeco.llvm.global.LLVM;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Objects;
@@ -37,13 +38,25 @@ public class VaStartBI extends BIFunction
 {
     
     @Override
-    public void generateIR(
+    public void generateFunctionIR(
             @NotNull final IRVisitor irVisitor,
             @NotNull final FunctionNode functionNode
-    ) {
-        Objects.requireNonNull(functionNode.getParser());
+    ) { }
     
-        final List<StructNode> structNodes = functionNode.getParser()
+    @Override
+    public boolean generatesFunctionIR() {
+        return false;
+    }
+    
+    @Nullable
+    @Override
+    public LLVMValueRef generateFunctionCallIR(
+            @NotNull final IRVisitor irVisitor,
+            @NotNull final FunctionCallNode functionCallNode
+    ) {
+        Objects.requireNonNull(functionCallNode.getParser());
+        
+        final List<StructNode> structNodes = functionCallNode.getParser()
                 .getCompilerClass()
                 .getRootScope()
                 .lookup("va_list").stream()
@@ -52,24 +65,25 @@ public class VaStartBI extends BIFunction
                 .collect(Collectors.toList());
         if (structNodes.size() != 1)
             throw new NullPointerException();
-    
-        final FunctionGen functionGen = irVisitor.visit(functionNode);
+        
         final StructNode targetStruct = structNodes.get(0);
-    
-        irVisitor.getBuilderGen().setPositionAtEnd(irVisitor.getContextGen().appendBasicBlock(functionGen.getFunctionRef()));
-    
-        final LLVMValueRef functionRef = this.getLLVMVaStart(irVisitor, functionNode);
-        final LLVMTypeRef listStructure = irVisitor.visit(targetStruct);
-        final LLVMValueRef va_list = irVisitor.getBuilderGen().buildAlloca(
+        
+        final LLVMValueRef startIntrinsicRef = this.getLLVMVaStart(irVisitor);
+        final LLVMValueRef listRef = irVisitor.getBuilderGen().buildAlloca(
                 targetStruct,
-                listStructure
+                irVisitor.visit(targetStruct)
         );
-    
-        irVisitor.getBuilderGen().buildFunctionCall(functionRef, irVisitor.getBuilderGen().buildBitCast(
-                va_list,
+        irVisitor.getBuilderGen().buildFunctionCall(startIntrinsicRef, irVisitor.getBuilderGen().buildBitCast(
+                listRef,
                 LLVM.LLVMPointerType(irVisitor.getContextGen().makeIntType(8), 0)
         ));
-        irVisitor.getBuilderGen().returnValue(va_list);
+        
+        return irVisitor.getBuilderGen().buildLoad(targetStruct, listRef);
+    }
+    
+    @Override
+    public boolean generatesFunctionCallIR() {
+        return true;
     }
     
     @Override
@@ -78,12 +92,7 @@ public class VaStartBI extends BIFunction
     }
     
     @NotNull
-    private LLVMValueRef getLLVMVaStart(
-            @NotNull final IRVisitor irVisitor,
-            @NotNull final FunctionNode functionNode
-    ) {
-        Objects.requireNonNull(functionNode.getParser());
-        
+    private LLVMValueRef getLLVMVaStart(@NotNull final IRVisitor irVisitor) {
         final LLVMValueRef functionRef = LLVM.LLVMGetNamedFunction(
                 irVisitor.getModuleGen().getModuleRef(),
                 "llvm.va_start"

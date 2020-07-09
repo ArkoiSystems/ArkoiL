@@ -22,10 +22,12 @@ import com.arkoisystems.compiler.phases.irgen.IRVisitor;
 import com.arkoisystems.compiler.phases.irgen.builtin.function.BIFunction;
 import com.arkoisystems.compiler.phases.irgen.llvm.FunctionGen;
 import com.arkoisystems.compiler.phases.irgen.llvm.ParameterGen;
+import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.identifier.types.FunctionCallNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.statement.types.FunctionNode;
 import org.bytedeco.llvm.LLVM.LLVMValueRef;
 import org.bytedeco.llvm.global.LLVM;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
@@ -33,22 +35,37 @@ public class VaEndBI extends BIFunction
 {
     
     @Override
-    public void generateIR(
+    public void generateFunctionIR(
             @NotNull final IRVisitor irVisitor,
             @NotNull final FunctionNode functionNode
+    ) { }
+    
+    @Override
+    public boolean generatesFunctionIR() {
+        return false;
+    }
+    
+    @Nullable
+    @Override
+    public LLVMValueRef generateFunctionCallIR(
+            @NotNull final IRVisitor irVisitor,
+            @NotNull final FunctionCallNode functionCallNode
     ) {
-        Objects.requireNonNull(functionNode.getParser());
-    
-        final FunctionGen functionGen = irVisitor.visit(functionNode);
-        final LLVMValueRef functionRef = this.getLLVMVaEnd(irVisitor, functionNode);
-    
-        irVisitor.getBuilderGen().setPositionAtEnd(irVisitor.getContextGen().appendBasicBlock(functionGen.getFunctionRef()));
-    
-        irVisitor.getBuilderGen().buildFunctionCall(functionRef, irVisitor.getBuilderGen().buildBitCast(
-                functionGen.getParameter(0),
+        Objects.requireNonNull(functionCallNode.getArgumentList());
+        Objects.requireNonNull(functionCallNode.getParser());
+        
+        final LLVMValueRef endIntrinsicRef = this.getLLVMVaEnd(irVisitor);
+        
+        irVisitor.getBuilderGen().buildFunctionCall(endIntrinsicRef, irVisitor.getBuilderGen().buildBitCast(
+                irVisitor.visit(functionCallNode.getArgumentList().getArguments().get(0)),
                 LLVM.LLVMPointerType(irVisitor.getContextGen().makeIntType(8), 0)
         ));
-        irVisitor.getBuilderGen().returnVoid();
+        return null;
+    }
+    
+    @Override
+    public boolean generatesFunctionCallIR() {
+        return true;
     }
     
     @Override
@@ -57,12 +74,7 @@ public class VaEndBI extends BIFunction
     }
     
     @NotNull
-    private LLVMValueRef getLLVMVaEnd(
-            @NotNull final IRVisitor irVisitor,
-            @NotNull final FunctionNode functionNode
-    ) {
-        Objects.requireNonNull(functionNode.getParser());
-        
+    private LLVMValueRef getLLVMVaEnd(@NotNull final IRVisitor irVisitor) {
         final LLVMValueRef functionRef = LLVM.LLVMGetNamedFunction(
                 irVisitor.getModuleGen().getModuleRef(),
                 "llvm.va_end"
