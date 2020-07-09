@@ -1,6 +1,6 @@
 # This file declares some **inbuilt** functions and structures
 # which are needed to get the variable arguments passed through
-# a method.
+# a function.
 #
 # See for more details:
 # [LLVM VA Instrinsics](https://llvm.org/docs/LangRef.html#variable-argument-handling-intrinsics)
@@ -12,14 +12,14 @@
 
 struct @va_list
 
-# The method will create a **new** va_list structure with all 
-# arguments passed through the method, in which this function
+# The function will create a **new** va_list structure with all 
+# arguments passed through the function, in which this function
 # call happens.
 #
 # See for more details:
 # [LLVM va_start](https://llvm.org/docs/LangRef.html#llvm-va-start-intrinsic)
 
-fun @va_start(): va_list*
+fun @va_start(): va_list
 
 # **Destorys** the list so that no memory leak occurs.
 #

@@ -213,6 +213,8 @@ public class IRVisitor implements IVisitor<Object>
         Objects.requireNonNull(targetFunction.getName());
     
         final FunctionGen functionGen = this.visit(targetFunction);
+        Objects.requireNonNull(functionGen);
+    
         for (int index = 0; index < targetFunction.getParameterList().getParameters().size(); index++) {
             final ParameterNode parameterNode = targetFunction.getParameterList().getParameters().get(index);
             Objects.requireNonNull(parameterNode.getName());
@@ -239,7 +241,7 @@ public class IRVisitor implements IVisitor<Object>
         return (LLVMValueRef) object;
     }
     
-    @NotNull
+    @Nullable
     @Override
     public FunctionGen visit(@NotNull final FunctionNode functionNode) {
         if (this.getNodeRefs().containsKey(functionNode)) {
@@ -251,8 +253,8 @@ public class IRVisitor implements IVisitor<Object>
     
         Objects.requireNonNull(functionNode.getParameterList());
         Objects.requireNonNull(functionNode.getName());
-    
-        final FunctionGen functionGen = FunctionGen.builder()
+        
+        final FunctionGen.FunctionGenBuilder builder = FunctionGen.builder()
                 .moduleGen(this.getModuleGen())
                 .name(functionNode.getName().getTokenContent())
                 .parameters(functionNode.getParameterList().getParameters().stream()
@@ -262,29 +264,42 @@ public class IRVisitor implements IVisitor<Object>
                                 .build())
                         .toArray(ParameterGen[]::new))
                 .variadic(functionNode.getParameterList().isVariadic())
-                .returnType(this.visit(functionNode.getTypeNode()))
-                .build();
-        this.getNodeRefs().put(functionNode, functionGen);
-    
+                .returnType(this.visit(functionNode.getTypeNode()));
+        
         final boolean foreign = !this.getCompilerClass()
                 .getParser()
                 .getRootNode()
                 .getNodes()
                 .contains(functionNode);
-        if (foreign)
+        if (foreign) {
+            final FunctionGen functionGen = builder.build();
+            this.getNodeRefs().put(functionNode, functionGen);
             return functionGen;
-    
+        }
+        
         if (functionNode.isBuiltin()) {
             final BIFunction foundFunction = BIManager.INSTANCE.getFunction(
                     functionNode.getName().getTokenContent()
             );
             Objects.requireNonNull(foundFunction);
-        
-            foundFunction.generateIR(this, functionNode);
-        } else if (functionNode.getBlockNode() != null)
-            this.visit(functionNode.getBlockNode());
-    
-        return functionGen;
+            
+            if (foundFunction.generatesFunctionIR()) {
+                final FunctionGen functionGen = builder.build();
+                this.getNodeRefs().put(functionNode, functionGen);
+                
+                foundFunction.generateFunctionIR(this, functionNode);
+                
+                return functionGen;
+            } else return null;
+        } else {
+            final FunctionGen functionGen = builder.build();
+            this.getNodeRefs().put(functionNode, functionGen);
+            
+            if (functionNode.getBlockNode() != null)
+                this.visit(functionNode.getBlockNode());
+            
+            return functionGen;
+        }
     }
     
     @NotNull
@@ -306,6 +321,7 @@ public class IRVisitor implements IVisitor<Object>
         Objects.requireNonNull(functionNode);
     
         final FunctionGen functionGen = this.visit(functionNode);
+        Objects.requireNonNull(functionGen);
     
         final LLVMBasicBlockRef currentBlock = this.getBuilderGen().getCurrentBlock();
         final LLVMBasicBlockRef startBlock = this.getContextGen().appendBasicBlock(
@@ -635,9 +651,19 @@ public class IRVisitor implements IVisitor<Object>
             throw new NullPointerException();
     
         final FunctionNode targetNode = functions.get(0);
-        final LLVMValueRef functionRef = this.visit(targetNode).getFunctionRef();
-    
         Objects.requireNonNull(targetNode.getParameterList());
+        Objects.requireNonNull(targetNode.getName());
+    
+        final BIFunction foundFunction = BIManager.INSTANCE.getFunction(
+                targetNode.getName().getTokenContent()
+        );
+        if (foundFunction != null && foundFunction.generatesFunctionCallIR())
+            return foundFunction.generateFunctionCallIR(this, functionCallNode);
+    
+        final FunctionGen functionGen = this.visit(targetNode);
+        Objects.requireNonNull(functionGen);
+    
+        final LLVMValueRef functionRef = functionGen.getFunctionRef();
     
         final List<ArgumentNode> sortedArguments = functionCallNode.getSortedArguments(targetNode);
         final LLVMValueRef[] functionArguments = new LLVMValueRef[sortedArguments.size()];
@@ -906,6 +932,7 @@ public class IRVisitor implements IVisitor<Object>
     
         final LLVMValueRef expressionValue = (LLVMValueRef) expressionObject;
         final FunctionGen functionGen = this.visit(functionNode);
+        Objects.requireNonNull(functionGen);
     
         final LLVMBasicBlockRef recoveryBranch = this.getContextGen().appendBasicBlock(functionGen.getFunctionRef());
         this.getNodeRefs().put(ifNode, recoveryBranch);
@@ -1007,6 +1034,7 @@ public class IRVisitor implements IVisitor<Object>
         
         final LLVMBasicBlockRef recoveryBranch = this.visit(parentNode);
         final FunctionGen functionGen = this.visit(functionNode);
+        Objects.requireNonNull(functionGen);
         
         if (elseNode.getExpression() != null) {
             final LLVMBasicBlockRef startBranch = this.getContextGen().appendBasicBlock(functionGen.getFunctionRef());

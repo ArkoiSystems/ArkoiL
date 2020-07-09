@@ -20,15 +20,28 @@ package com.arkoisystems.compiler.phases.irgen.builtin.function;
 
 import com.arkoisystems.compiler.phases.irgen.IRVisitor;
 import com.arkoisystems.compiler.phases.irgen.builtin.Builtin;
+import com.arkoisystems.compiler.phases.parser.ast.types.operable.types.identifier.types.FunctionCallNode;
 import com.arkoisystems.compiler.phases.parser.ast.types.statement.types.FunctionNode;
+import org.bytedeco.llvm.LLVM.LLVMValueRef;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public abstract class BIFunction implements Builtin
 {
     
-    public abstract void generateIR(
+    public abstract void generateFunctionIR(
             @NotNull final IRVisitor irVisitor,
             @NotNull final FunctionNode functionNode
     );
+    
+    public abstract boolean generatesFunctionIR();
+    
+    @Nullable
+    public abstract LLVMValueRef generateFunctionCallIR(
+            @NotNull final IRVisitor irVisitor,
+            @NotNull final FunctionCallNode functionCallNode
+    );
+    
+    public abstract boolean generatesFunctionCallIR();
     
 }
