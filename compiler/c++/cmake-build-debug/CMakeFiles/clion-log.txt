@@ -1,0 +1,4 @@
+/snap/clion/123/bin/cmake/linux/bin/cmake -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - Unix Makefiles" /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/cmake-build-debug

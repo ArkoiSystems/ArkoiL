@@ -1,0 +1,1 @@
+/usr/bin/c++  -g   CMakeFiles/ArkoiCompiler.dir/main.cpp.o CMakeFiles/ArkoiCompiler.dir/lexer/lexer.cpp.o CMakeFiles/ArkoiCompiler.dir/compiler/compiler.cpp.o CMakeFiles/ArkoiCompiler.dir/parser/parser.cpp.o CMakeFiles/ArkoiCompiler.dir/lexer/token.cpp.o  -o ArkoiCompiler 
