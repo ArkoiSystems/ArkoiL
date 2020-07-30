@@ -2,6 +2,11 @@
   <dictionary name="timo">
     <words>
       <w>arkoi</w>
+      <w>arkoicompiler</w>
+      <w>arkoptions</w>
+      <w>astnode</w>
+      <w>compoptions</w>
+      <w>timo</w>
     </words>
   </dictionary>
 </component>
