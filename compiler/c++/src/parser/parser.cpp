@@ -24,7 +24,7 @@ std::shared_ptr<RootNode> Parser::parseRoot() {
                  currentToken() != TOKEN_COMMENT) {
             std::cout << Error(sourcePath, sourceCode, currentToken()->lineNumber,
                                fmt::format(
-                                       "Root expected <import> or <fun> but got '{}' instead.",
+                                       "Root expected <import>, <function>, <variable> or <structure> but got '{}' instead.",
                                        currentToken()->content
                                )) << std::endl;
 
@@ -464,7 +464,7 @@ std::shared_ptr<OperableNode> Parser::parseOperable() {
                                    "Operable expected <string>, <number>, <unary> or <parenthesized> but got '{}' instead.",
                                    currentToken()->content
                            )) << std::endl;
-        return std::shared_ptr<OperableNode>();
+        return std::make_shared<OperableNode>();
     }
 }
 
@@ -719,7 +719,8 @@ std::shared_ptr<StructNode> Parser::parseStruct() {
                              )) << std::endl;
 
             while (position < tokens.size()) {
-                if (currentToken() == "var" || currentToken() == "const")
+                if (currentToken() == "var" || currentToken() == "const" ||
+                    currentToken() == "}")
                     break;
                 nextToken(1, true, false);
             }
