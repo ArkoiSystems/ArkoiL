@@ -77,90 +77,106 @@ include CMakeFiles/ArkoiCompiler.dir/progress.make
 # Include the compile flags for this target's objects.
 include CMakeFiles/ArkoiCompiler.dir/flags.make
 
-CMakeFiles/ArkoiCompiler.dir/main.cpp.o: CMakeFiles/ArkoiCompiler.dir/flags.make
-CMakeFiles/ArkoiCompiler.dir/main.cpp.o: ../main.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/ArkoiCompiler.dir/main.cpp.o"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/ArkoiCompiler.dir/main.cpp.o -c /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/main.cpp
+CMakeFiles/ArkoiCompiler.dir/src/main.cpp.o: CMakeFiles/ArkoiCompiler.dir/flags.make
+CMakeFiles/ArkoiCompiler.dir/src/main.cpp.o: ../src/main.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/ArkoiCompiler.dir/src/main.cpp.o"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/ArkoiCompiler.dir/src/main.cpp.o -c /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/main.cpp
 
-CMakeFiles/ArkoiCompiler.dir/main.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/ArkoiCompiler.dir/main.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/main.cpp > CMakeFiles/ArkoiCompiler.dir/main.cpp.i
+CMakeFiles/ArkoiCompiler.dir/src/main.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/ArkoiCompiler.dir/src/main.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/main.cpp > CMakeFiles/ArkoiCompiler.dir/src/main.cpp.i
 
-CMakeFiles/ArkoiCompiler.dir/main.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/ArkoiCompiler.dir/main.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/main.cpp -o CMakeFiles/ArkoiCompiler.dir/main.cpp.s
+CMakeFiles/ArkoiCompiler.dir/src/main.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/ArkoiCompiler.dir/src/main.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/main.cpp -o CMakeFiles/ArkoiCompiler.dir/src/main.cpp.s
 
-CMakeFiles/ArkoiCompiler.dir/lexer/lexer.cpp.o: CMakeFiles/ArkoiCompiler.dir/flags.make
-CMakeFiles/ArkoiCompiler.dir/lexer/lexer.cpp.o: ../lexer/lexer.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/ArkoiCompiler.dir/lexer/lexer.cpp.o"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/ArkoiCompiler.dir/lexer/lexer.cpp.o -c /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/lexer/lexer.cpp
+CMakeFiles/ArkoiCompiler.dir/src/lexer/lexer.cpp.o: CMakeFiles/ArkoiCompiler.dir/flags.make
+CMakeFiles/ArkoiCompiler.dir/src/lexer/lexer.cpp.o: ../src/lexer/lexer.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/ArkoiCompiler.dir/src/lexer/lexer.cpp.o"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/ArkoiCompiler.dir/src/lexer/lexer.cpp.o -c /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/lexer/lexer.cpp
 
-CMakeFiles/ArkoiCompiler.dir/lexer/lexer.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/ArkoiCompiler.dir/lexer/lexer.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/lexer/lexer.cpp > CMakeFiles/ArkoiCompiler.dir/lexer/lexer.cpp.i
+CMakeFiles/ArkoiCompiler.dir/src/lexer/lexer.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/ArkoiCompiler.dir/src/lexer/lexer.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/lexer/lexer.cpp > CMakeFiles/ArkoiCompiler.dir/src/lexer/lexer.cpp.i
 
-CMakeFiles/ArkoiCompiler.dir/lexer/lexer.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/ArkoiCompiler.dir/lexer/lexer.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/lexer/lexer.cpp -o CMakeFiles/ArkoiCompiler.dir/lexer/lexer.cpp.s
+CMakeFiles/ArkoiCompiler.dir/src/lexer/lexer.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/ArkoiCompiler.dir/src/lexer/lexer.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/lexer/lexer.cpp -o CMakeFiles/ArkoiCompiler.dir/src/lexer/lexer.cpp.s
 
-CMakeFiles/ArkoiCompiler.dir/compiler/compiler.cpp.o: CMakeFiles/ArkoiCompiler.dir/flags.make
-CMakeFiles/ArkoiCompiler.dir/compiler/compiler.cpp.o: ../compiler/compiler.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/ArkoiCompiler.dir/compiler/compiler.cpp.o"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/ArkoiCompiler.dir/compiler/compiler.cpp.o -c /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/compiler/compiler.cpp
+CMakeFiles/ArkoiCompiler.dir/src/compiler/compiler.cpp.o: CMakeFiles/ArkoiCompiler.dir/flags.make
+CMakeFiles/ArkoiCompiler.dir/src/compiler/compiler.cpp.o: ../src/compiler/compiler.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/ArkoiCompiler.dir/src/compiler/compiler.cpp.o"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/ArkoiCompiler.dir/src/compiler/compiler.cpp.o -c /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/compiler/compiler.cpp
 
-CMakeFiles/ArkoiCompiler.dir/compiler/compiler.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/ArkoiCompiler.dir/compiler/compiler.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/compiler/compiler.cpp > CMakeFiles/ArkoiCompiler.dir/compiler/compiler.cpp.i
+CMakeFiles/ArkoiCompiler.dir/src/compiler/compiler.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/ArkoiCompiler.dir/src/compiler/compiler.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/compiler/compiler.cpp > CMakeFiles/ArkoiCompiler.dir/src/compiler/compiler.cpp.i
 
-CMakeFiles/ArkoiCompiler.dir/compiler/compiler.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/ArkoiCompiler.dir/compiler/compiler.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/compiler/compiler.cpp -o CMakeFiles/ArkoiCompiler.dir/compiler/compiler.cpp.s
+CMakeFiles/ArkoiCompiler.dir/src/compiler/compiler.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/ArkoiCompiler.dir/src/compiler/compiler.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/compiler/compiler.cpp -o CMakeFiles/ArkoiCompiler.dir/src/compiler/compiler.cpp.s
 
-CMakeFiles/ArkoiCompiler.dir/parser/parser.cpp.o: CMakeFiles/ArkoiCompiler.dir/flags.make
-CMakeFiles/ArkoiCompiler.dir/parser/parser.cpp.o: ../parser/parser.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/ArkoiCompiler.dir/parser/parser.cpp.o"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/ArkoiCompiler.dir/parser/parser.cpp.o -c /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/parser/parser.cpp
+CMakeFiles/ArkoiCompiler.dir/src/parser/parser.cpp.o: CMakeFiles/ArkoiCompiler.dir/flags.make
+CMakeFiles/ArkoiCompiler.dir/src/parser/parser.cpp.o: ../src/parser/parser.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/ArkoiCompiler.dir/src/parser/parser.cpp.o"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/ArkoiCompiler.dir/src/parser/parser.cpp.o -c /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/parser/parser.cpp
 
-CMakeFiles/ArkoiCompiler.dir/parser/parser.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/ArkoiCompiler.dir/parser/parser.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/parser/parser.cpp > CMakeFiles/ArkoiCompiler.dir/parser/parser.cpp.i
+CMakeFiles/ArkoiCompiler.dir/src/parser/parser.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/ArkoiCompiler.dir/src/parser/parser.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/parser/parser.cpp > CMakeFiles/ArkoiCompiler.dir/src/parser/parser.cpp.i
 
-CMakeFiles/ArkoiCompiler.dir/parser/parser.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/ArkoiCompiler.dir/parser/parser.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/parser/parser.cpp -o CMakeFiles/ArkoiCompiler.dir/parser/parser.cpp.s
+CMakeFiles/ArkoiCompiler.dir/src/parser/parser.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/ArkoiCompiler.dir/src/parser/parser.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/parser/parser.cpp -o CMakeFiles/ArkoiCompiler.dir/src/parser/parser.cpp.s
 
-CMakeFiles/ArkoiCompiler.dir/lexer/token.cpp.o: CMakeFiles/ArkoiCompiler.dir/flags.make
-CMakeFiles/ArkoiCompiler.dir/lexer/token.cpp.o: ../lexer/token.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/ArkoiCompiler.dir/lexer/token.cpp.o"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/ArkoiCompiler.dir/lexer/token.cpp.o -c /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/lexer/token.cpp
+CMakeFiles/ArkoiCompiler.dir/src/lexer/token.cpp.o: CMakeFiles/ArkoiCompiler.dir/flags.make
+CMakeFiles/ArkoiCompiler.dir/src/lexer/token.cpp.o: ../src/lexer/token.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/ArkoiCompiler.dir/src/lexer/token.cpp.o"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/ArkoiCompiler.dir/src/lexer/token.cpp.o -c /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/lexer/token.cpp
 
-CMakeFiles/ArkoiCompiler.dir/lexer/token.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/ArkoiCompiler.dir/lexer/token.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/lexer/token.cpp > CMakeFiles/ArkoiCompiler.dir/lexer/token.cpp.i
+CMakeFiles/ArkoiCompiler.dir/src/lexer/token.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/ArkoiCompiler.dir/src/lexer/token.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/lexer/token.cpp > CMakeFiles/ArkoiCompiler.dir/src/lexer/token.cpp.i
 
-CMakeFiles/ArkoiCompiler.dir/lexer/token.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/ArkoiCompiler.dir/lexer/token.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/lexer/token.cpp -o CMakeFiles/ArkoiCompiler.dir/lexer/token.cpp.s
+CMakeFiles/ArkoiCompiler.dir/src/lexer/token.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/ArkoiCompiler.dir/src/lexer/token.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/lexer/token.cpp -o CMakeFiles/ArkoiCompiler.dir/src/lexer/token.cpp.s
+
+CMakeFiles/ArkoiCompiler.dir/src/compiler/error.cpp.o: CMakeFiles/ArkoiCompiler.dir/flags.make
+CMakeFiles/ArkoiCompiler.dir/src/compiler/error.cpp.o: ../src/compiler/error.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/ArkoiCompiler.dir/src/compiler/error.cpp.o"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/ArkoiCompiler.dir/src/compiler/error.cpp.o -c /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/compiler/error.cpp
+
+CMakeFiles/ArkoiCompiler.dir/src/compiler/error.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/ArkoiCompiler.dir/src/compiler/error.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/compiler/error.cpp > CMakeFiles/ArkoiCompiler.dir/src/compiler/error.cpp.i
+
+CMakeFiles/ArkoiCompiler.dir/src/compiler/error.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/ArkoiCompiler.dir/src/compiler/error.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/compiler/error.cpp -o CMakeFiles/ArkoiCompiler.dir/src/compiler/error.cpp.s
 
 # Object files for target ArkoiCompiler
 ArkoiCompiler_OBJECTS = \
-"CMakeFiles/ArkoiCompiler.dir/main.cpp.o" \
-"CMakeFiles/ArkoiCompiler.dir/lexer/lexer.cpp.o" \
-"CMakeFiles/ArkoiCompiler.dir/compiler/compiler.cpp.o" \
-"CMakeFiles/ArkoiCompiler.dir/parser/parser.cpp.o" \
-"CMakeFiles/ArkoiCompiler.dir/lexer/token.cpp.o"
+"CMakeFiles/ArkoiCompiler.dir/src/main.cpp.o" \
+"CMakeFiles/ArkoiCompiler.dir/src/lexer/lexer.cpp.o" \
+"CMakeFiles/ArkoiCompiler.dir/src/compiler/compiler.cpp.o" \
+"CMakeFiles/ArkoiCompiler.dir/src/parser/parser.cpp.o" \
+"CMakeFiles/ArkoiCompiler.dir/src/lexer/token.cpp.o" \
+"CMakeFiles/ArkoiCompiler.dir/src/compiler/error.cpp.o"
 
 # External object files for target ArkoiCompiler
 ArkoiCompiler_EXTERNAL_OBJECTS =
 
-ArkoiCompiler: CMakeFiles/ArkoiCompiler.dir/main.cpp.o
-ArkoiCompiler: CMakeFiles/ArkoiCompiler.dir/lexer/lexer.cpp.o
-ArkoiCompiler: CMakeFiles/ArkoiCompiler.dir/compiler/compiler.cpp.o
-ArkoiCompiler: CMakeFiles/ArkoiCompiler.dir/parser/parser.cpp.o
-ArkoiCompiler: CMakeFiles/ArkoiCompiler.dir/lexer/token.cpp.o
+ArkoiCompiler: CMakeFiles/ArkoiCompiler.dir/src/main.cpp.o
+ArkoiCompiler: CMakeFiles/ArkoiCompiler.dir/src/lexer/lexer.cpp.o
+ArkoiCompiler: CMakeFiles/ArkoiCompiler.dir/src/compiler/compiler.cpp.o
+ArkoiCompiler: CMakeFiles/ArkoiCompiler.dir/src/parser/parser.cpp.o
+ArkoiCompiler: CMakeFiles/ArkoiCompiler.dir/src/lexer/token.cpp.o
+ArkoiCompiler: CMakeFiles/ArkoiCompiler.dir/src/compiler/error.cpp.o
 ArkoiCompiler: CMakeFiles/ArkoiCompiler.dir/build.make
+ArkoiCompiler: deps/fmt-7.0.2/libfmtd.a
 ArkoiCompiler: CMakeFiles/ArkoiCompiler.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Linking CXX executable ArkoiCompiler"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Linking CXX executable ArkoiCompiler"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/ArkoiCompiler.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.

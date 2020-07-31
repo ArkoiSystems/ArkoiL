@@ -1,0 +1,1 @@
+/usr/bin/c++  -O3 -DNDEBUG   CMakeFiles/format-test.dir/format-test.cc.o  -o ../bin/format-test libtest-main.a libgmock.a -lpthread ../libfmt.a 

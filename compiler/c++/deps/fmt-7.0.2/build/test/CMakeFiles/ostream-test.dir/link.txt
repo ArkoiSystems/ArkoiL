@@ -1,0 +1,1 @@
+/usr/bin/c++  -O3 -DNDEBUG   CMakeFiles/ostream-test.dir/ostream-test.cc.o  -o ../bin/ostream-test libtest-main.a libgmock.a -lpthread ../libfmt.a 

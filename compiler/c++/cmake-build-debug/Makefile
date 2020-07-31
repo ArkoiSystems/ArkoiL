@@ -76,16 +76,29 @@ CMAKE_BINARY_DIR = /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/cmake-build-d
 #=============================================================================
 # Targets provided globally by CMake.
 
-# Special rule for the target rebuild_cache
-rebuild_cache:
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake to regenerate build system..."
-	/snap/clion/123/bin/cmake/linux/bin/cmake --regenerate-during-build -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
-.PHONY : rebuild_cache
+# Special rule for the target install/strip
+install/strip: preinstall
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Installing the project stripped..."
+	/snap/clion/123/bin/cmake/linux/bin/cmake -DCMAKE_INSTALL_DO_STRIP=1 -P cmake_install.cmake
+.PHONY : install/strip
 
-# Special rule for the target rebuild_cache
-rebuild_cache/fast: rebuild_cache
+# Special rule for the target install/strip
+install/strip/fast: preinstall/fast
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Installing the project stripped..."
+	/snap/clion/123/bin/cmake/linux/bin/cmake -DCMAKE_INSTALL_DO_STRIP=1 -P cmake_install.cmake
+.PHONY : install/strip/fast
 
-.PHONY : rebuild_cache/fast
+# Special rule for the target install/local
+install/local: preinstall
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Installing only the local directory..."
+	/snap/clion/123/bin/cmake/linux/bin/cmake -DCMAKE_INSTALL_LOCAL_ONLY=1 -P cmake_install.cmake
+.PHONY : install/local
+
+# Special rule for the target install/local
+install/local/fast: preinstall/fast
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Installing only the local directory..."
+	/snap/clion/123/bin/cmake/linux/bin/cmake -DCMAKE_INSTALL_LOCAL_ONLY=1 -P cmake_install.cmake
+.PHONY : install/local/fast
 
 # Special rule for the target edit_cache
 edit_cache:
@@ -97,6 +110,39 @@ edit_cache:
 edit_cache/fast: edit_cache
 
 .PHONY : edit_cache/fast
+
+# Special rule for the target rebuild_cache
+rebuild_cache:
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake to regenerate build system..."
+	/snap/clion/123/bin/cmake/linux/bin/cmake --regenerate-during-build -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
+.PHONY : rebuild_cache
+
+# Special rule for the target rebuild_cache
+rebuild_cache/fast: rebuild_cache
+
+.PHONY : rebuild_cache/fast
+
+# Special rule for the target install
+install: preinstall
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Install the project..."
+	/snap/clion/123/bin/cmake/linux/bin/cmake -P cmake_install.cmake
+.PHONY : install
+
+# Special rule for the target install
+install/fast: preinstall/fast
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Install the project..."
+	/snap/clion/123/bin/cmake/linux/bin/cmake -P cmake_install.cmake
+.PHONY : install/fast
+
+# Special rule for the target list_install_components
+list_install_components:
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Available install components are: \"Unspecified\""
+.PHONY : list_install_components
+
+# Special rule for the target list_install_components
+list_install_components/fast: list_install_components
+
+.PHONY : list_install_components/fast
 
 # The main all target
 all: cmake_check_build_system
@@ -143,140 +189,180 @@ ArkoiCompiler/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ArkoiCompiler.dir/build.make CMakeFiles/ArkoiCompiler.dir/build
 .PHONY : ArkoiCompiler/fast
 
-compiler/compiler.o: compiler/compiler.cpp.o
+#=============================================================================
+# Target rules for targets named fmt
 
-.PHONY : compiler/compiler.o
+# Build rule for target.
+fmt: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 fmt
+.PHONY : fmt
 
-# target to build an object file
-compiler/compiler.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ArkoiCompiler.dir/build.make CMakeFiles/ArkoiCompiler.dir/compiler/compiler.cpp.o
-.PHONY : compiler/compiler.cpp.o
+# fast build rule for target.
+fmt/fast:
+	$(MAKE) $(MAKESILENT) -f deps/fmt-7.0.2/CMakeFiles/fmt.dir/build.make deps/fmt-7.0.2/CMakeFiles/fmt.dir/build
+.PHONY : fmt/fast
 
-compiler/compiler.i: compiler/compiler.cpp.i
+src/compiler/compiler.o: src/compiler/compiler.cpp.o
 
-.PHONY : compiler/compiler.i
-
-# target to preprocess a source file
-compiler/compiler.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ArkoiCompiler.dir/build.make CMakeFiles/ArkoiCompiler.dir/compiler/compiler.cpp.i
-.PHONY : compiler/compiler.cpp.i
-
-compiler/compiler.s: compiler/compiler.cpp.s
-
-.PHONY : compiler/compiler.s
-
-# target to generate assembly for a file
-compiler/compiler.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ArkoiCompiler.dir/build.make CMakeFiles/ArkoiCompiler.dir/compiler/compiler.cpp.s
-.PHONY : compiler/compiler.cpp.s
-
-lexer/lexer.o: lexer/lexer.cpp.o
-
-.PHONY : lexer/lexer.o
+.PHONY : src/compiler/compiler.o
 
 # target to build an object file
-lexer/lexer.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ArkoiCompiler.dir/build.make CMakeFiles/ArkoiCompiler.dir/lexer/lexer.cpp.o
-.PHONY : lexer/lexer.cpp.o
+src/compiler/compiler.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ArkoiCompiler.dir/build.make CMakeFiles/ArkoiCompiler.dir/src/compiler/compiler.cpp.o
+.PHONY : src/compiler/compiler.cpp.o
 
-lexer/lexer.i: lexer/lexer.cpp.i
+src/compiler/compiler.i: src/compiler/compiler.cpp.i
 
-.PHONY : lexer/lexer.i
+.PHONY : src/compiler/compiler.i
 
 # target to preprocess a source file
-lexer/lexer.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ArkoiCompiler.dir/build.make CMakeFiles/ArkoiCompiler.dir/lexer/lexer.cpp.i
-.PHONY : lexer/lexer.cpp.i
+src/compiler/compiler.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ArkoiCompiler.dir/build.make CMakeFiles/ArkoiCompiler.dir/src/compiler/compiler.cpp.i
+.PHONY : src/compiler/compiler.cpp.i
 
-lexer/lexer.s: lexer/lexer.cpp.s
+src/compiler/compiler.s: src/compiler/compiler.cpp.s
 
-.PHONY : lexer/lexer.s
+.PHONY : src/compiler/compiler.s
 
 # target to generate assembly for a file
-lexer/lexer.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ArkoiCompiler.dir/build.make CMakeFiles/ArkoiCompiler.dir/lexer/lexer.cpp.s
-.PHONY : lexer/lexer.cpp.s
+src/compiler/compiler.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ArkoiCompiler.dir/build.make CMakeFiles/ArkoiCompiler.dir/src/compiler/compiler.cpp.s
+.PHONY : src/compiler/compiler.cpp.s
 
-lexer/token.o: lexer/token.cpp.o
+src/compiler/error.o: src/compiler/error.cpp.o
 
-.PHONY : lexer/token.o
+.PHONY : src/compiler/error.o
 
 # target to build an object file
-lexer/token.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ArkoiCompiler.dir/build.make CMakeFiles/ArkoiCompiler.dir/lexer/token.cpp.o
-.PHONY : lexer/token.cpp.o
+src/compiler/error.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ArkoiCompiler.dir/build.make CMakeFiles/ArkoiCompiler.dir/src/compiler/error.cpp.o
+.PHONY : src/compiler/error.cpp.o
 
-lexer/token.i: lexer/token.cpp.i
+src/compiler/error.i: src/compiler/error.cpp.i
 
-.PHONY : lexer/token.i
+.PHONY : src/compiler/error.i
 
 # target to preprocess a source file
-lexer/token.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ArkoiCompiler.dir/build.make CMakeFiles/ArkoiCompiler.dir/lexer/token.cpp.i
-.PHONY : lexer/token.cpp.i
+src/compiler/error.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ArkoiCompiler.dir/build.make CMakeFiles/ArkoiCompiler.dir/src/compiler/error.cpp.i
+.PHONY : src/compiler/error.cpp.i
 
-lexer/token.s: lexer/token.cpp.s
+src/compiler/error.s: src/compiler/error.cpp.s
 
-.PHONY : lexer/token.s
+.PHONY : src/compiler/error.s
 
 # target to generate assembly for a file
-lexer/token.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ArkoiCompiler.dir/build.make CMakeFiles/ArkoiCompiler.dir/lexer/token.cpp.s
-.PHONY : lexer/token.cpp.s
+src/compiler/error.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ArkoiCompiler.dir/build.make CMakeFiles/ArkoiCompiler.dir/src/compiler/error.cpp.s
+.PHONY : src/compiler/error.cpp.s
 
-main.o: main.cpp.o
+src/lexer/lexer.o: src/lexer/lexer.cpp.o
 
-.PHONY : main.o
+.PHONY : src/lexer/lexer.o
 
 # target to build an object file
-main.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ArkoiCompiler.dir/build.make CMakeFiles/ArkoiCompiler.dir/main.cpp.o
-.PHONY : main.cpp.o
+src/lexer/lexer.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ArkoiCompiler.dir/build.make CMakeFiles/ArkoiCompiler.dir/src/lexer/lexer.cpp.o
+.PHONY : src/lexer/lexer.cpp.o
 
-main.i: main.cpp.i
+src/lexer/lexer.i: src/lexer/lexer.cpp.i
 
-.PHONY : main.i
+.PHONY : src/lexer/lexer.i
 
 # target to preprocess a source file
-main.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ArkoiCompiler.dir/build.make CMakeFiles/ArkoiCompiler.dir/main.cpp.i
-.PHONY : main.cpp.i
+src/lexer/lexer.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ArkoiCompiler.dir/build.make CMakeFiles/ArkoiCompiler.dir/src/lexer/lexer.cpp.i
+.PHONY : src/lexer/lexer.cpp.i
 
-main.s: main.cpp.s
+src/lexer/lexer.s: src/lexer/lexer.cpp.s
 
-.PHONY : main.s
+.PHONY : src/lexer/lexer.s
 
 # target to generate assembly for a file
-main.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ArkoiCompiler.dir/build.make CMakeFiles/ArkoiCompiler.dir/main.cpp.s
-.PHONY : main.cpp.s
+src/lexer/lexer.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ArkoiCompiler.dir/build.make CMakeFiles/ArkoiCompiler.dir/src/lexer/lexer.cpp.s
+.PHONY : src/lexer/lexer.cpp.s
 
-parser/parser.o: parser/parser.cpp.o
+src/lexer/token.o: src/lexer/token.cpp.o
 
-.PHONY : parser/parser.o
+.PHONY : src/lexer/token.o
 
 # target to build an object file
-parser/parser.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ArkoiCompiler.dir/build.make CMakeFiles/ArkoiCompiler.dir/parser/parser.cpp.o
-.PHONY : parser/parser.cpp.o
+src/lexer/token.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ArkoiCompiler.dir/build.make CMakeFiles/ArkoiCompiler.dir/src/lexer/token.cpp.o
+.PHONY : src/lexer/token.cpp.o
 
-parser/parser.i: parser/parser.cpp.i
+src/lexer/token.i: src/lexer/token.cpp.i
 
-.PHONY : parser/parser.i
+.PHONY : src/lexer/token.i
 
 # target to preprocess a source file
-parser/parser.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ArkoiCompiler.dir/build.make CMakeFiles/ArkoiCompiler.dir/parser/parser.cpp.i
-.PHONY : parser/parser.cpp.i
+src/lexer/token.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ArkoiCompiler.dir/build.make CMakeFiles/ArkoiCompiler.dir/src/lexer/token.cpp.i
+.PHONY : src/lexer/token.cpp.i
 
-parser/parser.s: parser/parser.cpp.s
+src/lexer/token.s: src/lexer/token.cpp.s
 
-.PHONY : parser/parser.s
+.PHONY : src/lexer/token.s
 
 # target to generate assembly for a file
-parser/parser.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ArkoiCompiler.dir/build.make CMakeFiles/ArkoiCompiler.dir/parser/parser.cpp.s
-.PHONY : parser/parser.cpp.s
+src/lexer/token.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ArkoiCompiler.dir/build.make CMakeFiles/ArkoiCompiler.dir/src/lexer/token.cpp.s
+.PHONY : src/lexer/token.cpp.s
+
+src/main.o: src/main.cpp.o
+
+.PHONY : src/main.o
+
+# target to build an object file
+src/main.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ArkoiCompiler.dir/build.make CMakeFiles/ArkoiCompiler.dir/src/main.cpp.o
+.PHONY : src/main.cpp.o
+
+src/main.i: src/main.cpp.i
+
+.PHONY : src/main.i
+
+# target to preprocess a source file
+src/main.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ArkoiCompiler.dir/build.make CMakeFiles/ArkoiCompiler.dir/src/main.cpp.i
+.PHONY : src/main.cpp.i
+
+src/main.s: src/main.cpp.s
+
+.PHONY : src/main.s
+
+# target to generate assembly for a file
+src/main.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ArkoiCompiler.dir/build.make CMakeFiles/ArkoiCompiler.dir/src/main.cpp.s
+.PHONY : src/main.cpp.s
+
+src/parser/parser.o: src/parser/parser.cpp.o
+
+.PHONY : src/parser/parser.o
+
+# target to build an object file
+src/parser/parser.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ArkoiCompiler.dir/build.make CMakeFiles/ArkoiCompiler.dir/src/parser/parser.cpp.o
+.PHONY : src/parser/parser.cpp.o
+
+src/parser/parser.i: src/parser/parser.cpp.i
+
+.PHONY : src/parser/parser.i
+
+# target to preprocess a source file
+src/parser/parser.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ArkoiCompiler.dir/build.make CMakeFiles/ArkoiCompiler.dir/src/parser/parser.cpp.i
+.PHONY : src/parser/parser.cpp.i
+
+src/parser/parser.s: src/parser/parser.cpp.s
+
+.PHONY : src/parser/parser.s
+
+# target to generate assembly for a file
+src/parser/parser.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ArkoiCompiler.dir/build.make CMakeFiles/ArkoiCompiler.dir/src/parser/parser.cpp.s
+.PHONY : src/parser/parser.cpp.s
 
 # Help Target
 help:
@@ -285,23 +371,31 @@ help:
 	@echo "... clean"
 	@echo "... depend"
 	@echo "... edit_cache"
+	@echo "... install"
+	@echo "... install/local"
+	@echo "... install/strip"
+	@echo "... list_install_components"
 	@echo "... rebuild_cache"
 	@echo "... ArkoiCompiler"
-	@echo "... compiler/compiler.o"
-	@echo "... compiler/compiler.i"
-	@echo "... compiler/compiler.s"
-	@echo "... lexer/lexer.o"
-	@echo "... lexer/lexer.i"
-	@echo "... lexer/lexer.s"
-	@echo "... lexer/token.o"
-	@echo "... lexer/token.i"
-	@echo "... lexer/token.s"
-	@echo "... main.o"
-	@echo "... main.i"
-	@echo "... main.s"
-	@echo "... parser/parser.o"
-	@echo "... parser/parser.i"
-	@echo "... parser/parser.s"
+	@echo "... fmt"
+	@echo "... src/compiler/compiler.o"
+	@echo "... src/compiler/compiler.i"
+	@echo "... src/compiler/compiler.s"
+	@echo "... src/compiler/error.o"
+	@echo "... src/compiler/error.i"
+	@echo "... src/compiler/error.s"
+	@echo "... src/lexer/lexer.o"
+	@echo "... src/lexer/lexer.i"
+	@echo "... src/lexer/lexer.s"
+	@echo "... src/lexer/token.o"
+	@echo "... src/lexer/token.i"
+	@echo "... src/lexer/token.s"
+	@echo "... src/main.o"
+	@echo "... src/main.i"
+	@echo "... src/main.s"
+	@echo "... src/parser/parser.o"
+	@echo "... src/parser/parser.i"
+	@echo "... src/parser/parser.s"
 .PHONY : help
 
 
