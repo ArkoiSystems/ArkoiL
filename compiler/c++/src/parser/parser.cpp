@@ -16,6 +16,8 @@ std::shared_ptr<RootNode> Parser::parseRoot() {
             rootNode->nodes.push_back(parseImport());
         else if (currentToken() == "fun")
             rootNode->nodes.push_back(parseFunction());
+        else if (currentToken() == "var" || currentToken() == "const")
+            rootNode->nodes.push_back(parseVariable());
         else if (currentToken() != TOKEN_WHITESPACE &&
                  currentToken() != TOKEN_COMMENT) {
             std::cout << Error(sourcePath, sourceCode, currentToken(), fmt::format(
@@ -23,8 +25,9 @@ std::shared_ptr<RootNode> Parser::parseRoot() {
                     currentToken()->content
             )) << std::endl;
 
-            while(position < tokens.size()) {
-                if(currentToken() == "import" || currentToken() == "fun")
+            while (position < tokens.size()) {
+                if (currentToken() == "import" || currentToken() == "fun" ||
+                    currentToken() == "var" || currentToken() == "const")
                     break;
                 nextToken(1, true, false);
             }
@@ -36,7 +39,6 @@ std::shared_ptr<RootNode> Parser::parseRoot() {
     }
 
     rootNode->endLine = currentToken()->lineNumber;
-
     return rootNode;
 }
 
@@ -59,10 +61,9 @@ std::shared_ptr<ImportNode> Parser::parseImport() {
         )) << std::endl;
         return importNode;
     }
-
     importNode->path = currentToken();
-    importNode->endLine = currentToken()->lineNumber;
 
+    importNode->endLine = currentToken()->lineNumber;
     return importNode;
 }
 
@@ -150,7 +151,6 @@ std::shared_ptr<FunctionNode> Parser::parseFunction() {
     functionNode->block = parseBlock();
 
     functionNode->endLine = currentToken()->lineNumber;
-
     return functionNode;
 }
 
@@ -177,7 +177,6 @@ std::shared_ptr<ParameterNode> Parser::parseParameter() {
 
     nextToken();
     parameterNode->type = parseType();
-
     return parameterNode;
 }
 
@@ -201,7 +200,6 @@ std::shared_ptr<TypeNode> Parser::parseType() {
     }
 
     typeNode->endLine = currentToken()->lineNumber;
-
     return typeNode;
 }
 
@@ -211,6 +209,33 @@ std::shared_ptr<BlockNode> Parser::parseBlock() {
 
     if (currentToken() == "{") {
         nextToken();
+
+        while (position < tokens.size()) {
+            if (currentToken() == "}")
+                break;
+
+            if (currentToken() == "var" || currentToken() == "const")
+                blockNode->nodes.push_back(parseVariable());
+            else if (currentToken() != TOKEN_WHITESPACE &&
+                     currentToken() != TOKEN_COMMENT) {
+                std::cout
+                        << Error(sourcePath, sourceCode, currentToken(), fmt::format(
+                                "Block expected <variable> but got '{}' instead.",
+                                currentToken()->content
+                        )) << std::endl;
+
+                while (position < tokens.size()) {
+                    if (currentToken() == "var" || currentToken() == "const" ||
+                        currentToken() == "}")
+                        break;
+                    nextToken(1, true, false);
+                }
+
+                continue;
+            }
+
+            nextToken(1, true, false);
+        }
 
         if (currentToken() != "}") {
             std::cout << Error(sourcePath, sourceCode, currentToken(), fmt::format(
@@ -230,8 +255,185 @@ std::shared_ptr<BlockNode> Parser::parseBlock() {
     }
 
     blockNode->endLine = currentToken()->lineNumber;
-
     return blockNode;
+}
+
+std::shared_ptr<VariableNode> Parser::parseVariable() {
+    auto variableNode = std::make_shared<VariableNode>();
+    variableNode->startLine = currentToken()->lineNumber;
+
+    if (currentToken() != "var" && currentToken() != "const") {
+        std::cout << Error(sourcePath, sourceCode, currentToken(), fmt::format(
+                "Variable expected 'var' or 'const' but got '{}' instead.",
+                currentToken()->content
+        )) << std::endl;
+        return variableNode;
+    }
+    variableNode->constant = (currentToken() == "const");
+
+    if (nextToken() != TOKEN_IDENTIFIER) {
+        std::cout << Error(sourcePath, sourceCode, currentToken(), fmt::format(
+                "Variable expected <identifier> but got '{}' instead.",
+                currentToken()->content
+        )) << std::endl;
+        return variableNode;
+    }
+    variableNode->name = currentToken();
+
+    if (peekToken(1) == ":") {
+        nextToken(2);
+        variableNode->type = parseType();
+    }
+
+    if (peekToken(1) == "=") {
+        nextToken(2);
+        variableNode->expression = parseRelational();
+    }
+
+    variableNode->endLine = currentToken()->lineNumber;
+    return variableNode;
+}
+
+std::shared_ptr<OperableNode> Parser::parseRelational() {
+    auto lhs = parseAdditive();
+    while (true) {
+        BinaryKind operatorKind;
+        switch(str2int(peekToken(1)->content.c_str())) {
+            case str2int(">"):
+                operatorKind = GREATER_THAN;
+                break;
+            case str2int("<"):
+                operatorKind = LESS_THAN;
+                break;
+            case str2int(">="):
+                operatorKind = GREATER_EQUAL_THAN;
+                break;
+            case str2int("<="):
+                operatorKind = LESS_EQUAL_THAN;
+                break;
+            case str2int("=="):
+                operatorKind = EQUAL;
+                break;
+            case str2int("!="):
+                operatorKind = NOT_EQUAL;
+                break;
+            default:
+                return lhs;
+        }
+
+        nextToken(2);
+
+        auto newLhs = std::make_shared<BinaryNode>();
+        newLhs->startLine = lhs->startLine;
+        newLhs->lhs = lhs;
+        newLhs->operatorKind = operatorKind;
+        newLhs->rhs = parseRelational();
+        newLhs->endLine = newLhs->rhs->endLine;
+        lhs = newLhs;
+    }
+}
+
+std::shared_ptr<OperableNode> Parser::parseAdditive() {
+    auto lhs = parseMultiplicative();
+    while (true) {
+        BinaryKind operatorKind;
+        switch(str2int(peekToken(1)->content.c_str())) {
+            case str2int("+"):
+                operatorKind = ADDITION;
+                break;
+            case str2int("-"):
+                operatorKind = SUBTRACTION;
+                break;
+            default:
+                return lhs;
+        }
+
+        nextToken(2);
+
+        auto newLhs = std::make_shared<BinaryNode>();
+        newLhs->startLine = lhs->startLine;
+        newLhs->lhs = lhs;
+        newLhs->operatorKind = operatorKind;
+        newLhs->rhs = parseAdditive();
+        newLhs->endLine = newLhs->rhs->endLine;
+        lhs = newLhs;
+    }
+}
+
+std::shared_ptr<OperableNode> Parser::parseMultiplicative() {
+    auto lhs = parseOperable();
+    while (true) {
+        BinaryKind operatorKind;
+        switch(str2int(peekToken(1)->content.c_str())) {
+            case str2int("*"):
+                operatorKind = MULTIPLICATION;
+                break;
+            case str2int("/"):
+                operatorKind = DIVISION;
+                break;
+            case str2int("%"):
+                operatorKind = REMAINING;
+                break;
+            default:
+                return lhs;
+        }
+
+        nextToken(2);
+
+        auto newLhs = std::make_shared<BinaryNode>();
+        newLhs->startLine = lhs->startLine;
+        newLhs->lhs = lhs;
+        newLhs->operatorKind = operatorKind;
+        newLhs->rhs = parseMultiplicative();
+        newLhs->endLine = newLhs->rhs->endLine;
+        lhs = newLhs;
+    }
+}
+
+std::shared_ptr<OperableNode> Parser::parseOperable() {
+    if(currentToken() == "-") {
+        auto operable = std::make_shared<UnaryNode>();
+        operable->startLine = currentToken()->lineNumber;
+        nextToken();
+        operable->operable = parseOperable();
+        operable->operatorKind = NEGATE;
+        operable->endLine = operable->operable->endLine;
+        return operable;
+    } else if(currentToken() == "(") {
+        auto operable = std::make_shared<ParenthesizedNode>();
+        operable->startLine = currentToken()->lineNumber;
+        nextToken();
+        operable->expression = parseRelational();
+        operable->endLine = operable->expression->endLine;
+
+        if(nextToken() != ")") {
+            std::cout << Error(sourcePath, sourceCode, currentToken(), fmt::format(
+                    "Parenthesized expected ')' but got '{}' instead.",
+                    currentToken()->content
+            )) << std::endl;
+            return operable;
+        }
+
+        return operable;
+    } else if(currentToken() == TOKEN_NUMBER) {
+        auto operable = std::make_shared<NumberNode>();
+        operable->startLine = currentToken()->lineNumber;
+        operable->number = currentToken();
+        operable->endLine = currentToken()->lineNumber;
+        return operable;
+    } else if(currentToken() == TOKEN_STRING) {
+        auto operable = std::make_shared<StringNode>();
+        operable->startLine = currentToken()->lineNumber;
+        operable->string = currentToken();
+        operable->endLine = currentToken()->lineNumber;
+        return operable;
+    } else {
+        std::cout << Error(sourcePath, sourceCode, currentToken(), fmt::format(
+                "Operable expected <string>, <number>, <unary> or <parenthesized> but got '{}' instead.",
+                currentToken()->content
+        )) << std::endl;
+        return std::shared_ptr<OperableNode>();
+    }
 }
 
 std::shared_ptr<Token> Parser::peekToken(int offset, bool advance, bool safety) {

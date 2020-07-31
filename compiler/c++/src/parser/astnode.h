@@ -16,6 +16,12 @@ enum ASTKind {
     AST_PARAMETER,
     AST_TYPE,
     AST_BLOCK,
+    AST_VARIABLE,
+    AST_BINARY,
+    AST_UNARY,
+    AST_PARENTHESIZED,
+    AST_NUMBER,
+    AST_STRING,
 };
 
 struct ASTNode {
@@ -96,6 +102,93 @@ struct FunctionNode: public ASTNode {
 
     FunctionNode() {
         kind = AST_FUNCTION;
+    }
+
+};
+
+struct OperableNode: public ASTNode { };
+
+struct VariableNode: public ASTNode {
+
+    std::shared_ptr<Token> name;
+    bool constant;
+    std::shared_ptr<TypeNode> type;
+    std::shared_ptr<OperableNode> expression;
+
+    VariableNode() {
+        kind = AST_VARIABLE;
+    }
+
+};
+
+enum BinaryKind {
+    ADDITION,
+    SUBTRACTION,
+    MULTIPLICATION,
+    DIVISION,
+    REMAINING,
+
+    LESS_THAN,
+    GREATER_THAN,
+    LESS_EQUAL_THAN,
+    GREATER_EQUAL_THAN,
+    EQUAL,
+    NOT_EQUAL,
+};
+
+struct BinaryNode: public OperableNode {
+
+    std::shared_ptr<OperableNode> rhs;
+    BinaryKind operatorKind;
+    std::shared_ptr<OperableNode> lhs;
+
+    BinaryNode() {
+        kind = AST_BINARY;
+    }
+
+};
+
+enum UnaryKind {
+    NEGATE
+};
+
+struct UnaryNode: public OperableNode {
+
+    std::shared_ptr<OperableNode> operable;
+    UnaryKind operatorKind;
+
+    UnaryNode() {
+        kind = AST_UNARY;
+    }
+
+};
+
+struct ParenthesizedNode: public OperableNode {
+
+    std::shared_ptr<OperableNode> expression;
+
+    ParenthesizedNode() {
+        kind = AST_PARENTHESIZED;
+    }
+
+};
+
+struct NumberNode: public OperableNode {
+
+    std::shared_ptr<Token> number;
+
+    NumberNode() {
+        kind = AST_NUMBER;
+    }
+
+};
+
+struct StringNode: public OperableNode {
+
+    std::shared_ptr<Token> string;
+
+    StringNode() {
+        kind = AST_STRING;
     }
 
 };

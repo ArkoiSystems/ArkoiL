@@ -47,6 +47,16 @@ private:
 
     std::shared_ptr<BlockNode> parseBlock();
 
+    std::shared_ptr<VariableNode> parseVariable();
+
+    std::shared_ptr<OperableNode> parseRelational();
+
+    std::shared_ptr<OperableNode> parseAdditive();
+
+    std::shared_ptr<OperableNode> parseMultiplicative();
+
+    std::shared_ptr<OperableNode> parseOperable();
+
     std::shared_ptr<Token> peekToken(int offset, bool advance = true, bool safety = true);
 
     std::shared_ptr<Token> nextToken(int times = 1, bool advance = true, bool safety = true);
