@@ -1,0 +1,55 @@
+Determining if the pthread_create exist failed with the following output:
+Change Dir: /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/libs/fmt-7.0.2/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_52cbf/fast"
+/usr/bin/make -f CMakeFiles/cmTC_52cbf.dir/build.make CMakeFiles/cmTC_52cbf.dir/build
+make[1]: Entering directory '/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/libs/fmt-7.0.2/build/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_52cbf.dir/CheckSymbolExists.cxx.o
+/usr/bin/c++    -std=gnu++11 -o CMakeFiles/cmTC_52cbf.dir/CheckSymbolExists.cxx.o -c /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/libs/fmt-7.0.2/build/CMakeFiles/CMakeTmp/CheckSymbolExists.cxx
+Linking CXX executable cmTC_52cbf
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_52cbf.dir/link.txt --verbose=1
+/usr/bin/c++       CMakeFiles/cmTC_52cbf.dir/CheckSymbolExists.cxx.o  -o cmTC_52cbf 
+CMakeFiles/cmTC_52cbf.dir/CheckSymbolExists.cxx.o: In function `main':
+CheckSymbolExists.cxx:(.text+0x1b): undefined reference to `pthread_create'
+collect2: error: ld returned 1 exit status
+CMakeFiles/cmTC_52cbf.dir/build.make:97: recipe for target 'cmTC_52cbf' failed
+make[1]: *** [cmTC_52cbf] Error 1
+make[1]: Leaving directory '/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/libs/fmt-7.0.2/build/CMakeFiles/CMakeTmp'
+Makefile:126: recipe for target 'cmTC_52cbf/fast' failed
+make: *** [cmTC_52cbf/fast] Error 2
+
+File /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/libs/fmt-7.0.2/build/CMakeFiles/CMakeTmp/CheckSymbolExists.cxx:
+/* */
+#include <pthread.h>
+
+int main(int argc, char** argv)
+{
+  (void)argv;
+#ifndef pthread_create
+  return ((int*)(&pthread_create))[argc];
+#else
+  (void)argc;
+  return 0;
+#endif
+}
+
+Determining if the function pthread_create exists in the pthreads failed with the following output:
+Change Dir: /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/libs/fmt-7.0.2/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_161b1/fast"
+/usr/bin/make -f CMakeFiles/cmTC_161b1.dir/build.make CMakeFiles/cmTC_161b1.dir/build
+make[1]: Entering directory '/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/libs/fmt-7.0.2/build/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_161b1.dir/CheckFunctionExists.cxx.o
+/usr/bin/c++    -DCHECK_FUNCTION_EXISTS=pthread_create   -std=gnu++11 -o CMakeFiles/cmTC_161b1.dir/CheckFunctionExists.cxx.o -c /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/libs/fmt-7.0.2/build/CMakeFiles/CheckLibraryExists/CheckFunctionExists.cxx
+Linking CXX executable cmTC_161b1
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_161b1.dir/link.txt --verbose=1
+/usr/bin/c++   -DCHECK_FUNCTION_EXISTS=pthread_create    CMakeFiles/cmTC_161b1.dir/CheckFunctionExists.cxx.o  -o cmTC_161b1 -lpthreads 
+/usr/bin/ld: cannot find -lpthreads
+collect2: error: ld returned 1 exit status
+CMakeFiles/cmTC_161b1.dir/build.make:97: recipe for target 'cmTC_161b1' failed
+make[1]: *** [cmTC_161b1] Error 1
+make[1]: Leaving directory '/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/libs/fmt-7.0.2/build/CMakeFiles/CMakeTmp'
+Makefile:126: recipe for target 'cmTC_161b1/fast' failed
+make: *** [cmTC_161b1/fast] Error 2
+
+

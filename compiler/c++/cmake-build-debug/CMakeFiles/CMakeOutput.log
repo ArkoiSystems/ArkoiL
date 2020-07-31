@@ -928,3 +928,37 @@ Parsed CXX implicit link information from above output:
   implicit fwks: []
 
 
+Performing C++ SOURCE FILE Test SUPPORTS_USER_DEFINED_LITERALS succeeded with the following output:
+Change Dir: /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/cmake-build-debug/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/make cmTC_46a5c/fast && /usr/bin/make  -f CMakeFiles/cmTC_46a5c.dir/build.make CMakeFiles/cmTC_46a5c.dir/build
+make[1]: Entering directory '/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/cmake-build-debug/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_46a5c.dir/src.cxx.o
+/usr/bin/c++    -DSUPPORTS_USER_DEFINED_LITERALS   -std=gnu++1z -o CMakeFiles/cmTC_46a5c.dir/src.cxx.o -c /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/cmake-build-debug/CMakeFiles/CMakeTmp/src.cxx
+Linking CXX executable cmTC_46a5c
+/snap/clion/123/bin/cmake/linux/bin/cmake -E cmake_link_script CMakeFiles/cmTC_46a5c.dir/link.txt --verbose=1
+/usr/bin/c++   -DSUPPORTS_USER_DEFINED_LITERALS    CMakeFiles/cmTC_46a5c.dir/src.cxx.o  -o cmTC_46a5c 
+make[1]: Leaving directory '/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/cmake-build-debug/CMakeFiles/CMakeTmp'
+
+
+Source file was:
+
+  void operator"" _udl(long double);
+  int main() {}
+Performing C++ SOURCE FILE Test FMT_HAS_VARIANT succeeded with the following output:
+Change Dir: /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/cmake-build-debug/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/make cmTC_c0997/fast && /usr/bin/make  -f CMakeFiles/cmTC_c0997.dir/build.make CMakeFiles/cmTC_c0997.dir/build
+make[1]: Entering directory '/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/cmake-build-debug/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_c0997.dir/src.cxx.o
+/usr/bin/c++    -DFMT_HAS_VARIANT -std=c++1z   -std=gnu++1z -o CMakeFiles/cmTC_c0997.dir/src.cxx.o -c /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/cmake-build-debug/CMakeFiles/CMakeTmp/src.cxx
+Linking CXX executable cmTC_c0997
+/snap/clion/123/bin/cmake/linux/bin/cmake -E cmake_link_script CMakeFiles/cmTC_c0997.dir/link.txt --verbose=1
+/usr/bin/c++   -DFMT_HAS_VARIANT -std=c++1z    CMakeFiles/cmTC_c0997.dir/src.cxx.o  -o cmTC_c0997 
+make[1]: Leaving directory '/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/cmake-build-debug/CMakeFiles/CMakeTmp'
+
+
+Source file was:
+
+  #include <variant>
+  int main() {}

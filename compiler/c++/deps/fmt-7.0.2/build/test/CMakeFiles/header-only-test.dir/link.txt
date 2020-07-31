@@ -1,0 +1,1 @@
+/usr/bin/c++  -O3 -DNDEBUG   CMakeFiles/header-only-test.dir/header-only-test.cc.o CMakeFiles/header-only-test.dir/header-only-test2.cc.o CMakeFiles/header-only-test.dir/test-main.cc.o  -o ../bin/header-only-test libgmock.a -lpthread 

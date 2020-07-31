@@ -3,14 +3,23 @@ project(ArkoiCompiler)
 
 set(CMAKE_CXX_STANDARD 20)
 
-add_executable(ArkoiCompiler main.cpp
-        lexer/lexer.cpp
-        lexer/lexer.h
-        compiler/options.h
-        compiler/compiler.cpp
-        compiler/compiler.h
-        compiler/utils.h
-        parser/parser.cpp
-        parser/parser.h
-        lexer/token.cpp
-        lexer/token.h parser/astnode.h)
+add_subdirectory(deps/fmt-7.0.2)
+add_subdirectory(deps/dbg-macro)
+
+add_executable(ArkoiCompiler
+        src/main.cpp
+        src/lexer/lexer.cpp
+        src/lexer/lexer.h
+        src/compiler/options.h
+        src/compiler/compiler.cpp
+        src/compiler/compiler.h
+        src/compiler/utils.h
+        src/parser/parser.cpp
+        src/parser/parser.h
+        src/lexer/token.cpp
+        src/lexer/token.h
+        src/parser/astnode.h
+        src/compiler/error.cpp
+        src/compiler/error.h)
+
+target_link_libraries(ArkoiCompiler PRIVATE fmt::fmt)

@@ -1,0 +1,1 @@
+/usr/bin/c++  -O3 -DNDEBUG   CMakeFiles/assert-test.dir/assert-test.cc.o  -o ../bin/assert-test libtest-main.a libgmock.a -lpthread ../libfmt.a 

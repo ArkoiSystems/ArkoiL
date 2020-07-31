@@ -74,32 +74,73 @@ CMAKE_BINARY_DIR = /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/cmake-build-d
 
 # The main recursive "all" target.
 all: CMakeFiles/ArkoiCompiler.dir/all
+all: deps/fmt-7.0.2/all
+all: deps/dbg-macro/all
 
 .PHONY : all
 
 # The main recursive "preinstall" target.
-preinstall:
+preinstall: deps/fmt-7.0.2/preinstall
+preinstall: deps/dbg-macro/preinstall
 
 .PHONY : preinstall
 
 # The main recursive "clean" target.
 clean: CMakeFiles/ArkoiCompiler.dir/clean
+clean: deps/fmt-7.0.2/clean
+clean: deps/dbg-macro/clean
 
 .PHONY : clean
+
+#=============================================================================
+# Directory level rules for directory deps/dbg-macro
+
+# Recursive "all" directory target.
+deps/dbg-macro/all:
+
+.PHONY : deps/dbg-macro/all
+
+# Recursive "preinstall" directory target.
+deps/dbg-macro/preinstall:
+
+.PHONY : deps/dbg-macro/preinstall
+
+# Recursive "clean" directory target.
+deps/dbg-macro/clean:
+
+.PHONY : deps/dbg-macro/clean
+
+#=============================================================================
+# Directory level rules for directory deps/fmt-7.0.2
+
+# Recursive "all" directory target.
+deps/fmt-7.0.2/all: deps/fmt-7.0.2/CMakeFiles/fmt.dir/all
+
+.PHONY : deps/fmt-7.0.2/all
+
+# Recursive "preinstall" directory target.
+deps/fmt-7.0.2/preinstall:
+
+.PHONY : deps/fmt-7.0.2/preinstall
+
+# Recursive "clean" directory target.
+deps/fmt-7.0.2/clean: deps/fmt-7.0.2/CMakeFiles/fmt.dir/clean
+
+.PHONY : deps/fmt-7.0.2/clean
 
 #=============================================================================
 # Target rules for target CMakeFiles/ArkoiCompiler.dir
 
 # All Build rule for target.
-CMakeFiles/ArkoiCompiler.dir/all:
+CMakeFiles/ArkoiCompiler.dir/all: deps/fmt-7.0.2/CMakeFiles/fmt.dir/all
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ArkoiCompiler.dir/build.make CMakeFiles/ArkoiCompiler.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ArkoiCompiler.dir/build.make CMakeFiles/ArkoiCompiler.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/cmake-build-debug/CMakeFiles --progress-num=1,2,3,4,5,6 "Built target ArkoiCompiler"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/cmake-build-debug/CMakeFiles --progress-num=1,2,3,4,5,6,7 "Built target ArkoiCompiler"
 .PHONY : CMakeFiles/ArkoiCompiler.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/ArkoiCompiler.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/cmake-build-debug/CMakeFiles 6
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/cmake-build-debug/CMakeFiles 10
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/ArkoiCompiler.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/cmake-build-debug/CMakeFiles 0
 .PHONY : CMakeFiles/ArkoiCompiler.dir/rule
@@ -113,6 +154,33 @@ ArkoiCompiler: CMakeFiles/ArkoiCompiler.dir/rule
 CMakeFiles/ArkoiCompiler.dir/clean:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ArkoiCompiler.dir/build.make CMakeFiles/ArkoiCompiler.dir/clean
 .PHONY : CMakeFiles/ArkoiCompiler.dir/clean
+
+#=============================================================================
+# Target rules for target deps/fmt-7.0.2/CMakeFiles/fmt.dir
+
+# All Build rule for target.
+deps/fmt-7.0.2/CMakeFiles/fmt.dir/all:
+	$(MAKE) $(MAKESILENT) -f deps/fmt-7.0.2/CMakeFiles/fmt.dir/build.make deps/fmt-7.0.2/CMakeFiles/fmt.dir/depend
+	$(MAKE) $(MAKESILENT) -f deps/fmt-7.0.2/CMakeFiles/fmt.dir/build.make deps/fmt-7.0.2/CMakeFiles/fmt.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/cmake-build-debug/CMakeFiles --progress-num=8,9,10 "Built target fmt"
+.PHONY : deps/fmt-7.0.2/CMakeFiles/fmt.dir/all
+
+# Build rule for subdir invocation for target.
+deps/fmt-7.0.2/CMakeFiles/fmt.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/cmake-build-debug/CMakeFiles 3
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/fmt-7.0.2/CMakeFiles/fmt.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/cmake-build-debug/CMakeFiles 0
+.PHONY : deps/fmt-7.0.2/CMakeFiles/fmt.dir/rule
+
+# Convenience name for target.
+fmt: deps/fmt-7.0.2/CMakeFiles/fmt.dir/rule
+
+.PHONY : fmt
+
+# clean rule for target.
+deps/fmt-7.0.2/CMakeFiles/fmt.dir/clean:
+	$(MAKE) $(MAKESILENT) -f deps/fmt-7.0.2/CMakeFiles/fmt.dir/build.make deps/fmt-7.0.2/CMakeFiles/fmt.dir/clean
+.PHONY : deps/fmt-7.0.2/CMakeFiles/fmt.dir/clean
 
 #=============================================================================
 # Special targets to cleanup operation of make.

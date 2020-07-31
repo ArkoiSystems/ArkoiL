@@ -11,6 +11,10 @@ set(CMAKE_MAKEFILE_DEPENDS
   "CMakeFiles/3.17.3/CMakeCCompiler.cmake"
   "CMakeFiles/3.17.3/CMakeCXXCompiler.cmake"
   "CMakeFiles/3.17.3/CMakeSystem.cmake"
+  "../deps/dbg-macro/CMakeLists.txt"
+  "../deps/fmt-7.0.2/CMakeLists.txt"
+  "../deps/fmt-7.0.2/support/cmake/JoinPaths.cmake"
+  "../deps/fmt-7.0.2/support/cmake/cxx14.cmake"
   "/snap/clion/123/bin/cmake/linux/share/cmake-3.17/Modules/CMakeCInformation.cmake"
   "/snap/clion/123/bin/cmake/linux/share/cmake-3.17/Modules/CMakeCXXInformation.cmake"
   "/snap/clion/123/bin/cmake/linux/share/cmake-3.17/Modules/CMakeCheckCompilerFlagCommonPatterns.cmake"
@@ -20,12 +24,17 @@ set(CMAKE_MAKEFILE_DEPENDS
   "/snap/clion/123/bin/cmake/linux/share/cmake-3.17/Modules/CMakeGenericSystem.cmake"
   "/snap/clion/123/bin/cmake/linux/share/cmake-3.17/Modules/CMakeInitializeConfigs.cmake"
   "/snap/clion/123/bin/cmake/linux/share/cmake-3.17/Modules/CMakeLanguageInformation.cmake"
+  "/snap/clion/123/bin/cmake/linux/share/cmake-3.17/Modules/CMakeParseArguments.cmake"
   "/snap/clion/123/bin/cmake/linux/share/cmake-3.17/Modules/CMakeSystemSpecificInformation.cmake"
   "/snap/clion/123/bin/cmake/linux/share/cmake-3.17/Modules/CMakeSystemSpecificInitialize.cmake"
+  "/snap/clion/123/bin/cmake/linux/share/cmake-3.17/Modules/CheckCXXCompilerFlag.cmake"
+  "/snap/clion/123/bin/cmake/linux/share/cmake-3.17/Modules/CheckCXXSourceCompiles.cmake"
+  "/snap/clion/123/bin/cmake/linux/share/cmake-3.17/Modules/CheckSymbolExists.cmake"
   "/snap/clion/123/bin/cmake/linux/share/cmake-3.17/Modules/Compiler/CMakeCommonCompilerMacros.cmake"
   "/snap/clion/123/bin/cmake/linux/share/cmake-3.17/Modules/Compiler/GNU-C.cmake"
   "/snap/clion/123/bin/cmake/linux/share/cmake-3.17/Modules/Compiler/GNU-CXX.cmake"
   "/snap/clion/123/bin/cmake/linux/share/cmake-3.17/Modules/Compiler/GNU.cmake"
+  "/snap/clion/123/bin/cmake/linux/share/cmake-3.17/Modules/GNUInstallDirs.cmake"
   "/snap/clion/123/bin/cmake/linux/share/cmake-3.17/Modules/Internal/CMakeCheckCompilerFlag.cmake"
   "/snap/clion/123/bin/cmake/linux/share/cmake-3.17/Modules/Platform/Linux-GNU-C.cmake"
   "/snap/clion/123/bin/cmake/linux/share/cmake-3.17/Modules/Platform/Linux-GNU-CXX.cmake"
@@ -44,9 +53,12 @@ set(CMAKE_MAKEFILE_OUTPUTS
 # Byproducts of CMake generate step:
 set(CMAKE_MAKEFILE_PRODUCTS
   "CMakeFiles/CMakeDirectoryInformation.cmake"
+  "deps/fmt-7.0.2/CMakeFiles/CMakeDirectoryInformation.cmake"
+  "deps/dbg-macro/CMakeFiles/CMakeDirectoryInformation.cmake"
   )
 
 # Dependency information for all targets:
 set(CMAKE_DEPEND_INFO_FILES
   "CMakeFiles/ArkoiCompiler.dir/DependInfo.cmake"
+  "deps/fmt-7.0.2/CMakeFiles/fmt.dir/DependInfo.cmake"
   )
