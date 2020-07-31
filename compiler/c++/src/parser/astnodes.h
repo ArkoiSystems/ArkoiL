@@ -29,6 +29,7 @@ enum ASTKind {
     AST_ASSIGNMENT,
     AST_RETURN,
     AST_STRUCT,
+    AST_OPERABLE,
 };
 
 struct ASTNode {
@@ -113,7 +114,13 @@ struct FunctionNode: public ASTNode {
 
 };
 
-struct OperableNode: public ASTNode { };
+struct OperableNode : public ASTNode {
+
+    OperableNode() {
+        kind = AST_OPERABLE;
+    }
+
+};
 
 struct VariableNode: public ASTNode {
 
