@@ -12,7 +12,7 @@ CMakeFiles/ArkoiCompiler.dir/src/compiler/compiler.cpp.o
  /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/compiler/utils.h
  /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/lexer/lexer.h
  /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/lexer/token.h
- /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/parser/astnode.h
+ /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/parser/astnodes.h
  /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/parser/parser.h
 CMakeFiles/ArkoiCompiler.dir/src/compiler/error.cpp.o
  ../deps/fmt-7.0.2/include/fmt/core.h
@@ -23,7 +23,7 @@ CMakeFiles/ArkoiCompiler.dir/src/compiler/error.cpp.o
  /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/compiler/utils.h
  /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/lexer/lexer.h
  /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/lexer/token.h
- /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/parser/astnode.h
+ /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/parser/astnodes.h
  /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/parser/parser.h
 CMakeFiles/ArkoiCompiler.dir/src/lexer/lexer.cpp.o
  /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/deps/dbg-macro/dbg.h
@@ -45,7 +45,7 @@ CMakeFiles/ArkoiCompiler.dir/src/main.cpp.o
  /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/lexer/lexer.h
  /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/lexer/token.h
  /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/main.cpp
- /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/parser/astnode.h
+ /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/parser/astnodes.h
  /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/parser/parser.h
 CMakeFiles/ArkoiCompiler.dir/src/parser/parser.cpp.o
  ../deps/fmt-7.0.2/include/fmt/core.h
@@ -55,6 +55,6 @@ CMakeFiles/ArkoiCompiler.dir/src/parser/parser.cpp.o
  /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/compiler/utils.h
  /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/lexer/lexer.h
  /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/lexer/token.h
- /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/parser/astnode.h
+ /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/parser/astnodes.h
  /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/parser/parser.cpp
  /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/parser/parser.h

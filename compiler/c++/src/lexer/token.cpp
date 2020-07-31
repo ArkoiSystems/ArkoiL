@@ -2,12 +2,11 @@
 // Created by timo on 7/30/20.
 //
 
-#include <cstring>
 #include "token.h"
 
 std::ostream &operator<<(std::ostream &out, const std::shared_ptr<Token> &token) {
     out << "(" << token->type << " with \"" << token->content << "\" on line "
-        << token->lineNumber << ")";
+        << (token->lineNumber + 1) << ")";
     return out;
 }
 

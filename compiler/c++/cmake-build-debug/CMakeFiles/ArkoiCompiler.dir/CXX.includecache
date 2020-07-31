@@ -86,6 +86,30 @@ experimental/string_view
 fmt/core.h
 -
 
+/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/compiler/compiler.cpp
+compiler.h
+/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/compiler/compiler.h
+
+/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/compiler/compiler.h
+utility
+-
+fstream
+-
+sys/stat.h
+-
+options.h
+/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/compiler/options.h
+utils.h
+/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/compiler/utils.h
+../lexer/lexer.h
+/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/lexer/lexer.h
+../parser/parser.h
+/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/parser/parser.h
+
+/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/compiler/error.cpp
+error.h
+/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/compiler/error.h
+
 /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/compiler/error.h
 string
 -
@@ -95,6 +119,12 @@ utility
 /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/parser/parser.h
 ../lexer/token.h
 /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/lexer/token.h
+
+/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/compiler/options.h
+iostream
+-
+vector
+-
 
 /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/compiler/utils.h
 memory
@@ -117,11 +147,15 @@ memory
 -
 token.h
 /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/lexer/token.h
+../compiler/utils.h
+/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/compiler/utils.h
 
 /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/lexer/token.h
 iostream
 -
 utility
+-
+cstring
 -
 vector
 -
@@ -130,7 +164,17 @@ string
 memory
 -
 
-/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/parser/astnode.h
+/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/main.cpp
+iostream
+-
+cstring
+-
+compiler/options.h
+/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/compiler/options.h
+compiler/compiler.h
+/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/compiler/compiler.h
+
+/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/parser/astnodes.h
 vector
 -
 ../lexer/token.h
@@ -155,6 +199,6 @@ vector
 /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/compiler/error.h
 ../lexer/lexer.h
 /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/lexer/lexer.h
-astnode.h
-/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/parser/astnode.h
+astnodes.h
+/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/parser/astnodes.h
 

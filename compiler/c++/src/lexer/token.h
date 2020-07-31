@@ -7,6 +7,7 @@
 
 #include <iostream>
 #include <utility>
+#include <cstring>
 #include <vector>
 #include <string>
 #include <memory>

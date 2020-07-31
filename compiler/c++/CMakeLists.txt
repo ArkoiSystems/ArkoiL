@@ -18,7 +18,7 @@ add_executable(ArkoiCompiler
         src/parser/parser.h
         src/lexer/token.cpp
         src/lexer/token.h
-        src/parser/astnode.h
+        src/parser/astnodes.h
         src/compiler/error.cpp
         src/compiler/error.h)
 
