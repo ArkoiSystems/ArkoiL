@@ -7,7 +7,7 @@ struct Info {
 
 fun main(): i32 {
     var test = Info { test: 10 }
-    test(&test)
+	test(&test)
     println("3) %i, %i", test.test, test.@pointerTest)
     return 0
 }

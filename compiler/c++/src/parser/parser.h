@@ -12,7 +12,7 @@
 #include "../compiler/utils.h"
 #include "../compiler/error.h"
 #include "../lexer/lexer.h"
-#include "astnode.h"
+#include "astnodes.h"
 
 class Parser {
 
@@ -56,6 +56,16 @@ private:
     std::shared_ptr<OperableNode> parseMultiplicative();
 
     std::shared_ptr<OperableNode> parseOperable();
+
+    std::shared_ptr<IdentifierNode> parseIdentifier();
+
+    std::vector<std::shared_ptr<ArgumentNode>> parseMixedArguments();
+
+    std::vector<std::shared_ptr<ArgumentNode>> parseNamedArguments();
+
+    std::shared_ptr<ReturnNode> parseReturn();
+
+    std::shared_ptr<StructNode> parseStruct();
 
     std::shared_ptr<Token> peekToken(int offset, bool advance = true, bool safety = true);
 

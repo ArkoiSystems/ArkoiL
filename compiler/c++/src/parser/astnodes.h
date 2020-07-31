@@ -2,8 +2,8 @@
 // Created by timo on 7/30/20.
 //
 
-#ifndef ARKOICOMPILER_ASTNODE_H
-#define ARKOICOMPILER_ASTNODE_H
+#ifndef ARKOICOMPILER_ASTNODES_H
+#define ARKOICOMPILER_ASTNODES_H
 
 #include <vector>
 #include "../lexer/token.h"
@@ -22,6 +22,13 @@ enum ASTKind {
     AST_PARENTHESIZED,
     AST_NUMBER,
     AST_STRING,
+    AST_IDENTIFIER,
+    AST_ARGUMENT,
+    AST_FUNCTION_CALL,
+    AST_STRUCT_CREATE,
+    AST_ASSIGNMENT,
+    AST_RETURN,
+    AST_STRUCT,
 };
 
 struct ASTNode {
@@ -183,7 +190,7 @@ struct NumberNode: public OperableNode {
 
 };
 
-struct StringNode: public OperableNode {
+struct StringNode : public OperableNode {
 
     std::shared_ptr<Token> string;
 
@@ -193,4 +200,80 @@ struct StringNode: public OperableNode {
 
 };
 
-#endif //ARKOICOMPILER_ASTNODE_H
+struct ArgumentNode : public ASTNode {
+
+    std::shared_ptr<Token> name;
+    std::shared_ptr<OperableNode> expression;
+
+    ArgumentNode() {
+        kind = AST_ARGUMENT;
+    }
+
+};
+
+struct IdentifierNode : public OperableNode {
+
+    bool pointer, dereference;
+    std::shared_ptr<Token> identifier;
+    std::shared_ptr<IdentifierNode> nextIdentifier;
+
+    IdentifierNode() {
+        kind = AST_IDENTIFIER;
+        dereference = false;
+        pointer = false;
+    }
+
+};
+
+struct FunctionCallNode : public IdentifierNode {
+
+    std::vector<std::shared_ptr<ArgumentNode>> arguments;
+
+    FunctionCallNode() {
+        kind = AST_FUNCTION_CALL;
+    }
+
+};
+
+struct StructCreateNode : public IdentifierNode {
+
+    std::vector<std::shared_ptr<ArgumentNode>> arguments;
+
+    StructCreateNode() {
+        kind = AST_STRUCT_CREATE;
+    }
+
+};
+
+struct AssignmentNode : public IdentifierNode {
+
+    std::shared_ptr<OperableNode> expression;
+
+    AssignmentNode() {
+        kind = AST_ASSIGNMENT;
+    }
+
+};
+
+struct ReturnNode : public ASTNode {
+
+    std::shared_ptr<OperableNode> expression;
+
+    ReturnNode() {
+        kind = AST_RETURN;
+    }
+
+};
+
+struct StructNode : public ASTNode {
+
+    std::shared_ptr<Token> name;
+    std::vector<std::shared_ptr<VariableNode>> variables;
+
+    StructNode() {
+        kind = AST_STRUCT;
+    }
+
+};
+
+#endif //ARKOICOMPILER_ASTNODES_H

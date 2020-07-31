@@ -19,13 +19,12 @@ private:
 public:
     Error(std::string sourcePath,
           std::string sourceCode,
-          std::shared_ptr<Token> token,
+          unsigned int startLine,
           std::string causeMessage) :
             sourcePath(std::move(sourcePath)),
             sourceCode(std::move(sourceCode)),
-            causeMessage(causeMessage) {
-        startLine = token->lineNumber;
-    }
+            startLine(startLine),
+            causeMessage(causeMessage) { }
 
 public:
     friend std::ostream &operator<<(std::ostream &out, const Error &error);

@@ -18,16 +18,20 @@ std::shared_ptr<RootNode> Parser::parseRoot() {
             rootNode->nodes.push_back(parseFunction());
         else if (currentToken() == "var" || currentToken() == "const")
             rootNode->nodes.push_back(parseVariable());
+        else if (currentToken() == "struct")
+            rootNode->nodes.push_back(parseStruct());
         else if (currentToken() != TOKEN_WHITESPACE &&
                  currentToken() != TOKEN_COMMENT) {
-            std::cout << Error(sourcePath, sourceCode, currentToken(), fmt::format(
-                    "Root expected <import> or <fun> but got '{}' instead.",
-                    currentToken()->content
-            )) << std::endl;
+            std::cout << Error(sourcePath, sourceCode, currentToken()->lineNumber,
+                               fmt::format(
+                                       "Root expected <import> or <fun> but got '{}' instead.",
+                                       currentToken()->content
+                               )) << std::endl;
 
             while (position < tokens.size()) {
                 if (currentToken() == "import" || currentToken() == "fun" ||
-                    currentToken() == "var" || currentToken() == "const")
+                    currentToken() == "var" || currentToken() == "const" ||
+                    currentToken() == "struct")
                     break;
                 nextToken(1, true, false);
             }
@@ -47,18 +51,20 @@ std::shared_ptr<ImportNode> Parser::parseImport() {
     importNode->startLine = currentToken()->lineNumber;
 
     if (currentToken() != "import") {
-        std::cout << Error(sourcePath, sourceCode, currentToken(), fmt::format(
-                "Import expected 'import' but got '{}' instead.",
-                currentToken()->content
-        )) << std::endl;
+        std::cout << Error(sourcePath, sourceCode, currentToken()->lineNumber,
+                           fmt::format(
+                                   "Import expected 'import' but got '{}' instead.",
+                                   currentToken()->content
+                           )) << std::endl;
         return importNode;
     }
 
     if (nextToken() != TOKEN_STRING) {
-        std::cout << Error(sourcePath, sourceCode, currentToken(), fmt::format(
-                "Import expected <string> but got '{}' instead.",
-                currentToken()->content
-        )) << std::endl;
+        std::cout << Error(sourcePath, sourceCode, currentToken()->lineNumber,
+                           fmt::format(
+                                   "Import expected <string> but got '{}' instead.",
+                                   currentToken()->content
+                           )) << std::endl;
         return importNode;
     }
     importNode->path = currentToken();
@@ -72,27 +78,30 @@ std::shared_ptr<FunctionNode> Parser::parseFunction() {
     functionNode->startLine = currentToken()->lineNumber;
 
     if (currentToken() != "fun") {
-        std::cout << Error(sourcePath, sourceCode, currentToken(), fmt::format(
-                "Function expected 'fun' but got '{}' instead.",
-                currentToken()->content
-        )) << std::endl;
+        std::cout << Error(sourcePath, sourceCode, currentToken()->lineNumber,
+                           fmt::format(
+                                   "Function expected 'fun' but got '{}' instead.",
+                                   currentToken()->content
+                           )) << std::endl;
         return functionNode;
     }
 
     if (nextToken() != TOKEN_IDENTIFIER) {
-        std::cout << Error(sourcePath, sourceCode, currentToken(), fmt::format(
-                "Function expected <identifier> but got '{}' instead.",
-                currentToken()->content
-        )) << std::endl;
+        std::cout << Error(sourcePath, sourceCode, currentToken()->lineNumber,
+                           fmt::format(
+                                   "Function expected <identifier> but got '{}' instead.",
+                                   currentToken()->content
+                           )) << std::endl;
         return functionNode;
     }
     functionNode->name = currentToken();
 
     if (nextToken() != "(") {
-        std::cout << Error(sourcePath, sourceCode, currentToken(), fmt::format(
-                "Function expected '(' but got '{}' instead.",
-                currentToken()->content
-        )) << std::endl;
+        std::cout << Error(sourcePath, sourceCode, currentToken()->lineNumber,
+                           fmt::format(
+                                   "Function expected '(' but got '{}' instead.",
+                                   currentToken()->content
+                           )) << std::endl;
         return functionNode;
     }
 
@@ -129,18 +138,20 @@ std::shared_ptr<FunctionNode> Parser::parseFunction() {
     }
 
     if (currentToken() != ")") {
-        std::cout << Error(sourcePath, sourceCode, currentToken(), fmt::format(
-                "Function expected ')' but got '{}' instead.",
-                currentToken()->content
-        )) << std::endl;
+        std::cout << Error(sourcePath, sourceCode, currentToken()->lineNumber,
+                           fmt::format(
+                                   "Function expected ')' but got '{}' instead.",
+                                   currentToken()->content
+                           )) << std::endl;
         return functionNode;
     }
 
     if (nextToken() != ":") {
-        std::cout << Error(sourcePath, sourceCode, currentToken(), fmt::format(
-                "Function expected ':' but got '{}' instead.",
-                currentToken()->content
-        )) << std::endl;
+        std::cout << Error(sourcePath, sourceCode, currentToken()->lineNumber,
+                           fmt::format(
+                                   "Function expected ':' but got '{}' instead.",
+                                   currentToken()->content
+                           )) << std::endl;
         return functionNode;
     }
 
@@ -159,19 +170,21 @@ std::shared_ptr<ParameterNode> Parser::parseParameter() {
     parameterNode->startLine = currentToken()->lineNumber;
 
     if (currentToken() != TOKEN_IDENTIFIER) {
-        std::cout << Error(sourcePath, sourceCode, currentToken(), fmt::format(
-                "Parameter expected <identifier> but got '{}' instead.",
-                currentToken()->content
-        )) << std::endl;
+        std::cout << Error(sourcePath, sourceCode, currentToken()->lineNumber,
+                           fmt::format(
+                                   "Parameter expected <identifier> but got '{}' instead.",
+                                   currentToken()->content
+                           )) << std::endl;
         return parameterNode;
     }
     parameterNode->name = currentToken();
 
     if (nextToken() != ":") {
-        std::cout << Error(sourcePath, sourceCode, currentToken(), fmt::format(
-                "Parameter expected ':' but got '{}' instead.",
-                currentToken()->content
-        )) << std::endl;
+        std::cout << Error(sourcePath, sourceCode, currentToken()->lineNumber,
+                           fmt::format(
+                                   "Parameter expected ':' but got '{}' instead.",
+                                   currentToken()->content
+                           )) << std::endl;
         return parameterNode;
     }
 
@@ -185,10 +198,11 @@ std::shared_ptr<TypeNode> Parser::parseType() {
     typeNode->startLine = currentToken()->lineNumber;
 
     if (currentToken() != TOKEN_TYPE && currentToken() != TOKEN_IDENTIFIER) {
-        std::cout << Error(sourcePath, sourceCode, currentToken(), fmt::format(
-                "Type expected <kind> or <identifier> but got '{}' instead.",
-                currentToken()->content
-        )) << std::endl;
+        std::cout << Error(sourcePath, sourceCode, currentToken()->lineNumber,
+                           fmt::format(
+                                   "Type expected <kind> or <identifier> but got '{}' instead.",
+                                   currentToken()->content
+                           )) << std::endl;
         return typeNode;
     }
 
@@ -216,17 +230,25 @@ std::shared_ptr<BlockNode> Parser::parseBlock() {
 
             if (currentToken() == "var" || currentToken() == "const")
                 blockNode->nodes.push_back(parseVariable());
+            else if (currentToken() == TOKEN_IDENTIFIER ||
+                     (currentToken() == "&" || currentToken() == "@"))
+                blockNode->nodes.push_back(parseIdentifier());
+            else if (currentToken() == "return")
+                blockNode->nodes.push_back(parseReturn());
             else if (currentToken() != TOKEN_WHITESPACE &&
                      currentToken() != TOKEN_COMMENT) {
                 std::cout
-                        << Error(sourcePath, sourceCode, currentToken(), fmt::format(
-                                "Block expected <variable> but got '{}' instead.",
-                                currentToken()->content
-                        )) << std::endl;
+                        << Error(sourcePath, sourceCode, currentToken()->lineNumber,
+                                 fmt::format(
+                                         "Block expected <variable>, <identifier> or <return> but got '{}' instead.",
+                                         currentToken()->content
+                                 )) << std::endl;
 
                 while (position < tokens.size()) {
                     if (currentToken() == "var" || currentToken() == "const" ||
-                        currentToken() == "}")
+                        currentToken() == TOKEN_IDENTIFIER ||
+                        currentToken() == "&" || currentToken() == "@" ||
+                        currentToken() == "}" || currentToken() == "return")
                         break;
                     nextToken(1, true, false);
                 }
@@ -238,19 +260,22 @@ std::shared_ptr<BlockNode> Parser::parseBlock() {
         }
 
         if (currentToken() != "}") {
-            std::cout << Error(sourcePath, sourceCode, currentToken(), fmt::format(
-                    "Block expected '}}' but got '{}' instead.",
-                    currentToken()->content
-            )) << std::endl;
+            std::cout << Error(sourcePath, sourceCode, currentToken()->lineNumber,
+                               fmt::format(
+                                       "Block expected '}}' but got '{}' instead.",
+                                       currentToken()->content
+                               )) << std::endl;
             return blockNode;
         }
     } else if (currentToken() == "=") {
-
+        nextToken();
+        blockNode->nodes.push_back(parseRelational());
     } else {
-        std::cout << Error(sourcePath, sourceCode, currentToken(), fmt::format(
-                "Block expected '{{' or '=' but got '{}' instead.",
-                currentToken()->content
-        )) << std::endl;
+        std::cout << Error(sourcePath, sourceCode, currentToken()->lineNumber,
+                           fmt::format(
+                                   "Block expected '{{' or '=' but got '{}' instead.",
+                                   currentToken()->content
+                           )) << std::endl;
         return blockNode;
     }
 
@@ -263,19 +288,21 @@ std::shared_ptr<VariableNode> Parser::parseVariable() {
     variableNode->startLine = currentToken()->lineNumber;
 
     if (currentToken() != "var" && currentToken() != "const") {
-        std::cout << Error(sourcePath, sourceCode, currentToken(), fmt::format(
-                "Variable expected 'var' or 'const' but got '{}' instead.",
-                currentToken()->content
-        )) << std::endl;
+        std::cout << Error(sourcePath, sourceCode, currentToken()->lineNumber,
+                           fmt::format(
+                                   "Variable expected 'var' or 'const' but got '{}' instead.",
+                                   currentToken()->content
+                           )) << std::endl;
         return variableNode;
     }
     variableNode->constant = (currentToken() == "const");
 
     if (nextToken() != TOKEN_IDENTIFIER) {
-        std::cout << Error(sourcePath, sourceCode, currentToken(), fmt::format(
-                "Variable expected <identifier> but got '{}' instead.",
-                currentToken()->content
-        )) << std::endl;
+        std::cout << Error(sourcePath, sourceCode, currentToken()->lineNumber,
+                           fmt::format(
+                                   "Variable expected <identifier> but got '{}' instead.",
+                                   currentToken()->content
+                           )) << std::endl;
         return variableNode;
     }
     variableNode->name = currentToken();
@@ -406,34 +433,305 @@ std::shared_ptr<OperableNode> Parser::parseOperable() {
         operable->expression = parseRelational();
         operable->endLine = operable->expression->endLine;
 
-        if(nextToken() != ")") {
-            std::cout << Error(sourcePath, sourceCode, currentToken(), fmt::format(
-                    "Parenthesized expected ')' but got '{}' instead.",
-                    currentToken()->content
-            )) << std::endl;
+        if (nextToken() != ")") {
+            std::cout << Error(sourcePath, sourceCode, currentToken()->lineNumber,
+                               fmt::format(
+                                       "Parenthesized expected ')' but got '{}' instead.",
+                                       currentToken()->content
+                               )) << std::endl;
             return operable;
         }
 
         return operable;
-    } else if(currentToken() == TOKEN_NUMBER) {
+    } else if (currentToken() == TOKEN_NUMBER) {
         auto operable = std::make_shared<NumberNode>();
         operable->startLine = currentToken()->lineNumber;
         operable->number = currentToken();
         operable->endLine = currentToken()->lineNumber;
         return operable;
-    } else if(currentToken() == TOKEN_STRING) {
+    } else if (currentToken() == TOKEN_STRING) {
         auto operable = std::make_shared<StringNode>();
         operable->startLine = currentToken()->lineNumber;
         operable->string = currentToken();
         operable->endLine = currentToken()->lineNumber;
         return operable;
+    } else if (currentToken() == TOKEN_IDENTIFIER ||
+               (currentToken() == "&" || currentToken() == "@")) {
+        return parseIdentifier();
     } else {
-        std::cout << Error(sourcePath, sourceCode, currentToken(), fmt::format(
-                "Operable expected <string>, <number>, <unary> or <parenthesized> but got '{}' instead.",
-                currentToken()->content
-        )) << std::endl;
+        std::cout << Error(sourcePath, sourceCode, currentToken()->lineNumber,
+                           fmt::format(
+                                   "Operable expected <string>, <number>, <unary> or <parenthesized> but got '{}' instead.",
+                                   currentToken()->content
+                           )) << std::endl;
         return std::shared_ptr<OperableNode>();
     }
+}
+
+std::shared_ptr<IdentifierNode> Parser::parseIdentifier() {
+    auto identifierNode = std::make_shared<IdentifierNode>();
+    identifierNode->startLine = currentToken()->lineNumber;
+
+    if (currentToken() == "&") {
+        identifierNode->dereference = true;
+        nextToken();
+    } else if (currentToken() == "@") {
+        identifierNode->pointer = true;
+        nextToken();
+    }
+
+    if (currentToken() != TOKEN_IDENTIFIER) {
+        std::cout << Error(sourcePath, sourceCode, currentToken()->lineNumber,
+                           fmt::format(
+                                   "Identifier expected <identifier> but got '{}' instead.",
+                                   currentToken()->content
+                           )) << std::endl;
+        return identifierNode;
+    }
+    identifierNode->identifier = currentToken();
+
+    if (peekToken(1) == "(") {
+        nextToken(2);
+
+        auto functionCall = std::make_shared<FunctionCallNode>();
+        functionCall->dereference = identifierNode->dereference;
+        functionCall->identifier = identifierNode->identifier;
+        functionCall->startLine = identifierNode->startLine;
+        functionCall->pointer = identifierNode->pointer;
+        identifierNode = functionCall;
+
+        if (currentToken() != ")" || currentToken() == TOKEN_IDENTIFIER)
+            functionCall->arguments = parseMixedArguments();
+
+        if (currentToken() != ")") {
+            std::cout << Error(sourcePath, sourceCode, currentToken()->lineNumber,
+                               fmt::format(
+                                       "Function call expected ')' but got '{}' instead.",
+                                       currentToken()->content
+                               )) << std::endl;
+            return functionCall;
+        }
+    }
+
+    if (peekToken(1) == ".") {
+        nextToken(2);
+
+        auto nextIdentifier = parseIdentifier();
+        identifierNode->nextIdentifier = nextIdentifier;
+        return identifierNode;
+    }
+
+    if (peekToken(1) == "{") {
+        nextToken(2);
+
+        if (identifierNode->kind == AST_FUNCTION_CALL) {
+            std::cout << Error(sourcePath, sourceCode, identifierNode->startLine,
+                               "Can't do a struct creation with a function call.")
+                      << std::endl;
+            return identifierNode;
+        }
+
+        auto structCreate = std::make_shared<StructCreateNode>();
+        structCreate->dereference = identifierNode->dereference;
+        structCreate->identifier = identifierNode->identifier;
+        structCreate->startLine = identifierNode->startLine;
+        structCreate->pointer = identifierNode->pointer;
+        identifierNode = structCreate;
+
+        structCreate->arguments = parseNamedArguments();
+
+        if (currentToken() != "}") {
+            std::cout << Error(sourcePath, sourceCode, currentToken()->lineNumber,
+                               fmt::format(
+                                       "Struct create expected '}}' but got '{}' instead.",
+                                       currentToken()->content
+                               )) << std::endl;
+            return identifierNode;
+        }
+    } else if (peekToken(1) == "=") {
+        nextToken(2);
+
+        if (identifierNode->kind == AST_FUNCTION_CALL) {
+            std::cout << Error(sourcePath, sourceCode, identifierNode->startLine,
+                               "Can't do a assignment with a function call.")
+                      << std::endl;
+            return identifierNode;
+        }
+
+        auto assignment = std::make_shared<AssignmentNode>();
+        assignment->dereference = identifierNode->dereference;
+        assignment->identifier = identifierNode->identifier;
+        assignment->startLine = identifierNode->startLine;
+        assignment->pointer = identifierNode->pointer;
+        identifierNode = assignment;
+
+        assignment->expression = parseRelational();
+    }
+
+    identifierNode->endLine = currentToken()->lineNumber;
+    return identifierNode;
+}
+
+std::vector<std::shared_ptr<ArgumentNode>> Parser::parseMixedArguments() {
+    std::vector<std::shared_ptr<ArgumentNode>> arguments;
+
+    auto mustBeNamed = false;
+    while (position < tokens.size()) {
+        auto argument = std::make_shared<ArgumentNode>();
+        if (mustBeNamed ||
+            (currentToken() == TOKEN_IDENTIFIER && peekToken(1) == ":")) {
+            if (currentToken() != TOKEN_IDENTIFIER) {
+                std::cout
+                        << Error(sourcePath, sourceCode, currentToken()->lineNumber,
+                                 fmt::format(
+                                         "Arguments expected <identifier> but got '{}' instead.",
+                                         currentToken()->content
+                                 )) << std::endl;
+                break;
+            }
+            argument->name = currentToken();
+
+            if (nextToken() != ":") {
+                std::cout
+                        << Error(sourcePath, sourceCode, currentToken()->lineNumber,
+                                 fmt::format(
+                                         "Arguments expected ':' but got '{}' instead.",
+                                         currentToken()->content
+                                 )) << std::endl;
+                break;
+            }
+
+            mustBeNamed = true;
+            nextToken();
+        }
+
+        argument->expression = parseRelational();
+
+        if (nextToken() != ",")
+            break;
+        nextToken(1, true, false);
+    }
+
+    return arguments;
+}
+
+std::vector<std::shared_ptr<ArgumentNode>> Parser::parseNamedArguments() {
+    std::vector<std::shared_ptr<ArgumentNode>> arguments;
+
+    while (position < tokens.size()) {
+        auto argument = std::make_shared<ArgumentNode>();
+        if (currentToken() != TOKEN_IDENTIFIER) {
+            std::cout << Error(sourcePath, sourceCode, currentToken()->lineNumber,
+                               fmt::format(
+                                       "Arguments expected <identifier> but got '{}' instead.",
+                                       currentToken()->content
+                               )) << std::endl;
+            break;
+        }
+        argument->name = currentToken();
+
+        if (nextToken() != ":") {
+            std::cout << Error(sourcePath, sourceCode, currentToken()->lineNumber,
+                               fmt::format(
+                                       "Arguments expected ':' but got '{}' instead.",
+                                       currentToken()->content
+                               )) << std::endl;
+            break;
+        }
+
+        nextToken();
+        argument->expression = parseRelational();
+
+        if (nextToken() != ",")
+            break;
+        nextToken(1, true, false);
+    }
+
+    return arguments;
+}
+
+std::shared_ptr<ReturnNode> Parser::parseReturn() {
+    auto returnNode = std::make_shared<ReturnNode>();
+    returnNode->startLine = currentToken()->lineNumber;
+
+    if (currentToken() != "return") {
+        std::cout << Error(sourcePath, sourceCode, currentToken()->lineNumber,
+                           fmt::format(
+                                   "Return expected 'return' but got '{}' instead.",
+                                   currentToken()->content
+                           )) << std::endl;
+        return returnNode;
+    }
+
+    nextToken();
+    returnNode->expression = parseRelational();
+
+    returnNode->endLine = currentToken()->lineNumber;
+    return returnNode;
+}
+
+std::shared_ptr<StructNode> Parser::parseStruct() {
+    auto structNode = std::make_shared<StructNode>();
+    structNode->startLine = currentToken()->lineNumber;
+
+    if (currentToken() != "struct") {
+        std::cout << Error(sourcePath, sourceCode, currentToken()->lineNumber,
+                           fmt::format(
+                                   "Struct expected 'struct' but got '{}' instead.",
+                                   currentToken()->content
+                           )) << std::endl;
+        return structNode;
+    }
+
+    if (nextToken() != TOKEN_IDENTIFIER) {
+        std::cout << Error(sourcePath, sourceCode, currentToken()->lineNumber,
+                           fmt::format(
+                                   "Struct expected <identifier> but got '{}' instead.",
+                                   currentToken()->content
+                           )) << std::endl;
+        return structNode;
+    }
+    structNode->name = currentToken();
+
+    if (nextToken() != "{") {
+        std::cout << Error(sourcePath, sourceCode, currentToken()->lineNumber,
+                           fmt::format(
+                                   "Struct expected '{{' but got '{}' instead.",
+                                   currentToken()->content
+                           )) << std::endl;
+        return structNode;
+    }
+
+    nextToken();
+    while (position < tokens.size()) {
+        if (currentToken() == "}")
+            break;
+
+        if (currentToken() == "var" || currentToken() == "const")
+            structNode->variables.push_back(parseVariable());
+        else if (currentToken() != TOKEN_WHITESPACE &&
+                 currentToken() != TOKEN_COMMENT) {
+            std::cout
+                    << Error(sourcePath, sourceCode, currentToken()->lineNumber,
+                             fmt::format(
+                                     "Struct expected <variable> but got '{}' instead.",
+                                     currentToken()->content
+                             )) << std::endl;
+
+            while (position < tokens.size()) {
+                if (currentToken() == "var" || currentToken() == "const")
+                    break;
+                nextToken(1, true, false);
+            }
+
+            continue;
+        }
+
+        nextToken(1, true, false);
+    }
+
+    structNode->endLine = currentToken()->lineNumber;
+    return structNode;
 }
 
 std::shared_ptr<Token> Parser::peekToken(int offset, bool advance, bool safety) {
@@ -466,7 +764,7 @@ std::shared_ptr<Token> Parser::nextToken(int times, bool advance, bool safety) {
 
 std::shared_ptr<Token> Parser::currentToken(bool safety) {
     if (safety)
-        position %= tokens.size();
+        position = position >= tokens.size() ? tokens.size() - 1 : position;
     else if (position >= tokens.size())
         return nullptr;
     return tokens[position];

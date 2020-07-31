@@ -3,7 +3,6 @@
 //
 
 #include "lexer.h"
-#include "../compiler/utils.h"
 #include "../../deps/dbg-macro/dbg.h"
 
 std::vector<std::shared_ptr<Token>> Lexer::process() {

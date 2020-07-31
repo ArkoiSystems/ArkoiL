@@ -11,6 +11,7 @@
 #include <string>
 #include <memory>
 #include "token.h"
+#include "../compiler/utils.h"
 
 class Lexer {
 
