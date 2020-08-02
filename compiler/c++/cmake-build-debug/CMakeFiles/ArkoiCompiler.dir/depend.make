@@ -6,7 +6,6 @@ CMakeFiles/ArkoiCompiler.dir/src/compiler/compiler.cpp.o: ../deps/dbg-macro/dbg.
 CMakeFiles/ArkoiCompiler.dir/src/compiler/compiler.cpp.o: ../deps/fmt-7.0.2/include/fmt/core.h
 CMakeFiles/ArkoiCompiler.dir/src/compiler/compiler.cpp.o: ../src/compiler/compiler.cpp
 CMakeFiles/ArkoiCompiler.dir/src/compiler/compiler.cpp.o: ../src/compiler/compiler.h
-CMakeFiles/ArkoiCompiler.dir/src/compiler/compiler.cpp.o: ../src/compiler/error.h
 CMakeFiles/ArkoiCompiler.dir/src/compiler/compiler.cpp.o: ../src/compiler/options.h
 CMakeFiles/ArkoiCompiler.dir/src/compiler/compiler.cpp.o: ../src/compiler/utils.h
 CMakeFiles/ArkoiCompiler.dir/src/compiler/compiler.cpp.o: ../src/lexer/lexer.h
@@ -38,7 +37,6 @@ CMakeFiles/ArkoiCompiler.dir/src/main.cpp.o: ../deps/fmt-7.0.2/include/fmt/core.
 CMakeFiles/ArkoiCompiler.dir/src/main.cpp.o: ../deps/dbg-macro/dbg.h
 CMakeFiles/ArkoiCompiler.dir/src/main.cpp.o: ../deps/fmt-7.0.2/include/fmt/core.h
 CMakeFiles/ArkoiCompiler.dir/src/main.cpp.o: ../src/compiler/compiler.h
-CMakeFiles/ArkoiCompiler.dir/src/main.cpp.o: ../src/compiler/error.h
 CMakeFiles/ArkoiCompiler.dir/src/main.cpp.o: ../src/compiler/options.h
 CMakeFiles/ArkoiCompiler.dir/src/main.cpp.o: ../src/compiler/utils.h
 CMakeFiles/ArkoiCompiler.dir/src/main.cpp.o: ../src/lexer/lexer.h

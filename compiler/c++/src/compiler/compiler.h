@@ -5,13 +5,13 @@
 #ifndef ARKOICOMPILER_COMPILER_H
 #define ARKOICOMPILER_COMPILER_H
 
+#include <sys/stat.h>
 #include <utility>
 #include <fstream>
-#include <sys/stat.h>
+#include "../parser/parser.h"
+#include "../lexer/lexer.h"
 #include "options.h"
 #include "utils.h"
-#include "../lexer/lexer.h"
-#include "../parser/parser.h"
 
 class Compiler {
 

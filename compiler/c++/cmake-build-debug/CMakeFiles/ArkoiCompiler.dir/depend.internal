@@ -7,7 +7,6 @@ CMakeFiles/ArkoiCompiler.dir/src/compiler/compiler.cpp.o
  /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/deps/fmt-7.0.2/include/fmt/core.h
  /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/compiler/compiler.cpp
  /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/compiler/compiler.h
- /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/compiler/error.h
  /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/compiler/options.h
  /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/compiler/utils.h
  /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/lexer/lexer.h
@@ -39,7 +38,6 @@ CMakeFiles/ArkoiCompiler.dir/src/main.cpp.o
  /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/deps/dbg-macro/dbg.h
  /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/deps/fmt-7.0.2/include/fmt/core.h
  /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/compiler/compiler.h
- /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/compiler/error.h
  /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/compiler/options.h
  /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/compiler/utils.h
  /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/lexer/lexer.h
