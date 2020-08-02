@@ -25,11 +25,16 @@ CMakeFiles/ArkoiCompiler.dir/src/compiler/error.cpp.o
  /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/parser/astnodes.h
  /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/parser/parser.h
 CMakeFiles/ArkoiCompiler.dir/src/lexer/lexer.cpp.o
+ ../deps/fmt-7.0.2/include/fmt/core.h
  /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/deps/dbg-macro/dbg.h
+ /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/deps/fmt-7.0.2/include/fmt/core.h
+ /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/compiler/error.h
  /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/compiler/utils.h
  /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/lexer/lexer.cpp
  /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/lexer/lexer.h
  /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/lexer/token.h
+ /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/parser/astnodes.h
+ /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/parser/parser.h
 CMakeFiles/ArkoiCompiler.dir/src/lexer/token.cpp.o
  /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/lexer/token.cpp
  /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/lexer/token.h

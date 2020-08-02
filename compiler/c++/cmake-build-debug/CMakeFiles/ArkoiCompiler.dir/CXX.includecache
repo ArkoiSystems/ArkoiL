@@ -86,10 +86,6 @@ experimental/string_view
 fmt/core.h
 -
 
-/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/compiler/error.cpp
-error.h
-/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/compiler/error.h
-
 /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/compiler/error.h
 utility
 -
@@ -107,6 +103,14 @@ cstdarg
 -
 memory
 -
+
+/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/lexer/lexer.cpp
+lexer.h
+/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/lexer/lexer.h
+../../deps/dbg-macro/dbg.h
+/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/deps/dbg-macro/dbg.h
+../compiler/error.h
+/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/compiler/error.h
 
 /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/lexer/lexer.h
 iostream

@@ -3,7 +3,7 @@
 //
 
 #include "lexer.h"
-#include "../../deps/dbg-macro/dbg.h"
+#include "../compiler/error.h"
 
 std::vector<std::shared_ptr<Token>> Lexer::process() {
     std::vector<std::shared_ptr<Token>> tokens;
@@ -152,16 +152,24 @@ std::shared_ptr<Token> Lexer::nextToken() {
         position++;
         while (position < sourceCode.size()) {
             auto identifierChar = sourceCode[position];
-            if (identifierChar == '\n') {
-                position--;
+            if (identifierChar == '\n')
                 break;
-            }
 
             if (identifierChar == '"')
                 break;
 
             token->content += std::string(1, identifierChar);
             position++;
+        }
+
+        if (sourceCode[position] != '"') {
+            std::cout << Error(sourcePath, sourceCode, currentLine, currentLine,
+                               token->startChar, position,
+                               fmt::format("Strings must be terminated correctly."))
+                      << std::endl;
+
+            if (sourceCode[position] == '\n')
+                position--;
         }
     } else {
         token->content += std::string(1, currentChar);
