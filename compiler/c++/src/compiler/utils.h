@@ -5,9 +5,9 @@
 #ifndef ARKOICOMPILER_UTILS_H
 #define ARKOICOMPILER_UTILS_H
 
-#include <memory>
 #include <cstring>
 #include <cstdarg>
+#include <memory>
 
 #define DEFER_1(x, y) x##y
 #define DEFER_2(x, y) DEFER_1(x, y)
@@ -32,8 +32,20 @@ Defer<Function> defer_func(Function function) {
     return Defer<Function>(function);
 }
 
-constexpr unsigned int str2int(const char *str, int h = 0) {
-    return !str[h] ? 5381 : (str2int(str, h + 1) * 33) ^ str[h];
+constexpr unsigned int hash(const char *str, int h = 0) {
+    return !str[h] ? 5381 : (hash(str, h + 1) * 33) ^ str[h];
+}
+
+template<class Container>
+void split(const std::string &str, Container &cont, char delim = ' ') {
+    std::size_t current, previous = 0;
+    current = str.find(delim);
+    while (current != std::string::npos) {
+        cont.push_back(str.substr(previous, current - previous));
+        previous = current + 1;
+        current = str.find(delim, previous);
+    }
+    cont.push_back(str.substr(previous, current - previous));
 }
 
 #endif //ARKOICOMPILER_UTILS_H

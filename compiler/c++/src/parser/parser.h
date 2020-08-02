@@ -7,12 +7,11 @@
 
 #include <utility>
 #include <vector>
-#include "../../deps/fmt-7.0.2/include/fmt/core.h"
-#include "../../deps/dbg-macro/dbg.h"
 #include "../compiler/utils.h"
-#include "../compiler/error.h"
 #include "../lexer/lexer.h"
 #include "astnodes.h"
+#include "../../deps/fmt-7.0.2/include/fmt/core.h"
+#include "../../deps/dbg-macro/dbg.h"
 
 class Parser {
 
@@ -24,8 +23,7 @@ private:
     unsigned int position;
 
 public:
-    explicit Parser(std::string sourcePath,
-                    std::string sourceCode,
+    explicit Parser(std::string sourcePath, std::string sourceCode,
                     std::vector<std::shared_ptr<Token>> tokens) :
             sourcePath(std::move(sourcePath)),
             sourceCode(std::move(sourceCode)),

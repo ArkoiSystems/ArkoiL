@@ -75,23 +75,23 @@ std::shared_ptr<Token> Lexer::nextToken() {
             position++;
         }
 
-        switch (str2int(token->content.c_str())) {
-            case str2int("this"):
-            case str2int("var"):
-            case str2int("return"):
-            case str2int("struct"):
-            case str2int("fun"):
-            case str2int("as"):
-            case str2int("import"):
-            case str2int("if"):
-            case str2int("const"):
-            case str2int("else"):
+        switch (hash(token->content.c_str())) {
+            case hash("this"):
+            case hash("var"):
+            case hash("return"):
+            case hash("struct"):
+            case hash("fun"):
+            case hash("as"):
+            case hash("import"):
+            case hash("if"):
+            case hash("const"):
+            case hash("else"):
                 token->type = TOKEN_KEYWORD;
                 break;
-            case str2int("bool"):
-            case str2int("float"):
-            case str2int("double"):
-            case str2int("void"):
+            case hash("bool"):
+            case hash("float"):
+            case hash("double"):
+            case hash("void"):
                 token->type = TOKEN_TYPE;
                 break;
             default:
