@@ -7,7 +7,7 @@
 
 std::vector<std::shared_ptr<Token>> Lexer::process() {
     std::vector<std::shared_ptr<Token>> tokens;
-    while (!failed) {
+    while (!isFailed) {
         auto token = nextToken();
         if (token == nullptr)
             break;
@@ -61,12 +61,12 @@ std::shared_ptr<Token> Lexer::nextToken() {
             token->content += std::string(1, commentChar);
             position++;
         }
-    } else if (std::isalpha(currentChar)) {
+    } else if (std::isalpha(currentChar) || currentChar == '_') {
         token->type = TOKEN_COMMENT;
 
         while (position < sourceCode.size()) {
             auto identifierChar = sourceCode[position];
-            if (!std::isalnum(identifierChar)) {
+            if (!std::isalnum(identifierChar) && identifierChar != '_') {
                 position--;
                 break;
             }
@@ -210,7 +210,7 @@ std::shared_ptr<Token> Lexer::nextToken() {
                 break;
             default:
                 token->type = TOKEN_INVALID;
-                failed = true;
+                isFailed = true;
                 break;
         }
     }

@@ -3,9 +3,11 @@
 //
 
 #include "compiler.h"
+#include "../parser/typeresolver.h"
+#include "../../deps/dbg-macro/dbg.h"
 
 int Compiler::compile() {
-    std::vector<std::shared_ptr<RootNode>> roots;
+    std::vector<std::pair<std::shared_ptr<Parser>, std::shared_ptr<RootNode>>> pairs;
     for (const auto &sourcePath : compilerOptions.sourceFiles) {
         struct stat path_stat{};
         stat(sourcePath.c_str(), &path_stat);
@@ -21,14 +23,32 @@ int Compiler::compile() {
             return -1;
         defer(sourceFile.close());
 
-        std::string contents((std::istreambuf_iterator<char>(sourceFile)),
-                             std::istreambuf_iterator<char>());
+        auto contents = std::string{std::istreambuf_iterator<char>(sourceFile),
+                                    std::istreambuf_iterator<char>()};
 
-        Lexer lexer(sourcePath, contents);
+        auto lexer = Lexer{sourcePath, contents};
         auto tokens = lexer.process();
 
-        Parser parser(sourcePath, contents, tokens);
-        roots.push_back(parser.parseRoot());
+        auto parser = std::make_shared<Parser>(sourcePath, contents, tokens);
+        pairs.emplace_back(parser, parser->parseRoot());
+    }
+
+    for (const auto &pair : pairs) {
+        std::vector<std::shared_ptr<RootNode>> imports;
+        for (const auto &node : pair.second->nodes) {
+            if (node->kind != AST_IMPORT)
+                continue;
+
+            auto importNode = std::dynamic_pointer_cast<ImportNode>(node);
+            for (const auto &importPair : pairs) {
+                if (strcmp(importNode->path->content.c_str(),
+                            importPair.first->sourcePath.c_str()) != 0)
+                    continue;
+
+                imports.push_back(importPair.second);
+                break;
+            }
+        }
     }
 
     return 0;

@@ -35,7 +35,7 @@ std::ostream &operator<<(std::ostream &out, const Error &error) {
         out << "> " << std::string(whitespaces, ' ') << index << " | " << line
             << std::endl;
         if (error.startLine == index - 1) {
-            out << "  " << std::string(biggestNumber.size(), ' ') << "   "
+            out << "  " << std::string(biggestNumber.size(), ' ') << " | "
                 << std::string(startLineDifference, ' ')
                 << std::string(1, '^')
                 << std::string((endLineDifference - startLineDifference) - 1, '~')

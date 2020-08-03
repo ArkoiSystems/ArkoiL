@@ -86,6 +86,30 @@ experimental/string_view
 fmt/core.h
 -
 
+/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/compiler/compiler.cpp
+compiler.h
+/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/compiler/compiler.h
+../parser/typeresolver.h
+/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/parser/typeresolver.h
+../../deps/dbg-macro/dbg.h
+/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/deps/dbg-macro/dbg.h
+
+/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/compiler/compiler.h
+sys/stat.h
+-
+utility
+-
+fstream
+-
+../parser/parser.h
+/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/parser/parser.h
+../lexer/lexer.h
+/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/lexer/lexer.h
+options.h
+/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/compiler/options.h
+utils.h
+/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/compiler/utils.h
+
 /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/compiler/error.h
 utility
 -
@@ -96,6 +120,12 @@ string
 ../lexer/token.h
 /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/lexer/token.h
 
+/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/compiler/options.h
+iostream
+-
+vector
+-
+
 /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/compiler/utils.h
 cstring
 -
@@ -103,14 +133,6 @@ cstdarg
 -
 memory
 -
-
-/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/lexer/lexer.cpp
-lexer.h
-/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/lexer/lexer.h
-../../deps/dbg-macro/dbg.h
-/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/deps/dbg-macro/dbg.h
-../compiler/error.h
-/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/compiler/error.h
 
 /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/lexer/lexer.h
 iostream
@@ -148,6 +170,14 @@ vector
 ../lexer/token.h
 /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/lexer/token.h
 
+/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/parser/parser.cpp
+parser.h
+/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/parser/parser.h
+../compiler/error.h
+/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/compiler/error.h
+../../deps/dbg-macro/dbg.h
+/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/deps/dbg-macro/dbg.h
+
 /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/parser/parser.h
 utility
 -
@@ -161,6 +191,12 @@ astnodes.h
 /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/parser/astnodes.h
 ../../deps/fmt-7.0.2/include/fmt/core.h
 /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/deps/fmt-7.0.2/include/fmt/core.h
-../../deps/dbg-macro/dbg.h
-/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/deps/dbg-macro/dbg.h
+
+/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/parser/typeresolver.h
+memory
+-
+utility
+-
+astnodes.h
+/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/parser/astnodes.h
 

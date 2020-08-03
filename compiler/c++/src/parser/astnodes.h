@@ -32,9 +32,12 @@ enum ASTKind {
     AST_OPERABLE,
 };
 
+class TypeNode;
+
 struct ASTNode {
 
     unsigned int startLine, endLine;
+    std::shared_ptr<TypeNode> type;
     ASTKind kind;
 
     ASTNode() {
@@ -67,9 +70,10 @@ struct ImportNode: public ASTNode {
 
 };
 
-struct TypeNode: public ASTNode {
+struct TypeNode : public ASTNode {
 
-    unsigned int pointerLevel;
+    unsigned int pointerLevel, bits;
+    bool isSigned, isFloating;
 
     TypeNode() {
         kind = AST_TYPE;
@@ -81,7 +85,6 @@ struct TypeNode: public ASTNode {
 struct ParameterNode: public ASTNode {
 
     std::shared_ptr<Token> name;
-    std::shared_ptr<TypeNode> type;
 
     ParameterNode() {
         kind = AST_PARAMETER;
@@ -92,11 +95,11 @@ struct ParameterNode: public ASTNode {
 struct BlockNode: public ASTNode {
 
     std::vector<std::shared_ptr<ASTNode>> nodes;
-    bool inlined;
+    bool isInlined;
 
     BlockNode() {
         kind = AST_BLOCK;
-        inlined = false;
+        isInlined = false;
     }
 
 };
@@ -105,8 +108,8 @@ struct FunctionNode: public ASTNode {
 
     std::shared_ptr<Token> name;
     std::vector<std::shared_ptr<ParameterNode>> parameters;
-    std::shared_ptr<TypeNode> type;
     std::shared_ptr<BlockNode> block;
+    bool isVariadic, isBuiltin, isNative;
 
     FunctionNode() {
         kind = AST_FUNCTION;
@@ -125,8 +128,7 @@ struct OperableNode : public ASTNode {
 struct VariableNode: public ASTNode {
 
     std::shared_ptr<Token> name;
-    bool constant;
-    std::shared_ptr<TypeNode> type;
+    bool isConstant;
     std::shared_ptr<OperableNode> expression;
 
     VariableNode() {
@@ -220,14 +222,14 @@ struct ArgumentNode : public ASTNode {
 
 struct IdentifierNode : public OperableNode {
 
-    bool pointer, dereference;
+    bool isPointer, isDereference;
     std::shared_ptr<Token> identifier;
     std::shared_ptr<IdentifierNode> nextIdentifier;
 
     IdentifierNode() {
         kind = AST_IDENTIFIER;
-        dereference = false;
-        pointer = false;
+        isDereference = false;
+        isPointer = false;
     }
 
 };
@@ -276,6 +278,7 @@ struct StructNode : public ASTNode {
 
     std::shared_ptr<Token> name;
     std::vector<std::shared_ptr<VariableNode>> variables;
+    bool isBuiltin;
 
     StructNode() {
         kind = AST_STRUCT;

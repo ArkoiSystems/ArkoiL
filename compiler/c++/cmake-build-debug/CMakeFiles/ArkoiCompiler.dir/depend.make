@@ -12,9 +12,9 @@ CMakeFiles/ArkoiCompiler.dir/src/compiler/compiler.cpp.o: ../src/lexer/lexer.h
 CMakeFiles/ArkoiCompiler.dir/src/compiler/compiler.cpp.o: ../src/lexer/token.h
 CMakeFiles/ArkoiCompiler.dir/src/compiler/compiler.cpp.o: ../src/parser/astnodes.h
 CMakeFiles/ArkoiCompiler.dir/src/compiler/compiler.cpp.o: ../src/parser/parser.h
+CMakeFiles/ArkoiCompiler.dir/src/compiler/compiler.cpp.o: ../src/parser/typeresolver.h
 
 CMakeFiles/ArkoiCompiler.dir/src/compiler/error.cpp.o: ../deps/fmt-7.0.2/include/fmt/core.h
-CMakeFiles/ArkoiCompiler.dir/src/compiler/error.cpp.o: ../deps/dbg-macro/dbg.h
 CMakeFiles/ArkoiCompiler.dir/src/compiler/error.cpp.o: ../deps/fmt-7.0.2/include/fmt/core.h
 CMakeFiles/ArkoiCompiler.dir/src/compiler/error.cpp.o: ../src/compiler/error.cpp
 CMakeFiles/ArkoiCompiler.dir/src/compiler/error.cpp.o: ../src/compiler/error.h
@@ -25,7 +25,6 @@ CMakeFiles/ArkoiCompiler.dir/src/compiler/error.cpp.o: ../src/parser/astnodes.h
 CMakeFiles/ArkoiCompiler.dir/src/compiler/error.cpp.o: ../src/parser/parser.h
 
 CMakeFiles/ArkoiCompiler.dir/src/lexer/lexer.cpp.o: ../deps/fmt-7.0.2/include/fmt/core.h
-CMakeFiles/ArkoiCompiler.dir/src/lexer/lexer.cpp.o: ../deps/dbg-macro/dbg.h
 CMakeFiles/ArkoiCompiler.dir/src/lexer/lexer.cpp.o: ../deps/fmt-7.0.2/include/fmt/core.h
 CMakeFiles/ArkoiCompiler.dir/src/lexer/lexer.cpp.o: ../src/compiler/error.h
 CMakeFiles/ArkoiCompiler.dir/src/lexer/lexer.cpp.o: ../src/compiler/utils.h
@@ -39,7 +38,6 @@ CMakeFiles/ArkoiCompiler.dir/src/lexer/token.cpp.o: ../src/lexer/token.cpp
 CMakeFiles/ArkoiCompiler.dir/src/lexer/token.cpp.o: ../src/lexer/token.h
 
 CMakeFiles/ArkoiCompiler.dir/src/main.cpp.o: ../deps/fmt-7.0.2/include/fmt/core.h
-CMakeFiles/ArkoiCompiler.dir/src/main.cpp.o: ../deps/dbg-macro/dbg.h
 CMakeFiles/ArkoiCompiler.dir/src/main.cpp.o: ../deps/fmt-7.0.2/include/fmt/core.h
 CMakeFiles/ArkoiCompiler.dir/src/main.cpp.o: ../src/compiler/compiler.h
 CMakeFiles/ArkoiCompiler.dir/src/main.cpp.o: ../src/compiler/options.h
@@ -60,4 +58,10 @@ CMakeFiles/ArkoiCompiler.dir/src/parser/parser.cpp.o: ../src/lexer/token.h
 CMakeFiles/ArkoiCompiler.dir/src/parser/parser.cpp.o: ../src/parser/astnodes.h
 CMakeFiles/ArkoiCompiler.dir/src/parser/parser.cpp.o: ../src/parser/parser.cpp
 CMakeFiles/ArkoiCompiler.dir/src/parser/parser.cpp.o: ../src/parser/parser.h
+
+CMakeFiles/ArkoiCompiler.dir/src/parser/typeresolver.cpp.o: ../deps/dbg-macro/dbg.h
+CMakeFiles/ArkoiCompiler.dir/src/parser/typeresolver.cpp.o: ../src/lexer/token.h
+CMakeFiles/ArkoiCompiler.dir/src/parser/typeresolver.cpp.o: ../src/parser/astnodes.h
+CMakeFiles/ArkoiCompiler.dir/src/parser/typeresolver.cpp.o: ../src/parser/typeresolver.cpp
+CMakeFiles/ArkoiCompiler.dir/src/parser/typeresolver.cpp.o: ../src/parser/typeresolver.h
 

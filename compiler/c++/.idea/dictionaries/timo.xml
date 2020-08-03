@@ -6,8 +6,10 @@
       <w>arkoptions</w>
       <w>astnode</w>
       <w>astnodes</w>
+      <w>astvisitor</w>
       <w>compoptions</w>
       <w>timo</w>
+      <w>typeresolver</w>
     </words>
   </dictionary>
 </component>

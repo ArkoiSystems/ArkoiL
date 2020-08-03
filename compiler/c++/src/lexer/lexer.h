@@ -16,9 +16,9 @@
 class Lexer {
 
 private:
-    unsigned int position, currentLine, lineChar, lastPosition;
+    unsigned int position, currentLine;
     std::string sourceCode, sourcePath;
-    bool failed;
+    bool isFailed;
 
 public:
     explicit Lexer(std::string sourcePath, std::string sourceCode) :
@@ -26,8 +26,7 @@ public:
             sourceCode(std::move(sourceCode)) {
         currentLine = 0;
         position = 0;
-        lineChar = 0;
-        failed = false;
+        isFailed = false;
     }
 
 public:
