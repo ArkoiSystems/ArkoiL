@@ -11,7 +11,6 @@
 #include "../lexer/lexer.h"
 #include "astnodes.h"
 #include "../../deps/fmt-7.0.2/include/fmt/core.h"
-#include "../../deps/dbg-macro/dbg.h"
 
 class Parser {
 
@@ -57,13 +56,13 @@ private:
 
     std::shared_ptr<IdentifierNode> parseIdentifier();
 
-    std::vector<std::shared_ptr<ArgumentNode>> parseMixedArguments();
-
-    std::vector<std::shared_ptr<ArgumentNode>> parseNamedArguments();
-
     std::shared_ptr<ReturnNode> parseReturn();
 
     std::shared_ptr<StructNode> parseStruct();
+
+    void parseMixedArguments(std::vector<std::shared_ptr<ArgumentNode>> &arguments);
+
+    void parseNamedArguments(std::vector<std::shared_ptr<ArgumentNode>> &arguments);
 
     std::shared_ptr<Token> peekToken(int offset, bool advance = true, bool safety = true);
 

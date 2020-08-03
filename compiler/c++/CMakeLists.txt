@@ -20,6 +20,8 @@ add_executable(ArkoiCompiler
         src/lexer/token.h
         src/parser/astnodes.h
         src/compiler/error.cpp
-        src/compiler/error.h)
+        src/compiler/error.h
+        src/parser/typeresolver.cpp
+        src/parser/typeresolver.h)
 
 target_link_libraries(ArkoiCompiler PRIVATE fmt::fmt)

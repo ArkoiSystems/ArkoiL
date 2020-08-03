@@ -4,6 +4,7 @@
 
 #include "parser.h"
 #include "../compiler/error.h"
+#include "../../deps/dbg-macro/dbg.h"
 
 #define THROW_TOKEN_ERROR(...)  \
         std::cout << Error(sourcePath,  \
@@ -12,7 +13,7 @@
                            currentToken()->lineNumber,  \
                            currentToken()->startChar,  \
                            currentToken()->startChar + currentToken()->content.size(),  \
-                           fmt::format(__VA_ARGS__)) << std::endl;
+                           fmt::format(__VA_ARGS__));
 
 std::shared_ptr<RootNode> Parser::parseRoot() {
     auto rootNode = std::make_shared<RootNode>();
@@ -85,6 +86,11 @@ std::shared_ptr<FunctionNode> Parser::parseFunction() {
         return functionNode;
     }
 
+    if(peekToken(1) == "@") {
+        functionNode->isBuiltin = true;
+        nextToken();
+    }
+
     if (nextToken() != TOKEN_IDENTIFIER) {
         THROW_TOKEN_ERROR("Function expected <identifier> but got '{}' instead.",
                           currentToken()->content)
@@ -130,6 +136,11 @@ std::shared_ptr<FunctionNode> Parser::parseFunction() {
         }
     }
 
+    if (currentToken() == "." && peekToken(1) == "." && peekToken(2) == ".") {
+        functionNode->isVariadic = true;
+        nextToken(3);
+    }
+
     if (currentToken() != ")") {
         THROW_TOKEN_ERROR("Function expected ')' but got '{}' instead.",
                           currentToken()->content)
@@ -145,8 +156,10 @@ std::shared_ptr<FunctionNode> Parser::parseFunction() {
     nextToken();
     functionNode->type = parseType();
 
-    nextToken();
-    functionNode->block = parseBlock();
+    if (peekToken(1) == "{" || peekToken(1) == "=") {
+        nextToken();
+        functionNode->block = parseBlock();
+    } else functionNode->isNative = true;
 
     functionNode->endLine = currentToken()->lineNumber;
     return functionNode;
@@ -262,7 +275,7 @@ std::shared_ptr<VariableNode> Parser::parseVariable() {
                           currentToken()->content)
         return variableNode;
     }
-    variableNode->constant = (currentToken() == "const");
+    variableNode->isConstant = (currentToken() == "const");
 
     if (nextToken() != TOKEN_IDENTIFIER) {
         THROW_TOKEN_ERROR("Variable expected <identifier> but got '{}' instead.",
@@ -432,10 +445,10 @@ std::shared_ptr<IdentifierNode> Parser::parseIdentifier() {
     identifierNode->startLine = currentToken()->lineNumber;
 
     if (currentToken() == "&") {
-        identifierNode->dereference = true;
+        identifierNode->isDereference = true;
         nextToken();
     } else if (currentToken() == "@") {
-        identifierNode->pointer = true;
+        identifierNode->isPointer = true;
         nextToken();
     }
 
@@ -450,14 +463,14 @@ std::shared_ptr<IdentifierNode> Parser::parseIdentifier() {
         nextToken(2);
 
         auto functionCall = std::make_shared<FunctionCallNode>();
-        functionCall->dereference = identifierNode->dereference;
+        functionCall->isDereference = identifierNode->isDereference;
         functionCall->identifier = identifierNode->identifier;
         functionCall->startLine = identifierNode->startLine;
-        functionCall->pointer = identifierNode->pointer;
+        functionCall->isPointer = identifierNode->isPointer;
         identifierNode = functionCall;
 
         if (currentToken() != ")" || currentToken() == TOKEN_IDENTIFIER)
-            functionCall->arguments = parseMixedArguments();
+            parseMixedArguments(functionCall->arguments);
 
         if (currentToken() != ")") {
             THROW_TOKEN_ERROR("Function call expected ')' but got '{}' instead.",
@@ -483,13 +496,13 @@ std::shared_ptr<IdentifierNode> Parser::parseIdentifier() {
         }
 
         auto structCreate = std::make_shared<StructCreateNode>();
-        structCreate->dereference = identifierNode->dereference;
+        structCreate->isDereference = identifierNode->isDereference;
         structCreate->identifier = identifierNode->identifier;
         structCreate->startLine = identifierNode->startLine;
-        structCreate->pointer = identifierNode->pointer;
+        structCreate->isPointer = identifierNode->isPointer;
         identifierNode = structCreate;
 
-        structCreate->arguments = parseNamedArguments();
+        parseNamedArguments(structCreate->arguments);
 
         if (currentToken() != "}") {
             THROW_TOKEN_ERROR("Struct create expected '}}' but got '{}' instead.",
@@ -505,10 +518,10 @@ std::shared_ptr<IdentifierNode> Parser::parseIdentifier() {
         }
 
         auto assignment = std::make_shared<AssignmentNode>();
-        assignment->dereference = identifierNode->dereference;
+        assignment->isDereference = identifierNode->isDereference;
         assignment->identifier = identifierNode->identifier;
         assignment->startLine = identifierNode->startLine;
-        assignment->pointer = identifierNode->pointer;
+        assignment->isPointer = identifierNode->isPointer;
         identifierNode = assignment;
 
         assignment->expression = parseRelational();
@@ -516,72 +529,6 @@ std::shared_ptr<IdentifierNode> Parser::parseIdentifier() {
 
     identifierNode->endLine = currentToken()->lineNumber;
     return identifierNode;
-}
-
-std::vector<std::shared_ptr<ArgumentNode>> Parser::parseMixedArguments() {
-    std::vector<std::shared_ptr<ArgumentNode>> arguments;
-
-    auto mustBeNamed = false;
-    while (position < tokens.size()) {
-        auto argument = std::make_shared<ArgumentNode>();
-        if (mustBeNamed ||
-            (currentToken() == TOKEN_IDENTIFIER && peekToken(1) == ":")) {
-            if (currentToken() != TOKEN_IDENTIFIER) {
-                THROW_TOKEN_ERROR(
-                        "Arguments expected <identifier> but got '{}' instead.",
-                        currentToken()->content)
-                break;
-            }
-            argument->name = currentToken();
-
-            if (nextToken() != ":") {
-                THROW_TOKEN_ERROR("Arguments expected ':' but got '{}' instead.",
-                                  currentToken()->content)
-                break;
-            }
-
-            mustBeNamed = true;
-            nextToken();
-        }
-
-        argument->expression = parseRelational();
-
-        if (nextToken() != ",")
-            break;
-        nextToken(1, true, false);
-    }
-
-    return arguments;
-}
-
-std::vector<std::shared_ptr<ArgumentNode>> Parser::parseNamedArguments() {
-    std::vector<std::shared_ptr<ArgumentNode>> arguments;
-
-    while (position < tokens.size()) {
-        auto argument = std::make_shared<ArgumentNode>();
-        if (currentToken() != TOKEN_IDENTIFIER) {
-            THROW_TOKEN_ERROR(
-                    "Arguments expected <identifier> but got '{}' instead.",
-                    currentToken()->content)
-            break;
-        }
-        argument->name = currentToken();
-
-        if (nextToken() != ":") {
-            THROW_TOKEN_ERROR("Arguments expected ':' but got '{}' instead.",
-                              currentToken()->content)
-            break;
-        }
-
-        nextToken();
-        argument->expression = parseRelational();
-
-        if (nextToken() != ",")
-            break;
-        nextToken(1, true, false);
-    }
-
-    return arguments;
 }
 
 std::shared_ptr<ReturnNode> Parser::parseReturn() {
@@ -611,6 +558,11 @@ std::shared_ptr<StructNode> Parser::parseStruct() {
         return structNode;
     }
 
+    if(peekToken(1) == "@") {
+        structNode->isBuiltin = true;
+        nextToken();
+    }
+
     if (nextToken() != TOKEN_IDENTIFIER) {
         THROW_TOKEN_ERROR("Struct expected <identifier> but got '{}' instead.",
                           currentToken()->content)
@@ -618,39 +570,101 @@ std::shared_ptr<StructNode> Parser::parseStruct() {
     }
     structNode->name = currentToken();
 
-    if (nextToken() != "{") {
-        THROW_TOKEN_ERROR("Struct expected '{{' but got '{}' instead.",
-                          currentToken()->content)
-        return structNode;
-    }
-
-    nextToken();
-    while (position < tokens.size()) {
-        if (currentToken() == "}")
-            break;
-
-        if (currentToken() == "var" || currentToken() == "const")
-            structNode->variables.push_back(parseVariable());
-        else if (currentToken() != TOKEN_WHITESPACE &&
-                 currentToken() != TOKEN_COMMENT) {
-            THROW_TOKEN_ERROR("Struct expected <variable> but got '{}' instead.",
+    if(!structNode->isBuiltin) {
+        if (nextToken() != "{") {
+            THROW_TOKEN_ERROR("Struct expected '{{' but got '{}' instead.",
                               currentToken()->content)
-
-            while (position < tokens.size()) {
-                if (currentToken() == "var" || currentToken() == "const" ||
-                    currentToken() == "}")
-                    break;
-                nextToken(1, true, false);
-            }
-
-            continue;
+            return structNode;
         }
 
-        nextToken(1, true, false);
+        nextToken();
+        while (position < tokens.size()) {
+            if (currentToken() == "}")
+                break;
+
+            if (currentToken() == "var" || currentToken() == "const")
+                structNode->variables.push_back(parseVariable());
+            else if (currentToken() != TOKEN_WHITESPACE &&
+                     currentToken() != TOKEN_COMMENT) {
+                THROW_TOKEN_ERROR("Struct expected <variable> but got '{}' instead.",
+                                  currentToken()->content)
+
+                while (position < tokens.size()) {
+                    if (currentToken() == "var" || currentToken() == "const" ||
+                        currentToken() == "}")
+                        break;
+                    nextToken(1, true, false);
+                }
+
+                continue;
+            }
+
+            nextToken(1, true, false);
+        }
     }
 
     structNode->endLine = currentToken()->lineNumber;
     return structNode;
+}
+
+void Parser::parseMixedArguments(std::vector<std::shared_ptr<ArgumentNode>> &arguments) {
+    auto mustBeNamed = false;
+    while (position < tokens.size()) {
+        auto argument = std::make_shared<ArgumentNode>();
+        if (mustBeNamed ||
+            (currentToken() == TOKEN_IDENTIFIER && peekToken(1) == ":")) {
+            if (currentToken() != TOKEN_IDENTIFIER) {
+                THROW_TOKEN_ERROR(
+                        "Arguments expected <identifier> but got '{}' instead.",
+                        currentToken()->content)
+                break;
+            }
+            argument->name = currentToken();
+
+            if (nextToken() != ":") {
+                THROW_TOKEN_ERROR("Arguments expected ':' but got '{}' instead.",
+                                  currentToken()->content)
+                break;
+            }
+
+            mustBeNamed = true;
+            nextToken();
+        }
+
+        argument->expression = parseRelational();
+        arguments.push_back(argument);
+
+        if (nextToken() != ",")
+            break;
+        nextToken(1, true, false);
+    }
+}
+
+void Parser::parseNamedArguments(std::vector<std::shared_ptr<ArgumentNode>> &arguments) {
+    while (position < tokens.size()) {
+        auto argument = std::make_shared<ArgumentNode>();
+        if (currentToken() != TOKEN_IDENTIFIER) {
+            THROW_TOKEN_ERROR(
+                    "Arguments expected <identifier> but got '{}' instead.",
+                    currentToken()->content)
+            break;
+        }
+        argument->name = currentToken();
+
+        if (nextToken() != ":") {
+            THROW_TOKEN_ERROR("Arguments expected ':' but got '{}' instead.",
+                              currentToken()->content)
+            break;
+        }
+
+        nextToken();
+        argument->expression = parseRelational();
+        arguments.push_back(argument);
+
+        if (nextToken() != ",")
+            break;
+        nextToken(1, true, false);
+    }
 }
 
 std::shared_ptr<Token> Parser::peekToken(int offset, bool advance, bool safety) {

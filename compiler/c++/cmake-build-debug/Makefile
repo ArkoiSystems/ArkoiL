@@ -364,6 +364,33 @@ src/parser/parser.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ArkoiCompiler.dir/build.make CMakeFiles/ArkoiCompiler.dir/src/parser/parser.cpp.s
 .PHONY : src/parser/parser.cpp.s
 
+src/parser/typeresolver.o: src/parser/typeresolver.cpp.o
+
+.PHONY : src/parser/typeresolver.o
+
+# target to build an object file
+src/parser/typeresolver.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ArkoiCompiler.dir/build.make CMakeFiles/ArkoiCompiler.dir/src/parser/typeresolver.cpp.o
+.PHONY : src/parser/typeresolver.cpp.o
+
+src/parser/typeresolver.i: src/parser/typeresolver.cpp.i
+
+.PHONY : src/parser/typeresolver.i
+
+# target to preprocess a source file
+src/parser/typeresolver.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ArkoiCompiler.dir/build.make CMakeFiles/ArkoiCompiler.dir/src/parser/typeresolver.cpp.i
+.PHONY : src/parser/typeresolver.cpp.i
+
+src/parser/typeresolver.s: src/parser/typeresolver.cpp.s
+
+.PHONY : src/parser/typeresolver.s
+
+# target to generate assembly for a file
+src/parser/typeresolver.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ArkoiCompiler.dir/build.make CMakeFiles/ArkoiCompiler.dir/src/parser/typeresolver.cpp.s
+.PHONY : src/parser/typeresolver.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -396,6 +423,9 @@ help:
 	@echo "... src/parser/parser.o"
 	@echo "... src/parser/parser.i"
 	@echo "... src/parser/parser.s"
+	@echo "... src/parser/typeresolver.o"
+	@echo "... src/parser/typeresolver.i"
+	@echo "... src/parser/typeresolver.s"
 .PHONY : help
 
 
