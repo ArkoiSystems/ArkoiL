@@ -14,7 +14,7 @@ std::ostream &operator<<(std::ostream &out, const Error &error) {
     unsigned int startLineChar = 0;
     unsigned int endLineChar = 0;
     for (auto lineIndex = 0; lineIndex < error.endLine; lineIndex++) {
-        if (lineIndex <= error.startLine)
+        if (lineIndex < error.startLine)
             startLineChar += lines[lineIndex].size() + 1;
         endLineChar += lines[lineIndex].size() + 1;
     }
@@ -23,22 +23,50 @@ std::ostream &operator<<(std::ostream &out, const Error &error) {
     auto endLineDifference = error.endChar - endLineChar;
 
     auto biggestNumber = std::to_string(error.endLine + 3);
-    for (auto index = error.startLine; index < error.endLine + 3; index++) {
-        if(index == 0)
+    auto currentLineChar = 0;
+    for (auto lineIndex = 0; lineIndex < error.endLine + 3; lineIndex++) {
+        if (lineIndex == 0)
+            continue;
+        currentLineChar += lines[lineIndex].size() + 1;
+        if (lineIndex < error.startLine)
             continue;
 
-        auto currentNumber = std::to_string(index);
+        auto currentNumber = std::to_string(lineIndex);
         auto whitespaces = biggestNumber.size() - currentNumber.size();
 
-        auto line = lines[index - 1];
+        auto line = lines[lineIndex - 1];
+        rtrim(line);
 
-        out << "> " << std::string(whitespaces, ' ') << index << " | " << line
-            << std::endl;
-        if (error.startLine == index - 1) {
+        out << "> " << std::string(whitespaces, ' ') << lineIndex << " | " << line << std::endl;
+        if (error.startLine == lineIndex - 1 && error.endLine == lineIndex - 1) {
             out << "  " << std::string(biggestNumber.size(), ' ') << " | "
                 << std::string(startLineDifference, ' ')
                 << std::string(1, '^')
                 << std::string((endLineDifference - startLineDifference) - 1, '~')
+                << std::endl;
+        } else if (error.startLine == lineIndex - 1 && error.endLine != lineIndex - 1) {
+            out << "  " << std::string(biggestNumber.size(), ' ') << " | "
+                << std::string(startLineDifference, ' ')
+                << std::string(1, '^')
+                << std::string((line.size() - startLineDifference) - 1, '~')
+                << std::endl;
+        } else if (error.startLine != lineIndex - 1 && error.endLine == lineIndex - 1) {
+            auto lastSize = line.size();
+            ltrim(line);
+            auto difference = lastSize - line.size();
+            out << "  " << std::string(biggestNumber.size(), ' ') << " | "
+                << std::string(difference, ' ')
+                << std::string(1, '^')
+                << std::string((endLineDifference - difference) - 1, '~')
+                << std::endl;
+        } else if (error.startLine < lineIndex - 1 && error.endLine > lineIndex - 1) {
+            auto lastSize = line.size();
+            ltrim(line);
+            auto difference = lastSize - line.size();
+            out << "  " << std::string(biggestNumber.size(), ' ') << " | "
+                << std::string(difference, ' ')
+                << std::string(1, '^')
+                << std::string(line.size() - 1, '~')
                 << std::endl;
         }
     }

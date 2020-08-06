@@ -36,23 +36,34 @@ class TypeNode;
 
 struct ASTNode {
 
-    unsigned int startLine, endLine;
+    std::shared_ptr<Token> startToken, endToken;
+    std::shared_ptr<ASTNode> parent;
     std::shared_ptr<TypeNode> type;
     ASTKind kind;
 
     ASTNode() {
-        startLine = 0;
-        endLine = 0;
+        startToken = 0;
+        endToken = 0;
         kind = AST_NONE;
     }
 
     virtual ~ASTNode() = default;
 
+    template<typename Type>
+    Type* getParent() {
+        if(auto result = dynamic_cast<Type*>(this))
+            return result;
+        if(parent == nullptr)
+            return nullptr;
+        return parent->getParent<Type>();
+    }
+
 };
 
-struct RootNode: public ASTNode {
+struct RootNode : public ASTNode {
 
     std::vector<std::shared_ptr<ASTNode>> nodes;
+    std::string sourcePath, sourceCode;
 
     RootNode() {
         kind = AST_ROOT;
@@ -60,8 +71,9 @@ struct RootNode: public ASTNode {
 
 };
 
-struct ImportNode: public ASTNode {
+struct ImportNode : public ASTNode {
 
+    std::shared_ptr<RootNode> target;
     std::shared_ptr<Token> path;
 
     ImportNode() {
@@ -72,6 +84,7 @@ struct ImportNode: public ASTNode {
 
 struct TypeNode : public ASTNode {
 
+    std::shared_ptr<Token> typeToken;
     unsigned int pointerLevel, bits;
     bool isSigned, isFloating;
 

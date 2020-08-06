@@ -4,6 +4,7 @@
 
 #include "lexer.h"
 #include "../compiler/error.h"
+#include "../../deps/dbg-macro/dbg.h"
 
 std::vector<std::shared_ptr<Token>> Lexer::process() {
     std::vector<std::shared_ptr<Token>> tokens;
@@ -99,9 +100,9 @@ std::shared_ptr<Token> Lexer::nextToken() {
                 break;
         }
 
-        if ((token->content.rfind('i', 0) == 0 ||
-             token->content.rfind('u', 0) == 0) &&
-            std::isdigit(sourceCode[position + 1])) {
+        if ((std::strncmp(token->content.c_str(), "i", 1) == 0 ||
+             std::strncmp(token->content.c_str(), "u", 1) == 0) &&
+            std::isdigit(token->content[1])) {
             token->type = TOKEN_TYPE;
         }
     } else if (std::isdigit(currentChar) ||
@@ -215,6 +216,6 @@ std::shared_ptr<Token> Lexer::nextToken() {
         }
     }
 
-    position++;
+    token->endChar = ++position;
     return token;
 }

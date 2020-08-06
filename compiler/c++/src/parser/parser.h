@@ -34,35 +34,37 @@ public:
     std::shared_ptr<RootNode> parseRoot();
 
 private:
-    std::shared_ptr<ImportNode> parseImport();
+    std::shared_ptr<ImportNode> parseImport(const std::shared_ptr<ASTNode> &parent);
 
-    std::shared_ptr<FunctionNode> parseFunction();
+    std::shared_ptr<FunctionNode> parseFunction(const std::shared_ptr<ASTNode> &parent);
 
-    std::shared_ptr<ParameterNode> parseParameter();
+    std::shared_ptr<ParameterNode> parseParameter(const std::shared_ptr<ASTNode> &parent);
 
-    std::shared_ptr<TypeNode> parseType();
+    std::shared_ptr<TypeNode> parseType(const std::shared_ptr<ASTNode> &parent);
 
-    std::shared_ptr<BlockNode> parseBlock();
+    std::shared_ptr<BlockNode> parseBlock(const std::shared_ptr<ASTNode> &parent);
 
-    std::shared_ptr<VariableNode> parseVariable();
+    std::shared_ptr<VariableNode> parseVariable(const std::shared_ptr<ASTNode> &parent);
 
-    std::shared_ptr<OperableNode> parseRelational();
+    std::shared_ptr<OperableNode> parseRelational(const std::shared_ptr<ASTNode> &parent);
 
-    std::shared_ptr<OperableNode> parseAdditive();
+    std::shared_ptr<OperableNode> parseAdditive(const std::shared_ptr<ASTNode> &parent);
 
-    std::shared_ptr<OperableNode> parseMultiplicative();
+    std::shared_ptr<OperableNode> parseMultiplicative(const std::shared_ptr<ASTNode> &parent);
 
-    std::shared_ptr<OperableNode> parseOperable();
+    std::shared_ptr<OperableNode> parseOperable(const std::shared_ptr<ASTNode> &parent);
 
-    std::shared_ptr<IdentifierNode> parseIdentifier();
+    std::shared_ptr<IdentifierNode> parseIdentifier(const std::shared_ptr<ASTNode> &parent);
 
-    std::shared_ptr<ReturnNode> parseReturn();
+    std::shared_ptr<ReturnNode> parseReturn(const std::shared_ptr<ASTNode> &parent);
 
-    std::shared_ptr<StructNode> parseStruct();
+    std::shared_ptr<StructNode> parseStruct(const std::shared_ptr<ASTNode> &parent);
 
-    void parseMixedArguments(std::vector<std::shared_ptr<ArgumentNode>> &arguments);
+    void parseMixedArguments(std::vector<std::shared_ptr<ArgumentNode>> &arguments,
+                             const std::shared_ptr<ASTNode> &parent);
 
-    void parseNamedArguments(std::vector<std::shared_ptr<ArgumentNode>> &arguments);
+    void parseNamedArguments(std::vector<std::shared_ptr<ArgumentNode>> &arguments,
+                             const std::shared_ptr<ASTNode> &parent);
 
     std::shared_ptr<Token> peekToken(int offset, bool advance = true, bool safety = true);
 

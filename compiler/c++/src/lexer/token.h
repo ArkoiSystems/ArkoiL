@@ -28,7 +28,7 @@ enum TokenType {
 class Token {
 
 public:
-    unsigned int lineNumber, startChar;
+    unsigned int lineNumber, startChar, endChar;
     std::string content;
     TokenType type;
 

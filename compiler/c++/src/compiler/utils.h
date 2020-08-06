@@ -5,14 +5,16 @@
 #ifndef ARKOICOMPILER_UTILS_H
 #define ARKOICOMPILER_UTILS_H
 
-#include <cstring>
-#include <cstdarg>
-#include <memory>
-
 #define DEFER_1(x, y) x##y
 #define DEFER_2(x, y) DEFER_1(x, y)
 #define DEFER_3(x)    DEFER_2(x, __COUNTER__)
 #define defer(code)   auto DEFER_3(_defer_) = defer_func([&](){ code; })
+
+#include <algorithm>
+#include <cstring>
+#include <cstdarg>
+#include <memory>
+#include <vector>
 
 template<typename Function>
 class Defer {
@@ -28,24 +30,42 @@ public:
 };
 
 template<typename Function>
-Defer<Function> defer_func(Function function) {
+static Defer<Function> defer_func(Function function) {
     return Defer<Function>(function);
 }
 
-constexpr unsigned int hash(const char *str, int h = 0) {
-    return !str[h] ? 5381 : (hash(str, h + 1) * 33) ^ str[h];
+static void split(const std::string &input, std::vector<std::string> &list, char delimiter = ' ') {
+    std::size_t current, previous = 0;
+    current = input.find(delimiter);
+
+    while (current != std::string::npos) {
+        list.push_back(input.substr(previous, current - previous));
+        previous = current + 1;
+        current = input.find(delimiter, previous);
+    }
+
+    list.push_back(input.substr(previous, current - previous));
 }
 
-template<class Container>
-void split(const std::string &str, Container &cont, char delim = ' ') {
-    std::size_t current, previous = 0;
-    current = str.find(delim);
-    while (current != std::string::npos) {
-        cont.push_back(str.substr(previous, current - previous));
-        previous = current + 1;
-        current = str.find(delim, previous);
-    }
-    cont.push_back(str.substr(previous, current - previous));
+static void ltrim(std::string &input) {
+    input.erase(input.begin(), std::find_if(input.begin(), input.end(), [](int current) {
+        return !std::isspace(current);
+    }));
+}
+
+static void rtrim(std::string &input) {
+    input.erase(std::find_if(input.rbegin(), input.rend(), [](int current) {
+        return !std::isspace(current);
+    }).base(), input.end());
+}
+
+static void trim(std::string &input) {
+    ltrim(input);
+    rtrim(input);
+}
+
+constexpr unsigned int hash(const char *string, int index = 0) {
+    return !string[index] ? 5381 : (hash(string, index + 1) * 33) ^ string[index];
 }
 
 #endif //ARKOICOMPILER_UTILS_H

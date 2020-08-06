@@ -1,7 +1,7 @@
 import "console"
 
 struct Info {
-    var test = 0
+    var test: i32 = 0
     var pointerTest = &test
 }
 
