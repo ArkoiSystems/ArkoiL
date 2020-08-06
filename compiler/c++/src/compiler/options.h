@@ -18,6 +18,7 @@ struct CompilerOptions {
 
     std::vector<std::string> runArguments;
     std::vector<std::string> sourceFiles;
+    std::vector<std::string> searchPaths;
 
     bool emitLLVMIR;
 };

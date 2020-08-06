@@ -8,6 +8,7 @@
 
 #include "typeresolver.h"
 #include "../../deps/dbg-macro/dbg.h"
+#include "../compiler/error.h"
 
 void TypeResolver::visitRoot(const std::shared_ptr<RootNode> &rootNode) {
     for (const auto &node : rootNode->nodes) {
@@ -28,7 +29,13 @@ void TypeResolver::visitRoot(const std::shared_ptr<RootNode> &rootNode) {
 }
 
 void TypeResolver::visitFunction(const std::shared_ptr<FunctionNode> &functionNode) {
-    visitBlock(functionNode->block);
+    visitType(functionNode->type, functionNode);
+
+    for (const auto &parameter : functionNode->parameters)
+        visitParameter(parameter);
+
+    if (!functionNode->isNative && !functionNode->isBuiltin)
+        visitBlock(functionNode->block);
 }
 
 void TypeResolver::visitBlock(const std::shared_ptr<BlockNode> &blockNode) {
@@ -53,17 +60,16 @@ void TypeResolver::visitBlock(const std::shared_ptr<BlockNode> &blockNode) {
 }
 
 void TypeResolver::visitVariable(const std::shared_ptr<VariableNode> &variableNode) {
-    visitOperable(variableNode->expression);
+    if (variableNode->type != nullptr)
+        visitType(variableNode->type, variableNode);
 
-    // TODO: Promote value.
+    visitOperable(variableNode->expression, variableNode->type);
     variableNode->type = variableNode->expression->type;
 }
 
 void TypeResolver::visitBinary(const std::shared_ptr<BinaryNode> &binaryNode) {
     visitOperable(binaryNode->lhs);
-    visitOperable(binaryNode->rhs);
-
-    // TODO: Promote values.
+    visitOperable(binaryNode->rhs, binaryNode->lhs->type);
     binaryNode->type = binaryNode->lhs->type;
 }
 
@@ -78,8 +84,6 @@ void TypeResolver::visitParenthesized(const std::shared_ptr<ParenthesizedNode> &
 }
 
 void TypeResolver::visitNumber(const std::shared_ptr<NumberNode> &numberNode) {
-    // TODO: Change for future number types.
-
     numberNode->type = std::make_shared<TypeNode>();
     numberNode->type->isFloating = numberNode->number->content.find('.') != std::string::npos;
     numberNode->type->bits = 32;
@@ -102,35 +106,43 @@ void TypeResolver::visitIdentifier(const std::shared_ptr<IdentifierNode> &identi
         visitOperable(identifierNode->nextIdentifier);
 }
 
+void TypeResolver::visitParameter(const std::shared_ptr<ParameterNode> &parameterNode) {
+    visitType(parameterNode->type, parameterNode);
+}
+
 void TypeResolver::visitArgument(const std::shared_ptr<ArgumentNode> &argumentNode) {
     visitOperable(argumentNode->expression);
+    argumentNode->type = argumentNode->expression->type;
 }
 
 void TypeResolver::visitFunctionCall(const std::shared_ptr<FunctionCallNode> &functionCallNode) {
+    visitIdentifier(functionCallNode);
+
     for (const auto &argument : functionCallNode->arguments)
         visitArgument(argument);
-
-    // TODO: Search for the function and set the type.
 }
 
 void TypeResolver::visitStructCreate(const std::shared_ptr<StructCreateNode> &structCreateNode) {
+    visitIdentifier(structCreateNode);
+
     for (const auto &argument : structCreateNode->arguments)
         visitArgument(argument);
-
-    // TODO: Search for the struct and set the type.
 }
 
 void TypeResolver::visitAssignment(const std::shared_ptr<AssignmentNode> &assignmentNode) {
-    visitOperable(assignmentNode->expression);
-
-    // TODO: Promote value.
+    visitIdentifier(assignmentNode);
+    visitOperable(assignmentNode->expression, assignmentNode->type);
     assignmentNode->type = assignmentNode->expression->type;
 }
 
 void TypeResolver::visitReturn(const std::shared_ptr<ReturnNode> &returnNode) {
-    visitOperable(returnNode->expression);
+    auto function = returnNode->getParent<FunctionNode>();
+    if(function == nullptr) {
+        std::cout << "Return node is not inside function." << std::endl;
+        exit(EXIT_FAILURE);
+    }
 
-    // TODO: Promote value.
+    visitOperable(returnNode->expression, function->type);
     returnNode->type = returnNode->expression->type;
 }
 
@@ -139,7 +151,8 @@ void TypeResolver::visitStruct(const std::shared_ptr<StructNode> &structNode) {
         visitVariable(variable);
 }
 
-void TypeResolver::visitOperable(const std::shared_ptr<OperableNode> &operableNode) {
+void TypeResolver::visitOperable(const std::shared_ptr<OperableNode> &operableNode,
+                                 const std::shared_ptr<TypeNode> &targetType) {
     switch (operableNode->kind) {
         case AST_STRING:
             visitString(std::dynamic_pointer_cast<StringNode>(operableNode));
@@ -170,6 +183,41 @@ void TypeResolver::visitOperable(const std::shared_ptr<OperableNode> &operableNo
             break;
         default:
             break;
+    }
+
+    // TODO: Promote to target.
+    if(targetType != nullptr)
+        std::cout << targetType->typeToken << ", " << operableNode->parent << std::endl;
+}
+
+void TypeResolver::visitType(const std::shared_ptr<TypeNode> &typeNode,
+                             const std::shared_ptr<ASTNode> &parent) {
+    if (typeNode->typeToken == TOKEN_TYPE &&
+        (std::strncmp(typeNode->typeToken->content.c_str(), "i", 1) == 0 ||
+         std::strncmp(typeNode->typeToken->content.c_str(), "u", 1) == 0)) {
+        auto bits = std::stoi(typeNode->typeToken->content.substr(1));
+        auto isSigned = std::strncmp(typeNode->typeToken->content.c_str(), "i", 1) == 0;
+        typeNode->isSigned = isSigned;
+        typeNode->isFloating = false;
+        typeNode->bits = bits;
+    } else if (typeNode->typeToken == "bool") {
+        typeNode->isFloating = false;
+        typeNode->isSigned = true;
+        typeNode->bits = 1;
+    } else if (typeNode->typeToken == "float") {
+        typeNode->isFloating = true;
+        typeNode->isSigned = false;
+        typeNode->bits = 32;
+    } else if (typeNode->typeToken == "double") {
+        typeNode->isFloating = true;
+        typeNode->isSigned = false;
+        typeNode->bits = 64;
+    } else if (typeNode->typeToken == "void") {
+        typeNode->isFloating = false;
+        typeNode->isSigned = false;
+        typeNode->bits = 0;
+    } else if (typeNode->typeToken == TOKEN_IDENTIFIER) {
+
     }
 }
 

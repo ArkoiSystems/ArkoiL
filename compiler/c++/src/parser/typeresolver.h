@@ -11,13 +11,6 @@
 
 class TypeResolver {
 
-private:
-    std::vector<std::shared_ptr<RootNode>> imports;
-
-public:
-    explicit TypeResolver(std::vector<std::shared_ptr<RootNode>> imports) :
-            imports(std::move(imports)) {}
-
 public:
     void visitRoot(const std::shared_ptr<RootNode> &rootNode);
 
@@ -39,6 +32,8 @@ public:
 
     void visitIdentifier(const std::shared_ptr<IdentifierNode> &identifierNode);
 
+    void visitParameter(const std::shared_ptr<ParameterNode> &parameterNode);
+
     void visitArgument(const std::shared_ptr<ArgumentNode> &argumentNode);
 
     void visitFunctionCall(const std::shared_ptr<FunctionCallNode> &functionCallNode);
@@ -51,7 +46,11 @@ public:
 
     void visitStruct(const std::shared_ptr<StructNode> &structNode);
 
-    void visitOperable(const std::shared_ptr<OperableNode> &operableNode);
+    void visitOperable(const std::shared_ptr<OperableNode> &operableNode,
+                       const std::shared_ptr<TypeNode> &targetType = nullptr);
+
+    void visitType(const std::shared_ptr<TypeNode> &typeNode,
+                   const std::shared_ptr<ASTNode> &parent);
 
 };
 

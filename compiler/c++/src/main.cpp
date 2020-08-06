@@ -4,6 +4,7 @@
 #include <cstring>
 #include "compiler/options.h"
 #include "compiler/compiler.h"
+#include "../deps/dbg-macro/dbg.h"
 
 void printUsage();
 
@@ -47,11 +48,15 @@ int main(int argc, char *argv[]) {
     for (; index < argc; index++) {
         if (strcmp(argv[index], "-emit-llvm-ir") == 0)
             compilerOptions.emitLLVMIR = true;
-        else if (compilerOptions.commandType == RUN)
+        else if (strncmp(argv[index], "-I", 2) == 0) {
+            auto filePath = std::string(argv[index]);
+            filePath = filePath.substr(2, filePath.size());
+            compilerOptions.searchPaths.push_back(filePath);
+        } else if (compilerOptions.commandType == RUN)
             compilerOptions.runArguments.emplace_back(argv[index]);
         else {
             std::cout << "Unknown option: " << argv[index]
-                      << ". Use ark --help for more information." << std::endl;
+                      << ". Use ark help for more information." << std::endl;
             return EXIT_FAILURE;
         }
     }
@@ -60,6 +65,11 @@ int main(int argc, char *argv[]) {
         std::cout << "You need at least one specified source file." << std::endl;
         return EXIT_FAILURE;
     }
+
+    // TODO: Is this a good idea?
+    for (const auto &sourceFile : compilerOptions.sourceFiles)
+        compilerOptions.searchPaths.push_back(sourceFile.substr(0, sourceFile.rfind('/')));
+    compilerOptions.searchPaths.emplace_back("../../../natives");
 
     auto compiler = Compiler(compilerOptions);
     return compiler.compile();
@@ -74,6 +84,7 @@ void printUsage() {
                  "   help                           prints this list in the console.\n"
                  "\n"
                  "Options:\n"
-                 "   -emit-llvm-ir                  gives out a .ll file with LLVM-IR."
+                 "   -emit-llvm-ir                  gives out a .ll file with LLVM-IR.\n"
+                 "   -I                             add directory to include search path."
               << std::endl;
 }

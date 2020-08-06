@@ -3,53 +3,104 @@
 //
 
 #include "compiler.h"
-#include "../parser/typeresolver.h"
 #include "../../deps/dbg-macro/dbg.h"
+#include "error.h"
 
 int Compiler::compile() {
-    std::vector<std::pair<std::shared_ptr<Parser>, std::shared_ptr<RootNode>>> pairs;
+    std::vector<std::shared_ptr<RootNode>> roots;
     for (const auto &sourcePath : compilerOptions.sourceFiles) {
-        struct stat path_stat{};
-        stat(sourcePath.c_str(), &path_stat);
-        if (!S_ISREG(path_stat.st_mode)) {
-            std::cout << "The given source path is not a file: " << sourcePath
-                      << std::endl;
-            return -1;
-        }
-
-        std::ifstream sourceFile;
-        sourceFile.open(sourcePath);
-        if (!sourceFile.is_open())
-            return -1;
-        defer(sourceFile.close());
-
-        auto contents = std::string{std::istreambuf_iterator<char>(sourceFile),
-                                    std::istreambuf_iterator<char>()};
-
-        auto lexer = Lexer{sourcePath, contents};
-        auto tokens = lexer.process();
-
-        auto parser = std::make_shared<Parser>(sourcePath, contents, tokens);
-        pairs.emplace_back(parser, parser->parseRoot());
+        auto parser = loadFile(sourcePath);
+        if (parser == nullptr)
+            continue;
+        roots.push_back(parser->parseRoot());
     }
 
-    for (const auto &pair : pairs) {
-        std::vector<std::shared_ptr<RootNode>> imports;
-        for (const auto &node : pair.second->nodes) {
+    std::set<std::string> loaded;
+    while (true) {
+        auto lastSize = loaded.size();
+        loadImports(loaded, roots);
+        if (lastSize == loaded.size())
+            break;
+    }
+
+    TypeResolver typeResolver{};
+    for (const auto &rootNode : roots)
+        typeResolver.visitRoot(rootNode);
+
+    return 0;
+}
+
+// TODO: Make an efficient function.
+void Compiler::loadImports(std::set<std::string> &loaded,
+                           std::vector<std::shared_ptr<RootNode>> &roots) {
+    for (const auto &rootNode : roots) {
+        for (const auto &node : rootNode->nodes) {
             if (node->kind != AST_IMPORT)
                 continue;
 
             auto importNode = std::dynamic_pointer_cast<ImportNode>(node);
-            for (const auto &importPair : pairs) {
-                if (strcmp(importNode->path->content.c_str(),
-                            importPair.first->sourcePath.c_str()) != 0)
+            std::shared_ptr<RootNode> importRoot;
+
+            for (const auto &searchPath : compilerOptions.searchPaths) {
+                // TODO: Make this secure (relative, absolute path etc)
+                auto fullPath = searchPath + "/" + importNode->path->content + ".ark";
+
+                struct stat path_stat{};
+                stat(fullPath.c_str(), &path_stat);
+                if (!S_ISREG(path_stat.st_mode) || access(fullPath.c_str(), F_OK) == -1)
                     continue;
 
-                imports.push_back(importPair.second);
+                auto realPath = realpath(fullPath.c_str(), nullptr);
+                fullPath = std::string(realPath);
+                free(realPath);
+
+                if (loaded.find(fullPath) != loaded.end()) {
+                    for (const auto &loadedRoot : roots) {
+                        if (strcmp(loadedRoot->sourcePath.c_str(), fullPath.c_str()) == 0) {
+                            importRoot = loadedRoot;
+                            break;
+                        }
+                    }
+                    break;
+                }
+
+                auto parser = loadFile(fullPath);
+                loaded.insert(fullPath);
+
+                importRoot = parser->parseRoot();
+                roots.push_back(importRoot);
                 break;
             }
+
+            if (!importRoot)
+                THROW_NODE_ERROR(rootNode->sourcePath, rootNode->sourceCode, importNode,
+                                 "Couldn't find the file with this path.");
+
+            importNode->target = importRoot;
         }
     }
+}
 
-    return 0;
+std::shared_ptr<Parser> Compiler::loadFile(const std::string &sourcePath) {
+    struct stat path_stat{};
+    stat(sourcePath.c_str(), &path_stat);
+    if (!S_ISREG(path_stat.st_mode)) {
+        std::cout << "The given source path is not a file: " << sourcePath
+                  << std::endl;
+        return nullptr;
+    }
+
+    std::ifstream sourceFile;
+    sourceFile.open(sourcePath);
+    if (!sourceFile.is_open())
+        return nullptr;
+    defer(sourceFile.close());
+
+    auto contents = std::string{std::istreambuf_iterator<char>(sourceFile),
+                                std::istreambuf_iterator<char>()};
+
+    Lexer lexer{sourcePath, contents};
+    auto tokens = lexer.process();
+
+    return std::make_shared<Parser>(sourcePath, contents, tokens);
 }

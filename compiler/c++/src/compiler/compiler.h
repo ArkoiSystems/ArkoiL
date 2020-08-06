@@ -8,6 +8,8 @@
 #include <sys/stat.h>
 #include <utility>
 #include <fstream>
+#include <set>
+#include "../parser/typeresolver.h"
 #include "../parser/parser.h"
 #include "../lexer/lexer.h"
 #include "options.h"
@@ -23,6 +25,11 @@ public:
             std::move(compilerOptions)) {}
 
 public:
+    void loadImports(std::set<std::string> &loaded,
+                     std::vector<std::shared_ptr<RootNode>> &roots);
+
+    static std::shared_ptr<Parser> loadFile(const std::string &sourcePath);
+
     int compile();
 
 };
