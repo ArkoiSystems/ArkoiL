@@ -141,21 +141,6 @@ void TypeResolver::visitIdentifier(const std::shared_ptr<IdentifierNode> &identi
         exit(EXIT_FAILURE);
     }
 
-    auto scope = identifierNode->scope;
-    if (identifierNode->parent != nullptr) {
-        auto parentIdentifier = std::dynamic_pointer_cast<IdentifierNode>(identifierNode->parent);
-        if (parentIdentifier != nullptr) {
-            if (parentIdentifier->type == nullptr) {
-                root = parentIdentifier->getParent<RootNode>();
-                THROW_NODE_ERROR(root->sourcePath, root->sourceCode, parentIdentifier,
-                                 "The parent type is invalid.")
-                return;
-            }
-
-            scope = parentIdentifier->type->targetStruct->scope;
-        }
-    }
-
     auto scopeCheck = [identifierNode](const std::shared_ptr<ASTNode> &node) {
         if (identifierNode->kind == AST_FUNCTION_CALL && node->kind != AST_FUNCTION)
             return false;
@@ -178,7 +163,7 @@ void TypeResolver::visitIdentifier(const std::shared_ptr<IdentifierNode> &identi
         return strcmp(identifierNode->identifier->content.c_str(), name.c_str()) == 0;
     };
 
-    auto nodes = scope->general(identifierNode->identifier->content, scopeCheck);
+    auto nodes = identifierNode->scope->general(identifierNode->identifier->content, scopeCheck);
     if (nodes == nullptr) {
         for (const auto &node : root->nodes) {
             if (node->kind != AST_IMPORT)
@@ -234,8 +219,10 @@ void TypeResolver::visitIdentifier(const std::shared_ptr<IdentifierNode> &identi
         return;
     }
 
-    if (identifierNode->nextIdentifier != nullptr)
+    if (identifierNode->nextIdentifier != nullptr) {
+        identifierNode->nextIdentifier->scope = identifierNode->type->targetStruct->scope;
         visitIdentifier(identifierNode->nextIdentifier);
+    }
 }
 
 void TypeResolver::visitParameter(const std::shared_ptr<ParameterNode> &parameterNode) {
