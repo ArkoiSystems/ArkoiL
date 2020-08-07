@@ -634,11 +634,6 @@ std::shared_ptr<IdentifierNode> Parser::parseIdentifier(const std::shared_ptr<AS
             assignment->nextIdentifier->parent = assignment;
 
         assignment->expression = parseRelational(assignment);
-
-        // TODO: Find a better solution (the parent can't be the assignment because visitIdentifier
-        // TODO: in typeresolver.cpp would go into the target struct, if the direct parent is an identifier)
-        assignment->expression->parent = parent;
-        assignment->expression->scope = parent->scope;
     }
 
     identifierNode->endToken = currentToken();
