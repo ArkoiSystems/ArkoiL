@@ -11,17 +11,25 @@ std::ostream &operator<<(std::ostream &out, const std::shared_ptr<Token> &token)
 }
 
 bool operator==(const std::shared_ptr<Token> &token, const std::string &toCheck) {
+    if(token == nullptr)
+        return false;
     return std::strcmp(token->content.c_str(), toCheck.c_str()) == 0;
 }
 
 bool operator!=(const std::shared_ptr<Token> &token, const std::string &toCheck) {
+    if(token == nullptr)
+        return false;
     return std::strcmp(token->content.c_str(), toCheck.c_str()) != 0;
 }
 
 bool operator==(const std::shared_ptr<Token> &token, TokenType toCheck) {
+    if(token == nullptr)
+        return false;
     return token->type == toCheck;
 }
 
 bool operator!=(const std::shared_ptr<Token> &token, TokenType toCheck) {
+    if(token == nullptr)
+        return false;
     return !(token == toCheck);
 }

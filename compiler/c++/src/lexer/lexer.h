@@ -10,8 +10,8 @@
 #include <vector>
 #include <string>
 #include <memory>
-#include "../compiler/utils.h"
-#include "token.h"
+
+class Token;
 
 class Lexer {
 

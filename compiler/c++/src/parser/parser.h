@@ -7,10 +7,37 @@
 
 #include <utility>
 #include <vector>
-#include "../compiler/utils.h"
-#include "../lexer/lexer.h"
-#include "astnodes.h"
-#include "../../deps/fmt-7.0.2/include/fmt/core.h"
+#include <memory>
+
+class Token;
+
+class ASTNode;
+
+class RootNode;
+
+class ImportNode;
+
+class FunctionNode;
+
+class ParameterNode;
+
+class TypeNode;
+
+class BlockNode;
+
+class VariableNode;
+
+class OperableNode;
+
+class IdentifierNode;
+
+class ReturnNode;
+
+class StructNode;
+
+class ArgumentNode;
+
+class SymbolTable;
 
 class Parser {
 
@@ -42,9 +69,11 @@ private:
 
     std::shared_ptr<TypeNode> parseType(const std::shared_ptr<ASTNode> &parent);
 
-    std::shared_ptr<BlockNode> parseBlock(const std::shared_ptr<ASTNode> &parent);
+    std::shared_ptr<BlockNode> parseBlock(const std::shared_ptr<ASTNode> &parent,
+                                          const std::shared_ptr<SymbolTable>& scope);
 
-    std::shared_ptr<VariableNode> parseVariable(const std::shared_ptr<ASTNode> &parent);
+    std::shared_ptr<VariableNode> parseVariable(const std::shared_ptr<ASTNode> &parent,
+                                                const std::shared_ptr<SymbolTable>& scope);
 
     std::shared_ptr<OperableNode> parseRelational(const std::shared_ptr<ASTNode> &parent);
 

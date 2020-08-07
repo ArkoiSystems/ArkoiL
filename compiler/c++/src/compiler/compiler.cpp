@@ -4,7 +4,13 @@
 
 #include "compiler.h"
 #include "../../deps/dbg-macro/dbg.h"
+#include "../parser/typeresolver.h"
+#include "../parser/parser.h"
+#include "options.h"
+#include "utils.h"
 #include "error.h"
+#include "../lexer/lexer.h"
+#include "../parser/astnodes.h"
 
 int Compiler::compile() {
     std::vector<std::shared_ptr<RootNode>> roots;
@@ -74,8 +80,7 @@ void Compiler::loadImports(std::set<std::string> &loaded,
 
             if (!importRoot)
                 THROW_NODE_ERROR(rootNode->sourcePath, rootNode->sourceCode, importNode,
-                                 "Couldn't find the file with this path.");
-
+                                 "Couldn't find the file with this path.")
             importNode->target = importRoot;
         }
     }

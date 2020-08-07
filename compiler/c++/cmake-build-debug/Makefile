@@ -364,6 +364,33 @@ src/parser/parser.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ArkoiCompiler.dir/build.make CMakeFiles/ArkoiCompiler.dir/src/parser/parser.cpp.s
 .PHONY : src/parser/parser.cpp.s
 
+src/parser/symboltable.o: src/parser/symboltable.cpp.o
+
+.PHONY : src/parser/symboltable.o
+
+# target to build an object file
+src/parser/symboltable.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ArkoiCompiler.dir/build.make CMakeFiles/ArkoiCompiler.dir/src/parser/symboltable.cpp.o
+.PHONY : src/parser/symboltable.cpp.o
+
+src/parser/symboltable.i: src/parser/symboltable.cpp.i
+
+.PHONY : src/parser/symboltable.i
+
+# target to preprocess a source file
+src/parser/symboltable.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ArkoiCompiler.dir/build.make CMakeFiles/ArkoiCompiler.dir/src/parser/symboltable.cpp.i
+.PHONY : src/parser/symboltable.cpp.i
+
+src/parser/symboltable.s: src/parser/symboltable.cpp.s
+
+.PHONY : src/parser/symboltable.s
+
+# target to generate assembly for a file
+src/parser/symboltable.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ArkoiCompiler.dir/build.make CMakeFiles/ArkoiCompiler.dir/src/parser/symboltable.cpp.s
+.PHONY : src/parser/symboltable.cpp.s
+
 src/parser/typeresolver.o: src/parser/typeresolver.cpp.o
 
 .PHONY : src/parser/typeresolver.o
@@ -423,6 +450,9 @@ help:
 	@echo "... src/parser/parser.o"
 	@echo "... src/parser/parser.i"
 	@echo "... src/parser/parser.s"
+	@echo "... src/parser/symboltable.o"
+	@echo "... src/parser/symboltable.i"
+	@echo "... src/parser/symboltable.s"
 	@echo "... src/parser/typeresolver.o"
 	@echo "... src/parser/typeresolver.i"
 	@echo "... src/parser/typeresolver.s"
