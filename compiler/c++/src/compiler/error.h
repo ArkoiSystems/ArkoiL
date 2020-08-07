@@ -5,10 +5,9 @@
 #ifndef ARKOICOMPILER_ERROR_H
 #define ARKOICOMPILER_ERROR_H
 
+#include <fmt/core.h>
 #include <utility>
 #include <string>
-#include "../parser/parser.h"
-#include "../lexer/token.h"
 
 #define THROW_TOKEN_ERROR(...)  \
         std::cout << Error(sourcePath,  \

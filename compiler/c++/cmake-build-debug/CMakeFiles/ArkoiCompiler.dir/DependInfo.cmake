@@ -10,6 +10,7 @@ set(CMAKE_DEPENDS_CHECK_CXX
   "/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/lexer/token.cpp" "/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/cmake-build-debug/CMakeFiles/ArkoiCompiler.dir/src/lexer/token.cpp.o"
   "/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/main.cpp" "/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/cmake-build-debug/CMakeFiles/ArkoiCompiler.dir/src/main.cpp.o"
   "/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/parser/parser.cpp" "/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/cmake-build-debug/CMakeFiles/ArkoiCompiler.dir/src/parser/parser.cpp.o"
+  "/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/parser/symboltable.cpp" "/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/cmake-build-debug/CMakeFiles/ArkoiCompiler.dir/src/parser/symboltable.cpp.o"
   "/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/parser/typeresolver.cpp" "/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/cmake-build-debug/CMakeFiles/ArkoiCompiler.dir/src/parser/typeresolver.cpp.o"
   )
 set(CMAKE_CXX_COMPILER_ID "GNU")

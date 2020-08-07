@@ -7,6 +7,7 @@
 
 #include <vector>
 #include "../lexer/token.h"
+#include "symboltable.h"
 
 enum ASTKind {
     AST_NONE,
@@ -37,8 +38,8 @@ class TypeNode;
 struct ASTNode {
 
     std::shared_ptr<Token> startToken, endToken;
+    std::shared_ptr<SymbolTable> scope;
     std::shared_ptr<ASTNode> parent;
-    std::shared_ptr<TypeNode> type;
     ASTKind kind;
 
     ASTNode() {
@@ -50,13 +51,19 @@ struct ASTNode {
     virtual ~ASTNode() = default;
 
     template<typename Type>
-    Type* getParent() {
-        if(auto result = dynamic_cast<Type*>(this))
+    Type *getParent() {
+        if (auto result = dynamic_cast<Type *>(this))
             return result;
-        if(parent == nullptr)
+        if (parent == nullptr)
             return nullptr;
         return parent->getParent<Type>();
     }
+
+};
+
+struct TypedNode : public ASTNode {
+
+    std::shared_ptr<TypeNode> type;
 
 };
 
@@ -82,20 +89,7 @@ struct ImportNode : public ASTNode {
 
 };
 
-struct TypeNode : public ASTNode {
-
-    std::shared_ptr<Token> typeToken;
-    unsigned int pointerLevel, bits;
-    bool isSigned, isFloating;
-
-    TypeNode() {
-        kind = AST_TYPE;
-        pointerLevel = 0;
-    }
-
-};
-
-struct ParameterNode: public ASTNode {
+struct ParameterNode : public TypedNode {
 
     std::shared_ptr<Token> name;
 
@@ -105,7 +99,7 @@ struct ParameterNode: public ASTNode {
 
 };
 
-struct BlockNode: public ASTNode {
+struct BlockNode : public ASTNode {
 
     std::vector<std::shared_ptr<ASTNode>> nodes;
     bool isInlined;
@@ -117,7 +111,7 @@ struct BlockNode: public ASTNode {
 
 };
 
-struct FunctionNode: public ASTNode {
+struct FunctionNode : public TypedNode {
 
     std::shared_ptr<Token> name;
     std::vector<std::shared_ptr<ParameterNode>> parameters;
@@ -130,7 +124,7 @@ struct FunctionNode: public ASTNode {
 
 };
 
-struct OperableNode : public ASTNode {
+struct OperableNode : public TypedNode {
 
     OperableNode() {
         kind = AST_OPERABLE;
@@ -138,7 +132,7 @@ struct OperableNode : public ASTNode {
 
 };
 
-struct VariableNode: public ASTNode {
+struct VariableNode : public TypedNode {
 
     std::shared_ptr<Token> name;
     bool isConstant;
@@ -222,7 +216,7 @@ struct StringNode : public OperableNode {
 
 };
 
-struct ArgumentNode : public ASTNode {
+struct ArgumentNode : public TypedNode {
 
     std::shared_ptr<Token> name;
     std::shared_ptr<OperableNode> expression;
@@ -277,7 +271,7 @@ struct AssignmentNode : public IdentifierNode {
 
 };
 
-struct ReturnNode : public ASTNode {
+struct ReturnNode : public TypedNode {
 
     std::shared_ptr<OperableNode> expression;
 
@@ -295,6 +289,20 @@ struct StructNode : public ASTNode {
 
     StructNode() {
         kind = AST_STRUCT;
+    }
+
+};
+
+struct TypeNode : public ASTNode {
+
+    std::shared_ptr<StructNode> targetStruct;
+    std::shared_ptr<Token> typeToken;
+    unsigned int pointerLevel, bits;
+    bool isSigned, isFloating;
+
+    TypeNode() {
+        kind = AST_TYPE;
+        pointerLevel = 0;
     }
 
 };

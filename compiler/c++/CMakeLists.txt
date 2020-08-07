@@ -22,6 +22,8 @@ add_executable(ArkoiCompiler
         src/compiler/error.cpp
         src/compiler/error.h
         src/parser/typeresolver.cpp
-        src/parser/typeresolver.h)
+        src/parser/typeresolver.h
+        src/parser/symboltable.cpp
+        src/parser/symboltable.h)
 
 target_link_libraries(ArkoiCompiler PRIVATE fmt::fmt)

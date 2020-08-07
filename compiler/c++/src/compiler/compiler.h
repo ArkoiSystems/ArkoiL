@@ -8,12 +8,13 @@
 #include <sys/stat.h>
 #include <utility>
 #include <fstream>
+#include <memory>
+#include <vector>
 #include <set>
-#include "../parser/typeresolver.h"
-#include "../parser/parser.h"
-#include "../lexer/lexer.h"
 #include "options.h"
-#include "utils.h"
+
+class RootNode;
+class Parser;
 
 class Compiler {
 

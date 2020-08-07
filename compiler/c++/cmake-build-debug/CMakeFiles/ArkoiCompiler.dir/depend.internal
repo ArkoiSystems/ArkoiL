@@ -4,7 +4,6 @@
 CMakeFiles/ArkoiCompiler.dir/src/compiler/compiler.cpp.o
  ../deps/fmt-7.0.2/include/fmt/core.h
  /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/deps/dbg-macro/dbg.h
- /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/deps/fmt-7.0.2/include/fmt/core.h
  /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/compiler/compiler.cpp
  /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/compiler/compiler.h
  /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/compiler/error.h
@@ -14,47 +13,32 @@ CMakeFiles/ArkoiCompiler.dir/src/compiler/compiler.cpp.o
  /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/lexer/token.h
  /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/parser/astnodes.h
  /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/parser/parser.h
+ /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/parser/symboltable.h
  /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/parser/typeresolver.h
 CMakeFiles/ArkoiCompiler.dir/src/compiler/error.cpp.o
  ../deps/fmt-7.0.2/include/fmt/core.h
- /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/deps/fmt-7.0.2/include/fmt/core.h
  /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/compiler/error.cpp
  /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/compiler/error.h
  /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/compiler/utils.h
- /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/lexer/lexer.h
- /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/lexer/token.h
- /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/parser/astnodes.h
  /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/parser/parser.h
 CMakeFiles/ArkoiCompiler.dir/src/lexer/lexer.cpp.o
  ../deps/fmt-7.0.2/include/fmt/core.h
- /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/deps/dbg-macro/dbg.h
- /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/deps/fmt-7.0.2/include/fmt/core.h
  /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/compiler/error.h
  /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/compiler/utils.h
  /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/lexer/lexer.cpp
  /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/lexer/lexer.h
  /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/lexer/token.h
- /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/parser/astnodes.h
- /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/parser/parser.h
 CMakeFiles/ArkoiCompiler.dir/src/lexer/token.cpp.o
  /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/lexer/token.cpp
  /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/lexer/token.h
 CMakeFiles/ArkoiCompiler.dir/src/main.cpp.o
- ../deps/fmt-7.0.2/include/fmt/core.h
  /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/deps/dbg-macro/dbg.h
- /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/deps/fmt-7.0.2/include/fmt/core.h
  /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/compiler/compiler.h
  /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/compiler/options.h
- /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/compiler/utils.h
- /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/lexer/lexer.h
- /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/lexer/token.h
  /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/main.cpp
- /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/parser/astnodes.h
- /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/parser/parser.h
- /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/parser/typeresolver.h
 CMakeFiles/ArkoiCompiler.dir/src/parser/parser.cpp.o
  ../deps/fmt-7.0.2/include/fmt/core.h
- /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/deps/fmt-7.0.2/include/fmt/core.h
+ /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/deps/dbg-macro/dbg.h
  /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/compiler/error.h
  /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/compiler/utils.h
  /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/lexer/lexer.h
@@ -62,15 +46,18 @@ CMakeFiles/ArkoiCompiler.dir/src/parser/parser.cpp.o
  /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/parser/astnodes.h
  /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/parser/parser.cpp
  /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/parser/parser.h
-CMakeFiles/ArkoiCompiler.dir/src/parser/typeresolver.cpp.o
- ../deps/fmt-7.0.2/include/fmt/core.h
+ /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/parser/symboltable.h
+CMakeFiles/ArkoiCompiler.dir/src/parser/symboltable.cpp.o
  /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/deps/dbg-macro/dbg.h
- /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/deps/fmt-7.0.2/include/fmt/core.h
- /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/compiler/error.h
- /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/compiler/utils.h
- /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/lexer/lexer.h
  /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/lexer/token.h
  /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/parser/astnodes.h
- /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/parser/parser.h
+ /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/parser/symboltable.cpp
+ /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/parser/symboltable.h
+CMakeFiles/ArkoiCompiler.dir/src/parser/typeresolver.cpp.o
+ ../deps/fmt-7.0.2/include/fmt/core.h
+ /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/compiler/error.h
+ /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/lexer/token.h
+ /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/parser/astnodes.h
+ /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/parser/symboltable.h
  /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/parser/typeresolver.cpp
  /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/parser/typeresolver.h

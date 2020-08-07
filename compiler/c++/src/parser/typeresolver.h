@@ -7,11 +7,52 @@
 
 #include <memory>
 #include <utility>
-#include "astnodes.h"
+
+class RootNode;
+
+class FunctionNode;
+
+class BlockNode;
+
+class VariableNode;
+
+class BinaryNode;
+
+class UnaryNode;
+
+class ParenthesizedNode;
+
+class NumberNode;
+
+class StringNode;
+
+class IdentifierNode;
+
+class ParameterNode;
+
+class ArgumentNode;
+
+class FunctionCallNode;
+
+class StructCreateNode;
+
+class AssignmentNode;
+
+class ReturnNode;
+
+class StructNode;
+
+class OperableNode;
+
+class TypeNode;
+
+class ASTNode;
 
 class TypeResolver {
 
 public:
+    void visitNode(const std::shared_ptr<ASTNode> &node);
+
     void visitRoot(const std::shared_ptr<RootNode> &rootNode);
 
     void visitFunction(const std::shared_ptr<FunctionNode> &functionNode);
@@ -49,8 +90,7 @@ public:
     void visitOperable(const std::shared_ptr<OperableNode> &operableNode,
                        const std::shared_ptr<TypeNode> &targetType = nullptr);
 
-    void visitType(const std::shared_ptr<TypeNode> &typeNode,
-                   const std::shared_ptr<ASTNode> &parent);
+    void visitType(const std::shared_ptr<TypeNode> &typeNode);
 
 };
 

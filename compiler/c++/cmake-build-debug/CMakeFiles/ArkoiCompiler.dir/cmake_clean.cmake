@@ -7,6 +7,7 @@ file(REMOVE_RECURSE
   "CMakeFiles/ArkoiCompiler.dir/src/lexer/token.cpp.o"
   "CMakeFiles/ArkoiCompiler.dir/src/main.cpp.o"
   "CMakeFiles/ArkoiCompiler.dir/src/parser/parser.cpp.o"
+  "CMakeFiles/ArkoiCompiler.dir/src/parser/symboltable.cpp.o"
   "CMakeFiles/ArkoiCompiler.dir/src/parser/typeresolver.cpp.o"
 )
 

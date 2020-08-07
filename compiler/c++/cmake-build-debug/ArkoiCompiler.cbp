@@ -264,6 +264,12 @@
 		<Unit filename="/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/parser/parser.h">
 			<Option target="ArkoiCompiler"/>
 		</Unit>
+		<Unit filename="/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/parser/symboltable.cpp">
+			<Option target="ArkoiCompiler"/>
+		</Unit>
+		<Unit filename="/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/parser/symboltable.h">
+			<Option target="ArkoiCompiler"/>
+		</Unit>
 		<Unit filename="/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/parser/typeresolver.cpp">
 			<Option target="ArkoiCompiler"/>
 		</Unit>
