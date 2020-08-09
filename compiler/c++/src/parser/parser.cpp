@@ -7,7 +7,6 @@
 #include "../compiler/utils.h"
 #include "../lexer/lexer.h"
 #include "astnodes.h"
-#include "../../deps/dbg-macro/dbg.h"
 
 std::shared_ptr<RootNode> Parser::parseRoot() {
     auto rootNode = std::make_shared<RootNode>();
@@ -248,7 +247,7 @@ std::shared_ptr<BlockNode> Parser::parseBlock(const std::shared_ptr<ASTNode> &pa
                 blockNode->nodes.push_back(identifier);
 
                 if (identifier->kind == AST_STRUCT_CREATE)
-                    THROW_NODE_ERROR(sourcePath, sourceCode, identifier,
+                    THROW_NODE_ERROR(identifier,
                                      "Creating a struct without binding it to a variable is unnecessary.")
             } else if (currentToken() == "return")
                 blockNode->nodes.push_back(parseReturn(blockNode));
@@ -331,23 +330,23 @@ std::shared_ptr<OperableNode> Parser::parseRelational(const std::shared_ptr<ASTN
     auto lhs = parseAdditive(parent);
     while (true) {
         BinaryKind operatorKind;
-        switch (hash(peekToken(1)->content.c_str())) {
-            case hash(">"):
+        switch (Utils::hash(peekToken(1)->content.c_str())) {
+            case Utils::hash(">"):
                 operatorKind = GREATER_THAN;
                 break;
-            case hash("<"):
+            case Utils::hash("<"):
                 operatorKind = LESS_THAN;
                 break;
-            case hash(">="):
+            case Utils::hash(">="):
                 operatorKind = GREATER_EQUAL_THAN;
                 break;
-            case hash("<="):
+            case Utils::hash("<="):
                 operatorKind = LESS_EQUAL_THAN;
                 break;
-            case hash("=="):
+            case Utils::hash("=="):
                 operatorKind = EQUAL;
                 break;
-            case hash("!="):
+            case Utils::hash("!="):
                 operatorKind = NOT_EQUAL;
                 break;
             default:
@@ -372,11 +371,11 @@ std::shared_ptr<OperableNode> Parser::parseAdditive(const std::shared_ptr<ASTNod
     auto lhs = parseMultiplicative(parent);
     while (true) {
         BinaryKind operatorKind;
-        switch (hash(peekToken(1)->content.c_str())) {
-            case hash("+"):
+        switch (Utils::hash(peekToken(1)->content.c_str())) {
+            case Utils::hash("+"):
                 operatorKind = ADDITION;
                 break;
-            case hash("-"):
+            case Utils::hash("-"):
                 operatorKind = SUBTRACTION;
                 break;
             default:
@@ -401,14 +400,14 @@ std::shared_ptr<OperableNode> Parser::parseMultiplicative(const std::shared_ptr<
     auto lhs = parseOperable(parent);
     while (true) {
         BinaryKind operatorKind;
-        switch (hash(peekToken(1)->content.c_str())) {
-            case hash("*"):
+        switch (Utils::hash(peekToken(1)->content.c_str())) {
+            case Utils::hash("*"):
                 operatorKind = MULTIPLICATION;
                 break;
-            case hash("/"):
+            case Utils::hash("/"):
                 operatorKind = DIVISION;
                 break;
-            case hash("%"):
+            case Utils::hash("%"):
                 operatorKind = REMAINING;
                 break;
             default:
@@ -487,17 +486,17 @@ std::shared_ptr<OperableNode> Parser::parseOperable(const std::shared_ptr<ASTNod
     }
 }
 
-std::shared_ptr<IdentifierNode> Parser::parseIdentifier(const std::shared_ptr<ASTNode> &parent) {
+std::shared_ptr<OperableNode> Parser::parseIdentifier(const std::shared_ptr<ASTNode> &parent) {
     auto identifierNode = std::make_shared<IdentifierNode>();
     identifierNode->startToken = currentToken();
     identifierNode->parent = parent;
     identifierNode->scope = parent->scope;
 
     if (currentToken() == "&") {
-        identifierNode->isDereference = true;
+        identifierNode->isPointer = true;
         nextToken();
     } else if (currentToken() == "@") {
-        identifierNode->isPointer = true;
+        identifierNode->isDereference = true;
         nextToken();
     }
 
@@ -511,13 +510,7 @@ std::shared_ptr<IdentifierNode> Parser::parseIdentifier(const std::shared_ptr<AS
     if (peekToken(1) == "(") {
         nextToken(2);
 
-        auto functionCall = std::make_shared<FunctionCallNode>();
-        functionCall->isDereference = identifierNode->isDereference;
-        functionCall->identifier = identifierNode->identifier;
-        functionCall->startToken = identifierNode->startToken;
-        functionCall->isPointer = identifierNode->isPointer;
-        functionCall->parent = identifierNode->parent;
-        functionCall->scope = identifierNode->scope;
+        auto functionCall = std::make_shared<FunctionCallNode>(*identifierNode);
         identifierNode = functionCall;
 
         if (currentToken() != ")" || currentToken() == TOKEN_IDENTIFIER)
@@ -542,10 +535,10 @@ std::shared_ptr<IdentifierNode> Parser::parseIdentifier(const std::shared_ptr<AS
         chainedIdentifier->scope = parent->scope;
 
         if (currentToken() == "&") {
-            chainedIdentifier->isDereference = true;
+            chainedIdentifier->isPointer = true;
             nextToken();
         } else if (currentToken() == "@") {
-            chainedIdentifier->isPointer = true;
+            chainedIdentifier->isDereference = true;
             nextToken();
         }
 
@@ -559,13 +552,7 @@ std::shared_ptr<IdentifierNode> Parser::parseIdentifier(const std::shared_ptr<AS
         if (peekToken(1) == "(") {
             nextToken(2);
 
-            auto functionCall = std::make_shared<FunctionCallNode>();
-            functionCall->isDereference = chainedIdentifier->isDereference;
-            functionCall->identifier = chainedIdentifier->identifier;
-            functionCall->startToken = chainedIdentifier->startToken;
-            functionCall->isPointer = chainedIdentifier->isPointer;
-            functionCall->parent = chainedIdentifier->parent;
-            functionCall->scope = chainedIdentifier->scope;
+            auto functionCall = std::make_shared<FunctionCallNode>(*chainedIdentifier);
             chainedIdentifier = functionCall;
 
             if (currentToken() != ")" || currentToken() == TOKEN_IDENTIFIER)
@@ -592,26 +579,31 @@ std::shared_ptr<IdentifierNode> Parser::parseIdentifier(const std::shared_ptr<AS
             return identifierNode;
         }
 
-        auto structCreate = std::make_shared<StructCreateNode>();
-        structCreate->nextIdentifier = identifierNode->nextIdentifier;
-        structCreate->isDereference = identifierNode->isDereference;
-        structCreate->identifier = identifierNode->identifier;
-        structCreate->startToken = identifierNode->startToken;
-        structCreate->isPointer = identifierNode->isPointer;
-        structCreate->parent = identifierNode->parent;
-        structCreate->scope = identifierNode->scope;
-        identifierNode = structCreate;
+        if (identifierNode->nextIdentifier != nullptr) {
+            THROW_NODE_ERROR(identifierNode, "Struct creation nodes can't have child nodes.")
+            return identifierNode;
+        }
 
-        if (structCreate->nextIdentifier != nullptr)
-            structCreate->nextIdentifier->parent = structCreate;
+        auto structCreate = std::make_shared<StructCreateNode>();
+        structCreate->startToken = identifierNode->startToken;
+        structCreate->scope = parent->scope;
+        structCreate->parent = parent;
+
+        structCreate->startIdentifier = identifierNode;
+
+        identifierNode->scope = structCreate->scope;
+        identifierNode->parent = structCreate;
 
         parseNamedArguments(structCreate->arguments, structCreate);
+        structCreate->endToken = currentToken();
 
         if (currentToken() != "}") {
             THROW_TOKEN_ERROR("Struct create expected '}}' but got '{}' instead.",
                               currentToken()->content)
-            return identifierNode;
+            return structCreate;
         }
+
+        return structCreate;
     } else if (peekToken(1) == "=") {
         nextToken(2);
 
@@ -621,27 +613,19 @@ std::shared_ptr<IdentifierNode> Parser::parseIdentifier(const std::shared_ptr<AS
         }
 
         auto assignment = std::make_shared<AssignmentNode>();
-        assignment->nextIdentifier = identifierNode->nextIdentifier;
-        assignment->isDereference = identifierNode->isDereference;
-        assignment->identifier = identifierNode->identifier;
         assignment->startToken = identifierNode->startToken;
-        assignment->isPointer = identifierNode->isPointer;
-        assignment->parent = identifierNode->parent;
-        assignment->scope = identifierNode->scope;
-        identifierNode = assignment;
+        assignment->scope = parent->scope;
+        assignment->parent = parent;
 
-        if (assignment->nextIdentifier != nullptr)
-            assignment->nextIdentifier->parent = assignment;
+        assignment->startIdentifier = identifierNode;
+
+        identifierNode->scope = assignment->scope;
+        identifierNode->parent = assignment;
 
         assignment->expression = parseRelational(assignment);
-    }
+        assignment->endToken = currentToken();
 
-    identifierNode->endToken = currentToken();
-
-    if (identifierNode->nextIdentifier != nullptr && identifierNode->kind == AST_STRUCT_CREATE) {
-        THROW_NODE_ERROR(sourcePath, sourceCode, identifierNode,
-                         "Struct creation nodes can't have child nodes.")
-        return identifierNode;
+        return assignment;
     }
 
     return identifierNode;

@@ -12,7 +12,7 @@ std::ostream &operator<<(std::ostream &out, const Error &error) {
         << error.causeMessage << std::endl;
 
     std::vector<std::string> lines;
-    split(error.sourceCode, lines, '\n');
+    Utils::split(error.sourceCode, lines, '\n');
 
     unsigned int startLineChar = 0;
     unsigned int endLineChar = 0;
@@ -38,7 +38,7 @@ std::ostream &operator<<(std::ostream &out, const Error &error) {
         auto whitespaces = biggestNumber.size() - currentNumber.size();
 
         auto line = lines[lineIndex - 1];
-        rtrim(line);
+        Utils::rtrim(line);
 
         out << "> " << std::string(whitespaces, ' ') << lineIndex << " | " << line << std::endl;
         if (error.startLine == lineIndex - 1 && error.endLine == lineIndex - 1) {
@@ -55,7 +55,7 @@ std::ostream &operator<<(std::ostream &out, const Error &error) {
                 << std::endl;
         } else if (error.startLine != lineIndex - 1 && error.endLine == lineIndex - 1) {
             auto lastSize = line.size();
-            ltrim(line);
+            Utils::ltrim(line);
             auto difference = lastSize - line.size();
             out << "  " << std::string(biggestNumber.size(), ' ') << " | "
                 << std::string(difference, ' ')
@@ -64,7 +64,7 @@ std::ostream &operator<<(std::ostream &out, const Error &error) {
                 << std::endl;
         } else if (error.startLine < lineIndex - 1 && error.endLine > lineIndex - 1) {
             auto lastSize = line.size();
-            ltrim(line);
+            Utils::ltrim(line);
             auto difference = lastSize - line.size();
             out << "  " << std::string(biggestNumber.size(), ' ') << " | "
                 << std::string(difference, ' ')

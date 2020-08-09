@@ -51,46 +51,49 @@ class ASTNode;
 class TypeResolver {
 
 public:
-    void visitNode(const std::shared_ptr<ASTNode> &node);
+    TypeResolver() = delete;
 
-    void visitRoot(const std::shared_ptr<RootNode> &rootNode);
+public:
+    static void visitNode(const std::shared_ptr<ASTNode> &node);
 
-    void visitFunction(const std::shared_ptr<FunctionNode> &functionNode);
+    static void visitRoot(const std::shared_ptr<RootNode> &rootNode);
 
-    void visitBlock(const std::shared_ptr<BlockNode> &blockNode);
+    static void visitFunction(const std::shared_ptr<FunctionNode> &functionNode);
 
-    void visitVariable(const std::shared_ptr<VariableNode> &variableNode);
+    static void visitBlock(const std::shared_ptr<BlockNode> &blockNode);
 
-    void visitBinary(const std::shared_ptr<BinaryNode> &binaryNode);
+    static void visitVariable(const std::shared_ptr<VariableNode> &variableNode);
 
-    void visitUnary(const std::shared_ptr<UnaryNode> &unaryNode);
+    static void visitBinary(const std::shared_ptr<BinaryNode> &binaryNode);
 
-    void visitParenthesized(const std::shared_ptr<ParenthesizedNode> &parenthesizedNode);
+    static void visitUnary(const std::shared_ptr<UnaryNode> &unaryNode);
 
-    void visitNumber(const std::shared_ptr<NumberNode> &numberNode);
+    static void visitParenthesized(const std::shared_ptr<ParenthesizedNode> &parenthesizedNode);
 
-    void visitString(const std::shared_ptr<StringNode> &stringNode);
+    static void visitNumber(const std::shared_ptr<NumberNode> &numberNode);
 
-    void visitIdentifier(const std::shared_ptr<IdentifierNode> &identifierNode);
+    static void visitString(const std::shared_ptr<StringNode> &stringNode);
 
-    void visitParameter(const std::shared_ptr<ParameterNode> &parameterNode);
+    static void visitIdentifier(const std::shared_ptr<IdentifierNode> &identifierNode);
 
-    void visitArgument(const std::shared_ptr<ArgumentNode> &argumentNode);
+    static void visitParameter(const std::shared_ptr<ParameterNode> &parameterNode);
 
-    void visitFunctionCall(const std::shared_ptr<FunctionCallNode> &functionCallNode);
+    static void visitArgument(const std::shared_ptr<ArgumentNode> &argumentNode);
 
-    void visitStructCreate(const std::shared_ptr<StructCreateNode> &structCreateNode);
+    static void visitFunctionCall(const std::shared_ptr<FunctionCallNode> &functionCallNode);
 
-    void visitAssignment(const std::shared_ptr<AssignmentNode> &assignmentNode);
+    static void visitStructCreate(const std::shared_ptr<StructCreateNode> &structCreateNode);
 
-    void visitReturn(const std::shared_ptr<ReturnNode> &returnNode);
+    static void visitAssignment(const std::shared_ptr<AssignmentNode> &assignmentNode);
 
-    void visitStruct(const std::shared_ptr<StructNode> &structNode);
+    static void visitReturn(const std::shared_ptr<ReturnNode> &returnNode);
 
-    void visitOperable(const std::shared_ptr<OperableNode> &operableNode,
+    static void visitStruct(const std::shared_ptr<StructNode> &structNode);
+
+    static void visitOperable(const std::shared_ptr<OperableNode> &operableNode,
                        const std::shared_ptr<TypeNode> &targetType = nullptr);
 
-    void visitType(const std::shared_ptr<TypeNode> &typeNode);
+    static void visitType(const std::shared_ptr<TypeNode> &typeNode);
 
 };
 

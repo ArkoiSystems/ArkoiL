@@ -18,9 +18,9 @@
                            currentToken()->endChar,  \
                            fmt::format(__VA_ARGS__));
 
-#define THROW_NODE_ERROR(sourcePath, sourceCode, node, ...) \
-        std::cout << Error(sourcePath,  \
-                           sourceCode,  \
+#define THROW_NODE_ERROR(node, ...) \
+        std::cout << Error(node->getParent<RootNode>()->sourcePath,  \
+                           node->getParent<RootNode>()->sourceCode,  \
                            node->startToken->lineNumber,  \
                            node->endToken->lineNumber,  \
                            node->startToken->startChar,  \

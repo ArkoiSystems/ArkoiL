@@ -22,16 +22,16 @@ private:
     CompilerOptions compilerOptions;
 
 public:
-    explicit Compiler(CompilerOptions compilerOptions) : compilerOptions(
-            std::move(compilerOptions)) {}
+    explicit Compiler(CompilerOptions compilerOptions) :
+            compilerOptions(std::move(compilerOptions)) {}
 
 public:
-    void loadImports(std::set<std::string> &loaded,
-                     std::vector<std::shared_ptr<RootNode>> &roots);
-
-    static std::shared_ptr<Parser> loadFile(const std::string &sourcePath);
+    void loadImports(std::set<std::string> &loaded, std::vector<std::shared_ptr<RootNode>> &roots);
 
     int compile();
+
+public:
+    static std::shared_ptr<Parser> loadFile(const std::string &sourcePath);
 
 };
 

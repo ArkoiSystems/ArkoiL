@@ -22,7 +22,9 @@ public:
     Table table;
 
 public:
-    explicit SymbolTable(std::shared_ptr<SymbolTable> parent) : parent(std::move(parent)) {}
+    explicit SymbolTable(std::shared_ptr<SymbolTable> parent) :
+            parent(std::move(parent)),
+            table({}) {}
 
 public:
     template<typename Function>

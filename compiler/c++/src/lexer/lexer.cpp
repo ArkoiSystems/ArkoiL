@@ -10,7 +10,7 @@
 
 std::vector<std::shared_ptr<Token>> Lexer::process() {
     std::vector<std::shared_ptr<Token>> tokens;
-    while (!isFailed) {
+    while (true) {
         auto token = nextToken();
         if (token == nullptr)
             break;
@@ -78,23 +78,23 @@ std::shared_ptr<Token> Lexer::nextToken() {
             position++;
         }
 
-        switch (hash(token->content.c_str())) {
-            case hash("this"):
-            case hash("var"):
-            case hash("return"):
-            case hash("struct"):
-            case hash("fun"):
-            case hash("as"):
-            case hash("import"):
-            case hash("if"):
-            case hash("const"):
-            case hash("else"):
+        switch (Utils::hash(token->content.c_str())) {
+            case Utils::hash("this"):
+            case Utils::hash("var"):
+            case Utils::hash("return"):
+            case Utils::hash("struct"):
+            case Utils::hash("fun"):
+            case Utils::hash("as"):
+            case Utils::hash("import"):
+            case Utils::hash("if"):
+            case Utils::hash("const"):
+            case Utils::hash("else"):
                 token->type = TOKEN_KEYWORD;
                 break;
-            case hash("bool"):
-            case hash("float"):
-            case hash("double"):
-            case hash("void"):
+            case Utils::hash("bool"):
+            case Utils::hash("float"):
+            case Utils::hash("double"):
+            case Utils::hash("void"):
                 token->type = TOKEN_TYPE;
                 break;
             default:
@@ -213,7 +213,6 @@ std::shared_ptr<Token> Lexer::nextToken() {
                 break;
             default:
                 token->type = TOKEN_INVALID;
-                isFailed = true;
                 break;
         }
     }

@@ -15,7 +15,7 @@
 int Compiler::compile() {
     std::vector<std::shared_ptr<RootNode>> roots;
     for (const auto &sourcePath : compilerOptions.sourceFiles) {
-        auto parser = loadFile(sourcePath);
+        auto parser = Compiler::loadFile(sourcePath);
         if (parser == nullptr)
             continue;
         roots.push_back(parser->parseRoot());
@@ -29,9 +29,8 @@ int Compiler::compile() {
             break;
     }
 
-    TypeResolver typeResolver{};
     for (const auto &rootNode : roots)
-        typeResolver.visitRoot(rootNode);
+        TypeResolver::visitRoot(rootNode);
 
     return 0;
 }
@@ -70,7 +69,7 @@ void Compiler::loadImports(std::set<std::string> &loaded,
                     break;
                 }
 
-                auto parser = loadFile(fullPath);
+                auto parser = Compiler::loadFile(fullPath);
                 loaded.insert(fullPath);
 
                 importRoot = parser->parseRoot();
@@ -79,8 +78,7 @@ void Compiler::loadImports(std::set<std::string> &loaded,
             }
 
             if (!importRoot)
-                THROW_NODE_ERROR(rootNode->sourcePath, rootNode->sourceCode, importNode,
-                                 "Couldn't find the file with this path.")
+                THROW_NODE_ERROR(importNode, "Couldn't find the file with this path.")
             importNode->target = importRoot;
         }
     }
@@ -99,10 +97,10 @@ std::shared_ptr<Parser> Compiler::loadFile(const std::string &sourcePath) {
     sourceFile.open(sourcePath);
     if (!sourceFile.is_open())
         return nullptr;
-    defer(sourceFile.close());
 
     auto contents = std::string{std::istreambuf_iterator<char>(sourceFile),
                                 std::istreambuf_iterator<char>()};
+    sourceFile.close();
 
     Lexer lexer{sourcePath, contents};
     auto tokens = lexer.process();

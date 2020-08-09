@@ -18,16 +18,13 @@ class Lexer {
 private:
     unsigned int position, currentLine;
     std::string sourceCode, sourcePath;
-    bool isFailed;
 
 public:
     explicit Lexer(std::string sourcePath, std::string sourceCode) :
             sourcePath(std::move(sourcePath)),
-            sourceCode(std::move(sourceCode)) {
-        currentLine = 0;
-        position = 0;
-        isFailed = false;
-    }
+            sourceCode(std::move(sourceCode)),
+            currentLine(0),
+            position(0) {}
 
 public:
     std::vector<std::shared_ptr<Token>> process();
