@@ -37,7 +37,6 @@ CMakeFiles/ArkoiCompiler.dir/src/main.cpp.o: ../src/compiler/options.h
 CMakeFiles/ArkoiCompiler.dir/src/main.cpp.o: ../src/main.cpp
 
 CMakeFiles/ArkoiCompiler.dir/src/parser/parser.cpp.o: ../deps/fmt-7.0.2/include/fmt/core.h
-CMakeFiles/ArkoiCompiler.dir/src/parser/parser.cpp.o: ../deps/dbg-macro/dbg.h
 CMakeFiles/ArkoiCompiler.dir/src/parser/parser.cpp.o: ../src/compiler/error.h
 CMakeFiles/ArkoiCompiler.dir/src/parser/parser.cpp.o: ../src/compiler/utils.h
 CMakeFiles/ArkoiCompiler.dir/src/parser/parser.cpp.o: ../src/lexer/lexer.h

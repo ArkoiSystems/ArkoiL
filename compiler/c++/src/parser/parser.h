@@ -39,6 +39,8 @@ class ArgumentNode;
 
 class SymbolTable;
 
+class TypedNode;
+
 class Parser {
 
 public:
@@ -53,9 +55,8 @@ public:
                     std::vector<std::shared_ptr<Token>> tokens) :
             sourcePath(std::move(sourcePath)),
             sourceCode(std::move(sourceCode)),
-            tokens(std::move(tokens)) {
-        position = 0;
-    }
+            tokens(std::move(tokens)),
+            position(0) {}
 
 public:
     std::shared_ptr<RootNode> parseRoot();
@@ -83,7 +84,7 @@ private:
 
     std::shared_ptr<OperableNode> parseOperable(const std::shared_ptr<ASTNode> &parent);
 
-    std::shared_ptr<IdentifierNode> parseIdentifier(const std::shared_ptr<ASTNode> &parent);
+    std::shared_ptr<OperableNode> parseIdentifier(const std::shared_ptr<ASTNode> &parent);
 
     std::shared_ptr<ReturnNode> parseReturn(const std::shared_ptr<ASTNode> &parent);
 

@@ -33,6 +33,9 @@ public:
     TokenType type;
 
 public:
+    Token() : lineNumber(0), startChar(0), endChar(0), content({}), type(TOKEN_INVALID) {}
+
+public:
     friend std::ostream &operator<<(std::ostream &out,
                                     const std::shared_ptr<Token> &token);
 

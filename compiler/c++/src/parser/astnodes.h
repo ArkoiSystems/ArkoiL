@@ -6,6 +6,7 @@
 #define ARKOICOMPILER_ASTNODES_H
 
 #include <vector>
+#include <ostream>
 #include "../lexer/token.h"
 #include "symboltable.h"
 
@@ -42,11 +43,9 @@ struct ASTNode {
     std::shared_ptr<ASTNode> parent;
     ASTKind kind;
 
-    ASTNode() {
-        startToken = 0;
-        endToken = 0;
-        kind = AST_NONE;
-    }
+    ASTNode() : startToken({}), endToken({}), scope({}), parent({}), kind(AST_NONE) {}
+
+    ASTNode(const ASTNode &other) = default;
 
     virtual ~ASTNode() = default;
 
@@ -64,6 +63,11 @@ struct ASTNode {
 struct TypedNode : public ASTNode {
 
     std::shared_ptr<TypeNode> type;
+    bool isTypeResolved;
+
+    TypedNode() : type({}), isTypeResolved(false) {}
+
+    TypedNode(const TypedNode &other) = default;
 
 };
 
@@ -72,7 +76,7 @@ struct RootNode : public ASTNode {
     std::vector<std::shared_ptr<ASTNode>> nodes;
     std::string sourcePath, sourceCode;
 
-    RootNode() {
+    RootNode() : nodes({}), sourcePath({}), sourceCode({}) {
         kind = AST_ROOT;
     }
 
@@ -83,7 +87,7 @@ struct ImportNode : public ASTNode {
     std::shared_ptr<RootNode> target;
     std::shared_ptr<Token> path;
 
-    ImportNode() {
+    ImportNode() : target({}), path({}) {
         kind = AST_IMPORT;
     }
 
@@ -93,7 +97,7 @@ struct ParameterNode : public TypedNode {
 
     std::shared_ptr<Token> name;
 
-    ParameterNode() {
+    ParameterNode() : name({}) {
         kind = AST_PARAMETER;
     }
 
@@ -104,21 +108,21 @@ struct BlockNode : public ASTNode {
     std::vector<std::shared_ptr<ASTNode>> nodes;
     bool isInlined;
 
-    BlockNode() {
+    BlockNode() : nodes({}), isInlined(false) {
         kind = AST_BLOCK;
-        isInlined = false;
     }
 
 };
 
 struct FunctionNode : public TypedNode {
 
-    std::shared_ptr<Token> name;
     std::vector<std::shared_ptr<ParameterNode>> parameters;
-    std::shared_ptr<BlockNode> block;
     bool isVariadic, isBuiltin, isNative;
+    std::shared_ptr<BlockNode> block;
+    std::shared_ptr<Token> name;
 
-    FunctionNode() {
+    FunctionNode() : parameters({}), isVariadic(false), isBuiltin(false), isNative(false),
+                     block({}), name({}) {
         kind = AST_FUNCTION;
     }
 
@@ -130,21 +134,27 @@ struct OperableNode : public TypedNode {
         kind = AST_OPERABLE;
     }
 
+    OperableNode(const OperableNode &other) : TypedNode(other) {
+        kind = AST_OPERABLE;
+    }
+
 };
 
 struct VariableNode : public TypedNode {
 
+    std::shared_ptr<OperableNode> expression;
     std::shared_ptr<Token> name;
     bool isConstant;
-    std::shared_ptr<OperableNode> expression;
 
-    VariableNode() {
+    VariableNode() : expression({}), name({}), isConstant(false) {
         kind = AST_VARIABLE;
     }
 
 };
 
 enum BinaryKind {
+    BINARY_NONE,
+
     ADDITION,
     SUBTRACTION,
     MULTIPLICATION,
@@ -161,17 +171,17 @@ enum BinaryKind {
 
 struct BinaryNode: public OperableNode {
 
-    std::shared_ptr<OperableNode> rhs;
+    std::shared_ptr<OperableNode> lhs, rhs;
     BinaryKind operatorKind;
-    std::shared_ptr<OperableNode> lhs;
 
-    BinaryNode() {
+    BinaryNode() : lhs({}), rhs({}), operatorKind(BINARY_NONE) {
         kind = AST_BINARY;
     }
 
 };
 
 enum UnaryKind {
+    UNARY_NONE,
     NEGATE
 };
 
@@ -180,7 +190,7 @@ struct UnaryNode: public OperableNode {
     std::shared_ptr<OperableNode> operable;
     UnaryKind operatorKind;
 
-    UnaryNode() {
+    UnaryNode() : operable({}), operatorKind(UNARY_NONE) {
         kind = AST_UNARY;
     }
 
@@ -190,17 +200,17 @@ struct ParenthesizedNode: public OperableNode {
 
     std::shared_ptr<OperableNode> expression;
 
-    ParenthesizedNode() {
+    ParenthesizedNode() : expression({}) {
         kind = AST_PARENTHESIZED;
     }
 
 };
 
-struct NumberNode: public OperableNode {
+struct NumberNode : public OperableNode {
 
     std::shared_ptr<Token> number;
 
-    NumberNode() {
+    NumberNode() : number({}) {
         kind = AST_NUMBER;
     }
 
@@ -210,7 +220,7 @@ struct StringNode : public OperableNode {
 
     std::shared_ptr<Token> string;
 
-    StringNode() {
+    StringNode() : string({}) {
         kind = AST_STRING;
     }
 
@@ -218,10 +228,10 @@ struct StringNode : public OperableNode {
 
 struct ArgumentNode : public TypedNode {
 
-    std::shared_ptr<Token> name;
     std::shared_ptr<OperableNode> expression;
+    std::shared_ptr<Token> name;
 
-    ArgumentNode() {
+    ArgumentNode() : expression({}), name({}) {
         kind = AST_ARGUMENT;
     }
 
@@ -229,14 +239,20 @@ struct ArgumentNode : public TypedNode {
 
 struct IdentifierNode : public OperableNode {
 
-    bool isPointer, isDereference;
-    std::shared_ptr<Token> identifier;
     std::shared_ptr<IdentifierNode> nextIdentifier;
+    std::shared_ptr<Token> identifier;
+    bool isPointer, isDereference;
 
-    IdentifierNode() {
+    IdentifierNode() : nextIdentifier({}), identifier({}), isPointer(false), isDereference(false) {
         kind = AST_IDENTIFIER;
-        isDereference = false;
-        isPointer = false;
+    }
+
+    IdentifierNode(const IdentifierNode &other) : OperableNode(other) {
+        nextIdentifier = other.nextIdentifier;
+        isDereference = other.isDereference;
+        identifier = other.identifier;
+        isPointer = other.isPointer;
+        kind = AST_IDENTIFIER;
     }
 
 };
@@ -245,27 +261,33 @@ struct FunctionCallNode : public IdentifierNode {
 
     std::vector<std::shared_ptr<ArgumentNode>> arguments;
 
-    FunctionCallNode() {
+    FunctionCallNode() : arguments({}) {
+        kind = AST_FUNCTION_CALL;
+    }
+
+    explicit FunctionCallNode(const IdentifierNode &other) : IdentifierNode(other) {
         kind = AST_FUNCTION_CALL;
     }
 
 };
 
-struct StructCreateNode : public IdentifierNode {
+struct StructCreateNode : public OperableNode {
 
     std::vector<std::shared_ptr<ArgumentNode>> arguments;
+    std::shared_ptr<IdentifierNode> startIdentifier;
 
-    StructCreateNode() {
+    StructCreateNode() : arguments({}), startIdentifier({}) {
         kind = AST_STRUCT_CREATE;
     }
 
 };
 
-struct AssignmentNode : public IdentifierNode {
+struct AssignmentNode : public OperableNode {
 
+    std::shared_ptr<IdentifierNode> startIdentifier;
     std::shared_ptr<OperableNode> expression;
 
-    AssignmentNode() {
+    AssignmentNode() : startIdentifier({}), expression({}) {
         kind = AST_ASSIGNMENT;
     }
 
@@ -275,19 +297,19 @@ struct ReturnNode : public TypedNode {
 
     std::shared_ptr<OperableNode> expression;
 
-    ReturnNode() {
+    ReturnNode() : expression({}) {
         kind = AST_RETURN;
     }
 
 };
 
-struct StructNode : public ASTNode {
+struct StructNode : public TypedNode {
 
-    std::shared_ptr<Token> name;
     std::vector<std::shared_ptr<VariableNode>> variables;
+    std::shared_ptr<Token> name;
     bool isBuiltin;
 
-    StructNode() {
+    StructNode() : variables({}), name({}), isBuiltin(false) {
         kind = AST_STRUCT;
     }
 
@@ -300,9 +322,23 @@ struct TypeNode : public ASTNode {
     unsigned int pointerLevel, bits;
     bool isSigned, isFloating;
 
-    TypeNode() {
+    TypeNode() : targetStruct({}), typeToken({}), pointerLevel(0), bits(0),
+                 isSigned(false), isFloating(false) {
         kind = AST_TYPE;
-        pointerLevel = 0;
+    }
+
+    TypeNode(const TypeNode &other) = default;
+
+    bool operator==(const TypeNode &other) const {
+        return (targetStruct == other.targetStruct) &&
+               (pointerLevel == other.pointerLevel) &&
+               (bits == other.bits) &&
+               (isSigned == other.isSigned) &&
+               (isFloating == other.isFloating);
+    }
+
+    bool operator!=(const TypeNode &other) const {
+        return !(other == *this);
     }
 
 };
