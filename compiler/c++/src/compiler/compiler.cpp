@@ -11,6 +11,8 @@
 #include "error.h"
 #include "../lexer/lexer.h"
 #include "../parser/astnodes.h"
+#include "../semantic/typecheck.h"
+#include "../semantic/scopecheck.h"
 
 int Compiler::compile() {
     std::vector<std::shared_ptr<RootNode>> roots;
@@ -31,6 +33,11 @@ int Compiler::compile() {
 
     for (const auto &rootNode : roots)
         TypeResolver::visitRoot(rootNode);
+
+    for (const auto &rootNode : roots) {
+        TypeCheck::visitRoot(rootNode);
+        ScopeCheck::visitRoot(rootNode);
+    }
 
     return 0;
 }

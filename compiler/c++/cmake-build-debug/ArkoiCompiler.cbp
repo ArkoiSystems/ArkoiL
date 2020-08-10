@@ -276,6 +276,18 @@
 		<Unit filename="/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/parser/typeresolver.h">
 			<Option target="ArkoiCompiler"/>
 		</Unit>
+		<Unit filename="/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/semantic/scopecheck.cpp">
+			<Option target="ArkoiCompiler"/>
+		</Unit>
+		<Unit filename="/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/semantic/scopecheck.h">
+			<Option target="ArkoiCompiler"/>
+		</Unit>
+		<Unit filename="/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/semantic/typecheck.cpp">
+			<Option target="ArkoiCompiler"/>
+		</Unit>
+		<Unit filename="/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/semantic/typecheck.h">
+			<Option target="ArkoiCompiler"/>
+		</Unit>
 		<Unit filename="/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/CMakeLists.txt">
 			<Option virtualFolder="CMake Files\"/>
 		</Unit>

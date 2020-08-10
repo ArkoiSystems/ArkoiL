@@ -135,12 +135,12 @@ deps/fmt-7.0.2/clean: deps/fmt-7.0.2/CMakeFiles/fmt.dir/clean
 CMakeFiles/ArkoiCompiler.dir/all: deps/fmt-7.0.2/CMakeFiles/fmt.dir/all
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ArkoiCompiler.dir/build.make CMakeFiles/ArkoiCompiler.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ArkoiCompiler.dir/build.make CMakeFiles/ArkoiCompiler.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/cmake-build-debug/CMakeFiles --progress-num=1,2,3,4,5,6,7,8,9 "Built target ArkoiCompiler"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/cmake-build-debug/CMakeFiles --progress-num=1,2,3,4,5,6,7,8,9,10,11 "Built target ArkoiCompiler"
 .PHONY : CMakeFiles/ArkoiCompiler.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/ArkoiCompiler.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/cmake-build-debug/CMakeFiles 12
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/cmake-build-debug/CMakeFiles 14
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/ArkoiCompiler.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/cmake-build-debug/CMakeFiles 0
 .PHONY : CMakeFiles/ArkoiCompiler.dir/rule
@@ -162,7 +162,7 @@ CMakeFiles/ArkoiCompiler.dir/clean:
 deps/fmt-7.0.2/CMakeFiles/fmt.dir/all:
 	$(MAKE) $(MAKESILENT) -f deps/fmt-7.0.2/CMakeFiles/fmt.dir/build.make deps/fmt-7.0.2/CMakeFiles/fmt.dir/depend
 	$(MAKE) $(MAKESILENT) -f deps/fmt-7.0.2/CMakeFiles/fmt.dir/build.make deps/fmt-7.0.2/CMakeFiles/fmt.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/cmake-build-debug/CMakeFiles --progress-num=10,11,12 "Built target fmt"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/cmake-build-debug/CMakeFiles --progress-num=12,13,14 "Built target fmt"
 .PHONY : deps/fmt-7.0.2/CMakeFiles/fmt.dir/all
 
 # Build rule for subdir invocation for target.

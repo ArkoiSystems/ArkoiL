@@ -418,6 +418,60 @@ src/parser/typeresolver.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ArkoiCompiler.dir/build.make CMakeFiles/ArkoiCompiler.dir/src/parser/typeresolver.cpp.s
 .PHONY : src/parser/typeresolver.cpp.s
 
+src/semantic/scopecheck.o: src/semantic/scopecheck.cpp.o
+
+.PHONY : src/semantic/scopecheck.o
+
+# target to build an object file
+src/semantic/scopecheck.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ArkoiCompiler.dir/build.make CMakeFiles/ArkoiCompiler.dir/src/semantic/scopecheck.cpp.o
+.PHONY : src/semantic/scopecheck.cpp.o
+
+src/semantic/scopecheck.i: src/semantic/scopecheck.cpp.i
+
+.PHONY : src/semantic/scopecheck.i
+
+# target to preprocess a source file
+src/semantic/scopecheck.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ArkoiCompiler.dir/build.make CMakeFiles/ArkoiCompiler.dir/src/semantic/scopecheck.cpp.i
+.PHONY : src/semantic/scopecheck.cpp.i
+
+src/semantic/scopecheck.s: src/semantic/scopecheck.cpp.s
+
+.PHONY : src/semantic/scopecheck.s
+
+# target to generate assembly for a file
+src/semantic/scopecheck.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ArkoiCompiler.dir/build.make CMakeFiles/ArkoiCompiler.dir/src/semantic/scopecheck.cpp.s
+.PHONY : src/semantic/scopecheck.cpp.s
+
+src/semantic/typecheck.o: src/semantic/typecheck.cpp.o
+
+.PHONY : src/semantic/typecheck.o
+
+# target to build an object file
+src/semantic/typecheck.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ArkoiCompiler.dir/build.make CMakeFiles/ArkoiCompiler.dir/src/semantic/typecheck.cpp.o
+.PHONY : src/semantic/typecheck.cpp.o
+
+src/semantic/typecheck.i: src/semantic/typecheck.cpp.i
+
+.PHONY : src/semantic/typecheck.i
+
+# target to preprocess a source file
+src/semantic/typecheck.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ArkoiCompiler.dir/build.make CMakeFiles/ArkoiCompiler.dir/src/semantic/typecheck.cpp.i
+.PHONY : src/semantic/typecheck.cpp.i
+
+src/semantic/typecheck.s: src/semantic/typecheck.cpp.s
+
+.PHONY : src/semantic/typecheck.s
+
+# target to generate assembly for a file
+src/semantic/typecheck.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ArkoiCompiler.dir/build.make CMakeFiles/ArkoiCompiler.dir/src/semantic/typecheck.cpp.s
+.PHONY : src/semantic/typecheck.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -456,6 +510,12 @@ help:
 	@echo "... src/parser/typeresolver.o"
 	@echo "... src/parser/typeresolver.i"
 	@echo "... src/parser/typeresolver.s"
+	@echo "... src/semantic/scopecheck.o"
+	@echo "... src/semantic/scopecheck.i"
+	@echo "... src/semantic/scopecheck.s"
+	@echo "... src/semantic/typecheck.o"
+	@echo "... src/semantic/typecheck.i"
+	@echo "... src/semantic/typecheck.s"
 .PHONY : help
 
 

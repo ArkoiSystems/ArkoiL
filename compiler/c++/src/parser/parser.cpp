@@ -29,9 +29,9 @@ std::shared_ptr<RootNode> Parser::parseRoot() {
             rootNode->nodes.push_back(parseStruct(rootNode));
         else if (currentToken() != TOKEN_WHITESPACE &&
                  currentToken() != TOKEN_COMMENT) {
-            THROW_TOKEN_ERROR(
-                    "Root expected <import>, <function>, <variable> or <structure> but got '{}' instead.",
-                    currentToken()->content)
+            THROW_TOKEN_ERROR("Root expected <import>, <function>, <variable> or <structure> but got '{}' instead.",
+                              currentToken()->content)
+            rootNode->isFailed = true;
 
             while (position < tokens.size()) {
                 if (currentToken() == "import" || currentToken() == "fun" ||
@@ -60,12 +60,14 @@ std::shared_ptr<ImportNode> Parser::parseImport(const std::shared_ptr<ASTNode> &
     if (currentToken() != "import") {
         THROW_TOKEN_ERROR("Import expected 'import' but got '{}' instead.",
                           currentToken()->content)
+        parent->isFailed = true;
         return importNode;
     }
 
     if (nextToken() != TOKEN_STRING) {
         THROW_TOKEN_ERROR("Import expected <string> but got '{}' instead.",
                           currentToken()->content)
+        parent->isFailed = true;
         return importNode;
     }
     importNode->path = currentToken();
@@ -83,6 +85,7 @@ std::shared_ptr<FunctionNode> Parser::parseFunction(const std::shared_ptr<ASTNod
     if (currentToken() != "fun") {
         THROW_TOKEN_ERROR("Function expected 'fun' but got '{}' instead.",
                           currentToken()->content)
+        parent->isFailed = true;
         return functionNode;
     }
 
@@ -94,6 +97,7 @@ std::shared_ptr<FunctionNode> Parser::parseFunction(const std::shared_ptr<ASTNod
     if (nextToken() != TOKEN_IDENTIFIER) {
         THROW_TOKEN_ERROR("Function expected <identifier> but got '{}' instead.",
                           currentToken()->content)
+        parent->isFailed = true;
         return functionNode;
     }
     functionNode->name = currentToken();
@@ -102,6 +106,7 @@ std::shared_ptr<FunctionNode> Parser::parseFunction(const std::shared_ptr<ASTNod
     if (nextToken() != "(") {
         THROW_TOKEN_ERROR("Function expected '(' but got '{}' instead.",
                           currentToken()->content)
+        parent->isFailed = true;
         return functionNode;
     }
 
@@ -150,12 +155,14 @@ std::shared_ptr<FunctionNode> Parser::parseFunction(const std::shared_ptr<ASTNod
     if (currentToken() != ")") {
         THROW_TOKEN_ERROR("Function expected ')' but got '{}' instead.",
                           currentToken()->content)
+        parent->isFailed = true;
         return functionNode;
     }
 
     if (nextToken() != ":") {
         THROW_TOKEN_ERROR("Function expected ':' but got '{}' instead.",
                           currentToken()->content)
+        parent->isFailed = true;
         return functionNode;
     }
 
@@ -182,6 +189,7 @@ std::shared_ptr<ParameterNode> Parser::parseParameter(const std::shared_ptr<ASTN
     if (currentToken() != TOKEN_IDENTIFIER) {
         THROW_TOKEN_ERROR("Parameter expected <identifier> but got '{}' instead.",
                           currentToken()->content)
+        parent->isFailed = true;
         return parameterNode;
     }
     parameterNode->name = currentToken();
@@ -190,6 +198,7 @@ std::shared_ptr<ParameterNode> Parser::parseParameter(const std::shared_ptr<ASTN
     if (nextToken() != ":") {
         THROW_TOKEN_ERROR("Parameter expected ':' but got '{}' instead.",
                           currentToken()->content)
+        parent->isFailed = true;
         return parameterNode;
     }
 
@@ -207,9 +216,9 @@ std::shared_ptr<TypeNode> Parser::parseType(const std::shared_ptr<ASTNode> &pare
     typeNode->scope = parent->scope;
 
     if (currentToken() != TOKEN_TYPE && currentToken() != TOKEN_IDENTIFIER) {
-        THROW_TOKEN_ERROR(
-                "Type expected <kind> or <identifier> but got '{}' instead.",
-                currentToken()->content)
+        THROW_TOKEN_ERROR("Type expected <kind> or <identifier> but got '{}' instead.",
+                          currentToken()->content)
+        parent->isFailed = true;
         return typeNode;
     }
     typeNode->typeToken = currentToken();
@@ -246,16 +255,18 @@ std::shared_ptr<BlockNode> Parser::parseBlock(const std::shared_ptr<ASTNode> &pa
                 auto identifier = parseIdentifier(blockNode);
                 blockNode->nodes.push_back(identifier);
 
-                if (identifier->kind == AST_STRUCT_CREATE)
+                if (identifier->kind == AST_STRUCT_CREATE) {
                     THROW_NODE_ERROR(identifier,
                                      "Creating a struct without binding it to a variable is unnecessary.")
+                    parent->isFailed = true;
+                }
             } else if (currentToken() == "return")
                 blockNode->nodes.push_back(parseReturn(blockNode));
             else if (currentToken() != TOKEN_WHITESPACE &&
                      currentToken() != TOKEN_COMMENT) {
-                THROW_TOKEN_ERROR(
-                        "Block expected <variable>, <identifier> or <return> but got '{}' instead.",
-                        currentToken()->content)
+                THROW_TOKEN_ERROR("Block expected <variable>, <identifier> or <return> but got '{}' instead.",
+                                  currentToken()->content)
+                parent->isFailed = true;
 
                 while (position < tokens.size()) {
                     if (currentToken() == "var" || currentToken() == "const" ||
@@ -275,6 +286,7 @@ std::shared_ptr<BlockNode> Parser::parseBlock(const std::shared_ptr<ASTNode> &pa
         if (currentToken() != "}") {
             THROW_TOKEN_ERROR("Block expected '}}' but got '{}' instead.",
                               currentToken()->content)
+            parent->isFailed = true;
             return blockNode;
         }
     } else if (currentToken() == "=") {
@@ -283,6 +295,7 @@ std::shared_ptr<BlockNode> Parser::parseBlock(const std::shared_ptr<ASTNode> &pa
     } else {
         THROW_TOKEN_ERROR("Block expected '{{' or '=' but got '{}' instead.",
                           currentToken()->content)
+        parent->isFailed = true;
         return blockNode;
     }
 
@@ -300,6 +313,7 @@ std::shared_ptr<VariableNode> Parser::parseVariable(const std::shared_ptr<ASTNod
     if (currentToken() != "var" && currentToken() != "const") {
         THROW_TOKEN_ERROR("Variable expected 'var' or 'const' but got '{}' instead.",
                           currentToken()->content)
+        parent->isFailed = true;
         return variableNode;
     }
     variableNode->isConstant = (currentToken() == "const");
@@ -307,6 +321,7 @@ std::shared_ptr<VariableNode> Parser::parseVariable(const std::shared_ptr<ASTNod
     if (nextToken() != TOKEN_IDENTIFIER) {
         THROW_TOKEN_ERROR("Variable expected <identifier> but got '{}' instead.",
                           currentToken()->content)
+        parent->isFailed = true;
         return variableNode;
     }
     variableNode->name = currentToken();
@@ -455,6 +470,7 @@ std::shared_ptr<OperableNode> Parser::parseOperable(const std::shared_ptr<ASTNod
         if (nextToken() != ")") {
             THROW_TOKEN_ERROR("Parenthesized expected ')' but got '{}' instead.",
                               currentToken()->content)
+            parent->isFailed = true;
             return operable;
         }
 
@@ -479,10 +495,11 @@ std::shared_ptr<OperableNode> Parser::parseOperable(const std::shared_ptr<ASTNod
                (currentToken() == "&" || currentToken() == "@")) {
         return parseIdentifier(parent);
     } else {
-        THROW_TOKEN_ERROR(
-                "Operable expected <string>, <number>, <unary> or <parenthesized> but got '{}' instead.",
-                currentToken()->content)
-        return std::make_shared<OperableNode>();
+        auto operable = std::make_shared<OperableNode>();
+        THROW_TOKEN_ERROR("Operable expected <string>, <number>, <unary> or <parenthesized> but got '{}' instead.",
+                          currentToken()->content)
+        parent->isFailed = true;
+        return operable;
     }
 }
 
@@ -503,6 +520,7 @@ std::shared_ptr<OperableNode> Parser::parseIdentifier(const std::shared_ptr<ASTN
     if (currentToken() != TOKEN_IDENTIFIER) {
         THROW_TOKEN_ERROR("Identifier expected <identifier> but got '{}' instead.",
                           currentToken()->content)
+        parent->isFailed = true;
         return identifierNode;
     }
     identifierNode->identifier = currentToken();
@@ -519,6 +537,7 @@ std::shared_ptr<OperableNode> Parser::parseIdentifier(const std::shared_ptr<ASTN
         if (currentToken() != ")") {
             THROW_TOKEN_ERROR("Function call expected ')' but got '{}' instead.",
                               currentToken()->content)
+            parent->isFailed = true;
             return functionCall;
         }
     }
@@ -545,6 +564,7 @@ std::shared_ptr<OperableNode> Parser::parseIdentifier(const std::shared_ptr<ASTN
         if (currentToken() != TOKEN_IDENTIFIER) {
             THROW_TOKEN_ERROR("Identifier expected <identifier> but got '{}' instead.",
                               currentToken()->content)
+            parent->isFailed = true;
             return identifierNode;
         }
         chainedIdentifier->identifier = currentToken();
@@ -561,6 +581,7 @@ std::shared_ptr<OperableNode> Parser::parseIdentifier(const std::shared_ptr<ASTN
             if (currentToken() != ")") {
                 THROW_TOKEN_ERROR("Function call expected ')' but got '{}' instead.",
                                   currentToken()->content)
+                parent->isFailed = true;
                 return functionCall;
             }
         }
@@ -576,11 +597,13 @@ std::shared_ptr<OperableNode> Parser::parseIdentifier(const std::shared_ptr<ASTN
 
         if (identifierNode->kind == AST_FUNCTION_CALL) {
             THROW_TOKEN_ERROR("Can't do a struct creation with a function call.")
+            parent->isFailed = true;
             return identifierNode;
         }
 
         if (identifierNode->nextIdentifier != nullptr) {
             THROW_NODE_ERROR(identifierNode, "Struct creation nodes can't have child nodes.")
+            parent->isFailed = true;
             return identifierNode;
         }
 
@@ -600,6 +623,7 @@ std::shared_ptr<OperableNode> Parser::parseIdentifier(const std::shared_ptr<ASTN
         if (currentToken() != "}") {
             THROW_TOKEN_ERROR("Struct create expected '}}' but got '{}' instead.",
                               currentToken()->content)
+            parent->isFailed = true;
             return structCreate;
         }
 
@@ -608,7 +632,8 @@ std::shared_ptr<OperableNode> Parser::parseIdentifier(const std::shared_ptr<ASTN
         nextToken(2);
 
         if (identifierNode->kind == AST_FUNCTION_CALL) {
-            THROW_TOKEN_ERROR("Can't do a assignment with a function call.")
+            THROW_TOKEN_ERROR( "Can't do a assignment with a function call.")
+            parent->isFailed = true;
             return identifierNode;
         }
 
@@ -640,11 +665,19 @@ std::shared_ptr<ReturnNode> Parser::parseReturn(const std::shared_ptr<ASTNode> &
     if (currentToken() != "return") {
         THROW_TOKEN_ERROR("Return expected 'return' but got '{}' instead.",
                           currentToken()->content)
+        parent->isFailed = true;
         return returnNode;
     }
 
     nextToken();
     returnNode->expression = parseRelational(returnNode);
+
+    // TODO: Reset here if failed, because expressions are just optional (do it a better way..)
+    if(returnNode->isFailed) {
+        returnNode->expression = nullptr;
+        returnNode->isFailed = false;
+        undoToken();
+    }
 
     returnNode->endToken = currentToken();
     return returnNode;
@@ -659,6 +692,7 @@ std::shared_ptr<StructNode> Parser::parseStruct(const std::shared_ptr<ASTNode> &
     if (currentToken() != "struct") {
         THROW_TOKEN_ERROR("Struct expected 'struct' but got '{}' instead.",
                           currentToken()->content)
+        parent->isFailed = true;
         return structNode;
     }
 
@@ -670,6 +704,7 @@ std::shared_ptr<StructNode> Parser::parseStruct(const std::shared_ptr<ASTNode> &
     if (nextToken() != TOKEN_IDENTIFIER) {
         THROW_TOKEN_ERROR("Struct expected <identifier> but got '{}' instead.",
                           currentToken()->content)
+        parent->isFailed = true;
         return structNode;
     }
     structNode->name = currentToken();
@@ -679,6 +714,7 @@ std::shared_ptr<StructNode> Parser::parseStruct(const std::shared_ptr<ASTNode> &
         if (nextToken() != "{") {
             THROW_TOKEN_ERROR("Struct expected '{{' but got '{}' instead.",
                               currentToken()->content)
+            parent->isFailed = true;
             return structNode;
         }
 
@@ -694,6 +730,7 @@ std::shared_ptr<StructNode> Parser::parseStruct(const std::shared_ptr<ASTNode> &
                      currentToken() != TOKEN_COMMENT) {
                 THROW_TOKEN_ERROR("Struct expected <variable> but got '{}' instead.",
                                   currentToken()->content)
+                parent->isFailed = true;
 
                 while (position < tokens.size()) {
                     if (currentToken() == "var" || currentToken() == "const" ||
@@ -725,9 +762,9 @@ void Parser::parseMixedArguments(std::vector<std::shared_ptr<ArgumentNode>> &arg
         if (mustBeNamed ||
             (currentToken() == TOKEN_IDENTIFIER && peekToken(1) == ":")) {
             if (currentToken() != TOKEN_IDENTIFIER) {
-                THROW_TOKEN_ERROR(
-                        "Arguments expected <identifier> but got '{}' instead.",
-                        currentToken()->content)
+                THROW_TOKEN_ERROR("Arguments expected <identifier> but got '{}' instead.",
+                                  currentToken()->content)
+                parent->isFailed = true;
                 break;
             }
             argument->name = currentToken();
@@ -735,6 +772,7 @@ void Parser::parseMixedArguments(std::vector<std::shared_ptr<ArgumentNode>> &arg
             if (nextToken() != ":") {
                 THROW_TOKEN_ERROR("Arguments expected ':' but got '{}' instead.",
                                   currentToken()->content)
+                parent->isFailed = true;
                 break;
             }
 
@@ -762,9 +800,9 @@ void Parser::parseNamedArguments(std::vector<std::shared_ptr<ArgumentNode>> &arg
         argument->scope = parent->scope;
 
         if (currentToken() != TOKEN_IDENTIFIER) {
-            THROW_TOKEN_ERROR(
-                    "Arguments expected <identifier> but got '{}' instead.",
-                    currentToken()->content)
+            THROW_TOKEN_ERROR("Arguments expected <identifier> but got '{}' instead.",
+                              currentToken()->content)
+            parent->isFailed = true;
             break;
         }
         argument->name = currentToken();
@@ -772,6 +810,7 @@ void Parser::parseNamedArguments(std::vector<std::shared_ptr<ArgumentNode>> &arg
         if (nextToken() != ":") {
             THROW_TOKEN_ERROR("Arguments expected ':' but got '{}' instead.",
                               currentToken()->content)
+            parent->isFailed = true;
             break;
         }
 
@@ -807,6 +846,25 @@ std::shared_ptr<Token> Parser::nextToken(int times, bool advance, bool safety) {
                 currentToken(safety) != TOKEN_COMMENT)
                 break;
             this->position++;
+        }
+
+        token = currentToken(safety);
+    }
+
+    return token;
+}
+
+std::shared_ptr<Token> Parser::undoToken(int times, bool advance, bool safety) {
+    std::shared_ptr<Token> token;
+
+    for (int index = 0; index < times; index++) {
+        position--;
+
+        while (position > 0 && advance) {
+            if (currentToken(safety) != TOKEN_WHITESPACE &&
+                currentToken(safety) != TOKEN_COMMENT)
+                break;
+            this->position--;
         }
 
         token = currentToken(safety);

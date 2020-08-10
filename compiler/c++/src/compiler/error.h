@@ -9,7 +9,7 @@
 #include <utility>
 #include <string>
 
-#define THROW_TOKEN_ERROR(...)  \
+#define THROW_TOKEN_ERROR(...) \
         std::cout << Error(sourcePath,  \
                            sourceCode,  \
                            currentToken()->lineNumber,  \

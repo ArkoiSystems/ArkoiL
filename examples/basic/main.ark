@@ -13,8 +13,8 @@ fun main(): i32 {
 }
 
 fun test(ok: Info*): void {
-    #println("1) %i -> %i: %i", @ok.test, @ok.pointerTest, @ok.@pointerTest)
+    println("1) %i -> %i: %i", @ok.test, @ok.pointerTest, @ok.@pointerTest)
     @ok.test = 100
     @ok.pointerTest = @ok.&test
-    #println("2) %i -> %i: %i", @ok.test, @ok.pointerTest, @ok.@pointerTest)
+    println("2) %i -> %i: %i", @ok.test, @ok.pointerTest, @ok.@pointerTest)
 }
