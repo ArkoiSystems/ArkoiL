@@ -100,6 +100,8 @@ private:
 
     std::shared_ptr<Token> nextToken(int times = 1, bool advance = true, bool safety = true);
 
+    std::shared_ptr<Token> undoToken(int times = 1, bool advance = true, bool safety = true);
+
     std::shared_ptr<Token> currentToken(bool safety = true);
 
 };

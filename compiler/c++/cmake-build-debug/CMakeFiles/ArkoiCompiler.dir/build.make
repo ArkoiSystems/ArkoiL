@@ -181,6 +181,32 @@ CMakeFiles/ArkoiCompiler.dir/src/parser/symboltable.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/ArkoiCompiler.dir/src/parser/symboltable.cpp.s"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/parser/symboltable.cpp -o CMakeFiles/ArkoiCompiler.dir/src/parser/symboltable.cpp.s
 
+CMakeFiles/ArkoiCompiler.dir/src/semantic/typecheck.cpp.o: CMakeFiles/ArkoiCompiler.dir/flags.make
+CMakeFiles/ArkoiCompiler.dir/src/semantic/typecheck.cpp.o: ../src/semantic/typecheck.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Building CXX object CMakeFiles/ArkoiCompiler.dir/src/semantic/typecheck.cpp.o"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/ArkoiCompiler.dir/src/semantic/typecheck.cpp.o -c /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/semantic/typecheck.cpp
+
+CMakeFiles/ArkoiCompiler.dir/src/semantic/typecheck.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/ArkoiCompiler.dir/src/semantic/typecheck.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/semantic/typecheck.cpp > CMakeFiles/ArkoiCompiler.dir/src/semantic/typecheck.cpp.i
+
+CMakeFiles/ArkoiCompiler.dir/src/semantic/typecheck.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/ArkoiCompiler.dir/src/semantic/typecheck.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/semantic/typecheck.cpp -o CMakeFiles/ArkoiCompiler.dir/src/semantic/typecheck.cpp.s
+
+CMakeFiles/ArkoiCompiler.dir/src/semantic/scopecheck.cpp.o: CMakeFiles/ArkoiCompiler.dir/flags.make
+CMakeFiles/ArkoiCompiler.dir/src/semantic/scopecheck.cpp.o: ../src/semantic/scopecheck.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_10) "Building CXX object CMakeFiles/ArkoiCompiler.dir/src/semantic/scopecheck.cpp.o"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/ArkoiCompiler.dir/src/semantic/scopecheck.cpp.o -c /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/semantic/scopecheck.cpp
+
+CMakeFiles/ArkoiCompiler.dir/src/semantic/scopecheck.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/ArkoiCompiler.dir/src/semantic/scopecheck.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/semantic/scopecheck.cpp > CMakeFiles/ArkoiCompiler.dir/src/semantic/scopecheck.cpp.i
+
+CMakeFiles/ArkoiCompiler.dir/src/semantic/scopecheck.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/ArkoiCompiler.dir/src/semantic/scopecheck.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/semantic/scopecheck.cpp -o CMakeFiles/ArkoiCompiler.dir/src/semantic/scopecheck.cpp.s
+
 # Object files for target ArkoiCompiler
 ArkoiCompiler_OBJECTS = \
 "CMakeFiles/ArkoiCompiler.dir/src/main.cpp.o" \
@@ -190,7 +216,9 @@ ArkoiCompiler_OBJECTS = \
 "CMakeFiles/ArkoiCompiler.dir/src/lexer/token.cpp.o" \
 "CMakeFiles/ArkoiCompiler.dir/src/compiler/error.cpp.o" \
 "CMakeFiles/ArkoiCompiler.dir/src/parser/typeresolver.cpp.o" \
-"CMakeFiles/ArkoiCompiler.dir/src/parser/symboltable.cpp.o"
+"CMakeFiles/ArkoiCompiler.dir/src/parser/symboltable.cpp.o" \
+"CMakeFiles/ArkoiCompiler.dir/src/semantic/typecheck.cpp.o" \
+"CMakeFiles/ArkoiCompiler.dir/src/semantic/scopecheck.cpp.o"
 
 # External object files for target ArkoiCompiler
 ArkoiCompiler_EXTERNAL_OBJECTS =
@@ -203,10 +231,12 @@ ArkoiCompiler: CMakeFiles/ArkoiCompiler.dir/src/lexer/token.cpp.o
 ArkoiCompiler: CMakeFiles/ArkoiCompiler.dir/src/compiler/error.cpp.o
 ArkoiCompiler: CMakeFiles/ArkoiCompiler.dir/src/parser/typeresolver.cpp.o
 ArkoiCompiler: CMakeFiles/ArkoiCompiler.dir/src/parser/symboltable.cpp.o
+ArkoiCompiler: CMakeFiles/ArkoiCompiler.dir/src/semantic/typecheck.cpp.o
+ArkoiCompiler: CMakeFiles/ArkoiCompiler.dir/src/semantic/scopecheck.cpp.o
 ArkoiCompiler: CMakeFiles/ArkoiCompiler.dir/build.make
 ArkoiCompiler: deps/fmt-7.0.2/libfmtd.a
 ArkoiCompiler: CMakeFiles/ArkoiCompiler.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Linking CXX executable ArkoiCompiler"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_11) "Linking CXX executable ArkoiCompiler"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/ArkoiCompiler.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.

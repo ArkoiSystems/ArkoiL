@@ -12,6 +12,8 @@ set(CMAKE_DEPENDS_CHECK_CXX
   "/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/parser/parser.cpp" "/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/cmake-build-debug/CMakeFiles/ArkoiCompiler.dir/src/parser/parser.cpp.o"
   "/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/parser/symboltable.cpp" "/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/cmake-build-debug/CMakeFiles/ArkoiCompiler.dir/src/parser/symboltable.cpp.o"
   "/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/parser/typeresolver.cpp" "/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/cmake-build-debug/CMakeFiles/ArkoiCompiler.dir/src/parser/typeresolver.cpp.o"
+  "/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/semantic/scopecheck.cpp" "/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/cmake-build-debug/CMakeFiles/ArkoiCompiler.dir/src/semantic/scopecheck.cpp.o"
+  "/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/semantic/typecheck.cpp" "/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/cmake-build-debug/CMakeFiles/ArkoiCompiler.dir/src/semantic/typecheck.cpp.o"
   )
 set(CMAKE_CXX_COMPILER_ID "GNU")
 

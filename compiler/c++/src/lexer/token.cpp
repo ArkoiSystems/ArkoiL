@@ -5,6 +5,11 @@
 #include "token.h"
 
 std::ostream &operator<<(std::ostream &out, const std::shared_ptr<Token> &token) {
+    if(token == nullptr) {
+        out << "null";
+        return out;
+    }
+
     out << "(" << token->type << " with \"" << token->content << "\" on line "
         << (token->lineNumber + 1) << ")";
     return out;

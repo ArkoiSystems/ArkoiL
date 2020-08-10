@@ -8,8 +8,10 @@
       <w>astnodes</w>
       <w>astvisitor</w>
       <w>compoptions</w>
+      <w>scopecheck</w>
       <w>symboltable</w>
       <w>timo</w>
+      <w>typecheck</w>
       <w>typeresolver</w>
     </words>
   </dictionary>

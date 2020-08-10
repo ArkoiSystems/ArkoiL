@@ -41,9 +41,11 @@ struct ASTNode {
     std::shared_ptr<Token> startToken, endToken;
     std::shared_ptr<SymbolTable> scope;
     std::shared_ptr<ASTNode> parent;
+    bool isFailed;
     ASTKind kind;
 
-    ASTNode() : startToken({}), endToken({}), scope({}), parent({}), kind(AST_NONE) {}
+    ASTNode() : startToken({}), endToken({}), scope({}), parent({}),
+                isFailed(false), kind(AST_NONE) {}
 
     ASTNode(const ASTNode &other) = default;
 
@@ -328,6 +330,15 @@ struct TypeNode : public ASTNode {
     }
 
     TypeNode(const TypeNode &other) = default;
+
+    friend std::ostream &operator<<(std::ostream &os, const std::shared_ptr<TypeNode> &typeNode) {
+        os << "targetStruct: " << typeNode->targetStruct
+           << ", pointerLevel: " << typeNode->pointerLevel
+           << ", bits: " << typeNode->bits
+           << ", isSigned: " << std::boolalpha << typeNode->isSigned << std::dec
+           << ", isFloating: " << std::boolalpha << typeNode->isFloating << std::dec;
+        return os;
+    }
 
     bool operator==(const TypeNode &other) const {
         return (targetStruct == other.targetStruct) &&

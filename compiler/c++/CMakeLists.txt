@@ -24,6 +24,10 @@ add_executable(ArkoiCompiler
         src/parser/typeresolver.cpp
         src/parser/typeresolver.h
         src/parser/symboltable.cpp
-        src/parser/symboltable.h)
+        src/parser/symboltable.h
+        src/semantic/typecheck.cpp
+        src/semantic/typecheck.h
+        src/semantic/scopecheck.cpp
+        src/semantic/scopecheck.h)
 
 target_link_libraries(ArkoiCompiler PRIVATE fmt::fmt)

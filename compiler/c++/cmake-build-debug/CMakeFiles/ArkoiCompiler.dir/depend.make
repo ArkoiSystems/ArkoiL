@@ -14,6 +14,8 @@ CMakeFiles/ArkoiCompiler.dir/src/compiler/compiler.cpp.o: ../src/parser/astnodes
 CMakeFiles/ArkoiCompiler.dir/src/compiler/compiler.cpp.o: ../src/parser/parser.h
 CMakeFiles/ArkoiCompiler.dir/src/compiler/compiler.cpp.o: ../src/parser/symboltable.h
 CMakeFiles/ArkoiCompiler.dir/src/compiler/compiler.cpp.o: ../src/parser/typeresolver.h
+CMakeFiles/ArkoiCompiler.dir/src/compiler/compiler.cpp.o: ../src/semantic/scopecheck.h
+CMakeFiles/ArkoiCompiler.dir/src/compiler/compiler.cpp.o: ../src/semantic/typecheck.h
 
 CMakeFiles/ArkoiCompiler.dir/src/compiler/error.cpp.o: ../deps/fmt-7.0.2/include/fmt/core.h
 CMakeFiles/ArkoiCompiler.dir/src/compiler/error.cpp.o: ../src/compiler/error.cpp
@@ -59,4 +61,18 @@ CMakeFiles/ArkoiCompiler.dir/src/parser/typeresolver.cpp.o: ../src/parser/astnod
 CMakeFiles/ArkoiCompiler.dir/src/parser/typeresolver.cpp.o: ../src/parser/symboltable.h
 CMakeFiles/ArkoiCompiler.dir/src/parser/typeresolver.cpp.o: ../src/parser/typeresolver.cpp
 CMakeFiles/ArkoiCompiler.dir/src/parser/typeresolver.cpp.o: ../src/parser/typeresolver.h
+
+CMakeFiles/ArkoiCompiler.dir/src/semantic/scopecheck.cpp.o: ../src/lexer/token.h
+CMakeFiles/ArkoiCompiler.dir/src/semantic/scopecheck.cpp.o: ../src/parser/astnodes.h
+CMakeFiles/ArkoiCompiler.dir/src/semantic/scopecheck.cpp.o: ../src/parser/symboltable.h
+CMakeFiles/ArkoiCompiler.dir/src/semantic/scopecheck.cpp.o: ../src/semantic/scopecheck.cpp
+CMakeFiles/ArkoiCompiler.dir/src/semantic/scopecheck.cpp.o: ../src/semantic/scopecheck.h
+
+CMakeFiles/ArkoiCompiler.dir/src/semantic/typecheck.cpp.o: ../deps/fmt-7.0.2/include/fmt/core.h
+CMakeFiles/ArkoiCompiler.dir/src/semantic/typecheck.cpp.o: ../src/compiler/error.h
+CMakeFiles/ArkoiCompiler.dir/src/semantic/typecheck.cpp.o: ../src/lexer/token.h
+CMakeFiles/ArkoiCompiler.dir/src/semantic/typecheck.cpp.o: ../src/parser/astnodes.h
+CMakeFiles/ArkoiCompiler.dir/src/semantic/typecheck.cpp.o: ../src/parser/symboltable.h
+CMakeFiles/ArkoiCompiler.dir/src/semantic/typecheck.cpp.o: ../src/semantic/typecheck.cpp
+CMakeFiles/ArkoiCompiler.dir/src/semantic/typecheck.cpp.o: ../src/semantic/typecheck.h
 
