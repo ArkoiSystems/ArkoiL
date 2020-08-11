@@ -241,11 +241,12 @@ struct ArgumentNode : public TypedNode {
 
 struct IdentifierNode : public OperableNode {
 
-    std::shared_ptr<IdentifierNode> nextIdentifier;
+    std::shared_ptr<IdentifierNode> nextIdentifier, lastIdentifier;
     std::shared_ptr<Token> identifier;
     bool isPointer, isDereference;
 
-    IdentifierNode() : nextIdentifier({}), identifier({}), isPointer(false), isDereference(false) {
+    IdentifierNode() : nextIdentifier({}), lastIdentifier({}), identifier({}),
+                       isPointer(false), isDereference(false) {
         kind = AST_IDENTIFIER;
     }
 
@@ -276,9 +277,9 @@ struct FunctionCallNode : public IdentifierNode {
 struct StructCreateNode : public OperableNode {
 
     std::vector<std::shared_ptr<ArgumentNode>> arguments;
-    std::shared_ptr<IdentifierNode> startIdentifier;
+    std::shared_ptr<IdentifierNode> endIdentifier;
 
-    StructCreateNode() : arguments({}), startIdentifier({}) {
+    StructCreateNode() : arguments({}), endIdentifier({}) {
         kind = AST_STRUCT_CREATE;
     }
 
@@ -286,10 +287,10 @@ struct StructCreateNode : public OperableNode {
 
 struct AssignmentNode : public OperableNode {
 
-    std::shared_ptr<IdentifierNode> startIdentifier;
+    std::shared_ptr<IdentifierNode> endIdentifier;
     std::shared_ptr<OperableNode> expression;
 
-    AssignmentNode() : startIdentifier({}), expression({}) {
+    AssignmentNode() : endIdentifier({}), expression({}) {
         kind = AST_ASSIGNMENT;
     }
 
@@ -330,6 +331,17 @@ struct TypeNode : public ASTNode {
     }
 
     TypeNode(const TypeNode &other) = default;
+
+    bool isNumeric() {
+        if (isSigned || isFloating)
+            return true;
+        return pointerLevel == 0 && targetStruct == nullptr && typeToken == nullptr;
+    }
+
+    bool isBoolean() {
+        return pointerLevel == 0 && targetStruct == nullptr && typeToken == nullptr && bits == 0 &&
+               isSigned && !isFloating;
+    }
 
     friend std::ostream &operator<<(std::ostream &os, const std::shared_ptr<TypeNode> &typeNode) {
         os << "targetStruct: " << typeNode->targetStruct

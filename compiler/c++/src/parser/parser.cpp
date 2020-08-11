@@ -565,7 +565,7 @@ std::shared_ptr<OperableNode> Parser::parseIdentifier(const std::shared_ptr<ASTN
             THROW_TOKEN_ERROR("Identifier expected <identifier> but got '{}' instead.",
                               currentToken()->content)
             parent->isFailed = true;
-            return identifierNode;
+            return chainedIdentifier;
         }
         chainedIdentifier->identifier = currentToken();
 
@@ -589,7 +589,9 @@ std::shared_ptr<OperableNode> Parser::parseIdentifier(const std::shared_ptr<ASTN
         chainedIdentifier->endToken = currentToken();
 
         lastIdentifier->nextIdentifier = chainedIdentifier;
+        chainedIdentifier->lastIdentifier = lastIdentifier;
         lastIdentifier = chainedIdentifier;
+        identifierNode = chainedIdentifier;
     }
 
     if (peekToken(1) == "{") {
@@ -612,7 +614,7 @@ std::shared_ptr<OperableNode> Parser::parseIdentifier(const std::shared_ptr<ASTN
         structCreate->scope = parent->scope;
         structCreate->parent = parent;
 
-        structCreate->startIdentifier = identifierNode;
+        structCreate->endIdentifier = identifierNode;
 
         identifierNode->scope = structCreate->scope;
         identifierNode->parent = structCreate;
@@ -642,7 +644,7 @@ std::shared_ptr<OperableNode> Parser::parseIdentifier(const std::shared_ptr<ASTN
         assignment->scope = parent->scope;
         assignment->parent = parent;
 
-        assignment->startIdentifier = identifierNode;
+        assignment->endIdentifier = identifierNode;
 
         identifierNode->scope = assignment->scope;
         identifierNode->parent = assignment;

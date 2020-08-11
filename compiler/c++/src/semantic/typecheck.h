@@ -29,6 +29,12 @@ class AssignmentNode;
 
 class StructCreateNode;
 
+class BinaryNode;
+
+class UnaryNode;
+
+class ParenthesizedNode;
+
 class TypeCheck {
 
 public:
@@ -56,6 +62,12 @@ public:
     static void visitAssignment(const std::shared_ptr<AssignmentNode> &assignmentNode);
 
     static void visitStructCreate(const std::shared_ptr<StructCreateNode>& structCreateNode);
+
+    static void visitBinary(const std::shared_ptr<BinaryNode>& binaryNode);
+
+    static void visitUnary(const std::shared_ptr<UnaryNode>& unaryNode);
+
+    static void visitParenthesized(const std::shared_ptr<ParenthesizedNode>& parenthesizedNode);
 
 };
 
