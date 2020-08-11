@@ -11,12 +11,8 @@
 #include <memory>
 #include <vector>
 
-class Utils {
+namespace Utils {
 
-public:
-    Utils() = delete;
-
-public:
     static void split(const std::string &input, std::vector<std::string> &list, char delimiter = ' ') {
         std::size_t current, previous = 0;
         current = input.find(delimiter);
@@ -51,6 +47,6 @@ public:
         return !string[index] ? 5381 : (hash(string, index + 1) * 33) ^ string[index];
     }
 
-};
+}
 
 #endif //ARKOICOMPILER_UTILS_H
