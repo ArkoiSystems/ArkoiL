@@ -62,6 +62,8 @@ CMakeFiles/ArkoiCompiler.dir/src/parser/typeresolver.cpp.o: ../src/parser/symbol
 CMakeFiles/ArkoiCompiler.dir/src/parser/typeresolver.cpp.o: ../src/parser/typeresolver.cpp
 CMakeFiles/ArkoiCompiler.dir/src/parser/typeresolver.cpp.o: ../src/parser/typeresolver.h
 
+CMakeFiles/ArkoiCompiler.dir/src/semantic/scopecheck.cpp.o: ../deps/fmt-7.0.2/include/fmt/core.h
+CMakeFiles/ArkoiCompiler.dir/src/semantic/scopecheck.cpp.o: ../src/compiler/error.h
 CMakeFiles/ArkoiCompiler.dir/src/semantic/scopecheck.cpp.o: ../src/lexer/token.h
 CMakeFiles/ArkoiCompiler.dir/src/semantic/scopecheck.cpp.o: ../src/parser/astnodes.h
 CMakeFiles/ArkoiCompiler.dir/src/semantic/scopecheck.cpp.o: ../src/parser/symboltable.h

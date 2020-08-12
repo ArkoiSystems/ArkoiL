@@ -1,10 +1,5 @@
 import "console"
 
-struct Info {
-    var test: i32 = 0
-    var pointerTest = &test
-}
-
 fun main(): i32 {
     var test = Info { test: 10 }
     test(&test)
@@ -17,4 +12,9 @@ fun test(ok: Info*): void {
     @ok.test = 100
     @ok.pointerTest = @ok.&test
     println("2) %i -> %i: %i", @ok.test, @ok.pointerTest, @ok.@pointerTest)
+}
+
+struct Info {
+    var test: i32 = 0
+    var pointerTest = &test
 }

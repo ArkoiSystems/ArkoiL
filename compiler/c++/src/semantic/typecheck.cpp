@@ -145,8 +145,8 @@ void TypeCheck::visitStructCreate(const std::shared_ptr<StructCreateNode> &struc
 }
 
 void TypeCheck::visitBinary(const std::shared_ptr<BinaryNode> &binaryNode) {
-    visitNode(binaryNode->lhs);
-    visitNode(binaryNode->rhs);
+    TypeCheck::visitNode(binaryNode->lhs);
+    TypeCheck::visitNode(binaryNode->rhs);
 
     switch (binaryNode->operatorKind) {
         case LESS_EQUAL_THAN:
@@ -163,10 +163,10 @@ void TypeCheck::visitBinary(const std::shared_ptr<BinaryNode> &binaryNode) {
         case REMAINING:
             if (!binaryNode->lhs->type->isNumeric())
                 THROW_NODE_ERROR(binaryNode->lhs,
-                                 "Left side of the binary expression is not numeric.");
+                                 "Left side of the binary expression is not numeric.")
             if (!binaryNode->rhs->type->isNumeric())
                 THROW_NODE_ERROR(binaryNode->rhs,
-                                 "Right side of the binary expression is not numeric.");
+                                 "Right side of the binary expression is not numeric.")
             break;
         default:
             std::cout << "TypeCheck: Binary operator not supported." << std::endl;

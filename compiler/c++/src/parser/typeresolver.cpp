@@ -162,56 +162,39 @@ void TypeResolver::visitIdentifier(const std::shared_ptr<IdentifierNode> &identi
         if (identifierNode->kind == AST_FUNCTION_CALL && node->kind != AST_FUNCTION)
             return false;
 
-        auto name = std::string();
-        if (node->kind == AST_VARIABLE) {
-            auto variable = std::static_pointer_cast<VariableNode>(node);
-            name = variable->name->content;
-            TypeResolver::visitVariable(variable);
-        } else if (node->kind == AST_PARAMETER) {
-            auto parameter = std::static_pointer_cast<ParameterNode>(node);
-            name = parameter->name->content;
-            TypeResolver::visitParameter(parameter);
-        } else if (node->kind == AST_FUNCTION) {
-            auto function = std::static_pointer_cast<FunctionNode>(node);
-            name = function->name->content;
-            TypeResolver::visitFunction(function);
-        } else if (node->kind == AST_STRUCT) {
-            auto structNode = std::static_pointer_cast<StructNode>(node);
-            name = structNode->name->content;
-            TypeResolver::visitStruct(structNode);
-        } else return false;
+        if (node->kind != AST_VARIABLE && node->kind != AST_PARAMETER &&
+            node->kind != AST_FUNCTION && node->kind != AST_STRUCT)
+            return false;
 
-        auto sameName = strcmp(identifierNode->identifier->content.c_str(), name.c_str()) == 0;
-        if (sameName && identifierNode->kind != AST_FUNCTION_CALL)
-            return sameName;
+        TypeResolver::visitNode(node);
+
+        if (identifierNode->kind != AST_FUNCTION_CALL)
+            return true;
 
         auto functionCall = std::static_pointer_cast<FunctionCallNode>(identifierNode);
         auto function = std::static_pointer_cast<FunctionNode>(node);
-        if (sameName) {
-            if (!function->isVariadic &&
-                (function->parameters.size() != functionCall->arguments.size()))
+
+        if (!function->isVariadic &&
+            (function->parameters.size() != functionCall->arguments.size()))
+            return false;
+
+        for (auto index = 0; index < functionCall->arguments.size(); index++) {
+            if (index >= function->parameters.size())
+                break;
+
+            auto argument = functionCall->arguments.at(index);
+            TypeResolver::visitArgument(argument);
+            auto parameter = function->parameters.at(index);
+            TypeResolver::visitParameter(parameter);
+
+            if (argument->type == nullptr || parameter->type == nullptr)
                 return false;
 
-            for (auto index = 0; index < functionCall->arguments.size(); index++) {
-                if (index >= function->parameters.size())
-                    break;
-
-                auto argument = functionCall->arguments.at(index);
-                TypeResolver::visitArgument(argument);
-                auto parameter = function->parameters.at(index);
-                TypeResolver::visitParameter(parameter);
-
-                if (argument->type == nullptr || parameter->type == nullptr)
-                    return false;
-
-                if (*parameter->type != *argument->type)
-                    return false;
-            }
-
-            return true;
+            if (*parameter->type != *argument->type)
+                return false;
         }
 
-        return false;
+        return true;
     };
 
     auto nodes = identifierNode->scope->general(identifierNode->identifier->content, scopeCheck);
