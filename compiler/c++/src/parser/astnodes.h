@@ -36,6 +36,8 @@ enum ASTKind {
 
 class TypeNode;
 
+class RootNode;
+
 struct ASTNode {
 
     std::shared_ptr<Token> startToken, endToken;
@@ -73,6 +75,17 @@ struct TypedNode : public ASTNode {
 
 };
 
+struct ImportNode : public ASTNode {
+
+    std::shared_ptr<RootNode> target;
+    std::shared_ptr<Token> path;
+
+    ImportNode() : target({}), path({}) {
+        kind = AST_IMPORT;
+    }
+
+};
+
 struct RootNode : public ASTNode {
 
     std::vector<std::shared_ptr<ASTNode>> nodes;
@@ -82,15 +95,34 @@ struct RootNode : public ASTNode {
         kind = AST_ROOT;
     }
 
-};
+    void getImportedRoots(std::vector<std::shared_ptr<RootNode>> &importedRoots) {
+        for (const auto node : nodes) {
+            if (node->kind != AST_IMPORT)
+                continue;
 
-struct ImportNode : public ASTNode {
+            auto importNode = std::static_pointer_cast<ImportNode>(node);
+            importNode->target->getImportedRoots(importedRoots);
+            importedRoots.push_back(importNode->target);
+        }
+    }
 
-    std::shared_ptr<RootNode> target;
-    std::shared_ptr<Token> path;
+    template<typename Function>
+    void searchGlobally(std::vector<std::shared_ptr<ASTNode>> &foundNodes, const std::string &id,
+                        Function predicate) {
+        std::vector<std::shared_ptr<RootNode>> importedRoots;
+        getImportedRoots(importedRoots);
 
-    ImportNode() : target({}), path({}) {
-        kind = AST_IMPORT;
+        auto currentFounds = scope->scope(id, predicate);
+        if(currentFounds != nullptr && !currentFounds->empty())
+            foundNodes.insert(foundNodes.end(), currentFounds->begin(), currentFounds->end());
+
+        for (const auto &importedRoot : importedRoots) {
+            auto importedFounds = importedRoot->scope->scope(id, predicate);
+            if (importedFounds == nullptr || importedFounds->empty())
+                continue;
+
+            foundNodes.insert(foundNodes.end(), importedFounds->begin(), importedFounds->end());
+        }
     }
 
 };
@@ -112,20 +144,6 @@ struct BlockNode : public ASTNode {
 
     BlockNode() : nodes({}), isInlined(false) {
         kind = AST_BLOCK;
-    }
-
-};
-
-struct FunctionNode : public TypedNode {
-
-    std::vector<std::shared_ptr<ParameterNode>> parameters;
-    bool isVariadic, isBuiltin, isNative;
-    std::shared_ptr<BlockNode> block;
-    std::shared_ptr<Token> name;
-
-    FunctionNode() : parameters({}), isVariadic(false), isBuiltin(false), isNative(false),
-                     block({}), name({}) {
-        kind = AST_FUNCTION;
     }
 
 };
@@ -332,15 +350,12 @@ struct TypeNode : public ASTNode {
 
     TypeNode(const TypeNode &other) = default;
 
-    bool isNumeric() {
-        if (isSigned || isFloating)
-            return true;
-        return pointerLevel == 0 && targetStruct == nullptr && typeToken == nullptr;
+    [[nodiscard]] bool isNumeric() const {
+        return (isSigned || isFloating) && pointerLevel == 0 && targetStruct == nullptr;
     }
 
-    bool isBoolean() {
-        return pointerLevel == 0 && targetStruct == nullptr && typeToken == nullptr && bits == 0 &&
-               isSigned && !isFloating;
+    [[nodiscard]] bool isBoolean() const {
+        return pointerLevel == 0 && targetStruct == nullptr && bits == 1 && isSigned && !isFloating;
     }
 
     friend std::ostream &operator<<(std::ostream &os, const std::shared_ptr<TypeNode> &typeNode) {
@@ -361,6 +376,42 @@ struct TypeNode : public ASTNode {
     }
 
     bool operator!=(const TypeNode &other) const {
+        return !(other == *this);
+    }
+
+};
+
+struct FunctionNode : public TypedNode {
+
+    std::vector<std::shared_ptr<ParameterNode>> parameters;
+    bool isVariadic, isBuiltin, isNative;
+    std::shared_ptr<BlockNode> block;
+    std::shared_ptr<Token> name;
+
+    FunctionNode() : parameters({}), isVariadic(false), isBuiltin(false), isNative(false),
+                     block({}), name({}) {
+        kind = AST_FUNCTION;
+    }
+
+    bool operator==(const FunctionNode &other) const {
+        if (std::strcmp(name->content.c_str(), other.name->content.c_str()) != 0)
+            return false;
+
+        if (parameters.size() != other.parameters.size())
+            return false;
+
+        for (auto index = 0; index < other.parameters.size(); index++) {
+            auto otherParameter = other.parameters[index];
+            auto ownParameter = parameters[index];
+
+            if (*otherParameter->type != *ownParameter->type)
+                return false;
+        }
+
+        return true;
+    }
+
+    bool operator!=(const FunctionNode &other) const {
         return !(other == *this);
     }
 

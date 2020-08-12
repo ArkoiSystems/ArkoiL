@@ -201,6 +201,8 @@ memory
 -
 vector
 -
+iostream
+-
 
 /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/parser/typeresolver.cpp
 typeresolver.h
@@ -221,6 +223,8 @@ scopecheck.h
 /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/semantic/scopecheck.h
 ../parser/astnodes.h
 /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/parser/astnodes.h
+../compiler/error.h
+/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/compiler/error.h
 
 /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/semantic/scopecheck.h
 memory

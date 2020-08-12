@@ -63,6 +63,8 @@ CMakeFiles/ArkoiCompiler.dir/src/parser/typeresolver.cpp.o
  /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/parser/typeresolver.cpp
  /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/parser/typeresolver.h
 CMakeFiles/ArkoiCompiler.dir/src/semantic/scopecheck.cpp.o
+ ../deps/fmt-7.0.2/include/fmt/core.h
+ /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/compiler/error.h
  /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/lexer/token.h
  /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/parser/astnodes.h
  /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/parser/symboltable.h
