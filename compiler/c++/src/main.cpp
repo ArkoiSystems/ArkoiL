@@ -66,13 +66,12 @@ int main(int argc, char *argv[]) {
         return EXIT_FAILURE;
     }
 
-    // TODO: Is this a good idea?
     for (const auto &sourceFile : compilerOptions.sourceFiles)
         compilerOptions.searchPaths.push_back(sourceFile.substr(0, sourceFile.rfind('/')));
+    // TODO: Change this
     compilerOptions.searchPaths.emplace_back("../../../natives");
 
-    auto compiler = Compiler(compilerOptions);
-    return compiler.compile();
+    return Compiler::compile(compilerOptions);
 }
 
 void printUsage() {

@@ -4,7 +4,7 @@
 
 #include "parser.h"
 #include "../compiler/error.h"
-#include "../compiler/utils.h"
+#include "../utils.h"
 #include "../lexer/lexer.h"
 #include "astnodes.h"
 
@@ -544,6 +544,7 @@ std::shared_ptr<OperableNode> Parser::parseIdentifier(const std::shared_ptr<ASTN
 
     identifierNode->endToken = currentToken();
 
+    auto startIdentifier = identifierNode;
     auto lastIdentifier = identifierNode;
     while (peekToken(1) == ".") {
         nextToken(2);
@@ -614,6 +615,7 @@ std::shared_ptr<OperableNode> Parser::parseIdentifier(const std::shared_ptr<ASTN
         structCreate->scope = parent->scope;
         structCreate->parent = parent;
 
+        structCreate->startIdentifier = startIdentifier;
         structCreate->endIdentifier = identifierNode;
 
         identifierNode->scope = structCreate->scope;
@@ -644,6 +646,7 @@ std::shared_ptr<OperableNode> Parser::parseIdentifier(const std::shared_ptr<ASTN
         assignment->scope = parent->scope;
         assignment->parent = parent;
 
+        assignment->startIdentifier = startIdentifier;
         assignment->endIdentifier = identifierNode;
 
         identifierNode->scope = assignment->scope;

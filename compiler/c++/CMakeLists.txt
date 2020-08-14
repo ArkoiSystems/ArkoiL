@@ -1,33 +1,45 @@
 cmake_minimum_required(VERSION 3.16)
-project(ArkoiCompiler)
 
+project(ArkoiCompiler)
 set(CMAKE_CXX_STANDARD 20)
 
-add_subdirectory(deps/fmt-7.0.2)
-add_subdirectory(deps/dbg-macro)
+set(ARKOI_VERSION_MAJOR 0)
+set(ARKOI_VERSION_MINOR 1)
+set(ARKOI_VERSION_PATCH 0)
+set(ARKOI_VERSION "${ARKOI_VERSION_MAJOR}.${ARKOI_VERSION_MINOR}.${ARKOI_VERSION_PATCH}")
+
+find_package(LLVM REQUIRED CONFIG)
+
+add_subdirectory("${CMAKE_SOURCE_DIR}/deps/fmt-7.0.2")
+add_subdirectory("${CMAKE_SOURCE_DIR}/deps/dbg-macro")
+
+include_directories(${LLVM_INCLUDE_DIRS})
+add_definitions(${LLVM_DEFINITIONS})
 
 add_executable(ArkoiCompiler
-        src/main.cpp
-        src/lexer/lexer.cpp
-        src/lexer/lexer.h
-        src/compiler/options.h
-        src/compiler/compiler.cpp
-        src/compiler/compiler.h
-        src/compiler/utils.h
-        src/parser/parser.cpp
-        src/parser/parser.h
-        src/lexer/token.cpp
-        src/lexer/token.h
-        src/parser/astnodes.h
-        src/compiler/error.cpp
-        src/compiler/error.h
-        src/parser/typeresolver.cpp
-        src/parser/typeresolver.h
-        src/parser/symboltable.cpp
-        src/parser/symboltable.h
-        src/semantic/typecheck.cpp
-        src/semantic/typecheck.h
-        src/semantic/scopecheck.cpp
-        src/semantic/scopecheck.h)
+        "${CMAKE_SOURCE_DIR}/src/main.cpp"
+        "${CMAKE_SOURCE_DIR}/src/lexer/lexer.cpp"
+        "${CMAKE_SOURCE_DIR}/src/lexer/lexer.h"
+        "${CMAKE_SOURCE_DIR}/src/compiler/options.h"
+        "${CMAKE_SOURCE_DIR}/src/compiler/compiler.cpp"
+        "${CMAKE_SOURCE_DIR}/src/compiler/compiler.h"
+        "${CMAKE_SOURCE_DIR}/src/utils.h"
+        "${CMAKE_SOURCE_DIR}/src/parser/parser.cpp"
+        "${CMAKE_SOURCE_DIR}/src/parser/parser.h"
+        "${CMAKE_SOURCE_DIR}/src/lexer/token.cpp"
+        "${CMAKE_SOURCE_DIR}/src/lexer/token.h"
+        "${CMAKE_SOURCE_DIR}/src/parser/astnodes.h"
+        "${CMAKE_SOURCE_DIR}/src/compiler/error.cpp"
+        "${CMAKE_SOURCE_DIR}/src/compiler/error.h"
+        "${CMAKE_SOURCE_DIR}/src/parser/typeresolver.cpp"
+        "${CMAKE_SOURCE_DIR}/src/parser/typeresolver.h"
+        "${CMAKE_SOURCE_DIR}/src/parser/symboltable.cpp"
+        "${CMAKE_SOURCE_DIR}/src/parser/symboltable.h"
+        "${CMAKE_SOURCE_DIR}/src/semantic/typecheck.cpp"
+        "${CMAKE_SOURCE_DIR}/src/semantic/typecheck.h"
+        "${CMAKE_SOURCE_DIR}/src/semantic/scopecheck.cpp"
+        "${CMAKE_SOURCE_DIR}/src/semantic/scopecheck.h" src/codegen/codegen.cpp src/codegen/codegen.h)
 
-target_link_libraries(ArkoiCompiler PRIVATE fmt::fmt)
+llvm_map_components_to_libnames(llvm_libs core analysis)
+
+target_link_libraries(ArkoiCompiler PRIVATE fmt::fmt ${llvm_libs})

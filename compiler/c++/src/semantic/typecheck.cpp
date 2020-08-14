@@ -111,6 +111,14 @@ void TypeCheck::visitAssignment(const std::shared_ptr<AssignmentNode> &assignmen
         return;
     }
 
+    if(assignmentNode->targetNode->kind == AST_VARIABLE) {
+        auto variableNode = std::static_pointer_cast<VariableNode>(assignmentNode->targetNode);
+        if(variableNode->isConstant) {
+            THROW_NODE_ERROR(assignmentNode,"Constant variables can't be reassigned.")
+            return;
+        }
+    }
+
     TypeCheck::visitNode(assignmentNode->expression);
 }
 
@@ -141,6 +149,11 @@ void TypeCheck::visitStructCreate(const std::shared_ptr<StructCreateNode> &struc
                              "The struct create argument uses a different type than the variable.")
             return;
         }
+
+        if (foundVariable->isConstant) {
+            THROW_NODE_ERROR(argument, "Constant variables can't be reassigned.")
+            return;
+        }
     }
 }
 
@@ -148,6 +161,7 @@ void TypeCheck::visitBinary(const std::shared_ptr<BinaryNode> &binaryNode) {
     TypeCheck::visitNode(binaryNode->lhs);
     TypeCheck::visitNode(binaryNode->rhs);
 
+    // TODO: Add check for the remaining operator (no floating pointer)
     switch (binaryNode->operatorKind) {
         case LESS_EQUAL_THAN:
         case LESS_THAN:
@@ -161,10 +175,10 @@ void TypeCheck::visitBinary(const std::shared_ptr<BinaryNode> &binaryNode) {
         case SUBTRACTION:
         case DIVISION:
         case REMAINING:
-            if (!binaryNode->lhs->type->isNumeric())
+            if (!binaryNode->lhs->type->isNumeric() || binaryNode->lhs->type->pointerLevel != 0)
                 THROW_NODE_ERROR(binaryNode->lhs,
                                  "Left side of the binary expression is not numeric.")
-            if (!binaryNode->rhs->type->isNumeric())
+            if (!binaryNode->rhs->type->isNumeric() || binaryNode->rhs->type->pointerLevel != 0)
                 THROW_NODE_ERROR(binaryNode->rhs,
                                  "Right side of the binary expression is not numeric.")
             break;

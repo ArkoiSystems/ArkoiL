@@ -47,6 +47,22 @@ namespace Utils {
         return !string[index] ? 5381 : (hash(string, index + 1) * 33) ^ string[index];
     }
 
+    template<typename T>
+    static std::pair<bool, int> indexOf(const std::vector<T> &vector, const T &element) {
+        std::pair<bool, int> result;
+
+        auto iterator = std::find(vector.begin(), vector.end(), element);
+        if (iterator != vector.end()) {
+            result.second = distance(vector.begin(), iterator);
+            result.first = true;
+        } else {
+            result.first = false;
+            result.second = -1;
+        }
+
+        return result;
+    }
+
 }
 
 #endif //ARKOICOMPILER_UTILS_H

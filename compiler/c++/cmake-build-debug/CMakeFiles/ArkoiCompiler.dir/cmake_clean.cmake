@@ -1,6 +1,7 @@
 file(REMOVE_RECURSE
   "ArkoiCompiler"
   "ArkoiCompiler.pdb"
+  "CMakeFiles/ArkoiCompiler.dir/src/codegen/codegen.cpp.o"
   "CMakeFiles/ArkoiCompiler.dir/src/compiler/compiler.cpp.o"
   "CMakeFiles/ArkoiCompiler.dir/src/compiler/error.cpp.o"
   "CMakeFiles/ArkoiCompiler.dir/src/lexer/lexer.cpp.o"

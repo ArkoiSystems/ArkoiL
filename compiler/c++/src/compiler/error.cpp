@@ -5,7 +5,7 @@
 #include "error.h"
 #include <iostream>
 #include "../parser/parser.h"
-#include "utils.h"
+#include "../utils.h"
 
 std::ostream &operator<<(std::ostream &out, const Error &error) {
     out << error.sourcePath << ":" << (error.startLine + 1) << " "

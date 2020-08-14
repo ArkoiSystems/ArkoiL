@@ -18,19 +18,16 @@ class Parser;
 
 class Compiler {
 
-private:
-    CompilerOptions compilerOptions;
+public:
+    Compiler() = delete;
 
 public:
-    explicit Compiler(CompilerOptions compilerOptions) :
-            compilerOptions(std::move(compilerOptions)) {}
+    static int compile(const CompilerOptions &compilerOptions);
 
-public:
-    void loadImports(std::set<std::string> &loaded, std::vector<std::shared_ptr<RootNode>> &roots);
+    static void loadImports(const CompilerOptions &compilerOptions,
+                            std::set<std::string> &loaded,
+                            std::vector<std::shared_ptr<RootNode>> &roots);
 
-    int compile();
-
-public:
     static std::shared_ptr<Parser> loadFile(const std::string &sourcePath);
 
 };
