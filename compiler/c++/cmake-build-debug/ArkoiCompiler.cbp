@@ -5,7 +5,7 @@
 		<Option title="ArkoiCompiler"/>
 		<Option makefile_is_custom="1"/>
 		<Option compiler="gcc"/>
-		<Option virtualFolders="CMake Files\;CMake Files\deps\;CMake Files\deps\fmt-7.0.2\;CMake Files\deps\fmt-7.0.2\support\;CMake Files\deps\fmt-7.0.2\support\cmake\;CMake Files\deps\dbg-macro\;"/>
+		<Option virtualFolders="CMake Files\;CMake Files\..\;CMake Files\..\..\;CMake Files\..\..\..\;CMake Files\..\..\..\..\;CMake Files\..\..\..\..\..\;CMake Files\..\..\..\..\..\..\;CMake Files\..\..\..\..\..\..\..\;CMake Files\..\..\..\..\..\..\..\usr\;CMake Files\..\..\..\..\..\..\..\usr\lib\;CMake Files\..\..\..\..\..\..\..\usr\lib\llvm-10\;CMake Files\..\..\..\..\..\..\..\usr\lib\llvm-10\cmake\;CMake Files\..\..\..\..\..\..\..\usr\lib\llvm-10\lib\;CMake Files\..\..\..\..\..\..\..\usr\lib\llvm-10\lib\cmake\;CMake Files\..\..\..\..\..\..\..\usr\lib\llvm-10\lib\cmake\llvm\;CMake Files\deps\;CMake Files\deps\fmt-7.0.2\;CMake Files\deps\fmt-7.0.2\support\;CMake Files\deps\fmt-7.0.2\support\cmake\;CMake Files\deps\dbg-macro\;"/>
 		<Build>
 			<Target title="all">
 				<Option working_dir="/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/cmake-build-debug"/>
@@ -37,6 +37,46 @@
 					<DistClean command="/usr/bin/make -j6 -f &quot;/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
+			<Target title="install">
+				<Option working_dir="/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j6 -f &quot;/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/cmake-build-debug/Makefile&quot;  VERBOSE=1 install"/>
+					<CompileFile command="/usr/bin/make -j6 -f &quot;/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j6 -f &quot;/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j6 -f &quot;/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="list_install_components">
+				<Option working_dir="/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j6 -f &quot;/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/cmake-build-debug/Makefile&quot;  VERBOSE=1 list_install_components"/>
+					<CompileFile command="/usr/bin/make -j6 -f &quot;/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j6 -f &quot;/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j6 -f &quot;/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="intrinsics_gen">
+				<Option working_dir="/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j6 -f &quot;/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/cmake-build-debug/Makefile&quot;  VERBOSE=1 intrinsics_gen"/>
+					<CompileFile command="/usr/bin/make -j6 -f &quot;/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j6 -f &quot;/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j6 -f &quot;/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="rebuild_cache">
+				<Option working_dir="/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j6 -f &quot;/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/cmake-build-debug/Makefile&quot;  VERBOSE=1 rebuild_cache"/>
+					<CompileFile command="/usr/bin/make -j6 -f &quot;/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j6 -f &quot;/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j6 -f &quot;/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
 			<Target title="ArkoiCompiler">
 				<Option output="/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/cmake-build-debug/ArkoiCompiler" prefix_auto="0" extension_auto="0"/>
 				<Option working_dir="/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/cmake-build-debug"/>
@@ -44,6 +84,7 @@
 				<Option type="1"/>
 				<Option compiler="gcc"/>
 				<Compiler>
+					<Add directory="/usr/lib/llvm-10/include"/>
 					<Add directory="/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/deps/fmt-7.0.2/include"/>
 					<Add directory="/usr/include/c++/7"/>
 					<Add directory="/usr/include/x86_64-linux-gnu/c++/7"/>
@@ -68,6 +109,7 @@
 				<Option type="1"/>
 				<Option compiler="gcc"/>
 				<Compiler>
+					<Add directory="/usr/lib/llvm-10/include"/>
 					<Add directory="/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/deps/fmt-7.0.2/include"/>
 					<Add directory="/usr/include/c++/7"/>
 					<Add directory="/usr/include/x86_64-linux-gnu/c++/7"/>
@@ -90,36 +132,6 @@
 				<Option type="4"/>
 				<MakeCommands>
 					<Build command="/usr/bin/make -j6 -f &quot;/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/cmake-build-debug/Makefile&quot;  VERBOSE=1 edit_cache"/>
-					<CompileFile command="/usr/bin/make -j6 -f &quot;/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -j6 -f &quot;/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -j6 -f &quot;/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-				</MakeCommands>
-			</Target>
-			<Target title="rebuild_cache">
-				<Option working_dir="/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/cmake-build-debug"/>
-				<Option type="4"/>
-				<MakeCommands>
-					<Build command="/usr/bin/make -j6 -f &quot;/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/cmake-build-debug/Makefile&quot;  VERBOSE=1 rebuild_cache"/>
-					<CompileFile command="/usr/bin/make -j6 -f &quot;/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -j6 -f &quot;/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -j6 -f &quot;/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-				</MakeCommands>
-			</Target>
-			<Target title="install">
-				<Option working_dir="/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/cmake-build-debug"/>
-				<Option type="4"/>
-				<MakeCommands>
-					<Build command="/usr/bin/make -j6 -f &quot;/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/cmake-build-debug/Makefile&quot;  VERBOSE=1 install"/>
-					<CompileFile command="/usr/bin/make -j6 -f &quot;/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -j6 -f &quot;/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -j6 -f &quot;/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-				</MakeCommands>
-			</Target>
-			<Target title="list_install_components">
-				<Option working_dir="/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/cmake-build-debug"/>
-				<Option type="4"/>
-				<MakeCommands>
-					<Build command="/usr/bin/make -j6 -f &quot;/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/cmake-build-debug/Makefile&quot;  VERBOSE=1 list_install_components"/>
 					<CompileFile command="/usr/bin/make -j6 -f &quot;/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
 					<Clean command="/usr/bin/make -j6 -f &quot;/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 					<DistClean command="/usr/bin/make -j6 -f &quot;/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
@@ -222,6 +234,12 @@
 		<Unit filename="/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/deps/fmt-7.0.2/src/os.cc">
 			<Option target="fmt"/>
 		</Unit>
+		<Unit filename="/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/codegen/codegen.cpp">
+			<Option target="ArkoiCompiler"/>
+		</Unit>
+		<Unit filename="/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/codegen/codegen.h">
+			<Option target="ArkoiCompiler"/>
+		</Unit>
 		<Unit filename="/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/compiler/compiler.cpp">
 			<Option target="ArkoiCompiler"/>
 		</Unit>
@@ -235,9 +253,6 @@
 			<Option target="ArkoiCompiler"/>
 		</Unit>
 		<Unit filename="/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/compiler/options.h">
-			<Option target="ArkoiCompiler"/>
-		</Unit>
-		<Unit filename="/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/compiler/utils.h">
 			<Option target="ArkoiCompiler"/>
 		</Unit>
 		<Unit filename="/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/lexer/lexer.cpp">
@@ -288,8 +303,26 @@
 		<Unit filename="/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/semantic/typecheck.h">
 			<Option target="ArkoiCompiler"/>
 		</Unit>
+		<Unit filename="/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/utils.h">
+			<Option target="ArkoiCompiler"/>
+		</Unit>
 		<Unit filename="/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/CMakeLists.txt">
 			<Option virtualFolder="CMake Files\"/>
+		</Unit>
+		<Unit filename="/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/../../../../../../../usr/lib/llvm-10/cmake/LLVMConfig.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\usr\lib\llvm-10\cmake\"/>
+		</Unit>
+		<Unit filename="/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/../../../../../../../usr/lib/llvm-10/cmake/LLVMConfigVersion.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\usr\lib\llvm-10\cmake\"/>
+		</Unit>
+		<Unit filename="/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/../../../../../../../usr/lib/llvm-10/lib/cmake/llvm/LLVM-Config.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\usr\lib\llvm-10\lib\cmake\llvm\"/>
+		</Unit>
+		<Unit filename="/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/../../../../../../../usr/lib/llvm-10/lib/cmake/llvm/LLVMExports-relwithdebinfo.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\usr\lib\llvm-10\lib\cmake\llvm\"/>
+		</Unit>
+		<Unit filename="/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/../../../../../../../usr/lib/llvm-10/lib/cmake/llvm/LLVMExports.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\usr\lib\llvm-10\lib\cmake\llvm\"/>
 		</Unit>
 		<Unit filename="/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/deps/fmt-7.0.2/CMakeLists.txt">
 			<Option virtualFolder="CMake Files\deps\fmt-7.0.2\"/>

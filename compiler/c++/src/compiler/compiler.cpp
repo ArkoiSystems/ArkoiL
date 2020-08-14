@@ -3,18 +3,20 @@
 //
 
 #include "compiler.h"
-#include "../../deps/dbg-macro/dbg.h"
 #include "../parser/typeresolver.h"
-#include "../parser/parser.h"
-#include "options.h"
-#include "utils.h"
-#include "error.h"
-#include "../lexer/lexer.h"
-#include "../parser/astnodes.h"
-#include "../semantic/typecheck.h"
 #include "../semantic/scopecheck.h"
+#include "../semantic/typecheck.h"
+#include "../parser/astnodes.h"
+#include "../codegen/codegen.h"
+#include "../parser/parser.h"
+#include "../lexer/lexer.h"
+#include "../utils.h"
+#include "options.h"
+#include "error.h"
 
-int Compiler::compile() {
+#include "../../deps/dbg-macro/dbg.h"
+
+int Compiler::compile(const CompilerOptions &compilerOptions) {
     std::vector<std::shared_ptr<RootNode>> roots;
     for (const auto &sourcePath : compilerOptions.sourceFiles) {
         auto parser = Compiler::loadFile(sourcePath);
@@ -26,7 +28,7 @@ int Compiler::compile() {
     std::set<std::string> loaded;
     while (true) {
         auto lastSize = loaded.size();
-        loadImports(loaded, roots);
+        Compiler::loadImports(compilerOptions, loaded, roots);
         if (lastSize == loaded.size())
             break;
     }
@@ -39,11 +41,17 @@ int Compiler::compile() {
         ScopeCheck::visitRoot(rootNode);
     }
 
+    for (const auto &rootNode : roots) {
+        CodeGen codeGen{};
+        codeGen.visitRoot(rootNode);
+    }
+
     return 0;
 }
 
 // TODO: Make an efficient function.
-void Compiler::loadImports(std::set<std::string> &loaded,
+void Compiler::loadImports(const CompilerOptions &compilerOptions,
+                           std::set<std::string> &loaded,
                            std::vector<std::shared_ptr<RootNode>> &roots) {
     for (const auto &rootNode : roots) {
         for (const auto &node : rootNode->nodes) {

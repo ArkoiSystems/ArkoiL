@@ -100,28 +100,6 @@ install/local/fast: preinstall/fast
 	/snap/clion/123/bin/cmake/linux/bin/cmake -DCMAKE_INSTALL_LOCAL_ONLY=1 -P cmake_install.cmake
 .PHONY : install/local/fast
 
-# Special rule for the target edit_cache
-edit_cache:
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "No interactive CMake dialog available..."
-	/snap/clion/123/bin/cmake/linux/bin/cmake -E echo No\ interactive\ CMake\ dialog\ available.
-.PHONY : edit_cache
-
-# Special rule for the target edit_cache
-edit_cache/fast: edit_cache
-
-.PHONY : edit_cache/fast
-
-# Special rule for the target rebuild_cache
-rebuild_cache:
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake to regenerate build system..."
-	/snap/clion/123/bin/cmake/linux/bin/cmake --regenerate-during-build -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
-.PHONY : rebuild_cache
-
-# Special rule for the target rebuild_cache
-rebuild_cache/fast: rebuild_cache
-
-.PHONY : rebuild_cache/fast
-
 # Special rule for the target install
 install: preinstall
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Install the project..."
@@ -143,6 +121,28 @@ list_install_components:
 list_install_components/fast: list_install_components
 
 .PHONY : list_install_components/fast
+
+# Special rule for the target rebuild_cache
+rebuild_cache:
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake to regenerate build system..."
+	/snap/clion/123/bin/cmake/linux/bin/cmake --regenerate-during-build -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
+.PHONY : rebuild_cache
+
+# Special rule for the target rebuild_cache
+rebuild_cache/fast: rebuild_cache
+
+.PHONY : rebuild_cache/fast
+
+# Special rule for the target edit_cache
+edit_cache:
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "No interactive CMake dialog available..."
+	/snap/clion/123/bin/cmake/linux/bin/cmake -E echo No\ interactive\ CMake\ dialog\ available.
+.PHONY : edit_cache
+
+# Special rule for the target edit_cache
+edit_cache/fast: edit_cache
+
+.PHONY : edit_cache/fast
 
 # The main all target
 all: cmake_check_build_system
@@ -177,6 +177,19 @@ depend:
 .PHONY : depend
 
 #=============================================================================
+# Target rules for targets named intrinsics_gen
+
+# Build rule for target.
+intrinsics_gen: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 intrinsics_gen
+.PHONY : intrinsics_gen
+
+# fast build rule for target.
+intrinsics_gen/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/intrinsics_gen.dir/build.make CMakeFiles/intrinsics_gen.dir/build
+.PHONY : intrinsics_gen/fast
+
+#=============================================================================
 # Target rules for targets named ArkoiCompiler
 
 # Build rule for target.
@@ -201,6 +214,33 @@ fmt: cmake_check_build_system
 fmt/fast:
 	$(MAKE) $(MAKESILENT) -f deps/fmt-7.0.2/CMakeFiles/fmt.dir/build.make deps/fmt-7.0.2/CMakeFiles/fmt.dir/build
 .PHONY : fmt/fast
+
+src/codegen/codegen.o: src/codegen/codegen.cpp.o
+
+.PHONY : src/codegen/codegen.o
+
+# target to build an object file
+src/codegen/codegen.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ArkoiCompiler.dir/build.make CMakeFiles/ArkoiCompiler.dir/src/codegen/codegen.cpp.o
+.PHONY : src/codegen/codegen.cpp.o
+
+src/codegen/codegen.i: src/codegen/codegen.cpp.i
+
+.PHONY : src/codegen/codegen.i
+
+# target to preprocess a source file
+src/codegen/codegen.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ArkoiCompiler.dir/build.make CMakeFiles/ArkoiCompiler.dir/src/codegen/codegen.cpp.i
+.PHONY : src/codegen/codegen.cpp.i
+
+src/codegen/codegen.s: src/codegen/codegen.cpp.s
+
+.PHONY : src/codegen/codegen.s
+
+# target to generate assembly for a file
+src/codegen/codegen.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ArkoiCompiler.dir/build.make CMakeFiles/ArkoiCompiler.dir/src/codegen/codegen.cpp.s
+.PHONY : src/codegen/codegen.cpp.s
 
 src/compiler/compiler.o: src/compiler/compiler.cpp.o
 
@@ -484,8 +524,12 @@ help:
 	@echo "... install/strip"
 	@echo "... list_install_components"
 	@echo "... rebuild_cache"
+	@echo "... intrinsics_gen"
 	@echo "... ArkoiCompiler"
 	@echo "... fmt"
+	@echo "... src/codegen/codegen.o"
+	@echo "... src/codegen/codegen.i"
+	@echo "... src/codegen/codegen.s"
 	@echo "... src/compiler/compiler.o"
 	@echo "... src/compiler/compiler.i"
 	@echo "... src/compiler/compiler.s"

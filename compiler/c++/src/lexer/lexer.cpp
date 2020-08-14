@@ -4,7 +4,7 @@
 
 #include "lexer.h"
 #include <fmt/core.h>
-#include "../compiler/utils.h"
+#include "../utils.h"
 #include "../compiler/error.h"
 #include "token.h"
 

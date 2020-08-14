@@ -9,6 +9,7 @@
 #include <ostream>
 #include "../lexer/token.h"
 #include "symboltable.h"
+#include "../utils.h"
 
 enum ASTKind {
     AST_NONE,
@@ -54,11 +55,12 @@ struct ASTNode {
     virtual ~ASTNode() = default;
 
     template<typename Type>
-    Type *getParent() {
-        if (auto result = dynamic_cast<Type *>(this))
-            return result;
+    std::shared_ptr<Type> getParent() {
         if (parent == nullptr)
             return nullptr;
+
+        if (auto result = std::dynamic_pointer_cast<Type>(parent))
+            return result;
         return parent->getParent<Type>();
     }
 
@@ -66,6 +68,7 @@ struct ASTNode {
 
 struct TypedNode : public ASTNode {
 
+    std::shared_ptr<ASTNode> targetNode;
     std::shared_ptr<TypeNode> type;
     bool isTypeResolved;
 
@@ -278,37 +281,12 @@ struct IdentifierNode : public OperableNode {
 
 };
 
-struct FunctionCallNode : public IdentifierNode {
-
-    std::vector<std::shared_ptr<ArgumentNode>> arguments;
-
-    FunctionCallNode() : arguments({}) {
-        kind = AST_FUNCTION_CALL;
-    }
-
-    explicit FunctionCallNode(const IdentifierNode &other) : IdentifierNode(other) {
-        kind = AST_FUNCTION_CALL;
-    }
-
-};
-
-struct StructCreateNode : public OperableNode {
-
-    std::vector<std::shared_ptr<ArgumentNode>> arguments;
-    std::shared_ptr<IdentifierNode> endIdentifier;
-
-    StructCreateNode() : arguments({}), endIdentifier({}) {
-        kind = AST_STRUCT_CREATE;
-    }
-
-};
-
 struct AssignmentNode : public OperableNode {
 
-    std::shared_ptr<IdentifierNode> endIdentifier;
+    std::shared_ptr<IdentifierNode> startIdentifier, endIdentifier;
     std::shared_ptr<OperableNode> expression;
 
-    AssignmentNode() : endIdentifier({}), expression({}) {
+    AssignmentNode() : startIdentifier({}), endIdentifier({}), expression({}) {
         kind = AST_ASSIGNMENT;
     }
 
@@ -351,11 +329,13 @@ struct TypeNode : public ASTNode {
     TypeNode(const TypeNode &other) = default;
 
     [[nodiscard]] bool isNumeric() const {
-        return (isSigned || isFloating) && pointerLevel == 0 && targetStruct == nullptr;
+        if ((isSigned || isFloating) && bits > 0)
+            return true;
+        return bits > 0 && targetStruct == nullptr;
     }
 
     [[nodiscard]] bool isBoolean() const {
-        return pointerLevel == 0 && targetStruct == nullptr && bits == 1 && isSigned && !isFloating;
+        return targetStruct == nullptr && bits == 1 && isSigned && !isFloating;
     }
 
     friend std::ostream &operator<<(std::ostream &os, const std::shared_ptr<TypeNode> &typeNode) {
@@ -413,6 +393,92 @@ struct FunctionNode : public TypedNode {
 
     bool operator!=(const FunctionNode &other) const {
         return !(other == *this);
+    }
+
+};
+
+struct StructCreateNode : public OperableNode {
+
+    std::shared_ptr<IdentifierNode> startIdentifier, endIdentifier;
+    std::vector<std::shared_ptr<ArgumentNode>> arguments;
+
+    StructCreateNode() : startIdentifier({}), endIdentifier({}), arguments({}) {
+        kind = AST_STRUCT_CREATE;
+    }
+
+    std::vector<std::shared_ptr<ArgumentNode>> getSortedArguments() {
+        auto structNode = std::static_pointer_cast<StructNode>(targetNode);
+
+        std::vector<std::shared_ptr<ArgumentNode>> sortedArguments(arguments);
+        for (const auto &argument : arguments) {
+            std::shared_ptr<VariableNode> foundVariable;
+            for (auto index = 0; index < structNode->variables.size(); index++) {
+                auto variable = structNode->variables.at(index);
+                if (std::strcmp(variable->name->content.c_str(),
+                                argument->name->content.c_str()) == 0) {
+                    foundVariable = variable;
+                    break;
+                }
+            }
+
+            if (foundVariable == nullptr) {
+                std::cout << "StructCreateNode: Couldn't find the variable." << std::endl;
+                exit(EXIT_FAILURE);
+            }
+
+            auto variableIndex = Utils::indexOf(structNode->variables, foundVariable).second;
+            auto argumentIndex = Utils::indexOf(arguments, argument).second;
+            sortedArguments.erase(sortedArguments.begin() + argumentIndex);
+            sortedArguments.insert(sortedArguments.begin() + variableIndex, argument);
+        }
+
+        return sortedArguments;
+    }
+
+};
+
+struct FunctionCallNode : public IdentifierNode {
+
+    std::vector<std::shared_ptr<ArgumentNode>> arguments;
+
+    FunctionCallNode() : arguments({}) {
+        kind = AST_FUNCTION_CALL;
+    }
+
+    explicit FunctionCallNode(const IdentifierNode &other) : IdentifierNode(other) {
+        kind = AST_FUNCTION_CALL;
+    }
+
+    std::vector<std::shared_ptr<ArgumentNode>> getSortedArguments() {
+        auto functionNode = std::static_pointer_cast<FunctionNode>(targetNode);
+
+        std::vector<std::shared_ptr<ArgumentNode>> sortedArguments(arguments);
+        for (const auto &argument : arguments) {
+            if (argument->name == nullptr)
+                continue;
+
+            std::shared_ptr<ParameterNode> foundParameter;
+            for (auto index = 0; index < functionNode->parameters.size(); index++) {
+                auto parameter = functionNode->parameters.at(index);
+                if (std::strcmp(parameter->name->content.c_str(),
+                                argument->name->content.c_str()) == 0) {
+                    foundParameter = parameter;
+                    break;
+                }
+            }
+
+            if (foundParameter == nullptr) {
+                std::cout << "FunctionCallNode: Couldn't find the parameter." << std::endl;
+                exit(EXIT_FAILURE);
+            }
+
+            auto parameterIndex = Utils::indexOf(functionNode->parameters, foundParameter).second;
+            auto argumentIndex = Utils::indexOf(arguments, argument).second;
+            sortedArguments.erase(sortedArguments.begin() + argumentIndex);
+            sortedArguments.insert(sortedArguments.begin() + parameterIndex, argument);
+        }
+
+        return sortedArguments;
     }
 
 };

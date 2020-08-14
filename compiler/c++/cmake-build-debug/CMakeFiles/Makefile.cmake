@@ -42,6 +42,11 @@ set(CMAKE_MAKEFILE_DEPENDS
   "/snap/clion/123/bin/cmake/linux/share/cmake-3.17/Modules/Platform/Linux.cmake"
   "/snap/clion/123/bin/cmake/linux/share/cmake-3.17/Modules/Platform/UnixPaths.cmake"
   "/snap/clion/123/bin/cmake/linux/share/cmake-3.17/Modules/ProcessorCount.cmake"
+  "/usr/lib/llvm-10/cmake/LLVMConfig.cmake"
+  "/usr/lib/llvm-10/cmake/LLVMConfigVersion.cmake"
+  "/usr/lib/llvm-10/lib/cmake/llvm/LLVM-Config.cmake"
+  "/usr/lib/llvm-10/lib/cmake/llvm/LLVMExports-relwithdebinfo.cmake"
+  "/usr/lib/llvm-10/lib/cmake/llvm/LLVMExports.cmake"
   )
 
 # The corresponding makefile is:
@@ -59,6 +64,7 @@ set(CMAKE_MAKEFILE_PRODUCTS
 
 # Dependency information for all targets:
 set(CMAKE_DEPEND_INFO_FILES
+  "CMakeFiles/intrinsics_gen.dir/DependInfo.cmake"
   "CMakeFiles/ArkoiCompiler.dir/DependInfo.cmake"
   "deps/fmt-7.0.2/CMakeFiles/fmt.dir/DependInfo.cmake"
   )

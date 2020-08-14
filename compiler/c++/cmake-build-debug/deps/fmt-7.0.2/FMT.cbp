@@ -5,7 +5,7 @@
 		<Option title="FMT"/>
 		<Option makefile_is_custom="1"/>
 		<Option compiler="gcc"/>
-		<Option virtualFolders="CMake Files\;CMake Files\deps\;CMake Files\deps\fmt-7.0.2\;CMake Files\deps\fmt-7.0.2\support\;CMake Files\deps\fmt-7.0.2\support\cmake\;CMake Files\deps\dbg-macro\;"/>
+		<Option virtualFolders="CMake Files\;CMake Files\..\;CMake Files\..\..\;CMake Files\..\..\..\;CMake Files\..\..\..\..\;CMake Files\..\..\..\..\..\;CMake Files\..\..\..\..\..\..\;CMake Files\..\..\..\..\..\..\..\;CMake Files\..\..\..\..\..\..\..\usr\;CMake Files\..\..\..\..\..\..\..\usr\lib\;CMake Files\..\..\..\..\..\..\..\usr\lib\llvm-10\;CMake Files\..\..\..\..\..\..\..\usr\lib\llvm-10\cmake\;CMake Files\..\..\..\..\..\..\..\usr\lib\llvm-10\lib\;CMake Files\..\..\..\..\..\..\..\usr\lib\llvm-10\lib\cmake\;CMake Files\..\..\..\..\..\..\..\usr\lib\llvm-10\lib\cmake\llvm\;CMake Files\deps\;CMake Files\deps\fmt-7.0.2\;CMake Files\deps\fmt-7.0.2\support\;CMake Files\deps\fmt-7.0.2\support\cmake\;CMake Files\deps\dbg-macro\;"/>
 		<Build>
 			<Target title="all">
 				<Option working_dir="/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/cmake-build-debug/deps/fmt-7.0.2"/>
@@ -116,6 +116,21 @@
 		</Unit>
 		<Unit filename="/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/CMakeLists.txt">
 			<Option virtualFolder="CMake Files\"/>
+		</Unit>
+		<Unit filename="/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/../../../../../../../usr/lib/llvm-10/cmake/LLVMConfig.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\usr\lib\llvm-10\cmake\"/>
+		</Unit>
+		<Unit filename="/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/../../../../../../../usr/lib/llvm-10/cmake/LLVMConfigVersion.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\usr\lib\llvm-10\cmake\"/>
+		</Unit>
+		<Unit filename="/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/../../../../../../../usr/lib/llvm-10/lib/cmake/llvm/LLVM-Config.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\usr\lib\llvm-10\lib\cmake\llvm\"/>
+		</Unit>
+		<Unit filename="/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/../../../../../../../usr/lib/llvm-10/lib/cmake/llvm/LLVMExports-relwithdebinfo.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\usr\lib\llvm-10\lib\cmake\llvm\"/>
+		</Unit>
+		<Unit filename="/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/../../../../../../../usr/lib/llvm-10/lib/cmake/llvm/LLVMExports.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\usr\lib\llvm-10\lib\cmake\llvm\"/>
 		</Unit>
 		<Unit filename="/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/deps/fmt-7.0.2/CMakeLists.txt">
 			<Option virtualFolder="CMake Files\deps\fmt-7.0.2\"/>

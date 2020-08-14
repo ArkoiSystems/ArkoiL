@@ -4,6 +4,7 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CXX
+  "/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/codegen/codegen.cpp" "/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/cmake-build-debug/CMakeFiles/ArkoiCompiler.dir/src/codegen/codegen.cpp.o"
   "/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/compiler/compiler.cpp" "/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/cmake-build-debug/CMakeFiles/ArkoiCompiler.dir/src/compiler/compiler.cpp.o"
   "/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/compiler/error.cpp" "/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/cmake-build-debug/CMakeFiles/ArkoiCompiler.dir/src/compiler/error.cpp.o"
   "/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/lexer/lexer.cpp" "/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/cmake-build-debug/CMakeFiles/ArkoiCompiler.dir/src/lexer/lexer.cpp.o"
@@ -19,6 +20,7 @@ set(CMAKE_CXX_COMPILER_ID "GNU")
 
 # The include file search paths:
 set(CMAKE_CXX_TARGET_INCLUDE_PATH
+  "/usr/lib/llvm-10/include"
   "../deps/fmt-7.0.2/include"
   )
 

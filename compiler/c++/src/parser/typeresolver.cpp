@@ -24,7 +24,7 @@ void TypeResolver::visitNode(const std::shared_ptr<ASTNode> &node) {
         while (firstIdentifier->lastIdentifier != nullptr)
             firstIdentifier = firstIdentifier->lastIdentifier;
 
-        TypeResolver::visitIdentifier(firstIdentifier);
+        TypeResolver::visitIdentifier(identifierNode);
     } else if (node->kind == AST_NUMBER) {
         TypeResolver::visitNumber(std::static_pointer_cast<NumberNode>(node));
     } else if (node->kind == AST_PARAMETER) {
@@ -216,13 +216,16 @@ void TypeResolver::visitIdentifier(const std::shared_ptr<IdentifierNode> &identi
         return;
     }
 
-    auto typedNode = std::static_pointer_cast<TypedNode>(nodes->at(0));
+    auto targetNode = nodes->at(0);
+    auto typedNode = std::static_pointer_cast<TypedNode>(targetNode);
     if (typedNode->type == nullptr) {
         THROW_NODE_ERROR(typedNode, "The found identifier has no type.")
         return;
     }
 
+    identifierNode->targetNode = targetNode;
     identifierNode->type = std::make_shared<TypeNode>(*typedNode->type);
+
     if (identifierNode->isDereference && identifierNode->type->pointerLevel <= 0) {
         THROW_NODE_ERROR(identifierNode, "Can't dereference a non-pointer type.")
         return;
@@ -286,11 +289,9 @@ void TypeResolver::visitStructCreate(const std::shared_ptr<StructCreateNode> &st
     for (const auto &argument : structCreateNode->arguments)
         TypeResolver::visitArgument(argument);
 
-    std::shared_ptr<IdentifierNode> firstIdentifier = structCreateNode->endIdentifier;
-    while (firstIdentifier->lastIdentifier != nullptr)
-        firstIdentifier = firstIdentifier->lastIdentifier;
-    TypeResolver::visitIdentifier(firstIdentifier);
+    TypeResolver::visitIdentifier(structCreateNode->startIdentifier);
 
+    structCreateNode->targetNode = structCreateNode->endIdentifier->targetNode;
     structCreateNode->type = structCreateNode->endIdentifier->type;
 }
 
@@ -298,11 +299,9 @@ void TypeResolver::visitAssignment(const std::shared_ptr<AssignmentNode> &assign
     if (assignmentNode->isTypeResolved)
         return;
 
-    std::shared_ptr<IdentifierNode> firstIdentifier = assignmentNode->endIdentifier;
-    while (firstIdentifier->lastIdentifier != nullptr)
-        firstIdentifier = firstIdentifier->lastIdentifier;
-    TypeResolver::visitIdentifier(firstIdentifier);
+    TypeResolver::visitIdentifier(assignmentNode->startIdentifier);
 
+    assignmentNode->targetNode = assignmentNode->endIdentifier->targetNode;
     assignmentNode->type = assignmentNode->endIdentifier->type;
 
     TypeResolver::visitOperable(assignmentNode->expression, assignmentNode->type);

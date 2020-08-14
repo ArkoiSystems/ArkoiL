@@ -314,6 +314,9 @@ FMT_TEST:BOOL=OFF
 //Halt the compilation with an error on compiler warnings.
 FMT_WERROR:BOOL=OFF
 
+//The directory containing a CMake configuration file for LLVM.
+LLVM_DIR:PATH=/usr/lib/llvm-10/cmake
+
 //Path to a program.
 ProcessorCount_cmd_nproc:FILEPATH=/usr/bin/nproc
 
@@ -331,6 +334,9 @@ dbg_macro_BINARY_DIR:STATIC=/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/cmak
 
 //Value Computed by CMake
 dbg_macro_SOURCE_DIR:STATIC=/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/deps/dbg-macro
+
+//The directory containing a CMake configuration file for llvm.
+llvm_DIR:PATH=llvm_DIR-NOTFOUND
 
 
 ########################
