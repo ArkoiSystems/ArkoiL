@@ -62,12 +62,6 @@ optional
 variant
 -
 
-/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/codegen/codegen.cpp
-codegen.h
-/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/codegen/codegen.h
-../parser/astnodes.h
-/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/parser/astnodes.h
-
 /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/codegen/codegen.h
 llvm-c-10/llvm-c/Core.h
 -
@@ -97,8 +91,6 @@ compiler.h
 /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/parser/parser.h
 ../lexer/lexer.h
 /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/lexer/lexer.h
-../utils.h
-/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/utils.h
 options.h
 /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/compiler/options.h
 error.h
@@ -167,10 +159,26 @@ vector
 -
 ostream
 -
+functional
+-
 ../lexer/token.h
 /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/lexer/token.h
 symboltable.h
 /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/parser/symboltable.h
+../utils.h
+/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/utils.h
+
+/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/parser/parser.cpp
+parser.h
+/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/parser/parser.h
+../compiler/error.h
+/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/compiler/error.h
+../utils.h
+/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/utils.h
+../lexer/lexer.h
+/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/lexer/lexer.h
+astnodes.h
+/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/parser/astnodes.h
 
 /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/parser/parser.h
 utility
@@ -179,6 +187,12 @@ vector
 -
 memory
 -
+
+/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/parser/symboltable.cpp
+symboltable.h
+/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/parser/symboltable.h
+astnodes.h
+/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/parser/astnodes.h
 
 /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/parser/symboltable.h
 unordered_map
@@ -191,6 +205,16 @@ vector
 -
 iostream
 -
+functional
+-
+
+/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/parser/typeresolver.cpp
+typeresolver.h
+/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/parser/typeresolver.h
+astnodes.h
+/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/parser/astnodes.h
+../compiler/error.h
+/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/compiler/error.h
 
 /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/parser/typeresolver.h
 memory
@@ -198,9 +222,25 @@ memory
 utility
 -
 
+/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/semantic/scopecheck.cpp
+scopecheck.h
+/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/semantic/scopecheck.h
+../parser/astnodes.h
+/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/parser/astnodes.h
+../compiler/error.h
+/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/compiler/error.h
+
 /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/semantic/scopecheck.h
 memory
 -
+
+/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/semantic/typecheck.cpp
+typecheck.h
+/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/semantic/typecheck.h
+../parser/astnodes.h
+/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/parser/astnodes.h
+../compiler/error.h
+/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/compiler/error.h
 
 /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/semantic/typecheck.h
 memory

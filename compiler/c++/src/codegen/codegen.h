@@ -49,12 +49,15 @@ class StructCreateNode;
 
 class ArgumentNode;
 
+class VariableNode;
+
 class CodeGen {
 
 private:
     std::unordered_map<std::shared_ptr<BlockNode>,
             std::tuple<LLVMBasicBlockRef, LLVMValueRef, LLVMBasicBlockRef>> blocks;
     std::unordered_map<std::shared_ptr<FunctionNode>, LLVMValueRef> functions;
+    std::unordered_map<std::shared_ptr<VariableNode>, LLVMValueRef> variables;
     std::unordered_map<std::shared_ptr<StructNode>, LLVMTypeRef> structs;
 
     LLVMBasicBlockRef currentBlock;
@@ -63,7 +66,7 @@ private:
     LLVMModuleRef module;
 
 public:
-    CodeGen() : blocks({}), functions({}), structs({}), currentBlock(),
+    CodeGen() : blocks({}), variables({}), functions({}), structs({}), currentBlock(),
                 builder(), module(), context() {}
 
 public:
@@ -103,7 +106,9 @@ public:
 
     LLVMValueRef visitStructCreate(const std::shared_ptr<StructCreateNode> &structCreateNode);
 
-    LLVMValueRef visitArgument(const std::shared_ptr<ArgumentNode>& argumentNode);
+    LLVMValueRef visitArgument(const std::shared_ptr<ArgumentNode> &argumentNode);
+
+    LLVMValueRef visitVariable(const std::shared_ptr<VariableNode> &variableNode);
 
     void setPositionAtEnd(const LLVMBasicBlockRef &basicBlock);
 

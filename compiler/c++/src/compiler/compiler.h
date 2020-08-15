@@ -24,9 +24,9 @@ public:
 public:
     static int compile(const CompilerOptions &compilerOptions);
 
-    static void loadImports(const CompilerOptions &compilerOptions,
-                            std::set<std::string> &loaded,
-                            std::vector<std::shared_ptr<RootNode>> &roots);
+    static int loadImports(const CompilerOptions &compilerOptions,
+                           std::set<std::string> &loaded,
+                           std::vector<std::shared_ptr<RootNode>> &roots);
 
     static std::shared_ptr<Parser> loadFile(const std::string &sourcePath);
 

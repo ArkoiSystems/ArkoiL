@@ -47,8 +47,8 @@ namespace Utils {
         return !string[index] ? 5381 : (hash(string, index + 1) * 33) ^ string[index];
     }
 
-    template<typename T>
-    static std::pair<bool, int> indexOf(const std::vector<T> &vector, const T &element) {
+    template<typename Type>
+    static std::pair<bool, int> indexOf(const std::vector<Type> &vector, const Type &element) {
         std::pair<bool, int> result;
 
         auto iterator = std::find(vector.begin(), vector.end(), element);

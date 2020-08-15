@@ -30,8 +30,8 @@
 class Error {
 
 private:
-    std::string sourcePath, sourceCode, causeMessage;
     unsigned int startLine, endLine, startChar, endChar;
+    std::string sourcePath, sourceCode, causeMessage;
 
 public:
     Error(std::string sourcePath, std::string sourceCode, unsigned int startLine,
