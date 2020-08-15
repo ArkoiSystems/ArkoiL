@@ -28,6 +28,8 @@ public:
             parent(std::move(parent)),
             table({}) {}
 
+    SymbolTable(const SymbolTable &other) = default;
+
 public:
     std::shared_ptr<Symbols>
     all(const std::string &id,

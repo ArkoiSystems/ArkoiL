@@ -617,6 +617,7 @@ std::shared_ptr<OperableNode> Parser::parseIdentifier(const std::shared_ptr<ASTN
         structCreate->scope = std::make_shared<SymbolTable>(parent->scope);
         structCreate->parent = parent;
 
+        startIdentifier->parent = structCreate;
         structCreate->startIdentifier = startIdentifier;
         structCreate->endIdentifier = identifierNode;
 
@@ -648,6 +649,7 @@ std::shared_ptr<OperableNode> Parser::parseIdentifier(const std::shared_ptr<ASTN
         assignment->scope = parent->scope;
         assignment->parent = parent;
 
+        startIdentifier->parent = assignment;
         assignment->startIdentifier = startIdentifier;
         assignment->endIdentifier = identifierNode;
 

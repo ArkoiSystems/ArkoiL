@@ -116,14 +116,14 @@ struct RootNode : public ASTNode {
         }
     }
 
-    std::vector<std::shared_ptr<ASTNode>>
+    std::shared_ptr<std::vector<std::shared_ptr<ASTNode>>>
     searchWithImports(const std::string &id,
                       const std::function<bool(const std::shared_ptr<ASTNode> &)> &predicate) {
-        std::vector<std::shared_ptr<ASTNode>> foundNodes;
+        auto foundNodes = std::make_shared<std::vector<std::shared_ptr<ASTNode>>>();
 
         auto currentFounds = scope->scope(id, predicate);
         if (currentFounds != nullptr && !currentFounds->empty())
-            foundNodes.insert(foundNodes.end(), currentFounds->begin(), currentFounds->end());
+            foundNodes->insert(foundNodes->end(), currentFounds->begin(), currentFounds->end());
 
         auto importedRoots = getImportedRoots();
         for (const auto &importedRoot : importedRoots) {
@@ -131,7 +131,7 @@ struct RootNode : public ASTNode {
             if (importedFounds == nullptr || importedFounds->empty())
                 continue;
 
-            foundNodes.insert(foundNodes.end(), importedFounds->begin(), importedFounds->end());
+            foundNodes->insert(foundNodes->end(), importedFounds->begin(), importedFounds->end());
         }
 
         return foundNodes;
@@ -347,13 +347,18 @@ struct TypeNode : public ASTNode {
         return targetStruct == nullptr && bits == 1 && isSigned && !isFloating;
     }
 
-    friend std::ostream &operator<<(std::ostream &os, const std::shared_ptr<TypeNode> &typeNode) {
-        os << "targetStruct: " << typeNode->targetStruct
-           << ", pointerLevel: " << typeNode->pointerLevel
-           << ", bits: " << typeNode->bits
-           << ", isSigned: " << std::boolalpha << typeNode->isSigned << std::dec
-           << ", isFloating: " << std::boolalpha << typeNode->isFloating << std::dec;
-        return os;
+    friend std::ostream &operator<<(std::ostream &out, const std::shared_ptr<TypeNode> &typeNode) {
+        if(typeNode == nullptr) {
+            out << "null";
+            return out;
+        }
+
+        out << "targetStruct: " << typeNode->targetStruct
+            << ", pointerLevel: " << typeNode->pointerLevel
+            << ", bits: " << typeNode->bits
+            << ", isSigned: " << std::boolalpha << typeNode->isSigned << std::dec
+            << ", isFloating: " << std::boolalpha << typeNode->isFloating << std::dec;
+        return out;
     }
 
     bool operator==(const TypeNode &other) const {
@@ -426,8 +431,10 @@ struct StructCreateNode : public OperableNode {
                 return false;
 
             auto foundVariables = structNode->scope->scope(argument->name->content, scopeCheck);
-            if (foundVariables == nullptr)
+            if (foundVariables == nullptr) {
+                std::cout << argument->name->content << std::endl;
                 return false;
+            }
 
             auto foundVariable = std::static_pointer_cast<VariableNode>(foundVariables->at(0));
             auto variableIndex = Utils::indexOf(structNode->variables, foundVariable).second;
