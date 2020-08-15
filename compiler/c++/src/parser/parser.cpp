@@ -529,6 +529,7 @@ std::shared_ptr<OperableNode> Parser::parseIdentifier(const std::shared_ptr<ASTN
         nextToken(2);
 
         auto functionCall = std::make_shared<FunctionCallNode>(*identifierNode);
+        functionCall->scope = std::make_shared<SymbolTable>(functionCall->scope);
         identifierNode = functionCall;
 
         if (currentToken() != ")" || currentToken() == TOKEN_IDENTIFIER)
@@ -574,6 +575,7 @@ std::shared_ptr<OperableNode> Parser::parseIdentifier(const std::shared_ptr<ASTN
             nextToken(2);
 
             auto functionCall = std::make_shared<FunctionCallNode>(*chainedIdentifier);
+            functionCall->scope = std::make_shared<SymbolTable>(functionCall->scope);
             chainedIdentifier = functionCall;
 
             if (currentToken() != ")" || currentToken() == TOKEN_IDENTIFIER)
@@ -612,7 +614,7 @@ std::shared_ptr<OperableNode> Parser::parseIdentifier(const std::shared_ptr<ASTN
 
         auto structCreate = std::make_shared<StructCreateNode>();
         structCreate->startToken = identifierNode->startToken;
-        structCreate->scope = parent->scope;
+        structCreate->scope = std::make_shared<SymbolTable>(parent->scope);
         structCreate->parent = parent;
 
         structCreate->startIdentifier = startIdentifier;
@@ -764,8 +766,7 @@ void Parser::parseMixedArguments(std::vector<std::shared_ptr<ArgumentNode>> &arg
         argument->parent = parent;
         argument->scope = parent->scope;
 
-        if (mustBeNamed ||
-            (currentToken() == TOKEN_IDENTIFIER && peekToken(1) == ":")) {
+        if (mustBeNamed || (currentToken() == TOKEN_IDENTIFIER && peekToken(1) == ":")) {
             if (currentToken() != TOKEN_IDENTIFIER) {
                 THROW_TOKEN_ERROR("Arguments expected <identifier> but got '{}' instead.",
                                   currentToken()->content)
@@ -787,6 +788,8 @@ void Parser::parseMixedArguments(std::vector<std::shared_ptr<ArgumentNode>> &arg
 
         argument->expression = parseRelational(argument);
         argument->endToken = currentToken();
+        if (argument->name != nullptr)
+            argument->scope->insert(argument->name->content, argument);
 
         arguments.push_back(argument);
 
@@ -822,6 +825,7 @@ void Parser::parseNamedArguments(std::vector<std::shared_ptr<ArgumentNode>> &arg
         nextToken();
         argument->expression = parseRelational(argument);
         argument->endToken = currentToken();
+        argument->scope->insert(argument->name->content, argument);
 
         arguments.push_back(argument);
 

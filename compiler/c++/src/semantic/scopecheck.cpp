@@ -5,7 +5,6 @@
 #include "scopecheck.h"
 #include "../parser/astnodes.h"
 #include "../compiler/error.h"
-#include "../utils.h"
 
 void ScopeCheck::visitNode(const std::shared_ptr<ASTNode> &node) {
     if (node->kind == AST_ROOT) {
@@ -90,8 +89,7 @@ void ScopeCheck::visitFunction(const std::shared_ptr<FunctionNode> &functionNode
     };
 
     auto rootNode = functionNode->getParent<RootNode>();
-    std::vector<std::shared_ptr<ASTNode>> foundNodes;
-    rootNode->searchGlobally(foundNodes, functionNode->name->content, scopeCheck);
+    auto foundNodes = rootNode->searchWithImports(functionNode->name->content, scopeCheck);
 
     if (foundNodes.size() > 1) {
         THROW_NODE_ERROR(functionNode, "There already exists a similar function.")
@@ -142,15 +140,14 @@ void ScopeCheck::visitVariable(const std::shared_ptr<VariableNode> &variableNode
 
     auto blockNode = variableNode->getParent<BlockNode>();
     if (blockNode != nullptr) {
-        auto foundNodes = variableNode->scope->general(variableNode->name->content, scopeCheck);
+        auto foundNodes = variableNode->scope->all(variableNode->name->content, scopeCheck);
         if (foundNodes->size() > 1) {
             THROW_NODE_ERROR(variableNode, "There already exists a similar variable.")
             return;
         }
     } else {
         auto rootNode = variableNode->getParent<RootNode>();
-        std::vector<std::shared_ptr<ASTNode>> foundNodes;
-        rootNode->searchGlobally(foundNodes, variableNode->name->content, scopeCheck);
+        auto foundNodes = rootNode->searchWithImports(variableNode->name->content, scopeCheck);
 
         if (foundNodes.size() > 1) {
             THROW_NODE_ERROR(variableNode, "There already exists a similar variable.")
@@ -186,23 +183,15 @@ void ScopeCheck::visitArgument(const std::shared_ptr<ArgumentNode> &argumentNode
         return;
     }
 
-    // TODO: Check if there already any argument with the same name.
+    auto scopeCheck = [](const std::shared_ptr<ASTNode> &node) {
+        return node->kind == AST_ARGUMENT;
+    };
 
-//    auto scopeCheck = [](const std::shared_ptr<ASTNode> &node) {
-//        std::cout << node->kind << std::endl;
-//        return node->kind == AST_ARGUMENT;
-//    };
-
-//    std::cout << argumentNode->name->content << " ~~~~" << std::endl;
-//    for(const auto &test : argumentNode->scope->table)
-//        std::cout << test.first << std::endl;
-//
-//    auto foundNodes = argumentNode->scope->scope(argumentNode->name->content, scopeCheck);
-//    std::cout << foundNodes << std::endl;
-//    if (foundNodes->size() > 1) {
-//        THROW_NODE_ERROR(argumentNode, "There already exists a similar argument.")
-//        return;
-//    }
+    auto foundNodes = argumentNode->scope->scope(argumentNode->name->content, scopeCheck);
+    if (foundNodes->size() > 1) {
+        THROW_NODE_ERROR(argumentNode, "There already exists a similar argument.")
+        return;
+    }
 
     ScopeCheck::visitNode(argumentNode->expression);
 }

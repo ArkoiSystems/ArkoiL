@@ -7,6 +7,7 @@
 
 #include <vector>
 #include <ostream>
+#include <functional>
 #include "../lexer/token.h"
 #include "symboltable.h"
 #include "../utils.h"
@@ -54,7 +55,7 @@ struct ASTNode {
 
     virtual ~ASTNode() = default;
 
-    template<typename Type>
+    template<typename Type = ASTNode>
     std::shared_ptr<Type> getParent() {
         if (parent == nullptr)
             return nullptr;
@@ -98,6 +99,12 @@ struct RootNode : public ASTNode {
         kind = AST_ROOT;
     }
 
+    std::vector<std::shared_ptr<RootNode>> getImportedRoots() {
+        std::vector<std::shared_ptr<RootNode>> importedRoots;
+        getImportedRoots(importedRoots);
+        return importedRoots;
+    }
+
     void getImportedRoots(std::vector<std::shared_ptr<RootNode>> &importedRoots) {
         for (const auto node : nodes) {
             if (node->kind != AST_IMPORT)
@@ -109,16 +116,16 @@ struct RootNode : public ASTNode {
         }
     }
 
-    template<typename Function>
-    void searchGlobally(std::vector<std::shared_ptr<ASTNode>> &foundNodes, const std::string &id,
-                        Function predicate) {
-        std::vector<std::shared_ptr<RootNode>> importedRoots;
-        getImportedRoots(importedRoots);
+    std::vector<std::shared_ptr<ASTNode>>
+    searchWithImports(const std::string &id,
+                      const std::function<bool(const std::shared_ptr<ASTNode> &)> &predicate) {
+        std::vector<std::shared_ptr<ASTNode>> foundNodes;
 
         auto currentFounds = scope->scope(id, predicate);
-        if(currentFounds != nullptr && !currentFounds->empty())
+        if (currentFounds != nullptr && !currentFounds->empty())
             foundNodes.insert(foundNodes.end(), currentFounds->begin(), currentFounds->end());
 
+        auto importedRoots = getImportedRoots();
         for (const auto &importedRoot : importedRoots) {
             auto importedFounds = importedRoot->scope->scope(id, predicate);
             if (importedFounds == nullptr || importedFounds->empty())
@@ -126,6 +133,8 @@ struct RootNode : public ASTNode {
 
             foundNodes.insert(foundNodes.end(), importedFounds->begin(), importedFounds->end());
         }
+
+        return foundNodes;
     }
 
 };
@@ -167,9 +176,9 @@ struct VariableNode : public TypedNode {
 
     std::shared_ptr<OperableNode> expression;
     std::shared_ptr<Token> name;
-    bool isConstant;
+    bool isConstant, isLocal;
 
-    VariableNode() : expression({}), name({}), isConstant(false) {
+    VariableNode() : expression({}), name({}), isConstant(false), isLocal(false) {
         kind = AST_VARIABLE;
     }
 
@@ -406,33 +415,28 @@ struct StructCreateNode : public OperableNode {
         kind = AST_STRUCT_CREATE;
     }
 
-    std::vector<std::shared_ptr<ArgumentNode>> getSortedArguments() {
-        auto structNode = std::static_pointer_cast<StructNode>(targetNode);
+    bool getSortedArguments(const std::shared_ptr<StructNode> &structNode,
+                            std::vector<std::shared_ptr<ArgumentNode>> &sortedArguments) {
+        auto scopeCheck = [](const std::shared_ptr<ASTNode> &node) {
+            return node->kind == AST_VARIABLE;
+        };
 
-        std::vector<std::shared_ptr<ArgumentNode>> sortedArguments(arguments);
         for (const auto &argument : arguments) {
-            std::shared_ptr<VariableNode> foundVariable;
-            for (auto index = 0; index < structNode->variables.size(); index++) {
-                auto variable = structNode->variables.at(index);
-                if (std::strcmp(variable->name->content.c_str(),
-                                argument->name->content.c_str()) == 0) {
-                    foundVariable = variable;
-                    break;
-                }
-            }
+            if (argument->name == nullptr)
+                return false;
 
-            if (foundVariable == nullptr) {
-                std::cout << "StructCreateNode: Couldn't find the variable." << std::endl;
-                exit(EXIT_FAILURE);
-            }
+            auto foundVariables = structNode->scope->scope(argument->name->content, scopeCheck);
+            if (foundVariables == nullptr)
+                return false;
 
+            auto foundVariable = std::static_pointer_cast<VariableNode>(foundVariables->at(0));
             auto variableIndex = Utils::indexOf(structNode->variables, foundVariable).second;
-            auto argumentIndex = Utils::indexOf(arguments, argument).second;
+            auto argumentIndex = Utils::indexOf(sortedArguments, argument).second;
             sortedArguments.erase(sortedArguments.begin() + argumentIndex);
             sortedArguments.insert(sortedArguments.begin() + variableIndex, argument);
         }
 
-        return sortedArguments;
+        return true;
     }
 
 };
@@ -449,36 +453,28 @@ struct FunctionCallNode : public IdentifierNode {
         kind = AST_FUNCTION_CALL;
     }
 
-    std::vector<std::shared_ptr<ArgumentNode>> getSortedArguments() {
-        auto functionNode = std::static_pointer_cast<FunctionNode>(targetNode);
+    bool getSortedArguments(const std::shared_ptr<FunctionNode> &functionNode,
+                            std::vector<std::shared_ptr<ArgumentNode>> &sortedArguments) {
+        auto scopeCheck = [](const std::shared_ptr<ASTNode> &node) {
+            return node->kind == AST_PARAMETER;
+        };
 
-        std::vector<std::shared_ptr<ArgumentNode>> sortedArguments(arguments);
         for (const auto &argument : arguments) {
             if (argument->name == nullptr)
                 continue;
 
-            std::shared_ptr<ParameterNode> foundParameter;
-            for (auto index = 0; index < functionNode->parameters.size(); index++) {
-                auto parameter = functionNode->parameters.at(index);
-                if (std::strcmp(parameter->name->content.c_str(),
-                                argument->name->content.c_str()) == 0) {
-                    foundParameter = parameter;
-                    break;
-                }
-            }
+            auto foundParameters = functionNode->scope->scope(argument->name->content, scopeCheck);
+            if (foundParameters == nullptr)
+                return false;
 
-            if (foundParameter == nullptr) {
-                std::cout << "FunctionCallNode: Couldn't find the parameter." << std::endl;
-                exit(EXIT_FAILURE);
-            }
-
+            auto foundParameter = std::static_pointer_cast<ParameterNode>(foundParameters->at(0));
             auto parameterIndex = Utils::indexOf(functionNode->parameters, foundParameter).second;
-            auto argumentIndex = Utils::indexOf(arguments, argument).second;
+            auto argumentIndex = Utils::indexOf(sortedArguments, argument).second;
             sortedArguments.erase(sortedArguments.begin() + argumentIndex);
             sortedArguments.insert(sortedArguments.begin() + parameterIndex, argument);
         }
 
-        return sortedArguments;
+        return true;
     }
 
 };

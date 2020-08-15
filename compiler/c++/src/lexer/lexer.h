@@ -27,10 +27,20 @@ public:
             position(0) {}
 
 public:
-    std::vector<std::shared_ptr<Token>> process();
+    std::vector<std::shared_ptr<Token>> getTokens();
 
+private:
     std::shared_ptr<Token> nextToken();
 
+    void parseComment(const std::shared_ptr<Token>& token);
+
+    void parseIdentifier(const std::shared_ptr<Token>& token);
+
+    void parseNumber(const std::shared_ptr<Token>& token);
+
+    void parseString(const std::shared_ptr<Token>& token);
+
+    void parseRemaining(const std::shared_ptr<Token>& token);
 };
 
 #endif //ARKOICOMPILER_LEXER_H

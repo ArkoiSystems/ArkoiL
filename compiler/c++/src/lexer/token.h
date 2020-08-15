@@ -36,14 +36,11 @@ public:
     Token() : lineNumber(0), startChar(0), endChar(0), content({}), type(TOKEN_INVALID) {}
 
 public:
-    friend std::ostream &operator<<(std::ostream &out,
-                                    const std::shared_ptr<Token> &token);
+    friend std::ostream &operator<<(std::ostream &out, const std::shared_ptr<Token> &token);
 
-    friend bool operator==(const std::shared_ptr<Token> &token,
-                           const std::string &toCheck);
+    friend bool operator==(const std::shared_ptr<Token> &token, const std::string &toCheck);
 
-    friend bool operator!=(const std::shared_ptr<Token> &token,
-                           const std::string &toCheck);
+    friend bool operator!=(const std::shared_ptr<Token> &token, const std::string &toCheck);
 
     friend bool operator==(const std::shared_ptr<Token> &token, TokenType toCheck);
 

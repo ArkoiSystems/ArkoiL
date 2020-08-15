@@ -10,6 +10,7 @@
 #include <memory>
 #include <vector>
 #include <iostream>
+#include <functional>
 
 class ASTNode;
 
@@ -28,36 +29,13 @@ public:
             table({}) {}
 
 public:
-    template<typename Function>
-    std::shared_ptr<Symbols> general(const std::string &id, Function predicate = nullptr) {
-        auto scopeSymbols = scope(id, predicate);
-        if (scopeSymbols != nullptr)
-            return scopeSymbols;
+    std::shared_ptr<Symbols>
+    all(const std::string &id,
+        const std::function<bool(const std::shared_ptr<ASTNode> &)> &predicate);
 
-        if (parent != nullptr)
-            return parent->general(id, predicate);
-        return nullptr;
-    }
-
-    template<typename Function>
-    std::shared_ptr<Symbols> scope(const std::string &id, Function predicate = nullptr) {
-        auto iterator = table.find(id);
-        if (iterator != table.end()) {
-            auto nodes = iterator->second;
-
-            auto newSymbols = std::make_shared<Symbols>();
-            for (const auto &node : nodes) {
-                if (!predicate(node))
-                    continue;
-                newSymbols->push_back(node);
-            }
-
-            if (!newSymbols->empty())
-                return newSymbols;
-        }
-
-        return nullptr;
-    }
+    std::shared_ptr<Symbols>
+    scope(const std::string &id,
+          const std::function<bool(const std::shared_ptr<ASTNode> &)> &predicate);
 
     void insert(const std::string &id, const std::shared_ptr<ASTNode> &node);
 

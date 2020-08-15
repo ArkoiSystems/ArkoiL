@@ -10,7 +10,6 @@
 #include "../codegen/codegen.h"
 #include "../parser/parser.h"
 #include "../lexer/lexer.h"
-#include "../utils.h"
 #include "options.h"
 #include "error.h"
 
@@ -19,16 +18,20 @@
 int Compiler::compile(const CompilerOptions &compilerOptions) {
     std::vector<std::shared_ptr<RootNode>> roots;
     for (const auto &sourcePath : compilerOptions.sourceFiles) {
-        auto parser = Compiler::loadFile(sourcePath);
-        if (parser == nullptr)
-            continue;
-        roots.push_back(parser->parseRoot());
+        if (auto parser = Compiler::loadFile(sourcePath)) {
+            roots.push_back(parser->parseRoot());
+            break;
+        }
+
+        return EXIT_FAILURE;
     }
 
     std::set<std::string> loaded;
     while (true) {
         auto lastSize = loaded.size();
-        Compiler::loadImports(compilerOptions, loaded, roots);
+        auto error = Compiler::loadImports(compilerOptions, loaded, roots);
+        if (error != EXIT_SUCCESS)
+            return error;
         if (lastSize == loaded.size())
             break;
     }
@@ -41,18 +44,18 @@ int Compiler::compile(const CompilerOptions &compilerOptions) {
         ScopeCheck::visitRoot(rootNode);
     }
 
-    for (const auto &rootNode : roots) {
-        CodeGen codeGen{};
-        codeGen.visitRoot(rootNode);
-    }
+//    for (const auto &rootNode : roots) {
+//        CodeGen codeGen{};
+//        codeGen.visitRoot(rootNode);
+//    }
 
-    return 0;
+    return EXIT_SUCCESS;
 }
 
 // TODO: Make an efficient function.
-void Compiler::loadImports(const CompilerOptions &compilerOptions,
-                           std::set<std::string> &loaded,
-                           std::vector<std::shared_ptr<RootNode>> &roots) {
+int Compiler::loadImports(const CompilerOptions &compilerOptions,
+                          std::set<std::string> &loaded,
+                          std::vector<std::shared_ptr<RootNode>> &roots) {
     for (const auto &rootNode : roots) {
         for (const auto &node : rootNode->nodes) {
             if (node->kind != AST_IMPORT)
@@ -62,7 +65,6 @@ void Compiler::loadImports(const CompilerOptions &compilerOptions,
             std::shared_ptr<RootNode> importRoot;
 
             for (const auto &searchPath : compilerOptions.searchPaths) {
-                // TODO: Make this secure (relative, absolute path etc)
                 auto fullPath = searchPath + "/" + importNode->path->content + ".ark";
 
                 struct stat path_stat{};
@@ -84,41 +86,48 @@ void Compiler::loadImports(const CompilerOptions &compilerOptions,
                     break;
                 }
 
-                auto parser = Compiler::loadFile(fullPath);
-                loaded.insert(fullPath);
+                if (auto parser = Compiler::loadFile(fullPath)) {
+                    loaded.insert(fullPath);
 
-                importRoot = parser->parseRoot();
-                roots.push_back(importRoot);
-                break;
+                    importRoot = parser->parseRoot();
+                    roots.push_back(importRoot);
+                    break;
+                }
             }
 
-            if (!importRoot)
+            if (!importRoot) {
                 THROW_NODE_ERROR(importNode, "Couldn't find the file with this path.")
+                return EXIT_FAILURE;
+            }
+
             importNode->target = importRoot;
         }
     }
+
+    return EXIT_SUCCESS;
 }
 
 std::shared_ptr<Parser> Compiler::loadFile(const std::string &sourcePath) {
     struct stat path_stat{};
     stat(sourcePath.c_str(), &path_stat);
     if (!S_ISREG(path_stat.st_mode)) {
-        std::cout << "The given source path is not a file: " << sourcePath
-                  << std::endl;
+        std::cout << "The given source path is not a file: " << sourcePath << std::endl;
         return nullptr;
     }
 
     std::ifstream sourceFile;
     sourceFile.open(sourcePath);
-    if (!sourceFile.is_open())
+    if (!sourceFile.is_open()) {
+        std::cout << "Couldn't open this file: " << sourcePath << std::endl;
         return nullptr;
+    }
 
     auto contents = std::string{std::istreambuf_iterator<char>(sourceFile),
                                 std::istreambuf_iterator<char>()};
     sourceFile.close();
 
     Lexer lexer{sourcePath, contents};
-    auto tokens = lexer.process();
+    auto tokens = lexer.getTokens();
 
     return std::make_shared<Parser>(sourcePath, contents, tokens);
 }

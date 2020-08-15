@@ -68,8 +68,9 @@ int main(int argc, char *argv[]) {
 
     for (const auto &sourceFile : compilerOptions.sourceFiles)
         compilerOptions.searchPaths.push_back(sourceFile.substr(0, sourceFile.rfind('/')));
-    // TODO: Change this
+
     compilerOptions.searchPaths.emplace_back("../../../natives");
+    compilerOptions.searchPaths.emplace_back("");
 
     return Compiler::compile(compilerOptions);
 }
