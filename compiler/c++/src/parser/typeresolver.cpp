@@ -63,6 +63,7 @@ void TypeResolver::visitRoot(const std::shared_ptr<RootNode> &rootNode) {
 void TypeResolver::visitFunction(const std::shared_ptr<FunctionNode> &functionNode) {
     if(functionNode->isTypeResolved)
         return;
+    functionNode->isTypeResolved = true;
 
     TypeResolver::visitType(functionNode->type);
 
@@ -71,8 +72,6 @@ void TypeResolver::visitFunction(const std::shared_ptr<FunctionNode> &functionNo
 
     if (!functionNode->isNative && !functionNode->isBuiltin)
         TypeResolver::visitBlock(functionNode->block);
-
-    functionNode->isTypeResolved = true;
 }
 
 void TypeResolver::visitBlock(const std::shared_ptr<BlockNode> &blockNode) {
@@ -145,7 +144,7 @@ void TypeResolver::visitNumber(const std::shared_ptr<NumberNode> &numberNode) {
 }
 
 void TypeResolver::visitString(const std::shared_ptr<StringNode> &stringNode) {
-    if(stringNode->isTypeResolved)
+    if (stringNode->isTypeResolved)
         return;
 
     stringNode->type = std::make_shared<TypeNode>();
@@ -160,57 +159,54 @@ void TypeResolver::visitIdentifier(const std::shared_ptr<IdentifierNode> &identi
     if (identifierNode->isTypeResolved)
         return;
 
-    auto scopeCheck = [identifierNode](const std::shared_ptr<ASTNode> &node) {
-        if (identifierNode->kind == AST_FUNCTION_CALL && node->kind != AST_FUNCTION)
-            return false;
-
-        if (node->kind != AST_VARIABLE && node->kind != AST_PARAMETER &&
-            node->kind != AST_FUNCTION && node->kind != AST_STRUCT)
-            return false;
-
-        TypeResolver::visitNode(node);
-
-        if (identifierNode->kind != AST_FUNCTION_CALL)
-            return true;
-
-        auto functionCall = std::static_pointer_cast<FunctionCallNode>(identifierNode);
-        auto function = std::static_pointer_cast<FunctionNode>(node);
-
-        if (!function->isVariadic &&
-            (function->parameters.size() != functionCall->arguments.size()))
-            return false;
-
-        auto sortedArguments(functionCall->arguments);
-        if (!functionCall->getSortedArguments(function, sortedArguments))
-            return false;
-
-        for (auto index = 0; index < functionCall->arguments.size(); index++) {
-            if (index >= function->parameters.size())
-                break;
-
-            auto argument = sortedArguments.at(index);
-            TypeResolver::visitArgument(argument);
-            auto parameter = function->parameters.at(index);
-            TypeResolver::visitParameter(parameter);
-
-            if (*parameter->type != *argument->type)
+    std::shared_ptr<std::vector<std::shared_ptr<ASTNode>>> nodes;
+    // TODO: Won't work for chained identifiers
+    if (identifierNode->parent->kind == AST_STRUCT_CREATE) {
+        auto scopeCheck = [](const std::shared_ptr<ASTNode> &node) {
+            return node->kind == AST_STRUCT;
+        };
+        nodes = identifierNode->getParent<RootNode>()->searchWithImports(
+                identifierNode->identifier->content, scopeCheck);
+    } else if (identifierNode->kind == AST_FUNCTION_CALL) {
+        auto scopeCheck = [identifierNode](const std::shared_ptr<ASTNode> &node) {
+            if(node->kind != AST_FUNCTION)
                 return false;
-        }
 
-        return true;
-    };
+            auto functionCall = std::static_pointer_cast<FunctionCallNode>(identifierNode);
+            auto function = std::static_pointer_cast<FunctionNode>(node);
 
-    auto nodes = identifierNode->scope->all(identifierNode->identifier->content, scopeCheck);
-    if (nodes == nullptr) {
-        for (const auto &node : identifierNode->getParent<RootNode>()->nodes) {
-            if (node->kind != AST_IMPORT)
-                continue;
+            if (!function->isVariadic &&
+                (function->parameters.size() != functionCall->arguments.size()))
+                return false;
 
-            auto import = std::static_pointer_cast<ImportNode>(node);
-            nodes = import->target->scope->scope(identifierNode->identifier->content, scopeCheck);
-            if (nodes != nullptr && !nodes->empty())
-                break;
-        }
+            auto sortedArguments(functionCall->arguments);
+            if (!functionCall->getSortedArguments(function, sortedArguments))
+                return false;
+
+            for (auto index = 0; index < functionCall->arguments.size(); index++) {
+                if (index >= function->parameters.size())
+                    break;
+
+                auto argument = sortedArguments.at(index);
+                TypeResolver::visitArgument(argument);
+                auto parameter = function->parameters.at(index);
+                TypeResolver::visitParameter(parameter);
+
+                if (*parameter->type != *argument->type)
+                    return false;
+            }
+
+            return true;
+        };
+        nodes = identifierNode->getParent<RootNode>()->searchWithImports(
+                identifierNode->identifier->content, scopeCheck);
+    } else {
+        auto scopeCheck = [](const std::shared_ptr<ASTNode> &node) {
+            return node->kind == AST_VARIABLE || node->kind == AST_PARAMETER ||
+                   node->kind == AST_FUNCTION || node->kind == AST_STRUCT ||
+                   node->kind == AST_ARGUMENT;
+        };
+        nodes = identifierNode->scope->all(identifierNode->identifier->content, scopeCheck);
     }
 
     if (nodes == nullptr || nodes->empty()) {
@@ -230,6 +226,7 @@ void TypeResolver::visitIdentifier(const std::shared_ptr<IdentifierNode> &identi
 
     identifierNode->targetNode = targetNode;
     identifierNode->type = std::make_shared<TypeNode>(*typedNode->type);
+    identifierNode->isTypeResolved = true;
 
     if (identifierNode->isDereference && identifierNode->type->pointerLevel <= 0) {
         THROW_NODE_ERROR(identifierNode, "Can't dereference a non-pointer type.")
@@ -252,8 +249,6 @@ void TypeResolver::visitIdentifier(const std::shared_ptr<IdentifierNode> &identi
         identifierNode->nextIdentifier->scope = identifierNode->type->targetStruct->scope;
         TypeResolver::visitIdentifier(identifierNode->nextIdentifier);
     }
-
-    identifierNode->isTypeResolved = true;
 }
 
 void TypeResolver::visitParameter(const std::shared_ptr<ParameterNode> &parameterNode) {
@@ -291,13 +286,27 @@ void TypeResolver::visitFunctionCall(const std::shared_ptr<FunctionCallNode> &fu
 }
 
 void TypeResolver::visitStructCreate(const std::shared_ptr<StructCreateNode> &structCreateNode) {
-    for (const auto &argument : structCreateNode->arguments)
-        TypeResolver::visitArgument(argument);
+    if (structCreateNode->isTypeResolved)
+        return;
 
     TypeResolver::visitIdentifier(structCreateNode->startIdentifier);
 
     structCreateNode->targetNode = structCreateNode->endIdentifier->targetNode;
     structCreateNode->type = structCreateNode->endIdentifier->type;
+
+    if (structCreateNode->targetNode != nullptr) {
+        // Copy the struct scope between the StructCreateNode and argument: StructCreateScope < StructScope < ArgumentScope
+        auto middleScope = std::make_shared<SymbolTable>(*structCreateNode->targetNode->scope);
+        middleScope->parent = structCreateNode->scope;
+
+        for (const auto &argument : structCreateNode->arguments)
+            argument->scope->parent = middleScope;
+
+        for (const auto &argument : structCreateNode->arguments)
+            TypeResolver::visitArgument(argument);
+    }
+
+    structCreateNode->isTypeResolved = true;
 }
 
 void TypeResolver::visitAssignment(const std::shared_ptr<AssignmentNode> &assignmentNode) {
@@ -390,12 +399,13 @@ void TypeResolver::visitType(const std::shared_ptr<TypeNode> &typeNode) {
         auto rootNode = typeNode->getParent<RootNode>();
         auto foundNodes = rootNode->searchWithImports(typeNode->typeToken->content, scopeCheck);
 
-        if (foundNodes.empty()) {
-            std::cout << "Couldn't find the struct for the searched identifier." << std::endl;
+        if (foundNodes->empty()) {
+            THROW_NODE_ERROR(typeNode,
+                             "Couldn't find the struct for the searched identifier.")
             exit(EXIT_FAILURE);
         }
 
-        typeNode->targetStruct = std::static_pointer_cast<StructNode>(foundNodes.at(0));
+        typeNode->targetStruct = std::static_pointer_cast<StructNode>(foundNodes->at(0));
         TypeResolver::visitStruct(typeNode->targetStruct);
     }
 }

@@ -91,7 +91,7 @@ void ScopeCheck::visitFunction(const std::shared_ptr<FunctionNode> &functionNode
     auto rootNode = functionNode->getParent<RootNode>();
     auto foundNodes = rootNode->searchWithImports(functionNode->name->content, scopeCheck);
 
-    if (foundNodes.size() > 1) {
+    if (foundNodes->size() > 1) {
         THROW_NODE_ERROR(functionNode, "There already exists a similar function.")
         return;
     }
@@ -149,7 +149,7 @@ void ScopeCheck::visitVariable(const std::shared_ptr<VariableNode> &variableNode
         auto rootNode = variableNode->getParent<RootNode>();
         auto foundNodes = rootNode->searchWithImports(variableNode->name->content, scopeCheck);
 
-        if (foundNodes.size() > 1) {
+        if (foundNodes->size() > 1) {
             THROW_NODE_ERROR(variableNode, "There already exists a similar variable.")
             return;
         }

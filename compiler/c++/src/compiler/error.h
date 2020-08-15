@@ -27,6 +27,15 @@
                            node->endToken->endChar,  \
                            fmt::format(__VA_ARGS__));
 
+#define THROW_LEXER_ERROR(startChar, endChar, ...) \
+        std::cout << Error(sourcePath,  \
+                           sourceCode,  \
+                           currentLine, \
+                           currentLine, \
+                           startChar,  \
+                           endChar,  \
+                           fmt::format(__VA_ARGS__));
+
 class Error {
 
 private:

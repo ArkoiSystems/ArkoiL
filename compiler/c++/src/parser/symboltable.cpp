@@ -32,20 +32,22 @@ std::shared_ptr<Symbols>
 SymbolTable::scope(const std::string &id,
                    const std::function<bool(const std::shared_ptr<ASTNode> &)> &predicate) {
     auto iterator = table.find(id);
-    if (iterator != table.end()) {
-        auto nodes = iterator->second;
+    if (iterator == table.end())
+        return nullptr;
 
-        auto newSymbols = std::make_shared<Symbols>();
-        for (const auto &node : nodes) {
-            if (!predicate(node))
-                continue;
-            newSymbols->push_back(node);
-        }
+    auto nodes = iterator->second;
+    if (nodes.empty())
+        return nullptr;
 
-        if (!newSymbols->empty())
-            return newSymbols;
+    auto newSymbols = std::make_shared<Symbols>();
+    for (const auto &node : nodes) {
+        if (!predicate(node))
+            continue;
+        newSymbols->push_back(node);
     }
 
-    return nullptr;
+    if (newSymbols->empty())
+        return nullptr;
 
+    return newSymbols;
 }

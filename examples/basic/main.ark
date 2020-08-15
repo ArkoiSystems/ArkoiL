@@ -1,9 +1,11 @@
-import "/home/timo/dev/ArkoiSystems/ArkoiL/natives/console"
+import "console"
 
 fun main(): i32 {
     test(alles: 3, ok: "Hello World")
 
-    var test = Info { test: 10 }
+    var Info = 0
+    
+    var test = Info { test: 10, pointerTest: &test }
     test(&test)
     println("3) %i, %i", test.test, test.@pointerTest)
     return 0

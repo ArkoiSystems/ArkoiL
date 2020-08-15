@@ -166,10 +166,7 @@ void Lexer::parseString(const std::shared_ptr<Token> &token) {
     }
 
     if (sourceCode[position] != '"') {
-        std::cout << Error(sourcePath, sourceCode, currentLine, currentLine,
-                           token->startChar, position,
-                           fmt::format("Strings must be terminated correctly."))
-                  << std::endl;
+        THROW_LEXER_ERROR(token->startChar, position, "Strings must be terminated correctly.")
 
         if (sourceCode[position] == '\n')
             position--;
