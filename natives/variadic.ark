@@ -1,29 +1,34 @@
-# This file declares some **inbuilt** functions and structures
-# which are needed to get the variable arguments passed through
-# a function.
-#
-# See for more details:
-# [LLVM VA Instrinsics](https://llvm.org/docs/LangRef.html#variable-argument-handling-intrinsics)
-
-# This structure is used to get the arguments passed.
-# **Depending** on the system used (target system declared through the CLI),
-# it will inject a generated va_list structure here, which matches
-# the requirements of the system.
-
 struct @va_list
-
-# The function will create a **new** va_list structure with all 
-# arguments passed through the function, in which this function
-# call happens.
-#
-# See for more details:
-# [LLVM va_start](https://llvm.org/docs/LangRef.html#llvm-va-start-intrinsic)
 
 fun @va_start(): va_list
 
-# **Destorys** the list so that no memory leak occurs.
-#
-# See for more details:
-# [LLVM va_end](https://llvm.org/docs/LangRef.html#llvm-va-end-intrinsic)
-
 fun @va_end(list: va_list*): void
+
+## FUTURE CONCEPTS:
+
+# 1.) Usage of compiled-blocks (```) and also compile tags like
+# ```
+# if _PLATFORM == "Unix x86_64:
+#     struct va_list {
+#         var _: i32
+#         var _: i32
+#         var _: i8*
+#         var _: i8*
+#     }
+# else:
+#     struct va_list {
+#         var _: i8*
+#     }
+# ```
+
+# [inlined]
+# fun va_start(): va_list {
+#     var va_list
+#     llvm.va_start(va_list as i8*)
+#     return va_list 
+# }
+
+# [inlined]
+# fun va_end(list: va_list&): void {
+#     llvm.va_end(va_list as i8*)
+# }

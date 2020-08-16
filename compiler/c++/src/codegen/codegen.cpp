@@ -346,14 +346,6 @@ LLVMValueRef CodeGen::visitIdentifier(const std::shared_ptr<IdentifierNode> &nod
         return LLVMBuildLoad(builder, targetValue, "");
 
     return targetValue;
-//    std::cout << (node->parent->kind == AST_ASSIGNMENT) << std::endl;
-//
-//    std::cout << "~~~~~~~~~~~~~~~~~~" << std::endl << std::endl;
-//    auto moduleCode = LLVMPrintModuleToString(module);
-//    std::cout << std::endl << moduleCode << std::endl;
-//    LLVMDisposeMessage(moduleCode);
-//
-//    exit(EXIT_FAILURE);
 }
 
 LLVMValueRef CodeGen::visitBinary(const std::shared_ptr<BinaryNode> &binaryNode) {
