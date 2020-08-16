@@ -51,11 +51,14 @@ class ArgumentNode;
 
 class VariableNode;
 
+class TypedNode;
+
 class CodeGen {
 
 private:
     std::unordered_map<std::shared_ptr<BlockNode>,
             std::tuple<LLVMBasicBlockRef, LLVMValueRef, LLVMBasicBlockRef>> blocks;
+    std::unordered_map<std::shared_ptr<ParameterNode>, LLVMValueRef> parameters;
     std::unordered_map<std::shared_ptr<FunctionNode>, LLVMValueRef> functions;
     std::unordered_map<std::shared_ptr<VariableNode>, LLVMValueRef> variables;
     std::unordered_map<std::shared_ptr<StructNode>, LLVMTypeRef> structs;
@@ -66,49 +69,49 @@ private:
     LLVMModuleRef module;
 
 public:
-    CodeGen() : blocks({}), variables({}), functions({}), structs({}), currentBlock(),
-                builder(), module(), context() {}
+    CodeGen() : blocks({}), parameters({}), variables({}), functions({}), structs({}),
+                currentBlock(), builder(), module(), context() {}
 
 public:
     void visitNode(const std::shared_ptr<ASTNode> &node);
 
-    void visitRoot(const std::shared_ptr<RootNode> &rootNode);
+    void visitRoot(const std::shared_ptr<RootNode> &node);
 
-    LLVMValueRef visitFunction(const std::shared_ptr<FunctionNode> &functionNode);
+    LLVMValueRef visitFunction(const std::shared_ptr<FunctionNode> &node);
 
-    LLVMTypeRef visitType(const std::shared_ptr<TypeNode> &typeNode);
+    LLVMTypeRef visitType(const std::shared_ptr<TypeNode> &node);
 
-    LLVMTypeRef visitStruct(const std::shared_ptr<StructNode> &structNode);
+    LLVMTypeRef visitStruct(const std::shared_ptr<StructNode> &node);
 
-    LLVMValueRef visitParameter(const std::shared_ptr<ParameterNode> &parameterNode);
+    LLVMValueRef visitParameter(const std::shared_ptr<ParameterNode> &node);
 
-    LLVMBasicBlockRef visitBlock(const std::shared_ptr<BlockNode> &blockNode);
+    LLVMBasicBlockRef visitBlock(const std::shared_ptr<BlockNode> &node);
 
-    void visitReturn(const std::shared_ptr<ReturnNode> &returnNode);
+    LLVMValueRef visitReturn(const std::shared_ptr<ReturnNode> &node);
 
-    LLVMValueRef visitOperable(const std::shared_ptr<OperableNode> &operableNode);
+    LLVMValueRef visitAssignment(const std::shared_ptr<AssignmentNode> &node);
 
-    LLVMValueRef visitAssignment(const std::shared_ptr<AssignmentNode> &assignmentNode);
+    LLVMValueRef visitIdentifier(const std::shared_ptr<IdentifierNode> &node);
 
-    LLVMValueRef visitIdentifier(const std::shared_ptr<IdentifierNode> &identifierNode);
+    LLVMValueRef visitNumber(const std::shared_ptr<NumberNode> &node);
 
-    LLVMValueRef visitNumber(const std::shared_ptr<NumberNode> &numberNode);
+    LLVMValueRef visitString(const std::shared_ptr<StringNode> &node);
 
-    LLVMValueRef visitString(const std::shared_ptr<StringNode> &stringNode);
+    LLVMValueRef visitBinary(const std::shared_ptr<BinaryNode> &node);
 
-    LLVMValueRef visitBinary(const std::shared_ptr<BinaryNode> &binaryNode);
+    LLVMValueRef visitUnary(const std::shared_ptr<UnaryNode> &node);
 
-    LLVMValueRef visitUnary(const std::shared_ptr<UnaryNode> &unaryNode);
+    LLVMValueRef visitParenthesized(const std::shared_ptr<ParenthesizedNode> &node);
 
-    LLVMValueRef visitParenthesized(const std::shared_ptr<ParenthesizedNode> &parenthesizedNode);
+    LLVMValueRef visitFunctionCall(const std::shared_ptr<FunctionCallNode> &node);
 
-    LLVMValueRef visitFunctionCall(const std::shared_ptr<FunctionCallNode> &functionCallNode);
+    LLVMValueRef visitStructCreate(const std::shared_ptr<StructCreateNode> &node);
 
-    LLVMValueRef visitStructCreate(const std::shared_ptr<StructCreateNode> &structCreateNode);
+    LLVMValueRef visitArgument(const std::shared_ptr<ArgumentNode> &node);
 
-    LLVMValueRef visitArgument(const std::shared_ptr<ArgumentNode> &argumentNode);
+    LLVMValueRef visitVariable(const std::shared_ptr<VariableNode> &node);
 
-    LLVMValueRef visitVariable(const std::shared_ptr<VariableNode> &variableNode);
+    LLVMValueRef visitTyped(const std::shared_ptr<TypedNode> &node);
 
     void setPositionAtEnd(const LLVMBasicBlockRef &basicBlock);
 
