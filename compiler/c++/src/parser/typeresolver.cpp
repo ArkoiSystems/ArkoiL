@@ -203,10 +203,14 @@ void TypeResolver::visitIdentifier(const std::shared_ptr<IdentifierNode> &identi
     } else {
         auto scopeCheck = [](const std::shared_ptr<ASTNode> &node) {
             return node->kind == AST_VARIABLE || node->kind == AST_PARAMETER ||
-                   node->kind == AST_FUNCTION || node->kind == AST_STRUCT ||
                    node->kind == AST_ARGUMENT;
         };
         nodes = identifierNode->scope->all(identifierNode->identifier->content, scopeCheck);
+
+        if (nodes == nullptr) {
+            nodes = identifierNode->getParent<RootNode>()->searchWithImports(
+                    identifierNode->identifier->content, scopeCheck);
+        }
     }
 
     if (nodes == nullptr || nodes->empty()) {
