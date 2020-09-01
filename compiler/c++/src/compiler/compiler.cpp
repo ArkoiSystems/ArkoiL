@@ -44,10 +44,8 @@ int Compiler::compile(const CompilerOptions &compilerOptions) {
         ScopeCheck::visitRoot(rootNode);
     }
 
-    for (const auto &rootNode : roots) {
-        CodeGen codeGen{};
-        codeGen.visitRoot(rootNode);
-    }
+    for (const auto &rootNode : roots)
+        CodeGen().visitRoot(rootNode);
 
     return EXIT_SUCCESS;
 }

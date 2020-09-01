@@ -90,9 +90,6 @@ public:
 
     static void visitStruct(const std::shared_ptr<StructNode> &structNode);
 
-    static void visitOperable(const std::shared_ptr<OperableNode> &operableNode,
-                              const std::shared_ptr<TypeNode> &targetType = nullptr);
-
     static void visitType(const std::shared_ptr<TypeNode> &typeNode);
 
 };

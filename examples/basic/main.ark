@@ -9,7 +9,7 @@ fun main(): i32 {
     var test = Info { test: 10, pointerTest: &test }
     test(&test)
     println("3) %i, %i", test.test, test.@pointerTest)
-    return 0
+    return 2 * 4.0
 }
 
 fun test(ok: Info*): void {
