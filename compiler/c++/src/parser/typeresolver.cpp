@@ -89,7 +89,7 @@ void TypeResolver::visitVariable(const std::shared_ptr<VariableNode> &variableNo
         TypeResolver::visitType(variableNode->type);
 
     if (variableNode->expression != nullptr) {
-        TypeResolver::visitOperable(variableNode->expression, variableNode->type);
+        TypeResolver::visitNode(variableNode->expression);
 
         if (variableNode->type == nullptr)
             variableNode->type = variableNode->expression->type;
@@ -102,8 +102,8 @@ void TypeResolver::visitBinary(const std::shared_ptr<BinaryNode> &binaryNode) {
     if (binaryNode->isTypeResolved)
         return;
 
-    TypeResolver::visitOperable(binaryNode->lhs);
-    TypeResolver::visitOperable(binaryNode->rhs, binaryNode->lhs->type);
+    TypeResolver::visitNode(binaryNode->lhs);
+    TypeResolver::visitNode(binaryNode->rhs);
     binaryNode->type = binaryNode->lhs->type;
 
     binaryNode->isTypeResolved = true;
@@ -113,7 +113,7 @@ void TypeResolver::visitUnary(const std::shared_ptr<UnaryNode> &unaryNode) {
     if(unaryNode->isTypeResolved)
         return;
 
-    TypeResolver::visitOperable(unaryNode->operable);
+    TypeResolver::visitNode(unaryNode->operable);
     unaryNode->type = unaryNode->operable->type;
 
     unaryNode->isTypeResolved = true;
@@ -123,7 +123,7 @@ void TypeResolver::visitParenthesized(const std::shared_ptr<ParenthesizedNode> &
     if(parenthesizedNode->isTypeResolved)
         return;
 
-    TypeResolver::visitOperable(parenthesizedNode->expression);
+    TypeResolver::visitNode(parenthesizedNode->expression);
     parenthesizedNode->type = parenthesizedNode->expression->type;
 
     parenthesizedNode->isTypeResolved = true;
@@ -268,7 +268,7 @@ void TypeResolver::visitArgument(const std::shared_ptr<ArgumentNode> &argumentNo
     if (argumentNode->isTypeResolved)
         return;
 
-    TypeResolver::visitOperable(argumentNode->expression);
+    TypeResolver::visitNode(argumentNode->expression);
     argumentNode->type = argumentNode->expression->type;
 
     argumentNode->isTypeResolved = true;
@@ -322,7 +322,7 @@ void TypeResolver::visitAssignment(const std::shared_ptr<AssignmentNode> &assign
     assignmentNode->targetNode = assignmentNode->endIdentifier->targetNode;
     assignmentNode->type = assignmentNode->endIdentifier->type;
 
-    TypeResolver::visitOperable(assignmentNode->expression, assignmentNode->type);
+    TypeResolver::visitNode(assignmentNode->expression);
 
     assignmentNode->isTypeResolved = true;
 }
@@ -338,7 +338,7 @@ void TypeResolver::visitReturn(const std::shared_ptr<ReturnNode> &returnNode) {
     }
 
     if(returnNode->expression != nullptr) {
-        TypeResolver::visitOperable(returnNode->expression, function->type);
+        TypeResolver::visitNode(returnNode->expression);
         returnNode->type = returnNode->expression->type;
     }
 
@@ -356,18 +356,6 @@ void TypeResolver::visitStruct(const std::shared_ptr<StructNode> &structNode) {
         TypeResolver::visitVariable(variable);
 
     structNode->isTypeResolved = true;
-}
-
-void TypeResolver::visitOperable(const std::shared_ptr<OperableNode> &operableNode,
-                                 const std::shared_ptr<TypeNode> &targetType) {
-    if(operableNode->isTypeResolved)
-        return;
-
-    TypeResolver::visitNode(operableNode);
-
-    // TODO: Promote to target.
-
-    operableNode->isTypeResolved = true;
 }
 
 void TypeResolver::visitType(const std::shared_ptr<TypeNode> &typeNode) {

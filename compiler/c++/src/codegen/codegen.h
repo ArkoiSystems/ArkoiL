@@ -115,10 +115,6 @@ public:
 
     void setPositionAtEnd(const LLVMBasicBlockRef &basicBlock);
 
-    LLVMValueRef makeIntToFP(const std::shared_ptr<TypeNode> &typeNode,
-                             const LLVMTypeRef &target,
-                             const LLVMValueRef &value);
-
     LLVMValueRef makeAdd(bool floatingPoint, const LLVMValueRef &rhs, const LLVMValueRef &lhs);
 
     LLVMValueRef makeMul(bool floatingPoint, const LLVMValueRef &rhs, const LLVMValueRef &lhs);

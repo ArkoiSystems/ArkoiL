@@ -79,13 +79,13 @@ LLVMValueRef CodeGen::visitFunction(const std::shared_ptr<FunctionNode> &node) {
     if (foundIterator != functions.end())
         return foundIterator->second;
 
-    std::vector<LLVMTypeRef> parameters;
+    std::vector<LLVMTypeRef> functionParameters;
     for (auto const &parameter : node->parameters)
-        parameters.push_back(CodeGen::visitType(parameter->type));
+        functionParameters.push_back(CodeGen::visitType(parameter->type));
 
     auto functionType = LLVMFunctionType(CodeGen::visitType(node->type),
-                                         parameters.data(),
-                                         parameters.size(),
+                                         functionParameters.data(),
+                                         functionParameters.size(),
                                          node->isVariadic);
     if (node->isNative) {
         auto functionRef = LLVMAddFunction(module, node->name->content.c_str(),
@@ -349,65 +349,42 @@ LLVMValueRef CodeGen::visitIdentifier(const std::shared_ptr<IdentifierNode> &nod
 }
 
 LLVMValueRef CodeGen::visitBinary(const std::shared_ptr<BinaryNode> &binaryNode) {
-    return nullptr;
-//    auto lhsValue = CodeGen::visitOperable(binaryNode->lhs);
-//    auto rhsValue = CodeGen::visitOperable(binaryNode->rhs);
-//
-//    auto floatingPoint = binaryNode->lhs->type->isFloating || binaryNode->rhs->type->isFloating;
-//    auto isSigned = !floatingPoint &&
-//                    (binaryNode->lhs->type->isSigned || binaryNode->rhs->type->isSigned);
-//
-//    // TODO: Move the unit translation to the typeresolver.cpp
-//    if (floatingPoint) {
-//        if (!binaryNode->lhs->type->isFloating) {
-//            lhsValue = CodeGen::makeIntToFP(binaryNode->lhs->type,
-//                                            CodeGen::visitType(binaryNode->rhs->type),
-//                                            lhsValue);
-//        } else {
-//            rhsValue = CodeGen::makeIntToFP(binaryNode->rhs->type,
-//                                            CodeGen::visitType(binaryNode->lhs->type),
-//                                            rhsValue);
-//        }
-//    } else {
-//        if (!binaryNode->lhs->type->isSigned) {
-//            lhsValue = LLVMBuildIntCast(builder, lhsValue,
-//                                        CodeGen::visitType(binaryNode->rhs->type), "");
-//        } else {
-//            rhsValue = LLVMBuildIntCast(builder, rhsValue,
-//                                        CodeGen::visitType(binaryNode->lhs->type), "");
-//        }
-//    }
-//
-//    switch (binaryNode->operatorKind) {
-//        case ADDITION:
-//            return CodeGen::makeAdd(floatingPoint, lhsValue, rhsValue);
-//        case MULTIPLICATION:
-//            return CodeGen::makeMul(floatingPoint, lhsValue, rhsValue);
-//        case DIVISION:
-//            return CodeGen::makeDiv(floatingPoint, isSigned, lhsValue, rhsValue);
-//        case SUBTRACTION:
-//            return CodeGen::makeSub(floatingPoint, lhsValue, rhsValue);
-//        case REMAINING:
-//            return CodeGen::makeRem(isSigned, lhsValue, rhsValue);
-//
-//        case LESS_THAN:
-//            return CodeGen::makeLT(floatingPoint, isSigned, lhsValue, rhsValue);
-//        case GREATER_THAN:
-//            return CodeGen::makeGT(floatingPoint, isSigned, lhsValue, rhsValue);
-//        case LESS_EQUAL_THAN:
-//            return CodeGen::makeLE(floatingPoint, isSigned, lhsValue, rhsValue);
-//        case GREATER_EQUAL_THAN:
-//            return CodeGen::makeGE(floatingPoint, isSigned, lhsValue, rhsValue);
-//
-//        case EQUAL:
-//            return CodeGen::makeEQ(floatingPoint, lhsValue, rhsValue);
-//        case NOT_EQUAL:
-//            return CodeGen::makeNE(floatingPoint, lhsValue, rhsValue);
-//
-//        default:
-//            std::cout << "CodeGen: Unsupported binary node. " << binaryNode->kind << std::endl;
-//            exit(EXIT_FAILURE);
-//    }
+    auto lhsValue = CodeGen::visitTyped(binaryNode->lhs);
+    auto rhsValue = CodeGen::visitTyped(binaryNode->rhs);
+
+    auto floatingPoint = binaryNode->lhs->type->isFloating || binaryNode->rhs->type->isFloating;
+    auto isSigned = binaryNode->lhs->type->isSigned || binaryNode->rhs->type->isSigned;
+
+    switch (binaryNode->operatorKind) {
+        case ADDITION:
+            return CodeGen::makeAdd(floatingPoint, lhsValue, rhsValue);
+        case MULTIPLICATION:
+            return CodeGen::makeMul(floatingPoint, lhsValue, rhsValue);
+        case DIVISION:
+            return CodeGen::makeDiv(floatingPoint, isSigned, lhsValue, rhsValue);
+        case SUBTRACTION:
+            return CodeGen::makeSub(floatingPoint, lhsValue, rhsValue);
+        case REMAINING:
+            return CodeGen::makeRem(isSigned, lhsValue, rhsValue);
+
+        case LESS_THAN:
+            return CodeGen::makeLT(floatingPoint, isSigned, lhsValue, rhsValue);
+        case GREATER_THAN:
+            return CodeGen::makeGT(floatingPoint, isSigned, lhsValue, rhsValue);
+        case LESS_EQUAL_THAN:
+            return CodeGen::makeLE(floatingPoint, isSigned, lhsValue, rhsValue);
+        case GREATER_EQUAL_THAN:
+            return CodeGen::makeGE(floatingPoint, isSigned, lhsValue, rhsValue);
+
+        case EQUAL:
+            return CodeGen::makeEQ(floatingPoint, lhsValue, rhsValue);
+        case NOT_EQUAL:
+            return CodeGen::makeNE(floatingPoint, lhsValue, rhsValue);
+
+        default:
+            std::cout << "CodeGen: Unsupported binary node. " << binaryNode->kind << std::endl;
+            exit(EXIT_FAILURE);
+    }
 }
 
 LLVMValueRef CodeGen::visitFunctionCall(const std::shared_ptr<FunctionCallNode> &functionCallNode) {
@@ -505,14 +482,6 @@ void CodeGen::setPositionAtEnd(const LLVMBasicBlockRef &basicBlock) {
     currentBlock = basicBlock;
 }
 
-LLVMValueRef CodeGen::makeIntToFP(const std::shared_ptr<TypeNode> &typeNode,
-                                  const LLVMTypeRef &target,
-                                  const LLVMValueRef &value) {
-    if (typeNode->isSigned)
-        return LLVMBuildSIToFP(builder, value, target, "");
-    return LLVMBuildUIToFP(builder, value, target, "");
-}
-
 LLVMValueRef CodeGen::makeAdd(bool floatingPoint, const LLVMValueRef &rhs,
                               const LLVMValueRef &lhs) {
     if (floatingPoint)
@@ -523,8 +492,8 @@ LLVMValueRef CodeGen::makeAdd(bool floatingPoint, const LLVMValueRef &rhs,
 LLVMValueRef CodeGen::makeMul(bool floatingPoint, const LLVMValueRef &rhs,
                               const LLVMValueRef &lhs) {
     if (floatingPoint)
-        return LLVMBuildFAdd(builder, lhs, rhs, "");
-    return LLVMBuildAdd(builder, lhs, rhs, "");
+        return LLVMBuildFMul(builder, lhs, rhs, "");
+    return LLVMBuildMul(builder, lhs, rhs, "");
 }
 
 LLVMValueRef CodeGen::makeDiv(bool floatingPoint, bool isSigned, const LLVMValueRef &rhs,
