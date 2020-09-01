@@ -31,7 +31,7 @@ std::shared_ptr<Token> Lexer::nextToken() {
     auto currentChar = sourceCode[position];
     if (currentChar == '#') {
         Lexer::parseComment(token);
-    } else if (std::isalpha(currentChar) || currentChar == '_') {
+    } else if (std::isalpha(currentChar)) {
         Lexer::parseIdentifier(token);
     } else if (std::isdigit(currentChar) ||
                (currentChar == '.' && std::isdigit(sourceCode[position + 1]))) {
@@ -195,6 +195,7 @@ void Lexer::parseRemaining(const std::shared_ptr<Token> &token) {
             }
             break;
 
+        case '_':
         case '@':
         case '^':
         case ':':

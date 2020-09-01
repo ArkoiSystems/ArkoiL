@@ -37,15 +37,15 @@ int Compiler::compile(const CompilerOptions &compilerOptions) {
     }
 
     for (const auto &rootNode : roots)
-        TypeResolver::visitRoot(rootNode);
+        TypeResolver::visit(rootNode);
 
     for (const auto &rootNode : roots) {
-        TypeCheck::visitRoot(rootNode);
-        ScopeCheck::visitRoot(rootNode);
+        TypeCheck::visit(rootNode);
+        ScopeCheck::visit(rootNode);
     }
 
     for (const auto &rootNode : roots)
-        CodeGen().visitRoot(rootNode);
+        CodeGen().visit(rootNode);
 
     return EXIT_SUCCESS;
 }

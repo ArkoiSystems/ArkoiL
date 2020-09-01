@@ -89,11 +89,6 @@ std::shared_ptr<FunctionNode> Parser::parseFunction(const std::shared_ptr<ASTNod
         return functionNode;
     }
 
-    if(peekToken(1) == "@") {
-        functionNode->isBuiltin = true;
-        nextToken();
-    }
-
     if (nextToken() != TOKEN_IDENTIFIER) {
         THROW_TOKEN_ERROR("Function expected <identifier> but got '{}' instead.",
                           currentToken()->content)
@@ -169,10 +164,10 @@ std::shared_ptr<FunctionNode> Parser::parseFunction(const std::shared_ptr<ASTNod
     nextToken();
     functionNode->type = parseType(functionNode);
 
-    if ((peekToken(1) == "{" || peekToken(1) == "=") && !functionNode->isBuiltin) {
+    if (peekToken(1) == "{" || peekToken(1) == "=") {
         nextToken();
         functionNode->block = parseBlock(functionNode, parameterScope);
-    } else if (!functionNode->isBuiltin) {
+    } else {
         functionNode->isNative = true;
     }
 
@@ -318,7 +313,7 @@ std::shared_ptr<VariableNode> Parser::parseVariable(const std::shared_ptr<ASTNod
     }
     variableNode->isConstant = (currentToken() == "const");
 
-    if (nextToken() != TOKEN_IDENTIFIER) {
+    if (nextToken() != TOKEN_IDENTIFIER && currentToken() != "_") {
         THROW_TOKEN_ERROR("Variable expected <identifier> but got '{}' instead.",
                           currentToken()->content)
         parent->isFailed = true;
@@ -705,11 +700,6 @@ std::shared_ptr<StructNode> Parser::parseStruct(const std::shared_ptr<ASTNode> &
         return structNode;
     }
 
-    if(peekToken(1) == "@") {
-        structNode->isBuiltin = true;
-        nextToken();
-    }
-
     if (nextToken() != TOKEN_IDENTIFIER) {
         THROW_TOKEN_ERROR("Struct expected <identifier> but got '{}' instead.",
                           currentToken()->content)
@@ -719,40 +709,36 @@ std::shared_ptr<StructNode> Parser::parseStruct(const std::shared_ptr<ASTNode> &
     structNode->name = currentToken();
     parent->scope->insert(structNode->name->content, structNode);
 
-    if(!structNode->isBuiltin) {
-        if (nextToken() != "{") {
-            THROW_TOKEN_ERROR("Struct expected '{{' but got '{}' instead.",
+    if (nextToken() != "{") {
+        THROW_TOKEN_ERROR("Struct expected '{{' but got '{}' instead.",
+                          currentToken()->content)
+        parent->isFailed = true;
+        return structNode;
+    }
+
+    nextToken();
+    while (position < tokens.size()) {
+        if (currentToken() == "}")
+            break;
+
+        if (currentToken() == "var" || currentToken() == "const")
+            structNode->variables.push_back(parseVariable(structNode, structNode->scope));
+        else if (currentToken() != TOKEN_WHITESPACE && currentToken() != TOKEN_COMMENT) {
+            THROW_TOKEN_ERROR("Struct expected <variable> but got '{}' instead.",
                               currentToken()->content)
             parent->isFailed = true;
-            return structNode;
-        }
 
-        nextToken();
-        while (position < tokens.size()) {
-            if (currentToken() == "}")
-                break;
-
-            if (currentToken() == "var" || currentToken() == "const")
-                structNode->variables.push_back(parseVariable(structNode,
-                                                              structNode->scope));
-            else if (currentToken() != TOKEN_WHITESPACE &&
-                     currentToken() != TOKEN_COMMENT) {
-                THROW_TOKEN_ERROR("Struct expected <variable> but got '{}' instead.",
-                                  currentToken()->content)
-                parent->isFailed = true;
-
-                while (position < tokens.size()) {
-                    if (currentToken() == "var" || currentToken() == "const" ||
-                        currentToken() == "}")
-                        break;
-                    nextToken(1, true, false);
-                }
-
-                continue;
+            while (position < tokens.size()) {
+                if (currentToken() == "var" || currentToken() == "const" ||
+                    currentToken() == "}")
+                    break;
+                nextToken(1, true, false);
             }
 
-            nextToken(1, true, false);
+            continue;
         }
+
+        nextToken(1, true, false);
     }
 
     structNode->endToken = currentToken();

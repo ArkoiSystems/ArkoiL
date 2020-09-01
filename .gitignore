@@ -3,3 +3,5 @@
 *.out
 *.ll
 *.o
+*.zip
+*.tar.gz

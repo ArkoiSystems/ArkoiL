@@ -6,33 +6,33 @@
 #include "../parser/astnodes.h"
 #include "../compiler/error.h"
 
-void TypeCheck::visitNode(const std::shared_ptr<ASTNode> &node) {
+void TypeCheck::visit(const std::shared_ptr<ASTNode> &node) {
     if (node->kind == AST_ROOT) {
-        TypeCheck::visitRoot(std::static_pointer_cast<RootNode>(node));
+        TypeCheck::visit(std::static_pointer_cast<RootNode>(node));
     } else if (node->kind == AST_STRUCT) {
-        TypeCheck::visitStruct(std::static_pointer_cast<StructNode>(node));
+        TypeCheck::visit(std::static_pointer_cast<StructNode>(node));
     } else if (node->kind == AST_VARIABLE) {
-        TypeCheck::visitVariable(std::static_pointer_cast<VariableNode>(node));
+        TypeCheck::visit(std::static_pointer_cast<VariableNode>(node));
     } else if (node->kind == AST_FUNCTION) {
-        TypeCheck::visitFunction(std::static_pointer_cast<FunctionNode>(node));
+        TypeCheck::visit(std::static_pointer_cast<FunctionNode>(node));
     } else if (node->kind == AST_BLOCK) {
-        TypeCheck::visitBlock(std::static_pointer_cast<BlockNode>(node));
+        TypeCheck::visit(std::static_pointer_cast<BlockNode>(node));
     } else if (node->kind == AST_FUNCTION_CALL) {
-        TypeCheck::visitFunctionCall(std::static_pointer_cast<FunctionCallNode>(node));
+        TypeCheck::visit(std::static_pointer_cast<FunctionCallNode>(node));
     } else if (node->kind == AST_ARGUMENT) {
-        TypeCheck::visitArgument(std::static_pointer_cast<ArgumentNode>(node));
+        TypeCheck::visit(std::static_pointer_cast<ArgumentNode>(node));
     } else if (node->kind == AST_RETURN) {
-        TypeCheck::visitReturn(std::static_pointer_cast<ReturnNode>(node));
+        TypeCheck::visit(std::static_pointer_cast<ReturnNode>(node));
     } else if (node->kind == AST_ASSIGNMENT) {
-        TypeCheck::visitAssignment(std::static_pointer_cast<AssignmentNode>(node));
+        TypeCheck::visit(std::static_pointer_cast<AssignmentNode>(node));
     } else if (node->kind == AST_STRUCT_CREATE) {
-        TypeCheck::visitStructCreate(std::static_pointer_cast<StructCreateNode>(node));
+        TypeCheck::visit(std::static_pointer_cast<StructCreateNode>(node));
     } else if (node->kind == AST_BINARY) {
-        TypeCheck::visitBinary(std::static_pointer_cast<BinaryNode>(node));
+        TypeCheck::visit(std::static_pointer_cast<BinaryNode>(node));
     } else if (node->kind == AST_UNARY) {
-        TypeCheck::visitUnary(std::static_pointer_cast<UnaryNode>(node));
+        TypeCheck::visit(std::static_pointer_cast<UnaryNode>(node));
     } else if (node->kind == AST_PARENTHESIZED) {
-        TypeCheck::visitParenthesized(std::static_pointer_cast<ParenthesizedNode>(node));
+        TypeCheck::visit(std::static_pointer_cast<ParenthesizedNode>(node));
     } else if (node->kind != AST_IDENTIFIER && node->kind != AST_IMPORT &&
                node->kind != AST_STRING && node->kind != AST_NUMBER &&
                node->kind != AST_TYPE && node->kind != AST_PARAMETER) {
@@ -41,17 +41,17 @@ void TypeCheck::visitNode(const std::shared_ptr<ASTNode> &node) {
     }
 }
 
-void TypeCheck::visitRoot(const std::shared_ptr<RootNode> &root) {
-    for (const auto &node : root->nodes)
-        TypeCheck::visitNode(node);
+void TypeCheck::visit(const std::shared_ptr<RootNode> &rootNode) {
+    for (const auto &node : rootNode->nodes)
+        TypeCheck::visit(node);
 }
 
-void TypeCheck::visitStruct(const std::shared_ptr<StructNode> &structNode) {
+void TypeCheck::visit(const std::shared_ptr<StructNode> &structNode) {
     for (const auto &variable : structNode->variables)
-        TypeCheck::visitVariable(variable);
+        TypeCheck::visit(variable);
 }
 
-void TypeCheck::visitVariable(const std::shared_ptr<VariableNode> &variableNode) {
+void TypeCheck::visit(const std::shared_ptr<VariableNode> &variableNode) {
     if (variableNode->expression == nullptr && variableNode->isConstant) {
         THROW_NODE_ERROR(variableNode, "Constant variables need an expression.")
         return;
@@ -66,7 +66,7 @@ void TypeCheck::visitVariable(const std::shared_ptr<VariableNode> &variableNode)
     if (variableNode->expression == nullptr)
         return;
 
-    TypeCheck::visitNode(variableNode->expression);
+    TypeCheck::visit(variableNode->expression);
 
     if (*variableNode->expression->type != *variableNode->type) {
         THROW_NODE_ERROR(variableNode, "The expression type doesn't match that of the variable.")
@@ -74,26 +74,26 @@ void TypeCheck::visitVariable(const std::shared_ptr<VariableNode> &variableNode)
     }
 }
 
-void TypeCheck::visitFunction(const std::shared_ptr<FunctionNode> &functionNode) {
+void TypeCheck::visit(const std::shared_ptr<FunctionNode> &functionNode) {
     if (functionNode->block != nullptr)
-        TypeCheck::visitBlock(functionNode->block);
+        TypeCheck::visit(functionNode->block);
 }
 
-void TypeCheck::visitBlock(const std::shared_ptr<BlockNode> &blockNode) {
+void TypeCheck::visit(const std::shared_ptr<BlockNode> &blockNode) {
     for (const auto &node : blockNode->nodes)
-        TypeCheck::visitNode(node);
+        TypeCheck::visit(node);
 }
 
-void TypeCheck::visitFunctionCall(const std::shared_ptr<FunctionCallNode> &functionCallNode) {
+void TypeCheck::visit(const std::shared_ptr<FunctionCallNode> &functionCallNode) {
     for (auto const &argument : functionCallNode->arguments)
-        TypeCheck::visitArgument(argument);
+        TypeCheck::visit(argument);
 }
 
-void TypeCheck::visitArgument(const std::shared_ptr<ArgumentNode> &argumentNode) {
-    TypeCheck::visitNode(argumentNode->expression);
+void TypeCheck::visit(const std::shared_ptr<ArgumentNode> &argumentNode) {
+    TypeCheck::visit(argumentNode->expression);
 }
 
-void TypeCheck::visitReturn(const std::shared_ptr<ReturnNode> &returnNode) {
+void TypeCheck::visit(const std::shared_ptr<ReturnNode> &returnNode) {
     auto functionNode = returnNode->getParent<FunctionNode>();
 
     if (returnNode->expression == nullptr && functionNode->type->bits != 0) {
@@ -101,10 +101,10 @@ void TypeCheck::visitReturn(const std::shared_ptr<ReturnNode> &returnNode) {
         return;
     }
 
-    TypeCheck::visitNode(returnNode->expression);
+    TypeCheck::visit(returnNode->expression);
 }
 
-void TypeCheck::visitAssignment(const std::shared_ptr<AssignmentNode> &assignmentNode) {
+void TypeCheck::visit(const std::shared_ptr<AssignmentNode> &assignmentNode) {
     if (*assignmentNode->type != *assignmentNode->expression->type) {
         THROW_NODE_ERROR(assignmentNode,
                          "The assignment expression uses a different type than the variable.")
@@ -119,17 +119,17 @@ void TypeCheck::visitAssignment(const std::shared_ptr<AssignmentNode> &assignmen
         }
     }
 
-    TypeCheck::visitNode(assignmentNode->expression);
+    TypeCheck::visit(assignmentNode->expression);
 }
 
-void TypeCheck::visitStructCreate(const std::shared_ptr<StructCreateNode> &structCreateNode) {
+void TypeCheck::visit(const std::shared_ptr<StructCreateNode> &structCreateNode) {
     if (structCreateNode->type->targetStruct == nullptr) {
         THROW_NODE_ERROR(structCreateNode, "Struct creation has no target struct.")
         return;
     }
 
     for (const auto &argument : structCreateNode->arguments) {
-        TypeCheck::visitArgument(argument);
+        TypeCheck::visit(argument);
 
         std::shared_ptr<VariableNode> foundVariable;
         for (const auto &variable : structCreateNode->type->targetStruct->variables) {
@@ -157,9 +157,9 @@ void TypeCheck::visitStructCreate(const std::shared_ptr<StructCreateNode> &struc
     }
 }
 
-void TypeCheck::visitBinary(const std::shared_ptr<BinaryNode> &binaryNode) {
-    TypeCheck::visitNode(binaryNode->lhs);
-    TypeCheck::visitNode(binaryNode->rhs);
+void TypeCheck::visit(const std::shared_ptr<BinaryNode> &binaryNode) {
+    TypeCheck::visit(binaryNode->lhs);
+    TypeCheck::visit(binaryNode->rhs);
 
     // TODO: Add check for the remaining operator (no floating pointer)
     switch (binaryNode->operatorKind) {
@@ -188,11 +188,11 @@ void TypeCheck::visitBinary(const std::shared_ptr<BinaryNode> &binaryNode) {
     }
 }
 
-void TypeCheck::visitUnary(const std::shared_ptr<UnaryNode>& unaryNode) {
+void TypeCheck::visit(const std::shared_ptr<UnaryNode>& unaryNode) {
     // TODO: Make later checks.
-    TypeCheck::visitNode(unaryNode->operable);
+    TypeCheck::visit(unaryNode->operable);
 }
 
-void TypeCheck::visitParenthesized(const std::shared_ptr<ParenthesizedNode>& parenthesizedNode) {
-    TypeCheck::visitNode(parenthesizedNode->expression);
+void TypeCheck::visit(const std::shared_ptr<ParenthesizedNode>& parenthesizedNode) {
+    TypeCheck::visit(parenthesizedNode->expression);
 }
