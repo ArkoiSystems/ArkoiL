@@ -315,9 +315,8 @@ struct StructNode : public TypedNode {
 
     std::vector<std::shared_ptr<VariableNode>> variables;
     std::shared_ptr<Token> name;
-    bool isBuiltin;
 
-    StructNode() : variables({}), name({}), isBuiltin(false) {
+    StructNode() : variables({}), name({}) {
         kind = AST_STRUCT;
     }
 
@@ -378,12 +377,11 @@ struct TypeNode : public ASTNode {
 struct FunctionNode : public TypedNode {
 
     std::vector<std::shared_ptr<ParameterNode>> parameters;
-    bool isVariadic, isBuiltin, isNative;
     std::shared_ptr<BlockNode> block;
     std::shared_ptr<Token> name;
+    bool isVariadic, isNative;
 
-    FunctionNode() : parameters({}), isVariadic(false), isBuiltin(false), isNative(false),
-                     block({}), name({}) {
+    FunctionNode() : parameters({}), isVariadic(false), isNative(false), block({}), name({}) {
         kind = AST_FUNCTION;
     }
 

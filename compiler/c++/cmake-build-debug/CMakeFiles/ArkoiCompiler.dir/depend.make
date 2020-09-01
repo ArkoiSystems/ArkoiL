@@ -23,7 +23,6 @@ CMakeFiles/ArkoiCompiler.dir/src/compiler/compiler.cpp.o: ../src/parser/astnodes
 CMakeFiles/ArkoiCompiler.dir/src/compiler/compiler.cpp.o: ../src/parser/parser.h
 CMakeFiles/ArkoiCompiler.dir/src/compiler/compiler.cpp.o: ../src/parser/symboltable.h
 CMakeFiles/ArkoiCompiler.dir/src/compiler/compiler.cpp.o: ../src/parser/typeresolver.h
-CMakeFiles/ArkoiCompiler.dir/src/compiler/compiler.cpp.o: ../src/semantic/conversions.h
 CMakeFiles/ArkoiCompiler.dir/src/compiler/compiler.cpp.o: ../src/semantic/scopecheck.h
 CMakeFiles/ArkoiCompiler.dir/src/compiler/compiler.cpp.o: ../src/semantic/typecheck.h
 CMakeFiles/ArkoiCompiler.dir/src/compiler/compiler.cpp.o: ../src/utils.h
@@ -73,9 +72,6 @@ CMakeFiles/ArkoiCompiler.dir/src/parser/typeresolver.cpp.o: ../src/parser/symbol
 CMakeFiles/ArkoiCompiler.dir/src/parser/typeresolver.cpp.o: ../src/parser/typeresolver.cpp
 CMakeFiles/ArkoiCompiler.dir/src/parser/typeresolver.cpp.o: ../src/parser/typeresolver.h
 CMakeFiles/ArkoiCompiler.dir/src/parser/typeresolver.cpp.o: ../src/utils.h
-
-CMakeFiles/ArkoiCompiler.dir/src/semantic/conversions.cpp.o: ../src/semantic/conversions.cpp
-CMakeFiles/ArkoiCompiler.dir/src/semantic/conversions.cpp.o: ../src/semantic/conversions.h
 
 CMakeFiles/ArkoiCompiler.dir/src/semantic/scopecheck.cpp.o: ../deps/fmt-7.0.2/include/fmt/core.h
 CMakeFiles/ArkoiCompiler.dir/src/semantic/scopecheck.cpp.o: ../src/compiler/error.h

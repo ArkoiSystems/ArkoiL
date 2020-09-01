@@ -24,7 +24,6 @@ CMakeFiles/ArkoiCompiler.dir/src/compiler/compiler.cpp.o
  /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/parser/parser.h
  /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/parser/symboltable.h
  /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/parser/typeresolver.h
- /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/semantic/conversions.h
  /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/semantic/scopecheck.h
  /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/semantic/typecheck.h
  /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/utils.h
@@ -74,9 +73,6 @@ CMakeFiles/ArkoiCompiler.dir/src/parser/typeresolver.cpp.o
  /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/parser/typeresolver.cpp
  /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/parser/typeresolver.h
  /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/utils.h
-CMakeFiles/ArkoiCompiler.dir/src/semantic/conversions.cpp.o
- /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/semantic/conversions.cpp
- /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/semantic/conversions.h
 CMakeFiles/ArkoiCompiler.dir/src/semantic/scopecheck.cpp.o
  ../deps/fmt-7.0.2/include/fmt/core.h
  /home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/compiler/error.h

@@ -1,8 +1,13 @@
-struct @va_list
+struct va_list {
+    var _: i32
+    var _: i32
+    var _: i8*
+    var _: i8*
+}
 
-fun @va_start(): va_list
+fun va_start(): va_list
 
-fun @va_end(list: va_list*): void
+fun va_end(list: va_list*): void
 
 ## FUTURE CONCEPTS:
 
