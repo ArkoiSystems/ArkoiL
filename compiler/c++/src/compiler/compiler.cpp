@@ -76,7 +76,7 @@ int Compiler::loadImports(const CompilerOptions &compilerOptions,
 
                 if (loaded.find(fullPath) != loaded.end()) {
                     for (const auto &loadedRoot : roots) {
-                        if (strcmp(loadedRoot->sourcePath.c_str(), fullPath.c_str()) == 0) {
+                        if(loadedRoot->sourcePath == fullPath){
                             importRoot = loadedRoot;
                             break;
                         }

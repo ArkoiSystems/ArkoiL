@@ -54,8 +54,7 @@ void ScopeCheck::visit(const std::shared_ptr<ImportNode> &importNode) {
             continue;
 
         auto rootImport = std::static_pointer_cast<ImportNode>(node);
-        if (std::strcmp(rootImport->path->content.c_str(),
-                        importNode->path->content.c_str()) == 0) {
+        if(rootImport->path->content == importNode->path->content)  {
             THROW_NODE_ERROR(importNode, "There is already another import with the same path.")
             return;
         }

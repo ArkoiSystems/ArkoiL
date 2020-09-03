@@ -82,6 +82,8 @@ private:
 
     std::shared_ptr<OperableNode> parseMultiplicative(const std::shared_ptr<ASTNode> &parent);
 
+    std::shared_ptr<OperableNode> parseCast(const std::shared_ptr<ASTNode> &parent);
+
     std::shared_ptr<OperableNode> parseOperable(const std::shared_ptr<ASTNode> &parent);
 
     std::shared_ptr<OperableNode> parseIdentifier(const std::shared_ptr<ASTNode> &parent);

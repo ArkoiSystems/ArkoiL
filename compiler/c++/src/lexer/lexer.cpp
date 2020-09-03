@@ -86,6 +86,7 @@ void Lexer::parseIdentifier(const std::shared_ptr<Token> &token) {
         case Utils::hash("if"):
         case Utils::hash("const"):
         case Utils::hash("else"):
+        case Utils::hash("bitcast"):
             token->type = TOKEN_KEYWORD;
             break;
         case Utils::hash("bool"):

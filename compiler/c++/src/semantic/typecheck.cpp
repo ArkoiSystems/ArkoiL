@@ -133,7 +133,7 @@ void TypeCheck::visit(const std::shared_ptr<StructCreateNode> &structCreateNode)
 
         std::shared_ptr<VariableNode> foundVariable;
         for (const auto &variable : structCreateNode->type->targetStruct->variables) {
-            if (strcmp(variable->name->content.c_str(), argument->name->content.c_str()) == 0) {
+            if (variable->name->content == argument->name->content) {
                 foundVariable = variable;
                 break;
             }
@@ -182,6 +182,10 @@ void TypeCheck::visit(const std::shared_ptr<BinaryNode> &binaryNode) {
                 THROW_NODE_ERROR(binaryNode->rhs,
                                  "Right side of the binary expression is not numeric.")
             break;
+
+        case BIT_CAST:
+            break;
+
         default:
             std::cout << "TypeCheck: Binary operator not supported." << std::endl;
             exit(EXIT_FAILURE);

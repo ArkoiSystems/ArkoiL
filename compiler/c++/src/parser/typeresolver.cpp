@@ -70,7 +70,7 @@ void TypeResolver::visit(const std::shared_ptr<FunctionNode> &functionNode) {
     for (const auto &parameter : functionNode->parameters)
         TypeResolver::visit(parameter);
 
-    if (!functionNode->isNative)
+    if (!functionNode->isNative && !functionNode->isIntrinsic)
         TypeResolver::visit(functionNode->block);
 }
 
@@ -104,7 +104,12 @@ void TypeResolver::visit(const std::shared_ptr<BinaryNode> &binaryNode) {
 
     TypeResolver::visit(binaryNode->lhs);
     TypeResolver::visit(binaryNode->rhs);
-    binaryNode->type = binaryNode->lhs->type;
+
+    if (binaryNode->operatorKind == BIT_CAST) {
+        binaryNode->type = std::static_pointer_cast<TypeNode>(binaryNode->rhs);
+    } else {
+        binaryNode->type = binaryNode->lhs->type;
+    }
 
     binaryNode->isTypeResolved = true;
 }
@@ -223,6 +228,24 @@ void TypeResolver::visit(const std::shared_ptr<IdentifierNode> &identifierNode) 
     TypeResolver::visit(targetNode);
 
     auto typedNode = std::static_pointer_cast<TypedNode>(targetNode);
+    if ((typedNode != nullptr && typedNode->kind == AST_ARGUMENT) &&
+        (typedNode->parent != nullptr && typedNode->parent->kind == AST_STRUCT_CREATE)) {
+        auto structCreate = std::static_pointer_cast<StructCreateNode>(typedNode->parent);
+        targetNode = nullptr;
+
+        auto structNode = std::static_pointer_cast<StructNode>(structCreate->targetNode);
+        for (auto const &variable : structNode->variables) {
+            if (variable->name->content == identifierNode->identifier->content)
+                targetNode = variable;
+        }
+    }
+
+    if (targetNode == nullptr) {
+        THROW_NODE_ERROR(identifierNode, "Couldn't find the identifier \"{}\".",
+                         identifierNode->identifier->content)
+        return;
+    }
+
     if (typedNode->type == nullptr) {
         THROW_NODE_ERROR(typedNode, "The found identifier has no type.")
         return;
