@@ -7,6 +7,7 @@
       <w>astnode</w>
       <w>astnodes</w>
       <w>astvisitor</w>
+      <w>bitcast</w>
       <w>compoptions</w>
       <w>scopecheck</w>
       <w>symboltable</w>

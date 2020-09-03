@@ -152,9 +152,8 @@ struct ParameterNode : public TypedNode {
 struct BlockNode : public ASTNode {
 
     std::vector<std::shared_ptr<ASTNode>> nodes;
-    bool isInlined;
 
-    BlockNode() : nodes({}), isInlined(false) {
+    BlockNode() : nodes({}) {
         kind = AST_BLOCK;
     }
 
@@ -199,6 +198,8 @@ enum BinaryKind {
     GREATER_EQUAL_THAN,
     EQUAL,
     NOT_EQUAL,
+
+    BIT_CAST
 };
 
 struct BinaryNode: public OperableNode {
@@ -322,7 +323,7 @@ struct StructNode : public TypedNode {
 
 };
 
-struct TypeNode : public ASTNode {
+struct TypeNode : public OperableNode {
 
     std::shared_ptr<StructNode> targetStruct;
     std::shared_ptr<Token> typeToken;
@@ -340,10 +341,6 @@ struct TypeNode : public ASTNode {
         if ((isSigned || isFloating) && bits > 0)
             return true;
         return bits > 0 && targetStruct == nullptr;
-    }
-
-    [[nodiscard]] bool isBoolean() const {
-        return targetStruct == nullptr && bits == 1 && isSigned && !isFloating;
     }
 
     friend std::ostream &operator<<(std::ostream &out, const std::shared_ptr<TypeNode> &typeNode) {
@@ -377,16 +374,17 @@ struct TypeNode : public ASTNode {
 struct FunctionNode : public TypedNode {
 
     std::vector<std::shared_ptr<ParameterNode>> parameters;
+    bool isVariadic, isNative, isIntrinsic;
     std::shared_ptr<BlockNode> block;
     std::shared_ptr<Token> name;
-    bool isVariadic, isNative;
 
-    FunctionNode() : parameters({}), isVariadic(false), isNative(false), block({}), name({}) {
+    FunctionNode() : parameters({}), isVariadic(false), isNative(false),
+                     isIntrinsic(false), block({}), name({}) {
         kind = AST_FUNCTION;
     }
 
     bool operator==(const FunctionNode &other) const {
-        if (std::strcmp(name->content.c_str(), other.name->content.c_str()) != 0)
+        if (name->content != other.name->content)
             return false;
 
         if (parameters.size() != other.parameters.size())
@@ -418,30 +416,25 @@ struct StructCreateNode : public OperableNode {
         kind = AST_STRUCT_CREATE;
     }
 
-    bool getSortedArguments(const std::shared_ptr<StructNode> &structNode,
-                            std::vector<std::shared_ptr<ArgumentNode>> &sortedArguments) {
-        auto scopeCheck = [](const std::shared_ptr<ASTNode> &node) {
-            return node->kind == AST_VARIABLE;
-        };
-
-        for (const auto &argument : arguments) {
-            if (argument->name == nullptr)
-                return false;
-
-            auto foundVariables = structNode->scope->scope(argument->name->content, scopeCheck);
-            if (foundVariables == nullptr) {
-                std::cout << argument->name->content << std::endl;
-                return false;
+    bool getFilledExpressions(const std::shared_ptr<StructNode> &structNode,
+                              std::vector<std::shared_ptr<OperableNode>> &expressions) {
+        for (const auto &variable : structNode->variables) {
+            std::shared_ptr<ArgumentNode> foundNode;
+            for (const auto &argument : arguments) {
+                if (variable->name->content == argument->name->content) {
+                    foundNode = argument;
+                    break;
+                }
             }
 
-            auto foundVariable = std::static_pointer_cast<VariableNode>(foundVariables->at(0));
-            auto variableIndex = Utils::indexOf(structNode->variables, foundVariable).second;
-            auto argumentIndex = Utils::indexOf(sortedArguments, argument).second;
-            sortedArguments.erase(sortedArguments.begin() + argumentIndex);
-            sortedArguments.insert(sortedArguments.begin() + variableIndex, argument);
+            if (foundNode == nullptr) {
+                expressions.emplace_back(variable->expression);
+            } else {
+                expressions.emplace_back(foundNode->expression);
+            }
         }
 
-        return true;
+        return false;
     }
 
 };

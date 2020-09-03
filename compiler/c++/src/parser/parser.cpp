@@ -89,13 +89,29 @@ std::shared_ptr<FunctionNode> Parser::parseFunction(const std::shared_ptr<ASTNod
         return functionNode;
     }
 
-    if (nextToken() != TOKEN_IDENTIFIER) {
+    if (nextToken() == "llvm") {
+        if (nextToken() != ".") {
+            THROW_TOKEN_ERROR("Function expected '.' but got '{}' instead.",
+                              currentToken()->content)
+            parent->isFailed = true;
+            return functionNode;
+        }
+
+        functionNode->isIntrinsic = true;
+        nextToken();
+    }
+
+    if (currentToken() != TOKEN_IDENTIFIER) {
         THROW_TOKEN_ERROR("Function expected <identifier> but got '{}' instead.",
                           currentToken()->content)
         parent->isFailed = true;
         return functionNode;
     }
+
     functionNode->name = currentToken();
+    if (functionNode->isIntrinsic)
+        functionNode->name->content = "llvm." + functionNode->name->content;
+
     functionNode->scope->insert(functionNode->name->content, functionNode);
 
     if (nextToken() != "(") {
@@ -165,9 +181,16 @@ std::shared_ptr<FunctionNode> Parser::parseFunction(const std::shared_ptr<ASTNod
     functionNode->type = parseType(functionNode);
 
     if (peekToken(1) == "{" || peekToken(1) == "=") {
+        if (functionNode->isIntrinsic) {
+            THROW_TOKEN_ERROR("Intrinsic functions can't have a body.",
+                              currentToken()->content)
+            parent->isFailed = true;
+            return functionNode;
+        }
+
         nextToken();
         functionNode->block = parseBlock(functionNode, parameterScope);
-    } else {
+    } else if (!functionNode->isIntrinsic) {
         functionNode->isNative = true;
     }
 
@@ -407,7 +430,7 @@ std::shared_ptr<OperableNode> Parser::parseAdditive(const std::shared_ptr<ASTNod
 }
 
 std::shared_ptr<OperableNode> Parser::parseMultiplicative(const std::shared_ptr<ASTNode> &parent) {
-    auto lhs = parseOperable(parent);
+    auto lhs = parseCast(parent);
     while (true) {
         BinaryKind operatorKind;
         switch (Utils::hash(peekToken(1)->content.c_str())) {
@@ -433,6 +456,32 @@ std::shared_ptr<OperableNode> Parser::parseMultiplicative(const std::shared_ptr<
         newLhs->lhs = lhs;
         newLhs->operatorKind = operatorKind;
         newLhs->rhs = parseMultiplicative(lhs);
+        newLhs->endToken = newLhs->rhs->endToken;
+        lhs = newLhs;
+    }
+}
+
+std::shared_ptr<OperableNode> Parser::parseCast(const std::shared_ptr<ASTNode> &parent) {
+    auto lhs = parseOperable(parent);
+    while (true) {
+        BinaryKind operatorKind;
+        switch (Utils::hash(peekToken(1)->content.c_str())) {
+            case Utils::hash("bitcast"):
+                operatorKind = BIT_CAST;
+                break;
+            default:
+                return lhs;
+        }
+
+        nextToken(2);
+
+        auto newLhs = std::make_shared<BinaryNode>();
+        newLhs->startToken = lhs->startToken;
+        newLhs->scope = lhs->scope;
+        newLhs->parent = lhs;
+        newLhs->lhs = lhs;
+        newLhs->operatorKind = operatorKind;
+        newLhs->rhs = parseType(lhs);
         newLhs->endToken = newLhs->rhs->endToken;
         lhs = newLhs;
     }
@@ -519,6 +568,19 @@ std::shared_ptr<OperableNode> Parser::parseIdentifier(const std::shared_ptr<ASTN
         return identifierNode;
     }
     identifierNode->identifier = currentToken();
+
+    if(identifierNode->identifier->content == "llvm" && peekToken(1) == ".") {
+        nextToken(1);
+
+        if(nextToken() != TOKEN_IDENTIFIER) {
+            THROW_TOKEN_ERROR("Identifier expected <identifier> but got '{}' instead.",
+                              currentToken()->content)
+            parent->isFailed = true;
+            return identifierNode;
+        }
+
+        identifierNode->identifier->content = "llvm." + currentToken()->content;
+    }
 
     if (peekToken(1) == "(") {
         nextToken(2);
@@ -619,7 +681,8 @@ std::shared_ptr<OperableNode> Parser::parseIdentifier(const std::shared_ptr<ASTN
         identifierNode->scope = structCreate->scope;
         identifierNode->parent = structCreate;
 
-        parseNamedArguments(structCreate->arguments, structCreate);
+        if (currentToken() != "}")
+            parseNamedArguments(structCreate->arguments, structCreate);
         structCreate->endToken = currentToken();
 
         if (currentToken() != "}") {

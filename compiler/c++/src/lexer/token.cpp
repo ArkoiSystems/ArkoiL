@@ -18,7 +18,7 @@ std::ostream &operator<<(std::ostream &out, const std::shared_ptr<Token> &token)
 bool operator==(const std::shared_ptr<Token> &token, const std::string &toCheck) {
     if(token == nullptr)
         return false;
-    return std::strcmp(token->content.c_str(), toCheck.c_str()) == 0;
+    return token->content == toCheck;
 }
 
 bool operator!=(const std::shared_ptr<Token> &token, const std::string &toCheck) {
