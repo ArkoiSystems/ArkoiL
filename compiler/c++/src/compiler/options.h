@@ -8,19 +8,9 @@
 #include <iostream>
 #include <vector>
 
-enum CommandType {
-    EXE,
-    RUN
-};
-
 struct CompilerOptions {
-    CommandType commandType;
-
-    std::vector<std::string> runArguments;
-    std::vector<std::string> sourceFiles;
     std::vector<std::string> searchPaths;
-
-    bool emitLLVMIR;
+    std::string sourceFile;
 };
 
 #endif //ARKOICOMPILER_OPTIONS_H

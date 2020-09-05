@@ -2,8 +2,9 @@
 
 #include <iostream>
 #include <cstring>
-#include "compiler/options.h"
 #include "compiler/compiler.h"
+#include "compiler/options.h"
+
 #include "../deps/dbg-macro/dbg.h"
 
 void printUsage();
@@ -17,25 +18,8 @@ int main(int argc, char *argv[]) {
     CompilerOptions compilerOptions{};
     unsigned int index = 1;
     if (strcmp(argv[index], "build-exe") == 0 && argc >= 3) {
-        compilerOptions.commandType = EXE;
-
         index = 2;
-        for (; index < argc; index++) {
-            auto sourceFile = argv[index];
-            if (strncmp("-", sourceFile, 1) == 0)
-                break;
-            compilerOptions.sourceFiles.emplace_back(sourceFile);
-        }
-    } else if (strcmp(argv[index], "run") == 0 && argc >= 3) {
-        compilerOptions.commandType = RUN;
-
-        index = 2;
-        for (; index < argc; index++) {
-            auto sourceFile = argv[index];
-            if (strncmp("-", sourceFile, 1) == 0)
-                break;
-            compilerOptions.sourceFiles.emplace_back(sourceFile);
-        }
+        compilerOptions.sourceFile = argv[index++];
     } else {
         if (strcmp(argv[index], "help") == 0)
             printUsage();
@@ -46,29 +30,19 @@ int main(int argc, char *argv[]) {
     }
 
     for (; index < argc; index++) {
-        if (strcmp(argv[index], "-emit-llvm-ir") == 0)
-            compilerOptions.emitLLVMIR = true;
-        else if (strncmp(argv[index], "-I", 2) == 0) {
+        if (strncmp(argv[index], "-I", 2) == 0) {
             auto filePath = std::string(argv[index]);
             filePath = filePath.substr(2, filePath.size());
             compilerOptions.searchPaths.push_back(filePath);
-        } else if (compilerOptions.commandType == RUN)
-            compilerOptions.runArguments.emplace_back(argv[index]);
-        else {
+        } else {
             std::cout << "Unknown option: " << argv[index]
                       << ". Use ark help for more information." << std::endl;
             return EXIT_FAILURE;
         }
     }
 
-    if (compilerOptions.sourceFiles.empty()) {
-        std::cout << "You need at least one specified source file." << std::endl;
-        return EXIT_FAILURE;
-    }
-
-    for (const auto &sourceFile : compilerOptions.sourceFiles)
-        compilerOptions.searchPaths.push_back(sourceFile.substr(0, sourceFile.rfind('/')));
-
+    compilerOptions.searchPaths.push_back(
+            compilerOptions.sourceFile.substr(0,compilerOptions.sourceFile.rfind('/')));
     compilerOptions.searchPaths.emplace_back("../../../natives");
     compilerOptions.searchPaths.emplace_back("");
 
@@ -79,12 +53,10 @@ void printUsage() {
     std::cout << "Usage: ark [command] [options]\n"
                  "\n"
                  "Commands:\n"
-                 "   run [sources] [args]           create executable from source and run immediately.\n"
-                 "   build-exe [sources]            create executable from source or object files.\n"
+                 "   build-exe [source]             create executable from a source file.\n"
                  "   help                           prints this list in the console.\n"
                  "\n"
                  "Options:\n"
-                 "   -emit-llvm-ir                  gives out a .ll file with LLVM-IR.\n"
-                 "   -I                             add directory to include search path."
+                 "   -I                             add directory to include search path.\n"
               << std::endl;
 }
