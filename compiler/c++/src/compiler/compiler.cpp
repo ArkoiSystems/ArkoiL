@@ -17,14 +17,9 @@
 
 int Compiler::compile(const CompilerOptions &compilerOptions) {
     std::vector<std::shared_ptr<RootNode>> roots;
-    for (const auto &sourcePath : compilerOptions.sourceFiles) {
-        if (auto parser = Compiler::loadFile(sourcePath)) {
-            roots.push_back(parser->parseRoot());
-            break;
-        }
-
-        return EXIT_FAILURE;
-    }
+    if (auto parser = Compiler::loadFile(compilerOptions.sourceFile)) {
+        roots.push_back(parser->parseRoot());
+    } else return EXIT_FAILURE;
 
     std::set<std::string> loaded;
     while (true) {
@@ -44,8 +39,13 @@ int Compiler::compile(const CompilerOptions &compilerOptions) {
         ScopeCheck::visit(rootNode);
     }
 
-    for (const auto &rootNode : roots)
+    for (const auto &rootNode : roots) {
+        if (rootNode->sourcePath != compilerOptions.sourceFile)
+            continue;
+
         CodeGen().visit(rootNode);
+        break;
+    }
 
     return EXIT_SUCCESS;
 }

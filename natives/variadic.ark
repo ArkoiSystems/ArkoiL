@@ -22,6 +22,15 @@ fun llvm.va_end(list: i8*): void
 ## FUTURE CONCEPTS:
 
 # 1.) Usage of compiled-blocks (```) and also compile tags like
+# struct va_list if(_PLATFORM == "Unix x86") {
+#     var _: i32
+#     var _: i32
+#     var _: i8*
+#     var _: i8*
+# } else {
+#     var _: i8*
+# }
+#
 # ```
 # if _PLATFORM == "Unix x86_64:
 #     struct va_list {
