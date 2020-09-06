@@ -70,7 +70,7 @@ void TypeResolver::visit(const std::shared_ptr<FunctionNode> &functionNode) {
     for (const auto &parameter : functionNode->parameters)
         TypeResolver::visit(parameter);
 
-    if (!functionNode->isNative && !functionNode->isIntrinsic)
+    if (!functionNode->isNative)
         TypeResolver::visit(functionNode->block);
 }
 
@@ -372,13 +372,13 @@ void TypeResolver::visit(const std::shared_ptr<StructNode> &structNode) {
     if (structNode->isTypeResolved)
         return;
 
+    structNode->isTypeResolved = true;
+
     structNode->type = std::make_shared<TypeNode>();
     structNode->type->targetStruct = structNode;
 
     for (const auto &variable : structNode->variables)
         TypeResolver::visit(variable);
-
-    structNode->isTypeResolved = true;
 }
 
 void TypeResolver::visit(const std::shared_ptr<TypeNode> &typeNode) {

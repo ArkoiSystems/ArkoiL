@@ -50,7 +50,6 @@ int Compiler::compile(const CompilerOptions &compilerOptions) {
     return EXIT_SUCCESS;
 }
 
-// TODO: Make an efficient function.
 int Compiler::loadImports(const CompilerOptions &compilerOptions,
                           std::set<std::string> &loaded,
                           std::vector<std::shared_ptr<RootNode>> &roots) {
@@ -76,7 +75,7 @@ int Compiler::loadImports(const CompilerOptions &compilerOptions,
 
                 if (loaded.find(fullPath) != loaded.end()) {
                     for (const auto &loadedRoot : roots) {
-                        if(loadedRoot->sourcePath == fullPath){
+                        if (loadedRoot->sourcePath == fullPath) {
                             importRoot = loadedRoot;
                             break;
                         }

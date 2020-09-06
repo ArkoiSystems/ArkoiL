@@ -56,6 +56,10 @@ class TypedNode;
 class CodeGen {
 
 private:
+    std::unordered_map<std::shared_ptr<ASTNode>,
+            std::vector<std::shared_ptr<OperableNode>>> originalExpressions;
+    std::unordered_map<std::shared_ptr<ASTNode>,
+            std::vector<std::shared_ptr<OperableNode>>> lastExpressions;
     std::unordered_map<std::shared_ptr<BlockNode>,
             std::tuple<LLVMBasicBlockRef, LLVMValueRef, LLVMBasicBlockRef>> blocks;
     std::unordered_map<std::shared_ptr<ParameterNode>, LLVMValueRef> parameters;

@@ -20,6 +20,42 @@ ArkoiCompiler_BINARY_DIR:STATIC=/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/
 //Value Computed by CMake
 ArkoiCompiler_SOURCE_DIR:STATIC=/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++
 
+//The directory containing a CMake configuration file for BOOST.
+BOOST_DIR:PATH=BOOST_DIR-NOTFOUND
+
+//The directory containing a CMake configuration file for B.
+B_DIR:PATH=B_DIR-NOTFOUND
+
+//Boost CONTENTS library (debug)
+Boost_CONTENTS_LIBRARY_DEBUG:FILEPATH=Boost_CONTENTS_LIBRARY_DEBUG-NOTFOUND
+
+//Boost CONTENTS library (release)
+Boost_CONTENTS_LIBRARY_RELEASE:FILEPATH=Boost_CONTENTS_LIBRARY_RELEASE-NOTFOUND
+
+//The directory containing a CMake configuration file for Boost.
+Boost_DIR:PATH=Boost_DIR-NOTFOUND
+
+//Boost filesystem library (debug)
+Boost_FILESYSTEM_LIBRARY_DEBUG:FILEPATH=Boost_FILESYSTEM_LIBRARY_DEBUG-NOTFOUND
+
+//Boost filesystem library (release)
+Boost_FILESYSTEM_LIBRARY_RELEASE:FILEPATH=Boost_FILESYSTEM_LIBRARY_RELEASE-NOTFOUND
+
+//Path to a file.
+Boost_INCLUDE_DIR:PATH=/usr/local/boost_1_73_0
+
+//Boost Range library (debug)
+Boost_RANGE_LIBRARY_DEBUG:FILEPATH=Boost_RANGE_LIBRARY_DEBUG-NOTFOUND
+
+//Boost Range library (release)
+Boost_RANGE_LIBRARY_RELEASE:FILEPATH=Boost_RANGE_LIBRARY_RELEASE-NOTFOUND
+
+//Boost regex library (debug)
+Boost_REGEX_LIBRARY_DEBUG:FILEPATH=Boost_REGEX_LIBRARY_DEBUG-NOTFOUND
+
+//Boost regex library (release)
+Boost_REGEX_LIBRARY_RELEASE:FILEPATH=Boost_REGEX_LIBRARY_RELEASE-NOTFOUND
+
 //Path to a program.
 CMAKE_ADDR2LINE:FILEPATH=/usr/bin/addr2line
 
@@ -343,6 +379,26 @@ llvm_DIR:PATH=llvm_DIR-NOTFOUND
 # INTERNAL cache entries
 ########################
 
+//ADVANCED property for variable: Boost_CONTENTS_LIBRARY_DEBUG
+Boost_CONTENTS_LIBRARY_DEBUG-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: Boost_CONTENTS_LIBRARY_RELEASE
+Boost_CONTENTS_LIBRARY_RELEASE-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: Boost_DIR
+Boost_DIR-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: Boost_FILESYSTEM_LIBRARY_DEBUG
+Boost_FILESYSTEM_LIBRARY_DEBUG-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: Boost_FILESYSTEM_LIBRARY_RELEASE
+Boost_FILESYSTEM_LIBRARY_RELEASE-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: Boost_INCLUDE_DIR
+Boost_INCLUDE_DIR-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: Boost_RANGE_LIBRARY_DEBUG
+Boost_RANGE_LIBRARY_DEBUG-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: Boost_RANGE_LIBRARY_RELEASE
+Boost_RANGE_LIBRARY_RELEASE-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: Boost_REGEX_LIBRARY_DEBUG
+Boost_REGEX_LIBRARY_DEBUG-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: Boost_REGEX_LIBRARY_RELEASE
+Boost_REGEX_LIBRARY_RELEASE-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_ADDR2LINE
 CMAKE_ADDR2LINE-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_AR
@@ -526,6 +582,8 @@ CMAKE_STRIP-ADVANCED:INTERNAL=1
 CMAKE_UNAME:INTERNAL=/bin/uname
 //ADVANCED property for variable: CMAKE_VERBOSE_MAKEFILE
 CMAKE_VERBOSE_MAKEFILE-ADVANCED:INTERNAL=1
+//Details about finding Boost
+FIND_PACKAGE_MESSAGE_DETAILS_Boost:INTERNAL=[/usr/local/boost_1_73_0][c ][v1.73.0(1.73.0)]
 //Test FMT_HAS_VARIANT
 FMT_HAS_VARIANT:INTERNAL=1
 //Have symbol strtod_l
@@ -536,6 +594,14 @@ ProcessorCount_cmd_nproc-ADVANCED:INTERNAL=1
 ProcessorCount_cmd_sysctl-ADVANCED:INTERNAL=1
 //Test SUPPORTS_USER_DEFINED_LITERALS
 SUPPORTS_USER_DEFINED_LITERALS:INTERNAL=1
+//Components requested for this build tree.
+_Boost_COMPONENTS_SEARCHED:INTERNAL=filesystem
+//Last used Boost_INCLUDE_DIR value.
+_Boost_INCLUDE_DIR_LAST:INTERNAL=/usr/local/boost_1_73_0
+//Last used Boost_NAMESPACE value.
+_Boost_NAMESPACE_LAST:INTERNAL=boost
+//Last used Boost_USE_MULTITHREADED value.
+_Boost_USE_MULTITHREADED_LAST:INTERNAL=TRUE
 //CMAKE_INSTALL_PREFIX during last run
 _GNUInstallDirs_LAST_CMAKE_INSTALL_PREFIX:INTERNAL=/usr/local
 //Test has_std_20_flag

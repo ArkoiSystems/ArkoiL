@@ -8,6 +8,7 @@
 #include <vector>
 #include <ostream>
 #include <functional>
+#include <set>
 #include "../lexer/token.h"
 #include "symboltable.h"
 #include "../utils.h"
@@ -374,13 +375,17 @@ struct TypeNode : public OperableNode {
 struct FunctionNode : public TypedNode {
 
     std::vector<std::shared_ptr<ParameterNode>> parameters;
-    bool isVariadic, isNative, isIntrinsic;
+    std::set<std::string> annotations;
     std::shared_ptr<BlockNode> block;
     std::shared_ptr<Token> name;
+    bool isVariadic, isNative;
 
-    FunctionNode() : parameters({}), isVariadic(false), isNative(false),
-                     isIntrinsic(false), block({}), name({}) {
+    FunctionNode() : parameters({}), isVariadic(false), isNative(false), block({}), name({}) {
         kind = AST_FUNCTION;
+    }
+
+    bool isInlined() {
+        return annotations.find("inlined") != annotations.end();
     }
 
     bool operator==(const FunctionNode &other) const {

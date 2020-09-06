@@ -88,14 +88,15 @@ LLVMValueRef CodeGen::visit(const std::shared_ptr<FunctionNode> &functionNode) {
                                          functionParameters.size(),
                                          functionNode->isVariadic);
 
-    if (functionNode->isNative || functionNode->isIntrinsic) {
+    if (functionNode->isNative) {
         auto functionRef = LLVMAddFunction(module, functionNode->name->content.c_str(),
                                            functionType);
         functions.emplace(functionNode, functionRef);
         return functionRef;
     }
 
-    auto functionRef = LLVMAddFunction(module, functionNode->name->content.c_str(), functionType);
+    auto functionRef = LLVMAddFunction(module, functionNode->name->content.c_str(),
+                                       functionType);
     functions.emplace(functionNode, functionRef);
     CodeGen::visit(functionNode->block);
     return functionRef;
@@ -143,17 +144,32 @@ LLVMTypeRef CodeGen::visit(const std::shared_ptr<StructNode> &structNode) {
 }
 
 LLVMValueRef CodeGen::visit(const std::shared_ptr<ParameterNode> &parameterNode) {
+    auto foundIterator = parameters.find(parameterNode);
+    if (foundIterator != parameters.end())
+        return foundIterator->second;
+
     auto functionNode = parameterNode->getParent<FunctionNode>();
     auto functionRef = CodeGen::visit(functionNode);
 
+    LLVMValueRef parameter = nullptr;
     for (auto index = 0; index < functionNode->parameters.size(); index++) {
         auto targetParameter = functionNode->parameters.at(index);
-        if (targetParameter->name->content == parameterNode->name->content)
-            return LLVMGetParam(functionRef, index);
+        if (targetParameter->name->content == parameterNode->name->content) {
+            parameter = LLVMGetParam(functionRef, index);
+            break;
+        }
     }
 
-    std::cout << "CodeGen: Couldn't find the parameter." << std::endl;
-    exit(EXIT_FAILURE);
+    if (parameter == nullptr) {
+        THROW_NODE_ERROR(parameterNode, "No target value found for this parameter.")
+        exit(EXIT_FAILURE);
+    }
+
+    auto parameterVariable = LLVMBuildAlloca(builder, CodeGen::visit(parameterNode->type), "");
+    LLVMBuildStore(builder, parameter, parameterVariable);
+    parameters.emplace(parameterNode, parameterVariable);
+
+    return parameterVariable;
 }
 
 LLVMBasicBlockRef CodeGen::visit(const std::shared_ptr<BlockNode> &blockNode) {
@@ -293,20 +309,6 @@ LLVMValueRef CodeGen::visit(const std::shared_ptr<IdentifierNode> &identifierNod
     }
 
     auto targetValue = CodeGen::visit(typedTarget);
-    if (typedTarget->kind == AST_PARAMETER) {
-        auto parameterNode = std::static_pointer_cast<ParameterNode>(typedTarget);
-        auto foundIterator = parameters.find(parameterNode);
-        if (foundIterator != parameters.end()) {
-            targetValue = foundIterator->second;
-        } else {
-            auto parameterVar = LLVMBuildAlloca(builder, CodeGen::visit(typedTarget->type), "");
-            LLVMBuildStore(builder, targetValue, parameterVar);
-            targetValue = parameterVar;
-
-            parameters.emplace(parameterNode, targetValue);
-        }
-    }
-
     if (identifierNode->isDereference) {
         targetValue = LLVMBuildLoad(builder, targetValue, "");
     } else if (identifierNode->isPointer) {
@@ -411,29 +413,48 @@ LLVMValueRef CodeGen::visit(const std::shared_ptr<StructCreateNode> &structCreat
     auto structNode = std::static_pointer_cast<StructNode>(structCreateNode->targetNode);
     auto structRef = CodeGen::visit(structNode);
 
-    // TODO: Make it working so that you can create multiple structs inside
+    std::vector<std::shared_ptr<OperableNode>> originals;
+    if (originalExpressions.find(structCreateNode) == originalExpressions.end()) {
+        for (const auto &variable : structNode->variables)
+            originals.push_back(variable->expression);
+        originalExpressions.emplace(structCreateNode, originals);
+    } else originals = originalExpressions.find(structCreateNode)->second;
+
+    auto oldExpressions = lastExpressions.find(structCreateNode);
+    auto oldExpressionsExist = oldExpressions != lastExpressions.end();
+
+    for (auto index = 0; index < structNode->variables.size(); index++)
+        structNode->variables[index]->expression = originals[index];
 
     std::vector<std::shared_ptr<OperableNode>> filledExpressions;
     structCreateNode->getFilledExpressions(structNode, filledExpressions);
 
-    std::vector<std::shared_ptr<OperableNode>> originalExpressions;
+    std::vector<std::shared_ptr<OperableNode>> newExpressions;
     for (auto index = 0; index < structNode->variables.size(); index++) {
-        originalExpressions.push_back(structNode->variables[index]->expression);
+        newExpressions.push_back(structNode->variables[index]->expression);
         structNode->variables[index]->expression = filledExpressions[index];
     }
+
+    lastExpressions.emplace(structCreateNode, newExpressions);
 
     auto structVariable = LLVMBuildAlloca(builder, structRef, "");
     for (auto index = 0; index < structNode->variables.size(); index++) {
         auto variable = structNode->variables[index];
         auto variableGEP = LLVMBuildStructGEP(builder, structVariable, index, "");
 
-        auto expression = CodeGen::visit(variable);
-        LLVMBuildStore(builder, expression, variableGEP);
+        LLVMBuildStore(builder, CodeGen::visit(variable), variableGEP);
     }
 
-    for (auto index = 0; index < structNode->variables.size(); index++)
-        structNode->variables[index]->expression = originalExpressions[index];
+    lastExpressions.erase(structCreateNode);
+    if (oldExpressionsExist) {
+        lastExpressions.emplace(structCreateNode, oldExpressions->second);
 
+        for (auto index = 0; index < structNode->variables.size(); index++)
+            structNode->variables[index]->expression = oldExpressions->second[index];
+    }
+
+    if (structCreateNode->getParent<VariableNode>() != nullptr)
+        return structVariable;
     return LLVMBuildLoad(builder, structVariable, "");
 }
 
