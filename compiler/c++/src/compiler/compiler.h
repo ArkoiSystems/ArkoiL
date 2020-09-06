@@ -11,9 +11,11 @@
 #include <memory>
 #include <vector>
 #include <set>
-#include "options.h"
+
+class CompilerOptions;
 
 class RootNode;
+
 class Parser;
 
 class Compiler {
@@ -24,7 +26,7 @@ public:
 public:
     static int compile(const CompilerOptions &compilerOptions);
 
-    static int loadImports(const CompilerOptions &compilerOptions,
+    static int loadImports(const CompilerOptions &root,
                            std::set<std::string> &loaded,
                            std::vector<std::shared_ptr<RootNode>> &roots);
 

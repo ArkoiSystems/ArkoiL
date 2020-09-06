@@ -21,16 +21,24 @@ std::shared_ptr<RootNode> Parser::parseRoot() {
     while (position < tokens.size()) {
         if (currentToken() == "import")
             rootNode->nodes.push_back(parseImport(rootNode));
-        else if (currentToken() == "fun")
-            rootNode->nodes.push_back(parseFunction(rootNode));
         else if (currentToken() == "var" || currentToken() == "const")
             rootNode->nodes.push_back(parseVariable(rootNode, rootNode->scope));
         else if (currentToken() == "struct")
             rootNode->nodes.push_back(parseStruct(rootNode));
-        else if (currentToken() != TOKEN_WHITESPACE &&
-                 currentToken() != TOKEN_COMMENT) {
-            THROW_TOKEN_ERROR("Root expected <import>, <function>, <variable> or <structure> but got '{}' instead.",
-                              currentToken()->content)
+        else if (currentToken() == "[" || currentToken() == "fun") {
+            std::set<std::string> annotations;
+            if (currentToken() == "[") {
+                annotations = parseAnnotations(rootNode);
+                nextToken();
+            }
+
+            if (currentToken() == "fun")
+                rootNode->nodes.push_back(parseFunction(annotations, rootNode));
+        } else if (currentToken() != TOKEN_WHITESPACE &&
+                   currentToken() != TOKEN_COMMENT) {
+            THROW_TOKEN_ERROR(
+                    "Root expected <import>, <function>, <variable> or <structure> but got '{}' instead.",
+                    currentToken()->content)
             rootNode->isFailed = true;
 
             while (position < tokens.size()) {
@@ -76,11 +84,14 @@ std::shared_ptr<ImportNode> Parser::parseImport(const std::shared_ptr<ASTNode> &
     return importNode;
 }
 
-std::shared_ptr<FunctionNode> Parser::parseFunction(const std::shared_ptr<ASTNode> &parent) {
+std::shared_ptr<FunctionNode> Parser::parseFunction(const std::set<std::string> &annotations,
+                                                    const std::shared_ptr<ASTNode> &parent) {
     auto functionNode = std::make_shared<FunctionNode>();
     functionNode->startToken = currentToken();
     functionNode->parent = parent;
     functionNode->scope = parent->scope;
+
+    functionNode->annotations = annotations;
 
     if (currentToken() != "fun") {
         THROW_TOKEN_ERROR("Function expected 'fun' but got '{}' instead.",
@@ -89,6 +100,7 @@ std::shared_ptr<FunctionNode> Parser::parseFunction(const std::shared_ptr<ASTNod
         return functionNode;
     }
 
+    auto isIntrinsic = false;
     if (nextToken() == "llvm") {
         if (nextToken() != ".") {
             THROW_TOKEN_ERROR("Function expected '.' but got '{}' instead.",
@@ -97,7 +109,8 @@ std::shared_ptr<FunctionNode> Parser::parseFunction(const std::shared_ptr<ASTNod
             return functionNode;
         }
 
-        functionNode->isIntrinsic = true;
+        functionNode->isNative = true;
+        isIntrinsic = true;
         nextToken();
     }
 
@@ -109,7 +122,7 @@ std::shared_ptr<FunctionNode> Parser::parseFunction(const std::shared_ptr<ASTNod
     }
 
     functionNode->name = currentToken();
-    if (functionNode->isIntrinsic)
+    if (isIntrinsic)
         functionNode->name->content = "llvm." + functionNode->name->content;
 
     functionNode->scope->insert(functionNode->name->content, functionNode);
@@ -181,18 +194,15 @@ std::shared_ptr<FunctionNode> Parser::parseFunction(const std::shared_ptr<ASTNod
     functionNode->type = parseType(functionNode);
 
     if (peekToken(1) == "{" || peekToken(1) == "=") {
-        if (functionNode->isIntrinsic) {
-            THROW_TOKEN_ERROR("Intrinsic functions can't have a body.",
-                              currentToken()->content)
+        if (isIntrinsic) {
+            THROW_TOKEN_ERROR("Intrinsic functions can't have a body.", currentToken()->content)
             parent->isFailed = true;
             return functionNode;
         }
 
         nextToken();
         functionNode->block = parseBlock(functionNode, parameterScope);
-    } else if (!functionNode->isIntrinsic) {
-        functionNode->isNative = true;
-    }
+    } else functionNode->isNative = true;
 
     functionNode->endToken = currentToken();
     return functionNode;
@@ -806,6 +816,44 @@ std::shared_ptr<StructNode> Parser::parseStruct(const std::shared_ptr<ASTNode> &
 
     structNode->endToken = currentToken();
     return structNode;
+}
+
+std::set<std::string> Parser::parseAnnotations(const std::shared_ptr<ASTNode> &parent) {
+    std::set<std::string> annotations;
+    if (currentToken() != "[") {
+        THROW_TOKEN_ERROR("Annotations expected '[' but got '{}' instead.",
+                          currentToken()->content)
+        parent->isFailed = true;
+        return annotations;
+    }
+
+    nextToken();
+    while (position < tokens.size()) {
+        if (currentToken() == "]")
+            break;
+
+        if (currentToken() != TOKEN_IDENTIFIER) {
+            THROW_TOKEN_ERROR("Annotations expected <identifier> but got '{}' instead.",
+                              currentToken()->content)
+            parent->isFailed = true;
+            return annotations;
+        }
+
+        annotations.insert(currentToken()->content);
+
+        if (nextToken() != ",")
+            break;
+        nextToken(1, true, false);
+    }
+
+    if (currentToken() != "]") {
+        THROW_TOKEN_ERROR("Annotations expected ']' but got '{}' instead.",
+                          currentToken()->content)
+        parent->isFailed = true;
+        return annotations;
+    }
+
+    return annotations;
 }
 
 void Parser::parseMixedArguments(std::vector<std::shared_ptr<ArgumentNode>> &arguments,

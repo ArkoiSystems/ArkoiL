@@ -8,6 +8,7 @@
 #include <utility>
 #include <vector>
 #include <memory>
+#include <set>
 
 class Token;
 
@@ -64,7 +65,8 @@ public:
 private:
     std::shared_ptr<ImportNode> parseImport(const std::shared_ptr<ASTNode> &parent);
 
-    std::shared_ptr<FunctionNode> parseFunction(const std::shared_ptr<ASTNode> &parent);
+    std::shared_ptr<FunctionNode> parseFunction(const std::set<std::string> &annotations,
+                                                const std::shared_ptr<ASTNode> &parent);
 
     std::shared_ptr<ParameterNode> parseParameter(const std::shared_ptr<ASTNode> &parent);
 
@@ -91,6 +93,8 @@ private:
     std::shared_ptr<ReturnNode> parseReturn(const std::shared_ptr<ASTNode> &parent);
 
     std::shared_ptr<StructNode> parseStruct(const std::shared_ptr<ASTNode> &parent);
+
+    std::set<std::string> parseAnnotations(const std::shared_ptr<ASTNode> &parent);
 
     void parseMixedArguments(std::vector<std::shared_ptr<ArgumentNode>> &arguments,
                              const std::shared_ptr<ASTNode> &parent);

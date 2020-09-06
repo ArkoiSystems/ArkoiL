@@ -5,6 +5,7 @@
 #ifndef ARKOICOMPILER_LEXER_H
 #define ARKOICOMPILER_LEXER_H
 
+#include <fmt/core.h>
 #include <iostream>
 #include <utility>
 #include <vector>

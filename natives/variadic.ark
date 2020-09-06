@@ -5,12 +5,14 @@ struct va_list {
     var _: i8*
 }
 
+[inlined]
 fun va_start(): va_list {
     var va_list = va_list { }
     llvm.va_start(va_list bitcast i8*)
     return va_list
 }
 
+[inlined]
 fun va_end(list: va_list*): void {
     llvm.va_end(list bitcast i8*)
 }
