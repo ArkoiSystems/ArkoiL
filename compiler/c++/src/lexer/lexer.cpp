@@ -3,10 +3,21 @@
 //
 
 #include "lexer.h"
+
+#include <iostream>
+
 #include <fmt/core.h>
-#include "../utils.h"
+
 #include "../compiler/error.h"
+#include "../utils.h"
 #include "token.h"
+
+Lexer::Lexer(const std::string &sourcePath, const std::string &sourceCode) {
+    this->sourcePath = sourcePath;
+    this->sourceCode = sourceCode;
+    currentLine = 0;
+    position = 0;
+}
 
 std::vector<std::shared_ptr<Token>> Lexer::getTokens() {
     std::vector<std::shared_ptr<Token>> tokens;
@@ -47,7 +58,7 @@ std::shared_ptr<Token> Lexer::nextToken() {
 }
 
 void Lexer::parseComment(const std::shared_ptr<Token> &token) {
-    token->type = TOKEN_COMMENT;
+    token->type = Token::TOKEN_COMMENT;
 
     while (position < sourceCode.size() - 1) {
         auto commentChar = sourceCode[position];
@@ -62,7 +73,7 @@ void Lexer::parseComment(const std::shared_ptr<Token> &token) {
 }
 
 void Lexer::parseIdentifier(const std::shared_ptr<Token> &token) {
-    token->type = TOKEN_COMMENT;
+    token->type = Token::TOKEN_COMMENT;
 
     while (position < sourceCode.size() - 1) {
         auto identifierChar = sourceCode[position];
@@ -87,28 +98,28 @@ void Lexer::parseIdentifier(const std::shared_ptr<Token> &token) {
         case Utils::hash("const"):
         case Utils::hash("else"):
         case Utils::hash("bitcast"):
-            token->type = TOKEN_KEYWORD;
+            token->type = Token::TOKEN_KEYWORD;
             break;
         case Utils::hash("bool"):
         case Utils::hash("float"):
         case Utils::hash("double"):
         case Utils::hash("void"):
-            token->type = TOKEN_TYPE;
+            token->type = Token::TOKEN_TYPE;
             break;
         default:
-            token->type = TOKEN_IDENTIFIER;
+            token->type = Token::TOKEN_IDENTIFIER;
             break;
     }
 
     if ((std::strncmp(token->content.c_str(), "i", 1) == 0 ||
          std::strncmp(token->content.c_str(), "u", 1) == 0) &&
         std::isdigit(token->content[1])) {
-        token->type = TOKEN_TYPE;
+        token->type = Token::TOKEN_TYPE;
     }
 }
 
 void Lexer::parseNumber(const std::shared_ptr<Token> &token) {
-    token->type = TOKEN_NUMBER;
+    token->type = Token::TOKEN_NUMBER;
 
     if (sourceCode[position + 1] == 'x') {
         token->content += std::string(1, sourceCode[position]);
@@ -151,7 +162,7 @@ void Lexer::parseNumber(const std::shared_ptr<Token> &token) {
 }
 
 void Lexer::parseString(const std::shared_ptr<Token> &token) {
-    token->type = TOKEN_STRING;
+    token->type = Token::TOKEN_STRING;
 
     position++;
     while (position < sourceCode.size() - 1) {
@@ -187,7 +198,7 @@ void Lexer::parseRemaining(const std::shared_ptr<Token> &token) {
         case '%':
         case '<':
         case '>':
-            token->type = TOKEN_OPERATOR;
+            token->type = Token::TOKEN_OPERATOR;
 
             if (sourceCode[position + 1] == '=' ||
                 (sourceCode[position] == '+' && sourceCode[position + 1] == '+') ||
@@ -210,32 +221,32 @@ void Lexer::parseRemaining(const std::shared_ptr<Token> &token) {
         case '?':
         case '&':
         case ',':
-            token->type = TOKEN_SYMBOL;
+            token->type = Token::TOKEN_SYMBOL;
             break;
 
         case ' ':
-            token->type = TOKEN_WHITESPACE;
+            token->type = Token::TOKEN_WHITESPACE;
             break;
         case '\n':
-            token->type = TOKEN_WHITESPACE;
+            token->type = Token::TOKEN_WHITESPACE;
             token->content = "\\n";
             currentLine++;
             break;
         case '\f':
-            token->type = TOKEN_WHITESPACE;
+            token->type = Token::TOKEN_WHITESPACE;
             token->content = "\\f";
             break;
         case '\r':
-            token->type = TOKEN_WHITESPACE;
+            token->type = Token::TOKEN_WHITESPACE;
             token->content = "\\r";
             break;
         case '\t':
-            token->type = TOKEN_WHITESPACE;
+            token->type = Token::TOKEN_WHITESPACE;
             token->content = "\\t";
             break;
 
         default:
-            token->type = TOKEN_INVALID;
+            token->type = Token::TOKEN_INVALID;
             break;
     }
 }

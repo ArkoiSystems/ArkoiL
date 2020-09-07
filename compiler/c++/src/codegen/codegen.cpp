@@ -5,32 +5,50 @@
 //
 
 #include "../parser/astnodes.h"
+
+#include <iostream>
+
 #include "../compiler/error.h"
+#include "../lexer/lexer.h"
+#include "../lexer/token.h"
+#include "../utils.h"
+
+CodeGen::CodeGen() {
+    currentBlock = {};
+    parameters = {};
+    variables = {};
+    functions = {};
+    structs = {};
+    builder = {};
+    context = {};
+    blocks = {};
+    module = {};
+}
 
 void CodeGen::visit(const std::shared_ptr<ASTNode> &node) {
-    if (node->kind == AST_ROOT) {
+    if (node->kind == ASTNode::ROOT) {
         CodeGen::visit(std::static_pointer_cast<RootNode>(node));
-    } else if (node->kind == AST_FUNCTION) {
+    } else if (node->kind == ASTNode::FUNCTION) {
         CodeGen::visit(std::static_pointer_cast<FunctionNode>(node));
-    } else if (node->kind == AST_RETURN) {
+    } else if (node->kind == ASTNode::RETURN) {
         CodeGen::visit(std::static_pointer_cast<ReturnNode>(node));
-    } else if (node->kind == AST_STRUCT) {
+    } else if (node->kind == ASTNode::STRUCT) {
         CodeGen::visit(std::static_pointer_cast<StructNode>(node));
-    } else if (node->kind == AST_TYPE) {
+    } else if (node->kind == ASTNode::TYPE) {
         CodeGen::visit(std::static_pointer_cast<TypeNode>(node));
-    } else if (node->kind == AST_BLOCK) {
+    } else if (node->kind == ASTNode::BLOCK) {
         CodeGen::visit(std::static_pointer_cast<BlockNode>(node));
-    } else if (node->kind == AST_NUMBER) {
+    } else if (node->kind == ASTNode::NUMBER) {
         CodeGen::visit(std::static_pointer_cast<NumberNode>(node));
-    } else if (node->kind == AST_STRING) {
+    } else if (node->kind == ASTNode::STRING) {
         CodeGen::visit(std::static_pointer_cast<StringNode>(node));
-    } else if (node->kind == AST_UNARY) {
+    } else if (node->kind == ASTNode::UNARY) {
         CodeGen::visit(std::static_pointer_cast<UnaryNode>(node));
-    } else if (node->kind == AST_PARAMETER) {
+    } else if (node->kind == ASTNode::PARAMETER) {
         CodeGen::visit(std::static_pointer_cast<ParameterNode>(node));
-    } else if (node->kind == AST_ARGUMENT) {
+    } else if (node->kind == ASTNode::ARGUMENT) {
         CodeGen::visit(std::static_pointer_cast<ArgumentNode>(node));
-    } else if (node->kind == AST_IDENTIFIER) {
+    } else if (node->kind == ASTNode::IDENTIFIER) {
         auto identifierNode = std::static_pointer_cast<IdentifierNode>(node);
 
         std::shared_ptr<IdentifierNode> firstIdentifier = identifierNode;
@@ -38,19 +56,19 @@ void CodeGen::visit(const std::shared_ptr<ASTNode> &node) {
             firstIdentifier = firstIdentifier->lastIdentifier;
 
         CodeGen::visit(firstIdentifier);
-    } else if (node->kind == AST_ASSIGNMENT) {
+    } else if (node->kind == ASTNode::ASSIGNMENT) {
         CodeGen::visit(std::static_pointer_cast<AssignmentNode>(node));
-    } else if (node->kind == AST_VARIABLE) {
+    } else if (node->kind == ASTNode::VARIABLE) {
         CodeGen::visit(std::static_pointer_cast<VariableNode>(node));
-    } else if (node->kind == AST_BINARY) {
+    } else if (node->kind == ASTNode::BINARY) {
         CodeGen::visit(std::static_pointer_cast<BinaryNode>(node));
-    } else if (node->kind == AST_FUNCTION_CALL) {
+    } else if (node->kind == ASTNode::FUNCTION_CALL) {
         CodeGen::visit(std::static_pointer_cast<FunctionCallNode>(node));
-    } else if (node->kind == AST_PARENTHESIZED) {
+    } else if (node->kind == ASTNode::PARENTHESIZED) {
         CodeGen::visit(std::static_pointer_cast<ParenthesizedNode>(node));
-    } else if (node->kind == AST_STRUCT_CREATE) {
+    } else if (node->kind == ASTNode::STRUCT_CREATE) {
         CodeGen::visit(std::static_pointer_cast<StructCreateNode>(node));
-    } else if (node->kind != AST_IMPORT) {
+    } else if (node->kind != ASTNode::IMPORT) {
         std::cout << "CodeGen: Unsupported node. " << node->kind << std::endl;
     }
 }
@@ -189,7 +207,7 @@ LLVMBasicBlockRef CodeGen::visit(const std::shared_ptr<BlockNode> &blockNode) {
 
     auto hasReturn = false;
     for (const auto &node : blockNode->nodes) {
-        if (node->kind != AST_RETURN)
+        if (node->kind != ASTNode::RETURN)
             continue;
         hasReturn = true;
         break;
@@ -290,7 +308,7 @@ LLVMValueRef CodeGen::visit(const std::shared_ptr<StringNode> &stringNode) {
 
 LLVMValueRef CodeGen::visit(const std::shared_ptr<UnaryNode> &unaryNode) {
     auto expression = CodeGen::visit(std::static_pointer_cast<TypedNode>(unaryNode->operable));
-    if (unaryNode->operatorKind == NEGATE)
+    if (unaryNode->operatorKind == UnaryNode::NEGATE)
         return LLVMBuildNeg(builder, expression, "");
 
     std::cout << "CodeGen: Unsupported unary node. " << unaryNode->kind << std::endl;
@@ -341,14 +359,14 @@ LLVMValueRef CodeGen::visit(const std::shared_ptr<IdentifierNode> &identifierNod
         targetStruct = typedTarget->type->targetStruct;
     }
 
-    if (identifierNode->parent->kind != AST_ASSIGNMENT && !currentIdentifier->isPointer)
+    if (identifierNode->parent->kind != ASTNode::ASSIGNMENT && !currentIdentifier->isPointer)
         return LLVMBuildLoad(builder, targetValue, "");
 
     return targetValue;
 }
 
 LLVMValueRef CodeGen::visit(const std::shared_ptr<BinaryNode> &binaryNode) {
-    if(binaryNode->operatorKind == BIT_CAST) {
+    if(binaryNode->operatorKind == BinaryNode::BIT_CAST) {
         auto lhsValue = CodeGen::visit(std::static_pointer_cast<TypedNode>(binaryNode->lhs));
         auto rhsValue = CodeGen::visit(std::static_pointer_cast<TypeNode>(binaryNode->rhs));
         return LLVMBuildBitCast(builder, lhsValue, rhsValue, "");
@@ -360,29 +378,29 @@ LLVMValueRef CodeGen::visit(const std::shared_ptr<BinaryNode> &binaryNode) {
         auto isSigned = binaryNode->lhs->type->isSigned || binaryNode->rhs->type->isSigned;
 
         switch (binaryNode->operatorKind) {
-            case ADDITION:
+            case BinaryNode::ADDITION:
                 return CodeGen::makeAdd(floatingPoint, lhsValue, rhsValue);
-            case MULTIPLICATION:
+            case BinaryNode::MULTIPLICATION:
                 return CodeGen::makeMul(floatingPoint, lhsValue, rhsValue);
-            case DIVISION:
+            case BinaryNode::DIVISION:
                 return CodeGen::makeDiv(floatingPoint, isSigned, lhsValue, rhsValue);
-            case SUBTRACTION:
+            case BinaryNode::SUBTRACTION:
                 return CodeGen::makeSub(floatingPoint, lhsValue, rhsValue);
-            case REMAINING:
+            case BinaryNode::REMAINING:
                 return CodeGen::makeRem(isSigned, lhsValue, rhsValue);
 
-            case LESS_THAN:
+            case BinaryNode::LESS_THAN:
                 return CodeGen::makeLT(floatingPoint, isSigned, lhsValue, rhsValue);
-            case GREATER_THAN:
+            case BinaryNode::GREATER_THAN:
                 return CodeGen::makeGT(floatingPoint, isSigned, lhsValue, rhsValue);
-            case LESS_EQUAL_THAN:
+            case BinaryNode::LESS_EQUAL_THAN:
                 return CodeGen::makeLE(floatingPoint, isSigned, lhsValue, rhsValue);
-            case GREATER_EQUAL_THAN:
+            case BinaryNode::GREATER_EQUAL_THAN:
                 return CodeGen::makeGE(floatingPoint, isSigned, lhsValue, rhsValue);
 
-            case EQUAL:
+            case BinaryNode::EQUAL:
                 return CodeGen::makeEQ(floatingPoint, lhsValue, rhsValue);
-            case NOT_EQUAL:
+            case BinaryNode::NOT_EQUAL:
                 return CodeGen::makeNE(floatingPoint, lhsValue, rhsValue);
 
             default:
@@ -463,7 +481,7 @@ LLVMValueRef CodeGen::visit(const std::shared_ptr<VariableNode> &variableNode) {
     if (foundIterator != variables.end())
         return foundIterator->second;
 
-    if (!variableNode->isLocal && variableNode->parent->kind != AST_STRUCT) {
+    if (!variableNode->isLocal && variableNode->parent->kind != ASTNode::STRUCT) {
         std::cerr << "Not yet implemented." << std::endl;
         exit(1);
     }
@@ -489,17 +507,17 @@ LLVMValueRef CodeGen::visit(const std::shared_ptr<VariableNode> &variableNode) {
 }
 
 LLVMValueRef CodeGen::visit(const std::shared_ptr<TypedNode> &typedNode) {
-    if (typedNode->kind == AST_ARGUMENT) {
+    if (typedNode->kind == ASTNode::ARGUMENT) {
         return CodeGen::visit(std::static_pointer_cast<ArgumentNode>(typedNode));
-    } else if (typedNode->kind == AST_ASSIGNMENT) {
+    } else if (typedNode->kind == ASTNode::ASSIGNMENT) {
         return CodeGen::visit(std::static_pointer_cast<AssignmentNode>(typedNode));
-    } else if (typedNode->kind == AST_BINARY) {
+    } else if (typedNode->kind == ASTNode::BINARY) {
         return CodeGen::visit(std::static_pointer_cast<BinaryNode>(typedNode));
-    } else if (typedNode->kind == AST_FUNCTION) {
+    } else if (typedNode->kind == ASTNode::FUNCTION) {
         return CodeGen::visit(std::static_pointer_cast<FunctionNode>(typedNode));
-    } else if (typedNode->kind == AST_FUNCTION_CALL) {
+    } else if (typedNode->kind == ASTNode::FUNCTION_CALL) {
         return CodeGen::visit(std::static_pointer_cast<FunctionCallNode>(typedNode));
-    } else if (typedNode->kind == AST_IDENTIFIER) {
+    } else if (typedNode->kind == ASTNode::IDENTIFIER) {
         auto identifierNode = std::static_pointer_cast<IdentifierNode>(typedNode);
 
         std::shared_ptr<IdentifierNode> firstIdentifier = identifierNode;
@@ -507,25 +525,25 @@ LLVMValueRef CodeGen::visit(const std::shared_ptr<TypedNode> &typedNode) {
             firstIdentifier = firstIdentifier->lastIdentifier;
 
         return CodeGen::visit(firstIdentifier);
-    } else if (typedNode->kind == AST_NUMBER) {
+    } else if (typedNode->kind == ASTNode::NUMBER) {
         return CodeGen::visit(std::static_pointer_cast<NumberNode>(typedNode));
-    } else if (typedNode->kind == AST_PARAMETER) {
+    } else if (typedNode->kind == ASTNode::PARAMETER) {
         return CodeGen::visit(std::static_pointer_cast<ParameterNode>(typedNode));
-    } else if (typedNode->kind == AST_PARENTHESIZED) {
+    } else if (typedNode->kind == ASTNode::PARENTHESIZED) {
         return CodeGen::visit(std::static_pointer_cast<ParenthesizedNode>(typedNode));
-    } else if (typedNode->kind == AST_RETURN) {
+    } else if (typedNode->kind == ASTNode::RETURN) {
         return CodeGen::visit(std::static_pointer_cast<ReturnNode>(typedNode));
-    } else if (typedNode->kind == AST_STRING) {
+    } else if (typedNode->kind == ASTNode::STRING) {
         return CodeGen::visit(std::static_pointer_cast<StringNode>(typedNode));
-    } else if (typedNode->kind == AST_STRUCT) {
+    } else if (typedNode->kind == ASTNode::STRUCT) {
         return LLVMGetUndef(CodeGen::visit(std::static_pointer_cast<StructNode>(typedNode)));
-    } else if (typedNode->kind == AST_STRUCT_CREATE) {
+    } else if (typedNode->kind == ASTNode::STRUCT_CREATE) {
         return CodeGen::visit(std::static_pointer_cast<StructCreateNode>(typedNode));
-    } else if (typedNode->kind == AST_UNARY) {
+    } else if (typedNode->kind == ASTNode::UNARY) {
         return CodeGen::visit(std::static_pointer_cast<UnaryNode>(typedNode));
-    } else if (typedNode->kind == AST_VARIABLE) {
+    } else if (typedNode->kind == ASTNode::VARIABLE) {
         return CodeGen::visit(std::static_pointer_cast<VariableNode>(typedNode));
-    } else if (typedNode->kind == AST_TYPE)
+    } else if (typedNode->kind == ASTNode::TYPE)
         return nullptr;
 
     std::cout << "CodeGen: Unsupported typed node. " << typedNode->kind << std::endl;

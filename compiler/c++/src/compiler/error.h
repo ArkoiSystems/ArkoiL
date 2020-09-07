@@ -6,7 +6,6 @@
 #define ARKOICOMPILER_ERROR_H
 
 #include <fmt/core.h>
-#include <utility>
 #include <string>
 
 #define THROW_TOKEN_ERROR(...) \
@@ -43,16 +42,9 @@ private:
     std::string sourcePath, sourceCode, causeMessage;
 
 public:
-    Error(std::string sourcePath, std::string sourceCode, unsigned int startLine,
+    Error(const std::string &sourcePath, const std::string &sourceCode, unsigned int startLine,
           unsigned int endLine, unsigned int startChar, unsigned int endChar,
-          std::string causeMessage) :
-            sourcePath(std::move(sourcePath)),
-            sourceCode(std::move(sourceCode)),
-            startLine(startLine),
-            endLine(endLine),
-            startChar(startChar),
-            endChar(endChar),
-            causeMessage(std::move(causeMessage)) {}
+          const std::string &causeMessage);
 
 public:
     friend std::ostream &operator<<(std::ostream &out, const Error &error);

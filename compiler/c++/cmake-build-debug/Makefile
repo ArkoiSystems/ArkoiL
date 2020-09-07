@@ -377,6 +377,33 @@ src/main.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ArkoiCompiler.dir/build.make CMakeFiles/ArkoiCompiler.dir/src/main.cpp.s
 .PHONY : src/main.cpp.s
 
+src/parser/astnodes.o: src/parser/astnodes.cpp.o
+
+.PHONY : src/parser/astnodes.o
+
+# target to build an object file
+src/parser/astnodes.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ArkoiCompiler.dir/build.make CMakeFiles/ArkoiCompiler.dir/src/parser/astnodes.cpp.o
+.PHONY : src/parser/astnodes.cpp.o
+
+src/parser/astnodes.i: src/parser/astnodes.cpp.i
+
+.PHONY : src/parser/astnodes.i
+
+# target to preprocess a source file
+src/parser/astnodes.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ArkoiCompiler.dir/build.make CMakeFiles/ArkoiCompiler.dir/src/parser/astnodes.cpp.i
+.PHONY : src/parser/astnodes.cpp.i
+
+src/parser/astnodes.s: src/parser/astnodes.cpp.s
+
+.PHONY : src/parser/astnodes.s
+
+# target to generate assembly for a file
+src/parser/astnodes.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ArkoiCompiler.dir/build.make CMakeFiles/ArkoiCompiler.dir/src/parser/astnodes.cpp.s
+.PHONY : src/parser/astnodes.cpp.s
+
 src/parser/parser.o: src/parser/parser.cpp.o
 
 .PHONY : src/parser/parser.o
@@ -545,6 +572,9 @@ help:
 	@echo "... src/main.o"
 	@echo "... src/main.i"
 	@echo "... src/main.s"
+	@echo "... src/parser/astnodes.o"
+	@echo "... src/parser/astnodes.i"
+	@echo "... src/parser/astnodes.s"
 	@echo "... src/parser/parser.o"
 	@echo "... src/parser/parser.i"
 	@echo "... src/parser/parser.s"

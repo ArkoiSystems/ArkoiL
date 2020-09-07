@@ -3,9 +3,22 @@
 //
 
 #include "error.h"
+
 #include <iostream>
-#include "../parser/parser.h"
+
 #include "../utils.h"
+
+Error::Error(const std::string &sourcePath, const std::string &sourceCode, unsigned int startLine,
+             unsigned int endLine, unsigned int startChar, unsigned int endChar,
+             const std::string &causeMessage) {
+    this->causeMessage = causeMessage;
+    this->sourcePath = sourcePath;
+    this->sourceCode = sourceCode;
+    this->startLine = startLine;
+    this->endLine = endLine;
+    this->startChar = startChar;
+    this->endChar = endChar;
+}
 
 std::ostream &operator<<(std::ostream &out, const Error &error) {
     out << error.sourcePath << ":" << (error.startLine + 1) << " "

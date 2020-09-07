@@ -3,21 +3,25 @@
 //
 
 #include "typeresolver.h"
-#include "astnodes.h"
+
+#include "../parser/symboltable.h"
 #include "../compiler/error.h"
+#include "../lexer/lexer.h"
+#include "../lexer/token.h"
+#include "astnodes.h"
 
 void TypeResolver::visit(const std::shared_ptr<ASTNode> &node) {
-    if (node->kind == AST_TYPE) {
+    if (node->kind == ASTNode::TYPE) {
         TypeResolver::visit(std::static_pointer_cast<TypeNode>(node));
-    } else if (node->kind == AST_STRUCT) {
+    } else if (node->kind == ASTNode::STRUCT) {
         TypeResolver::visit(std::static_pointer_cast<StructNode>(node));
-    } else if (node->kind == AST_FUNCTION) {
+    } else if (node->kind == ASTNode::FUNCTION) {
         TypeResolver::visit(std::static_pointer_cast<FunctionNode>(node));
-    } else if (node->kind == AST_FUNCTION_CALL) {
+    } else if (node->kind == ASTNode::FUNCTION_CALL) {
         TypeResolver::visit(std::static_pointer_cast<FunctionCallNode>(node));
-    } else if (node->kind == AST_STRUCT_CREATE) {
+    } else if (node->kind == ASTNode::STRUCT_CREATE) {
         TypeResolver::visit(std::static_pointer_cast<StructCreateNode>(node));
-    } else if (node->kind == AST_IDENTIFIER) {
+    } else if (node->kind == ASTNode::IDENTIFIER) {
         auto identifierNode = std::static_pointer_cast<IdentifierNode>(node);
 
         std::shared_ptr<IdentifierNode> firstIdentifier = identifierNode;
@@ -25,31 +29,31 @@ void TypeResolver::visit(const std::shared_ptr<ASTNode> &node) {
             firstIdentifier = firstIdentifier->lastIdentifier;
 
         TypeResolver::visit(firstIdentifier);
-    } else if (node->kind == AST_NUMBER) {
+    } else if (node->kind == ASTNode::NUMBER) {
         TypeResolver::visit(std::static_pointer_cast<NumberNode>(node));
-    } else if (node->kind == AST_PARAMETER) {
+    } else if (node->kind == ASTNode::PARAMETER) {
         TypeResolver::visit(std::static_pointer_cast<ParameterNode>(node));
-    } else if (node->kind == AST_BLOCK) {
+    } else if (node->kind == ASTNode::BLOCK) {
         TypeResolver::visit(std::static_pointer_cast<BlockNode>(node));
-    } else if (node->kind == AST_STRING) {
+    } else if (node->kind == ASTNode::STRING) {
         TypeResolver::visit(std::static_pointer_cast<StringNode>(node));
-    } else if (node->kind == AST_ROOT) {
+    } else if (node->kind == ASTNode::ROOT) {
         TypeResolver::visit(std::static_pointer_cast<RootNode>(node));
-    } else if (node->kind == AST_VARIABLE) {
+    } else if (node->kind == ASTNode::VARIABLE) {
         TypeResolver::visit(std::static_pointer_cast<VariableNode>(node));
-    } else if (node->kind == AST_RETURN) {
+    } else if (node->kind == ASTNode::RETURN) {
         TypeResolver::visit(std::static_pointer_cast<ReturnNode>(node));
-    } else if (node->kind == AST_ARGUMENT) {
+    } else if (node->kind == ASTNode::ARGUMENT) {
         TypeResolver::visit(std::static_pointer_cast<ArgumentNode>(node));
-    } else if (node->kind == AST_ASSIGNMENT) {
+    } else if (node->kind == ASTNode::ASSIGNMENT) {
         TypeResolver::visit(std::static_pointer_cast<AssignmentNode>(node));
-    } else if (node->kind == AST_BINARY) {
+    } else if (node->kind == ASTNode::BINARY) {
         TypeResolver::visit(std::static_pointer_cast<BinaryNode>(node));
-    } else if (node->kind == AST_UNARY) {
+    } else if (node->kind == ASTNode::UNARY) {
         TypeResolver::visit(std::static_pointer_cast<UnaryNode>(node));
-    } else if (node->kind == AST_PARENTHESIZED) {
+    } else if (node->kind == ASTNode::PARENTHESIZED) {
         TypeResolver::visit(std::static_pointer_cast<ParenthesizedNode>(node));
-    } else if (node->kind != AST_IMPORT) {
+    } else if (node->kind != ASTNode::IMPORT) {
         std::cout << "TypeResolver: Unsupported node. " << node->kind << std::endl;
         exit(EXIT_FAILURE);
     }
@@ -105,7 +109,7 @@ void TypeResolver::visit(const std::shared_ptr<BinaryNode> &binaryNode) {
     TypeResolver::visit(binaryNode->lhs);
     TypeResolver::visit(binaryNode->rhs);
 
-    if (binaryNode->operatorKind == BIT_CAST) {
+    if (binaryNode->operatorKind == BinaryNode::BIT_CAST) {
         binaryNode->type = std::static_pointer_cast<TypeNode>(binaryNode->rhs);
     } else {
         binaryNode->type = binaryNode->lhs->type;
@@ -166,15 +170,15 @@ void TypeResolver::visit(const std::shared_ptr<IdentifierNode> &identifierNode) 
 
     std::shared_ptr<std::vector<std::shared_ptr<ASTNode>>> nodes;
     // TODO: Won't work for chained identifiers
-    if (identifierNode->parent->kind == AST_STRUCT_CREATE) {
+    if (identifierNode->parent->kind == ASTNode::STRUCT_CREATE) {
         auto scopeCheck = [](const std::shared_ptr<ASTNode> &node) {
-            return node->kind == AST_STRUCT;
+            return node->kind == ASTNode::STRUCT;
         };
         nodes = identifierNode->getParent<RootNode>()->searchWithImports(
                 identifierNode->identifier->content, scopeCheck);
-    } else if (identifierNode->kind == AST_FUNCTION_CALL) {
+    } else if (identifierNode->kind == ASTNode::FUNCTION_CALL) {
         auto scopeCheck = [identifierNode](const std::shared_ptr<ASTNode> &node) {
-            if(node->kind != AST_FUNCTION)
+            if(node->kind != ASTNode::FUNCTION)
                 return false;
 
             auto functionCall = std::static_pointer_cast<FunctionCallNode>(identifierNode);
@@ -207,8 +211,8 @@ void TypeResolver::visit(const std::shared_ptr<IdentifierNode> &identifierNode) 
                 identifierNode->identifier->content, scopeCheck);
     } else {
         auto scopeCheck = [](const std::shared_ptr<ASTNode> &node) {
-            return node->kind == AST_VARIABLE || node->kind == AST_PARAMETER ||
-                   node->kind == AST_ARGUMENT;
+            return node->kind == ASTNode::VARIABLE || node->kind == ASTNode::PARAMETER ||
+                   node->kind == ASTNode::ARGUMENT;
         };
         nodes = identifierNode->scope->all(identifierNode->identifier->content, scopeCheck);
 
@@ -228,8 +232,8 @@ void TypeResolver::visit(const std::shared_ptr<IdentifierNode> &identifierNode) 
     TypeResolver::visit(targetNode);
 
     auto typedNode = std::static_pointer_cast<TypedNode>(targetNode);
-    if ((typedNode != nullptr && typedNode->kind == AST_ARGUMENT) &&
-        (typedNode->parent != nullptr && typedNode->parent->kind == AST_STRUCT_CREATE)) {
+    if ((typedNode != nullptr && typedNode->kind == ASTNode::ARGUMENT) &&
+        (typedNode->parent != nullptr && typedNode->parent->kind == ASTNode::STRUCT_CREATE)) {
         auto structCreate = std::static_pointer_cast<StructCreateNode>(typedNode->parent);
         targetNode = nullptr;
 
@@ -382,7 +386,7 @@ void TypeResolver::visit(const std::shared_ptr<StructNode> &structNode) {
 }
 
 void TypeResolver::visit(const std::shared_ptr<TypeNode> &typeNode) {
-    if (typeNode->typeToken == TOKEN_TYPE &&
+    if (typeNode->typeToken == Token::TOKEN_TYPE &&
         (std::strncmp(typeNode->typeToken->content.c_str(), "i", 1) == 0 ||
          std::strncmp(typeNode->typeToken->content.c_str(), "u", 1) == 0)) {
         auto bits = std::stoi(typeNode->typeToken->content.substr(1));
@@ -406,9 +410,9 @@ void TypeResolver::visit(const std::shared_ptr<TypeNode> &typeNode) {
         typeNode->isFloating = false;
         typeNode->isSigned = false;
         typeNode->bits = 0;
-    } else if (typeNode->typeToken == TOKEN_IDENTIFIER) {
+    } else if (typeNode->typeToken == Token::TOKEN_IDENTIFIER) {
         auto scopeCheck = [](const std::shared_ptr<ASTNode> &node) {
-            return node->kind == AST_STRUCT;
+            return node->kind == ASTNode::STRUCT;
         };
 
         auto rootNode = typeNode->getParent<RootNode>();

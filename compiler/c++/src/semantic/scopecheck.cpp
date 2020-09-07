@@ -3,40 +3,45 @@
 //
 
 #include "scopecheck.h"
+
+#include "../parser/symboltable.h"
 #include "../parser/astnodes.h"
 #include "../compiler/error.h"
+#include "../lexer/lexer.h"
+#include "../lexer/token.h"
+#include "../utils.h"
 
 void ScopeCheck::visit(const std::shared_ptr<ASTNode> &node) {
-    if (node->kind == AST_ROOT) {
+    if (node->kind == ASTNode::ROOT) {
         ScopeCheck::visit(std::static_pointer_cast<RootNode>(node));
-    } else if (node->kind == AST_IMPORT) {
+    } else if (node->kind == ASTNode::IMPORT) {
         ScopeCheck::visit(std::static_pointer_cast<ImportNode>(node));
-    } else if (node->kind == AST_FUNCTION) {
+    } else if (node->kind == ASTNode::FUNCTION) {
         ScopeCheck::visit(std::static_pointer_cast<FunctionNode>(node));
-    } else if (node->kind == AST_PARAMETER) {
+    } else if (node->kind == ASTNode::PARAMETER) {
         ScopeCheck::visit(std::static_pointer_cast<ParameterNode>(node));
-    } else if (node->kind == AST_VARIABLE) {
+    } else if (node->kind == ASTNode::VARIABLE) {
         ScopeCheck::visit(std::static_pointer_cast<VariableNode>(node));
-    } else if (node->kind == AST_BINARY) {
+    } else if (node->kind == ASTNode::BINARY) {
         ScopeCheck::visit(std::static_pointer_cast<BinaryNode>(node));
-    } else if (node->kind == AST_UNARY) {
+    } else if (node->kind == ASTNode::UNARY) {
         ScopeCheck::visit(std::static_pointer_cast<UnaryNode>(node));
-    } else if (node->kind == AST_PARENTHESIZED) {
+    } else if (node->kind == ASTNode::PARENTHESIZED) {
         ScopeCheck::visit(std::static_pointer_cast<ParenthesizedNode>(node));
-    } else if (node->kind == AST_STRUCT_CREATE) {
+    } else if (node->kind == ASTNode::STRUCT_CREATE) {
         ScopeCheck::visit(std::static_pointer_cast<StructCreateNode>(node));
-    } else if (node->kind == AST_ARGUMENT) {
+    } else if (node->kind == ASTNode::ARGUMENT) {
         ScopeCheck::visit(std::static_pointer_cast<ArgumentNode>(node));
-    } else if (node->kind == AST_FUNCTION_CALL) {
+    } else if (node->kind == ASTNode::FUNCTION_CALL) {
         ScopeCheck::visit(std::static_pointer_cast<FunctionCallNode>(node));
-    } else if (node->kind == AST_ASSIGNMENT) {
+    } else if (node->kind == ASTNode::ASSIGNMENT) {
         ScopeCheck::visit(std::static_pointer_cast<AssignmentNode>(node));
-    } else if (node->kind == AST_RETURN) {
+    } else if (node->kind == ASTNode::RETURN) {
         ScopeCheck::visit(std::static_pointer_cast<ReturnNode>(node));
-    } else if (node->kind == AST_STRUCT) {
+    } else if (node->kind == ASTNode::STRUCT) {
         ScopeCheck::visit(std::static_pointer_cast<StructNode>(node));
-    } else if (node->kind != AST_TYPE && node->kind != AST_NUMBER &&
-               node->kind != AST_STRING && node->kind != AST_IDENTIFIER) {
+    } else if (node->kind != ASTNode::TYPE && node->kind != ASTNode::NUMBER &&
+               node->kind != ASTNode::STRING && node->kind != ASTNode::IDENTIFIER) {
         std::cout << "ScopeCheck: Unsupported node. " << node->kind << std::endl;
         exit(EXIT_FAILURE);
     }
@@ -50,7 +55,7 @@ void ScopeCheck::visit(const std::shared_ptr<RootNode> &rootNode) {
 void ScopeCheck::visit(const std::shared_ptr<ImportNode> &importNode) {
     auto rootNode = importNode->getParent<RootNode>();
     for (const auto &node : rootNode->nodes) {
-        if (node->kind != AST_IMPORT || node == importNode)
+        if (node->kind != ASTNode::IMPORT || node == importNode)
             continue;
 
         auto rootImport = std::static_pointer_cast<ImportNode>(node);
@@ -67,7 +72,7 @@ void ScopeCheck::visit(const std::shared_ptr<FunctionNode> &functionNode) {
 
         std::vector<std::shared_ptr<ASTNode>> returns;
         for (const auto &node : functionNode->block->nodes) {
-            if (node->kind != AST_RETURN)
+            if (node->kind != ASTNode::RETURN)
                 continue;
             returns.push_back(node);
         }
@@ -80,7 +85,7 @@ void ScopeCheck::visit(const std::shared_ptr<FunctionNode> &functionNode) {
     }
 
     auto scopeCheck = [functionNode](const std::shared_ptr<ASTNode> &node) {
-        if (node->kind != AST_FUNCTION)
+        if (node->kind != ASTNode::FUNCTION)
             return false;
 
         auto foundFunction = std::static_pointer_cast<FunctionNode>(node);
@@ -102,7 +107,7 @@ void ScopeCheck::visit(const std::shared_ptr<FunctionNode> &functionNode) {
 void ScopeCheck::visit(const std::shared_ptr<BlockNode> &blockNode) {
     std::vector<std::shared_ptr<ASTNode>> returns;
     for (const auto &node : blockNode->nodes) {
-        if (node->kind != AST_RETURN)
+        if (node->kind != ASTNode::RETURN)
             continue;
         returns.push_back(node);
     }
@@ -122,7 +127,7 @@ void ScopeCheck::visit(const std::shared_ptr<BlockNode> &blockNode) {
 
 void ScopeCheck::visit(const std::shared_ptr<ParameterNode> &parameterNode) {
     auto scopeCheck = [](const std::shared_ptr<ASTNode> &node) {
-        return node->kind == AST_PARAMETER;
+        return node->kind == ASTNode::PARAMETER;
     };
 
     auto foundNodes = parameterNode->scope->scope(parameterNode->name->content, scopeCheck);
@@ -140,7 +145,7 @@ void ScopeCheck::visit(const std::shared_ptr<VariableNode> &variableNode) {
     }
 
     auto scopeCheck = [](const std::shared_ptr<ASTNode> &node) {
-        return node->kind == AST_VARIABLE;
+        return node->kind == ASTNode::VARIABLE;
     };
 
     auto foundNodes = variableNode->scope->scope(variableNode->name->content, scopeCheck);
@@ -195,7 +200,7 @@ void ScopeCheck::visit(const std::shared_ptr<ArgumentNode> &argumentNode) {
     }
 
     auto scopeCheck = [](const std::shared_ptr<ASTNode> &node) {
-        return node->kind == AST_ARGUMENT;
+        return node->kind == ASTNode::ARGUMENT;
     };
 
     auto foundNodes = argumentNode->scope->scope(argumentNode->name->content, scopeCheck);

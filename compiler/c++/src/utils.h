@@ -5,9 +5,6 @@
 #ifndef ARKOICOMPILER_UTILS_H
 #define ARKOICOMPILER_UTILS_H
 
-#include <algorithm>
-#include <cstring>
-#include <cstdarg>
 #include <memory>
 #include <vector>
 
@@ -36,11 +33,6 @@ namespace Utils {
         input.erase(std::find_if(input.rbegin(), input.rend(), [](int current) {
             return !std::isspace(current);
         }).base(), input.end());
-    }
-
-    static void trim(std::string &input) {
-        ltrim(input);
-        rtrim(input);
     }
 
     static constexpr unsigned int hash(const char *string, int index = 0) {

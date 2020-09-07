@@ -5,9 +5,6 @@
 #ifndef ARKOICOMPILER_COMPILER_H
 #define ARKOICOMPILER_COMPILER_H
 
-#include <sys/stat.h>
-#include <utility>
-#include <fstream>
 #include <memory>
 #include <vector>
 #include <set>

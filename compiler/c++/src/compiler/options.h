@@ -5,7 +5,6 @@
 #ifndef ARKOICOMPILER_OPTIONS_H
 #define ARKOICOMPILER_OPTIONS_H
 
-#include <iostream>
 #include <vector>
 
 struct CompilerOptions {

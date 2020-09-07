@@ -3,7 +3,15 @@
 //
 
 #include "symboltable.h"
+
+#include <iostream>
+
 #include "astnodes.h"
+
+SymbolTable::SymbolTable(const std::shared_ptr<SymbolTable> &parent) {
+    this->parent = parent;
+    table = {};
+}
 
 void SymbolTable::insert(const std::string &id, const std::shared_ptr<ASTNode> &node) {
     auto iterator = table.find(id);
@@ -16,7 +24,7 @@ void SymbolTable::insert(const std::string &id, const std::shared_ptr<ASTNode> &
     }
 }
 
-std::shared_ptr<Symbols>
+std::shared_ptr<SymbolTable::Symbols>
 SymbolTable::all(const std::string &id,
                  const std::function<bool(const std::shared_ptr<ASTNode> &)> &predicate) {
     auto scopeSymbols = scope(id, predicate);
@@ -28,7 +36,7 @@ SymbolTable::all(const std::string &id,
     return nullptr;
 }
 
-std::shared_ptr<Symbols>
+std::shared_ptr<SymbolTable::Symbols>
 SymbolTable::scope(const std::string &id,
                    const std::function<bool(const std::shared_ptr<ASTNode> &)> &predicate) {
     auto iterator = table.find(id);

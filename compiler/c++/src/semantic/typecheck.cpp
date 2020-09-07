@@ -3,39 +3,42 @@
 //
 
 #include "typecheck.h"
+
+#include "../parser/symboltable.h"
 #include "../parser/astnodes.h"
 #include "../compiler/error.h"
+#include "../lexer/token.h"
 
 void TypeCheck::visit(const std::shared_ptr<ASTNode> &node) {
-    if (node->kind == AST_ROOT) {
+    if (node->kind == ASTNode::ROOT) {
         TypeCheck::visit(std::static_pointer_cast<RootNode>(node));
-    } else if (node->kind == AST_STRUCT) {
+    } else if (node->kind == ASTNode::STRUCT) {
         TypeCheck::visit(std::static_pointer_cast<StructNode>(node));
-    } else if (node->kind == AST_VARIABLE) {
+    } else if (node->kind == ASTNode::VARIABLE) {
         TypeCheck::visit(std::static_pointer_cast<VariableNode>(node));
-    } else if (node->kind == AST_FUNCTION) {
+    } else if (node->kind == ASTNode::FUNCTION) {
         TypeCheck::visit(std::static_pointer_cast<FunctionNode>(node));
-    } else if (node->kind == AST_BLOCK) {
+    } else if (node->kind == ASTNode::BLOCK) {
         TypeCheck::visit(std::static_pointer_cast<BlockNode>(node));
-    } else if (node->kind == AST_FUNCTION_CALL) {
+    } else if (node->kind == ASTNode::FUNCTION_CALL) {
         TypeCheck::visit(std::static_pointer_cast<FunctionCallNode>(node));
-    } else if (node->kind == AST_ARGUMENT) {
+    } else if (node->kind == ASTNode::ARGUMENT) {
         TypeCheck::visit(std::static_pointer_cast<ArgumentNode>(node));
-    } else if (node->kind == AST_RETURN) {
+    } else if (node->kind == ASTNode::RETURN) {
         TypeCheck::visit(std::static_pointer_cast<ReturnNode>(node));
-    } else if (node->kind == AST_ASSIGNMENT) {
+    } else if (node->kind == ASTNode::ASSIGNMENT) {
         TypeCheck::visit(std::static_pointer_cast<AssignmentNode>(node));
-    } else if (node->kind == AST_STRUCT_CREATE) {
+    } else if (node->kind == ASTNode::STRUCT_CREATE) {
         TypeCheck::visit(std::static_pointer_cast<StructCreateNode>(node));
-    } else if (node->kind == AST_BINARY) {
+    } else if (node->kind == ASTNode::BINARY) {
         TypeCheck::visit(std::static_pointer_cast<BinaryNode>(node));
-    } else if (node->kind == AST_UNARY) {
+    } else if (node->kind == ASTNode::UNARY) {
         TypeCheck::visit(std::static_pointer_cast<UnaryNode>(node));
-    } else if (node->kind == AST_PARENTHESIZED) {
+    } else if (node->kind == ASTNode::PARENTHESIZED) {
         TypeCheck::visit(std::static_pointer_cast<ParenthesizedNode>(node));
-    } else if (node->kind != AST_IDENTIFIER && node->kind != AST_IMPORT &&
-               node->kind != AST_STRING && node->kind != AST_NUMBER &&
-               node->kind != AST_TYPE && node->kind != AST_PARAMETER) {
+    } else if (node->kind != ASTNode::IDENTIFIER && node->kind != ASTNode::IMPORT &&
+               node->kind != ASTNode::STRING && node->kind != ASTNode::NUMBER &&
+               node->kind != ASTNode::TYPE && node->kind != ASTNode::PARAMETER) {
         std::cout << "TypeCheck: Unsupported node. " << node->kind << std::endl;
         exit(EXIT_FAILURE);
     }
@@ -111,7 +114,7 @@ void TypeCheck::visit(const std::shared_ptr<AssignmentNode> &assignmentNode) {
         return;
     }
 
-    if(assignmentNode->targetNode->kind == AST_VARIABLE) {
+    if(assignmentNode->targetNode->kind == ASTNode::VARIABLE) {
         auto variableNode = std::static_pointer_cast<VariableNode>(assignmentNode->targetNode);
         if(variableNode->isConstant) {
             THROW_NODE_ERROR(assignmentNode,"Constant variables can't be reassigned.")
@@ -163,18 +166,18 @@ void TypeCheck::visit(const std::shared_ptr<BinaryNode> &binaryNode) {
 
     // TODO: Add check for the remaining operator (no floating pointer)
     switch (binaryNode->operatorKind) {
-        case LESS_EQUAL_THAN:
-        case LESS_THAN:
-        case GREATER_EQUAL_THAN:
-        case GREATER_THAN:
-        case EQUAL:
-        case NOT_EQUAL:
+        case BinaryNode::LESS_EQUAL_THAN:
+        case BinaryNode::LESS_THAN:
+        case BinaryNode::GREATER_EQUAL_THAN:
+        case BinaryNode::GREATER_THAN:
+        case BinaryNode::EQUAL:
+        case BinaryNode::NOT_EQUAL:
 
-        case ADDITION:
-        case MULTIPLICATION:
-        case SUBTRACTION:
-        case DIVISION:
-        case REMAINING:
+        case BinaryNode::ADDITION:
+        case BinaryNode::MULTIPLICATION:
+        case BinaryNode::SUBTRACTION:
+        case BinaryNode::DIVISION:
+        case BinaryNode::REMAINING:
             if (!binaryNode->lhs->type->isNumeric() || binaryNode->lhs->type->pointerLevel != 0)
                 THROW_NODE_ERROR(binaryNode->lhs,
                                  "Left side of the binary expression is not numeric.")
@@ -183,7 +186,7 @@ void TypeCheck::visit(const std::shared_ptr<BinaryNode> &binaryNode) {
                                  "Right side of the binary expression is not numeric.")
             break;
 
-        case BIT_CAST:
+        case BinaryNode::BIT_CAST:
             break;
 
         default:
