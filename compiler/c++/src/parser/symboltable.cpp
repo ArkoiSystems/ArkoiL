@@ -24,9 +24,8 @@ void SymbolTable::insert(const std::string &id, const std::shared_ptr<ASTNode> &
     }
 }
 
-std::shared_ptr<SymbolTable::Symbols>
-SymbolTable::all(const std::string &id,
-                 const std::function<bool(const std::shared_ptr<ASTNode> &)> &predicate) {
+std::shared_ptr<SymbolTable::Symbols> SymbolTable::all(const std::string &id,
+                                                       const SymbolTable::Predicate &predicate) {
     auto scopeSymbols = scope(id, predicate);
     if (scopeSymbols != nullptr)
         return scopeSymbols;
@@ -36,9 +35,8 @@ SymbolTable::all(const std::string &id,
     return nullptr;
 }
 
-std::shared_ptr<SymbolTable::Symbols>
-SymbolTable::scope(const std::string &id,
-                   const std::function<bool(const std::shared_ptr<ASTNode> &)> &predicate) {
+std::shared_ptr<SymbolTable::Symbols> SymbolTable::scope(const std::string &id,
+                                                         const SymbolTable::Predicate &predicate) {
     auto iterator = table.find(id);
     if (iterator == table.end())
         return nullptr;

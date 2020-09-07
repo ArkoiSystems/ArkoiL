@@ -17,8 +17,6 @@ class Token;
 
 class TypeNode;
 
-class RootNode;
-
 struct ASTNode {
 
     std::shared_ptr<Token> startToken, endToken;
@@ -68,6 +66,23 @@ struct ASTNode {
 
 };
 
+struct RootNode : public ASTNode {
+
+    std::vector<std::shared_ptr<ASTNode>> nodes;
+    std::string sourcePath, sourceCode;
+
+    RootNode();
+
+    std::vector<std::shared_ptr<RootNode>> getImportedRoots();
+
+    void getImportedRoots(std::vector<std::shared_ptr<RootNode>> &importedRoots);
+
+    std::shared_ptr<std::vector<std::shared_ptr<ASTNode>>>
+    searchWithImports(const std::string &id,
+                      const std::function<bool(const std::shared_ptr<ASTNode> &)> &predicate);
+
+};
+
 struct TypedNode : public ASTNode {
 
     std::shared_ptr<ASTNode> targetNode;
@@ -86,23 +101,6 @@ struct ImportNode : public ASTNode {
     std::shared_ptr<Token> path;
 
     ImportNode();
-
-};
-
-struct RootNode : public ASTNode {
-
-    std::vector<std::shared_ptr<ASTNode>> nodes;
-    std::string sourcePath, sourceCode;
-
-    RootNode();
-
-    std::vector<std::shared_ptr<RootNode>> getImportedRoots();
-
-    void getImportedRoots(std::vector<std::shared_ptr<RootNode>> &importedRoots);
-
-    std::shared_ptr<std::vector<std::shared_ptr<ASTNode>>>
-    searchWithImports(const std::string &id,
-                      const std::function<bool(const std::shared_ptr<ASTNode> &)> &predicate);
 
 };
 

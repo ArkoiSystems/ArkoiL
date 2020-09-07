@@ -17,7 +17,7 @@ int main(int argc, char *argv[]) {
     }
 
     CompilerOptions compilerOptions{};
-    unsigned int index = 1;
+    auto index = 1u;
     if (strcmp(argv[index], "build-exe") == 0 && argc >= 3) {
         index = 2;
         compilerOptions.sourceFile = argv[index++];
