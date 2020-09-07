@@ -5,11 +5,11 @@
 #ifndef ARKOICOMPILER_CODEGEN_H
 #define ARKOICOMPILER_CODEGEN_H
 
-#include <llvm-c-10/llvm-c/Core.h>
-#include <llvm-c-10/llvm-c/Analysis.h>
-#include <memory>
 #include <unordered_map>
+#include <memory>
 #include <vector>
+
+#include <llvm-c-10/llvm-c/Core.h>
 
 class ASTNode;
 
@@ -73,8 +73,7 @@ private:
     LLVMModuleRef module;
 
 public:
-    CodeGen() : blocks({}), parameters({}), variables({}), functions({}), structs({}),
-                currentBlock(), builder(), module(), context() {}
+    CodeGen();
 
 public:
     void visit(const std::shared_ptr<ASTNode> &node);

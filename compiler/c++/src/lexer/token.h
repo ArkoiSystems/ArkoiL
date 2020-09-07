@@ -6,34 +6,29 @@
 #define ARKOICOMPILER_TOKEN_H
 
 #include <iostream>
-#include <utility>
-#include <cstring>
-#include <vector>
 #include <string>
 #include <memory>
-
-enum TokenType {
-    TOKEN_WHITESPACE,
-    TOKEN_COMMENT,
-    TOKEN_KEYWORD,
-    TOKEN_TYPE,
-    TOKEN_OPERATOR,
-    TOKEN_SYMBOL,
-    TOKEN_STRING,
-    TOKEN_NUMBER,
-    TOKEN_IDENTIFIER,
-    TOKEN_INVALID
-};
 
 class Token {
 
 public:
     unsigned int lineNumber, startChar, endChar;
     std::string content;
-    TokenType type;
+    enum TokenType {
+        TOKEN_WHITESPACE,
+        TOKEN_COMMENT,
+        TOKEN_KEYWORD,
+        TOKEN_TYPE,
+        TOKEN_OPERATOR,
+        TOKEN_SYMBOL,
+        TOKEN_STRING,
+        TOKEN_NUMBER,
+        TOKEN_IDENTIFIER,
+        TOKEN_INVALID
+    } type;
 
 public:
-    Token() : lineNumber(0), startChar(0), endChar(0), content({}), type(TOKEN_INVALID) {}
+    Token();
 
 public:
     friend std::ostream &operator<<(std::ostream &out, const std::shared_ptr<Token> &token);

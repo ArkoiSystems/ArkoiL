@@ -6,7 +6,6 @@
 #define ARKOICOMPILER_TYPERESOLVER_H
 
 #include <memory>
-#include <utility>
 
 class RootNode;
 

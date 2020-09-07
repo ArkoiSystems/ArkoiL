@@ -6,27 +6,23 @@
 #define ARKOICOMPILER_SYMBOLTABLE_H
 
 #include <unordered_map>
-#include <utility>
+#include <functional>
 #include <memory>
 #include <vector>
-#include <iostream>
-#include <functional>
 
 class ASTNode;
 
-typedef std::vector<std::shared_ptr<ASTNode>> Symbols;
-typedef std::unordered_map<std::string, Symbols> Table;
-
 class SymbolTable {
+
+    typedef std::vector<std::shared_ptr<ASTNode>> Symbols;
+    typedef std::unordered_map<std::string, Symbols> Table;
 
 public:
     std::shared_ptr<SymbolTable> parent;
     Table table;
 
 public:
-    explicit SymbolTable(std::shared_ptr<SymbolTable> parent) :
-            parent(std::move(parent)),
-            table({}) {}
+    explicit SymbolTable(const std::shared_ptr<SymbolTable> &parent);
 
     SymbolTable(const SymbolTable &other) = default;
 

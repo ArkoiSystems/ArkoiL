@@ -270,6 +270,9 @@
 		<Unit filename="/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/main.cpp">
 			<Option target="ArkoiCompiler"/>
 		</Unit>
+		<Unit filename="/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/parser/astnodes.cpp">
+			<Option target="ArkoiCompiler"/>
+		</Unit>
 		<Unit filename="/home/timo/dev/ArkoiSystems/ArkoiL/compiler/c++/src/parser/astnodes.h">
 			<Option target="ArkoiCompiler"/>
 		</Unit>

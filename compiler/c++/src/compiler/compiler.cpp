@@ -3,6 +3,11 @@
 //
 
 #include "compiler.h"
+
+#include <sys/stat.h>
+#include <unistd.h>
+#include <fstream>
+
 #include "../parser/typeresolver.h"
 #include "../semantic/scopecheck.h"
 #include "../semantic/typecheck.h"
@@ -10,10 +15,9 @@
 #include "../codegen/codegen.h"
 #include "../parser/parser.h"
 #include "../lexer/lexer.h"
+#include "../lexer/token.h"
 #include "options.h"
 #include "error.h"
-
-#include "../../deps/dbg-macro/dbg.h"
 
 int Compiler::compile(const CompilerOptions &compilerOptions) {
     std::vector<std::shared_ptr<RootNode>> roots;
@@ -55,7 +59,7 @@ int Compiler::loadImports(const CompilerOptions &compilerOptions,
                           std::vector<std::shared_ptr<RootNode>> &roots) {
     for (const auto &rootNode : roots) {
         for (const auto &node : rootNode->nodes) {
-            if (node->kind != AST_IMPORT)
+            if (node->kind != ASTNode::IMPORT)
                 continue;
 
             auto importNode = std::dynamic_pointer_cast<ImportNode>(node);

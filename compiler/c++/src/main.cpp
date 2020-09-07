@@ -2,10 +2,11 @@
 
 #include <iostream>
 #include <cstring>
-#include "compiler/compiler.h"
-#include "compiler/options.h"
 
 #include "../deps/dbg-macro/dbg.h"
+
+#include "compiler/compiler.h"
+#include "compiler/options.h"
 
 void printUsage();
 

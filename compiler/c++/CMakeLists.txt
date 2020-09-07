@@ -38,7 +38,7 @@ add_executable(ArkoiCompiler
         "${CMAKE_SOURCE_DIR}/src/semantic/typecheck.cpp"
         "${CMAKE_SOURCE_DIR}/src/semantic/typecheck.h"
         "${CMAKE_SOURCE_DIR}/src/semantic/scopecheck.cpp"
-        "${CMAKE_SOURCE_DIR}/src/semantic/scopecheck.h" src/codegen/codegen.cpp src/codegen/codegen.h)
+        "${CMAKE_SOURCE_DIR}/src/semantic/scopecheck.h" src/codegen/codegen.cpp src/codegen/codegen.h src/parser/astnodes.cpp)
 
 llvm_map_components_to_libnames(llvm_libs core analysis)
 

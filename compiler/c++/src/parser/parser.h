@@ -52,12 +52,8 @@ private:
     unsigned int position;
 
 public:
-    explicit Parser(std::string sourcePath, std::string sourceCode,
-                    std::vector<std::shared_ptr<Token>> tokens) :
-            sourcePath(std::move(sourcePath)),
-            sourceCode(std::move(sourceCode)),
-            tokens(std::move(tokens)),
-            position(0) {}
+    explicit Parser(const std::string &sourcePath, const std::string &sourceCode,
+                    const std::vector<std::shared_ptr<Token>> &tokens);
 
 public:
     std::shared_ptr<RootNode> parseRoot();

@@ -5,9 +5,6 @@
 #ifndef ARKOICOMPILER_LEXER_H
 #define ARKOICOMPILER_LEXER_H
 
-#include <fmt/core.h>
-#include <iostream>
-#include <utility>
 #include <vector>
 #include <string>
 #include <memory>
@@ -21,11 +18,7 @@ private:
     std::string sourceCode, sourcePath;
 
 public:
-    explicit Lexer(std::string sourcePath, std::string sourceCode) :
-            sourcePath(std::move(sourcePath)),
-            sourceCode(std::move(sourceCode)),
-            currentLine(0),
-            position(0) {}
+    Lexer(const std::string &sourcePath, const std::string &sourceCode);
 
 public:
     std::vector<std::shared_ptr<Token>> getTokens();
