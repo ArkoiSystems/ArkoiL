@@ -1,1 +1,0 @@
-/usr/bin/c++  -O3 -DNDEBUG   CMakeFiles/grisu-test.dir/grisu-test.cc.o  -o ../bin/grisu-test libtest-main.a libgmock.a -lpthread ../libfmt.a 
