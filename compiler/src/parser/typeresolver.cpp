@@ -315,6 +315,10 @@ void TypeResolver::visit(const std::shared_ptr<FunctionCallNode> &functionCallNo
         firstIdentifier = firstIdentifier->getLastIdentifier();
     TypeResolver::visit(firstIdentifier);
 
+    auto functionNode = std::static_pointer_cast<FunctionNode>(functionCallNode->getTargetNode());
+    if(functionNode->hasAnnotation("inlined"))
+        functionNode->setInlinedFunctionCall(functionCallNode);
+
     functionCallNode->setTypeResolved(true);
 }
 

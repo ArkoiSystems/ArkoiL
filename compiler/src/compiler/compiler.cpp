@@ -72,8 +72,7 @@ int Compiler::compile(const CompilerOptions &compilerOptions) {
     return EXIT_SUCCESS;
 }
 
-int Compiler::loadImports(const CompilerOptions &compilerOptions,
-                          std::set<std::string> &loaded,
+int Compiler::loadImports(const CompilerOptions &compilerOptions, std::set<std::string> &loaded,
                           std::vector<std::shared_ptr<RootNode>> &roots) {
     for (const auto &rootNode : roots) {
         for (const auto &node : rootNode->getNodes()) {

@@ -36,8 +36,8 @@ int main(int argc, char *argv[]) {
             filePath = filePath.substr(2, filePath.size());
             compilerOptions.m_SearchPaths.push_back(filePath);
         } else {
-            std::cout << "Unknown option: " << argv[index]
-                      << ". Use ark help for more information." << std::endl;
+            std::cout << "Unknown option: " << argv[index] << ". "
+                      << "Use ark help for more information." << std::endl;
             return EXIT_FAILURE;
         }
     }

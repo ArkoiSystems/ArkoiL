@@ -615,12 +615,20 @@ bool TypeNode::operator!=(const TypeNode &other) const {
 FunctionNode::FunctionNode()
         : mb_Variadic(false), mb_Native(false),
           m_Parameters({}), m_Block({}),
-          m_Name({}) {
+          m_Name({}), m_InlinedFunctionCall({}) {
     setKind(ASTNode::FUNCTION);
 }
 
 bool FunctionNode::hasAnnotation(const std::string &annotation) {
     return m_Annotations.find(annotation) != m_Annotations.end();
+}
+
+const std::shared_ptr<FunctionCallNode> &FunctionNode::getInlinedFunctionCall() const {
+    return m_InlinedFunctionCall;
+}
+
+void FunctionNode::setInlinedFunctionCall(const std::shared_ptr<FunctionCallNode> &inlinedFunctionCall) {
+    FunctionNode::m_InlinedFunctionCall = inlinedFunctionCall;
 }
 
 void FunctionNode::addParameter(const std::shared_ptr<ParameterNode> &parameterNode) {
@@ -629,10 +637,6 @@ void FunctionNode::addParameter(const std::shared_ptr<ParameterNode> &parameterN
 
 const std::vector<std::shared_ptr<ParameterNode>> &FunctionNode::getParameters() const {
     return m_Parameters;
-}
-
-const std::set<std::string> &FunctionNode::getAnnotations() const {
-    return m_Annotations;
 }
 
 void FunctionNode::setAnnotations(const std::set<std::string> &annotations) {

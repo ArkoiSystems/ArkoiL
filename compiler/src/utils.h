@@ -7,21 +7,6 @@
 #include <memory>
 #include <vector>
 
-#define GETSET(type, prefix, var)       \
-    private:                            \
-        type prefix##var;               \
-                                        \
-    public:                             \
-        const type &get##var()          \
-        {                               \
-            return prefix##var;         \
-        }                               \
-                                        \
-        void set##var(const type &val)  \
-        {                               \
-            prefix##var = val;          \
-        }
-
 namespace Utils {
 
     static void split(const std::string &input, std::vector<std::string> &list, char delimiter = ' ') {
