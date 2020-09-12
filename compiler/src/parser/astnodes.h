@@ -578,7 +578,7 @@ public:
 
 };
 
-struct TypeNode : public OperableNode {
+class TypeNode : public OperableNode {
 
 private:
     std::shared_ptr<StructNode> m_TargetStruct;
@@ -637,10 +637,13 @@ public:
 
 };
 
-struct FunctionNode : public TypedNode {
+class FunctionCallNode;
+
+class FunctionNode : public TypedNode {
 
 private:
     std::vector<std::shared_ptr<ParameterNode>> m_Parameters;
+    std::shared_ptr<FunctionCallNode> m_InlinedFunctionCall;
     std::set<std::string> m_Annotations;
     std::shared_ptr<BlockNode> m_Block;
     std::shared_ptr<Token> m_Name;
@@ -660,10 +663,12 @@ public:
 
 public:
     [[nodiscard]]
-    const std::vector<std::shared_ptr<ParameterNode>> &getParameters() const;
+    const std::shared_ptr<FunctionCallNode> &getInlinedFunctionCall() const;
+
+    void setInlinedFunctionCall(const std::shared_ptr<FunctionCallNode> &inlinedFunctionCall);
 
     [[nodiscard]]
-    const std::set<std::string> &getAnnotations() const;
+    const std::vector<std::shared_ptr<ParameterNode>> &getParameters() const;
 
     void setAnnotations(const std::set<std::string> &annotations);
 
@@ -694,7 +699,7 @@ public:
 
 };
 
-struct StructCreateNode : public OperableNode {
+class StructCreateNode : public OperableNode {
 
 private:
     std::shared_ptr<IdentifierNode> m_StartIdentifier, m_EndIdentifier;
@@ -729,7 +734,7 @@ public:
 
 };
 
-struct FunctionCallNode : public IdentifierNode {
+class FunctionCallNode : public IdentifierNode {
 
 private:
     std::vector<std::shared_ptr<ArgumentNode>> m_Arguments;

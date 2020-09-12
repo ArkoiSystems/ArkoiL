@@ -85,27 +85,43 @@ LLVMValueRef CodeGen::visit(const std::shared_ptr<FunctionNode> &functionNode) {
     if (foundIterator != m_Functions.end())
         return foundIterator->second;
 
-    std::vector<LLVMTypeRef> functionParameters;
-    for (auto const &parameter : functionNode->getParameters())
-        functionParameters.push_back(CodeGen::visit(parameter->getType()));
+    if (functionNode->hasAnnotation("inlined")) {
+        auto callFunctionNode = functionNode->getInlinedFunctionCall()->getParentNode<FunctionNode>();
+        m_Functions.emplace(functionNode, CodeGen::visit(callFunctionNode));
 
-    auto functionType = LLVMFunctionType(CodeGen::visit(functionNode->getType()),
-                                         functionParameters.data(),
-                                         functionParameters.size(),
-                                         functionNode->isVariadic());
+        CodeGen::visit(functionNode->getBlock());
 
-    if (functionNode->isNative()) {
+        auto callFunctionBlock = m_Blocks.find(functionNode->getBlock());
+        if (callFunctionBlock == m_Blocks.end()) {
+            THROW_NODE_ERROR(functionNode->getBlock(),
+                             "Couldn't find the return variable for the inlined function call.")
+            exit(EXIT_FAILURE);
+        }
+
+        return std::get<1>(callFunctionBlock->second);
+    } else {
+        std::vector<LLVMTypeRef> functionParameters;
+        for (auto const &parameter : functionNode->getParameters())
+            functionParameters.push_back(CodeGen::visit(parameter->getType()));
+
+        auto functionType = LLVMFunctionType(CodeGen::visit(functionNode->getType()),
+                                             functionParameters.data(),
+                                             functionParameters.size(),
+                                             functionNode->isVariadic());
+
+        if (functionNode->isNative()) {
+            auto functionRef = LLVMAddFunction(m_Module, functionNode->getName()->getContent().c_str(),
+                                               functionType);
+            m_Functions.emplace(functionNode, functionRef);
+            return functionRef;
+        }
+
         auto functionRef = LLVMAddFunction(m_Module, functionNode->getName()->getContent().c_str(),
                                            functionType);
         m_Functions.emplace(functionNode, functionRef);
+        CodeGen::visit(functionNode->getBlock());
         return functionRef;
     }
-
-    auto functionRef = LLVMAddFunction(m_Module, functionNode->getName()->getContent().c_str(),
-                                       functionType);
-    m_Functions.emplace(functionNode, functionRef);
-    CodeGen::visit(functionNode->getBlock());
-    return functionRef;
 }
 
 LLVMValueRef CodeGen::visit(const std::shared_ptr<ArgumentNode> &argumentNode) {
@@ -149,12 +165,30 @@ LLVMTypeRef CodeGen::visit(const std::shared_ptr<StructNode> &structNode) {
     return structRef;
 }
 
+// TODO: Mehrfacher aufruf von inlined functions funktioniert nicht, da alles abgespeichert wird (m_Blocks
+//       etc)
+// TODO: Varargs bei inlined functions geht nisch
 LLVMValueRef CodeGen::visit(const std::shared_ptr<ParameterNode> &parameterNode) {
     auto foundIterator = m_Parameters.find(parameterNode);
     if (foundIterator != m_Parameters.end())
         return foundIterator->second;
 
     auto functionNode = parameterNode->getParentNode<FunctionNode>();
+    if (functionNode->hasAnnotation("inlined")) {
+        for (auto index = 0; index < functionNode->getParameters().size(); index++) {
+            auto targetParameter = functionNode->getParameters().at(index);
+            if (targetParameter->getName()->getContent() == parameterNode->getName()->getContent()) {
+                auto expression = CodeGen::visit(std::static_pointer_cast<TypedNode>(
+                        functionNode->getInlinedFunctionCall()->getArguments().at(index)->getExpression()));
+                m_Parameters.emplace(parameterNode, expression);
+                return expression;
+            }
+        }
+
+        THROW_NODE_ERROR(parameterNode, "Couldn't find the argument for the inlined function call.")
+        exit(EXIT_FAILURE);
+    }
+
     auto functionRef = CodeGen::visit(functionNode);
 
     LLVMValueRef parameter = nullptr;
@@ -186,7 +220,8 @@ LLVMBasicBlockRef CodeGen::visit(const std::shared_ptr<BlockNode> &blockNode) {
     auto functionNode = blockNode->getParentNode<FunctionNode>();
     auto functionRef = CodeGen::visit(functionNode);
 
-    LLVMBasicBlockRef startBlock = LLVMAppendBasicBlockInContext(m_Context, functionRef,
+    LLVMBasicBlockRef startBlock = functionNode->hasAnnotation("inlined") ? m_CurrentBlock :
+                                   LLVMAppendBasicBlockInContext(m_Context, functionRef,
                                                                  functionNode == blockNode->getParentNode()
                                                                  ? "entry" : "");
     LLVMBasicBlockRef returnBlock = nullptr;
@@ -209,16 +244,19 @@ LLVMBasicBlockRef CodeGen::visit(const std::shared_ptr<BlockNode> &blockNode) {
                                              "var_ret");
 
         returnBlock = LLVMAppendBasicBlockInContext(m_Context, functionRef, "return");
-        CodeGen::setPositionAtEnd(returnBlock);
 
-        if (functionNode->getType()->getBits() != 0 ||
-            functionNode->getType()->getTargetStruct() != nullptr) {
-            auto loadedVariable = LLVMBuildLoad(m_Builder, returnVariable, "loaded_ret");
-            LLVMBuildRet(m_Builder, loadedVariable);
-        } else
-            LLVMBuildRetVoid(m_Builder);
+        if (!functionNode->hasAnnotation("inlined")) {
+            CodeGen::setPositionAtEnd(returnBlock);
 
-        CodeGen::setPositionAtEnd(startBlock);
+            if (functionNode->getType()->getBits() != 0 ||
+                functionNode->getType()->getTargetStruct() != nullptr) {
+                auto loadedVariable = LLVMBuildLoad(m_Builder, returnVariable, "loaded_ret");
+                LLVMBuildRet(m_Builder, loadedVariable);
+            } else
+                LLVMBuildRetVoid(m_Builder);
+
+            CodeGen::setPositionAtEnd(startBlock);
+        }
     }
 
     auto tuple = std::make_tuple(startBlock, returnVariable, returnBlock);
@@ -233,8 +271,11 @@ LLVMBasicBlockRef CodeGen::visit(const std::shared_ptr<BlockNode> &blockNode) {
     if (functionNode == blockNode->getParentNode())
         LLVMMoveBasicBlockAfter(returnBlock, LLVMGetLastBasicBlock(functionRef));
 
-    if (lastBlock != nullptr)
+    if (lastBlock != nullptr && !functionNode->hasAnnotation("inlined"))
         setPositionAtEnd(lastBlock);
+
+    if (functionNode->hasAnnotation("inlined"))
+        setPositionAtEnd(returnBlock);
 
     return startBlock;
 }
@@ -403,6 +444,9 @@ LLVMValueRef CodeGen::visit(const std::shared_ptr<BinaryNode> &binaryNode) {
 
 LLVMValueRef CodeGen::visit(const std::shared_ptr<FunctionCallNode> &functionCallNode) {
     auto functionNode = std::static_pointer_cast<FunctionNode>(functionCallNode->getTargetNode());
+    if (functionNode->hasAnnotation("inlined"))
+        return CodeGen::visit(functionNode);
+
     auto functionRef = CodeGen::visit(functionNode);
 
     auto sortedArguments(functionCallNode->getArguments());
