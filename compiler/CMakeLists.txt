@@ -11,7 +11,6 @@ set(ARKOI_VERSION "${ARKOI_VERSION_MAJOR}.${ARKOI_VERSION_MINOR}.${ARKOI_VERSION
 find_package(LLVM REQUIRED CONFIG)
 
 add_subdirectory("${CMAKE_SOURCE_DIR}/deps/fmt-7.0.2")
-add_subdirectory("${CMAKE_SOURCE_DIR}/deps/dbg-macro")
 
 include_directories(${LLVM_INCLUDE_DIRS})
 add_definitions(${LLVM_DEFINITIONS})
@@ -38,8 +37,11 @@ add_executable(ArkoiCompiler
         "${CMAKE_SOURCE_DIR}/src/semantic/typecheck.cpp"
         "${CMAKE_SOURCE_DIR}/src/semantic/typecheck.h"
         "${CMAKE_SOURCE_DIR}/src/semantic/scopecheck.cpp"
-        "${CMAKE_SOURCE_DIR}/src/semantic/scopecheck.h" src/codegen/codegen.cpp src/codegen/codegen.h src/parser/astnodes.cpp)
+        "${CMAKE_SOURCE_DIR}/src/semantic/scopecheck.h"
+        "${CMAKE_SOURCE_DIR}/src/codegen/codegen.cpp"
+        "${CMAKE_SOURCE_DIR}/src/codegen/codegen.h"
+        "${CMAKE_SOURCE_DIR}/src/parser/astnodes.cpp")
 
-llvm_map_components_to_libnames(llvm_libs core analysis)
+llvm_map_components_to_libnames(llvm_libs core analysis ipo)
 
 target_link_libraries(ArkoiCompiler PRIVATE fmt::fmt ${llvm_libs})

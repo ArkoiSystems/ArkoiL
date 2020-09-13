@@ -5,7 +5,7 @@
 		<Option title="FMT"/>
 		<Option makefile_is_custom="1"/>
 		<Option compiler="gcc"/>
-		<Option virtualFolders="CMake Files\;CMake Files\..\;CMake Files\..\..\;CMake Files\..\..\..\;CMake Files\..\..\..\..\;CMake Files\..\..\..\..\..\;CMake Files\..\..\..\..\..\..\;CMake Files\..\..\..\..\..\..\usr\;CMake Files\..\..\..\..\..\..\usr\lib\;CMake Files\..\..\..\..\..\..\usr\lib\llvm-10\;CMake Files\..\..\..\..\..\..\usr\lib\llvm-10\cmake\;CMake Files\..\..\..\..\..\..\usr\lib\llvm-10\lib\;CMake Files\..\..\..\..\..\..\usr\lib\llvm-10\lib\cmake\;CMake Files\..\..\..\..\..\..\usr\lib\llvm-10\lib\cmake\llvm\;CMake Files\deps\;CMake Files\deps\fmt-7.0.2\;CMake Files\deps\fmt-7.0.2\support\;CMake Files\deps\fmt-7.0.2\support\cmake\;CMake Files\deps\dbg-macro\;"/>
+		<Option virtualFolders="CMake Files\;CMake Files\..\;CMake Files\..\..\;CMake Files\..\..\..\;CMake Files\..\..\..\..\;CMake Files\..\..\..\..\..\;CMake Files\..\..\..\..\..\..\;CMake Files\..\..\..\..\..\..\usr\;CMake Files\..\..\..\..\..\..\usr\lib\;CMake Files\..\..\..\..\..\..\usr\lib\llvm-10\;CMake Files\..\..\..\..\..\..\usr\lib\llvm-10\cmake\;CMake Files\..\..\..\..\..\..\usr\lib\llvm-10\lib\;CMake Files\..\..\..\..\..\..\usr\lib\llvm-10\lib\cmake\;CMake Files\..\..\..\..\..\..\usr\lib\llvm-10\lib\cmake\llvm\;CMake Files\deps\;CMake Files\deps\fmt-7.0.2\;"/>
 		<Build>
 			<Target title="all">
 				<Option working_dir="/home/timo/dev/ArkoiSystems/ArkoiL/compiler/cmake-build-debug/deps/fmt-7.0.2"/>
@@ -66,12 +66,6 @@
 				</MakeCommands>
 			</Target>
 		</Build>
-		<Unit filename="/home/timo/dev/ArkoiSystems/ArkoiL/compiler/deps/fmt-7.0.2/ChangeLog.rst">
-			<Option target="fmt"/>
-		</Unit>
-		<Unit filename="/home/timo/dev/ArkoiSystems/ArkoiL/compiler/deps/fmt-7.0.2/README.rst">
-			<Option target="fmt"/>
-		</Unit>
 		<Unit filename="/home/timo/dev/ArkoiSystems/ArkoiL/compiler/deps/fmt-7.0.2/include/fmt/chrono.h">
 			<Option target="fmt"/>
 		</Unit>
@@ -134,15 +128,6 @@
 		</Unit>
 		<Unit filename="/home/timo/dev/ArkoiSystems/ArkoiL/compiler/deps/fmt-7.0.2/CMakeLists.txt">
 			<Option virtualFolder="CMake Files\deps\fmt-7.0.2\"/>
-		</Unit>
-		<Unit filename="/home/timo/dev/ArkoiSystems/ArkoiL/compiler/deps/fmt-7.0.2/support/cmake/JoinPaths.cmake">
-			<Option virtualFolder="CMake Files\deps\fmt-7.0.2\support\cmake\"/>
-		</Unit>
-		<Unit filename="/home/timo/dev/ArkoiSystems/ArkoiL/compiler/deps/fmt-7.0.2/support/cmake/cxx14.cmake">
-			<Option virtualFolder="CMake Files\deps\fmt-7.0.2\support\cmake\"/>
-		</Unit>
-		<Unit filename="/home/timo/dev/ArkoiSystems/ArkoiL/compiler/deps/dbg-macro/CMakeLists.txt">
-			<Option virtualFolder="CMake Files\deps\dbg-macro\"/>
 		</Unit>
 	</Project>
 </CodeBlocks_project_file>

@@ -92,9 +92,7 @@ endif ()
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH}
   "${CMAKE_CURRENT_SOURCE_DIR}/support/cmake")
 
-include(cxx14)
 include(CheckCXXCompilerFlag)
-include(JoinPaths)
 
 list(FIND CMAKE_CXX_COMPILE_FEATURES "cxx_variadic_templates" index)
 if (${index} GREATER -1)
@@ -193,7 +191,7 @@ else()
   set(FMT_SOURCES src/format.cc)
 endif ()
 
-add_library(fmt ${FMT_SOURCES} ${FMT_HEADERS} README.rst ChangeLog.rst)
+add_library(fmt ${FMT_SOURCES} ${FMT_HEADERS})
 add_library(fmt::fmt ALIAS fmt)
 
 if (HAVE_STRTOD_L)

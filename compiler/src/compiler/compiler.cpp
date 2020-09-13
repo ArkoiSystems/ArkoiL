@@ -10,6 +10,9 @@
 #include <fstream>
 #include <chrono>
 
+#include <llvm-c-10/llvm-c/Transforms/IPO.h>
+#include <llvm-c-10/llvm-c/Analysis.h>
+
 #include "../parser/typeresolver.h"
 #include "../semantic/scopecheck.h"
 #include "../semantic/typecheck.h"
@@ -57,13 +60,26 @@ int Compiler::compile(const CompilerOptions &compilerOptions) {
     auto nameSize = 0ul;
     auto name = LLVMGetModuleIdentifier(module, &nameSize);
 
-    std::cout << "[" << name << "] ~~~~~~~~~~~~~~~~~~" << std::endl << std::endl;
+    auto passManagerRef = LLVMCreatePassManager();
+    LLVMAddMergeFunctionsPass(passManagerRef);
+    LLVMAddDeadArgEliminationPass(passManagerRef);
+    LLVMAddInternalizePass(passManagerRef, 1);
+
+    std::cout << "[" << name << "] Optimizing module:" << std::endl;
+    auto changedSomething = LLVMRunPassManager(passManagerRef, module);
+    if(changedSomething != 0)
+        std::cout << "Successfully changed something." << std::endl;
+    LLVMDisposePassManager(passManagerRef);
+    std::cout << std::endl;
+
+    std::cout << "[" << name << "] Printing the bitcode:" << std::endl << std::endl;
     auto moduleCode = LLVMPrintModuleToString(module);
     std::cout << moduleCode << std::endl;
     LLVMDisposeMessage(moduleCode);
-    std::cout << "[" << name << "] ~~~~~~~~~~~~~~~~~~" << std::endl << std::endl;
-
     LLVMDisposeModule(module);
+
+    char *error = new char[1024] {0};
+    LLVMVerifyModule(module, LLVMPrintMessageAction, &error);
 
     auto finish = std::chrono::high_resolution_clock::now();
     auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(finish - start);
@@ -90,9 +106,8 @@ int Compiler::loadImports(const CompilerOptions &compilerOptions, std::set<std::
                 if (!S_ISREG(path_stat.st_mode) || access(fullPath.c_str(), F_OK) == -1)
                     continue;
 
-                auto realPath = realpath(fullPath.c_str(), nullptr);
-                fullPath = std::string(realPath);
-                free(realPath);
+                std::string realPath = realpath(fullPath.c_str(), nullptr);
+                fullPath = realPath;
 
                 if (loaded.find(fullPath) != loaded.end()) {
                     for (const auto &loadedRoot : roots) {
