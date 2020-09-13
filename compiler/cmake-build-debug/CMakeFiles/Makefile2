@@ -75,41 +75,20 @@ CMAKE_BINARY_DIR = /home/timo/dev/ArkoiSystems/ArkoiL/compiler/cmake-build-debug
 # The main recursive "all" target.
 all: CMakeFiles/ArkoiCompiler.dir/all
 all: deps/fmt-7.0.2/all
-all: deps/dbg-macro/all
 
 .PHONY : all
 
 # The main recursive "preinstall" target.
 preinstall: deps/fmt-7.0.2/preinstall
-preinstall: deps/dbg-macro/preinstall
 
 .PHONY : preinstall
 
 # The main recursive "clean" target.
-clean: CMakeFiles/intrinsics_gen.dir/clean
 clean: CMakeFiles/ArkoiCompiler.dir/clean
+clean: CMakeFiles/intrinsics_gen.dir/clean
 clean: deps/fmt-7.0.2/clean
-clean: deps/dbg-macro/clean
 
 .PHONY : clean
-
-#=============================================================================
-# Directory level rules for directory deps/dbg-macro
-
-# Recursive "all" directory target.
-deps/dbg-macro/all:
-
-.PHONY : deps/dbg-macro/all
-
-# Recursive "preinstall" directory target.
-deps/dbg-macro/preinstall:
-
-.PHONY : deps/dbg-macro/preinstall
-
-# Recursive "clean" directory target.
-deps/dbg-macro/clean:
-
-.PHONY : deps/dbg-macro/clean
 
 #=============================================================================
 # Directory level rules for directory deps/fmt-7.0.2
@@ -128,33 +107,6 @@ deps/fmt-7.0.2/preinstall:
 deps/fmt-7.0.2/clean: deps/fmt-7.0.2/CMakeFiles/fmt.dir/clean
 
 .PHONY : deps/fmt-7.0.2/clean
-
-#=============================================================================
-# Target rules for target CMakeFiles/intrinsics_gen.dir
-
-# All Build rule for target.
-CMakeFiles/intrinsics_gen.dir/all:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/intrinsics_gen.dir/build.make CMakeFiles/intrinsics_gen.dir/depend
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/intrinsics_gen.dir/build.make CMakeFiles/intrinsics_gen.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/timo/dev/ArkoiSystems/ArkoiL/compiler/cmake-build-debug/CMakeFiles --progress-num= "Built target intrinsics_gen"
-.PHONY : CMakeFiles/intrinsics_gen.dir/all
-
-# Build rule for subdir invocation for target.
-CMakeFiles/intrinsics_gen.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/timo/dev/ArkoiSystems/ArkoiL/compiler/cmake-build-debug/CMakeFiles 0
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/intrinsics_gen.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/timo/dev/ArkoiSystems/ArkoiL/compiler/cmake-build-debug/CMakeFiles 0
-.PHONY : CMakeFiles/intrinsics_gen.dir/rule
-
-# Convenience name for target.
-intrinsics_gen: CMakeFiles/intrinsics_gen.dir/rule
-
-.PHONY : intrinsics_gen
-
-# clean rule for target.
-CMakeFiles/intrinsics_gen.dir/clean:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/intrinsics_gen.dir/build.make CMakeFiles/intrinsics_gen.dir/clean
-.PHONY : CMakeFiles/intrinsics_gen.dir/clean
 
 #=============================================================================
 # Target rules for target CMakeFiles/ArkoiCompiler.dir
@@ -182,6 +134,33 @@ ArkoiCompiler: CMakeFiles/ArkoiCompiler.dir/rule
 CMakeFiles/ArkoiCompiler.dir/clean:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ArkoiCompiler.dir/build.make CMakeFiles/ArkoiCompiler.dir/clean
 .PHONY : CMakeFiles/ArkoiCompiler.dir/clean
+
+#=============================================================================
+# Target rules for target CMakeFiles/intrinsics_gen.dir
+
+# All Build rule for target.
+CMakeFiles/intrinsics_gen.dir/all:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/intrinsics_gen.dir/build.make CMakeFiles/intrinsics_gen.dir/depend
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/intrinsics_gen.dir/build.make CMakeFiles/intrinsics_gen.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/timo/dev/ArkoiSystems/ArkoiL/compiler/cmake-build-debug/CMakeFiles --progress-num= "Built target intrinsics_gen"
+.PHONY : CMakeFiles/intrinsics_gen.dir/all
+
+# Build rule for subdir invocation for target.
+CMakeFiles/intrinsics_gen.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/timo/dev/ArkoiSystems/ArkoiL/compiler/cmake-build-debug/CMakeFiles 0
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/intrinsics_gen.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/timo/dev/ArkoiSystems/ArkoiL/compiler/cmake-build-debug/CMakeFiles 0
+.PHONY : CMakeFiles/intrinsics_gen.dir/rule
+
+# Convenience name for target.
+intrinsics_gen: CMakeFiles/intrinsics_gen.dir/rule
+
+.PHONY : intrinsics_gen
+
+# clean rule for target.
+CMakeFiles/intrinsics_gen.dir/clean:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/intrinsics_gen.dir/build.make CMakeFiles/intrinsics_gen.dir/clean
+.PHONY : CMakeFiles/intrinsics_gen.dir/clean
 
 #=============================================================================
 # Target rules for target deps/fmt-7.0.2/CMakeFiles/fmt.dir

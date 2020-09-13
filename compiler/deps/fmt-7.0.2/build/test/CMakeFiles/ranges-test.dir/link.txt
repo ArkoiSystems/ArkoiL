@@ -1,1 +1,0 @@
-/usr/bin/c++  -O3 -DNDEBUG   CMakeFiles/ranges-test.dir/ranges-test.cc.o  -o ../bin/ranges-test libtest-main.a libgmock.a -lpthread ../libfmt.a 

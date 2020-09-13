@@ -220,10 +220,12 @@ LLVMBasicBlockRef CodeGen::visit(const std::shared_ptr<BlockNode> &blockNode) {
     auto functionNode = blockNode->getParentNode<FunctionNode>();
     auto functionRef = CodeGen::visit(functionNode);
 
-    LLVMBasicBlockRef startBlock = functionNode->hasAnnotation("inlined") ? m_CurrentBlock :
-                                   LLVMAppendBasicBlockInContext(m_Context, functionRef,
-                                                                 functionNode == blockNode->getParentNode()
-                                                                 ? "entry" : "");
+    LLVMBasicBlockRef startBlock = functionNode->hasAnnotation("inlined")
+                                   ? m_CurrentBlock
+                                   : LLVMAppendBasicBlockInContext(m_Context, functionRef,
+                                                                   functionNode == blockNode->getParentNode()
+                                                                   ? "entry" : "");
+
     LLVMBasicBlockRef returnBlock = nullptr;
     LLVMValueRef returnVariable = nullptr;
     auto lastBlock = m_CurrentBlock;
@@ -239,11 +241,13 @@ LLVMBasicBlockRef CodeGen::visit(const std::shared_ptr<BlockNode> &blockNode) {
     CodeGen::setPositionAtEnd(startBlock);
 
     if (functionNode == blockNode->getParentNode()) {
+        std::string namePrefix = functionNode->hasAnnotation("inlined") ? "iln_" : "";
         if (functionNode->getType()->getBits() != 0 || functionNode->getType()->getTargetStruct() != nullptr)
             returnVariable = LLVMBuildAlloca(m_Builder, CodeGen::visit(functionNode->getType()),
-                                             "var_ret");
+                                             (namePrefix + "var_ret").c_str());
 
-        returnBlock = LLVMAppendBasicBlockInContext(m_Context, functionRef, "return");
+        returnBlock = LLVMAppendBasicBlockInContext(m_Context, functionRef,
+                                                    (namePrefix + "return").c_str());
 
         if (!functionNode->hasAnnotation("inlined")) {
             CodeGen::setPositionAtEnd(returnBlock);
@@ -271,7 +275,7 @@ LLVMBasicBlockRef CodeGen::visit(const std::shared_ptr<BlockNode> &blockNode) {
     if (functionNode == blockNode->getParentNode())
         LLVMMoveBasicBlockAfter(returnBlock, LLVMGetLastBasicBlock(functionRef));
 
-    if (lastBlock != nullptr && !functionNode->hasAnnotation("inlined"))
+    if (lastBlock != nullptr)
         setPositionAtEnd(lastBlock);
 
     if (functionNode->hasAnnotation("inlined"))

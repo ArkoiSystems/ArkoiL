@@ -1,1 +1,0 @@
-/usr/bin/c++  -O3 -DNDEBUG   CMakeFiles/scan-test.dir/scan-test.cc.o  -o ../bin/scan-test libtest-main.a libgmock.a -lpthread ../libfmt.a 

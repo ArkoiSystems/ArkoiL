@@ -1,1 +1,0 @@
-/usr/bin/c++  -O3 -DNDEBUG   CMakeFiles/color-test.dir/color-test.cc.o  -o ../bin/color-test libtest-main.a libgmock.a -lpthread ../libfmt.a 

@@ -3,8 +3,6 @@
 #include <iostream>
 #include <cstring>
 
-#include "../deps/dbg-macro/dbg.h"
-
 #include "compiler/compiler.h"
 #include "compiler/options.h"
 

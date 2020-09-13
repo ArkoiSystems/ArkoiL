@@ -39,7 +39,6 @@ CMakeFiles/ArkoiCompiler.dir/src/lexer/lexer.cpp.o: ../src/utils.h
 CMakeFiles/ArkoiCompiler.dir/src/lexer/token.cpp.o: ../src/lexer/token.cpp
 CMakeFiles/ArkoiCompiler.dir/src/lexer/token.cpp.o: ../src/lexer/token.h
 
-CMakeFiles/ArkoiCompiler.dir/src/main.cpp.o: ../deps/dbg-macro/dbg.h
 CMakeFiles/ArkoiCompiler.dir/src/main.cpp.o: ../src/compiler/compiler.h
 CMakeFiles/ArkoiCompiler.dir/src/main.cpp.o: ../src/compiler/options.h
 CMakeFiles/ArkoiCompiler.dir/src/main.cpp.o: ../src/main.cpp

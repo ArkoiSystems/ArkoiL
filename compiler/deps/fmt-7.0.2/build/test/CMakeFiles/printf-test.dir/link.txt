@@ -1,1 +1,0 @@
-/usr/bin/c++  -O3 -DNDEBUG   CMakeFiles/printf-test.dir/printf-test.cc.o  -o ../bin/printf-test libtest-main.a libgmock.a -lpthread ../libfmt.a 

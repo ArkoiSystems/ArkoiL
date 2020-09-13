@@ -11,10 +11,7 @@ set(CMAKE_MAKEFILE_DEPENDS
   "CMakeFiles/3.17.3/CMakeCCompiler.cmake"
   "CMakeFiles/3.17.3/CMakeCXXCompiler.cmake"
   "CMakeFiles/3.17.3/CMakeSystem.cmake"
-  "../deps/dbg-macro/CMakeLists.txt"
   "../deps/fmt-7.0.2/CMakeLists.txt"
-  "../deps/fmt-7.0.2/support/cmake/JoinPaths.cmake"
-  "../deps/fmt-7.0.2/support/cmake/cxx14.cmake"
   "/opt/clion/bin/cmake/linux/share/cmake-3.17/Modules/CMakeCInformation.cmake"
   "/opt/clion/bin/cmake/linux/share/cmake-3.17/Modules/CMakeCXXInformation.cmake"
   "/opt/clion/bin/cmake/linux/share/cmake-3.17/Modules/CMakeCheckCompilerFlagCommonPatterns.cmake"
@@ -59,12 +56,11 @@ set(CMAKE_MAKEFILE_OUTPUTS
 set(CMAKE_MAKEFILE_PRODUCTS
   "CMakeFiles/CMakeDirectoryInformation.cmake"
   "deps/fmt-7.0.2/CMakeFiles/CMakeDirectoryInformation.cmake"
-  "deps/dbg-macro/CMakeFiles/CMakeDirectoryInformation.cmake"
   )
 
 # Dependency information for all targets:
 set(CMAKE_DEPEND_INFO_FILES
-  "CMakeFiles/intrinsics_gen.dir/DependInfo.cmake"
   "CMakeFiles/ArkoiCompiler.dir/DependInfo.cmake"
+  "CMakeFiles/intrinsics_gen.dir/DependInfo.cmake"
   "deps/fmt-7.0.2/CMakeFiles/fmt.dir/DependInfo.cmake"
   )
