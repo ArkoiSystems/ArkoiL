@@ -1,0 +1,35 @@
+//
+// Created by timo on 7/29/20.
+//
+
+#pragma once
+
+#include <memory>
+#include <vector>
+#include <set>
+
+class CompilerOptions;
+
+class RootNode;
+
+class Parser;
+
+class Compiler {
+
+public:
+    Compiler() = delete;
+
+    Compiler(const Compiler &) = delete;
+
+    Compiler &operator=(const Compiler &) = delete;
+
+public:
+    static int compile(const CompilerOptions &compilerOptions);
+
+    static int loadImports(const CompilerOptions &root,
+                           std::set<std::string> &loaded,
+                           std::vector<std::shared_ptr<RootNode>> &roots);
+
+    static std::shared_ptr<Parser> loadFile(const std::string &sourcePath);
+
+};
