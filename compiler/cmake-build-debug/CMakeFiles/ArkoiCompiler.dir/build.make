@@ -264,7 +264,7 @@ ArkoiCompiler: CMakeFiles/ArkoiCompiler.dir/src/semantic/scopecheck.cpp.o
 ArkoiCompiler: CMakeFiles/ArkoiCompiler.dir/src/codegen/codegen.cpp.o
 ArkoiCompiler: CMakeFiles/ArkoiCompiler.dir/src/parser/astnodes.cpp.o
 ArkoiCompiler: CMakeFiles/ArkoiCompiler.dir/build.make
-ArkoiCompiler: deps/fmt-7.0.2/libfmtd.a
+ArkoiCompiler: /usr/local/lib/libfmt.a
 ArkoiCompiler: /usr/lib/llvm-10/lib/libLLVMCore.a
 ArkoiCompiler: /usr/lib/llvm-10/lib/libLLVMAnalysis.a
 ArkoiCompiler: /usr/lib/llvm-10/lib/libLLVMipo.a

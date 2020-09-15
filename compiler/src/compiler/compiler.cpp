@@ -53,7 +53,7 @@ int Compiler::compile(const CompilerOptions &compilerOptions) {
         ScopeCheck::visit(sourceRoot);
     }
 
-    auto codeGen = CodeGen();
+    CodeGen codeGen;
     codeGen.visit(sourceRoot);
     auto module = codeGen.getModule();
 
@@ -77,9 +77,6 @@ int Compiler::compile(const CompilerOptions &compilerOptions) {
     std::cout << moduleCode << std::endl;
     LLVMDisposeMessage(moduleCode);
     LLVMDisposeModule(module);
-
-    char *error = new char[1024] {0};
-    LLVMVerifyModule(module, LLVMPrintMessageAction, &error);
 
     auto finish = std::chrono::high_resolution_clock::now();
     auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(finish - start);

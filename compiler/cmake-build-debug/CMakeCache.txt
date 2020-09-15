@@ -274,9 +274,6 @@ CMAKE_STRIP:FILEPATH=/usr/bin/strip
 // Studio IDE projects all commands are done without /nologo.
 CMAKE_VERBOSE_MAKEFILE:BOOL=FALSE
 
-//Enable tests.
-DBG_MACRO_ENABLE_TESTS:BOOL=OFF
-
 //Value Computed by CMake
 FMT_BINARY_DIR:STATIC=/home/timo/dev/ArkoiSystems/ArkoiL/compiler/cmake-build-debug/deps/fmt-7.0.2
 
@@ -323,11 +320,11 @@ ProcessorCount_cmd_nproc:FILEPATH=/usr/bin/nproc
 //Path to a program.
 ProcessorCount_cmd_sysctl:FILEPATH=/sbin/sysctl
 
-//Value Computed by CMake
-dbg_macro_BINARY_DIR:STATIC=/home/timo/dev/ArkoiSystems/ArkoiL/compiler/cmake-build-debug/deps/dbg-macro
+//The directory containing a CMake configuration file for fmt.
+fmt_DIR:PATH=/usr/local/lib/cmake/fmt
 
-//Value Computed by CMake
-dbg_macro_SOURCE_DIR:STATIC=/home/timo/dev/ArkoiSystems/ArkoiL/compiler/deps/dbg-macro
+//The directory containing a CMake configuration file for fmts.
+fmts_DIR:PATH=fmts_DIR-NOTFOUND
 
 
 ########################
@@ -474,7 +471,7 @@ CMAKE_MODULE_LINKER_FLAGS_RELWITHDEBINFO-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_NM
 CMAKE_NM-ADVANCED:INTERNAL=1
 //number of local generators
-CMAKE_NUMBER_OF_MAKEFILES:INTERNAL=2
+CMAKE_NUMBER_OF_MAKEFILES:INTERNAL=1
 //ADVANCED property for variable: CMAKE_OBJCOPY
 CMAKE_OBJCOPY-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_OBJDUMP
@@ -517,20 +514,12 @@ CMAKE_STRIP-ADVANCED:INTERNAL=1
 CMAKE_UNAME:INTERNAL=/bin/uname
 //ADVANCED property for variable: CMAKE_VERBOSE_MAKEFILE
 CMAKE_VERBOSE_MAKEFILE-ADVANCED:INTERNAL=1
-//Test FMT_HAS_VARIANT
-FMT_HAS_VARIANT:INTERNAL=1
 //Have symbol strtod_l
 HAVE_STRTOD_L:INTERNAL=
 //ADVANCED property for variable: ProcessorCount_cmd_nproc
 ProcessorCount_cmd_nproc-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: ProcessorCount_cmd_sysctl
 ProcessorCount_cmd_sysctl-ADVANCED:INTERNAL=1
-//Test SUPPORTS_USER_DEFINED_LITERALS
-SUPPORTS_USER_DEFINED_LITERALS:INTERNAL=1
 //CMAKE_INSTALL_PREFIX during last run
 _GNUInstallDirs_LAST_CMAKE_INSTALL_PREFIX:INTERNAL=/usr/local
-//Test has_std_20_flag
-has_std_20_flag:INTERNAL=
-//Test has_std_2a_flag
-has_std_2a_flag:INTERNAL=
 

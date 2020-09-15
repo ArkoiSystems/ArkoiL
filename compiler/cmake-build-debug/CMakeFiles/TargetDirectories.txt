@@ -2,6 +2,3 @@
 /home/timo/dev/ArkoiSystems/ArkoiL/compiler/cmake-build-debug/CMakeFiles/ArkoiCompiler.dir
 /home/timo/dev/ArkoiSystems/ArkoiL/compiler/cmake-build-debug/CMakeFiles/rebuild_cache.dir
 /home/timo/dev/ArkoiSystems/ArkoiL/compiler/cmake-build-debug/CMakeFiles/intrinsics_gen.dir
-/home/timo/dev/ArkoiSystems/ArkoiL/compiler/cmake-build-debug/deps/fmt-7.0.2/CMakeFiles/edit_cache.dir
-/home/timo/dev/ArkoiSystems/ArkoiL/compiler/cmake-build-debug/deps/fmt-7.0.2/CMakeFiles/rebuild_cache.dir
-/home/timo/dev/ArkoiSystems/ArkoiL/compiler/cmake-build-debug/deps/fmt-7.0.2/CMakeFiles/fmt.dir
