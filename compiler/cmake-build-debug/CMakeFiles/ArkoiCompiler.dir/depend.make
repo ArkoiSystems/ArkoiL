@@ -10,7 +10,6 @@ CMakeFiles/ArkoiCompiler.dir/src/codegen/codegen.cpp.o: ../src/lexer/token.h
 CMakeFiles/ArkoiCompiler.dir/src/codegen/codegen.cpp.o: ../src/parser/astnodes.h
 CMakeFiles/ArkoiCompiler.dir/src/codegen/codegen.cpp.o: ../src/utils.h
 
-CMakeFiles/ArkoiCompiler.dir/src/compiler/compiler.cpp.o: ../deps/fmt-7.0.2/include/fmt/core.h
 CMakeFiles/ArkoiCompiler.dir/src/compiler/compiler.cpp.o: ../src/codegen/codegen.h
 CMakeFiles/ArkoiCompiler.dir/src/compiler/compiler.cpp.o: ../src/compiler/compiler.cpp
 CMakeFiles/ArkoiCompiler.dir/src/compiler/compiler.cpp.o: ../src/compiler/compiler.h

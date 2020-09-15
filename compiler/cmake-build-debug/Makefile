@@ -156,19 +156,6 @@ intrinsics_gen/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/intrinsics_gen.dir/build.make CMakeFiles/intrinsics_gen.dir/build
 .PHONY : intrinsics_gen/fast
 
-#=============================================================================
-# Target rules for targets named fmt
-
-# Build rule for target.
-fmt: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 fmt
-.PHONY : fmt
-
-# fast build rule for target.
-fmt/fast:
-	$(MAKE) $(MAKESILENT) -f deps/fmt-7.0.2/CMakeFiles/fmt.dir/build.make deps/fmt-7.0.2/CMakeFiles/fmt.dir/build
-.PHONY : fmt/fast
-
 src/codegen/codegen.o: src/codegen/codegen.cpp.o
 
 .PHONY : src/codegen/codegen.o
@@ -503,7 +490,6 @@ help:
 	@echo "... rebuild_cache"
 	@echo "... intrinsics_gen"
 	@echo "... ArkoiCompiler"
-	@echo "... fmt"
 	@echo "... src/codegen/codegen.o"
 	@echo "... src/codegen/codegen.i"
 	@echo "... src/codegen/codegen.s"
