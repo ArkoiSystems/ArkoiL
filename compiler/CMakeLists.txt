@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.17.3)
+cmake_minimum_required(VERSION 3.10.2)
 
 project(ArkoiCompiler)
 
@@ -8,18 +8,16 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(ARKOI_VERSION_MAJOR 0)
 set(ARKOI_VERSION_MINOR 1)
 set(ARKOI_VERSION_PATCH 0)
-set(ARKOI_VERSION "${ARKOI_VERSION_MAJOR}.${ARKOI_VERSION_MINOR}.${ARKOI_VERSION_PATCH}")
+set(ARKOI_VERSION ${ARKOI_VERSION_MAJOR}.${ARKOI_VERSION_MINOR}.${ARKOI_VERSION_PATCH})
 
-set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake/" ${CMAKE_MODULE_PATH})
+set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
 
-find_package(LLVM 10.0.0 REQUIRED)
 find_package(fmt 7.0.3 REQUIRED)
-find_package(LLD REQUIRED)
+find_package(ArkoiLLVM REQUIRED)
+find_package(ArkoiLLD REQUIRED)
 
-include_directories(${LLVM_INCLUDE_DIRS})
-include_directories(${LLD_INCLUDE_DIRS})
-
-llvm_map_components_to_libnames(llvm_libs core analysis ipo)
+include_directories(${ARKOI_LLVM_INCLUDE_DIRS})
+include_directories(${ARKOI_LLD_INCLUDE_DIRS})
 
 add_executable(ArkoiCompiler
         "${PROJECT_SOURCE_DIR}/src/main.cpp"
@@ -49,7 +47,7 @@ add_executable(ArkoiCompiler
         "${PROJECT_SOURCE_DIR}/src/parser/astnodes.cpp")
 
 target_link_libraries(ArkoiCompiler
-        PRIVATE
-            fmt::fmt
-            ${llvm_libs}
-            ${LLD_LIBRARIES})
+        LINK_PUBLIC
+        fmt::fmt
+        ${ARKOI_LLVM_LIBRARIES}
+        ${ARKOI_LLD_LIBRARIES})

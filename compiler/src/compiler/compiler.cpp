@@ -11,9 +11,8 @@
 #include <chrono>
 
 #include <llvm-c-10/llvm-c/Transforms/IPO.h>
-#include <llvm-c-10/llvm-c/Analysis.h>
 
-//#include <ldd/Common/Driver.h>
+//#include <lld/Common/Driver.h>
 
 #include "../parser/typeresolver.h"
 #include "../semantic/scopecheck.h"
