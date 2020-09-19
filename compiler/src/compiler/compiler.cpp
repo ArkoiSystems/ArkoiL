@@ -10,10 +10,6 @@
 #include <fstream>
 #include <chrono>
 
-#include <llvm-c-10/llvm-c/Transforms/IPO.h>
-
-//#include <lld/Common/Driver.h>
-
 #include "../parser/typeresolver.h"
 #include "../semantic/scopecheck.h"
 #include "../semantic/typecheck.h"
@@ -47,37 +43,25 @@ int Compiler::compile(const CompilerOptions &compilerOptions) {
     }
 
     for (const auto &rootNode : roots)
-        TypeResolver::visit(sourceRoot);
+        TypeResolver::visit(rootNode);
 
     for (const auto &rootNode : roots) {
-        TypeCheck::visit(sourceRoot);
-        ScopeCheck::visit(sourceRoot);
+        TypeCheck::visit(rootNode);
+        ScopeCheck::visit(rootNode);
     }
 
     CodeGen codeGen;
     codeGen.visit(sourceRoot);
     auto module = codeGen.getModule();
 
-    auto nameSize = 0ul;
-    auto name = LLVMGetModuleIdentifier(module, &nameSize);
-
-    auto passManagerRef = LLVMCreatePassManager();
-    LLVMAddMergeFunctionsPass(passManagerRef);
-    LLVMAddDeadArgEliminationPass(passManagerRef);
-    LLVMAddInternalizePass(passManagerRef, 1);
-
-    std::cout << "[" << name << "] Optimizing module:" << std::endl;
-    auto changedSomething = LLVMRunPassManager(passManagerRef, module);
-    if(changedSomething != 0)
-        std::cout << "Successfully changed something." << std::endl;
-    LLVMDisposePassManager(passManagerRef);
-    std::cout << std::endl;
-
-    std::cout << "[" << name << "] Printing the bitcode:" << std::endl << std::endl;
-    auto moduleCode = LLVMPrintModuleToString(module);
-    std::cout << moduleCode << std::endl;
-    LLVMDisposeMessage(moduleCode);
-    LLVMDisposeModule(module);
+//    std::cout << "[" << module->getModuleIdentifier() << "] Printing the bitcode:" << std::endl << std::endl;
+//
+//    std::string moduleCode;
+//    llvm::raw_string_ostream output(moduleCode);
+//    output << *module;
+//    output.flush();
+//
+//    std::cout << moduleCode << std::endl;
 
     auto finish = std::chrono::high_resolution_clock::now();
     auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(finish - start);

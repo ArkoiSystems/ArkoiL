@@ -615,7 +615,8 @@ bool TypeNode::operator!=(const TypeNode &other) const {
 FunctionNode::FunctionNode()
         : mb_Variadic(false), mb_Native(false),
           m_Parameters({}), m_Block({}),
-          m_Name({}), m_InlinedFunctionCall({}) {
+          m_Name({}), m_InlinedFunctionCall({}),
+          m_EntryBlock(nullptr) {
     setKind(ASTNode::FUNCTION);
 }
 
@@ -649,6 +650,14 @@ const std::shared_ptr<BlockNode> &FunctionNode::getBlock() const {
 
 void FunctionNode::setBlock(const std::shared_ptr<BlockNode> &block) {
     m_Block = block;
+}
+
+llvm::BasicBlock *FunctionNode::getEntryBlock() const {
+    return m_EntryBlock;
+}
+
+void FunctionNode::setEntryBlock(llvm::BasicBlock *entryBlock) {
+    m_EntryBlock = entryBlock;
 }
 
 const std::shared_ptr<Token> &FunctionNode::getName() const {

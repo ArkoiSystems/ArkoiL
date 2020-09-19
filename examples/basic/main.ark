@@ -1,24 +1,24 @@
 import "console"
 
-# struct Info {
-#     var test = 0
-#     var pointerTest = &test
-# }
-
-fun main(): void {
-#     println("Hello World %i")
-#     var test = Info { test: 10, pointerTest: &test }
-#     test(&test)
-#     println("3) %i, %i", test.test, test.@pointerTest)
-#     return 0
+struct Info {
+    var test = 0
+    var pointerTest = &test
 }
 
-# fun test(ok: Info*): void {
-#     println("1) %i -> %i: %i", @ok.test, @ok.pointerTest, @ok.@pointerTest)
-#     @ok.test = 100
-#     @ok.pointerTest = @ok.&test
-#     println("2) %i -> %i: %i", @ok.test, @ok.pointerTest, @ok.@pointerTest)
-# }
+fun main(): i32 {
+    println("Hello World %i")
+    var test = Info { test: 10, pointerTest: &test }
+    test(&test)
+    println("3) %i, %i", test.test, test.@pointerTest)
+    return 0
+}
+
+fun test(ok: Info*): void {
+    println("1) %i -> %i: %i", @ok.test, @ok.pointerTest, @ok.@pointerTest)
+    @ok.test = 100
+    @ok.pointerTest = @ok.&test
+    println("2) %i -> %i: %i", @ok.test, @ok.pointerTest, @ok.@pointerTest)
+}
 
 ## FUTURE CONCEPTS:
 

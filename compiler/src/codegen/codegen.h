@@ -8,7 +8,10 @@
 #include <memory>
 #include <vector>
 
-#include <llvm-c-10/llvm-c/Core.h>
+#include <llvm/Support/raw_ostream.h>
+#include <llvm/IR/IRBuilder.h>
+#include <llvm/IR/Module.h>
+#include <llvm/IR/Type.h>
 
 class ASTNode;
 
@@ -58,12 +61,15 @@ class CodeGen {
             std::vector<std::shared_ptr<OperableNode>>> Expressions;
 
     typedef std::unordered_map<std::shared_ptr<BlockNode>,
-            std::tuple<LLVMBasicBlockRef, LLVMValueRef, LLVMBasicBlockRef>> Blocks;
+            std::tuple<llvm::BasicBlock*, llvm::Value*, llvm::BasicBlock*>> Blocks;
 
-    typedef std::unordered_map<std::shared_ptr<ParameterNode>, LLVMValueRef> Parameters;
-    typedef std::unordered_map<std::shared_ptr<FunctionNode>, LLVMValueRef> Functions;
-    typedef std::unordered_map<std::shared_ptr<VariableNode>, LLVMValueRef> Variables;
-    typedef std::unordered_map<std::shared_ptr<StructNode>, LLVMTypeRef> Structs;
+    typedef std::unordered_map<std::shared_ptr<ParameterNode>, llvm::Value*> Parameters;
+
+    typedef std::unordered_map<std::shared_ptr<FunctionNode>, llvm::Value*> Functions;
+
+    typedef std::unordered_map<std::shared_ptr<VariableNode>, llvm::Value*> Variables;
+
+    typedef std::unordered_map<std::shared_ptr<StructNode>, llvm::Type*> Structs;
 
 private:
     Expressions m_OriginalExpressions;
@@ -76,10 +82,13 @@ private:
     Variables m_Variables;
     Structs m_Structs;
 
-    LLVMBasicBlockRef m_CurrentBlock;
-    LLVMBuilderRef m_Builder;
-    LLVMContextRef m_Context;
-    LLVMModuleRef m_Module;
+    llvm::BasicBlock* m_CurrentBlock;
+
+    llvm::LLVMContext m_Context;
+
+    llvm::IRBuilder<> m_Builder;
+
+    std::shared_ptr<llvm::Module> m_Module;
 
 public:
     CodeGen();
@@ -93,72 +102,67 @@ public:
 
     void visit(const std::shared_ptr<RootNode> &rootNode);
 
-    LLVMValueRef visit(const std::shared_ptr<FunctionNode> &functionNode);
+    llvm::Value* visit(const std::shared_ptr<FunctionNode> &functionNode);
 
-    LLVMTypeRef visit(const std::shared_ptr<TypeNode> &typeNode);
+    llvm::Type* visit(const std::shared_ptr<TypeNode> &typeNode);
 
-    LLVMTypeRef visit(const std::shared_ptr<StructNode> &structNode);
+    llvm::Type* visit(const std::shared_ptr<StructNode> &structNode);
 
-    LLVMValueRef visit(const std::shared_ptr<ParameterNode> &parameterNode);
+    llvm::Value* visit(const std::shared_ptr<ParameterNode> &parameterNode);
 
-    LLVMBasicBlockRef visit(const std::shared_ptr<BlockNode> &blockNode);
+    llvm::BasicBlock* visit(const std::shared_ptr<BlockNode> &blockNode);
 
-    LLVMValueRef visit(const std::shared_ptr<ReturnNode> &returnNode);
+    llvm::Value* visit(const std::shared_ptr<ReturnNode> &returnNode);
 
-    LLVMValueRef visit(const std::shared_ptr<AssignmentNode> &assignmentNode);
+    llvm::Value* visit(const std::shared_ptr<AssignmentNode> &assignmentNode);
 
-    LLVMValueRef visit(const std::shared_ptr<IdentifierNode> &identifierNode);
+    llvm::Value* visit(const std::shared_ptr<IdentifierNode> &identifierNode);
 
-    LLVMValueRef visit(const std::shared_ptr<NumberNode> &numberNode);
+    llvm::Value* visit(const std::shared_ptr<NumberNode> &numberNode);
 
-    LLVMValueRef visit(const std::shared_ptr<StringNode> &stringNode);
+    llvm::Value* visit(const std::shared_ptr<StringNode> &stringNode);
 
-    LLVMValueRef visit(const std::shared_ptr<BinaryNode> &binaryNode);
+    llvm::Value* visit(const std::shared_ptr<BinaryNode> &binaryNode);
 
-    LLVMValueRef visit(const std::shared_ptr<UnaryNode> &unaryNode);
+    llvm::Value* visit(const std::shared_ptr<UnaryNode> &unaryNode);
 
-    LLVMValueRef visit(const std::shared_ptr<ParenthesizedNode> &parenthesizedNode);
+    llvm::Value* visit(const std::shared_ptr<ParenthesizedNode> &parenthesizedNode);
 
-    LLVMValueRef visit(const std::shared_ptr<FunctionCallNode> &functionCallNode);
+    llvm::Value* visit(const std::shared_ptr<FunctionCallNode> &functionCallNode);
 
-    LLVMValueRef visit(const std::shared_ptr<StructCreateNode> &structCreateNode);
+    llvm::Value* visit(const std::shared_ptr<StructCreateNode> &structCreateNode);
 
-    LLVMValueRef visit(const std::shared_ptr<ArgumentNode> &argumentNode);
+    llvm::Value* visit(const std::shared_ptr<ArgumentNode> &argumentNode);
 
-    LLVMValueRef visit(const std::shared_ptr<VariableNode> &variableNode);
+    llvm::Value* visit(const std::shared_ptr<VariableNode> &variableNode);
 
-    LLVMValueRef visit(const std::shared_ptr<TypedNode> &typedNode);
+    llvm::Value* visit(const std::shared_ptr<TypedNode> &typedNode);
 
-    void setPositionAtEnd(const LLVMBasicBlockRef &basicBlock);
+    void setPositionAtEnd(llvm::BasicBlock* basicBlock);
 
-    LLVMValueRef makeAdd(bool floatingPoint, const LLVMValueRef &rhs, const LLVMValueRef &lhs);
+    llvm::Value* makeAdd(bool floatingPoint, llvm::Value* rhs, llvm::Value* lhs);
 
-    LLVMValueRef makeMul(bool floatingPoint, const LLVMValueRef &rhs, const LLVMValueRef &lhs);
+    llvm::Value* makeMul(bool floatingPoint, llvm::Value* rhs, llvm::Value* lhs);
 
-    LLVMValueRef makeDiv(bool floatingPoint, bool isSigned, const LLVMValueRef &rhs,
-                         const LLVMValueRef &lhs);
+    llvm::Value* makeDiv(bool floatingPoint, bool isSigned, llvm::Value* rhs, llvm::Value* lhs);
 
-    LLVMValueRef makeSub(bool floatingPoint, const LLVMValueRef &rhs, const LLVMValueRef &lhs);
+    llvm::Value* makeSub(bool floatingPoint, llvm::Value* rhs, llvm::Value* lhs);
 
-    LLVMValueRef makeRem(bool isSigned, const LLVMValueRef &rhs, const LLVMValueRef &lhs);
+    llvm::Value* makeRem(bool isSigned, llvm::Value* rhs, llvm::Value* lhs);
 
-    LLVMValueRef makeLT(bool floatingPoint, bool isSigned, const LLVMValueRef &rhs,
-                        const LLVMValueRef &lhs);
+    llvm::Value* makeLT(bool floatingPoint, bool isSigned, llvm::Value* rhs, llvm::Value* lhs);
 
-    LLVMValueRef makeGT(bool floatingPoint, bool isSigned, const LLVMValueRef &rhs,
-                        const LLVMValueRef &lhs);
+    llvm::Value* makeGT(bool floatingPoint, bool isSigned, llvm::Value* rhs, llvm::Value* lhs);
 
-    LLVMValueRef makeLE(bool floatingPoint, bool isSigned, const LLVMValueRef &rhs,
-                        const LLVMValueRef &lhs);
+    llvm::Value* makeLE(bool floatingPoint, bool isSigned, llvm::Value* rhs, llvm::Value* lhs);
 
-    LLVMValueRef makeGE(bool floatingPoint, bool isSigned, const LLVMValueRef &rhs,
-                        const LLVMValueRef &lhs);
+    llvm::Value* makeGE(bool floatingPoint, bool isSigned, llvm::Value* rhs, llvm::Value* lhs);
 
-    LLVMValueRef makeEQ(bool floatingPoint, const LLVMValueRef &rhs, const LLVMValueRef &lhs);
+    llvm::Value* makeEQ(bool floatingPoint, llvm::Value* rhs, llvm::Value* lhs);
 
-    LLVMValueRef makeNE(bool floatingPoint, const LLVMValueRef &rhs, const LLVMValueRef &lhs);
+    llvm::Value* makeNE(bool floatingPoint, llvm::Value* rhs, llvm::Value* lhs);
 
 public:
-    LLVMModuleRef getModule() const;
+    std::shared_ptr<llvm::Module> getModule() const;
 
 };
