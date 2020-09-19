@@ -508,7 +508,22 @@ std::shared_ptr<OperableNode> Parser::parseCast(const std::shared_ptr<ASTNode> &
 }
 
 std::shared_ptr<OperableNode> Parser::parseOperable(const std::shared_ptr<ASTNode> &parent) {
-    if(currentToken() == "-") {
+    if(currentToken() == "{") {
+        auto structCreate = std::make_shared<StructCreateNode>();
+        structCreate->setStartToken(currentToken());
+        structCreate->setScope(std::make_shared<SymbolTable>(parent->getScope()));
+        structCreate->setParent(parent);
+
+        structCreate->setStartIdentifier(nullptr);
+        structCreate->setEndIdentifier(nullptr);
+
+        nextToken();
+
+        if (currentToken() != "}")
+            parseStructArguments(structCreate, structCreate);
+        structCreate->setEndToken(currentToken());
+        return structCreate;
+    } else if(currentToken() == "-") {
         auto operable = std::make_shared<UnaryNode>();
         operable->setStartToken(currentToken());
         operable->setParent(parent);

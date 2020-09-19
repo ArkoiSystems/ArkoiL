@@ -1,13 +1,18 @@
 import "console"
 
+struct Weird {
+    
+}
+
 struct Info {
     var test = 0
     var pointerTest = &test
+    var weird: Weird
 }
 
 fun main(): i32 {
     println("Hello World %i")
-    var test = Info { test: 10, pointerTest: &test }
+    var test: Info = { test: 10, pointerTest: &test }
     test(&test)
     println("3) %i, %i", test.test, test.@pointerTest)
     return 0
@@ -18,6 +23,14 @@ fun test(ok: Info*): void {
     @ok.test = 100
     @ok.pointerTest = @ok.&test
     println("2) %i -> %i: %i", @ok.test, @ok.pointerTest, @ok.@pointerTest)
+}
+
+fun test234(ok: Info): Info {
+    return ok
+}
+
+fun okayy(): Info {
+    return { weird: {} }
 }
 
 ## FUTURE CONCEPTS:

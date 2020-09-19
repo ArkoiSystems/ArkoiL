@@ -325,8 +325,6 @@ void TypeResolver::visit(const std::shared_ptr<StructCreateNode> &structCreateNo
     if (structCreateNode->isTypeResolved())
         return;
 
-    TypeResolver::visit(structCreateNode->getStartIdentifier());
-
     structCreateNode->setTargetNode(structCreateNode->getEndIdentifier()->getTargetNode());
     structCreateNode->setType(structCreateNode->getEndIdentifier()->getType());
 
