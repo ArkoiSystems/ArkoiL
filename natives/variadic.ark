@@ -7,9 +7,9 @@ struct va_list {
 
 [inlined]
 fun va_start(): va_list {
-    var va_list = va_list { }
-    llvm.va_start(va_list bitcast i8*)
-    return va_list
+    var arg_list: va_list = { }
+    llvm.va_start(arg_list bitcast i8*)
+    return arg_list
 }
 
 [inlined]
