@@ -56,7 +56,7 @@ std::shared_ptr<Token> Lexer::nextToken() {
 }
 
 void Lexer::parseComment(const std::shared_ptr<Token> &token) {
-    token->setType(Token::TOKEN_COMMENT);
+    token->setType(Token::COMMENT);
 
     while (m_Position < m_SourceCode.size() - 1) {
         auto commentChar = m_SourceCode[m_Position];
@@ -71,7 +71,7 @@ void Lexer::parseComment(const std::shared_ptr<Token> &token) {
 }
 
 void Lexer::parseIdentifier(const std::shared_ptr<Token> &token) {
-    token->setType(Token::TOKEN_COMMENT);
+    token->setType(Token::COMMENT);
 
     while (m_Position < m_SourceCode.size() - 1) {
         auto identifierChar = m_SourceCode[m_Position];
@@ -96,28 +96,28 @@ void Lexer::parseIdentifier(const std::shared_ptr<Token> &token) {
         case Utils::hash("const"):
         case Utils::hash("else"):
         case Utils::hash("bitcast"):
-            token->setType(Token::TOKEN_KEYWORD);
+            token->setType(Token::KEYWORD);
             break;
         case Utils::hash("bool"):
         case Utils::hash("float"):
         case Utils::hash("double"):
         case Utils::hash("void"):
-            token->setType(Token::TOKEN_TYPE);
+            token->setType(Token::TYPE);
             break;
         default:
-            token->setType(Token::TOKEN_IDENTIFIER);
+            token->setType(Token::IDENTIFIER);
             break;
     }
 
     if ((std::strncmp(token->getContent().c_str(), "i", 1) == 0 ||
          std::strncmp(token->getContent().c_str(), "u", 1) == 0) &&
         std::isdigit(token->getContent()[1])) {
-        token->setType(Token::TOKEN_TYPE);
+        token->setType(Token::TYPE);
     }
 }
 
 void Lexer::parseNumber(const std::shared_ptr<Token> &token) {
-    token->setType(Token::TOKEN_NUMBER);
+    token->setType(Token::NUMBER);
 
     if (m_SourceCode[m_Position + 1] == 'x') {
         token->addContent(std::string(1, m_SourceCode[m_Position]));
@@ -160,7 +160,7 @@ void Lexer::parseNumber(const std::shared_ptr<Token> &token) {
 }
 
 void Lexer::parseString(const std::shared_ptr<Token> &token) {
-    token->setType(Token::TOKEN_STRING);
+    token->setType(Token::STRING);
 
     m_Position++;
     while (m_Position < m_SourceCode.size() - 1) {
@@ -196,7 +196,7 @@ void Lexer::parseRemaining(const std::shared_ptr<Token> &token) {
         case '%':
         case '<':
         case '>':
-            token->setType(Token::TOKEN_OPERATOR);
+            token->setType(Token::OPERATOR);
 
             if (m_SourceCode[m_Position + 1] == '=' ||
                 (m_SourceCode[m_Position] == '+' && m_SourceCode[m_Position + 1] == '+') ||
@@ -219,32 +219,32 @@ void Lexer::parseRemaining(const std::shared_ptr<Token> &token) {
         case '?':
         case '&':
         case ',':
-            token->setType(Token::TOKEN_SYMBOL);
+            token->setType(Token::SYMBOL);
             break;
 
         case ' ':
-            token->setType(Token::TOKEN_WHITESPACE);
+            token->setType(Token::WHITESPACE);
             break;
         case '\n':
-            token->setType(Token::TOKEN_WHITESPACE);
+            token->setType(Token::WHITESPACE);
             token->setContent("\\n");
             m_CurrentLine++;
             break;
         case '\f':
-            token->setType(Token::TOKEN_WHITESPACE);
+            token->setType(Token::WHITESPACE);
             token->setContent("\\f");
             break;
         case '\r':
-            token->setType(Token::TOKEN_WHITESPACE);
+            token->setType(Token::WHITESPACE);
             token->setContent("\\r");
             break;
         case '\t':
-            token->setType(Token::TOKEN_WHITESPACE);
+            token->setType(Token::WHITESPACE);
             token->setContent("\\t");
             break;
 
         default:
-            token->setType(Token::TOKEN_INVALID);
+            token->setType(Token::INVALID);
             break;
     }
 }

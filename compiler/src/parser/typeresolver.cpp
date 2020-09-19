@@ -169,7 +169,6 @@ void TypeResolver::visit(const std::shared_ptr<IdentifierNode> &identifierNode) 
         return;
 
     std::shared_ptr<std::vector<std::shared_ptr<ASTNode>>> nodes;
-    // TODO: Won't work for chained identifiers
     if (identifierNode->getParentNode()->getKind() == ASTNode::STRUCT_CREATE) {
         auto scopeCheck = [](const std::shared_ptr<ASTNode> &node) {
             return node->getKind() == ASTNode::STRUCT;
@@ -391,7 +390,7 @@ void TypeResolver::visit(const std::shared_ptr<StructNode> &structNode) {
 }
 
 void TypeResolver::visit(const std::shared_ptr<TypeNode> &typeNode) {
-    if (typeNode->getTypeToken() == Token::TOKEN_TYPE &&
+    if (typeNode->getTypeToken() == Token::TYPE &&
         (std::strncmp(typeNode->getTypeToken()->getContent().c_str(), "i", 1) == 0 ||
          std::strncmp(typeNode->getTypeToken()->getContent().c_str(), "u", 1) == 0)) {
         auto bits = std::stoi(typeNode->getTypeToken()->getContent().substr(1));
@@ -415,7 +414,7 @@ void TypeResolver::visit(const std::shared_ptr<TypeNode> &typeNode) {
         typeNode->setFloating(false);
         typeNode->setSigned(false);
         typeNode->setBits(0);
-    } else if (typeNode->getTypeToken() == Token::TOKEN_IDENTIFIER) {
+    } else if (typeNode->getTypeToken() == Token::IDENTIFIER) {
         auto scopeCheck = [](const std::shared_ptr<ASTNode> &node) {
             return node->getKind() == ASTNode::STRUCT;
         };

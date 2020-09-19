@@ -197,11 +197,11 @@ void TypeCheck::visit(const std::shared_ptr<BinaryNode> &binaryNode) {
     }
 }
 
-void TypeCheck::visit(const std::shared_ptr<UnaryNode>& unaryNode) {
+void TypeCheck::visit(const std::shared_ptr<UnaryNode> &unaryNode) {
     // TODO: Make later checks.
     TypeCheck::visit(unaryNode->getExpression());
 }
 
-void TypeCheck::visit(const std::shared_ptr<ParenthesizedNode>& parenthesizedNode) {
+void TypeCheck::visit(const std::shared_ptr<ParenthesizedNode> &parenthesizedNode) {
     TypeCheck::visit(parenthesizedNode->getExpression());
 }

@@ -349,6 +349,7 @@ class UnaryNode : public OperableNode {
 public:
     enum UnaryKind {
         NONE,
+
         NEGATE
     };
 
