@@ -54,14 +54,16 @@ int Compiler::compile(const CompilerOptions &compilerOptions) {
     codeGen.visit(sourceRoot);
     auto module = codeGen.getModule();
 
-//    std::cout << "[" << module->getModuleIdentifier() << "] Printing the bitcode:" << std::endl << std::endl;
-//
-//    std::string moduleCode;
-//    llvm::raw_string_ostream output(moduleCode);
-//    output << *module;
-//    output.flush();
-//
-//    std::cout << moduleCode << std::endl;
+    if (compilerOptions.mb_VerboseLLVM_IR) {
+        std::cout << "[" << module->getModuleIdentifier() << "] Printing the bitcode:" << std::endl;
+
+        std::string moduleCode;
+        llvm::raw_string_ostream output(moduleCode);
+        output << *module;
+        output.flush();
+
+        std::cout << moduleCode << std::endl;
+    }
 
     auto finish = std::chrono::high_resolution_clock::now();
     auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(finish - start);

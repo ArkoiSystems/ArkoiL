@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.10.2)
 
 project(ArkoiCompiler)
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(ARKOI_VERSION_MAJOR 0)
@@ -44,7 +44,7 @@ add_executable(ArkoiCompiler
         "${PROJECT_SOURCE_DIR}/src/semantic/scopecheck.h"
         "${PROJECT_SOURCE_DIR}/src/codegen/codegen.cpp"
         "${PROJECT_SOURCE_DIR}/src/codegen/codegen.h"
-        "${PROJECT_SOURCE_DIR}/src/parser/astnodes.cpp")
+        "${PROJECT_SOURCE_DIR}/src/parser/astnodes.cpp" src/options/OptionParser.cpp src/options/OptionParser.h)
 
 target_link_libraries(ArkoiCompiler
         LINK_PUBLIC

@@ -5,7 +5,7 @@
 #include "token.h"
 
 Token::Token()
-        : m_Type(Token::TOKEN_INVALID), m_LineNumber(0),
+        : m_Type(Token::INVALID), m_LineNumber(0),
           m_StartChar(0), m_EndChar(0),
           m_Content({}) {}
 

@@ -69,7 +69,7 @@ class CodeGen {
 
     typedef std::unordered_map<std::shared_ptr<VariableNode>, llvm::Value*> Variables;
 
-    typedef std::unordered_map<std::shared_ptr<StructNode>, llvm::Type*> Structs;
+    typedef std::unordered_map<std::shared_ptr<StructNode>, llvm::StructType*> Structs;
 
 private:
     Expressions m_OriginalExpressions;

@@ -1,43 +1,43 @@
-#define DBG_MACRO_NO_WARNING
-
 #include <iostream>
-#include <cstring>
 
+#include "options/OptionParser.h"
 #include "compiler/compiler.h"
 #include "compiler/options.h"
 
-void printUsage();
-
 int main(int argc, char *argv[]) {
-    if (argc < 2) {
-        printUsage();
-        return EXIT_FAILURE;
-    }
-
     CompilerOptions compilerOptions{};
-    auto index = 1u;
-    if (strcmp(argv[index], "build-exe") == 0 && argc >= 3) {
-        index = 2;
-        compilerOptions.m_SourceFile = argv[index++];
-    } else {
-        if (strcmp(argv[index], "help") == 0)
-            printUsage();
-        else
-            std::cout << "Unknown command: " << argv[index]
-                      << ". Use ark --help for more information." << std::endl;
+    OptionParser args("The official Arkoi Language Compiler.");
+
+    args.addArgument({"-e", "--entry"},
+                     &compilerOptions.m_SourceFile,
+                     "Entry file for the compiler.");
+    args.addArgument({"-I", "--include"},
+                     OptionParser::OptionValue(),
+                     "Adds the directory to the search paths.",
+                     [&compilerOptions](const std::string &value) {
+                         compilerOptions.m_SearchPaths.push_back(value);
+                     });
+    args.addArgument({"-vlir", "--verbose-llvm-ir"},
+                     &compilerOptions.mb_VerboseLLVM_IR,
+                     "Enables debugging in the console for the LLVM IR.");
+    args.addArgument({"-h", "--help"},
+                     OptionParser::OptionValue(),
+                     "Prints this list in the console.",
+                     [&args](const std::string &value) {
+                        args.printHelp();
+                     });
+
+    try {
+        args.parse(argc, argv);
+    } catch (const std::runtime_error &error) {
+        std::cout << error.what() << std::endl;
         return EXIT_FAILURE;
     }
 
-    for (; index < argc; index++) {
-        if (strncmp(argv[index], "-I", 2) == 0) {
-            auto filePath = std::string(argv[index]);
-            filePath = filePath.substr(2, filePath.size());
-            compilerOptions.m_SearchPaths.push_back(filePath);
-        } else {
-            std::cout << "Unknown option: " << argv[index] << ". "
-                      << "Use ark help for more information." << std::endl;
-            return EXIT_FAILURE;
-        }
+    if (compilerOptions.m_SourceFile.empty()) {
+        std::cout << "You need to declare an entry file for the compiler. "
+                     "Use --help to see a list of options." << std::endl;
+        return EXIT_FAILURE;
     }
 
     compilerOptions.m_SearchPaths.push_back(
@@ -46,16 +46,4 @@ int main(int argc, char *argv[]) {
     compilerOptions.m_SearchPaths.emplace_back("");
 
     return Compiler::compile(compilerOptions);
-}
-
-void printUsage() {
-    std::cout << "Usage: ark [command] [options]\n"
-                 "\n"
-                 "Commands:\n"
-                 "   build-exe [source]             create executable from a source file.\n"
-                 "   help                           prints this list in the console.\n"
-                 "\n"
-                 "Options:\n"
-                 "   -I                             add directory to include search path.\n"
-              << std::endl;
 }

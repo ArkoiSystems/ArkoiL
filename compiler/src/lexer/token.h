@@ -12,16 +12,16 @@ class Token {
 
 public:
     enum TokenType {
-        TOKEN_WHITESPACE,
-        TOKEN_COMMENT,
-        TOKEN_KEYWORD,
-        TOKEN_TYPE,
-        TOKEN_OPERATOR,
-        TOKEN_SYMBOL,
-        TOKEN_STRING,
-        TOKEN_NUMBER,
-        TOKEN_IDENTIFIER,
-        TOKEN_INVALID
+        WHITESPACE,
+        COMMENT,
+        KEYWORD,
+        TYPE,
+        OPERATOR,
+        SYMBOL,
+        STRING,
+        NUMBER,
+        IDENTIFIER,
+        INVALID
     };
 
 private:
