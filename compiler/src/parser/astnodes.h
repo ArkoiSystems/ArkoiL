@@ -10,6 +10,8 @@
 #include <memory>
 #include <set>
 
+#include <llvm/IR/BasicBlock.h>
+
 class SymbolTable;
 
 class Token;
@@ -646,6 +648,7 @@ private:
     std::shared_ptr<FunctionCallNode> m_InlinedFunctionCall;
     std::set<std::string> m_Annotations;
     std::shared_ptr<BlockNode> m_Block;
+    llvm::BasicBlock *m_EntryBlock;
     std::shared_ptr<Token> m_Name;
     bool mb_Variadic, mb_Native;
 
@@ -676,6 +679,10 @@ public:
     const std::shared_ptr<BlockNode> &getBlock() const;
 
     void setBlock(const std::shared_ptr<BlockNode> &block);
+
+    llvm::BasicBlock *getEntryBlock() const;
+
+    void setEntryBlock(llvm::BasicBlock *entryBlock);
 
     [[nodiscard]]
     const std::shared_ptr<Token> &getName() const;

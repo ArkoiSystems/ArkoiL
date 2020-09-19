@@ -16,9 +16,8 @@
 CodeGen::CodeGen()
         : m_CurrentBlock(nullptr), m_Parameters({}),
           m_Variables({}), m_Functions({}),
-          m_Structs({}), m_Builder(nullptr),
-          m_Context(nullptr), m_Blocks({}),
-          m_Module(nullptr) {}
+          m_Structs({}), m_Builder({m_Context}),
+          m_Blocks({}), m_Module(nullptr) {}
 
 void CodeGen::visit(const std::shared_ptr<ASTNode> &node) {
     if (node->getKind() == ASTNode::ROOT) {
@@ -72,15 +71,13 @@ void CodeGen::visit(const std::shared_ptr<RootNode> &rootNode) {
     auto moduleName = rootNode->getSourcePath();
     moduleName = moduleName.substr(moduleName.rfind('/') + 1, moduleName.length());
 
-    m_Context = LLVMContextCreate();
-    m_Module = LLVMModuleCreateWithNameInContext(moduleName.c_str(), m_Context);
-    m_Builder = LLVMCreateBuilderInContext(m_Context);
+    m_Module = std::make_shared<llvm::Module>(moduleName, m_Context);
 
     for (const auto &node : rootNode->getNodes())
         CodeGen::visit(node);
 }
 
-LLVMValueRef CodeGen::visit(const std::shared_ptr<FunctionNode> &functionNode) {
+llvm::Value *CodeGen::visit(const std::shared_ptr<FunctionNode> &functionNode) {
     auto foundIterator = m_Functions.find(functionNode);
     if (foundIterator != m_Functions.end())
         return foundIterator->second;
@@ -100,67 +97,64 @@ LLVMValueRef CodeGen::visit(const std::shared_ptr<FunctionNode> &functionNode) {
 
         return std::get<1>(callFunctionBlock->second);
     } else {
-        std::vector<LLVMTypeRef> functionParameters;
+        std::vector<llvm::Type *> functionParameters;
         for (auto const &parameter : functionNode->getParameters())
             functionParameters.push_back(CodeGen::visit(parameter->getType()));
 
-        auto functionType = LLVMFunctionType(CodeGen::visit(functionNode->getType()),
-                                             functionParameters.data(),
-                                             functionParameters.size(),
-                                             functionNode->isVariadic());
-
-        if (functionNode->isNative()) {
-            auto functionRef = LLVMAddFunction(m_Module, functionNode->getName()->getContent().c_str(),
-                                               functionType);
-            m_Functions.emplace(functionNode, functionRef);
-            return functionRef;
-        }
-
-        auto functionRef = LLVMAddFunction(m_Module, functionNode->getName()->getContent().c_str(),
-                                           functionType);
+        auto functionType = llvm::FunctionType::get(CodeGen::visit(functionNode->getType()),
+                                                    functionParameters,
+                                                    functionNode->isVariadic());
+        auto functionRef = llvm::Function::Create(functionType,
+                                                  llvm::Function::ExternalLinkage,
+                                                  functionNode->getName()->getContent(),
+                                                  *m_Module);
         m_Functions.emplace(functionNode, functionRef);
+
+        if (functionNode->isNative())
+            return functionRef;
+
         CodeGen::visit(functionNode->getBlock());
         return functionRef;
     }
 }
 
-LLVMValueRef CodeGen::visit(const std::shared_ptr<ArgumentNode> &argumentNode) {
+llvm::Value *CodeGen::visit(const std::shared_ptr<ArgumentNode> &argumentNode) {
     return CodeGen::visit(std::static_pointer_cast<TypedNode>(argumentNode->getExpression()));
 }
 
-LLVMTypeRef CodeGen::visit(const std::shared_ptr<TypeNode> &typeNode) {
-    LLVMTypeRef type;
+llvm::Type *CodeGen::visit(const std::shared_ptr<TypeNode> &typeNode) {
+    llvm::Type *type;
     if (typeNode->isNumeric() && typeNode->isFloating()) {
-        type = typeNode->getBits() == 32 ? LLVMFloatTypeInContext(m_Context)
-                                         : LLVMDoubleTypeInContext(m_Context);
+        type = typeNode->getBits() == 32 ? llvm::Type::getFloatTy(m_Context)
+                                         : llvm::Type::getDoubleTy(m_Context);
     } else if (typeNode->isNumeric() && !typeNode->isFloating()) {
-        type = LLVMIntTypeInContext(m_Context, typeNode->getBits());
+        type = llvm::Type::getIntNTy(m_Context, typeNode->getBits());
     } else if (typeNode->getTargetStruct() != nullptr) {
         type = CodeGen::visit(typeNode->getTargetStruct());
     } else if (typeNode->getBits() == 0) {
-        type = LLVMVoidTypeInContext(m_Context);
+        type = llvm::Type::getVoidTy(m_Context);
     } else {
         std::cout << "CodeGen: Unsupported type node. " << typeNode << std::endl;
         exit(EXIT_FAILURE);
     }
 
     for (auto index = 0; index < typeNode->getPointerLevel(); index++)
-        type = LLVMPointerType(type, 0);
+        type = type->getPointerTo();
     return type;
 }
 
-LLVMTypeRef CodeGen::visit(const std::shared_ptr<StructNode> &structNode) {
+llvm::Type *CodeGen::visit(const std::shared_ptr<StructNode> &structNode) {
     auto foundIterator = m_Structs.find(structNode);
     if (foundIterator != m_Structs.end())
         return foundIterator->second;
 
-    auto structRef = LLVMStructCreateNamed(m_Context, structNode->getName()->getContent().c_str());
+    auto structRef = llvm::StructType::create(m_Context, structNode->getName()->getContent());
     m_Structs.emplace(structNode, structRef);
 
-    std::vector<LLVMTypeRef> types;
+    std::vector<llvm::Type *> types;
     for (auto const &variable : structNode->getVariables())
         types.push_back(CodeGen::visit(variable->getType()));
-    LLVMStructSetBody(structRef, types.data(), types.size(), 0);
+    structRef->setBody(types, false);
 
     return structRef;
 }
@@ -168,7 +162,7 @@ LLVMTypeRef CodeGen::visit(const std::shared_ptr<StructNode> &structNode) {
 // TODO: Mehrfacher aufruf von inlined functions funktioniert nicht, da alles abgespeichert wird (m_Blocks
 //       etc)
 // TODO: Varargs bei inlined functions geht nisch
-LLVMValueRef CodeGen::visit(const std::shared_ptr<ParameterNode> &parameterNode) {
+llvm::Value *CodeGen::visit(const std::shared_ptr<ParameterNode> &parameterNode) {
     auto foundIterator = m_Parameters.find(parameterNode);
     if (foundIterator != m_Parameters.end())
         return foundIterator->second;
@@ -189,13 +183,13 @@ LLVMValueRef CodeGen::visit(const std::shared_ptr<ParameterNode> &parameterNode)
         exit(EXIT_FAILURE);
     }
 
-    auto functionRef = CodeGen::visit(functionNode);
+    auto functionRef = reinterpret_cast<llvm::Function *>(CodeGen::visit(functionNode));
 
-    LLVMValueRef parameter = nullptr;
+    llvm::Value *parameter = nullptr;
     for (auto index = 0; index < functionNode->getParameters().size(); index++) {
         auto targetParameter = functionNode->getParameters().at(index);
         if (targetParameter->getName()->getContent() == parameterNode->getName()->getContent()) {
-            parameter = LLVMGetParam(functionRef, index);
+            parameter = functionRef->getArg(index);
             break;
         }
     }
@@ -205,29 +199,32 @@ LLVMValueRef CodeGen::visit(const std::shared_ptr<ParameterNode> &parameterNode)
         exit(EXIT_FAILURE);
     }
 
-    auto parameterVariable = LLVMBuildAlloca(m_Builder, CodeGen::visit(parameterNode->getType()), "");
-    LLVMBuildStore(m_Builder, parameter, parameterVariable);
+    auto parameterVariable = m_Builder.CreateAlloca(CodeGen::visit(parameterNode->getType()));
+    m_Builder.CreateStore(parameter, parameterVariable);
     m_Parameters.emplace(parameterNode, parameterVariable);
 
     return parameterVariable;
 }
 
-LLVMBasicBlockRef CodeGen::visit(const std::shared_ptr<BlockNode> &blockNode) {
+llvm::BasicBlock *CodeGen::visit(const std::shared_ptr<BlockNode> &blockNode) {
     auto foundIterator = m_Blocks.find(blockNode);
     if (foundIterator != m_Blocks.end())
         return std::get<0>(foundIterator->second);
 
     auto functionNode = blockNode->getParentNode<FunctionNode>();
-    auto functionRef = CodeGen::visit(functionNode);
+    auto functionRef = reinterpret_cast<llvm::Function *>(CodeGen::visit(functionNode));
 
-    LLVMBasicBlockRef startBlock = functionNode->hasAnnotation("inlined")
-                                   ? m_CurrentBlock
-                                   : LLVMAppendBasicBlockInContext(m_Context, functionRef,
-                                                                   functionNode == blockNode->getParentNode()
-                                                                   ? "entry" : "");
+    auto isEntryBlock = functionNode == blockNode->getParentNode();
+    auto startBlock = functionNode->hasAnnotation("inlined")
+                      ? m_CurrentBlock
+                      : llvm::BasicBlock::Create(m_Context,
+                                                 isEntryBlock ? "entry" : "",
+                                                 functionRef);
+    if (isEntryBlock)
+        functionNode->setEntryBlock(startBlock);
 
-    LLVMBasicBlockRef returnBlock = nullptr;
-    LLVMValueRef returnVariable = nullptr;
+    llvm::BasicBlock *returnBlock = nullptr;
+    llvm::Value *returnVariable = nullptr;
     auto lastBlock = m_CurrentBlock;
 
     auto hasReturn = false;
@@ -243,21 +240,21 @@ LLVMBasicBlockRef CodeGen::visit(const std::shared_ptr<BlockNode> &blockNode) {
     if (functionNode == blockNode->getParentNode()) {
         std::string namePrefix = functionNode->hasAnnotation("inlined") ? "iln_" : "";
         if (functionNode->getType()->getBits() != 0 || functionNode->getType()->getTargetStruct() != nullptr)
-            returnVariable = LLVMBuildAlloca(m_Builder, CodeGen::visit(functionNode->getType()),
-                                             (namePrefix + "var_ret").c_str());
+            returnVariable = m_Builder.CreateAlloca(CodeGen::visit(functionNode->getType()),
+                                                    nullptr,
+                                                    namePrefix + "var_ret");
 
-        returnBlock = LLVMAppendBasicBlockInContext(m_Context, functionRef,
-                                                    (namePrefix + "return").c_str());
+        returnBlock = llvm::BasicBlock::Create(m_Context, namePrefix + "return", functionRef);
 
         if (!functionNode->hasAnnotation("inlined")) {
             CodeGen::setPositionAtEnd(returnBlock);
 
             if (functionNode->getType()->getBits() != 0 ||
                 functionNode->getType()->getTargetStruct() != nullptr) {
-                auto loadedVariable = LLVMBuildLoad(m_Builder, returnVariable, "loaded_ret");
-                LLVMBuildRet(m_Builder, loadedVariable);
+                auto loadedVariable = m_Builder.CreateLoad(returnVariable, "loaded_ret");
+                m_Builder.CreateRet(loadedVariable);
             } else
-                LLVMBuildRetVoid(m_Builder);
+                m_Builder.CreateRetVoid();
 
             CodeGen::setPositionAtEnd(startBlock);
         }
@@ -270,10 +267,14 @@ LLVMBasicBlockRef CodeGen::visit(const std::shared_ptr<BlockNode> &blockNode) {
         CodeGen::visit(node);
 
     if (!hasReturn && functionNode == blockNode->getParentNode())
-        LLVMBuildBr(m_Builder, returnBlock);
+        m_Builder.CreateBr(returnBlock);
 
-    if (functionNode == blockNode->getParentNode())
-        LLVMMoveBasicBlockAfter(returnBlock, LLVMGetLastBasicBlock(functionRef));
+    if (functionNode == blockNode->getParentNode()) {
+        auto lastBasicBlock = functionRef->end() == functionRef->begin()
+                              ? nullptr
+                              : &*--functionRef->end();
+        returnBlock->moveAfter(lastBasicBlock);
+    }
 
     if (lastBlock != nullptr)
         setPositionAtEnd(lastBlock);
@@ -284,75 +285,82 @@ LLVMBasicBlockRef CodeGen::visit(const std::shared_ptr<BlockNode> &blockNode) {
     return startBlock;
 }
 
-LLVMValueRef CodeGen::visit(const std::shared_ptr<ReturnNode> &returnNode) {
+llvm::Value *CodeGen::visit(const std::shared_ptr<ReturnNode> &returnNode) {
     auto functionNode = returnNode->getParentNode<FunctionNode>();
     auto blockData = m_Blocks.find(returnNode->getParentNode<BlockNode>())->second;
 
     if (functionNode->getType()->getBits() == 0) {
-        LLVMBuildBr(m_Builder, std::get<2>(blockData));
+        m_Builder.CreateBr(std::get<2>(blockData));
 
-        return LLVMGetUndef(LLVMVoidType());
+        return llvm::UndefValue::get(llvm::Type::getVoidTy(m_Context));
     } else {
         auto expression = CodeGen::visit(
                 std::static_pointer_cast<TypedNode>(returnNode->getExpression()));
         auto returnVariable = std::get<1>(blockData);
 
-        LLVMBuildStore(m_Builder, expression, returnVariable);
-        LLVMBuildBr(m_Builder, std::get<2>(blockData));
+        m_Builder.CreateStore(expression, returnVariable);
+        m_Builder.CreateBr(std::get<2>(blockData));
 
         return expression;
     }
 }
 
-LLVMValueRef CodeGen::visit(const std::shared_ptr<AssignmentNode> &assignmentNode) {
+llvm::Value *CodeGen::visit(const std::shared_ptr<AssignmentNode> &assignmentNode) {
     auto variableRef = CodeGen::visit(assignmentNode->getStartIdentifier());
     auto expression = CodeGen::visit(std::static_pointer_cast<TypedNode>(assignmentNode->getExpression()));
 
-    LLVMBuildStore(m_Builder, expression, variableRef);
+    m_Builder.CreateStore(expression, variableRef);
     return expression;
 }
 
-LLVMValueRef CodeGen::visit(const std::shared_ptr<NumberNode> &numberNode) {
+llvm::Value *CodeGen::visit(const std::shared_ptr<NumberNode> &numberNode) {
     if (!numberNode->getType()->isFloating()) {
         auto value = std::stoi(numberNode->getNumber()->getContent());
-        return LLVMConstInt(CodeGen::visit(numberNode->getType()), value, numberNode->getType()->isSigned());
+        return llvm::ConstantInt::get(CodeGen::visit(numberNode->getType()),
+                                      value,
+                                      numberNode->getType()->isSigned());
     }
 
-    return LLVMConstRealOfString(CodeGen::visit(numberNode->getType()),
-                                 numberNode->getNumber()->getContent().c_str());
+    return llvm::ConstantFP::get(CodeGen::visit(numberNode->getType()),
+                                 numberNode->getNumber()->getContent());
 }
 
-LLVMValueRef CodeGen::visit(const std::shared_ptr<StringNode> &stringNode) {
-    auto stringConstant = LLVMConstString(stringNode->getString()->getContent().c_str(),
-                                          stringNode->getString()->getContent().length(),
-                                          false);
+llvm::Value *CodeGen::visit(const std::shared_ptr<StringNode> &stringNode) {
+    auto stringConstant = llvm::ConstantDataArray::getString(m_Context,
+                                                             stringNode->getString()->getContent());
 
-    auto stringVariable = LLVMAddGlobal(m_Module, LLVMTypeOf(stringConstant), "");
-    LLVMSetLinkage(stringVariable, LLVMPrivateLinkage);
-    LLVMSetUnnamedAddr(stringVariable, LLVMGlobalUnnamedAddr);
-    LLVMSetInitializer(stringVariable, stringConstant);
-    LLVMSetAlignment(stringVariable, 1);
+    auto stringVariable = new llvm::GlobalVariable(*m_Module,
+                                                   stringConstant->getType(),
+                                                   false,
+                                                   llvm::GlobalVariable::PrivateLinkage,
+                                                   stringConstant);
 
-    return LLVMConstInBoundsGEP(stringVariable, &(new LLVMValueRef[2]{
-            LLVMConstInt(LLVMIntTypeInContext(m_Context, 32), 0, true),
-            LLVMConstInt(LLVMIntTypeInContext(m_Context, 32), 0, true),
-    })[0], 2);
+    std::vector<llvm::Constant *> indices;
+    indices.push_back(llvm::ConstantInt::get(llvm::Type::getIntNTy(m_Context, 32), 0, true));
+    indices.push_back(llvm::ConstantInt::get(llvm::Type::getIntNTy(m_Context, 32), 0, true));
+
+    return llvm::ConstantExpr::getInBoundsGetElementPtr(stringConstant->getType(),
+                                                        stringVariable,
+                                                        std::vector<llvm::Constant *>());
 }
 
-LLVMValueRef CodeGen::visit(const std::shared_ptr<UnaryNode> &unaryNode) {
+llvm::Value *CodeGen::visit(const std::shared_ptr<UnaryNode> &unaryNode) {
     auto expression = CodeGen::visit(std::static_pointer_cast<TypedNode>(unaryNode->getExpression()));
-    if (unaryNode->getOperatorKind() == UnaryNode::NEGATE)
-        return LLVMBuildNeg(m_Builder, expression, "");
+    if (unaryNode->getOperatorKind() == UnaryNode::NEGATE) {
+        if (unaryNode->getType()->isFloating())
+            return m_Builder.CreateFNeg(expression);
+        return m_Builder.CreateNeg(expression);
+    }
 
     std::cout << "CodeGen: Unsupported unary node. " << unaryNode->getKind() << std::endl;
     exit(EXIT_FAILURE);
 }
 
-LLVMValueRef CodeGen::visit(const std::shared_ptr<ParenthesizedNode> &parenthesizedNode) {
+llvm::Value *CodeGen::visit(const std::shared_ptr<ParenthesizedNode> &parenthesizedNode) {
     return CodeGen::visit(std::static_pointer_cast<TypedNode>(parenthesizedNode->getExpression()));
 }
 
-LLVMValueRef CodeGen::visit(const std::shared_ptr<IdentifierNode> &identifierNode) {
+llvm::Value *CodeGen::visit(const std::shared_ptr<IdentifierNode> &identifierNode) {
     auto typedTarget = std::dynamic_pointer_cast<TypedNode>(identifierNode->getTargetNode());
     if (typedTarget == nullptr) {
         THROW_NODE_ERROR(identifierNode->getTargetNode(), "Can't use a non-typed node as an identifier.")
@@ -361,9 +369,9 @@ LLVMValueRef CodeGen::visit(const std::shared_ptr<IdentifierNode> &identifierNod
 
     auto targetValue = CodeGen::visit(typedTarget);
     if (identifierNode->isDereference()) {
-        targetValue = LLVMBuildLoad(m_Builder, targetValue, "");
+        targetValue = m_Builder.CreateLoad(targetValue);
     } else if (identifierNode->isPointer()) {
-        targetValue = LLVMBuildGEP(m_Builder, targetValue, new LLVMValueRef[0], 0, "");
+        m_Builder.CreateGEP(targetValue, std::vector<llvm::Value *>(0));
     }
 
     auto targetStruct = identifierNode->getType()->getTargetStruct();
@@ -381,37 +389,40 @@ LLVMValueRef CodeGen::visit(const std::shared_ptr<IdentifierNode> &identifierNod
         }
 
         auto variableIndex = Utils::indexOf(targetStruct->getVariables(), variableNode).second;
-        targetValue = LLVMBuildStructGEP(m_Builder, targetValue, variableIndex, "");
+        targetValue = m_Builder.CreateStructGEP(targetValue, variableIndex);
 
         if (currentIdentifier->isDereference()) {
-            targetValue = LLVMBuildLoad(m_Builder, targetValue, "");
+            targetValue = m_Builder.CreateLoad(targetValue);
         } else if (currentIdentifier->isPointer()) {
-            targetValue = LLVMBuildGEP(m_Builder, targetValue, nullptr, 0, "");
+            m_Builder.CreateGEP(targetValue, std::vector<llvm::Value *>(0));
         }
 
         targetStruct = typedTarget->getType()->getTargetStruct();
     }
 
-    if (identifierNode->getParentNode()->getKind() != ASTNode::ASSIGNMENT && !currentIdentifier->isPointer())
-        return LLVMBuildLoad(m_Builder, targetValue, "");
+    if (identifierNode->getParentNode()->getKind() != ASTNode::ASSIGNMENT &&
+        !currentIdentifier->isPointer()) {
+        auto instruction = reinterpret_cast<llvm::Instruction *>(targetValue);
+        if (instruction->getOpcode() == llvm::Instruction::Alloca)
+            return m_Builder.CreateLoad(targetValue);
+    }
 
     return targetValue;
 }
 
-LLVMValueRef CodeGen::visit(const std::shared_ptr<BinaryNode> &binaryNode) {
+llvm::Value *CodeGen::visit(const std::shared_ptr<BinaryNode> &binaryNode) {
     if (binaryNode->getOperatorKind() == BinaryNode::BIT_CAST) {
         auto lhsValue = CodeGen::visit(std::static_pointer_cast<TypedNode>(binaryNode->getLHS()));
         auto rhsValue = CodeGen::visit(std::static_pointer_cast<TypeNode>(binaryNode->getRHS()));
-        return LLVMBuildBitCast(m_Builder, lhsValue, rhsValue, "");
+        return m_Builder.CreateBitCast(lhsValue, rhsValue);
     } else {
         auto lhsValue = CodeGen::visit(std::static_pointer_cast<TypedNode>(binaryNode->getLHS()));
         auto rhsValue = CodeGen::visit(std::static_pointer_cast<TypedNode>(binaryNode->getRHS()));
 
-        auto floatingPoint =
-                binaryNode->getLHS()->getType()->isFloating() ||
-                binaryNode->getRHS()->getType()->isFloating();
-        auto isSigned =
-                binaryNode->getLHS()->getType()->isSigned() || binaryNode->getRHS()->getType()->isSigned();
+        auto floatingPoint = binaryNode->getLHS()->getType()->isFloating() ||
+                             binaryNode->getRHS()->getType()->isFloating();
+        auto isSigned = binaryNode->getLHS()->getType()->isSigned() ||
+                        binaryNode->getRHS()->getType()->isSigned();
 
         switch (binaryNode->getOperatorKind()) {
             case BinaryNode::ADDITION:
@@ -446,7 +457,7 @@ LLVMValueRef CodeGen::visit(const std::shared_ptr<BinaryNode> &binaryNode) {
     }
 }
 
-LLVMValueRef CodeGen::visit(const std::shared_ptr<FunctionCallNode> &functionCallNode) {
+llvm::Value *CodeGen::visit(const std::shared_ptr<FunctionCallNode> &functionCallNode) {
     auto functionNode = std::static_pointer_cast<FunctionNode>(functionCallNode->getTargetNode());
     if (functionNode->hasAnnotation("inlined"))
         return CodeGen::visit(functionNode);
@@ -456,17 +467,16 @@ LLVMValueRef CodeGen::visit(const std::shared_ptr<FunctionCallNode> &functionCal
     auto sortedArguments(functionCallNode->getArguments());
     functionCallNode->getSortedArguments(functionNode, sortedArguments);
 
-    std::vector<LLVMValueRef> functionArguments;
+    std::vector<llvm::Value *> functionArguments;
     for (auto index = 0; index < sortedArguments.size(); index++) {
         auto expression = CodeGen::visit(sortedArguments.at(index));
         functionArguments.insert(functionArguments.begin() + index, expression);
     }
 
-    return LLVMBuildCall(m_Builder, functionRef, functionArguments.data(),
-                         functionArguments.size(), "");
+    return m_Builder.CreateCall(functionRef, functionArguments);
 }
 
-LLVMValueRef CodeGen::visit(const std::shared_ptr<StructCreateNode> &structCreateNode) {
+llvm::Value *CodeGen::visit(const std::shared_ptr<StructCreateNode> &structCreateNode) {
     auto structNode = std::static_pointer_cast<StructNode>(structCreateNode->getTargetNode());
     auto structRef = CodeGen::visit(structNode);
 
@@ -494,12 +504,16 @@ LLVMValueRef CodeGen::visit(const std::shared_ptr<StructCreateNode> &structCreat
 
     m_LastExpressions.emplace(structCreateNode, newExpressions);
 
-    auto structVariable = LLVMBuildAlloca(m_Builder, structRef, "");
+    auto structVariable = m_Builder.CreateAlloca(structRef);
     for (auto index = 0; index < structNode->getVariables().size(); index++) {
         auto variable = structNode->getVariables()[index];
-        auto variableGEP = LLVMBuildStructGEP(m_Builder, structVariable, index, "");
+        if(variable->getExpression() == nullptr)
+            continue;
 
-        LLVMBuildStore(m_Builder, CodeGen::visit(variable), variableGEP);
+        auto variableGEP = m_Builder.CreateStructGEP(structVariable, index);
+        auto expression = CodeGen::visit(variable);
+
+        m_Builder.CreateStore(expression, variableGEP);
     }
 
     m_LastExpressions.erase(structCreateNode);
@@ -512,10 +526,10 @@ LLVMValueRef CodeGen::visit(const std::shared_ptr<StructCreateNode> &structCreat
 
     if (structCreateNode->getParentNode<VariableNode>() != nullptr)
         return structVariable;
-    return LLVMBuildLoad(m_Builder, structVariable, "");
+    return m_Builder.CreateLoad(structVariable);
 }
 
-LLVMValueRef CodeGen::visit(const std::shared_ptr<VariableNode> &variableNode) {
+llvm::Value *CodeGen::visit(const std::shared_ptr<VariableNode> &variableNode) {
     auto foundIterator = m_Variables.find(variableNode);
     if (foundIterator != m_Variables.end())
         return foundIterator->second;
@@ -525,19 +539,22 @@ LLVMValueRef CodeGen::visit(const std::shared_ptr<VariableNode> &variableNode) {
         exit(1);
     }
 
+    llvm::Value *valueRef = nullptr;
     bool createVariable = true;
-    LLVMValueRef valueRef;
+
     if (variableNode->getExpression() != nullptr) {
         valueRef = CodeGen::visit(std::static_pointer_cast<TypedNode>(variableNode->getExpression()));
-        createVariable = LLVMGetInstructionOpcode(valueRef) != LLVMAlloca;
+
+        auto instruction = reinterpret_cast<llvm::Instruction *>(valueRef);
+        createVariable = instruction->getOpcode() == llvm::Instruction::Alloca;
     }
 
     if (createVariable) {
         auto expression = valueRef;
-        valueRef = LLVMBuildAlloca(m_Builder, CodeGen::visit(variableNode->getType()), "");
+        valueRef = m_Builder.CreateAlloca(CodeGen::visit(variableNode->getType()));
 
         if (expression != nullptr)
-            LLVMBuildStore(m_Builder, expression, valueRef);
+            m_Builder.CreateStore(expression, valueRef);
     }
 
     m_Variables.emplace(variableNode, valueRef);
@@ -545,7 +562,7 @@ LLVMValueRef CodeGen::visit(const std::shared_ptr<VariableNode> &variableNode) {
     return valueRef;
 }
 
-LLVMValueRef CodeGen::visit(const std::shared_ptr<TypedNode> &typedNode) {
+llvm::Value *CodeGen::visit(const std::shared_ptr<TypedNode> &typedNode) {
     if (typedNode->getKind() == ASTNode::ARGUMENT) {
         return CodeGen::visit(std::static_pointer_cast<ArgumentNode>(typedNode));
     } else if (typedNode->getKind() == ASTNode::ASSIGNMENT) {
@@ -575,7 +592,7 @@ LLVMValueRef CodeGen::visit(const std::shared_ptr<TypedNode> &typedNode) {
     } else if (typedNode->getKind() == ASTNode::STRING) {
         return CodeGen::visit(std::static_pointer_cast<StringNode>(typedNode));
     } else if (typedNode->getKind() == ASTNode::STRUCT) {
-        return LLVMGetUndef(CodeGen::visit(std::static_pointer_cast<StructNode>(typedNode)));
+        return llvm::UndefValue::get(CodeGen::visit(std::static_pointer_cast<StructNode>(typedNode)));
     } else if (typedNode->getKind() == ASTNode::STRUCT_CREATE) {
         return CodeGen::visit(std::static_pointer_cast<StructCreateNode>(typedNode));
     } else if (typedNode->getKind() == ASTNode::UNARY) {
@@ -589,95 +606,87 @@ LLVMValueRef CodeGen::visit(const std::shared_ptr<TypedNode> &typedNode) {
     exit(EXIT_FAILURE);
 }
 
-void CodeGen::setPositionAtEnd(const LLVMBasicBlockRef &basicBlock) {
-    LLVMPositionBuilderAtEnd(m_Builder, basicBlock);
+void CodeGen::setPositionAtEnd(llvm::BasicBlock *basicBlock) {
+    m_Builder.SetInsertPoint(basicBlock);
     m_CurrentBlock = basicBlock;
 }
 
-LLVMValueRef CodeGen::makeAdd(bool floatingPoint, const LLVMValueRef &rhs,
-                              const LLVMValueRef &lhs) {
+llvm::Value *CodeGen::makeAdd(bool floatingPoint, llvm::Value *rhs, llvm::Value *lhs) {
     if (floatingPoint)
-        return LLVMBuildFAdd(m_Builder, lhs, rhs, "");
-    return LLVMBuildAdd(m_Builder, lhs, rhs, "");
+        return m_Builder.CreateFAdd(lhs, rhs);
+    return m_Builder.CreateAdd(lhs, rhs);
 }
 
-LLVMValueRef CodeGen::makeMul(bool floatingPoint, const LLVMValueRef &rhs,
-                              const LLVMValueRef &lhs) {
+llvm::Value *CodeGen::makeMul(bool floatingPoint, llvm::Value *rhs, llvm::Value *lhs) {
     if (floatingPoint)
-        return LLVMBuildFMul(m_Builder, lhs, rhs, "");
-    return LLVMBuildMul(m_Builder, lhs, rhs, "");
+        return m_Builder.CreateFMul(lhs, rhs);
+    return m_Builder.CreateMul(lhs, rhs);
 }
 
-LLVMValueRef CodeGen::makeDiv(bool floatingPoint, bool isSigned, const LLVMValueRef &rhs,
-                              const LLVMValueRef &lhs) {
+llvm::Value *CodeGen::makeDiv(bool floatingPoint, bool isSigned, llvm::Value *rhs, llvm::Value *lhs) {
     if (floatingPoint)
-        return LLVMBuildFDiv(m_Builder, lhs, rhs, "");
+        return m_Builder.CreateFDiv(lhs, rhs);
     if (isSigned)
-        return LLVMBuildSDiv(m_Builder, lhs, rhs, "");
-    return LLVMBuildUDiv(m_Builder, lhs, rhs, "");
+        return m_Builder.CreateSDiv(lhs, rhs);
+    return m_Builder.CreateUDiv(lhs, rhs);
 }
 
-LLVMValueRef CodeGen::makeSub(bool floatingPoint, const LLVMValueRef &rhs,
-                              const LLVMValueRef &lhs) {
+llvm::Value *CodeGen::makeSub(bool floatingPoint, llvm::Value *rhs, llvm::Value *lhs) {
     if (floatingPoint)
-        return LLVMBuildFSub(m_Builder, lhs, rhs, "");
-    return LLVMBuildSub(m_Builder, lhs, rhs, "");
+        return m_Builder.CreateFSub(lhs, rhs);
+    return m_Builder.CreateSub(lhs, rhs);
 }
 
-LLVMValueRef CodeGen::makeRem(bool isSigned, const LLVMValueRef &rhs, const LLVMValueRef &lhs) {
+llvm::Value *CodeGen::makeRem(bool isSigned, llvm::Value *rhs, llvm::Value *lhs) {
     if (isSigned)
-        return LLVMBuildSRem(m_Builder, lhs, rhs, "");
-    return LLVMBuildURem(m_Builder, lhs, rhs, "");
+        return m_Builder.CreateSRem(lhs, rhs);
+    return m_Builder.CreateURem(lhs, rhs);
 }
 
-LLVMValueRef CodeGen::makeLT(bool floatingPoint, bool isSigned, const LLVMValueRef &rhs,
-                             const LLVMValueRef &lhs) {
+llvm::Value *CodeGen::makeLT(bool floatingPoint, bool isSigned, llvm::Value *rhs, llvm::Value *lhs) {
     if (floatingPoint)
-        LLVMBuildFCmp(m_Builder, LLVMRealOLT, lhs, rhs, "");
+        return m_Builder.CreateFCmpOLT(lhs, rhs);
     if (isSigned)
-        LLVMBuildICmp(m_Builder, LLVMIntSLT, lhs, rhs, "");
-    return LLVMBuildICmp(m_Builder, LLVMIntULT, lhs, rhs, "");
+        return m_Builder.CreateICmpSLT(lhs, rhs);
+    return m_Builder.CreateICmpULT(lhs, rhs);
 }
 
-LLVMValueRef CodeGen::makeGT(bool floatingPoint, bool isSigned, const LLVMValueRef &rhs,
-                             const LLVMValueRef &lhs) {
+llvm::Value *CodeGen::makeGT(bool floatingPoint, bool isSigned, llvm::Value *rhs, llvm::Value *lhs) {
     if (floatingPoint)
-        LLVMBuildFCmp(m_Builder, LLVMRealOGT, lhs, rhs, "");
+        return m_Builder.CreateFCmpOGT(lhs, rhs);
     if (isSigned)
-        LLVMBuildICmp(m_Builder, LLVMIntSGT, lhs, rhs, "");
-    return LLVMBuildICmp(m_Builder, LLVMIntUGT, lhs, rhs, "");
+        return m_Builder.CreateICmpSGT(lhs, rhs);
+    return m_Builder.CreateICmpUGT(lhs, rhs);
 }
 
-LLVMValueRef CodeGen::makeLE(bool floatingPoint, bool isSigned, const LLVMValueRef &rhs,
-                             const LLVMValueRef &lhs) {
+llvm::Value *CodeGen::makeLE(bool floatingPoint, bool isSigned, llvm::Value *rhs, llvm::Value *lhs) {
     if (floatingPoint)
-        LLVMBuildFCmp(m_Builder, LLVMRealOLE, lhs, rhs, "");
+        return m_Builder.CreateFCmpOLE(lhs, rhs);
     if (isSigned)
-        LLVMBuildICmp(m_Builder, LLVMIntSLE, lhs, rhs, "");
-    return LLVMBuildICmp(m_Builder, LLVMIntULE, lhs, rhs, "");
+        return m_Builder.CreateICmpSLE(lhs, rhs);
+    return m_Builder.CreateICmpULE(lhs, rhs);
 }
 
-LLVMValueRef CodeGen::makeGE(bool floatingPoint, bool isSigned, const LLVMValueRef &rhs,
-                             const LLVMValueRef &lhs) {
+llvm::Value *CodeGen::makeGE(bool floatingPoint, bool isSigned, llvm::Value *rhs, llvm::Value *lhs) {
     if (floatingPoint)
-        LLVMBuildFCmp(m_Builder, LLVMRealOGE, lhs, rhs, "");
+        return m_Builder.CreateFCmpOGE(lhs, rhs);
     if (isSigned)
-        LLVMBuildICmp(m_Builder, LLVMIntSGE, lhs, rhs, "");
-    return LLVMBuildICmp(m_Builder, LLVMIntUGE, lhs, rhs, "");
+        return m_Builder.CreateICmpSGE(lhs, rhs);
+    return m_Builder.CreateICmpUGE(lhs, rhs);
 }
 
-LLVMValueRef CodeGen::makeEQ(bool floatingPoint, const LLVMValueRef &rhs, const LLVMValueRef &lhs) {
+llvm::Value *CodeGen::makeEQ(bool floatingPoint, llvm::Value *rhs, llvm::Value *lhs) {
     if (floatingPoint)
-        return LLVMBuildFCmp(m_Builder, LLVMRealOEQ, lhs, rhs, "");
-    return LLVMBuildICmp(m_Builder, LLVMIntEQ, lhs, rhs, "");
+        return m_Builder.CreateFCmpOEQ(lhs, rhs);
+    return m_Builder.CreateICmpEQ(lhs, rhs);
 }
 
-LLVMValueRef CodeGen::makeNE(bool floatingPoint, const LLVMValueRef &rhs, const LLVMValueRef &lhs) {
+llvm::Value *CodeGen::makeNE(bool floatingPoint, llvm::Value *rhs, llvm::Value *lhs) {
     if (floatingPoint)
-        return LLVMBuildFCmp(m_Builder, LLVMRealONE, lhs, rhs, "");
-    return LLVMBuildICmp(m_Builder, LLVMIntNE, lhs, rhs, "");
+        return m_Builder.CreateFCmpONE(lhs, rhs);
+    return m_Builder.CreateICmpNE(lhs, rhs);
 }
 
-LLVMModuleRef CodeGen::getModule() const {
+std::shared_ptr<llvm::Module> CodeGen::getModule() const {
     return m_Module;
 }
