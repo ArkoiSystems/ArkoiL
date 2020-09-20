@@ -442,6 +442,7 @@ class ArgumentNode : public TypedNode {
 private:
     std::shared_ptr<OperableNode> m_Expression;
     std::shared_ptr<Token> m_Name;
+    bool mb_TypeWhitelisted;
 
 public:
     ArgumentNode();
@@ -451,13 +452,20 @@ public:
     ArgumentNode &operator=(const ArgumentNode &) = delete;
 
 public:
-    [[nodiscard]] const std::shared_ptr<OperableNode> &getExpression() const;
+    [[nodiscard]]
+    const std::shared_ptr<OperableNode> &getExpression() const;
 
     void setExpression(const std::shared_ptr<OperableNode> &expression);
 
-    [[nodiscard]] const std::shared_ptr<Token> &getName() const;
+    [[nodiscard]]
+    const std::shared_ptr<Token> &getName() const;
 
     void setName(const std::shared_ptr<Token> &name);
+
+    [[nodiscard]]
+    bool isTypeWhitelisted() const;
+
+    void setTypeWhitelisted(bool typeWhitelisted);
 
 };
 
@@ -681,6 +689,7 @@ public:
 
     void setBlock(const std::shared_ptr<BlockNode> &block);
 
+    [[nodiscard]]
     llvm::BasicBlock *getEntryBlock() const;
 
     void setEntryBlock(llvm::BasicBlock *entryBlock);
@@ -712,6 +721,7 @@ class StructCreateNode : public OperableNode {
 private:
     std::shared_ptr<IdentifierNode> m_StartIdentifier, m_EndIdentifier;
     std::vector<std::shared_ptr<ArgumentNode>> m_Arguments;
+    bool mb_Unnamed;
 
 public:
     StructCreateNode();
@@ -739,6 +749,11 @@ public:
 
     [[nodiscard]]
     const std::vector<std::shared_ptr<ArgumentNode>> &getArguments() const;
+
+    [[nodiscard]]
+    bool isUnnamed() const;
+
+    void setUnnamed(bool unnamed);
 
 };
 

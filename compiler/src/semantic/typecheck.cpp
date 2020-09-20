@@ -104,13 +104,17 @@ void TypeCheck::visit(const std::shared_ptr<ReturnNode> &returnNode) {
         return;
     }
 
+    if(*returnNode->getExpression()->getType() != *functionNode->getType()) {
+        THROW_NODE_ERROR(returnNode, "The return statement uses a different type than the function.")
+        return;
+    }
+
     TypeCheck::visit(returnNode->getExpression());
 }
 
 void TypeCheck::visit(const std::shared_ptr<AssignmentNode> &assignmentNode) {
     if (*assignmentNode->getType() != *assignmentNode->getExpression()->getType()) {
-        THROW_NODE_ERROR(assignmentNode,
-                         "The assignment expression uses a different type than the variable.")
+        THROW_NODE_ERROR(assignmentNode, "The assignment expression uses a different type than the variable.")
         return;
     }
 
