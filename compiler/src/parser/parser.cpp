@@ -46,9 +46,9 @@ std::shared_ptr<RootNode> Parser::parseRoot() {
                 rootNode->addNode(parseFunction(annotations, rootNode));
         } else if (currentToken() != Token::WHITESPACE &&
                    currentToken() != Token::COMMENT) {
-            THROW_TOKEN_ERROR(
-                    "Root expected <import>, <function>, <variable> or <structure> but got '{}' instead.",
-                    currentToken()->getContent())
+            THROW_TOKEN_ERROR("Root expected <import>, <function>, <variable> or <structure> but got '{}' "
+                              "instead.",
+                              currentToken()->getContent())
             rootNode->setFailed(true);
 
             while (m_Position < m_Tokens.size()) {
@@ -76,15 +76,13 @@ std::shared_ptr<ImportNode> Parser::parseImport(const std::shared_ptr<ASTNode> &
     importNode->setScope(parent->getScope());
 
     if (currentToken() != "import") {
-        THROW_TOKEN_ERROR("Import expected 'import' but got '{}' instead.",
-                          currentToken()->getContent())
+        THROW_TOKEN_ERROR("Import expected 'import' but got '{}' instead.", currentToken()->getContent())
         parent->setFailed(true);
         return importNode;
     }
 
     if (nextToken() != Token::STRING) {
-        THROW_TOKEN_ERROR("Import expected <string> but got '{}' instead.",
-                          currentToken()->getContent())
+        THROW_TOKEN_ERROR("Import expected <string> but got '{}' instead.", currentToken()->getContent())
         parent->setFailed(true);
         return importNode;
     }
@@ -104,8 +102,7 @@ std::shared_ptr<FunctionNode> Parser::parseFunction(const std::set<std::string> 
     functionNode->setAnnotations(annotations);
 
     if (currentToken() != "fun") {
-        THROW_TOKEN_ERROR("Function expected 'fun' but got '{}' instead.",
-                          currentToken()->getContent())
+        THROW_TOKEN_ERROR("Function expected 'fun' but got '{}' instead.", currentToken()->getContent())
         parent->setFailed(true);
         return functionNode;
     }
@@ -113,8 +110,7 @@ std::shared_ptr<FunctionNode> Parser::parseFunction(const std::set<std::string> 
     auto isIntrinsic = false;
     if (nextToken() == "llvm") {
         if (nextToken() != ".") {
-            THROW_TOKEN_ERROR("Function expected '.' but got '{}' instead.",
-                              currentToken()->getContent())
+            THROW_TOKEN_ERROR("Function expected '.' but got '{}' instead.", currentToken()->getContent())
             parent->setFailed(true);
             return functionNode;
         }
@@ -138,8 +134,7 @@ std::shared_ptr<FunctionNode> Parser::parseFunction(const std::set<std::string> 
     functionNode->getScope()->insert(functionNode->getName()->getContent(), functionNode);
 
     if (nextToken() != "(") {
-        THROW_TOKEN_ERROR("Function expected '(' but got '{}' instead.",
-                          currentToken()->getContent())
+        THROW_TOKEN_ERROR("Function expected '(' but got '{}' instead.", currentToken()->getContent())
         parent->setFailed(true);
         return functionNode;
     }
@@ -187,15 +182,13 @@ std::shared_ptr<FunctionNode> Parser::parseFunction(const std::set<std::string> 
     }
 
     if (currentToken() != ")") {
-        THROW_TOKEN_ERROR("Function expected ')' but got '{}' instead.",
-                          currentToken()->getContent())
+        THROW_TOKEN_ERROR("Function expected ')' but got '{}' instead.", currentToken()->getContent())
         parent->setFailed(true);
         return functionNode;
     }
 
     if (nextToken() != ":") {
-        THROW_TOKEN_ERROR("Function expected ':' but got '{}' instead.",
-                          currentToken()->getContent())
+        THROW_TOKEN_ERROR("Function expected ':' but got '{}' instead.", currentToken()->getContent())
         parent->setFailed(true);
         return functionNode;
     }
@@ -234,8 +227,7 @@ std::shared_ptr<ParameterNode> Parser::parseParameter(const std::shared_ptr<ASTN
     parameterNode->getScope()->insert(parameterNode->getName()->getContent(), parameterNode);
 
     if (nextToken() != ":") {
-        THROW_TOKEN_ERROR("Parameter expected ':' but got '{}' instead.",
-                          currentToken()->getContent())
+        THROW_TOKEN_ERROR("Parameter expected ':' but got '{}' instead.", currentToken()->getContent())
         parent->setFailed(true);
         return parameterNode;
     }
@@ -294,8 +286,8 @@ std::shared_ptr<BlockNode> Parser::parseBlock(const std::shared_ptr<ASTNode> &pa
                 blockNode->addNode(identifier);
 
                 if (identifier->getKind() == ASTNode::STRUCT_CREATE) {
-                    THROW_NODE_ERROR(identifier,
-                                     "Creating a struct without binding it to a variable is unnecessary.")
+                    THROW_NODE_ERROR(identifier, "Creating a struct without binding it to a variable is "
+                                                 "unnecessary.")
                     parent->setFailed(true);
                 }
             } else if (currentToken() == "return")
@@ -322,8 +314,7 @@ std::shared_ptr<BlockNode> Parser::parseBlock(const std::shared_ptr<ASTNode> &pa
         }
 
         if (currentToken() != "}") {
-            THROW_TOKEN_ERROR("Block expected '}}' but got '{}' instead.",
-                              currentToken()->getContent())
+            THROW_TOKEN_ERROR("Block expected '}}' but got '{}' instead.", currentToken()->getContent())
             parent->setFailed(true);
             return blockNode;
         }
@@ -331,8 +322,7 @@ std::shared_ptr<BlockNode> Parser::parseBlock(const std::shared_ptr<ASTNode> &pa
         nextToken();
         blockNode->addNode(parseRelational(blockNode));
     } else {
-        THROW_TOKEN_ERROR("Block expected '{{' or '=' but got '{}' instead.",
-                          currentToken()->getContent())
+        THROW_TOKEN_ERROR("Block expected '{{' or '=' but got '{}' instead.", currentToken()->getContent())
         parent->setFailed(true);
         return blockNode;
     }
@@ -514,8 +504,7 @@ std::shared_ptr<OperableNode> Parser::parseOperable(const std::shared_ptr<ASTNod
         structCreate->setScope(std::make_shared<SymbolTable>(parent->getScope()));
         structCreate->setParent(parent);
 
-        structCreate->setStartIdentifier(nullptr);
-        structCreate->setEndIdentifier(nullptr);
+        structCreate->setUnnamed(true);
 
         nextToken();
 
@@ -575,9 +564,9 @@ std::shared_ptr<OperableNode> Parser::parseOperable(const std::shared_ptr<ASTNod
         return parseIdentifier(parent);
     } else {
         auto operable = std::make_shared<OperableNode>();
-        THROW_TOKEN_ERROR(
-                "Operable expected <string>, <number>, <unary> or <parenthesized> but got '{}' instead.",
-                currentToken()->getContent())
+        THROW_TOKEN_ERROR("Operable expected <string>, <number>, <unary> or <parenthesized> but got '{}' "
+                          "instead.",
+                          currentToken()->getContent())
         parent->setFailed(true);
         return operable;
     }
@@ -766,8 +755,7 @@ std::shared_ptr<ReturnNode> Parser::parseReturn(const std::shared_ptr<ASTNode> &
     returnNode->setScope(parent->getScope());
 
     if (currentToken() != "return") {
-        THROW_TOKEN_ERROR("Return expected 'return' but got '{}' instead.",
-                          currentToken()->getContent())
+        THROW_TOKEN_ERROR("Return expected 'return' but got '{}' instead.", currentToken()->getContent())
         parent->setFailed(true);
         return returnNode;
     }
@@ -793,15 +781,13 @@ std::shared_ptr<StructNode> Parser::parseStruct(const std::shared_ptr<ASTNode> &
     structNode->setScope(std::make_shared<SymbolTable>(parent->getScope()));
 
     if (currentToken() != "struct") {
-        THROW_TOKEN_ERROR("Struct expected 'struct' but got '{}' instead.",
-                          currentToken()->getContent())
+        THROW_TOKEN_ERROR("Struct expected 'struct' but got '{}' instead.", currentToken()->getContent())
         parent->setFailed(true);
         return structNode;
     }
 
     if (nextToken() != Token::IDENTIFIER) {
-        THROW_TOKEN_ERROR("Struct expected <identifier> but got '{}' instead.",
-                          currentToken()->getContent())
+        THROW_TOKEN_ERROR("Struct expected <identifier> but got '{}' instead.", currentToken()->getContent())
         parent->setFailed(true);
         return structNode;
     }
@@ -809,8 +795,7 @@ std::shared_ptr<StructNode> Parser::parseStruct(const std::shared_ptr<ASTNode> &
     parent->getScope()->insert(structNode->getName()->getContent(), structNode);
 
     if (nextToken() != "{") {
-        THROW_TOKEN_ERROR("Struct expected '{{' but got '{}' instead.",
-                          currentToken()->getContent())
+        THROW_TOKEN_ERROR("Struct expected '{{' but got '{}' instead.", currentToken()->getContent())
         parent->setFailed(true);
         return structNode;
     }
@@ -847,8 +832,7 @@ std::shared_ptr<StructNode> Parser::parseStruct(const std::shared_ptr<ASTNode> &
 std::set<std::string> Parser::parseAnnotations(const std::shared_ptr<ASTNode> &parent) {
     std::set<std::string> annotations;
     if (currentToken() != "[") {
-        THROW_TOKEN_ERROR("Annotations expected '[' but got '{}' instead.",
-                          currentToken()->getContent())
+        THROW_TOKEN_ERROR("Annotations expected '[' but got '{}' instead.", currentToken()->getContent())
         parent->setFailed(true);
         return annotations;
     }
@@ -873,8 +857,7 @@ std::set<std::string> Parser::parseAnnotations(const std::shared_ptr<ASTNode> &p
     }
 
     if (currentToken() != "]") {
-        THROW_TOKEN_ERROR("Annotations expected ']' but got '{}' instead.",
-                          currentToken()->getContent())
+        THROW_TOKEN_ERROR("Annotations expected ']' but got '{}' instead.", currentToken()->getContent())
         parent->setFailed(true);
         return annotations;
     }
@@ -941,8 +924,7 @@ void Parser::parseStructArguments(std::shared_ptr<StructCreateNode> &structCreat
         argument->setName(currentToken());
 
         if (nextToken() != ":") {
-            THROW_TOKEN_ERROR("Arguments expected ':' but got '{}' instead.",
-                              currentToken()->getContent())
+            THROW_TOKEN_ERROR("Arguments expected ':' but got '{}' instead.", currentToken()->getContent())
             parent->setFailed(true);
             break;
         }

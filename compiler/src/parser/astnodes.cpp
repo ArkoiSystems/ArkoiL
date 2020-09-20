@@ -369,7 +369,9 @@ void StringNode::setString(const std::shared_ptr<Token> &string) {
 
 /* ----------======== ARGUMENT-NODE ========---------- */
 
-ArgumentNode::ArgumentNode() : m_Expression({}), m_Name({}) {
+ArgumentNode::ArgumentNode()
+        : m_Expression({}), m_Name({}),
+          mb_TypeWhitelisted(false) {
     setKind(ASTNode::ARGUMENT);
 }
 
@@ -387,6 +389,14 @@ const std::shared_ptr<Token> &ArgumentNode::getName() const {
 
 void ArgumentNode::setName(const std::shared_ptr<Token> &name) {
     m_Name = name;
+}
+
+bool ArgumentNode::isTypeWhitelisted() const {
+    return mb_TypeWhitelisted;
+}
+
+void ArgumentNode::setTypeWhitelisted(bool typeWhitelisted) {
+    mb_TypeWhitelisted = typeWhitelisted;
 }
 
 
@@ -711,7 +721,7 @@ bool FunctionNode::operator!=(const FunctionNode &other) const {
 
 StructCreateNode::StructCreateNode()
         : m_StartIdentifier({}), m_EndIdentifier({}),
-          m_Arguments({}) {
+          m_Arguments({}), mb_Unnamed(false) {
     setKind(ASTNode::STRUCT_CREATE);
 }
 
@@ -758,6 +768,14 @@ void StructCreateNode::setEndIdentifier(const std::shared_ptr<IdentifierNode> &e
 
 const std::vector<std::shared_ptr<ArgumentNode>> &StructCreateNode::getArguments() const {
     return m_Arguments;
+}
+
+bool StructCreateNode::isUnnamed() const {
+    return mb_Unnamed;
+}
+
+void StructCreateNode::setUnnamed(bool unnamed) {
+    mb_Unnamed = unnamed;
 }
 
 

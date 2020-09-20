@@ -289,13 +289,12 @@ llvm::Value *CodeGen::visit(const std::shared_ptr<ReturnNode> &returnNode) {
     auto functionNode = returnNode->getParentNode<FunctionNode>();
     auto blockData = m_Blocks.find(returnNode->getParentNode<BlockNode>())->second;
 
-    if (functionNode->getType()->getBits() == 0) {
+    if (functionNode->getType()->getBits() == 0 && functionNode->getType()->getTargetStruct() == nullptr) {
         m_Builder.CreateBr(std::get<2>(blockData));
 
         return llvm::UndefValue::get(llvm::Type::getVoidTy(m_Context));
     } else {
-        auto expression = CodeGen::visit(
-                std::static_pointer_cast<TypedNode>(returnNode->getExpression()));
+        auto expression = CodeGen::visit(std::static_pointer_cast<TypedNode>(returnNode->getExpression()));
         auto returnVariable = std::get<1>(blockData);
 
         m_Builder.CreateStore(expression, returnVariable);
@@ -476,6 +475,7 @@ llvm::Value *CodeGen::visit(const std::shared_ptr<FunctionCallNode> &functionCal
     return m_Builder.CreateCall(functionRef, functionArguments);
 }
 
+// TODO: Doesn't work as intended, complete rework.
 llvm::Value *CodeGen::visit(const std::shared_ptr<StructCreateNode> &structCreateNode) {
     auto structNode = std::static_pointer_cast<StructNode>(structCreateNode->getTargetNode());
     auto structRef = CodeGen::visit(structNode);
@@ -507,8 +507,6 @@ llvm::Value *CodeGen::visit(const std::shared_ptr<StructCreateNode> &structCreat
     auto structVariable = m_Builder.CreateAlloca(structRef);
     for (auto index = 0; index < structNode->getVariables().size(); index++) {
         auto variable = structNode->getVariables()[index];
-        if(variable->getExpression() == nullptr)
-            continue;
 
         auto variableGEP = m_Builder.CreateStructGEP(structVariable, index);
         auto expression = CodeGen::visit(variable);

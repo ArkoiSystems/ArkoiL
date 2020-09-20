@@ -1,7 +1,7 @@
 import "console"
 
 struct Weird {
-    
+    var hello = 1337
 }
 
 struct Info {
@@ -30,7 +30,7 @@ fun test234(ok: Info): Info {
 }
 
 fun okayy(): Info {
-    return { weird: {} }
+    return test234({ weird: { hello: 28 } })
 }
 
 ## FUTURE CONCEPTS:
