@@ -18,8 +18,8 @@
                            fmt::format(__VA_ARGS__));
 
 #define THROW_NODE_ERROR(node, ...) \
-        std::cout << Error(node->getParentNode<RootNode>()->getSourcePath(),  \
-                           node->getParentNode<RootNode>()->getSourceCode(),  \
+        std::cout << Error(node->findNodeOfParents<RootNode>()->getSourcePath(),  \
+                           node->findNodeOfParents<RootNode>()->getSourceCode(),  \
                            node->getStartToken()->getLineNumber(),  \
                            node->getEndToken()->getLineNumber(),  \
                            node->getStartToken()->getStartChar(),  \

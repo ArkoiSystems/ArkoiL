@@ -20,11 +20,14 @@ int main(int argc, char *argv[]) {
     args.addArgument({"-vlir", "--verbose-llvm-ir"},
                      &compilerOptions.mb_VerboseLLVM_IR,
                      "Enables debugging in the console for the LLVM IR.");
+    args.addArgument({"-vmv", "--verbose-module-verify"},
+                     &compilerOptions.mb_VerboseModule_Verify,
+                     "Enables debugging in the console for the module verify.");
     args.addArgument({"-h", "--help"},
                      OptionParser::OptionValue(),
                      "Prints this list in the console.",
                      [&args](const std::string &value) {
-                        args.printHelp();
+                         args.printHelp();
                      });
 
     try {

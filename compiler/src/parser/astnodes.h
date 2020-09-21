@@ -63,13 +63,13 @@ public:
 
 public:
     template<typename Type = ASTNode>
-    std::shared_ptr<Type> getParentNode() {
+    std::shared_ptr<Type> findNodeOfParents() {
         if (m_Parent == nullptr)
             return nullptr;
 
         if (auto result = std::dynamic_pointer_cast<Type>(getParent()))
             return result;
-        return m_Parent->getParentNode<Type>();
+        return m_Parent->findNodeOfParents<Type>();
     }
 
 public:
@@ -268,6 +268,9 @@ public:
     VariableNode(const VariableNode &other) = delete;
 
     VariableNode &operator=(const VariableNode &) = delete;
+
+public:
+    bool isGlobal();
 
 public:
     [[nodiscard]]

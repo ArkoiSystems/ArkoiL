@@ -18,6 +18,12 @@ void ScopeCheck::visit(const std::shared_ptr<ASTNode> &node) {
         ScopeCheck::visit(std::static_pointer_cast<ImportNode>(node));
     } else if (node->getKind() == ASTNode::FUNCTION) {
         ScopeCheck::visit(std::static_pointer_cast<FunctionNode>(node));
+    } else if (node->getKind() == ASTNode::STRUCT_CREATE) {
+        ScopeCheck::visit(std::static_pointer_cast<StructCreateNode>(node));
+    } else if (node->getKind() == ASTNode::FUNCTION_CALL) {
+        ScopeCheck::visit(std::static_pointer_cast<FunctionCallNode>(node));
+    } else if (node->getKind() == ASTNode::IDENTIFIER) {
+        ScopeCheck::visit(std::static_pointer_cast<IdentifierNode>(node));
     } else if (node->getKind() == ASTNode::PARAMETER) {
         ScopeCheck::visit(std::static_pointer_cast<ParameterNode>(node));
     } else if (node->getKind() == ASTNode::VARIABLE) {
@@ -28,12 +34,8 @@ void ScopeCheck::visit(const std::shared_ptr<ASTNode> &node) {
         ScopeCheck::visit(std::static_pointer_cast<UnaryNode>(node));
     } else if (node->getKind() == ASTNode::PARENTHESIZED) {
         ScopeCheck::visit(std::static_pointer_cast<ParenthesizedNode>(node));
-    } else if (node->getKind() == ASTNode::STRUCT_CREATE) {
-        ScopeCheck::visit(std::static_pointer_cast<StructCreateNode>(node));
     } else if (node->getKind() == ASTNode::ARGUMENT) {
         ScopeCheck::visit(std::static_pointer_cast<ArgumentNode>(node));
-    } else if (node->getKind() == ASTNode::FUNCTION_CALL) {
-        ScopeCheck::visit(std::static_pointer_cast<FunctionCallNode>(node));
     } else if (node->getKind() == ASTNode::ASSIGNMENT) {
         ScopeCheck::visit(std::static_pointer_cast<AssignmentNode>(node));
     } else if (node->getKind() == ASTNode::RETURN) {
@@ -41,7 +43,7 @@ void ScopeCheck::visit(const std::shared_ptr<ASTNode> &node) {
     } else if (node->getKind() == ASTNode::STRUCT) {
         ScopeCheck::visit(std::static_pointer_cast<StructNode>(node));
     } else if (node->getKind() != ASTNode::TYPE && node->getKind() != ASTNode::NUMBER &&
-               node->getKind() != ASTNode::STRING && node->getKind() != ASTNode::IDENTIFIER) {
+               node->getKind() != ASTNode::STRING) {
         std::cout << "ScopeCheck: Unsupported node. " << node->getKind() << std::endl;
         exit(EXIT_FAILURE);
     }
@@ -53,7 +55,7 @@ void ScopeCheck::visit(const std::shared_ptr<RootNode> &rootNode) {
 }
 
 void ScopeCheck::visit(const std::shared_ptr<ImportNode> &importNode) {
-    auto rootNode = importNode->getParentNode<RootNode>();
+    auto rootNode = importNode->findNodeOfParents<RootNode>();
     for (const auto &node : rootNode->getNodes()) {
         if (node->getKind() != ASTNode::IMPORT || node == importNode)
             continue;
@@ -92,7 +94,7 @@ void ScopeCheck::visit(const std::shared_ptr<FunctionNode> &functionNode) {
         return *foundFunction == *functionNode;
     };
 
-    auto rootNode = functionNode->getParentNode<RootNode>();
+    auto rootNode = functionNode->findNodeOfParents<RootNode>();
     auto foundNodes = rootNode->searchWithImports(functionNode->getName()->getContent(), scopeCheck);
 
     if (foundNodes->size() > 1) {
@@ -149,7 +151,7 @@ void ScopeCheck::visit(const std::shared_ptr<VariableNode> &variableNode) {
     };
 
     auto foundNodes = variableNode->getScope()->scope(variableNode->getName()->getContent(), scopeCheck);
-    auto blockNode = variableNode->getParentNode<BlockNode>();
+    auto blockNode = variableNode->findNodeOfParents<BlockNode>();
     if (foundNodes->empty() && blockNode != nullptr) {
         foundNodes = variableNode->getScope()->all(variableNode->getName()->getContent(), scopeCheck);
         if (foundNodes->size() > 1) {
@@ -157,7 +159,7 @@ void ScopeCheck::visit(const std::shared_ptr<VariableNode> &variableNode) {
             return;
         }
     } else if (foundNodes->empty()) {
-        auto rootNode = variableNode->getParentNode<RootNode>();
+        auto rootNode = variableNode->findNodeOfParents<RootNode>();
         foundNodes = rootNode->searchWithImports(variableNode->getName()->getContent(), scopeCheck);
 
         if (foundNodes->size() > 1) {
@@ -173,6 +175,51 @@ void ScopeCheck::visit(const std::shared_ptr<VariableNode> &variableNode) {
 
     if (variableNode->getExpression() != nullptr)
         ScopeCheck::visit(variableNode->getExpression());
+}
+
+void ScopeCheck::visit(const std::shared_ptr<IdentifierNode> &identifierNode) {
+    if (identifierNode->getTargetNode() == nullptr ||
+        identifierNode->getTargetNode()->getKind() != ASTNode::VARIABLE)
+        return;
+
+    auto targetVariable = std::static_pointer_cast<VariableNode>(identifierNode->getTargetNode());
+    std::shared_ptr<VariableNode> variableParent;
+
+    if (auto argumentNode = identifierNode->findNodeOfParents<ArgumentNode>()) {
+        variableParent = std::static_pointer_cast<VariableNode>(argumentNode->getTargetNode());
+    } else if (auto variableNode = identifierNode->findNodeOfParents<VariableNode>())
+        variableParent = variableNode;
+
+    if (variableParent == nullptr)
+        return;
+    if (targetVariable->isGlobal())
+        return;
+
+    int variableParentIndex;
+    int targetVariableIndex;
+    if (auto structNode = variableParent->findNodeOfParents<StructNode>()) {
+        variableParentIndex = Utils::indexOf(structNode->getVariables(), variableParent).second;
+        targetVariableIndex = Utils::indexOf(structNode->getVariables(), targetVariable).second;
+    } else if (auto blockNode = variableParent->findNodeOfParents<BlockNode>()) {
+        variableParentIndex = Utils::indexOf(blockNode->getNodes(), variableParent).second;
+        targetVariableIndex = Utils::indexOf(blockNode->getNodes(), targetVariable).second;
+    } else if (auto rootNode = variableParent->findNodeOfParents<RootNode>()) {
+        variableParentIndex = Utils::indexOf(rootNode->getNodes(), variableParent).second;
+        targetVariableIndex = Utils::indexOf(rootNode->getNodes(), targetVariable).second;
+    } else {
+        THROW_NODE_ERROR(identifierNode, "Case not implemented for the \"loaded variable\" check.")
+        exit(EXIT_FAILURE);
+    }
+
+    if (variableParentIndex == -1 || targetVariableIndex == -1) {
+        THROW_NODE_ERROR(identifierNode, "Couldn't find the indices for the identifier.")
+        return;
+    }
+
+    if (targetVariableIndex > variableParentIndex) {
+        THROW_NODE_ERROR(identifierNode, "Couldn't target the variable because it's not created yet.")
+        return;
+    }
 }
 
 void ScopeCheck::visit(const std::shared_ptr<BinaryNode> &binaryNode) {
