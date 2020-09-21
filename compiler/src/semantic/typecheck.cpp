@@ -168,7 +168,6 @@ void TypeCheck::visit(const std::shared_ptr<BinaryNode> &binaryNode) {
     TypeCheck::visit(binaryNode->getLHS());
     TypeCheck::visit(binaryNode->getRHS());
 
-    // TODO: Add check for the remaining operator (no floating pointer)
     switch (binaryNode->getOperatorKind()) {
         case BinaryNode::LESS_EQUAL_THAN:
         case BinaryNode::LESS_THAN:
@@ -184,12 +183,10 @@ void TypeCheck::visit(const std::shared_ptr<BinaryNode> &binaryNode) {
         case BinaryNode::REMAINING:
             if (!binaryNode->getLHS()->getType()->isNumeric() ||
                 binaryNode->getLHS()->getType()->getPointerLevel() != 0)
-                THROW_NODE_ERROR(binaryNode->getLHS(),
-                                 "Left side of the binary expression is not numeric.")
+                THROW_NODE_ERROR(binaryNode->getLHS(), "Left side of the binary expression is not numeric.")
             if (!binaryNode->getRHS()->getType()->isNumeric() ||
                 binaryNode->getRHS()->getType()->getPointerLevel() != 0)
-                THROW_NODE_ERROR(binaryNode->getRHS(),
-                                 "Right side of the binary expression is not numeric.")
+                THROW_NODE_ERROR(binaryNode->getRHS(), "Right side of the binary expression is not numeric.")
             break;
 
         case BinaryNode::BIT_CAST:
@@ -202,8 +199,19 @@ void TypeCheck::visit(const std::shared_ptr<BinaryNode> &binaryNode) {
 }
 
 void TypeCheck::visit(const std::shared_ptr<UnaryNode> &unaryNode) {
-    // TODO: Make later checks.
     TypeCheck::visit(unaryNode->getExpression());
+
+    switch (unaryNode->getOperatorKind()) {
+        case UnaryNode::NEGATE:
+            if (!unaryNode->getExpression()->getType()->isNumeric() ||
+                unaryNode->getExpression()->getType()->getPointerLevel() != 0)
+                THROW_NODE_ERROR(unaryNode->getExpression(), "Unary expression is not numeric.")
+                break;
+
+        default:
+            std::cout << "TypeCheck: Unary operator not supported." << std::endl;
+            exit(EXIT_FAILURE);
+    }
 }
 
 void TypeCheck::visit(const std::shared_ptr<ParenthesizedNode> &parenthesizedNode) {

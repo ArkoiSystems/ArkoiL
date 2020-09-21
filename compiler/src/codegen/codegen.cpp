@@ -162,9 +162,8 @@ llvm::Type *CodeGen::visit(const std::shared_ptr<StructNode> &structNode) {
     return structRef;
 }
 
-// TODO: Mehrfacher aufruf von inlined functions funktioniert nicht, da alles abgespeichert wird (m_Blocks
-//       etc)
-// TODO: Varargs bei inlined functions geht nisch
+// TODO: Issue 4
+// TODO: Issue 6
 llvm::Value *CodeGen::visit(const std::shared_ptr<ParameterNode> &parameterNode) {
     auto foundIterator = m_Parameters.find(parameterNode);
     if (foundIterator != m_Parameters.end())
@@ -413,7 +412,7 @@ llvm::Value *CodeGen::visit(const std::shared_ptr<IdentifierNode> &identifierNod
 
 llvm::Value *CodeGen::visit(const std::shared_ptr<BinaryNode> &binaryNode) {
     if (binaryNode->getOperatorKind() == BinaryNode::BIT_CAST) {
-        // TODO: Fix the bitcast
+        // TODO: Issue 2
         THROW_NODE_ERROR(binaryNode, "Currently the bitcast is not generated correctly.")
 
         auto lhsValue = CodeGen::visit(std::static_pointer_cast<TypedNode>(binaryNode->getLHS()));
@@ -438,7 +437,7 @@ llvm::Value *CodeGen::visit(const std::shared_ptr<BinaryNode> &binaryNode) {
             case BinaryNode::SUBTRACTION:
                 return CodeGen::makeSub(floatingPoint, lhsValue, rhsValue);
             case BinaryNode::REMAINING:
-                return CodeGen::makeRem(isSigned, lhsValue, rhsValue);
+                return CodeGen::makeRem(floatingPoint, isSigned, lhsValue, rhsValue);
 
             case BinaryNode::LESS_THAN:
                 return CodeGen::makeLT(floatingPoint, isSigned, lhsValue, rhsValue);
@@ -515,7 +514,7 @@ llvm::Value *CodeGen::visit(const std::shared_ptr<VariableNode> &variableNode) {
                                                        llvm::GlobalVariable::PrivateLinkage,
                                                        nullptr);
 
-        // TODO: Generate COMPILE-TIME expressions here.
+        // TODO: Issue 1
         THROW_NODE_ERROR(variableNode, "Expressions for global variables are not implemented yet.")
 
         m_Variables.emplace(variableNode, globalVariable);
@@ -638,7 +637,9 @@ llvm::Value *CodeGen::makeSub(bool floatingPoint, llvm::Value *rhs, llvm::Value 
     return m_Builder.CreateSub(lhs, rhs);
 }
 
-llvm::Value *CodeGen::makeRem(bool isSigned, llvm::Value *rhs, llvm::Value *lhs) {
+llvm::Value *CodeGen::makeRem(bool floatingPoint, bool isSigned, llvm::Value *rhs, llvm::Value *lhs) {
+    if (floatingPoint)
+        return m_Builder.CreateFRem(lhs, rhs);
     if (isSigned)
         return m_Builder.CreateSRem(lhs, rhs);
     return m_Builder.CreateURem(lhs, rhs);

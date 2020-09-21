@@ -142,7 +142,7 @@ public:
 
     llvm::Value* makeSub(bool floatingPoint, llvm::Value* rhs, llvm::Value* lhs);
 
-    llvm::Value* makeRem(bool isSigned, llvm::Value* rhs, llvm::Value* lhs);
+    llvm::Value* makeRem(bool floatingPoint, bool isSigned, llvm::Value* rhs, llvm::Value* lhs);
 
     llvm::Value* makeLT(bool floatingPoint, bool isSigned, llvm::Value* rhs, llvm::Value* lhs);
 
