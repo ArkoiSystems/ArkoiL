@@ -763,7 +763,7 @@ std::shared_ptr<ReturnNode> Parser::parseReturn(const std::shared_ptr<ASTNode> &
     nextToken();
     returnNode->setExpression(parseRelational(returnNode));
 
-    // TODO: Reset here if failed, because expressions are just optional (do it a better way..)
+    // TODO: Issue 5
     if (returnNode->isFailed()) {
         returnNode->setExpression(nullptr);
         returnNode->setFailed(false);
