@@ -57,9 +57,6 @@ class TypedNode;
 
 class CodeGen {
 
-    typedef std::unordered_map<std::shared_ptr<ASTNode>,
-            std::vector<std::shared_ptr<OperableNode>>> Expressions;
-
     typedef std::unordered_map<std::shared_ptr<BlockNode>,
             std::tuple<llvm::BasicBlock*, llvm::Value*, llvm::BasicBlock*>> Blocks;
 
@@ -72,9 +69,6 @@ class CodeGen {
     typedef std::unordered_map<std::shared_ptr<StructNode>, llvm::StructType*> Structs;
 
 private:
-    Expressions m_OriginalExpressions;
-    Expressions m_LastExpressions;
-
     Blocks m_Blocks;
 
     Parameters m_Parameters;
@@ -124,27 +118,27 @@ public:
 
     llvm::Value* visit(const std::shared_ptr<BinaryNode> &binaryNode);
 
-    llvm::Value* visit(const std::shared_ptr<UnaryNode> &unaryNode);
+    llvm::Value *visit(const std::shared_ptr<UnaryNode> &unaryNode);
 
-    llvm::Value* visit(const std::shared_ptr<ParenthesizedNode> &parenthesizedNode);
+    llvm::Value *visit(const std::shared_ptr<ParenthesizedNode> &parenthesizedNode);
 
-    llvm::Value* visit(const std::shared_ptr<FunctionCallNode> &functionCallNode);
+    llvm::Value *visit(const std::shared_ptr<FunctionCallNode> &functionCallNode);
 
-    llvm::Value* visit(const std::shared_ptr<StructCreateNode> &structCreateNode);
+    llvm::Value *visit(const std::shared_ptr<StructCreateNode> &structCreateNode);
 
-    llvm::Value* visit(const std::shared_ptr<ArgumentNode> &argumentNode);
+    llvm::Value *visit(const std::shared_ptr<ArgumentNode> &argumentNode);
 
-    llvm::Value* visit(const std::shared_ptr<VariableNode> &variableNode);
+    llvm::Value *visit(const std::shared_ptr<VariableNode> &variableNode);
 
-    llvm::Value* visit(const std::shared_ptr<TypedNode> &typedNode);
+    llvm::Value *visit(const std::shared_ptr<TypedNode> &typedNode);
 
-    void setPositionAtEnd(llvm::BasicBlock* basicBlock);
+    void setPositionAtEnd(llvm::BasicBlock *basicBlock);
 
-    llvm::Value* makeAdd(bool floatingPoint, llvm::Value* rhs, llvm::Value* lhs);
+    llvm::Value *makeAdd(bool floatingPoint, llvm::Value *rhs, llvm::Value *lhs);
 
-    llvm::Value* makeMul(bool floatingPoint, llvm::Value* rhs, llvm::Value* lhs);
+    llvm::Value *makeMul(bool floatingPoint, llvm::Value *rhs, llvm::Value *lhs);
 
-    llvm::Value* makeDiv(bool floatingPoint, bool isSigned, llvm::Value* rhs, llvm::Value* lhs);
+    llvm::Value *makeDiv(bool floatingPoint, bool isSigned, llvm::Value *rhs, llvm::Value *lhs);
 
     llvm::Value* makeSub(bool floatingPoint, llvm::Value* rhs, llvm::Value* lhs);
 

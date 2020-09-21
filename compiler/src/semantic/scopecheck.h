@@ -34,6 +34,8 @@ class FunctionCallNode;
 
 class AssignmentNode;
 
+class IdentifierNode;
+
 class ReturnNode;
 
 class StructNode;
@@ -61,6 +63,8 @@ public:
     static void visit(const std::shared_ptr<ParameterNode> &parameterNode);
 
     static void visit(const std::shared_ptr<VariableNode> &variableNode);
+
+    static void visit(const std::shared_ptr<IdentifierNode> &identifierNode);
 
     static void visit(const std::shared_ptr<BinaryNode> &binaryNode);
 

@@ -97,7 +97,7 @@ void TypeCheck::visit(const std::shared_ptr<ArgumentNode> &argumentNode) {
 }
 
 void TypeCheck::visit(const std::shared_ptr<ReturnNode> &returnNode) {
-    auto functionNode = returnNode->getParentNode<FunctionNode>();
+    auto functionNode = returnNode->findNodeOfParents<FunctionNode>();
 
     if (returnNode->getExpression() == nullptr && functionNode->getType()->getBits() != 0) {
         THROW_NODE_ERROR(returnNode, "You can't return void on a non-void function.")

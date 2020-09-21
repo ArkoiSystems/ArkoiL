@@ -233,6 +233,10 @@ VariableNode::VariableNode()
     setKind(ASTNode::VARIABLE);
 }
 
+bool VariableNode::isGlobal() {
+    return !mb_Local && getParent()->getKind() != ASTNode::STRUCT;
+}
+
 const std::shared_ptr<OperableNode> &VariableNode::getExpression() const {
     return m_Expression;
 }

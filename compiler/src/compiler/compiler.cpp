@@ -10,6 +10,8 @@
 #include <fstream>
 #include <chrono>
 
+#include <llvm/IR/Verifier.h>
+
 #include "../parser/typeresolver.h"
 #include "../semantic/scopecheck.h"
 #include "../semantic/typecheck.h"
@@ -18,6 +20,7 @@
 #include "../parser/parser.h"
 #include "../lexer/lexer.h"
 #include "../lexer/token.h"
+#include "../utils.h"
 #include "options.h"
 #include "error.h"
 
@@ -62,12 +65,36 @@ int Compiler::compile(const CompilerOptions &compilerOptions) {
         output << *module;
         output.flush();
 
+        Utils::rtrim(moduleCode);
+
         std::cout << moduleCode << std::endl;
     }
 
+    if (compilerOptions.mb_VerboseModule_Verify)
+        std::cout << std::endl << "[" << module->getModuleIdentifier() << "] Verifying the module:"
+                  << std::endl;
+
+    std::string errors;
+    llvm::raw_string_ostream output(errors);
+    if (llvm::verifyModule(*module, &output, nullptr)) {
+        if (compilerOptions.mb_VerboseModule_Verify) {
+            std::cout << "There was a problem during the verification of the module: "
+                      << std::endl << " " << errors << std::endl;
+            exit(EXIT_FAILURE);
+        } else {
+            std::cout << std::endl << "There was a problem during the verification of the module."
+                      << std::endl << "If you want to have more information about it use the \"-vmv\" option."
+                      << std::endl;
+            exit(EXIT_FAILURE);
+        }
+    }
+
+    if (compilerOptions.mb_VerboseModule_Verify)
+        std::cout << "Verified the module and found no errors." << std::endl;
+
     auto finish = std::chrono::high_resolution_clock::now();
     auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(finish - start);
-    std::cout << "Elapsed time: " << elapsed.count() << "μs\n";
+    std::cout << std::endl << "Elapsed time: " << elapsed.count() << "μs\n";
 
     return EXIT_SUCCESS;
 }

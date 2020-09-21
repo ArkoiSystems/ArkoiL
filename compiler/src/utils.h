@@ -8,6 +8,8 @@
 #include <memory>
 #include <vector>
 
+class ASTNode;
+
 namespace Utils {
 
     static void split(const std::string &input, std::vector<std::string> &list, char delimiter = ' ') {
@@ -51,6 +53,26 @@ namespace Utils {
             result.first = false;
             result.second = -1;
         }
+
+        return result;
+    }
+
+    static std::pair<bool, int> indexOf(const std::vector<std::shared_ptr<ASTNode>> &vector,
+                                        const std::shared_ptr<ASTNode> &element) {
+        std::pair<bool, int> result;
+
+        for (int index = 0; index < vector.size(); index++) {
+            auto node = vector.at(index);
+            if (node != element)
+                continue;
+
+            result.first = true;
+            result.second = index;
+            return result;
+        }
+
+        result.first = false;
+        result.second = -1;
 
         return result;
     }
