@@ -34,8 +34,8 @@ void ScopeCheck::visit(const std::shared_ptr<ASTNode> &node) {
         ScopeCheck::visit(std::static_pointer_cast<UnaryNode>(node));
     } else if (node->getKind() == ASTNode::PARENTHESIZED) {
         ScopeCheck::visit(std::static_pointer_cast<ParenthesizedNode>(node));
-    } else if (node->getKind() == ASTNode::ARGUMENT) {
-        ScopeCheck::visit(std::static_pointer_cast<ArgumentNode>(node));
+    } else if (node->getKind() == ASTNode::FUNCTION_ARGUMENT) {
+        ScopeCheck::visit(std::static_pointer_cast<FunctionArgumentNode>(node));
     } else if (node->getKind() == ASTNode::ASSIGNMENT) {
         ScopeCheck::visit(std::static_pointer_cast<AssignmentNode>(node));
     } else if (node->getKind() == ASTNode::RETURN) {
@@ -185,7 +185,7 @@ void ScopeCheck::visit(const std::shared_ptr<IdentifierNode> &identifierNode) {
     auto targetVariable = std::static_pointer_cast<VariableNode>(identifierNode->getTargetNode());
     std::shared_ptr<VariableNode> variableParent;
 
-    if (auto argumentNode = identifierNode->findNodeOfParents<ArgumentNode>()) {
+    if (auto argumentNode = identifierNode->findNodeOfParents<FunctionArgumentNode>()) {
         variableParent = std::static_pointer_cast<VariableNode>(argumentNode->getTargetNode());
     } else if (auto variableNode = identifierNode->findNodeOfParents<VariableNode>())
         variableParent = variableNode;
@@ -240,14 +240,14 @@ void ScopeCheck::visit(const std::shared_ptr<StructCreateNode> &structCreateNode
         ScopeCheck::visit(argument);
 }
 
-void ScopeCheck::visit(const std::shared_ptr<ArgumentNode> &argumentNode) {
+void ScopeCheck::visit(const std::shared_ptr<FunctionArgumentNode> &argumentNode) {
     if (argumentNode->getName() == nullptr) {
         ScopeCheck::visit(argumentNode->getExpression());
         return;
     }
 
     auto scopeCheck = [](const std::shared_ptr<ASTNode> &node) {
-        return node->getKind() == ASTNode::ARGUMENT;
+        return node->getKind() == ASTNode::FUNCTION_ARGUMENT;
     };
 
     auto foundNodes = argumentNode->getScope()->scope(argumentNode->getName()->getContent(), scopeCheck);

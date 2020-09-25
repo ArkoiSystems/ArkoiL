@@ -44,8 +44,10 @@ void TypeResolver::visit(const std::shared_ptr<ASTNode> &node) {
         TypeResolver::visit(std::static_pointer_cast<VariableNode>(node));
     } else if (node->getKind() == ASTNode::RETURN) {
         TypeResolver::visit(std::static_pointer_cast<ReturnNode>(node));
-    } else if (node->getKind() == ASTNode::ARGUMENT) {
-        TypeResolver::visit(std::static_pointer_cast<ArgumentNode>(node));
+    } else if (node->getKind() == ASTNode::FUNCTION_ARGUMENT) {
+        TypeResolver::visit(std::static_pointer_cast<FunctionArgumentNode>(node));
+    } else if (node->getKind() == ASTNode::STRUCT_ARGUMENT) {
+        TypeResolver::visit(std::static_pointer_cast<StructArgumentNode>(node));
     } else if (node->getKind() == ASTNode::ASSIGNMENT) {
         TypeResolver::visit(std::static_pointer_cast<AssignmentNode>(node));
     } else if (node->getKind() == ASTNode::BINARY) {
@@ -80,6 +82,9 @@ void TypeResolver::visit(const std::shared_ptr<FunctionNode> &functionNode) {
 }
 
 void TypeResolver::visit(const std::shared_ptr<BlockNode> &blockNode) {
+    auto functionNode = blockNode->findNodeOfParents<FunctionNode>();
+    blockNode->setType(functionNode->getType());
+
     for (const auto &node : blockNode->getNodes())
         TypeResolver::visit(node);
 }
@@ -170,7 +175,7 @@ void TypeResolver::visit(const std::shared_ptr<IdentifierNode> &identifierNode) 
         return;
 
     std::shared_ptr<std::vector<std::shared_ptr<ASTNode>>> nodes;
-    if (identifierNode->findNodeOfParents()->getKind() == ASTNode::STRUCT_CREATE) {
+    if (identifierNode->getParent()->getKind() == ASTNode::STRUCT_CREATE) {
         auto scopeCheck = [](const std::shared_ptr<ASTNode> &node) {
             return node->getKind() == ASTNode::STRUCT;
         };
@@ -215,7 +220,8 @@ void TypeResolver::visit(const std::shared_ptr<IdentifierNode> &identifierNode) 
     } else {
         auto scopeCheck = [](const std::shared_ptr<ASTNode> &node) {
             return node->getKind() == ASTNode::VARIABLE || node->getKind() == ASTNode::PARAMETER ||
-                   node->getKind() == ASTNode::ARGUMENT;
+                   node->getKind() == ASTNode::FUNCTION_ARGUMENT ||
+                   node->getKind() == ASTNode::STRUCT_ARGUMENT;
         };
         nodes = identifierNode->getScope()->all(identifierNode->getIdentifier()->getContent(), scopeCheck);
 
@@ -223,6 +229,9 @@ void TypeResolver::visit(const std::shared_ptr<IdentifierNode> &identifierNode) 
             nodes = identifierNode->findNodeOfParents<RootNode>()->searchWithImports(
                     identifierNode->getIdentifier()->getContent(), scopeCheck);
         }
+
+        if (nodes->at(0)->getKind() == ASTNode::FUNCTION_ARGUMENT)
+            THROW_NODE_ERROR(identifierNode, "")
     }
 
     if (nodes == nullptr || nodes->empty()) {
@@ -235,10 +244,9 @@ void TypeResolver::visit(const std::shared_ptr<IdentifierNode> &identifierNode) 
     TypeResolver::visit(targetNode);
 
     auto typedNode = std::static_pointer_cast<TypedNode>(targetNode);
-    if ((typedNode != nullptr && typedNode->getKind() == ASTNode::ARGUMENT) &&
-        (typedNode->findNodeOfParents() != nullptr &&
-         typedNode->findNodeOfParents()->getKind() == ASTNode::STRUCT_CREATE)) {
-        auto structCreate = std::static_pointer_cast<StructCreateNode>(typedNode->findNodeOfParents());
+    if ((typedNode != nullptr && typedNode->getKind() == ASTNode::FUNCTION_ARGUMENT) &&
+        (typedNode->getParent() != nullptr && typedNode->getParent()->getKind() == ASTNode::STRUCT_CREATE)) {
+        auto structCreate = std::static_pointer_cast<StructCreateNode>(typedNode->getParent());
         targetNode = nullptr;
 
         auto structNode = std::static_pointer_cast<StructNode>(structCreate->getTargetNode());
@@ -246,6 +254,8 @@ void TypeResolver::visit(const std::shared_ptr<IdentifierNode> &identifierNode) 
             if (variable->getName()->getContent() == identifierNode->getIdentifier()->getContent())
                 targetNode = variable;
         }
+
+        std::cout << "Okay" << std::endl;
     }
 
     if (targetNode == nullptr) {
@@ -296,80 +306,76 @@ void TypeResolver::visit(const std::shared_ptr<ParameterNode> &parameterNode) {
     parameterNode->setTypeResolved(true);
 }
 
-void TypeResolver::visit(const std::shared_ptr<ArgumentNode> &argumentNode) {
-    if (argumentNode->isTypeResolved())
+void TypeResolver::visit(const std::shared_ptr<FunctionArgumentNode> &functionArgumentNode) {
+    if (functionArgumentNode->isTypeResolved())
         return;
 
-    if (argumentNode->getParent()->getKind() == ASTNode::STRUCT_CREATE) {
-        auto structCreate = std::static_pointer_cast<StructCreateNode>(argumentNode->getParent());
-        auto structNode = std::static_pointer_cast<StructNode>(structCreate->getTargetNode());
+    auto parentCall = std::static_pointer_cast<FunctionCallNode>(functionArgumentNode->getParent());
+    if (functionArgumentNode->getExpression()->getKind() == ASTNode::STRUCT_CREATE) {
+        auto structCreate = std::static_pointer_cast<StructCreateNode>(functionArgumentNode->getExpression());
+        if (structCreate->isUnnamed()) {
+            if (parentCall->getTargetNode() != nullptr) {
+                auto parentFunction = std::static_pointer_cast<FunctionNode>(parentCall->getTargetNode());
 
-        for (auto const &variable : structNode->getVariables()) {
-            if (variable->getName()->getContent() != argumentNode->getName()->getContent())
-                continue;
+                auto sortedArguments(parentCall->getArguments());
+                parentCall->getSortedArguments(parentFunction, sortedArguments);
 
-            argumentNode->setTargetNode(variable);
-            break;
-        }
-    } else if (argumentNode->getParent()->getKind() == ASTNode::FUNCTION_CALL) {
-        auto parentCall = std::static_pointer_cast<FunctionCallNode>(argumentNode->getParent());
-        if (parentCall->getTargetNode() != nullptr) {
-            THROW_NODE_ERROR(argumentNode, "1")
+                auto argumentIndex = Utils::indexOf(sortedArguments, functionArgumentNode).second;
+                if (argumentIndex == -1) {
+                    THROW_NODE_ERROR(structCreate, "Couldn't find the argument index for the "
+                                                   "function call.")
+                    exit(EXIT_FAILURE);
+                }
+
+                functionArgumentNode->setType(parentFunction->getParameters()[argumentIndex]->getType());
+            } else functionArgumentNode->setTypeWhitelisted(true);
         }
     }
 
-    if (argumentNode->getExpression()->getKind() == ASTNode::STRUCT_CREATE) {
-        auto structCreateNode = std::static_pointer_cast<StructCreateNode>(argumentNode->getExpression());
+    if (functionArgumentNode->isTypeWhitelisted())
+        return;
 
-        if (structCreateNode->isUnnamed()) {
-            if (argumentNode->getParent()->getKind() == ASTNode::STRUCT_CREATE) {
-                auto parentCreate = std::static_pointer_cast<StructCreateNode>(argumentNode->getParent());
-                auto parentStruct = std::static_pointer_cast<StructNode>(parentCreate->getTargetNode());
+    TypeResolver::visit(functionArgumentNode->getExpression());
+    if (functionArgumentNode->getType() == nullptr)
+        functionArgumentNode->setType(functionArgumentNode->getExpression()->getType());
 
-                for (auto const &variable : parentStruct->getVariables()) {
-                    if (variable->getName()->getContent() != argumentNode->getName()->getContent())
-                        continue;
+    functionArgumentNode->setTypeResolved(true);
+}
 
-                    argumentNode->setType(variable->getType());
-                    argumentNode->setTargetNode(variable);
-                    break;
-                }
+void TypeResolver::visit(const std::shared_ptr<StructArgumentNode> &structArgumentNode) {
+    if (structArgumentNode->isTypeResolved())
+        return;
 
-                if (argumentNode->getType() == nullptr) {
-                    THROW_NODE_ERROR(structCreateNode, "Couldn't find the variable type for the argument.")
-                    exit(EXIT_FAILURE);
-                }
-            } else if (argumentNode->getParent()->getKind() == ASTNode::FUNCTION_CALL) {
-                auto parentCall = std::static_pointer_cast<FunctionCallNode>(argumentNode->getParent());
-                if (parentCall->getTargetNode() != nullptr) {
-                    auto parentFunction = std::static_pointer_cast<FunctionNode>(parentCall->getTargetNode());
+    auto parentCreate = std::static_pointer_cast<StructCreateNode>(structArgumentNode->getParent());
+    auto parentStruct = std::static_pointer_cast<StructNode>(parentCreate->getTargetNode());
 
-                    auto sortedArguments(parentCall->getArguments());
-                    parentCall->getSortedArguments(parentFunction, sortedArguments);
+    if (structArgumentNode->getType() == nullptr &&
+        structArgumentNode->getExpression()->getKind() == ASTNode::STRUCT_CREATE) {
+        auto childCreate = std::static_pointer_cast<StructCreateNode>(structArgumentNode->getExpression());
+        if (childCreate->isUnnamed()) {
+            for (auto const &variable : parentStruct->getVariables()) {
+                if (variable->getName()->getContent() != structArgumentNode->getName()->getContent())
+                    continue;
 
-                    auto argumentIndex = Utils::indexOf(sortedArguments, argumentNode).second;
-                    if (argumentIndex == -1) {
-                        THROW_NODE_ERROR(structCreateNode, "Couldn't find the argument index for the "
-                                                           "function call.")
-                        exit(EXIT_FAILURE);
-                    }
+                structArgumentNode->setType(variable->getType());
+                structArgumentNode->setTargetNode(variable);
+                break;
+            }
 
-                    argumentNode->setType(parentFunction->getParameters()[argumentIndex]->getType());
-                } else argumentNode->setTypeWhitelisted(true);
-            } else {
-                THROW_NODE_ERROR(structCreateNode, "Can't set the type for the argument because the parent "
-                                                   "is not implemented yet.")
+            if (structArgumentNode->getType() == nullptr) {
+                THROW_NODE_ERROR(childCreate, "Couldn't find the variable type for the argument.")
                 exit(EXIT_FAILURE);
             }
         }
     }
 
-    if (!argumentNode->isTypeWhitelisted()) {
-        TypeResolver::visit(argumentNode->getExpression());
-        argumentNode->setType(argumentNode->getExpression()->getType());
-
-        argumentNode->setTypeResolved(true);
+    if (structArgumentNode->getExpression() != nullptr) {
+        TypeResolver::visit(structArgumentNode->getExpression());
+        if (structArgumentNode->getType() == nullptr)
+            structArgumentNode->setType(structArgumentNode->getExpression()->getType());
     }
+
+    structArgumentNode->setTypeResolved(true);
 }
 
 void TypeResolver::visit(const std::shared_ptr<FunctionCallNode> &functionCallNode) {
@@ -386,7 +392,7 @@ void TypeResolver::visit(const std::shared_ptr<FunctionCallNode> &functionCallNo
 
     auto functionNode = std::static_pointer_cast<FunctionNode>(functionCallNode->getTargetNode());
     if(functionNode == nullptr) {
-        // TODO: Throw error here.
+        THROW_NODE_ERROR(functionCallNode, "Couldn't find the function for this call.")
         exit(EXIT_FAILURE);
     }
 
@@ -408,11 +414,12 @@ void TypeResolver::visit(const std::shared_ptr<StructCreateNode> &structCreateNo
     if (structCreateNode->isTypeResolved())
         return;
 
-    std::shared_ptr<ASTNode> targetNode;
+    std::shared_ptr<StructNode> targetNode;
     std::shared_ptr<TypeNode> typeNode;
 
     if (structCreateNode->isUnnamed()) {
         auto typedNode = std::dynamic_pointer_cast<TypedNode>(structCreateNode->getParent());
+
         if (typedNode == nullptr) {
             THROW_NODE_ERROR(structCreateNode, "Can't create an unnamed struct, because there is no type "
                                                "defined by a function/argument or variable.")
@@ -430,23 +437,47 @@ void TypeResolver::visit(const std::shared_ptr<StructCreateNode> &structCreateNo
     } else {
         TypeResolver::visit(structCreateNode->getStartIdentifier());
 
-        targetNode = structCreateNode->getEndIdentifier()->getTargetNode();
+        targetNode = structCreateNode->getEndIdentifier()->getType()->getTargetStruct();
         typeNode = structCreateNode->getEndIdentifier()->getType();
     }
 
     structCreateNode->setTargetNode(targetNode);
     structCreateNode->setType(typeNode);
 
-    if (structCreateNode->getTargetNode() != nullptr) {
-        auto middleScope = std::make_shared<SymbolTable>(*structCreateNode->getTargetNode()->getScope());
-        middleScope->setParent(structCreateNode->getScope());
+    for (auto index = 0; index < targetNode->getVariables().size(); index++) {
+        auto variable = targetNode->getVariables().at(index);
 
-        for (const auto &argument : structCreateNode->getArguments())
-            argument->getScope()->setParent(middleScope);
+        std::shared_ptr<StructArgumentNode> foundArgument;
+        if (variable->getName()->getContent() != "_") {
+            for (const auto &argument : structCreateNode->getArguments()) {
+                if (variable->getName()->getContent() != argument->getName()->getContent())
+                    continue;
 
-        for (const auto &argument : structCreateNode->getArguments())
-            TypeResolver::visit(argument);
+                foundArgument = argument;
+                break;
+            }
+        }
+
+        if (foundArgument && variable->getName()->getContent() != "_") {
+            foundArgument->setType(variable->getType());
+            continue;
+        }
+
+        auto argument = std::make_shared<StructArgumentNode>();
+        argument->setStartToken(variable->getStartToken());
+        argument->setParent(structCreateNode);
+        argument->setScope(structCreateNode->getScope());
+        argument->setName(variable->getName());
+        argument->setExpression(variable->getExpression());
+        argument->setEndToken(variable->getEndToken());
+        argument->getScope()->insert(argument->getName()->getContent(), argument);
+        argument->setType(variable->getType());
+
+        structCreateNode->insertArgument(index, argument);
     }
+
+    for (const auto &argument : structCreateNode->getArguments())
+        TypeResolver::visit(argument);
 
     structCreateNode->setTypeResolved(true);
 }

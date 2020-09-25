@@ -28,7 +28,9 @@ class IdentifierNode;
 
 class ParameterNode;
 
-class ArgumentNode;
+class FunctionArgumentNode;
+
+class StructArgumentNode;
 
 class FunctionCallNode;
 
@@ -80,7 +82,9 @@ public:
 
     static void visit(const std::shared_ptr<ParameterNode> &parameterNode);
 
-    static void visit(const std::shared_ptr<ArgumentNode> &argumentNode);
+    static void visit(const std::shared_ptr<FunctionArgumentNode> &functionArgumentNode);
+
+    static void visit(const std::shared_ptr<StructArgumentNode> &structArgumentNode);
 
     static void visit(const std::shared_ptr<FunctionCallNode> &functionCallNode);
 

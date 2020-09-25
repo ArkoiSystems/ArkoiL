@@ -43,8 +43,8 @@ void CodeGen::visit(const std::shared_ptr<ASTNode> &node) {
         CodeGen::visit(std::static_pointer_cast<UnaryNode>(node));
     } else if (node->getKind() == ASTNode::PARAMETER) {
         CodeGen::visit(std::static_pointer_cast<ParameterNode>(node));
-    } else if (node->getKind() == ASTNode::ARGUMENT) {
-        CodeGen::visit(std::static_pointer_cast<ArgumentNode>(node));
+    } else if (node->getKind() == ASTNode::FUNCTION_ARGUMENT) {
+        CodeGen::visit(std::static_pointer_cast<FunctionArgumentNode>(node));
     } else if (node->getKind() == ASTNode::IDENTIFIER) {
         auto identifierNode = std::static_pointer_cast<IdentifierNode>(node);
 
@@ -121,7 +121,7 @@ llvm::Value *CodeGen::visit(const std::shared_ptr<FunctionNode> &functionNode) {
     }
 }
 
-llvm::Value *CodeGen::visit(const std::shared_ptr<ArgumentNode> &argumentNode) {
+llvm::Value *CodeGen::visit(const std::shared_ptr<FunctionArgumentNode> &argumentNode) {
     return CodeGen::visit(std::static_pointer_cast<TypedNode>(argumentNode->getExpression()));
 }
 
@@ -484,13 +484,13 @@ llvm::Value *CodeGen::visit(const std::shared_ptr<StructCreateNode> &structCreat
     auto structRef = CodeGen::visit(structNode);
 
     auto structVariable = m_Builder.CreateAlloca(structRef);
-    for (auto index = 0; index < structNode->getVariables().size(); index++) {
-        auto variableNode = structNode->getVariables()[index];
-        if (variableNode->getExpression() == nullptr && variableNode->getType()->getTargetStruct() == nullptr)
-            continue;
-
-        auto variableGEP = m_Builder.CreateStructGEP(structVariable, index);
-    }
+//    for (auto index = 0; index < structNode->getVariables().size(); index++) {
+//        auto variableNode = structNode->getVariables()[index];
+//        if (variableNode->getExpression() == nullptr && variableNode->getType()->getTargetStruct() == nullptr)
+//            continue;
+//
+//        auto variableGEP = m_Builder.CreateStructGEP(structVariable, index);
+//    }
 
     if (structCreateNode->findNodeOfParents<VariableNode>() != nullptr)
         return structVariable;
@@ -563,8 +563,8 @@ llvm::Value *CodeGen::visit(const std::shared_ptr<VariableNode> &variableNode) {
 }
 
 llvm::Value *CodeGen::visit(const std::shared_ptr<TypedNode> &typedNode) {
-    if (typedNode->getKind() == ASTNode::ARGUMENT) {
-        return CodeGen::visit(std::static_pointer_cast<ArgumentNode>(typedNode));
+    if (typedNode->getKind() == ASTNode::FUNCTION_ARGUMENT) {
+        return CodeGen::visit(std::static_pointer_cast<FunctionArgumentNode>(typedNode));
     } else if (typedNode->getKind() == ASTNode::ASSIGNMENT) {
         return CodeGen::visit(std::static_pointer_cast<AssignmentNode>(typedNode));
     } else if (typedNode->getKind() == ASTNode::BINARY) {

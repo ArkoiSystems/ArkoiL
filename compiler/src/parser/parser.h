@@ -35,7 +35,7 @@ class ReturnNode;
 
 class StructNode;
 
-class ArgumentNode;
+class FunctionArgumentNode;
 
 class SymbolTable;
 
@@ -97,8 +97,8 @@ private:
 
     std::set<std::string> parseAnnotations(const std::shared_ptr<ASTNode> &parent);
 
-    void parseCallArguments(std::shared_ptr<FunctionCallNode> &functionCallNode,
-                            const std::shared_ptr<ASTNode> &parent);
+    void parseFunctionArguments(std::shared_ptr<FunctionCallNode> &functionCallNode,
+                                const std::shared_ptr<ASTNode> &parent);
 
     void parseStructArguments(std::shared_ptr<StructCreateNode> &structCreateNode,
                               const std::shared_ptr<ASTNode> &parent);
