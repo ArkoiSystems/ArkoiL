@@ -62,6 +62,82 @@ void ASTNode::setKind(ASTNode::ASTKind kind) {
     m_Kind = kind;
 }
 
+std::ostream &operator<<(std::ostream &os, const ASTNode::ASTKind &kind) {
+    switch (kind) {
+        case ASTNode::NONE:
+            os << "None";
+            break;
+        case ASTNode::ROOT:
+            os << "Root";
+            break;
+        case ASTNode::IMPORT:
+            os << "Import";
+            break;
+        case ASTNode::FUNCTION:
+            os << "Function";
+            break;
+        case ASTNode::PARAMETER:
+            os << "Parameter";
+            break;
+        case ASTNode::TYPE:
+            os << "Type";
+            break;
+        case ASTNode::BLOCK:
+            os << "Block";
+            break;
+        case ASTNode::VARIABLE:
+            os << "Variable";
+            break;
+        case ASTNode::BINARY:
+            os << "Binary";
+            break;
+        case ASTNode::UNARY:
+            os << "Unary";
+            break;
+        case ASTNode::PARENTHESIZED:
+            os << "Parenthesized";
+            break;
+        case ASTNode::NUMBER:
+            os << "Number";
+            break;
+        case ASTNode::STRING:
+            os << "String";
+            break;
+        case ASTNode::IDENTIFIER:
+            os << "Identifier";
+            break;
+        case ASTNode::FUNCTION_ARGUMENT:
+            os << "Function Argument";
+            break;
+        case ASTNode::FUNCTION_CALL:
+            os << "Function Call";
+            break;
+        case ASTNode::STRUCT_ARGUMENT:
+            os << "Struct Argument";
+            break;
+        case ASTNode::STRUCT_CREATE:
+            os << "Struct Create";
+            break;
+        case ASTNode::ASSIGNMENT:
+            os << "Assignment";
+            break;
+        case ASTNode::RETURN:
+            os << "Return";
+            break;
+        case ASTNode::STRUCT:
+            os << "Struct";
+            break;
+        case ASTNode::OPERABLE:
+            os << "Operable";
+            break;
+        default:
+            os << "No name for this node.. Terminating." << std::endl;
+            exit(-1);
+    }
+
+    return os;
+}
+
 
 /* ----------======== TYPED-NODE ========---------- */
 
@@ -302,6 +378,55 @@ void BinaryNode::setOperatorKind(BinaryNode::BinaryKind operatorKind) {
     m_OperatorKind = operatorKind;
 }
 
+std::ostream &operator<<(std::ostream &os, const BinaryNode::BinaryKind &kind) {
+    switch (kind) {
+        case BinaryNode::NONE:
+            os << "None";
+            break;
+        case BinaryNode::ADDITION:
+            os << "Addition (+)";
+            break;
+        case BinaryNode::SUBTRACTION:
+            os << "Subtraction (-)";
+            break;
+        case BinaryNode::MULTIPLICATION:
+            os << "Multiplication (*)";
+            break;
+        case BinaryNode::DIVISION:
+            os << "Division (/)";
+            break;
+        case BinaryNode::REMAINING:
+            os << "Remaining (%)";
+            break;
+        case BinaryNode::LESS_THAN:
+            os << "Less Than (<)";
+            break;
+        case BinaryNode::GREATER_THAN:
+            os << "Greater Than (>)";
+            break;
+        case BinaryNode::LESS_EQUAL_THAN:
+            os << "Less Equal Than (<=)";
+            break;
+        case BinaryNode::GREATER_EQUAL_THAN:
+            os << "Greater Equal Than (>=)";
+            break;
+        case BinaryNode::EQUAL:
+            os << "Equal (=)";
+            break;
+        case BinaryNode::NOT_EQUAL:
+            os << "Not Equal (!=)";
+            break;
+        case BinaryNode::BIT_CAST:
+            os << "Bitcast";
+            break;
+        default:
+            os << "No name for this binary node.. Terminating." << std::endl;
+            exit(-1);
+    }
+
+    return os;
+}
+
 
 /* ----------======== UNARY-NODE ========---------- */
 
@@ -323,6 +448,22 @@ UnaryNode::UnaryKind UnaryNode::getOperatorKind() const {
 
 void UnaryNode::setOperatorKind(UnaryNode::UnaryKind operatorKind) {
     m_OperatorKind = operatorKind;
+}
+
+std::ostream &operator<<(std::ostream &os, const UnaryNode::UnaryKind &kind) {
+    switch (kind) {
+        case UnaryNode::NONE:
+            os << "None";
+            break;
+        case UnaryNode::NEGATE:
+            os << "Negate (!)";
+            break;
+        default:
+            os << "No name for this unary node.. Terminating." << std::endl;
+            exit(-1);
+    }
+
+    return os;
 }
 
 
@@ -373,33 +514,33 @@ void StringNode::setString(const std::shared_ptr<Token> &string) {
 
 /* ----------======== ARGUMENT-NODE ========---------- */
 
-ArgumentNode::ArgumentNode()
+FunctionArgumentNode::FunctionArgumentNode()
         : m_Expression({}), m_Name({}),
           mb_TypeWhitelisted(false) {
-    setKind(ASTNode::ARGUMENT);
+    setKind(ASTNode::FUNCTION_ARGUMENT);
 }
 
-const std::shared_ptr<OperableNode> &ArgumentNode::getExpression() const {
+const std::shared_ptr<OperableNode> &FunctionArgumentNode::getExpression() const {
     return m_Expression;
 }
 
-void ArgumentNode::setExpression(const std::shared_ptr<OperableNode> &expression) {
+void FunctionArgumentNode::setExpression(const std::shared_ptr<OperableNode> &expression) {
     m_Expression = expression;
 }
 
-const std::shared_ptr<Token> &ArgumentNode::getName() const {
+const std::shared_ptr<Token> &FunctionArgumentNode::getName() const {
     return m_Name;
 }
 
-void ArgumentNode::setName(const std::shared_ptr<Token> &name) {
+void FunctionArgumentNode::setName(const std::shared_ptr<Token> &name) {
     m_Name = name;
 }
 
-bool ArgumentNode::isTypeWhitelisted() const {
+bool FunctionArgumentNode::isTypeWhitelisted() const {
     return mb_TypeWhitelisted;
 }
 
-void ArgumentNode::setTypeWhitelisted(bool typeWhitelisted) {
+void FunctionArgumentNode::setTypeWhitelisted(bool typeWhitelisted) {
     mb_TypeWhitelisted = typeWhitelisted;
 }
 
@@ -720,6 +861,28 @@ bool FunctionNode::operator!=(const FunctionNode &other) const {
     return !(other == *this);
 }
 
+/* ----------======== STRUCT-ARGUMENT-NODE ========---------- */
+
+StructArgumentNode::StructArgumentNode()
+        : m_Name({}), m_Expression({}) {
+    setKind(ASTNode::STRUCT_ARGUMENT);
+}
+
+const std::shared_ptr<OperableNode> &StructArgumentNode::getExpression() const {
+    return m_Expression;
+}
+
+void StructArgumentNode::setExpression(const std::shared_ptr<OperableNode> &expression) {
+    m_Expression = expression;
+}
+
+const std::shared_ptr<Token> &StructArgumentNode::getName() const {
+    return m_Name;
+}
+
+void StructArgumentNode::setName(const std::shared_ptr<Token> &name) {
+    m_Name = name;
+}
 
 /* ----------======== STRUCT-CREATE-NODE ========---------- */
 
@@ -729,29 +892,12 @@ StructCreateNode::StructCreateNode()
     setKind(ASTNode::STRUCT_CREATE);
 }
 
-bool StructCreateNode::getFilledExpressions(const std::shared_ptr<StructNode> &structNode,
-                                            std::vector<std::shared_ptr<OperableNode>> &expressions) {
-    for (const auto &variable : structNode->getVariables()) {
-        std::shared_ptr<ArgumentNode> foundNode;
-        for (const auto &argument : m_Arguments) {
-            if (variable->getName()->getContent() == argument->getName()->getContent()) {
-                foundNode = argument;
-                break;
-            }
-        }
-
-        if (foundNode == nullptr) {
-            expressions.emplace_back(variable->getExpression());
-        } else {
-            expressions.emplace_back(foundNode->getExpression());
-        }
-    }
-
-    return false;
+void StructCreateNode::addArgument(const std::shared_ptr<StructArgumentNode> &argumentNode) {
+    m_Arguments.push_back(argumentNode);
 }
 
-void StructCreateNode::addArgument(const std::shared_ptr<ArgumentNode> &argumentNode) {
-    m_Arguments.push_back(argumentNode);
+void StructCreateNode::insertArgument(int index, const std::shared_ptr<StructArgumentNode> &argumentNode) {
+    m_Arguments.insert(m_Arguments.begin() + index, argumentNode);
 }
 
 const std::shared_ptr<IdentifierNode> &StructCreateNode::getStartIdentifier() const {
@@ -770,7 +916,7 @@ void StructCreateNode::setEndIdentifier(const std::shared_ptr<IdentifierNode> &e
     m_EndIdentifier = endIdentifier;
 }
 
-const std::vector<std::shared_ptr<ArgumentNode>> &StructCreateNode::getArguments() const {
+const std::vector<std::shared_ptr<StructArgumentNode>> &StructCreateNode::getArguments() const {
     return m_Arguments;
 }
 
@@ -794,7 +940,7 @@ FunctionCallNode::FunctionCallNode(const IdentifierNode &other) : IdentifierNode
 }
 
 bool FunctionCallNode::getSortedArguments(const std::shared_ptr<FunctionNode> &functionNode,
-                                          std::vector<std::shared_ptr<ArgumentNode>> &sortedArguments) {
+                                          std::vector<std::shared_ptr<FunctionArgumentNode>> &sortedArguments) {
     auto scopeCheck = [](const std::shared_ptr<ASTNode> &node) {
         return node->getKind() == PARAMETER;
     };
@@ -817,10 +963,10 @@ bool FunctionCallNode::getSortedArguments(const std::shared_ptr<FunctionNode> &f
     return true;
 }
 
-void FunctionCallNode::addArgument(const std::shared_ptr<ArgumentNode> &argumentNode) {
+void FunctionCallNode::addArgument(const std::shared_ptr<FunctionArgumentNode> &argumentNode) {
     m_Arguments.push_back(argumentNode);
 }
 
-const std::vector<std::shared_ptr<ArgumentNode>> &FunctionCallNode::getArguments() const {
+const std::vector<std::shared_ptr<FunctionArgumentNode>> &FunctionCallNode::getArguments() const {
     return m_Arguments;
 }

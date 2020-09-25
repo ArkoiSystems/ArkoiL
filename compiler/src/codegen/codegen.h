@@ -49,7 +49,7 @@ class FunctionCallNode;
 
 class StructCreateNode;
 
-class ArgumentNode;
+class FunctionArgumentNode;
 
 class VariableNode;
 
@@ -126,7 +126,7 @@ public:
 
     llvm::Value *visit(const std::shared_ptr<StructCreateNode> &structCreateNode);
 
-    llvm::Value *visit(const std::shared_ptr<ArgumentNode> &argumentNode);
+    llvm::Value *visit(const std::shared_ptr<FunctionArgumentNode> &argumentNode);
 
     llvm::Value *visit(const std::shared_ptr<VariableNode> &variableNode);
 

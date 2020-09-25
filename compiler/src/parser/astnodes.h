@@ -36,8 +36,9 @@ public:
         NUMBER,
         STRING,
         IDENTIFIER,
-        ARGUMENT,
+        FUNCTION_ARGUMENT,
         FUNCTION_CALL,
+        STRUCT_ARGUMENT,
         STRUCT_CREATE,
         ASSIGNMENT,
         RETURN,
@@ -102,6 +103,9 @@ public:
     ASTKind getKind() const;
 
     void setKind(ASTKind kind);
+
+public:
+    friend std::ostream &operator<<(std::ostream &os, const ASTKind &kind);
 
 };
 
@@ -223,7 +227,7 @@ public:
 
 };
 
-class BlockNode : public ASTNode {
+class BlockNode : public TypedNode {
 
 private:
     std::vector<std::shared_ptr<ASTNode>> m_Nodes;
@@ -345,6 +349,9 @@ public:
 
     void setOperatorKind(BinaryKind operatorKind);
 
+public:
+    friend std::ostream &operator<<(std::ostream &os, const BinaryKind &kind);
+
 };
 
 class UnaryNode : public OperableNode {
@@ -377,6 +384,9 @@ public:
     UnaryKind getOperatorKind() const;
 
     void setOperatorKind(UnaryKind operatorKind);
+
+public:
+    friend std::ostream &operator<<(std::ostream &os, const UnaryKind &kind);
 
 };
 
@@ -437,38 +447,6 @@ public:
     const std::shared_ptr<Token> &getString() const;
 
     void setString(const std::shared_ptr<Token> &string);
-
-};
-
-class ArgumentNode : public TypedNode {
-
-private:
-    std::shared_ptr<OperableNode> m_Expression;
-    std::shared_ptr<Token> m_Name;
-    bool mb_TypeWhitelisted;
-
-public:
-    ArgumentNode();
-
-    ArgumentNode(const ArgumentNode &other) = delete;
-
-    ArgumentNode &operator=(const ArgumentNode &) = delete;
-
-public:
-    [[nodiscard]]
-    const std::shared_ptr<OperableNode> &getExpression() const;
-
-    void setExpression(const std::shared_ptr<OperableNode> &expression);
-
-    [[nodiscard]]
-    const std::shared_ptr<Token> &getName() const;
-
-    void setName(const std::shared_ptr<Token> &name);
-
-    [[nodiscard]]
-    bool isTypeWhitelisted() const;
-
-    void setTypeWhitelisted(bool typeWhitelisted);
 
 };
 
@@ -719,11 +697,37 @@ public:
 
 };
 
+class StructArgumentNode : public TypedNode {
+
+private:
+    std::shared_ptr<OperableNode> m_Expression;
+    std::shared_ptr<Token> m_Name;
+
+public:
+    StructArgumentNode();
+
+    StructArgumentNode(const StructArgumentNode &other) = delete;
+
+    StructArgumentNode &operator=(const StructArgumentNode &) = delete;
+
+public:
+    [[nodiscard]]
+    const std::shared_ptr<OperableNode> &getExpression() const;
+
+    void setExpression(const std::shared_ptr<OperableNode> &expression);
+
+    [[nodiscard]]
+    const std::shared_ptr<Token> &getName() const;
+
+    void setName(const std::shared_ptr<Token> &name);
+
+};
+
 class StructCreateNode : public OperableNode {
 
 private:
     std::shared_ptr<IdentifierNode> m_StartIdentifier, m_EndIdentifier;
-    std::vector<std::shared_ptr<ArgumentNode>> m_Arguments;
+    std::vector<std::shared_ptr<StructArgumentNode>> m_Arguments;
     bool mb_Unnamed;
 
 public:
@@ -734,10 +738,9 @@ public:
     StructCreateNode &operator=(const StructCreateNode &) = delete;
 
 public:
-    bool getFilledExpressions(const std::shared_ptr<StructNode> &structNode,
-                              std::vector<std::shared_ptr<OperableNode>> &expressions);
+    void addArgument(const std::shared_ptr<StructArgumentNode> &argumentNode);
 
-    void addArgument(const std::shared_ptr<ArgumentNode> &argumentNode);
+    void insertArgument(int index, const std::shared_ptr<StructArgumentNode> &argumentNode);
 
 public:
     [[nodiscard]]
@@ -751,7 +754,7 @@ public:
     void setEndIdentifier(const std::shared_ptr<IdentifierNode> &endIdentifier);
 
     [[nodiscard]]
-    const std::vector<std::shared_ptr<ArgumentNode>> &getArguments() const;
+    const std::vector<std::shared_ptr<StructArgumentNode>> &getArguments() const;
 
     [[nodiscard]]
     bool isUnnamed() const;
@@ -760,10 +763,42 @@ public:
 
 };
 
+class FunctionArgumentNode : public TypedNode {
+
+private:
+    std::shared_ptr<OperableNode> m_Expression;
+    std::shared_ptr<Token> m_Name;
+    bool mb_TypeWhitelisted;
+
+public:
+    FunctionArgumentNode();
+
+    FunctionArgumentNode(const FunctionArgumentNode &other) = delete;
+
+    FunctionArgumentNode &operator=(const FunctionArgumentNode &) = delete;
+
+public:
+    [[nodiscard]]
+    const std::shared_ptr<OperableNode> &getExpression() const;
+
+    void setExpression(const std::shared_ptr<OperableNode> &expression);
+
+    [[nodiscard]]
+    const std::shared_ptr<Token> &getName() const;
+
+    void setName(const std::shared_ptr<Token> &name);
+
+    [[nodiscard]]
+    bool isTypeWhitelisted() const;
+
+    void setTypeWhitelisted(bool typeWhitelisted);
+
+};
+
 class FunctionCallNode : public IdentifierNode {
 
 private:
-    std::vector<std::shared_ptr<ArgumentNode>> m_Arguments;
+    std::vector<std::shared_ptr<FunctionArgumentNode>> m_Arguments;
 
 public:
     FunctionCallNode();
@@ -776,12 +811,12 @@ public:
 
 public:
     bool getSortedArguments(const std::shared_ptr<FunctionNode> &functionNode,
-                            std::vector<std::shared_ptr<ArgumentNode>> &sortedArguments);
+                            std::vector<std::shared_ptr<FunctionArgumentNode>> &sortedArguments);
 
-    void addArgument(const std::shared_ptr<ArgumentNode> &argumentNode);
+    void addArgument(const std::shared_ptr<FunctionArgumentNode> &argumentNode);
 
 public:
     [[nodiscard]]
-    const std::vector<std::shared_ptr<ArgumentNode>> &getArguments() const;
+    const std::vector<std::shared_ptr<FunctionArgumentNode>> &getArguments() const;
 
 };

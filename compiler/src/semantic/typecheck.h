@@ -20,7 +20,7 @@ class BlockNode;
 
 class FunctionCallNode;
 
-class ArgumentNode;
+class FunctionArgumentNode;
 
 class ReturnNode;
 
@@ -58,7 +58,7 @@ public:
 
     static void visit(const std::shared_ptr<FunctionCallNode> &functionCallNode);
 
-    static void visit(const std::shared_ptr<ArgumentNode> &argumentNode);
+    static void visit(const std::shared_ptr<FunctionArgumentNode> &argumentNode);
 
     static void visit(const std::shared_ptr<ReturnNode> &returnNode);
 

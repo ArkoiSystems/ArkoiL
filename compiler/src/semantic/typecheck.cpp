@@ -22,8 +22,8 @@ void TypeCheck::visit(const std::shared_ptr<ASTNode> &node) {
         TypeCheck::visit(std::static_pointer_cast<BlockNode>(node));
     } else if (node->getKind() == ASTNode::FUNCTION_CALL) {
         TypeCheck::visit(std::static_pointer_cast<FunctionCallNode>(node));
-    } else if (node->getKind() == ASTNode::ARGUMENT) {
-        TypeCheck::visit(std::static_pointer_cast<ArgumentNode>(node));
+    } else if (node->getKind() == ASTNode::FUNCTION_ARGUMENT) {
+        TypeCheck::visit(std::static_pointer_cast<FunctionArgumentNode>(node));
     } else if (node->getKind() == ASTNode::RETURN) {
         TypeCheck::visit(std::static_pointer_cast<ReturnNode>(node));
     } else if (node->getKind() == ASTNode::ASSIGNMENT) {
@@ -92,7 +92,7 @@ void TypeCheck::visit(const std::shared_ptr<FunctionCallNode> &functionCallNode)
         TypeCheck::visit(argument);
 }
 
-void TypeCheck::visit(const std::shared_ptr<ArgumentNode> &argumentNode) {
+void TypeCheck::visit(const std::shared_ptr<FunctionArgumentNode> &argumentNode) {
     TypeCheck::visit(argumentNode->getExpression());
 }
 

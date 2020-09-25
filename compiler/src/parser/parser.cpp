@@ -615,7 +615,7 @@ std::shared_ptr<OperableNode> Parser::parseIdentifier(const std::shared_ptr<ASTN
         identifierNode = functionCall;
 
         if (currentToken() != ")" || currentToken() == Token::IDENTIFIER)
-            parseCallArguments(functionCall, functionCall);
+            parseFunctionArguments(functionCall, functionCall);
 
         if (currentToken() != ")") {
             THROW_TOKEN_ERROR("Function call expected ')' but got '{}' instead.",
@@ -661,7 +661,7 @@ std::shared_ptr<OperableNode> Parser::parseIdentifier(const std::shared_ptr<ASTN
             chainedIdentifier = functionCall;
 
             if (currentToken() != ")" || currentToken() == Token::IDENTIFIER)
-                parseCallArguments(functionCall, functionCall);
+                parseFunctionArguments(functionCall, functionCall);
 
             if (currentToken() != ")") {
                 THROW_TOKEN_ERROR("Function call expected ')' but got '{}' instead.",
@@ -865,11 +865,11 @@ std::set<std::string> Parser::parseAnnotations(const std::shared_ptr<ASTNode> &p
     return annotations;
 }
 
-void Parser::parseCallArguments(std::shared_ptr<FunctionCallNode> &functionCallNode,
-                                const std::shared_ptr<ASTNode> &parent) {
+void Parser::parseFunctionArguments(std::shared_ptr<FunctionCallNode> &functionCallNode,
+                                    const std::shared_ptr<ASTNode> &parent) {
     auto mustBeNamed = false;
     while (m_Position < m_Tokens.size()) {
-        auto argument = std::make_shared<ArgumentNode>();
+        auto argument = std::make_shared<FunctionArgumentNode>();
         argument->setStartToken(currentToken());
         argument->setParent(parent);
         argument->setScope(parent->getScope());
@@ -910,7 +910,7 @@ void Parser::parseCallArguments(std::shared_ptr<FunctionCallNode> &functionCallN
 void Parser::parseStructArguments(std::shared_ptr<StructCreateNode> &structCreateNode,
                                   const std::shared_ptr<ASTNode> &parent) {
     while (m_Position < m_Tokens.size()) {
-        auto argument = std::make_shared<ArgumentNode>();
+        auto argument = std::make_shared<StructArgumentNode>();
         argument->setStartToken(currentToken());
         argument->setParent(parent);
         argument->setScope(parent->getScope());
