@@ -57,7 +57,7 @@ void TypeResolver::visit(const std::shared_ptr<ASTNode> &node) {
     } else if (node->getKind() == ASTNode::PARENTHESIZED) {
         TypeResolver::visit(std::static_pointer_cast<ParenthesizedNode>(node));
     } else if (node->getKind() != ASTNode::IMPORT) {
-        std::cout << "TypeResolver: Unsupported node. " << node->getKind() << std::endl;
+        THROW_NODE_ERROR(node, "TypeResolver: Unsupported node: " + node->getKindAsString())
         exit(EXIT_FAILURE);
     }
 }
@@ -229,9 +229,6 @@ void TypeResolver::visit(const std::shared_ptr<IdentifierNode> &identifierNode) 
             nodes = identifierNode->findNodeOfParents<RootNode>()->searchWithImports(
                     identifierNode->getIdentifier()->getContent(), scopeCheck);
         }
-
-        if (nodes->at(0)->getKind() == ASTNode::FUNCTION_ARGUMENT)
-            THROW_NODE_ERROR(identifierNode, "")
     }
 
     if (nodes == nullptr || nodes->empty()) {
@@ -243,6 +240,7 @@ void TypeResolver::visit(const std::shared_ptr<IdentifierNode> &identifierNode) 
     auto targetNode = nodes->at(0);
     TypeResolver::visit(targetNode);
 
+    // TODO: See if this is necessary
     auto typedNode = std::static_pointer_cast<TypedNode>(targetNode);
     if ((typedNode != nullptr && typedNode->getKind() == ASTNode::FUNCTION_ARGUMENT) &&
         (typedNode->getParent() != nullptr && typedNode->getParent()->getKind() == ASTNode::STRUCT_CREATE)) {
@@ -254,8 +252,6 @@ void TypeResolver::visit(const std::shared_ptr<IdentifierNode> &identifierNode) 
             if (variable->getName()->getContent() == identifierNode->getIdentifier()->getContent())
                 targetNode = variable;
         }
-
-        std::cout << "Okay" << std::endl;
     }
 
     if (targetNode == nullptr) {
@@ -322,8 +318,7 @@ void TypeResolver::visit(const std::shared_ptr<FunctionArgumentNode> &functionAr
 
                 auto argumentIndex = Utils::indexOf(sortedArguments, functionArgumentNode).second;
                 if (argumentIndex == -1) {
-                    THROW_NODE_ERROR(structCreate, "Couldn't find the argument index for the "
-                                                   "function call.")
+                    THROW_NODE_ERROR(structCreate, "Couldn't find the argument index for the function call.")
                     exit(EXIT_FAILURE);
                 }
 
@@ -459,6 +454,10 @@ void TypeResolver::visit(const std::shared_ptr<StructCreateNode> &structCreateNo
         }
 
         if (foundArgument && variable->getName()->getContent() != "_") {
+            auto argumentIndex = Utils::indexOf(structCreateNode->getArguments(), foundArgument).second;
+            structCreateNode->removeArgument(argumentIndex);
+            structCreateNode->insertArgument(index, foundArgument);
+
             foundArgument->setType(variable->getType());
             continue;
         }
@@ -502,7 +501,7 @@ void TypeResolver::visit(const std::shared_ptr<ReturnNode> &returnNode) {
 
     auto function = returnNode->findNodeOfParents<FunctionNode>();
     if (function == nullptr) {
-        std::cout << "Return node is not inside function." << std::endl;
+        THROW_NODE_ERROR(returnNode, "Return node is not inside of a function.")
         exit(EXIT_FAILURE);
     }
 
@@ -561,8 +560,7 @@ void TypeResolver::visit(const std::shared_ptr<TypeNode> &typeNode) {
         auto foundNodes = rootNode->searchWithImports(typeNode->getTypeToken()->getContent(), scopeCheck);
 
         if (foundNodes->empty()) {
-            THROW_NODE_ERROR(typeNode,
-                             "Couldn't find the struct for the searched identifier.")
+            THROW_NODE_ERROR(typeNode, "Couldn't find the struct for the searched identifier.")
             exit(EXIT_FAILURE);
         }
 

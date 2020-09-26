@@ -15,12 +15,14 @@
 #include "../parser/typeresolver.h"
 #include "../semantic/typecheck.h"
 #include "../semantic/scopecheck.h"
+#include "../parser/symboltable.h"
 
 CodeGen::CodeGen()
         : m_CurrentBlock(nullptr), m_Parameters({}),
           m_Variables({}), m_Functions({}),
           m_Structs({}), m_Builder({m_Context}),
-          m_Blocks({}), m_Module(nullptr) {}
+          m_Blocks({}), m_Module(nullptr),
+          m_StructArguments({}), m_StructCreates({}) {}
 
 void CodeGen::visit(const std::shared_ptr<ASTNode> &node) {
     if (node->getKind() == ASTNode::ROOT) {
@@ -45,6 +47,14 @@ void CodeGen::visit(const std::shared_ptr<ASTNode> &node) {
         CodeGen::visit(std::static_pointer_cast<ParameterNode>(node));
     } else if (node->getKind() == ASTNode::FUNCTION_ARGUMENT) {
         CodeGen::visit(std::static_pointer_cast<FunctionArgumentNode>(node));
+    } else if (node->getKind() == ASTNode::STRUCT_ARGUMENT) {
+        auto structArgumentNode = std::static_pointer_cast<StructArgumentNode>(node);
+
+        auto structCreateNode = std::static_pointer_cast<StructCreateNode>(structArgumentNode->getParent());
+        auto argumentIndex = Utils::indexOf(structCreateNode->getArguments(), structArgumentNode).second;
+        auto structVariable = CodeGen::visit(structCreateNode);
+
+        CodeGen::visit(structArgumentNode, structVariable, argumentIndex);
     } else if (node->getKind() == ASTNode::IDENTIFIER) {
         auto identifierNode = std::static_pointer_cast<IdentifierNode>(node);
 
@@ -66,7 +76,8 @@ void CodeGen::visit(const std::shared_ptr<ASTNode> &node) {
     } else if (node->getKind() == ASTNode::STRUCT_CREATE) {
         CodeGen::visit(std::static_pointer_cast<StructCreateNode>(node));
     } else if (node->getKind() != ASTNode::IMPORT) {
-        std::cout << "CodeGen: Unsupported node. " << node->getKind() << std::endl;
+        THROW_NODE_ERROR(node, "CodeGen: Unsupported node: " + node->getKindAsString())
+        exit(EXIT_FAILURE);
     }
 }
 
@@ -93,8 +104,8 @@ llvm::Value *CodeGen::visit(const std::shared_ptr<FunctionNode> &functionNode) {
 
         auto callFunctionBlock = m_Blocks.find(functionNode->getBlock());
         if (callFunctionBlock == m_Blocks.end()) {
-            THROW_NODE_ERROR(functionNode->getBlock(),
-                             "Couldn't find the return variable for the inlined function call.")
+            THROW_NODE_ERROR(functionNode->getBlock(), "Couldn't find the return variable for the inlined "
+                                                       "function call.")
             exit(EXIT_FAILURE);
         }
 
@@ -105,12 +116,9 @@ llvm::Value *CodeGen::visit(const std::shared_ptr<FunctionNode> &functionNode) {
             functionParameters.push_back(CodeGen::visit(parameter->getType()));
 
         auto functionType = llvm::FunctionType::get(CodeGen::visit(functionNode->getType()),
-                                                    functionParameters,
-                                                    functionNode->isVariadic());
-        auto functionRef = llvm::Function::Create(functionType,
-                                                  llvm::Function::ExternalLinkage,
-                                                  functionNode->getName()->getContent(),
-                                                  *m_Module);
+                                                    functionParameters, functionNode->isVariadic());
+        auto functionRef = llvm::Function::Create(functionType, llvm::Function::ExternalLinkage,
+                                                  functionNode->getName()->getContent(), *m_Module);
         m_Functions.emplace(functionNode, functionRef);
 
         if (functionNode->isNative())
@@ -119,10 +127,6 @@ llvm::Value *CodeGen::visit(const std::shared_ptr<FunctionNode> &functionNode) {
         CodeGen::visit(functionNode->getBlock());
         return functionRef;
     }
-}
-
-llvm::Value *CodeGen::visit(const std::shared_ptr<FunctionArgumentNode> &argumentNode) {
-    return CodeGen::visit(std::static_pointer_cast<TypedNode>(argumentNode->getExpression()));
 }
 
 llvm::Type *CodeGen::visit(const std::shared_ptr<TypeNode> &typeNode) {
@@ -137,7 +141,7 @@ llvm::Type *CodeGen::visit(const std::shared_ptr<TypeNode> &typeNode) {
     } else if (typeNode->getBits() == 0) {
         type = llvm::Type::getVoidTy(m_Context);
     } else {
-        std::cout << "CodeGen: Unsupported type node. " << typeNode << std::endl;
+        THROW_NODE_ERROR(typeNode, "CodeGen: Unsupported type node: " + typeNode->getKindAsString())
         exit(EXIT_FAILURE);
     }
 
@@ -240,10 +244,9 @@ llvm::BasicBlock *CodeGen::visit(const std::shared_ptr<BlockNode> &blockNode) {
     CodeGen::setPositionAtEnd(startBlock);
 
     if (functionNode == blockNode->findNodeOfParents()) {
-        std::string namePrefix = functionNode->hasAnnotation("inlined") ? "iln_" : "";
+        std::string namePrefix = functionNode->hasAnnotation("inlined") ? "inlined_" : "";
         if (functionNode->getType()->getBits() != 0 || functionNode->getType()->getTargetStruct() != nullptr)
-            returnVariable = m_Builder.CreateAlloca(CodeGen::visit(functionNode->getType()),
-                                                    nullptr,
+            returnVariable = m_Builder.CreateAlloca(CodeGen::visit(functionNode->getType()), nullptr,
                                                     namePrefix + "var_ret");
 
         returnBlock = llvm::BasicBlock::Create(m_Context, namePrefix + "return", functionRef);
@@ -317,8 +320,7 @@ llvm::Value *CodeGen::visit(const std::shared_ptr<AssignmentNode> &assignmentNod
 llvm::Value *CodeGen::visit(const std::shared_ptr<NumberNode> &numberNode) {
     if (!numberNode->getType()->isFloating()) {
         auto value = std::stoi(numberNode->getNumber()->getContent());
-        return llvm::ConstantInt::get(CodeGen::visit(numberNode->getType()),
-                                      value,
+        return llvm::ConstantInt::get(CodeGen::visit(numberNode->getType()), value,
                                       numberNode->getType()->isSigned());
     }
 
@@ -330,18 +332,13 @@ llvm::Value *CodeGen::visit(const std::shared_ptr<StringNode> &stringNode) {
     auto stringConstant = llvm::ConstantDataArray::getString(m_Context,
                                                              stringNode->getString()->getContent());
 
-    auto stringVariable = new llvm::GlobalVariable(*m_Module,
-                                                   stringConstant->getType(),
-                                                   false,
-                                                   llvm::GlobalVariable::PrivateLinkage,
-                                                   stringConstant);
+    auto stringVariable = new llvm::GlobalVariable(*m_Module, stringConstant->getType(), false,
+                                                   llvm::GlobalVariable::PrivateLinkage, stringConstant);
 
     std::vector<llvm::Constant *> indices;
     indices.push_back(llvm::ConstantInt::get(llvm::Type::getIntNTy(m_Context, 32), 0, true));
     indices.push_back(llvm::ConstantInt::get(llvm::Type::getIntNTy(m_Context, 32), 0, true));
-    return llvm::ConstantExpr::getInBoundsGetElementPtr(stringConstant->getType(),
-                                                        stringVariable,
-                                                        indices);
+    return llvm::ConstantExpr::getInBoundsGetElementPtr(stringConstant->getType(), stringVariable, indices);
 }
 
 llvm::Value *CodeGen::visit(const std::shared_ptr<UnaryNode> &unaryNode) {
@@ -352,7 +349,7 @@ llvm::Value *CodeGen::visit(const std::shared_ptr<UnaryNode> &unaryNode) {
         return m_Builder.CreateNeg(expression);
     }
 
-    std::cout << "CodeGen: Unsupported unary node. " << unaryNode->getKind() << std::endl;
+    THROW_NODE_ERROR(unaryNode, "CodeGen: Unsupported unary node: " + unaryNode->getOperatorKindAsString())
     exit(EXIT_FAILURE);
 }
 
@@ -371,7 +368,9 @@ llvm::Value *CodeGen::visit(const std::shared_ptr<IdentifierNode> &identifierNod
     if (identifierNode->isDereference()) {
         targetValue = m_Builder.CreateLoad(targetValue);
     } else if (identifierNode->isPointer()) {
-        m_Builder.CreateGEP(targetValue, std::vector<llvm::Value *>(0));
+        auto instruction = reinterpret_cast<llvm::Instruction *>(targetValue);
+        if (instruction->getOpcode() != llvm::Instruction::GetElementPtr)
+            targetValue = m_Builder.CreateGEP(targetValue, std::vector<llvm::Value *>(0));
     }
 
     auto targetStruct = identifierNode->getType()->getTargetStruct();
@@ -383,8 +382,8 @@ llvm::Value *CodeGen::visit(const std::shared_ptr<IdentifierNode> &identifierNod
         typedTarget = variableNode;
 
         if (variableNode == nullptr) {
-            THROW_NODE_ERROR(identifierNode->getTargetNode(),
-                             "Can't use a non-variable node as an sub identifier.")
+            THROW_NODE_ERROR(identifierNode->getTargetNode(), "Can't use a non-variable node as an sub "
+                                                              "identifier.")
             exit(EXIT_FAILURE);
         }
 
@@ -394,18 +393,16 @@ llvm::Value *CodeGen::visit(const std::shared_ptr<IdentifierNode> &identifierNod
         if (currentIdentifier->isDereference()) {
             targetValue = m_Builder.CreateLoad(targetValue);
         } else if (currentIdentifier->isPointer()) {
-            m_Builder.CreateGEP(targetValue, std::vector<llvm::Value *>(0));
+            auto instruction = reinterpret_cast<llvm::Instruction *>(targetValue);
+            if (instruction->getOpcode() != llvm::Instruction::GetElementPtr)
+                targetValue = m_Builder.CreateGEP(targetValue, std::vector<llvm::Value *>(0));
         }
 
         targetStruct = typedTarget->getType()->getTargetStruct();
     }
 
-    if (identifierNode->findNodeOfParents()->getKind() != ASTNode::ASSIGNMENT &&
-        !currentIdentifier->isPointer()) {
-        auto instruction = reinterpret_cast<llvm::Instruction *>(targetValue);
-        if (instruction->getOpcode() == llvm::Instruction::Alloca)
-            return m_Builder.CreateLoad(targetValue);
-    }
+    if (identifierNode->getParent()->getKind() != ASTNode::ASSIGNMENT && !currentIdentifier->isPointer())
+        return m_Builder.CreateLoad(targetValue);
 
     return targetValue;
 }
@@ -413,8 +410,6 @@ llvm::Value *CodeGen::visit(const std::shared_ptr<IdentifierNode> &identifierNod
 llvm::Value *CodeGen::visit(const std::shared_ptr<BinaryNode> &binaryNode) {
     if (binaryNode->getOperatorKind() == BinaryNode::BIT_CAST) {
         // TODO: Issue 2
-        THROW_NODE_ERROR(binaryNode, "Currently the bitcast is not generated correctly.")
-
         auto lhsValue = CodeGen::visit(std::static_pointer_cast<TypedNode>(binaryNode->getLHS()));
         auto rhsValue = CodeGen::visit(std::static_pointer_cast<TypeNode>(binaryNode->getRHS()));
         return m_Builder.CreateBitCast(lhsValue, rhsValue);
@@ -422,39 +417,40 @@ llvm::Value *CodeGen::visit(const std::shared_ptr<BinaryNode> &binaryNode) {
         auto lhsValue = CodeGen::visit(std::static_pointer_cast<TypedNode>(binaryNode->getLHS()));
         auto rhsValue = CodeGen::visit(std::static_pointer_cast<TypedNode>(binaryNode->getRHS()));
 
-        auto floatingPoint = binaryNode->getLHS()->getType()->isFloating() ||
-                             binaryNode->getRHS()->getType()->isFloating();
+        auto isFloating = binaryNode->getLHS()->getType()->isFloating() ||
+                          binaryNode->getRHS()->getType()->isFloating();
         auto isSigned = binaryNode->getLHS()->getType()->isSigned() ||
                         binaryNode->getRHS()->getType()->isSigned();
 
         switch (binaryNode->getOperatorKind()) {
             case BinaryNode::ADDITION:
-                return CodeGen::makeAdd(floatingPoint, lhsValue, rhsValue);
+                return CodeGen::makeAdd(isFloating, lhsValue, rhsValue);
             case BinaryNode::MULTIPLICATION:
-                return CodeGen::makeMul(floatingPoint, lhsValue, rhsValue);
+                return CodeGen::makeMul(isFloating, lhsValue, rhsValue);
             case BinaryNode::DIVISION:
-                return CodeGen::makeDiv(floatingPoint, isSigned, lhsValue, rhsValue);
+                return CodeGen::makeDiv(isFloating, isSigned, lhsValue, rhsValue);
             case BinaryNode::SUBTRACTION:
-                return CodeGen::makeSub(floatingPoint, lhsValue, rhsValue);
+                return CodeGen::makeSub(isFloating, lhsValue, rhsValue);
             case BinaryNode::REMAINING:
-                return CodeGen::makeRem(floatingPoint, isSigned, lhsValue, rhsValue);
+                return CodeGen::makeRem(isFloating, isSigned, lhsValue, rhsValue);
 
             case BinaryNode::LESS_THAN:
-                return CodeGen::makeLT(floatingPoint, isSigned, lhsValue, rhsValue);
+                return CodeGen::makeLT(isFloating, isSigned, lhsValue, rhsValue);
             case BinaryNode::GREATER_THAN:
-                return CodeGen::makeGT(floatingPoint, isSigned, lhsValue, rhsValue);
+                return CodeGen::makeGT(isFloating, isSigned, lhsValue, rhsValue);
             case BinaryNode::LESS_EQUAL_THAN:
-                return CodeGen::makeLE(floatingPoint, isSigned, lhsValue, rhsValue);
+                return CodeGen::makeLE(isFloating, isSigned, lhsValue, rhsValue);
             case BinaryNode::GREATER_EQUAL_THAN:
-                return CodeGen::makeGE(floatingPoint, isSigned, lhsValue, rhsValue);
+                return CodeGen::makeGE(isFloating, isSigned, lhsValue, rhsValue);
 
             case BinaryNode::EQUAL:
-                return CodeGen::makeEQ(floatingPoint, lhsValue, rhsValue);
+                return CodeGen::makeEQ(isFloating, lhsValue, rhsValue);
             case BinaryNode::NOT_EQUAL:
-                return CodeGen::makeNE(floatingPoint, lhsValue, rhsValue);
+                return CodeGen::makeNE(isFloating, lhsValue, rhsValue);
 
             default:
-                std::cout << "CodeGen: Unsupported binary node. " << binaryNode->getKind() << std::endl;
+                THROW_NODE_ERROR(binaryNode, "Unsupported binary node: " +
+                                             binaryNode->getOperatorKindAsString())
                 exit(EXIT_FAILURE);
         }
     }
@@ -479,22 +475,100 @@ llvm::Value *CodeGen::visit(const std::shared_ptr<FunctionCallNode> &functionCal
     return m_Builder.CreateCall(functionRef, functionArguments);
 }
 
+llvm::Value *CodeGen::visit(const std::shared_ptr<FunctionArgumentNode> &functionArgumentNode) {
+    return CodeGen::visit(std::static_pointer_cast<TypedNode>(functionArgumentNode->getExpression()));
+}
+
 llvm::Value *CodeGen::visit(const std::shared_ptr<StructCreateNode> &structCreateNode) {
+    auto foundIterator = m_StructCreates.find(structCreateNode);
+    if (foundIterator != m_StructCreates.end())
+        return foundIterator->second;
+
     auto structNode = std::static_pointer_cast<StructNode>(structCreateNode->getTargetNode());
     auto structRef = CodeGen::visit(structNode);
 
     auto structVariable = m_Builder.CreateAlloca(structRef);
-//    for (auto index = 0; index < structNode->getVariables().size(); index++) {
-//        auto variableNode = structNode->getVariables()[index];
-//        if (variableNode->getExpression() == nullptr && variableNode->getType()->getTargetStruct() == nullptr)
-//            continue;
-//
-//        auto variableGEP = m_Builder.CreateStructGEP(structVariable, index);
-//    }
+    m_StructCreates.emplace(structCreateNode, structVariable);
+
+    for (auto index = 0; index < structCreateNode->getArguments().size(); index++) {
+        auto structArgumentNode = structCreateNode->getArguments()[index];
+        CodeGen::visit(structArgumentNode, structVariable, index);
+    }
 
     if (structCreateNode->findNodeOfParents<VariableNode>() != nullptr)
         return structVariable;
     return m_Builder.CreateLoad(structVariable);
+}
+
+llvm::Value *CodeGen::visit(const std::shared_ptr<StructArgumentNode> &structArgumentNode,
+                            llvm::Value *structVariable,
+                            int argumentIndex) {
+    auto foundIterator = m_StructArguments.find(structArgumentNode);
+    if (foundIterator != m_StructArguments.end()) {
+        auto variableGEP = m_Builder.CreateStructGEP(structVariable, argumentIndex);
+        return variableGEP;
+    }
+
+    m_StructArguments.emplace(structArgumentNode, nullptr);
+
+    if (structArgumentNode->getExpression() == nullptr &&
+        structArgumentNode->getType()->getTargetStruct() != nullptr) {
+        auto variableGEP = m_Builder.CreateStructGEP(structVariable, argumentIndex);
+        auto structNode = structArgumentNode->getType()->getTargetStruct();
+
+        auto structCreate = std::make_shared<StructCreateNode>();
+        structCreate->setStartToken(structArgumentNode->getStartToken());
+        structCreate->setScope(std::make_shared<SymbolTable>(structArgumentNode->getScope()));
+        structCreate->setParent(structArgumentNode);
+        structCreate->setUnnamed(true);
+        structCreate->setEndToken(structArgumentNode->getEndToken());
+
+        for (auto index = 0; index < structNode->getVariables().size(); index++) {
+            auto variable = structNode->getVariables().at(index);
+
+            auto argument = std::make_shared<StructArgumentNode>();
+            argument->setStartToken(variable->getStartToken());
+            argument->setParent(structCreate);
+            argument->setScope(structCreate->getScope());
+            argument->setName(variable->getName());
+            argument->setExpression(variable->getExpression());
+            argument->setEndToken(variable->getEndToken());
+            argument->getScope()->insert(argument->getName()->getContent(), argument);
+            argument->setType(variable->getType());
+
+            structCreate->insertArgument(index, argument);
+        }
+
+        for (auto index = 0; index < structCreate->getArguments().size(); index++) {
+            auto childArgumentNode = structCreate->getArguments()[index];
+            CodeGen::visit(childArgumentNode, variableGEP, index);
+        }
+
+        std::cout << dumpModule() << std::endl;
+
+        THROW_NODE_ERROR(structArgumentNode, "Not implemented yet.")
+        exit(EXIT_FAILURE);
+    }
+
+    if (structArgumentNode->getExpression() == nullptr)
+        return nullptr;
+
+    if (structArgumentNode->getExpression()->getKind() == ASTNode::STRUCT_CREATE) {
+        auto variableGEP = m_Builder.CreateStructGEP(structVariable, argumentIndex);
+        auto structCreateNode = std::static_pointer_cast<StructCreateNode>(
+                structArgumentNode->getExpression());
+        for (auto index = 0; index < structCreateNode->getArguments().size(); index++) {
+            auto childArgumentNode = structCreateNode->getArguments()[index];
+            CodeGen::visit(childArgumentNode, variableGEP, index);
+        }
+    } else {
+        auto variableGEP = m_Builder.CreateStructGEP(structVariable, argumentIndex);
+        auto expression = CodeGen::visit(std::static_pointer_cast<TypedNode>(
+                structArgumentNode->getExpression()));
+        m_Builder.CreateStore(expression, variableGEP);
+    }
+
+    return nullptr;
 }
 
 llvm::Value *CodeGen::visit(const std::shared_ptr<VariableNode> &variableNode) {
@@ -507,11 +581,9 @@ llvm::Value *CodeGen::visit(const std::shared_ptr<VariableNode> &variableNode) {
         return foundVariable;
     }
 
-    if (!variableNode->isLocal() && variableNode->findNodeOfParents()->getKind() != ASTNode::STRUCT) {
-        auto globalVariable = new llvm::GlobalVariable(*m_Module,
-                                                       CodeGen::visit(variableNode->getType()),
-                                                       false,
-                                                       llvm::GlobalVariable::PrivateLinkage,
+    if (variableNode->isGlobal()) {
+        auto globalVariable = new llvm::GlobalVariable(*m_Module, CodeGen::visit(variableNode->getType()),
+                                                       false, llvm::GlobalVariable::PrivateLinkage,
                                                        nullptr);
 
         // TODO: Issue 1
@@ -519,47 +591,50 @@ llvm::Value *CodeGen::visit(const std::shared_ptr<VariableNode> &variableNode) {
 
         m_Variables.emplace(variableNode, globalVariable);
         return m_Builder.CreateLoad(globalVariable);
-    }
+    } else if (variableNode->isLocal()) {
+        llvm::Value *valueRef = nullptr;
+        bool createVariable = true;
 
-    llvm::Value *valueRef = nullptr;
-    bool createVariable = true;
+        if (variableNode->getExpression() != nullptr) {
+            valueRef = CodeGen::visit(std::static_pointer_cast<TypedNode>(variableNode->getExpression()));
 
-    if (variableNode->getExpression() != nullptr) {
-        valueRef = CodeGen::visit(std::static_pointer_cast<TypedNode>(variableNode->getExpression()));
-
-        auto instruction = reinterpret_cast<llvm::Instruction *>(valueRef);
-        createVariable = instruction->getOpcode() != llvm::Instruction::Alloca;
-    }
-
-    if (createVariable) {
-        auto expression = valueRef;
-        if (expression == nullptr && variableNode->getType()->getTargetStruct() != nullptr) {
-            auto structCreate = std::make_shared<StructCreateNode>();
-            structCreate->setStartToken(variableNode->getStartToken());
-            structCreate->setScope(variableNode->getScope());
-            structCreate->setParent(variableNode);
-
-            structCreate->setUnnamed(true);
-
-            structCreate->setEndToken(variableNode->getEndToken());
-
-            TypeResolver::visit(structCreate);
-            TypeCheck::visit(structCreate);
-            ScopeCheck::visit(structCreate);
-
-            valueRef = CodeGen::visit(structCreate);
-            valueRef = m_Builder.CreateLoad(valueRef);
-        } else {
-            valueRef = m_Builder.CreateAlloca(CodeGen::visit(variableNode->getType()));
+            auto instruction = reinterpret_cast<llvm::Instruction *>(valueRef);
+            createVariable = instruction->getOpcode() != llvm::Instruction::Alloca;
         }
 
-        if (expression != nullptr)
-            m_Builder.CreateStore(expression, valueRef);
+        if (createVariable) {
+            auto expression = valueRef;
+            if (expression == nullptr && variableNode->getType()->getTargetStruct() != nullptr) {
+                auto structCreate = std::make_shared<StructCreateNode>();
+                structCreate->setStartToken(variableNode->getStartToken());
+                structCreate->setScope(variableNode->getScope());
+                structCreate->setParent(variableNode);
+
+                structCreate->setUnnamed(true);
+
+                structCreate->setEndToken(variableNode->getEndToken());
+
+                TypeResolver::visit(structCreate);
+                TypeCheck::visit(structCreate);
+                ScopeCheck::visit(structCreate);
+
+                valueRef = CodeGen::visit(structCreate);
+                valueRef = m_Builder.CreateLoad(valueRef);
+            } else {
+                valueRef = m_Builder.CreateAlloca(CodeGen::visit(variableNode->getType()));
+            }
+
+            if (expression != nullptr)
+                m_Builder.CreateStore(expression, valueRef);
+        }
+
+        m_Variables.emplace(variableNode, valueRef);
+
+        return valueRef;
     }
 
-    m_Variables.emplace(variableNode, valueRef);
-
-    return valueRef;
+    THROW_NODE_ERROR(variableNode, "Couldn't create this variable because it isn't local/global.")
+    exit(EXIT_FAILURE);
 }
 
 llvm::Value *CodeGen::visit(const std::shared_ptr<TypedNode> &typedNode) {
@@ -599,10 +674,17 @@ llvm::Value *CodeGen::visit(const std::shared_ptr<TypedNode> &typedNode) {
         return CodeGen::visit(std::static_pointer_cast<UnaryNode>(typedNode));
     } else if (typedNode->getKind() == ASTNode::VARIABLE) {
         return CodeGen::visit(std::static_pointer_cast<VariableNode>(typedNode));
-    } else if (typedNode->getKind() == ASTNode::TYPE)
-        return nullptr;
+    } else if (typedNode->getKind() == ASTNode::STRUCT_ARGUMENT) {
+        auto structArgumentNode = std::static_pointer_cast<StructArgumentNode>(typedNode);
 
-    std::cout << "CodeGen: Unsupported typed node. " << typedNode->getKind() << std::endl;
+        auto structCreateNode = std::static_pointer_cast<StructCreateNode>(structArgumentNode->getParent());
+        auto argumentIndex = Utils::indexOf(structCreateNode->getArguments(), structArgumentNode).second;
+        auto structVariable = CodeGen::visit(structCreateNode);
+
+        return CodeGen::visit(structArgumentNode, structVariable, argumentIndex);
+    }
+
+    THROW_NODE_ERROR(typedNode, "Unsupported typed node: " + typedNode->getKindAsString())
     exit(EXIT_FAILURE);
 }
 
@@ -611,82 +693,93 @@ void CodeGen::setPositionAtEnd(llvm::BasicBlock *basicBlock) {
     m_CurrentBlock = basicBlock;
 }
 
-llvm::Value *CodeGen::makeAdd(bool floatingPoint, llvm::Value *rhs, llvm::Value *lhs) {
-    if (floatingPoint)
+llvm::Value *CodeGen::makeAdd(bool isFloating, llvm::Value *rhs, llvm::Value *lhs) {
+    if (isFloating)
         return m_Builder.CreateFAdd(lhs, rhs);
     return m_Builder.CreateAdd(lhs, rhs);
 }
 
-llvm::Value *CodeGen::makeMul(bool floatingPoint, llvm::Value *rhs, llvm::Value *lhs) {
-    if (floatingPoint)
+llvm::Value *CodeGen::makeMul(bool isFloating, llvm::Value *rhs, llvm::Value *lhs) {
+    if (isFloating)
         return m_Builder.CreateFMul(lhs, rhs);
     return m_Builder.CreateMul(lhs, rhs);
 }
 
-llvm::Value *CodeGen::makeDiv(bool floatingPoint, bool isSigned, llvm::Value *rhs, llvm::Value *lhs) {
-    if (floatingPoint)
+llvm::Value *CodeGen::makeDiv(bool isFloating, bool isSigned, llvm::Value *rhs, llvm::Value *lhs) {
+    if (isFloating)
         return m_Builder.CreateFDiv(lhs, rhs);
     if (isSigned)
         return m_Builder.CreateSDiv(lhs, rhs);
     return m_Builder.CreateUDiv(lhs, rhs);
 }
 
-llvm::Value *CodeGen::makeSub(bool floatingPoint, llvm::Value *rhs, llvm::Value *lhs) {
-    if (floatingPoint)
+llvm::Value *CodeGen::makeSub(bool isFloating, llvm::Value *rhs, llvm::Value *lhs) {
+    if (isFloating)
         return m_Builder.CreateFSub(lhs, rhs);
     return m_Builder.CreateSub(lhs, rhs);
 }
 
-llvm::Value *CodeGen::makeRem(bool floatingPoint, bool isSigned, llvm::Value *rhs, llvm::Value *lhs) {
-    if (floatingPoint)
+llvm::Value *CodeGen::makeRem(bool isFloating, bool isSigned, llvm::Value *rhs, llvm::Value *lhs) {
+    if (isFloating)
         return m_Builder.CreateFRem(lhs, rhs);
     if (isSigned)
         return m_Builder.CreateSRem(lhs, rhs);
     return m_Builder.CreateURem(lhs, rhs);
 }
 
-llvm::Value *CodeGen::makeLT(bool floatingPoint, bool isSigned, llvm::Value *rhs, llvm::Value *lhs) {
-    if (floatingPoint)
+llvm::Value *CodeGen::makeLT(bool isFloating, bool isSigned, llvm::Value *rhs, llvm::Value *lhs) {
+    if (isFloating)
         return m_Builder.CreateFCmpOLT(lhs, rhs);
     if (isSigned)
         return m_Builder.CreateICmpSLT(lhs, rhs);
     return m_Builder.CreateICmpULT(lhs, rhs);
 }
 
-llvm::Value *CodeGen::makeGT(bool floatingPoint, bool isSigned, llvm::Value *rhs, llvm::Value *lhs) {
-    if (floatingPoint)
+llvm::Value *CodeGen::makeGT(bool isFloating, bool isSigned, llvm::Value *rhs, llvm::Value *lhs) {
+    if (isFloating)
         return m_Builder.CreateFCmpOGT(lhs, rhs);
     if (isSigned)
         return m_Builder.CreateICmpSGT(lhs, rhs);
     return m_Builder.CreateICmpUGT(lhs, rhs);
 }
 
-llvm::Value *CodeGen::makeLE(bool floatingPoint, bool isSigned, llvm::Value *rhs, llvm::Value *lhs) {
-    if (floatingPoint)
+llvm::Value *CodeGen::makeLE(bool isFloating, bool isSigned, llvm::Value *rhs, llvm::Value *lhs) {
+    if (isFloating)
         return m_Builder.CreateFCmpOLE(lhs, rhs);
     if (isSigned)
         return m_Builder.CreateICmpSLE(lhs, rhs);
     return m_Builder.CreateICmpULE(lhs, rhs);
 }
 
-llvm::Value *CodeGen::makeGE(bool floatingPoint, bool isSigned, llvm::Value *rhs, llvm::Value *lhs) {
-    if (floatingPoint)
+llvm::Value *CodeGen::makeGE(bool isFloating, bool isSigned, llvm::Value *rhs, llvm::Value *lhs) {
+    if (isFloating)
         return m_Builder.CreateFCmpOGE(lhs, rhs);
     if (isSigned)
         return m_Builder.CreateICmpSGE(lhs, rhs);
     return m_Builder.CreateICmpUGE(lhs, rhs);
 }
 
-llvm::Value *CodeGen::makeEQ(bool floatingPoint, llvm::Value *rhs, llvm::Value *lhs) {
-    if (floatingPoint)
+llvm::Value *CodeGen::makeEQ(bool isFloating, llvm::Value *rhs, llvm::Value *lhs) {
+    if (isFloating)
         return m_Builder.CreateFCmpOEQ(lhs, rhs);
     return m_Builder.CreateICmpEQ(lhs, rhs);
 }
 
-llvm::Value *CodeGen::makeNE(bool floatingPoint, llvm::Value *rhs, llvm::Value *lhs) {
-    if (floatingPoint)
+llvm::Value *CodeGen::makeNE(bool isFloating, llvm::Value *rhs, llvm::Value *lhs) {
+    if (isFloating)
         return m_Builder.CreateFCmpONE(lhs, rhs);
     return m_Builder.CreateICmpNE(lhs, rhs);
+}
+
+std::string CodeGen::dumpModule() {
+    std::string dumpedCode;
+    llvm::raw_string_ostream output(dumpedCode);
+    output << *m_Module;
+    output.flush();
+
+    Utils::rtrim(dumpedCode);
+
+    return dumpedCode;
 }
 
 std::shared_ptr<llvm::Module> CodeGen::getModule() const {

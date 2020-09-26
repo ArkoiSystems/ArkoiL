@@ -36,6 +36,8 @@ void ScopeCheck::visit(const std::shared_ptr<ASTNode> &node) {
         ScopeCheck::visit(std::static_pointer_cast<ParenthesizedNode>(node));
     } else if (node->getKind() == ASTNode::FUNCTION_ARGUMENT) {
         ScopeCheck::visit(std::static_pointer_cast<FunctionArgumentNode>(node));
+    } else if (node->getKind() == ASTNode::STRUCT_ARGUMENT) {
+        ScopeCheck::visit(std::static_pointer_cast<StructArgumentNode>(node));
     } else if (node->getKind() == ASTNode::ASSIGNMENT) {
         ScopeCheck::visit(std::static_pointer_cast<AssignmentNode>(node));
     } else if (node->getKind() == ASTNode::RETURN) {
@@ -44,7 +46,7 @@ void ScopeCheck::visit(const std::shared_ptr<ASTNode> &node) {
         ScopeCheck::visit(std::static_pointer_cast<StructNode>(node));
     } else if (node->getKind() != ASTNode::TYPE && node->getKind() != ASTNode::NUMBER &&
                node->getKind() != ASTNode::STRING) {
-        std::cout << "ScopeCheck: Unsupported node. " << node->getKind() << std::endl;
+        THROW_NODE_ERROR(node, "ScopeCheck: Unsupported node: " + node->getKindAsString())
         exit(EXIT_FAILURE);
     }
 }
@@ -80,8 +82,7 @@ void ScopeCheck::visit(const std::shared_ptr<FunctionNode> &functionNode) {
         }
 
         if (returns.empty() && functionNode->getType()->getBits() != 0) {
-            THROW_NODE_ERROR(functionNode,
-                             "Non-void functions need to have at least one return statement.")
+            THROW_NODE_ERROR(functionNode, "Non-void functions need to have at least one return statement.")
             return;
         }
     }
@@ -240,9 +241,28 @@ void ScopeCheck::visit(const std::shared_ptr<StructCreateNode> &structCreateNode
         ScopeCheck::visit(argument);
 }
 
-void ScopeCheck::visit(const std::shared_ptr<FunctionArgumentNode> &argumentNode) {
-    if (argumentNode->getName() == nullptr) {
-        ScopeCheck::visit(argumentNode->getExpression());
+void ScopeCheck::visit(const std::shared_ptr<StructArgumentNode> &structArgumentNode) {
+    if (structArgumentNode->getName() == "_")
+        return;
+
+    auto scopeCheck = [](const std::shared_ptr<ASTNode> &node) {
+        return node->getKind() == ASTNode::STRUCT_ARGUMENT;
+    };
+
+    auto foundNodes = structArgumentNode->getScope()->scope(structArgumentNode->getName()->getContent(),
+                                                            scopeCheck);
+    if (foundNodes->size() > 1) {
+        THROW_NODE_ERROR(structArgumentNode, "There already exists a similar argument.")
+        return;
+    }
+
+    if (structArgumentNode->getExpression() != nullptr)
+        ScopeCheck::visit(structArgumentNode->getExpression());
+}
+
+void ScopeCheck::visit(const std::shared_ptr<FunctionArgumentNode> &functionArgumentNode) {
+    if (functionArgumentNode->getName() == nullptr) {
+        ScopeCheck::visit(functionArgumentNode->getExpression());
         return;
     }
 
@@ -250,13 +270,14 @@ void ScopeCheck::visit(const std::shared_ptr<FunctionArgumentNode> &argumentNode
         return node->getKind() == ASTNode::FUNCTION_ARGUMENT;
     };
 
-    auto foundNodes = argumentNode->getScope()->scope(argumentNode->getName()->getContent(), scopeCheck);
+    auto foundNodes = functionArgumentNode->getScope()->scope(functionArgumentNode->getName()->getContent(),
+                                                              scopeCheck);
     if (foundNodes->size() > 1) {
-        THROW_NODE_ERROR(argumentNode, "There already exists a similar argument.")
+        THROW_NODE_ERROR(functionArgumentNode, "There already exists a similar argument.")
         return;
     }
 
-    ScopeCheck::visit(argumentNode->getExpression());
+    ScopeCheck::visit(functionArgumentNode->getExpression());
 }
 
 void ScopeCheck::visit(const std::shared_ptr<FunctionCallNode> &functionCallNode) {

@@ -100,6 +100,9 @@ public:
     void setFailed(bool failed);
 
     [[nodiscard]]
+    std::string getKindAsString() const;
+
+    [[nodiscard]]
     ASTKind getKind() const;
 
     void setKind(ASTKind kind);
@@ -345,6 +348,9 @@ public:
     void setRHS(const std::shared_ptr<OperableNode> &rhs);
 
     [[nodiscard]]
+    std::string getOperatorKindAsString() const;
+
+    [[nodiscard]]
     BinaryKind getOperatorKind() const;
 
     void setOperatorKind(BinaryKind operatorKind);
@@ -379,6 +385,9 @@ public:
     const std::shared_ptr<OperableNode> &getExpression() const;
 
     void setExpression(const std::shared_ptr<OperableNode> &expression);
+
+    [[nodiscard]]
+    std::string getOperatorKindAsString() const;
 
     [[nodiscard]]
     UnaryKind getOperatorKind() const;
@@ -741,6 +750,8 @@ public:
     void addArgument(const std::shared_ptr<StructArgumentNode> &argumentNode);
 
     void insertArgument(int index, const std::shared_ptr<StructArgumentNode> &argumentNode);
+
+    void removeArgument(int index);
 
 public:
     [[nodiscard]]
