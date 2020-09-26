@@ -8,6 +8,7 @@
 #include "../parser/astnodes.h"
 #include "../compiler/error.h"
 #include "../lexer/token.h"
+#include "../utils.h"
 
 void TypeCheck::visit(const std::shared_ptr<ASTNode> &node) {
     if (node->getKind() == ASTNode::ROOT) {
@@ -24,6 +25,8 @@ void TypeCheck::visit(const std::shared_ptr<ASTNode> &node) {
         TypeCheck::visit(std::static_pointer_cast<FunctionCallNode>(node));
     } else if (node->getKind() == ASTNode::FUNCTION_ARGUMENT) {
         TypeCheck::visit(std::static_pointer_cast<FunctionArgumentNode>(node));
+    } else if (node->getKind() == ASTNode::STRUCT_ARGUMENT) {
+        TypeCheck::visit(std::static_pointer_cast<StructArgumentNode>(node));
     } else if (node->getKind() == ASTNode::RETURN) {
         TypeCheck::visit(std::static_pointer_cast<ReturnNode>(node));
     } else if (node->getKind() == ASTNode::ASSIGNMENT) {
@@ -39,7 +42,7 @@ void TypeCheck::visit(const std::shared_ptr<ASTNode> &node) {
     } else if (node->getKind() != ASTNode::IDENTIFIER && node->getKind() != ASTNode::IMPORT &&
                node->getKind() != ASTNode::STRING && node->getKind() != ASTNode::NUMBER &&
                node->getKind() != ASTNode::TYPE && node->getKind() != ASTNode::PARAMETER) {
-        std::cout << "TypeCheck: Unsupported node. " << node->getKind() << std::endl;
+        THROW_NODE_ERROR(node, "TypeCheck: Unsupported node: " + node->getKindAsString())
         exit(EXIT_FAILURE);
     }
 }
@@ -92,8 +95,13 @@ void TypeCheck::visit(const std::shared_ptr<FunctionCallNode> &functionCallNode)
         TypeCheck::visit(argument);
 }
 
-void TypeCheck::visit(const std::shared_ptr<FunctionArgumentNode> &argumentNode) {
-    TypeCheck::visit(argumentNode->getExpression());
+void TypeCheck::visit(const std::shared_ptr<FunctionArgumentNode> &functionArgumentNode) {
+    TypeCheck::visit(functionArgumentNode->getExpression());
+}
+
+void TypeCheck::visit(const std::shared_ptr<StructArgumentNode> &structArgumentNode) {
+    if (structArgumentNode->getExpression() != nullptr)
+        TypeCheck::visit(structArgumentNode->getExpression());
 }
 
 void TypeCheck::visit(const std::shared_ptr<ReturnNode> &returnNode) {
@@ -104,7 +112,7 @@ void TypeCheck::visit(const std::shared_ptr<ReturnNode> &returnNode) {
         return;
     }
 
-    if(*returnNode->getExpression()->getType() != *functionNode->getType()) {
+    if (*returnNode->getExpression()->getType() != *functionNode->getType()) {
         THROW_NODE_ERROR(returnNode, "The return statement uses a different type than the function.")
         return;
     }
@@ -135,29 +143,18 @@ void TypeCheck::visit(const std::shared_ptr<StructCreateNode> &structCreateNode)
         return;
     }
 
+    auto targetStruct = structCreateNode->getType()->getTargetStruct();
     for (const auto &argument : structCreateNode->getArguments()) {
         TypeCheck::visit(argument);
 
-        std::shared_ptr<VariableNode> foundVariable;
-        for (const auto &variable : structCreateNode->getType()->getTargetStruct()->getVariables()) {
-            if (variable->getName()->getContent() == argument->getName()->getContent()) {
-                foundVariable = variable;
-                break;
-            }
-        }
-
-        if (foundVariable == nullptr) {
-            THROW_NODE_ERROR(argument, "Struct creation has an unknown argument.")
+        auto variable = targetStruct->getVariables().at(Utils::indexOf(structCreateNode->getArguments(),
+                                                                       argument).second);
+        if (*argument->getType() != *variable->getType()) {
+            THROW_NODE_ERROR(argument, "The struct create argument uses a different type than the variable.")
             return;
         }
 
-        if (*argument->getType() != *foundVariable->getType()) {
-            THROW_NODE_ERROR(argument,
-                             "The struct create argument uses a different type than the variable.")
-            return;
-        }
-
-        if (foundVariable->isConstant()) {
+        if (variable->isConstant()) {
             THROW_NODE_ERROR(argument, "Constant variables can't be reassigned.")
             return;
         }

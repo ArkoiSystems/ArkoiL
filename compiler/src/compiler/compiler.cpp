@@ -59,15 +59,7 @@ int Compiler::compile(const CompilerOptions &compilerOptions) {
 
     if (compilerOptions.mb_VerboseLLVM_IR) {
         std::cout << "[" << module->getModuleIdentifier() << "] Printing the bitcode:" << std::endl;
-
-        std::string moduleCode;
-        llvm::raw_string_ostream output(moduleCode);
-        output << *module;
-        output.flush();
-
-        Utils::rtrim(moduleCode);
-
-        std::cout << moduleCode << std::endl;
+        std::cout << codeGen.dumpModule() << std::endl;
     }
 
     if (compilerOptions.mb_VerboseModule_Verify)

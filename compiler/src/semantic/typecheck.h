@@ -28,6 +28,8 @@ class AssignmentNode;
 
 class StructCreateNode;
 
+class StructArgumentNode;
+
 class BinaryNode;
 
 class UnaryNode;
@@ -58,17 +60,19 @@ public:
 
     static void visit(const std::shared_ptr<FunctionCallNode> &functionCallNode);
 
-    static void visit(const std::shared_ptr<FunctionArgumentNode> &argumentNode);
+    static void visit(const std::shared_ptr<FunctionArgumentNode> &functionArgumentNode);
+
+    static void visit(const std::shared_ptr<StructArgumentNode> &structArgumentNode);
 
     static void visit(const std::shared_ptr<ReturnNode> &returnNode);
 
     static void visit(const std::shared_ptr<AssignmentNode> &assignmentNode);
 
-    static void visit(const std::shared_ptr<StructCreateNode>& structCreateNode);
+    static void visit(const std::shared_ptr<StructCreateNode> &structCreateNode);
 
-    static void visit(const std::shared_ptr<BinaryNode>& binaryNode);
+    static void visit(const std::shared_ptr<BinaryNode> &binaryNode);
 
-    static void visit(const std::shared_ptr<UnaryNode>& unaryNode);
+    static void visit(const std::shared_ptr<UnaryNode> &unaryNode);
 
     static void visit(const std::shared_ptr<ParenthesizedNode>& parenthesizedNode);
 

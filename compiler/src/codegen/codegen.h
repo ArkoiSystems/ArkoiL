@@ -47,9 +47,11 @@ class ParenthesizedNode;
 
 class FunctionCallNode;
 
+class FunctionArgumentNode;
+
 class StructCreateNode;
 
-class FunctionArgumentNode;
+class StructArgumentNode;
 
 class VariableNode;
 
@@ -58,25 +60,31 @@ class TypedNode;
 class CodeGen {
 
     typedef std::unordered_map<std::shared_ptr<BlockNode>,
-            std::tuple<llvm::BasicBlock*, llvm::Value*, llvm::BasicBlock*>> Blocks;
+            std::tuple<llvm::BasicBlock *, llvm::Value *, llvm::BasicBlock *>> Blocks;
 
-    typedef std::unordered_map<std::shared_ptr<ParameterNode>, llvm::Value*> Parameters;
+    typedef std::unordered_map<std::shared_ptr<StructArgumentNode>, llvm::Value *> StructArguments;
 
-    typedef std::unordered_map<std::shared_ptr<FunctionNode>, llvm::Value*> Functions;
+    typedef std::unordered_map<std::shared_ptr<StructCreateNode>, llvm::Value *> StructCreates;
 
-    typedef std::unordered_map<std::shared_ptr<VariableNode>, llvm::Value*> Variables;
+    typedef std::unordered_map<std::shared_ptr<ParameterNode>, llvm::Value *> Parameters;
 
-    typedef std::unordered_map<std::shared_ptr<StructNode>, llvm::StructType*> Structs;
+    typedef std::unordered_map<std::shared_ptr<StructNode>, llvm::StructType *> Structs;
+
+    typedef std::unordered_map<std::shared_ptr<FunctionNode>, llvm::Value *> Functions;
+
+    typedef std::unordered_map<std::shared_ptr<VariableNode>, llvm::Value *> Variables;
 
 private:
     Blocks m_Blocks;
 
+    StructArguments m_StructArguments;
+    StructCreates m_StructCreates;
     Parameters m_Parameters;
     Functions m_Functions;
     Variables m_Variables;
     Structs m_Structs;
 
-    llvm::BasicBlock* m_CurrentBlock;
+    llvm::BasicBlock *m_CurrentBlock;
 
     llvm::LLVMContext m_Context;
 
@@ -114,9 +122,9 @@ public:
 
     llvm::Value* visit(const std::shared_ptr<NumberNode> &numberNode);
 
-    llvm::Value* visit(const std::shared_ptr<StringNode> &stringNode);
+    llvm::Value *visit(const std::shared_ptr<StringNode> &stringNode);
 
-    llvm::Value* visit(const std::shared_ptr<BinaryNode> &binaryNode);
+    llvm::Value *visit(const std::shared_ptr<BinaryNode> &binaryNode);
 
     llvm::Value *visit(const std::shared_ptr<UnaryNode> &unaryNode);
 
@@ -124,9 +132,13 @@ public:
 
     llvm::Value *visit(const std::shared_ptr<FunctionCallNode> &functionCallNode);
 
+    llvm::Value *visit(const std::shared_ptr<FunctionArgumentNode> &functionArgumentNode);
+
     llvm::Value *visit(const std::shared_ptr<StructCreateNode> &structCreateNode);
 
-    llvm::Value *visit(const std::shared_ptr<FunctionArgumentNode> &argumentNode);
+    llvm::Value *visit(const std::shared_ptr<StructArgumentNode> &structArgumentNode,
+                       llvm::Value *structVariable,
+                       int argumentIndex);
 
     llvm::Value *visit(const std::shared_ptr<VariableNode> &variableNode);
 
@@ -134,27 +146,29 @@ public:
 
     void setPositionAtEnd(llvm::BasicBlock *basicBlock);
 
-    llvm::Value *makeAdd(bool floatingPoint, llvm::Value *rhs, llvm::Value *lhs);
+    llvm::Value *makeAdd(bool isFloating, llvm::Value *rhs, llvm::Value *lhs);
 
-    llvm::Value *makeMul(bool floatingPoint, llvm::Value *rhs, llvm::Value *lhs);
+    llvm::Value *makeMul(bool isFloating, llvm::Value *rhs, llvm::Value *lhs);
 
-    llvm::Value *makeDiv(bool floatingPoint, bool isSigned, llvm::Value *rhs, llvm::Value *lhs);
+    llvm::Value *makeDiv(bool isFloating, bool isSigned, llvm::Value *rhs, llvm::Value *lhs);
 
-    llvm::Value* makeSub(bool floatingPoint, llvm::Value* rhs, llvm::Value* lhs);
+    llvm::Value *makeSub(bool isFloating, llvm::Value *rhs, llvm::Value *lhs);
 
-    llvm::Value* makeRem(bool floatingPoint, bool isSigned, llvm::Value* rhs, llvm::Value* lhs);
+    llvm::Value *makeRem(bool isFloating, bool isSigned, llvm::Value *rhs, llvm::Value *lhs);
 
-    llvm::Value* makeLT(bool floatingPoint, bool isSigned, llvm::Value* rhs, llvm::Value* lhs);
+    llvm::Value *makeLT(bool isFloating, bool isSigned, llvm::Value *rhs, llvm::Value *lhs);
 
-    llvm::Value* makeGT(bool floatingPoint, bool isSigned, llvm::Value* rhs, llvm::Value* lhs);
+    llvm::Value *makeGT(bool isFloating, bool isSigned, llvm::Value *rhs, llvm::Value *lhs);
 
-    llvm::Value* makeLE(bool floatingPoint, bool isSigned, llvm::Value* rhs, llvm::Value* lhs);
+    llvm::Value *makeLE(bool isFloating, bool isSigned, llvm::Value *rhs, llvm::Value *lhs);
 
-    llvm::Value* makeGE(bool floatingPoint, bool isSigned, llvm::Value* rhs, llvm::Value* lhs);
+    llvm::Value *makeGE(bool isFloating, bool isSigned, llvm::Value *rhs, llvm::Value *lhs);
 
-    llvm::Value* makeEQ(bool floatingPoint, llvm::Value* rhs, llvm::Value* lhs);
+    llvm::Value *makeEQ(bool isFloating, llvm::Value *rhs, llvm::Value *lhs);
 
-    llvm::Value* makeNE(bool floatingPoint, llvm::Value* rhs, llvm::Value* lhs);
+    llvm::Value *makeNE(bool isFloating, llvm::Value *rhs, llvm::Value *lhs);
+
+    std::string dumpModule();
 
 public:
     std::shared_ptr<llvm::Module> getModule() const;

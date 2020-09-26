@@ -2,6 +2,7 @@
 // Created by timo on 9/7/20.
 //
 
+#include <sstream>
 #include "astnodes.h"
 
 #include "../lexer/token.h"
@@ -52,6 +53,12 @@ bool ASTNode::isFailed() const {
 
 void ASTNode::setFailed(bool failed) {
     mb_Failed = failed;
+}
+
+std::string ASTNode::getKindAsString() const {
+    std::stringstream kindString;
+    kindString << getKind();
+    return kindString.str();
 }
 
 ASTNode::ASTKind ASTNode::getKind() const {
@@ -370,6 +377,12 @@ void BinaryNode::setRHS(const std::shared_ptr<OperableNode> &rhs) {
     m_Rhs = rhs;
 }
 
+std::string BinaryNode::getOperatorKindAsString() const {
+    std::stringstream kindString;
+    kindString << getOperatorKind();
+    return kindString.str();
+}
+
 BinaryNode::BinaryKind BinaryNode::getOperatorKind() const {
     return m_OperatorKind;
 }
@@ -440,6 +453,12 @@ const std::shared_ptr<OperableNode> &UnaryNode::getExpression() const {
 
 void UnaryNode::setExpression(const std::shared_ptr<OperableNode> &expression) {
     m_Expression = expression;
+}
+
+std::string UnaryNode::getOperatorKindAsString() const {
+    std::stringstream kindString;
+    kindString << getOperatorKind();
+    return kindString.str();
 }
 
 UnaryNode::UnaryKind UnaryNode::getOperatorKind() const {
@@ -898,6 +917,10 @@ void StructCreateNode::addArgument(const std::shared_ptr<StructArgumentNode> &ar
 
 void StructCreateNode::insertArgument(int index, const std::shared_ptr<StructArgumentNode> &argumentNode) {
     m_Arguments.insert(m_Arguments.begin() + index, argumentNode);
+}
+
+void StructCreateNode::removeArgument(int index) {
+    m_Arguments.erase(m_Arguments.begin() + index);
 }
 
 const std::shared_ptr<IdentifierNode> &StructCreateNode::getStartIdentifier() const {

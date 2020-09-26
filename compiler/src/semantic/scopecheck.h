@@ -28,6 +28,8 @@ class ParenthesizedNode;
 
 class StructCreateNode;
 
+class StructArgumentNode;
+
 class FunctionArgumentNode;
 
 class FunctionCallNode;
@@ -74,7 +76,9 @@ public:
 
     static void visit(const std::shared_ptr<StructCreateNode> &structCreateNode);
 
-    static void visit(const std::shared_ptr<FunctionArgumentNode> &argumentNode);
+    static void visit(const std::shared_ptr<StructArgumentNode> &structArgumentNode);
+
+    static void visit(const std::shared_ptr<FunctionArgumentNode> &functionArgumentNode);
 
     static void visit(const std::shared_ptr<FunctionCallNode> &functionCallNode);
 
