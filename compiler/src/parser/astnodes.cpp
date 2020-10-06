@@ -1300,26 +1300,22 @@ void StructArgumentNode::setName(const std::shared_ptr<Token> &name) {
 /* ----------======== STRUCT-CREATE-NODE ========---------- */
 
 StructCreateNode::StructCreateNode()
-        : m_StartIdentifier(nullptr), m_EndIdentifier(nullptr),
-          m_Arguments({}), mb_Unnamed(false) {
+        : m_Identifier(nullptr), m_Arguments({}),
+          mb_Unnamed(false) {
     setKind(ASTNode::STRUCT_CREATE);
 }
 
 StructCreateNode::StructCreateNode(const StructCreateNode &other)
         : OperableNode(other),
-          m_StartIdentifier(nullptr), m_EndIdentifier(nullptr),
-          m_Arguments({}), mb_Unnamed(other.mb_Unnamed) {
+          m_Identifier(nullptr), m_Arguments({}),
+          mb_Unnamed(other.mb_Unnamed) {
     for (const auto &argument : other.m_Arguments)
         m_Arguments.push_back(std::shared_ptr<StructArgumentNode>(argument->clone(
                 std::shared_ptr<StructCreateNode>(this),
                 this->getScope())));
 
-    if (other.m_StartIdentifier)
-        m_StartIdentifier = std::shared_ptr<IdentifierNode>(other.m_StartIdentifier->clone(
-                std::shared_ptr<StructCreateNode>(this),
-                this->getScope()));
-    if (other.m_EndIdentifier)
-        m_EndIdentifier = std::shared_ptr<IdentifierNode>(other.m_EndIdentifier->clone(
+    if (other.m_Identifier)
+        m_Identifier = std::shared_ptr<IdentifierNode>(other.m_Identifier->clone(
                 std::shared_ptr<StructCreateNode>(this),
                 this->getScope()));
 }
@@ -1344,20 +1340,12 @@ void StructCreateNode::removeArgument(int index) {
     m_Arguments.erase(m_Arguments.begin() + index);
 }
 
-const std::shared_ptr<IdentifierNode> &StructCreateNode::getStartIdentifier() const {
-    return m_StartIdentifier;
+const std::shared_ptr<IdentifierNode> &StructCreateNode::getIdentifier() const {
+    return m_Identifier;
 }
 
-void StructCreateNode::setStartIdentifier(const std::shared_ptr<IdentifierNode> &startIdentifier) {
-    m_StartIdentifier = startIdentifier;
-}
-
-const std::shared_ptr<IdentifierNode> &StructCreateNode::getEndIdentifier() const {
-    return m_EndIdentifier;
-}
-
-void StructCreateNode::setEndIdentifier(const std::shared_ptr<IdentifierNode> &endIdentifier) {
-    m_EndIdentifier = endIdentifier;
+void StructCreateNode::setIdentifier(const std::shared_ptr<IdentifierNode> &mIdentifier) {
+    m_Identifier = mIdentifier;
 }
 
 const std::vector<std::shared_ptr<StructArgumentNode>> &StructCreateNode::getArguments() const {
