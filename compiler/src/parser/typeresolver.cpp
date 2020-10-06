@@ -255,7 +255,7 @@ void TypeResolver::visit(const std::shared_ptr<IdentifierNode> &identifierNode) 
     }
 
     if (targetNode == nullptr) {
-        THROW_NODE_ERROR(identifierNode, "Couldn't find the identifier \"{}\".",
+        THROW_NODE_ERROR(identifierNode, "Couldn't find the target node for the identifier \"{}\".",
                          identifierNode->getIdentifier()->getContent())
         return;
     }
@@ -266,7 +266,9 @@ void TypeResolver::visit(const std::shared_ptr<IdentifierNode> &identifierNode) 
     }
 
     identifierNode->setTargetNode(targetNode);
-    identifierNode->setType(std::make_shared<TypeNode>(*typedNode->getType()));
+    identifierNode->setType(std::shared_ptr<TypeNode>(typedNode->getType()->clone(
+            identifierNode, identifierNode->getScope())));
+    TypeResolver::visit(identifierNode->getType());
     identifierNode->setTypeResolved(true);
 
     if (identifierNode->isDereference() && identifierNode->getType()->getPointerLevel() <= 0) {
@@ -467,7 +469,11 @@ void TypeResolver::visit(const std::shared_ptr<StructCreateNode> &structCreateNo
         argument->setParent(structCreateNode);
         argument->setScope(structCreateNode->getScope());
         argument->setName(variable->getName());
-        argument->setExpression(variable->getExpression());
+
+        if (variable->getExpression() != nullptr)
+            argument->setExpression(std::shared_ptr<OperableNode>(variable->getExpression()->clone(
+                    argument, argument->getScope())));
+
         argument->setEndToken(variable->getEndToken());
         argument->getScope()->insert(argument->getName()->getContent(), argument);
         argument->setType(variable->getType());

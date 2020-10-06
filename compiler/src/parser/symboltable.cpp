@@ -12,6 +12,10 @@
 SymbolTable::SymbolTable(std::shared_ptr<SymbolTable> parent)
         : m_Parent(std::move(parent)), m_Table({}) {}
 
+SymbolTable::SymbolTable(const SymbolTable &other)
+        : m_Parent(nullptr), m_Table(other.m_Table) {}
+
+
 void SymbolTable::insert(const std::string &id, const std::shared_ptr<ASTNode> &node) {
     auto iterator = m_Table.find(id);
     if (iterator != m_Table.end()) {

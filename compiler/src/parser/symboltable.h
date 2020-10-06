@@ -19,12 +19,14 @@ class SymbolTable {
 
 private:
     std::shared_ptr<SymbolTable> m_Parent;
+
+public:
     Table m_Table;
 
 public:
     explicit SymbolTable(std::shared_ptr<SymbolTable> parent);
 
-    SymbolTable(const SymbolTable &other) = default;
+    SymbolTable(const SymbolTable &other);
 
     SymbolTable &operator=(const SymbolTable &) = delete;
 

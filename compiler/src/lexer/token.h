@@ -32,7 +32,7 @@ private:
 public:
     Token();
 
-    Token(const Token &) = delete;
+    Token(const Token &);
 
     Token &operator=(const Token &) = delete;
 

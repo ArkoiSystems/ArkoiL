@@ -11,17 +11,12 @@ struct Info {
 }
 
 fun main(): i32 {
-    var info = createInfo(2, 2)
-    return info.test
+    var info = createInfo()
+    println("test: %i, hello: %i", info.test, info.weird.hello)
+    return info.weird.hello
 }
 
-fun createInfo(test_: i32, hello_: i32): Info = { 
-    pointerTest: &test, 
-    test: test_,
-    weird: { 
-        hello: test_ + hello_
-    }
-}
+fun createInfo(): Info = { test: 10, weird: { hello: 2 } }
 
 ## FUTURE CONCEPTS:
 
