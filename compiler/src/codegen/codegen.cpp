@@ -593,13 +593,15 @@ llvm::Value *CodeGen::visit(const std::shared_ptr<VariableNode> &variableNode) {
         return m_Builder.CreateLoad(globalVariable);
     } else if (variableNode->isLocal()) {
         llvm::Value *valueRef = nullptr;
-        bool createVariable = true;
 
+        bool createVariable = variableNode->isAccessed();
         if (variableNode->getExpression() != nullptr) {
             valueRef = CodeGen::visit(std::static_pointer_cast<TypedNode>(variableNode->getExpression()));
 
-            auto instruction = reinterpret_cast<llvm::Instruction *>(valueRef);
-            createVariable = instruction->getOpcode() != llvm::Instruction::Alloca;
+            if (createVariable) {
+                auto instruction = reinterpret_cast<llvm::Instruction *>(valueRef);
+                createVariable = instruction->getOpcode() != llvm::Instruction::Alloca;
+            }
         }
 
         if (createVariable) {

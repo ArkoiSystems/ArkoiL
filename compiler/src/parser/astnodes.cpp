@@ -163,12 +163,12 @@ std::ostream &operator<<(std::ostream &os, const ASTNode::ASTKind &kind) {
 
 TypedNode::TypedNode()
         : mb_TypeResolved(false), m_Type(nullptr),
-          m_TargetNode(nullptr) {}
+          m_TargetNode(nullptr), mb_Accessed(false) {}
 
 TypedNode::TypedNode(const TypedNode &other)
         : ASTNode(other),
           mb_TypeResolved(false), m_Type(nullptr),
-          m_TargetNode(nullptr) {}
+          m_TargetNode(nullptr), mb_Accessed(false) {}
 
 TypedNode *TypedNode::clone(std::shared_ptr<ASTNode> parent,
                             std::shared_ptr<SymbolTable> symbolTable) const {
@@ -200,6 +200,14 @@ bool TypedNode::isTypeResolved() const {
 
 void TypedNode::setTypeResolved(bool typeResolved) {
     mb_TypeResolved = typeResolved;
+}
+
+bool TypedNode::isAccessed() const {
+    return mb_Accessed;
+}
+
+void TypedNode::setAccessed(bool mbAccessed) {
+    mb_Accessed = mbAccessed;
 }
 
 
