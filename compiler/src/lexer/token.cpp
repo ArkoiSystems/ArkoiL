@@ -9,6 +9,11 @@ Token::Token()
           m_StartChar(0), m_EndChar(0),
           m_Content({}) {}
 
+Token::Token(const Token &other)
+        : m_Type(other.m_Type), m_LineNumber(other.m_LineNumber),
+          m_StartChar(other.m_StartChar), m_EndChar(other.m_EndChar),
+          m_Content(other.m_Content) {}
+
 void Token::addContent(const std::string &content) {
     m_Content += content;
 }

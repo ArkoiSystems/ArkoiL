@@ -610,8 +610,18 @@ std::shared_ptr<OperableNode> Parser::parseIdentifier(const std::shared_ptr<ASTN
     if (peekToken(1) == "(") {
         nextToken(2);
 
-        auto functionCall = std::make_shared<FunctionCallNode>(*identifierNode);
-        functionCall->setScope(std::make_shared<SymbolTable>(functionCall->getScope()));
+        auto functionCall = std::make_shared<FunctionCallNode>();
+
+        functionCall->setStartToken(identifierNode->getStartToken());
+        functionCall->setParent(identifierNode->getParent());
+        functionCall->setScope(std::make_shared<SymbolTable>(identifierNode->getScope()));
+
+        functionCall->setNextIdentifier(identifierNode->getNextIdentifier());
+        functionCall->setLastIdentifier(identifierNode->getLastIdentifier());
+        functionCall->setDereference(identifierNode->isDereference());
+        functionCall->setIdentifier(identifierNode->getIdentifier());
+        functionCall->setPointer(identifierNode->isPointer());
+
         identifierNode = functionCall;
 
         if (currentToken() != ")" || currentToken() == Token::IDENTIFIER)
@@ -656,8 +666,18 @@ std::shared_ptr<OperableNode> Parser::parseIdentifier(const std::shared_ptr<ASTN
         if (peekToken(1) == "(") {
             nextToken(2);
 
-            auto functionCall = std::make_shared<FunctionCallNode>(*chainedIdentifier);
-            functionCall->setScope(std::make_shared<SymbolTable>(functionCall->getScope()));
+            auto functionCall = std::make_shared<FunctionCallNode>();
+
+            functionCall->setStartToken(chainedIdentifier->getStartToken());
+            functionCall->setParent(chainedIdentifier->getParent());
+            functionCall->setScope(std::make_shared<SymbolTable>(chainedIdentifier->getScope()));
+
+            functionCall->setNextIdentifier(chainedIdentifier->getNextIdentifier());
+            functionCall->setLastIdentifier(chainedIdentifier->getLastIdentifier());
+            functionCall->setDereference(chainedIdentifier->isDereference());
+            functionCall->setIdentifier(chainedIdentifier->getIdentifier());
+            functionCall->setPointer(chainedIdentifier->isPointer());
+
             chainedIdentifier = functionCall;
 
             if (currentToken() != ")" || currentToken() == Token::IDENTIFIER)

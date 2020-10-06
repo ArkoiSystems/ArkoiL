@@ -182,6 +182,8 @@ void ScopeCheck::visit(const std::shared_ptr<IdentifierNode> &identifierNode) {
     if (identifierNode->getTargetNode() == nullptr ||
         identifierNode->getTargetNode()->getKind() != ASTNode::VARIABLE)
         return;
+    if (identifierNode->getLastIdentifier() != nullptr)
+        return;
 
     auto targetVariable = std::static_pointer_cast<VariableNode>(identifierNode->getTargetNode());
     std::shared_ptr<VariableNode> variableParent;
