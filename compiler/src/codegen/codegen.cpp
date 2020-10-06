@@ -364,7 +364,17 @@ llvm::Value *CodeGen::visit(const std::shared_ptr<IdentifierNode> &identifierNod
         exit(EXIT_FAILURE);
     }
 
+    if (identifierNode->getKind() == ASTNode::FUNCTION_CALL)
+        typedTarget = std::static_pointer_cast<FunctionCallNode>(identifierNode);
+
     auto targetValue = CodeGen::visit(typedTarget);
+    if (identifierNode->getKind() == ASTNode::FUNCTION_CALL
+        && identifierNode->getNextIdentifier() != nullptr) {
+        auto tempVariable = m_Builder.CreateAlloca(CodeGen::visit(identifierNode->getType()));
+        m_Builder.CreateStore(targetValue, tempVariable);
+        targetValue = tempVariable;
+    }
+
     if (identifierNode->isDereference()) {
         targetValue = m_Builder.CreateLoad(targetValue);
     } else if (identifierNode->isPointer()) {

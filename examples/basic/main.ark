@@ -11,9 +11,9 @@ struct Info {
 }
 
 fun main(): i32 {
-    var info = createInfo()
-    println("test: %i, hello: %i", info.test, info.weird.hello)
-    return info.weird.hello
+    var hello = createInfo().weird.hello
+    println("hello: %i", hello)
+    return hello
 }
 
 fun createInfo(): Info = { test: 10, weird: { hello: 2 } }
