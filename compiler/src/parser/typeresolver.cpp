@@ -265,6 +265,8 @@ void TypeResolver::visit(const std::shared_ptr<IdentifierNode> &identifierNode) 
         return;
     }
 
+    typedNode->setAccessed(true);
+
     identifierNode->setTargetNode(targetNode);
     identifierNode->setType(std::shared_ptr<TypeNode>(typedNode->getType()->clone(
             identifierNode, identifierNode->getScope())));

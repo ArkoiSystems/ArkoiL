@@ -166,6 +166,7 @@ private:
     std::shared_ptr<ASTNode> m_TargetNode;
     std::shared_ptr<TypeNode> m_Type;
     bool mb_TypeResolved;
+    bool mb_Accessed;
 
 public:
     TypedNode();
@@ -194,6 +195,10 @@ public:
     bool isTypeResolved() const;
 
     void setTypeResolved(bool typeResolved);
+
+    bool isAccessed() const;
+
+    void setAccessed(bool mbAccessed);
 
 };
 
