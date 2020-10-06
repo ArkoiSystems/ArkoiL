@@ -637,6 +637,46 @@ std::shared_ptr<OperableNode> Parser::parseIdentifier(const std::shared_ptr<ASTN
 
     identifierNode->setEndToken(currentToken());
 
+    if (peekToken(1) == "{") {
+        nextToken(2);
+
+        if (identifierNode->getKind() == ASTNode::FUNCTION_CALL) {
+            THROW_TOKEN_ERROR("Can't do a struct creation with a function call.")
+            parent->setFailed(true);
+            return identifierNode;
+        }
+
+        if (identifierNode->getNextIdentifier() != nullptr) {
+            THROW_NODE_ERROR(identifierNode, "Struct creation nodes can't have child nodes.")
+            parent->setFailed(true);
+            return identifierNode;
+        }
+
+        auto structCreate = std::make_shared<StructCreateNode>();
+        structCreate->setStartToken(identifierNode->getStartToken());
+        structCreate->setScope(std::make_shared<SymbolTable>(parent->getScope()));
+        structCreate->setParent(parent);
+
+        identifierNode->setParent(structCreate);
+        structCreate->setIdentifier(identifierNode);
+
+        identifierNode->setScope(structCreate->getScope());
+        identifierNode->setParent(structCreate);
+
+        if (currentToken() != "}")
+            parseStructArguments(structCreate, structCreate);
+        structCreate->setEndToken(currentToken());
+
+        if (currentToken() != "}") {
+            THROW_TOKEN_ERROR("Struct create expected '}}' but got '{}' instead.",
+                              currentToken()->getContent())
+            parent->setFailed(true);
+            return structCreate;
+        }
+
+        return structCreate;
+    }
+
     auto startIdentifier = identifierNode;
     auto lastIdentifier = identifierNode;
     while (peekToken(1) == ".") {
@@ -699,46 +739,7 @@ std::shared_ptr<OperableNode> Parser::parseIdentifier(const std::shared_ptr<ASTN
         identifierNode = chainedIdentifier;
     }
 
-    if (peekToken(1) == "{") {
-        nextToken(2);
-
-        if (identifierNode->getKind() == ASTNode::FUNCTION_CALL) {
-            THROW_TOKEN_ERROR("Can't do a struct creation with a function call.")
-            parent->setFailed(true);
-            return identifierNode;
-        }
-
-        if (identifierNode->getNextIdentifier() != nullptr) {
-            THROW_NODE_ERROR(identifierNode, "Struct creation nodes can't have child nodes.")
-            parent->setFailed(true);
-            return identifierNode;
-        }
-
-        auto structCreate = std::make_shared<StructCreateNode>();
-        structCreate->setStartToken(identifierNode->getStartToken());
-        structCreate->setScope(std::make_shared<SymbolTable>(parent->getScope()));
-        structCreate->setParent(parent);
-
-        startIdentifier->setParent(structCreate);
-        structCreate->setStartIdentifier(startIdentifier);
-        structCreate->setEndIdentifier(identifierNode);
-
-        identifierNode->setScope(structCreate->getScope());
-        identifierNode->setParent(structCreate);
-
-        if (currentToken() != "}")
-            parseStructArguments(structCreate, structCreate);
-        structCreate->setEndToken(currentToken());
-
-        if (currentToken() != "}") {
-            THROW_TOKEN_ERROR("Struct create expected '}}' but got '{}' instead.",
-                              currentToken()->getContent())
-            parent->setFailed(true);
-            return structCreate;
-        }
-
-        return structCreate;
-    } else if (peekToken(1) == "=") {
+    if (peekToken(1) == "=") {
         nextToken(2);
 
         if (identifierNode->getKind() == ASTNode::FUNCTION_CALL) {

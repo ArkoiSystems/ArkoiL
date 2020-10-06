@@ -834,8 +834,8 @@ public:
 class StructCreateNode : public OperableNode {
 
 private:
-    std::shared_ptr<IdentifierNode> m_StartIdentifier, m_EndIdentifier;
     std::vector<std::shared_ptr<StructArgumentNode>> m_Arguments;
+    std::shared_ptr<IdentifierNode> m_Identifier;
     bool mb_Unnamed;
 
 public:
@@ -858,14 +858,9 @@ public:
 
 public:
     [[nodiscard]]
-    const std::shared_ptr<IdentifierNode> &getStartIdentifier() const;
+    const std::shared_ptr<IdentifierNode> &getIdentifier() const;
 
-    void setStartIdentifier(const std::shared_ptr<IdentifierNode> &startIdentifier);
-
-    [[nodiscard]]
-    const std::shared_ptr<IdentifierNode> &getEndIdentifier() const;
-
-    void setEndIdentifier(const std::shared_ptr<IdentifierNode> &endIdentifier);
+    void setIdentifier(const std::shared_ptr<IdentifierNode> &mIdentifier);
 
     [[nodiscard]]
     const std::vector<std::shared_ptr<StructArgumentNode>> &getArguments() const;
