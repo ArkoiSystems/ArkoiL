@@ -1,22 +1,28 @@
 import "console"
 
 struct Weird {
-    var hello = 1337
+    var hello: i32
 }
 
 struct Info {
-    var test = 0
-    var pointerTest = &test
+    var test: i32
+    var pointerTest: i32*
     var weird: Weird
 }
 
 fun main(): i32 {
-    var hello = createInfo().weird.hello
-    println("hello: %i", hello)
-    return hello
+    var test = createInfo().weird.hello
+    println("test: \"%i\"", test)
+    return test
 }
 
-fun createInfo(): Info = { test: 10, weird: { hello: 2 } }
+fun createInfo(): Info = { 
+    test: 10,
+    pointerTest: &test, 
+    weird: { 
+        hello: 2 
+    } 
+}
 
 ## FUTURE CONCEPTS:
 

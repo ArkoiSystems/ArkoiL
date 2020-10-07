@@ -171,7 +171,42 @@ void Lexer::parseString(const std::shared_ptr<Token> &token) {
         if (identifierChar == '"')
             break;
 
-        token->addContent(std::string(1, identifierChar));
+        auto toAdd = identifierChar;
+        if (identifierChar == '\\' && (m_Position + 1) < (m_SourceCode.size() - 1)) {
+            auto nextChar = m_SourceCode[m_Position + 1];
+            switch (nextChar) {
+                case 'b':
+                    toAdd = '\b';
+                    m_Position++;
+                    break;
+                case 'n':
+                    toAdd = '\n';
+                    m_Position++;
+                    break;
+                case 'f':
+                    toAdd = '\f';
+                    m_Position++;
+                    break;
+                case 'r':
+                    toAdd = '\r';
+                    m_Position++;
+                    break;
+                case 't':
+                    toAdd = '\t';
+                    m_Position++;
+                    break;
+                case '"':
+                    toAdd = '"';
+                    m_Position++;
+                    break;
+                case '\'':
+                    toAdd = '\'';
+                    m_Position++;
+                    break;
+            }
+        }
+
+        token->addContent(std::string(1, toAdd));
         m_Position++;
     }
 
