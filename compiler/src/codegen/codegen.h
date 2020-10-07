@@ -5,6 +5,7 @@
 #pragma once
 
 #include <unordered_map>
+#include <variant>
 #include <memory>
 #include <vector>
 
@@ -59,30 +60,21 @@ class TypedNode;
 
 class CodeGen {
 
-    typedef std::unordered_map<std::shared_ptr<BlockNode>,
-            std::tuple<llvm::BasicBlock *, llvm::Value *, llvm::BasicBlock *>> Blocks;
+    typedef std::tuple<llvm::BasicBlock *, llvm::Value *, llvm::BasicBlock *> BlockDetails;
 
-    typedef std::unordered_map<std::shared_ptr<StructArgumentNode>, llvm::Value *> StructArguments;
+    typedef std::variant<llvm::Value *,
+            llvm::Type *,
+            llvm::StructType *,
+            llvm::BasicBlock *,
+            std::nullptr_t,
+            BlockDetails> NodeTypes;
 
-    typedef std::unordered_map<std::shared_ptr<StructCreateNode>, llvm::Value *> StructCreates;
+    typedef std::unordered_map<std::shared_ptr<ASTNode>, NodeTypes> Nodes;
 
-    typedef std::unordered_map<std::shared_ptr<ParameterNode>, llvm::Value *> Parameters;
-
-    typedef std::unordered_map<std::shared_ptr<StructNode>, llvm::StructType *> Structs;
-
-    typedef std::unordered_map<std::shared_ptr<FunctionNode>, llvm::Value *> Functions;
-
-    typedef std::unordered_map<std::shared_ptr<VariableNode>, llvm::Value *> Variables;
+    typedef std::vector<Nodes> ScopedNodes;
 
 private:
-    Blocks m_Blocks;
-
-    StructArguments m_StructArguments;
-    StructCreates m_StructCreates;
-    Parameters m_Parameters;
-    Functions m_Functions;
-    Variables m_Variables;
-    Structs m_Structs;
+    ScopedNodes m_ScopedNodes;
 
     llvm::BasicBlock *m_CurrentBlock;
 
