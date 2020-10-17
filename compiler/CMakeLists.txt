@@ -26,7 +26,7 @@ add_executable(ArkoiCompiler
         "${PROJECT_SOURCE_DIR}/src/compiler/options.h"
         "${PROJECT_SOURCE_DIR}/src/compiler/compiler.cpp"
         "${PROJECT_SOURCE_DIR}/src/compiler/compiler.h"
-        "${PROJECT_SOURCE_DIR}/src/utils.h"
+        "src/utils/utils.h"
         "${PROJECT_SOURCE_DIR}/src/parser/parser.cpp"
         "${PROJECT_SOURCE_DIR}/src/parser/parser.h"
         "${PROJECT_SOURCE_DIR}/src/lexer/token.cpp"
@@ -44,7 +44,12 @@ add_executable(ArkoiCompiler
         "${PROJECT_SOURCE_DIR}/src/semantic/scopecheck.h"
         "${PROJECT_SOURCE_DIR}/src/codegen/codegen.cpp"
         "${PROJECT_SOURCE_DIR}/src/codegen/codegen.h"
-        "${PROJECT_SOURCE_DIR}/src/parser/astnodes.cpp" src/options/OptionParser.cpp src/options/OptionParser.h)
+        "${PROJECT_SOURCE_DIR}/src/parser/astnodes.cpp"
+        "${PROJECT_SOURCE_DIR}/src/options/OptionParser.cpp"
+        "${PROJECT_SOURCE_DIR}/src/options/OptionParser.h"
+        "${PROJECT_SOURCE_DIR}/src/parser/allnodes.h"
+        "${PROJECT_SOURCE_DIR}/src/semantic/inliner.cpp"
+        "${PROJECT_SOURCE_DIR}/src/semantic/inliner.h")
 
 target_link_libraries(ArkoiCompiler
         LINK_PUBLIC

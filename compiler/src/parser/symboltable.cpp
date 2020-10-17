@@ -61,6 +61,10 @@ std::shared_ptr<SymbolTable::Symbols> SymbolTable::scope(const std::string &id,
     return newSymbols;
 }
 
-void SymbolTable::setParent(const std::shared_ptr<SymbolTable> &parent) {
-    m_Parent = parent;
+const std::shared_ptr<SymbolTable> &SymbolTable::getParent() const {
+    return m_Parent;
+}
+
+const SymbolTable::Table &SymbolTable::getTable() const {
+    return m_Table;
 }

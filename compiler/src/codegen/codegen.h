@@ -14,49 +14,7 @@
 #include <llvm/IR/Module.h>
 #include <llvm/IR/Type.h>
 
-class ASTNode;
-
-class RootNode;
-
-class FunctionNode;
-
-class TypeNode;
-
-class StructNode;
-
-class ParameterNode;
-
-class BlockNode;
-
-class ReturnNode;
-
-class OperableNode;
-
-class AssignmentNode;
-
-class IdentifierNode;
-
-class NumberNode;
-
-class StringNode;
-
-class BinaryNode;
-
-class UnaryNode;
-
-class ParenthesizedNode;
-
-class FunctionCallNode;
-
-class FunctionArgumentNode;
-
-class StructCreateNode;
-
-class StructArgumentNode;
-
-class VariableNode;
-
-class TypedNode;
+#include "../parser/allnodes.h"
 
 class CodeGen {
 
@@ -66,6 +24,7 @@ class CodeGen {
             llvm::Type *,
             llvm::StructType *,
             llvm::BasicBlock *,
+            llvm::Function *,
             std::nullptr_t,
             BlockDetails> NodeTypes;
 
@@ -96,23 +55,24 @@ public:
 
     void visit(const std::shared_ptr<RootNode> &rootNode);
 
-    llvm::Value* visit(const std::shared_ptr<FunctionNode> &functionNode);
+    llvm::Value *visit(const std::shared_ptr<FunctionNode> &functionNode,
+                       const std::shared_ptr<FunctionCallNode> &functionCallNode = nullptr);
 
-    llvm::Type* visit(const std::shared_ptr<TypeNode> &typeNode);
+    llvm::Type *visit(const std::shared_ptr<TypeNode> &typeNode);
 
-    llvm::Type* visit(const std::shared_ptr<StructNode> &structNode);
+    llvm::Type *visit(const std::shared_ptr<StructNode> &structNode);
 
-    llvm::Value* visit(const std::shared_ptr<ParameterNode> &parameterNode);
+    llvm::Value *visit(const std::shared_ptr<ParameterNode> &parameterNode);
 
-    llvm::BasicBlock* visit(const std::shared_ptr<BlockNode> &blockNode);
+    llvm::BasicBlock *visit(const std::shared_ptr<BlockNode> &blockNode);
 
-    llvm::Value* visit(const std::shared_ptr<ReturnNode> &returnNode);
+    llvm::Value *visit(const std::shared_ptr<ReturnNode> &returnNode);
 
-    llvm::Value* visit(const std::shared_ptr<AssignmentNode> &assignmentNode);
+    llvm::Value *visit(const std::shared_ptr<AssignmentNode> &assignmentNode);
 
-    llvm::Value* visit(const std::shared_ptr<IdentifierNode> &identifierNode);
+    llvm::Value *visit(const std::shared_ptr<IdentifierNode> &identifierNode);
 
-    llvm::Value* visit(const std::shared_ptr<NumberNode> &numberNode);
+    llvm::Value *visit(const std::shared_ptr<NumberNode> &numberNode);
 
     llvm::Value *visit(const std::shared_ptr<StringNode> &stringNode);
 
@@ -159,6 +119,8 @@ public:
     llvm::Value *makeEQ(bool isFloating, llvm::Value *rhs, llvm::Value *lhs);
 
     llvm::Value *makeNE(bool isFloating, llvm::Value *rhs, llvm::Value *lhs);
+
+    bool shouldGenerateGEP(const std::shared_ptr<StructNode> &structNode, int variableIndex);
 
     std::string dumpModule();
 

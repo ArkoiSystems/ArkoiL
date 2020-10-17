@@ -9,7 +9,7 @@
 #include "../compiler/error.h"
 #include "../lexer/lexer.h"
 #include "../lexer/token.h"
-#include "../utils.h"
+#include "../utils/utils.h"
 
 void ScopeCheck::visit(const std::shared_ptr<ASTNode> &node) {
     if (node->getKind() == ASTNode::ROOT) {

@@ -7,7 +7,7 @@
 #include <iostream>
 #include <utility>
 
-#include "../utils.h"
+#include "../utils/utils.h"
 
 Error::Error(std::string sourcePath, std::string sourceCode, unsigned int startLine,
              unsigned int endLine, unsigned int startChar, unsigned int endChar,

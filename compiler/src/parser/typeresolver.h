@@ -6,47 +6,7 @@
 
 #include <memory>
 
-class RootNode;
-
-class FunctionNode;
-
-class BlockNode;
-
-class VariableNode;
-
-class BinaryNode;
-
-class UnaryNode;
-
-class ParenthesizedNode;
-
-class NumberNode;
-
-class StringNode;
-
-class IdentifierNode;
-
-class ParameterNode;
-
-class FunctionArgumentNode;
-
-class StructArgumentNode;
-
-class FunctionCallNode;
-
-class StructCreateNode;
-
-class AssignmentNode;
-
-class ReturnNode;
-
-class StructNode;
-
-class OperableNode;
-
-class TypeNode;
-
-class ASTNode;
+#include "allnodes.h"
 
 class TypeResolver {
 

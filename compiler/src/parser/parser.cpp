@@ -10,7 +10,7 @@
 #include "../compiler/error.h"
 #include "../lexer/lexer.h"
 #include "../lexer/token.h"
-#include "../utils.h"
+#include "../utils/utils.h"
 #include "astnodes.h"
 
 Parser::Parser(std::string sourcePath, std::string sourceCode,
@@ -607,34 +607,6 @@ std::shared_ptr<OperableNode> Parser::parseIdentifier(const std::shared_ptr<ASTN
         identifierNode->getIdentifier()->setContent("llvm." + currentToken()->getContent());
     }
 
-    if (peekToken(1) == "(") {
-        nextToken(2);
-
-        auto functionCall = std::make_shared<FunctionCallNode>();
-
-        functionCall->setStartToken(identifierNode->getStartToken());
-        functionCall->setParent(identifierNode->getParent());
-        functionCall->setScope(std::make_shared<SymbolTable>(identifierNode->getScope()));
-
-        functionCall->setNextIdentifier(identifierNode->getNextIdentifier());
-        functionCall->setLastIdentifier(identifierNode->getLastIdentifier());
-        functionCall->setDereference(identifierNode->isDereference());
-        functionCall->setIdentifier(identifierNode->getIdentifier());
-        functionCall->setPointer(identifierNode->isPointer());
-
-        identifierNode = functionCall;
-
-        if (currentToken() != ")" || currentToken() == Token::IDENTIFIER)
-            parseFunctionArguments(functionCall, functionCall);
-
-        if (currentToken() != ")") {
-            THROW_TOKEN_ERROR("Function call expected ')' but got '{}' instead.",
-                              currentToken()->getContent())
-            parent->setFailed(true);
-            return functionCall;
-        }
-    }
-
     identifierNode->setEndToken(currentToken());
 
     if (peekToken(1) == "{") {
@@ -676,6 +648,36 @@ std::shared_ptr<OperableNode> Parser::parseIdentifier(const std::shared_ptr<ASTN
 
         return structCreate;
     }
+
+    if (peekToken(1) == "(") {
+        nextToken(2);
+
+        auto functionCall = std::make_shared<FunctionCallNode>();
+
+        functionCall->setStartToken(identifierNode->getStartToken());
+        functionCall->setParent(identifierNode->getParent());
+        functionCall->setScope(std::make_shared<SymbolTable>(identifierNode->getScope()));
+
+        functionCall->setNextIdentifier(identifierNode->getNextIdentifier());
+        functionCall->setLastIdentifier(identifierNode->getLastIdentifier());
+        functionCall->setDereference(identifierNode->isDereference());
+        functionCall->setIdentifier(identifierNode->getIdentifier());
+        functionCall->setPointer(identifierNode->isPointer());
+
+        identifierNode = functionCall;
+
+        if (currentToken() != ")" || currentToken() == Token::IDENTIFIER)
+            parseFunctionArguments(functionCall, functionCall);
+
+        if (currentToken() != ")") {
+            THROW_TOKEN_ERROR("Function call expected ')' but got '{}' instead.",
+                              currentToken()->getContent())
+            parent->setFailed(true);
+            return functionCall;
+        }
+    }
+
+    identifierNode->setEndToken(currentToken());
 
     auto startIdentifier = identifierNode;
     auto lastIdentifier = identifierNode;

@@ -9,7 +9,7 @@
 #include "../lexer/lexer.h"
 #include "../lexer/token.h"
 #include "astnodes.h"
-#include "../utils.h"
+#include "../utils/utils.h"
 
 void TypeResolver::visit(const std::shared_ptr<ASTNode> &node) {
     if (node->getKind() == ASTNode::TYPE) {
@@ -22,14 +22,16 @@ void TypeResolver::visit(const std::shared_ptr<ASTNode> &node) {
         TypeResolver::visit(std::static_pointer_cast<FunctionCallNode>(node));
     } else if (node->getKind() == ASTNode::STRUCT_CREATE) {
         TypeResolver::visit(std::static_pointer_cast<StructCreateNode>(node));
-    } else if (node->getKind() == ASTNode::IDENTIFIER) {
-        auto identifierNode = std::static_pointer_cast<IdentifierNode>(node);
+    } else if (auto identifierNode = std::dynamic_pointer_cast<IdentifierNode>(node)) {
+        // TODO: CHECK IF THIS WORKS LIKE INTENDED
 
         std::shared_ptr<IdentifierNode> firstIdentifier = identifierNode;
         while (firstIdentifier->getLastIdentifier() != nullptr)
             firstIdentifier = firstIdentifier->getLastIdentifier();
 
-        TypeResolver::visit(firstIdentifier);
+        if (firstIdentifier->getKind() == ASTNode::FUNCTION_CALL)
+            return TypeResolver::visit(std::static_pointer_cast<FunctionCallNode>(node));
+        return TypeResolver::visit(firstIdentifier);
     } else if (node->getKind() == ASTNode::NUMBER) {
         TypeResolver::visit(std::static_pointer_cast<NumberNode>(node));
     } else if (node->getKind() == ASTNode::PARAMETER) {
@@ -348,7 +350,7 @@ void TypeResolver::visit(const std::shared_ptr<StructArgumentNode> &structArgume
     auto parentCreate = std::static_pointer_cast<StructCreateNode>(structArgumentNode->getParent());
     auto parentStruct = std::static_pointer_cast<StructNode>(parentCreate->getTargetNode());
 
-    if (structArgumentNode->getType() == nullptr &&
+    if (structArgumentNode->getType() == nullptr && structArgumentNode->getExpression() != nullptr &&
         structArgumentNode->getExpression()->getKind() == ASTNode::STRUCT_CREATE) {
         auto childCreate = std::static_pointer_cast<StructCreateNode>(structArgumentNode->getExpression());
         if (childCreate->isUnnamed()) {
@@ -383,17 +385,17 @@ void TypeResolver::visit(const std::shared_ptr<FunctionCallNode> &functionCallNo
 
     for (const auto &argument : functionCallNode->getArguments())
         TypeResolver::visit(argument);
-
-    std::shared_ptr<IdentifierNode> firstIdentifier = functionCallNode;
-    while (firstIdentifier->getLastIdentifier() != nullptr)
-        firstIdentifier = firstIdentifier->getLastIdentifier();
-    TypeResolver::visit(firstIdentifier);
+    TypeResolver::visit(std::static_pointer_cast<IdentifierNode>(functionCallNode));
 
     auto functionNode = std::static_pointer_cast<FunctionNode>(functionCallNode->getTargetNode());
-    if(functionNode == nullptr) {
+    if (functionNode == nullptr) {
         THROW_NODE_ERROR(functionCallNode, "Couldn't find the function for this call.")
         exit(EXIT_FAILURE);
     }
+
+    functionCallNode->setType(std::shared_ptr<TypeNode>(functionNode->getType()->clone(
+            functionCallNode, functionCallNode->getScope())));
+    TypeResolver::visit(functionCallNode->getType());
 
     for (const auto &argument : functionCallNode->getArguments()) {
         if (!argument->isTypeWhitelisted())
@@ -402,9 +404,6 @@ void TypeResolver::visit(const std::shared_ptr<FunctionCallNode> &functionCallNo
         argument->setTypeWhitelisted(false);
         TypeResolver::visit(argument);
     }
-
-    if (functionNode->hasAnnotation("inlined"))
-        functionNode->setInlinedFunctionCall(functionCallNode);
 
     functionCallNode->setTypeResolved(true);
 }
@@ -458,8 +457,7 @@ void TypeResolver::visit(const std::shared_ptr<StructCreateNode> &structCreateNo
         }
 
         if (foundArgument && variable->getName()->getContent() != "_") {
-            auto argumentIndex = Utils::indexOf(structCreateNode->getArguments(), foundArgument).second;
-            structCreateNode->removeArgument(argumentIndex);
+            structCreateNode->removeArgument(foundArgument);
             structCreateNode->insertArgument(index, foundArgument);
 
             foundArgument->setType(variable->getType());
@@ -471,6 +469,7 @@ void TypeResolver::visit(const std::shared_ptr<StructCreateNode> &structCreateNo
         argument->setParent(structCreateNode);
         argument->setScope(structCreateNode->getScope());
         argument->setName(variable->getName());
+        argument->setDontCopy(true);
 
         if (variable->getExpression() != nullptr)
             argument->setExpression(std::shared_ptr<OperableNode>(variable->getExpression()->clone(

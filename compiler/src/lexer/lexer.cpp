@@ -10,7 +10,7 @@
 #include <fmt/core.h>
 
 #include "../compiler/error.h"
-#include "../utils.h"
+#include "../utils/utils.h"
 #include "token.h"
 
 Lexer::Lexer(std::string sourcePath, std::string sourceCode)

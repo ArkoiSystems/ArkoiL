@@ -6,35 +6,7 @@
 
 #include <memory>
 
-class ASTNode;
-
-class RootNode;
-
-class StructNode;
-
-class VariableNode;
-
-class FunctionNode;
-
-class BlockNode;
-
-class FunctionCallNode;
-
-class FunctionArgumentNode;
-
-class ReturnNode;
-
-class AssignmentNode;
-
-class StructCreateNode;
-
-class StructArgumentNode;
-
-class BinaryNode;
-
-class UnaryNode;
-
-class ParenthesizedNode;
+#include "../parser/allnodes.h"
 
 class TypeCheck {
 

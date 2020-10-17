@@ -8,7 +8,7 @@
 #include "../parser/astnodes.h"
 #include "../compiler/error.h"
 #include "../lexer/token.h"
-#include "../utils.h"
+#include "../utils/utils.h"
 
 void TypeCheck::visit(const std::shared_ptr<ASTNode> &node) {
     if (node->getKind() == ASTNode::ROOT) {

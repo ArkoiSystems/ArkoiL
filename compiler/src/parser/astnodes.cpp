@@ -7,7 +7,7 @@
 
 #include "../lexer/token.h"
 #include "symboltable.h"
-#include "../utils.h"
+#include "../utils/utils.h"
 
 /* ----------======== AST-NODE ========---------- */
 
@@ -17,7 +17,7 @@ ASTNode::ASTNode()
           m_Parent(nullptr), m_Scope(nullptr) {}
 
 ASTNode::ASTNode(const ASTNode &other)
-        : m_Kind(other.m_Kind), mb_Failed(other.mb_Failed),
+        : m_Kind(other.m_Kind), mb_Failed(false),
           m_StartToken(nullptr), m_EndToken(nullptr),
           m_Parent(nullptr), m_Scope(nullptr) {
     if (other.m_StartToken)
@@ -206,8 +206,8 @@ bool TypedNode::isAccessed() const {
     return mb_Accessed;
 }
 
-void TypedNode::setAccessed(bool mbAccessed) {
-    mb_Accessed = mbAccessed;
+void TypedNode::setAccessed(bool accessed) {
+    mb_Accessed = accessed;
 }
 
 
@@ -324,6 +324,11 @@ void RootNode::addNode(const std::shared_ptr<ASTNode> &node) {
     m_Nodes.push_back(node);
 }
 
+void RootNode::removeNode(const std::shared_ptr<ASTNode> &node) {
+    auto index = Utils::indexOf(m_Nodes, node).second;
+    m_Nodes.erase(m_Nodes.begin() + index);
+}
+
 const std::string &RootNode::getSourcePath() const {
     return m_SourcePath;
 }
@@ -403,6 +408,15 @@ void BlockNode::addNode(const std::shared_ptr<ASTNode> &node) {
     m_Nodes.push_back(node);
 }
 
+void BlockNode::removeNode(const std::shared_ptr<ASTNode> &node) {
+    auto index = Utils::indexOf(m_Nodes, node).second;
+    m_Nodes.erase(m_Nodes.begin() + index);
+}
+
+void BlockNode::insertNode(const std::shared_ptr<ASTNode> &node, int index) {
+    m_Nodes.insert(m_Nodes.begin() + index, node);
+}
+
 
 /* ----------======== OPERABLE-NODE ========---------- */
 
@@ -434,10 +448,12 @@ VariableNode::VariableNode(const VariableNode &other)
         : TypedNode(other),
           mb_Constant(other.mb_Constant), mb_Local(other.mb_Local),
           m_Expression(nullptr), m_Name(nullptr) {
+    if (other.getType() != nullptr)
+        setType(std::shared_ptr<TypeNode>(other.getType()->clone(std::shared_ptr<VariableNode>(this),
+                                                                 this->getScope())));
     if (other.m_Expression)
         m_Expression = std::shared_ptr<OperableNode>(other.m_Expression->clone(
-                std::shared_ptr<VariableNode>(this),
-                this->getScope()));
+                std::shared_ptr<VariableNode>(this), this->getScope()));
     if (other.m_Name)
         m_Name = std::make_shared<Token>(*other.m_Name);
 }
@@ -607,8 +623,7 @@ UnaryNode::UnaryNode(const UnaryNode &other)
           m_OperatorKind(other.m_OperatorKind), m_Expression(nullptr) {
     if (other.m_Expression)
         m_Expression = std::shared_ptr<OperableNode>(other.m_Expression->clone(
-                std::shared_ptr<UnaryNode>(this),
-                this->getScope()));
+                std::shared_ptr<UnaryNode>(this), this->getScope()));
 }
 
 UnaryNode *UnaryNode::clone(std::shared_ptr<ASTNode> parent,
@@ -670,8 +685,7 @@ ParenthesizedNode::ParenthesizedNode(const ParenthesizedNode &other)
           m_Expression(nullptr) {
     if (other.m_Expression)
         m_Expression = std::shared_ptr<OperableNode>(other.m_Expression->clone(
-                std::shared_ptr<ParenthesizedNode>(this),
-                this->getScope()));
+                std::shared_ptr<ParenthesizedNode>(this), this->getScope()));
 }
 
 ParenthesizedNode *ParenthesizedNode::clone(std::shared_ptr<ASTNode> parent,
@@ -764,11 +778,10 @@ FunctionArgumentNode::FunctionArgumentNode()
 FunctionArgumentNode::FunctionArgumentNode(const FunctionArgumentNode &other)
         : TypedNode(other),
           m_Expression(nullptr), m_Name(nullptr),
-          mb_TypeWhitelisted(other.mb_TypeWhitelisted) {
+          mb_TypeWhitelisted(false) {
     if (other.m_Expression)
         m_Expression = std::shared_ptr<OperableNode>(other.m_Expression->clone(
-                std::shared_ptr<FunctionArgumentNode>(this),
-                this->getScope()));
+                std::shared_ptr<FunctionArgumentNode>(this), this->getScope()));
     if (other.m_Name)
         m_Name = std::make_shared<Token>(*other.m_Name);
 }
@@ -822,12 +835,10 @@ IdentifierNode::IdentifierNode(const IdentifierNode &other)
           m_Identifier(nullptr) {
     if (other.m_NextIdentifier)
         m_NextIdentifier = std::shared_ptr<IdentifierNode>(other.m_NextIdentifier->clone(
-                std::shared_ptr<IdentifierNode>(this),
-                this->getScope()));
+                std::shared_ptr<IdentifierNode>(this), this->getScope()));
     if (other.m_LastIdentifier)
         m_LastIdentifier = std::shared_ptr<IdentifierNode>(other.m_LastIdentifier->clone(
-                std::shared_ptr<IdentifierNode>(this),
-                this->getScope()));
+                std::shared_ptr<IdentifierNode>(this), this->getScope()));
     if (other.m_Identifier)
         m_Identifier = std::make_shared<Token>(*other.m_Identifier);
 }
@@ -895,16 +906,13 @@ AssignmentNode::AssignmentNode(const AssignmentNode &other)
           m_Expression(nullptr) {
     if (other.m_StartIdentifier)
         m_StartIdentifier = std::shared_ptr<IdentifierNode>(other.m_StartIdentifier->clone(
-                std::shared_ptr<AssignmentNode>(this),
-                this->getScope()));
+                std::shared_ptr<AssignmentNode>(this), this->getScope()));
     if (other.m_EndIdentifier)
         m_EndIdentifier = std::shared_ptr<IdentifierNode>(other.m_EndIdentifier->clone(
-                std::shared_ptr<AssignmentNode>(this),
-                this->getScope()));
+                std::shared_ptr<AssignmentNode>(this), this->getScope()));
     if (other.m_Expression)
         m_Expression = std::shared_ptr<OperableNode>(other.m_Expression->clone(
-                std::shared_ptr<AssignmentNode>(this),
-                this->getScope()));
+                std::shared_ptr<AssignmentNode>(this), this->getScope()));
 }
 
 AssignmentNode *AssignmentNode::clone(std::shared_ptr<ASTNode> parent,
@@ -952,8 +960,7 @@ ReturnNode::ReturnNode(const ReturnNode &other)
           m_Expression(nullptr) {
     if (other.m_Expression)
         m_Expression = std::shared_ptr<OperableNode>(other.m_Expression->clone(
-                std::shared_ptr<ReturnNode>(this),
-                this->getScope()));
+                std::shared_ptr<ReturnNode>(this), this->getScope()));
 }
 
 ReturnNode *ReturnNode::clone(std::shared_ptr<ASTNode> parent,
@@ -985,8 +992,7 @@ StructNode::StructNode(const StructNode &other)
           m_Variables({}), m_Name(nullptr) {
     for (const auto &variable : other.m_Variables)
         m_Variables.push_back(std::shared_ptr<VariableNode>(variable->clone(
-                std::shared_ptr<StructNode>(this),
-                this->getScope())));
+                std::shared_ptr<StructNode>(this), this->getScope())));
 
     if (other.m_Name)
         m_Name = std::make_shared<Token>(*other.m_Name);
@@ -1129,8 +1135,7 @@ bool TypeNode::operator!=(const TypeNode &other) const {
 FunctionNode::FunctionNode()
         : mb_Variadic(false), mb_Native(false),
           m_Parameters({}), m_Block(nullptr),
-          m_Name(nullptr), m_InlinedFunctionCall(nullptr),
-          m_EntryBlock(nullptr), m_Annotations({}) {
+          m_Name(nullptr), m_Annotations({}) {
     setKind(ASTNode::FUNCTION);
 }
 
@@ -1138,12 +1143,14 @@ FunctionNode::FunctionNode(const FunctionNode &other)
         : TypedNode(other),
           mb_Variadic(other.mb_Variadic), mb_Native(other.mb_Native),
           m_Parameters({}), m_Block(nullptr),
-          m_Name(nullptr), m_InlinedFunctionCall(nullptr),
-          m_EntryBlock(nullptr), m_Annotations({}) {
+          m_Name(nullptr), m_Annotations({}) {
+    if (other.getType() != nullptr)
+        setType(std::shared_ptr<TypeNode>(other.getType()->clone(std::shared_ptr<FunctionNode>(this),
+                                                                 this->getScope())));
+
     for (const auto &parameter : other.m_Parameters)
         m_Parameters.push_back(std::shared_ptr<ParameterNode>(parameter->clone(
-                std::shared_ptr<FunctionNode>(this),
-                this->getScope())));
+                std::shared_ptr<FunctionNode>(this), this->getScope())));
     for (const auto &annotation : other.m_Annotations)
         m_Annotations.emplace(annotation);
 
@@ -1153,10 +1160,6 @@ FunctionNode::FunctionNode(const FunctionNode &other)
                 this->getScope()));
     if (other.m_Name)
         m_Name = std::make_shared<Token>(*other.m_Name);
-    if (other.m_InlinedFunctionCall)
-        m_InlinedFunctionCall = std::shared_ptr<FunctionCallNode>(other.m_InlinedFunctionCall->clone(
-                std::shared_ptr<FunctionNode>(this),
-                this->getScope()));
 }
 
 FunctionNode *FunctionNode::clone(std::shared_ptr<ASTNode> parent,
@@ -1169,14 +1172,6 @@ FunctionNode *FunctionNode::clone(std::shared_ptr<ASTNode> parent,
 
 bool FunctionNode::hasAnnotation(const std::string &annotation) {
     return m_Annotations.find(annotation) != m_Annotations.end();
-}
-
-const std::shared_ptr<FunctionCallNode> &FunctionNode::getInlinedFunctionCall() const {
-    return m_InlinedFunctionCall;
-}
-
-void FunctionNode::setInlinedFunctionCall(const std::shared_ptr<FunctionCallNode> &inlinedFunctionCall) {
-    FunctionNode::m_InlinedFunctionCall = inlinedFunctionCall;
 }
 
 void FunctionNode::addParameter(const std::shared_ptr<ParameterNode> &parameterNode) {
@@ -1197,14 +1192,6 @@ const std::shared_ptr<BlockNode> &FunctionNode::getBlock() const {
 
 void FunctionNode::setBlock(const std::shared_ptr<BlockNode> &block) {
     m_Block = block;
-}
-
-llvm::BasicBlock *FunctionNode::getEntryBlock() const {
-    return m_EntryBlock;
-}
-
-void FunctionNode::setEntryBlock(llvm::BasicBlock *entryBlock) {
-    m_EntryBlock = entryBlock;
 }
 
 const std::shared_ptr<Token> &FunctionNode::getName() const {
@@ -1257,19 +1244,20 @@ bool FunctionNode::operator!=(const FunctionNode &other) const {
 /* ----------======== STRUCT-ARGUMENT-NODE ========---------- */
 
 StructArgumentNode::StructArgumentNode()
-        : m_Name(nullptr), m_Expression(nullptr) {
+        : m_Name(nullptr), m_Expression(nullptr),
+          mb_DontCopy(false) {
     setKind(ASTNode::STRUCT_ARGUMENT);
 }
 
 StructArgumentNode::StructArgumentNode(const StructArgumentNode &other)
         : TypedNode(other),
-          m_Name(nullptr), m_Expression(nullptr) {
+          m_Name(nullptr), m_Expression(nullptr),
+          mb_DontCopy(other.mb_DontCopy) {
     if (other.m_Name)
         m_Name = std::make_shared<Token>(*other.m_Name);
     if (other.m_Expression)
         m_Expression = std::shared_ptr<OperableNode>(other.m_Expression->clone(
-                std::shared_ptr<StructArgumentNode>(this),
-                this->getScope()));
+                std::shared_ptr<StructArgumentNode>(this), this->getScope()));
 }
 
 StructArgumentNode *StructArgumentNode::clone(std::shared_ptr<ASTNode> parent,
@@ -1278,6 +1266,14 @@ StructArgumentNode *StructArgumentNode::clone(std::shared_ptr<ASTNode> parent,
     node->setParent(parent);
     node->setScope(symbolTable);
     return node;
+}
+
+bool StructArgumentNode::isDontCopy() const {
+    return mb_DontCopy;
+}
+
+void StructArgumentNode::setDontCopy(bool mbDontCopy) {
+    mb_DontCopy = mbDontCopy;
 }
 
 const std::shared_ptr<OperableNode> &StructArgumentNode::getExpression() const {
@@ -1309,15 +1305,17 @@ StructCreateNode::StructCreateNode(const StructCreateNode &other)
         : OperableNode(other),
           m_Identifier(nullptr), m_Arguments({}),
           mb_Unnamed(other.mb_Unnamed) {
-    for (const auto &argument : other.m_Arguments)
+    for (const auto &argument : other.m_Arguments) {
+        if (argument->isDontCopy())
+            continue;
+
         m_Arguments.push_back(std::shared_ptr<StructArgumentNode>(argument->clone(
-                std::shared_ptr<StructCreateNode>(this),
-                this->getScope())));
+                std::shared_ptr<StructCreateNode>(this), this->getScope())));
+    }
 
     if (other.m_Identifier)
         m_Identifier = std::shared_ptr<IdentifierNode>(other.m_Identifier->clone(
-                std::shared_ptr<StructCreateNode>(this),
-                this->getScope()));
+                std::shared_ptr<StructCreateNode>(this), this->getScope()));
 }
 
 StructCreateNode *StructCreateNode::clone(std::shared_ptr<ASTNode> parent,
@@ -1332,12 +1330,13 @@ void StructCreateNode::addArgument(const std::shared_ptr<StructArgumentNode> &ar
     m_Arguments.push_back(argumentNode);
 }
 
-void StructCreateNode::insertArgument(int index, const std::shared_ptr<StructArgumentNode> &argumentNode) {
-    m_Arguments.insert(m_Arguments.begin() + index, argumentNode);
+void StructCreateNode::removeArgument(const std::shared_ptr<StructArgumentNode> &argumentNode) {
+    auto index = Utils::indexOf(m_Arguments, argumentNode).second;
+    m_Arguments.erase(m_Arguments.begin() + index);
 }
 
-void StructCreateNode::removeArgument(int index) {
-    m_Arguments.erase(m_Arguments.begin() + index);
+void StructCreateNode::insertArgument(int index, const std::shared_ptr<StructArgumentNode> &argumentNode) {
+    m_Arguments.insert(m_Arguments.begin() + index, argumentNode);
 }
 
 const std::shared_ptr<IdentifierNode> &StructCreateNode::getIdentifier() const {
@@ -1373,8 +1372,7 @@ FunctionCallNode::FunctionCallNode(const FunctionCallNode &other)
           m_Arguments({}) {
     for (const auto &argument : other.m_Arguments)
         m_Arguments.push_back(std::shared_ptr<FunctionArgumentNode>(argument->clone(
-                std::shared_ptr<FunctionCallNode>(this),
-                this->getScope())));
+                std::shared_ptr<FunctionCallNode>(this), this->getScope())));
 }
 
 FunctionCallNode *FunctionCallNode::clone(std::shared_ptr<ASTNode> parent,

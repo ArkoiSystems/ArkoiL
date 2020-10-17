@@ -11,7 +11,7 @@
 #include "../compiler/error.h"
 #include "../lexer/lexer.h"
 #include "../lexer/token.h"
-#include "../utils.h"
+#include "../utils/utils.h"
 #include "../parser/typeresolver.h"
 #include "../semantic/typecheck.h"
 #include "../semantic/scopecheck.h"
@@ -83,66 +83,51 @@ void CodeGen::visit(const std::shared_ptr<RootNode> &rootNode) {
     moduleName = moduleName.substr(moduleName.rfind('/') + 1, moduleName.length());
 
     m_Module = std::make_shared<llvm::Module>(moduleName, m_Context);
+
     m_ScopedNodes.push_back(Nodes{});
+    defer(m_ScopedNodes.erase(m_ScopedNodes.begin() + m_ScopedNodes.size()));
 
     for (const auto &node : rootNode->getNodes())
         CodeGen::visit(node);
 }
 
-llvm::Value *CodeGen::visit(const std::shared_ptr<FunctionNode> &functionNode) {
-    // TODO: Check if it really can use the back() scope.
-    auto functionIterator = m_ScopedNodes.back().find(functionNode);
-    if (functionIterator != m_ScopedNodes.back().end()) {
-        if (!std::holds_alternative<llvm::Value *>(functionIterator->second)) {
-            std::cout << "This should not have happened. "
-                         "Report this bug with a reconstruction of it." << std::endl;
-            abort();
-        }
-
-        return std::get<llvm::Value *>(functionIterator->second);
-    }
-
+llvm::Value *CodeGen::visit(const std::shared_ptr<FunctionNode> &functionNode,
+                            const std::shared_ptr<FunctionCallNode> &functionCallNode) {
     if (functionNode->hasAnnotation("inlined")) {
-        auto callFunctionNode = functionNode->getInlinedFunctionCall()->findNodeOfParents<FunctionNode>();
+        std::cout << "This should not have happened. "
+                     "Report this bug with a reconstruction of it." << std::endl;
+        abort();
+    }
 
-        // TODO: Check if it really can use the back() scope.
-        m_ScopedNodes.back().emplace(functionNode, CodeGen::visit(callFunctionNode));
-
-        CodeGen::visit(functionNode->getBlock());
-
-        // TODO: Check if it really can use the back() scope.
-        auto blockIterator = m_ScopedNodes.back().find(functionNode->getBlock());
-        if (blockIterator == m_ScopedNodes.back().end()) {
-            THROW_NODE_ERROR(functionNode->getBlock(), "Couldn't find the return variable for the inlined "
-                                                       "function call.")
-            exit(EXIT_FAILURE);
-        }
-
-        if (!std::holds_alternative<BlockDetails>(blockIterator->second)) {
+    auto functionIterator = m_ScopedNodes[0].find(functionNode);
+    if (functionIterator != m_ScopedNodes[0].end()) {
+        if (!std::holds_alternative<llvm::Function *>(functionIterator->second)) {
             std::cout << "This should not have happened. "
                          "Report this bug with a reconstruction of it." << std::endl;
             abort();
         }
 
-        return std::get<1>(std::get<BlockDetails>(blockIterator->second));
-    } else {
-        std::vector<llvm::Type *> functionParameters;
-        for (auto const &parameter : functionNode->getParameters())
-            functionParameters.push_back(CodeGen::visit(parameter->getType()));
-
-        auto functionType = llvm::FunctionType::get(CodeGen::visit(functionNode->getType()),
-                                                    functionParameters, functionNode->isVariadic());
-        auto functionRef = llvm::Function::Create(functionType, llvm::Function::ExternalLinkage,
-                                                  functionNode->getName()->getContent(), *m_Module);
-        // TODO: Check if it really can use the back() scope.
-        m_ScopedNodes.back().emplace(functionNode, functionRef);
-
-        if (functionNode->isNative())
-            return functionRef;
-
-        CodeGen::visit(functionNode->getBlock());
-        return functionRef;
+        return std::get<llvm::Function *>(functionIterator->second);
     }
+
+    m_ScopedNodes.push_back(Nodes{});
+    defer(m_ScopedNodes.erase(m_ScopedNodes.begin() + m_ScopedNodes.size()));
+
+    std::vector<llvm::Type *> functionParameters;
+    for (auto const &parameter : functionNode->getParameters())
+        functionParameters.push_back(CodeGen::visit(parameter->getType()));
+
+    auto functionType = llvm::FunctionType::get(CodeGen::visit(functionNode->getType()),
+                                                functionParameters, functionNode->isVariadic());
+    llvm::Function *functionRef = llvm::Function::Create(functionType, llvm::Function::ExternalLinkage,
+                                                         functionNode->getName()->getContent(), *m_Module);
+    m_ScopedNodes[0].emplace(functionNode, functionRef);
+
+    if (functionNode->isNative())
+        return functionRef;
+
+    CodeGen::visit(functionNode->getBlock());
+    return functionRef;
 }
 
 llvm::Type *CodeGen::visit(const std::shared_ptr<TypeNode> &typeNode) {
@@ -167,9 +152,8 @@ llvm::Type *CodeGen::visit(const std::shared_ptr<TypeNode> &typeNode) {
 }
 
 llvm::Type *CodeGen::visit(const std::shared_ptr<StructNode> &structNode) {
-    // TODO: Check if it really can use the back() scope.
-    auto structIterator = m_ScopedNodes.back().find(structNode);
-    if (structIterator != m_ScopedNodes.back().end()) {
+    auto structIterator = m_ScopedNodes[0].find(structNode);
+    if (structIterator != m_ScopedNodes[0].end()) {
         if (!std::holds_alternative<llvm::StructType *>(structIterator->second)) {
             std::cout << "This should not have happened. "
                          "Report this bug with a reconstruction of it." << std::endl;
@@ -180,8 +164,7 @@ llvm::Type *CodeGen::visit(const std::shared_ptr<StructNode> &structNode) {
     }
 
     auto structRef = llvm::StructType::create(m_Context, structNode->getName()->getContent());
-    // TODO: Check if it really can use the back() scope.
-    m_ScopedNodes.back().emplace(structNode, structRef);
+    m_ScopedNodes[0].emplace(structNode, structRef);
 
     std::vector<llvm::Type *> types;
     for (auto const &variable : structNode->getVariables())
@@ -194,7 +177,6 @@ llvm::Type *CodeGen::visit(const std::shared_ptr<StructNode> &structNode) {
 // TODO: Issue 4
 // TODO: Issue 6
 llvm::Value *CodeGen::visit(const std::shared_ptr<ParameterNode> &parameterNode) {
-    // TODO: Check if it really can use the back() scope.
     auto parameterIterator = m_ScopedNodes.back().find(parameterNode);
     if (parameterIterator != m_ScopedNodes.back().end()) {
         if (!std::holds_alternative<llvm::Value *>(parameterIterator->second)) {
@@ -207,22 +189,6 @@ llvm::Value *CodeGen::visit(const std::shared_ptr<ParameterNode> &parameterNode)
     }
 
     auto functionNode = parameterNode->findNodeOfParents<FunctionNode>();
-    if (functionNode->hasAnnotation("inlined")) {
-        for (auto index = 0; index < functionNode->getParameters().size(); index++) {
-            auto targetParameter = functionNode->getParameters().at(index);
-            if (targetParameter->getName()->getContent() == parameterNode->getName()->getContent()) {
-                auto expression = CodeGen::visit(std::static_pointer_cast<TypedNode>(
-                        functionNode->getInlinedFunctionCall()->getArguments().at(index)->getExpression()));
-                // TODO: Check if it really can use the back() scope.
-                m_ScopedNodes.back().emplace(parameterNode, expression);
-                return expression;
-            }
-        }
-
-        THROW_NODE_ERROR(parameterNode, "Couldn't find the argument for the inlined function call.")
-        exit(EXIT_FAILURE);
-    }
-
     auto functionRef = reinterpret_cast<llvm::Function *>(CodeGen::visit(functionNode));
 
     llvm::Value *parameter = nullptr;
@@ -240,15 +206,14 @@ llvm::Value *CodeGen::visit(const std::shared_ptr<ParameterNode> &parameterNode)
     }
 
     auto parameterVariable = m_Builder.CreateAlloca(CodeGen::visit(parameterNode->getType()));
-    m_Builder.CreateStore(parameter, parameterVariable);
-    // TODO: Check if it really can use the back() scope.
     m_ScopedNodes.back().emplace(parameterNode, parameterVariable);
+
+    m_Builder.CreateStore(parameter, parameterVariable);
 
     return parameterVariable;
 }
 
 llvm::BasicBlock *CodeGen::visit(const std::shared_ptr<BlockNode> &blockNode) {
-    // TODO: Check if it really can use the back() scope.
     auto blockIterator = m_ScopedNodes.back().find(blockNode);
     if (blockIterator != m_ScopedNodes.back().end()) {
         if (!std::holds_alternative<BlockDetails>(blockIterator->second)) {
@@ -260,17 +225,11 @@ llvm::BasicBlock *CodeGen::visit(const std::shared_ptr<BlockNode> &blockNode) {
         return std::get<0>(std::get<BlockDetails>(blockIterator->second));
     }
 
-    auto functionNode = blockNode->findNodeOfParents<FunctionNode>();
+    auto functionNode = std::static_pointer_cast<FunctionNode>(blockNode->getParent());
     auto functionRef = reinterpret_cast<llvm::Function *>(CodeGen::visit(functionNode));
 
-    auto isEntryBlock = functionNode == blockNode->findNodeOfParents();
-    auto startBlock = functionNode->hasAnnotation("inlined")
-                      ? m_CurrentBlock
-                      : llvm::BasicBlock::Create(m_Context,
-                                                 isEntryBlock ? "entry" : "",
-                                                 functionRef);
-    if (isEntryBlock)
-        functionNode->setEntryBlock(startBlock);
+    auto isEntryBlock = functionNode == blockNode->getParent();
+    auto startBlock = llvm::BasicBlock::Create(m_Context, isEntryBlock ? "entry" : "", functionRef);
 
     llvm::BasicBlock *returnBlock = nullptr;
     llvm::Value *returnVariable = nullptr;
@@ -286,39 +245,35 @@ llvm::BasicBlock *CodeGen::visit(const std::shared_ptr<BlockNode> &blockNode) {
 
     CodeGen::setPositionAtEnd(startBlock);
 
-    if (functionNode == blockNode->findNodeOfParents()) {
-        std::string namePrefix = functionNode->hasAnnotation("inlined") ? "inlined_" : "";
+    if (functionNode == blockNode->getParent()) {
         if (functionNode->getType()->getBits() != 0 || functionNode->getType()->getTargetStruct() != nullptr)
             returnVariable = m_Builder.CreateAlloca(CodeGen::visit(functionNode->getType()), nullptr,
-                                                    namePrefix + "var_ret");
+                                                    "var_ret");
 
-        returnBlock = llvm::BasicBlock::Create(m_Context, namePrefix + "return", functionRef);
+        returnBlock = llvm::BasicBlock::Create(m_Context, "return", functionRef);
 
-        if (!functionNode->hasAnnotation("inlined")) {
-            CodeGen::setPositionAtEnd(returnBlock);
+        CodeGen::setPositionAtEnd(returnBlock);
 
-            if (functionNode->getType()->getBits() != 0 ||
-                functionNode->getType()->getTargetStruct() != nullptr) {
-                auto loadedVariable = m_Builder.CreateLoad(returnVariable, "loaded_ret");
-                m_Builder.CreateRet(loadedVariable);
-            } else
-                m_Builder.CreateRetVoid();
+        if (functionNode->getType()->getBits() != 0 ||
+            functionNode->getType()->getTargetStruct() != nullptr) {
+            auto loadedVariable = m_Builder.CreateLoad(returnVariable, "loaded_ret");
+            m_Builder.CreateRet(loadedVariable);
+        } else
+            m_Builder.CreateRetVoid();
 
-            CodeGen::setPositionAtEnd(startBlock);
-        }
+        CodeGen::setPositionAtEnd(startBlock);
     }
 
     auto tuple = std::make_tuple(startBlock, returnVariable, returnBlock);
-    // TODO: Check if it really can use the back() scope.
     m_ScopedNodes.back().emplace(blockNode, tuple);
 
     for (const auto &node : blockNode->getNodes())
         CodeGen::visit(node);
 
-    if (!hasReturn && functionNode == blockNode->findNodeOfParents())
+    if (!hasReturn && functionNode == blockNode->getParent())
         m_Builder.CreateBr(returnBlock);
 
-    if (functionNode == blockNode->findNodeOfParents()) {
+    if (functionNode == blockNode->getParent()) {
         auto lastBasicBlock = functionRef->end() == functionRef->begin()
                               ? nullptr
                               : &*--functionRef->end();
@@ -328,16 +283,12 @@ llvm::BasicBlock *CodeGen::visit(const std::shared_ptr<BlockNode> &blockNode) {
     if (lastBlock != nullptr)
         setPositionAtEnd(lastBlock);
 
-    if (functionNode->hasAnnotation("inlined"))
-        setPositionAtEnd(returnBlock);
-
     return startBlock;
 }
 
 llvm::Value *CodeGen::visit(const std::shared_ptr<ReturnNode> &returnNode) {
     auto functionNode = returnNode->findNodeOfParents<FunctionNode>();
 
-    // TODO: Check if it really can use the back() scope.
     auto blockIterator = m_ScopedNodes.back().find(returnNode->findNodeOfParents<BlockNode>());
     if (blockIterator == m_ScopedNodes.back().end()) {
         THROW_NODE_ERROR(functionNode->getBlock(), "Couldn't find the block details for the return "
@@ -477,7 +428,6 @@ llvm::Value *CodeGen::visit(const std::shared_ptr<IdentifierNode> &identifierNod
 
 llvm::Value *CodeGen::visit(const std::shared_ptr<BinaryNode> &binaryNode) {
     if (binaryNode->getOperatorKind() == BinaryNode::BIT_CAST) {
-        // TODO: Issue 2
         auto lhsValue = CodeGen::visit(std::static_pointer_cast<TypedNode>(binaryNode->getLHS()));
         auto rhsValue = CodeGen::visit(std::static_pointer_cast<TypeNode>(binaryNode->getRHS()));
         return m_Builder.CreateBitCast(lhsValue, rhsValue);
@@ -526,9 +476,6 @@ llvm::Value *CodeGen::visit(const std::shared_ptr<BinaryNode> &binaryNode) {
 
 llvm::Value *CodeGen::visit(const std::shared_ptr<FunctionCallNode> &functionCallNode) {
     auto functionNode = std::static_pointer_cast<FunctionNode>(functionCallNode->getTargetNode());
-    if (functionNode->hasAnnotation("inlined"))
-        return CodeGen::visit(functionNode);
-
     auto functionRef = CodeGen::visit(functionNode);
 
     auto sortedArguments(functionCallNode->getArguments());
@@ -548,7 +495,6 @@ llvm::Value *CodeGen::visit(const std::shared_ptr<FunctionArgumentNode> &functio
 }
 
 llvm::Value *CodeGen::visit(const std::shared_ptr<StructCreateNode> &structCreateNode) {
-    // TODO: Check if it really can use the back() scope.
     auto structCreateIterator = m_ScopedNodes.back().find(structCreateNode);
     if (structCreateIterator != m_ScopedNodes.back().end()) {
         if (!std::holds_alternative<llvm::Value *>(structCreateIterator->second)) {
@@ -564,7 +510,6 @@ llvm::Value *CodeGen::visit(const std::shared_ptr<StructCreateNode> &structCreat
     auto structRef = CodeGen::visit(structNode);
 
     auto structVariable = m_Builder.CreateAlloca(structRef);
-    // TODO: Check if it really can use the back() scope.
     m_ScopedNodes.back().emplace(structCreateNode, structVariable);
 
     for (auto index = 0; index < structCreateNode->getArguments().size(); index++) {
@@ -577,10 +522,10 @@ llvm::Value *CodeGen::visit(const std::shared_ptr<StructCreateNode> &structCreat
     return m_Builder.CreateLoad(structVariable);
 }
 
+// TODO: Issue 13
 llvm::Value *CodeGen::visit(const std::shared_ptr<StructArgumentNode> &structArgumentNode,
                             llvm::Value *structVariable,
                             int argumentIndex) {
-    // TODO: Check if it really can use the back() scope.
     auto structArgumentIterator = m_ScopedNodes.back().find(structArgumentNode);
     if (structArgumentIterator != m_ScopedNodes.back().end()) {
         if (!std::holds_alternative<std::nullptr_t>(structArgumentIterator->second)) {
@@ -593,12 +538,10 @@ llvm::Value *CodeGen::visit(const std::shared_ptr<StructArgumentNode> &structArg
         return variableGEP;
     }
 
-    // TODO: Check if it really can use the back() scope.
     m_ScopedNodes.back().emplace(structArgumentNode, nullptr);
 
     if (structArgumentNode->getExpression() == nullptr &&
-        structArgumentNode->getType()->getTargetStruct() != nullptr) {
-        auto variableGEP = m_Builder.CreateStructGEP(structVariable, argumentIndex);
+            structArgumentNode->getType()->getTargetStruct() != nullptr) {
         auto structNode = structArgumentNode->getType()->getTargetStruct();
 
         auto structCreate = std::make_shared<StructCreateNode>();
@@ -616,7 +559,12 @@ llvm::Value *CodeGen::visit(const std::shared_ptr<StructArgumentNode> &structArg
             argument->setParent(structCreate);
             argument->setScope(structCreate->getScope());
             argument->setName(variable->getName());
-            argument->setExpression(variable->getExpression());
+            argument->setDontCopy(true);
+
+            if (variable->getExpression() != nullptr)
+                argument->setExpression(std::shared_ptr<OperableNode>(variable->getExpression()->clone(
+                        argument, argument->getScope())));
+
             argument->setEndToken(variable->getEndToken());
             argument->getScope()->insert(argument->getName()->getContent(), argument);
             argument->setType(variable->getType());
@@ -624,15 +572,22 @@ llvm::Value *CodeGen::visit(const std::shared_ptr<StructArgumentNode> &structArg
             structCreate->insertArgument(index, argument);
         }
 
+        TypeResolver::visit(structCreate);
+        TypeCheck::visit(structCreate);
+        ScopeCheck::visit(structCreate);
+
+        auto currentStructNode = std::static_pointer_cast<StructNode>(
+                structArgumentNode->findNodeOfParents<StructCreateNode>()->getTargetNode());
+        if (!shouldGenerateGEP(currentStructNode, argumentIndex))
+            return nullptr;
+
+        auto variableGEP = m_Builder.CreateStructGEP(structVariable, argumentIndex);
         for (auto index = 0; index < structCreate->getArguments().size(); index++) {
             auto childArgumentNode = structCreate->getArguments()[index];
             CodeGen::visit(childArgumentNode, variableGEP, index);
         }
 
-        std::cout << dumpModule() << std::endl;
-
-        THROW_NODE_ERROR(structArgumentNode, "Not implemented yet.")
-        exit(EXIT_FAILURE);
+        return nullptr;
     }
 
     if (structArgumentNode->getExpression() == nullptr)
@@ -657,33 +612,38 @@ llvm::Value *CodeGen::visit(const std::shared_ptr<StructArgumentNode> &structArg
 }
 
 llvm::Value *CodeGen::visit(const std::shared_ptr<VariableNode> &variableNode) {
-    // TODO: Check if it really can use the back() scope.
-    auto variableIterator = m_ScopedNodes.back().find(variableNode);
-    if (variableIterator != m_ScopedNodes.back().end()) {
-        if (!std::holds_alternative<llvm::Value *>(variableIterator->second)) {
-            std::cout << "This should not have happened. "
-                         "Report this bug with a reconstruction of it." << std::endl;
-            abort();
+    if (variableNode->isGlobal()) {
+        auto variableIterator = m_ScopedNodes[0].find(variableNode);
+        if (variableIterator != m_ScopedNodes[0].end()) {
+            if (!std::holds_alternative<llvm::Value *>(variableIterator->second)) {
+                std::cout << "This should not have happened. "
+                             "Report this bug with a reconstruction of it." << std::endl;
+                abort();
+            }
+
+            return m_Builder.CreateLoad(std::get<llvm::Value *>(variableIterator->second));
         }
 
-        auto foundVariable = std::get<llvm::Value *>(variableIterator->second);
-        if (variableNode->isGlobal())
-            return m_Builder.CreateLoad(foundVariable);
-        return foundVariable;
-    }
-
-    if (variableNode->isGlobal()) {
         auto globalVariable = new llvm::GlobalVariable(*m_Module, CodeGen::visit(variableNode->getType()),
                                                        false, llvm::GlobalVariable::PrivateLinkage,
                                                        nullptr);
+        m_ScopedNodes[0].emplace(variableNode, globalVariable);
 
         // TODO: Issue 1
         THROW_NODE_ERROR(variableNode, "Expressions for global variables are not implemented yet.")
-
-        // TODO: Check if it really can use the back() scope.
-        m_ScopedNodes.back().emplace(variableNode, globalVariable);
         return m_Builder.CreateLoad(globalVariable);
     } else if (variableNode->isLocal()) {
+        auto variableIterator = m_ScopedNodes.back().find(variableNode);
+        if (variableIterator != m_ScopedNodes.back().end()) {
+            if (!std::holds_alternative<llvm::Value *>(variableIterator->second)) {
+                std::cout << "This should not have happened. "
+                             "Report this bug with a reconstruction of it." << std::endl;
+                abort();
+            }
+
+            return std::get<llvm::Value *>(variableIterator->second);
+        }
+
         llvm::Value *valueRef = nullptr;
 
         bool createVariable = variableNode->isAccessed();
@@ -722,7 +682,6 @@ llvm::Value *CodeGen::visit(const std::shared_ptr<VariableNode> &variableNode) {
                 m_Builder.CreateStore(expression, valueRef);
         }
 
-        // TODO: Check if it really can use the back() scope.
         m_ScopedNodes.back().emplace(variableNode, valueRef);
 
         return valueRef;
@@ -864,6 +823,22 @@ llvm::Value *CodeGen::makeNE(bool isFloating, llvm::Value *rhs, llvm::Value *lhs
     if (isFloating)
         return m_Builder.CreateFCmpONE(lhs, rhs);
     return m_Builder.CreateICmpNE(lhs, rhs);
+}
+
+bool CodeGen::shouldGenerateGEP(const std::shared_ptr<StructNode> &structNode, int variableIndex) {
+    auto variableNode = structNode->getVariables()[variableIndex];
+    if (variableNode->getExpression() == nullptr && variableNode->getType()->getTargetStruct() == nullptr)
+        return false;
+    if (variableNode->getExpression() != nullptr)
+        return true;
+
+    auto targetStruct = variableNode->getType()->getTargetStruct();
+    for (auto index = 0; index < targetStruct->getVariables().size(); index++) {
+        if (shouldGenerateGEP(targetStruct, index))
+            return true;
+    }
+
+    return false;
 }
 
 std::string CodeGen::dumpModule() {

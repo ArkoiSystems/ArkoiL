@@ -12,11 +12,11 @@
 
 #include <llvm/IR/BasicBlock.h>
 
+#include "allnodes.h"
+
 class SymbolTable;
 
 class Token;
-
-class TypeNode;
 
 class ASTNode {
 
@@ -144,6 +144,8 @@ public:
 
     void addNode(const std::shared_ptr<ASTNode> &node);
 
+    void removeNode(const std::shared_ptr<ASTNode> &node);
+
 public:
     [[nodiscard]]
     const std::vector<std::shared_ptr<ASTNode>> &getNodes() const;
@@ -198,7 +200,7 @@ public:
 
     bool isAccessed() const;
 
-    void setAccessed(bool mbAccessed);
+    void setAccessed(bool accessed);
 
 };
 
@@ -276,6 +278,10 @@ public:
                              std::shared_ptr<SymbolTable> symbolTable) const override;
 
     void addNode(const std::shared_ptr<ASTNode> &node);
+
+    void removeNode(const std::shared_ptr<ASTNode> &node);
+
+    void insertNode(const std::shared_ptr<ASTNode> &node, int index);
 
 public:
     [[nodiscard]]
@@ -727,19 +733,14 @@ public:
 
 };
 
-class FunctionCallNode;
-
 class FunctionNode : public TypedNode {
 
 private:
     std::vector<std::shared_ptr<ParameterNode>> m_Parameters;
-    std::shared_ptr<FunctionCallNode> m_InlinedFunctionCall;
     std::set<std::string> m_Annotations;
     std::shared_ptr<BlockNode> m_Block;
     std::shared_ptr<Token> m_Name;
     bool mb_Variadic, mb_Native;
-
-    llvm::BasicBlock *m_EntryBlock;
 
 public:
     FunctionNode();
@@ -759,11 +760,6 @@ public:
 
 public:
     [[nodiscard]]
-    const std::shared_ptr<FunctionCallNode> &getInlinedFunctionCall() const;
-
-    void setInlinedFunctionCall(const std::shared_ptr<FunctionCallNode> &inlinedFunctionCall);
-
-    [[nodiscard]]
     const std::vector<std::shared_ptr<ParameterNode>> &getParameters() const;
 
     void setAnnotations(const std::set<std::string> &annotations);
@@ -772,11 +768,6 @@ public:
     const std::shared_ptr<BlockNode> &getBlock() const;
 
     void setBlock(const std::shared_ptr<BlockNode> &block);
-
-    [[nodiscard]]
-    llvm::BasicBlock *getEntryBlock() const;
-
-    void setEntryBlock(llvm::BasicBlock *entryBlock);
 
     [[nodiscard]]
     const std::shared_ptr<Token> &getName() const;
@@ -805,6 +796,7 @@ class StructArgumentNode : public TypedNode {
 private:
     std::shared_ptr<OperableNode> m_Expression;
     std::shared_ptr<Token> m_Name;
+    bool mb_DontCopy;
 
 public:
     StructArgumentNode();
@@ -819,6 +811,10 @@ public:
                                       std::shared_ptr<SymbolTable> symbolTable) const override;
 
 public:
+    bool isDontCopy() const;
+
+    void setDontCopy(bool mbDontCopy);
+
     [[nodiscard]]
     const std::shared_ptr<OperableNode> &getExpression() const;
 
@@ -852,9 +848,9 @@ public:
 
     void addArgument(const std::shared_ptr<StructArgumentNode> &argumentNode);
 
-    void insertArgument(int index, const std::shared_ptr<StructArgumentNode> &argumentNode);
+    void removeArgument(const std::shared_ptr<StructArgumentNode> &argumentNode);
 
-    void removeArgument(int index);
+    void insertArgument(int index, const std::shared_ptr<StructArgumentNode> &argumentNode);
 
 public:
     [[nodiscard]]

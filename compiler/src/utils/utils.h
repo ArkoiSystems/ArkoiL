@@ -10,6 +10,29 @@
 
 class ASTNode;
 
+#define DEFER_1(x, y) x##y
+#define DEFER_2(x, y) DEFER_1(x, y)
+#define DEFER_3(x)    DEFER_2(x, __COUNTER__)
+#define defer(code)   auto DEFER_3(_defer_) = defer_func([&](){code;})
+
+template<typename Function>
+class DeferStruct {
+
+private:
+    Function function;
+
+public:
+    DeferStruct(Function function) : function(function) {}
+
+    ~DeferStruct() { function(); }
+
+};
+
+template<typename Function>
+DeferStruct<Function> defer_func(Function function) {
+    return DeferStruct<Function>(function);
+}
+
 namespace Utils {
 
     static void split(const std::string &input, std::vector<std::string> &list, char delimiter = ' ') {

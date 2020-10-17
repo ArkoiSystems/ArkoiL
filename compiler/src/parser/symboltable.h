@@ -19,8 +19,6 @@ class SymbolTable {
 
 private:
     std::shared_ptr<SymbolTable> m_Parent;
-
-public:
     Table m_Table;
 
 public:
@@ -40,6 +38,8 @@ public:
     void insert(const std::string &id, const std::shared_ptr<ASTNode> &node);
 
 public:
-    void setParent(const std::shared_ptr<SymbolTable> &parent);
+    const std::shared_ptr<SymbolTable> &getParent() const;
+
+    const Table &getTable() const;
 
 };

@@ -6,41 +6,7 @@
 
 #include <memory>
 
-class ASTNode;
-
-class RootNode;
-
-class ImportNode;
-
-class FunctionNode;
-
-class BlockNode;
-
-class ParameterNode;
-
-class VariableNode;
-
-class BinaryNode;
-
-class UnaryNode;
-
-class ParenthesizedNode;
-
-class StructCreateNode;
-
-class StructArgumentNode;
-
-class FunctionArgumentNode;
-
-class FunctionCallNode;
-
-class AssignmentNode;
-
-class IdentifierNode;
-
-class ReturnNode;
-
-class StructNode;
+#include "../parser/allnodes.h"
 
 class ScopeCheck {
 

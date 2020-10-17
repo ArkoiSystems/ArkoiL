@@ -11,17 +11,15 @@ struct Info {
 }
 
 fun main(): i32 {
-    var test = createInfo().weird.hello
-    println("test: \"%i\"", test)
-    return test
+    const info = createInfo()
+    println("Hello World %i", info.test)
+    info.weird.hello
+    return 0
 }
 
 fun createInfo(): Info = { 
     test: 10,
-    pointerTest: &test, 
-    weird: { 
-        hello: 2 
-    } 
+    pointerTest: &test
 }
 
 ## FUTURE CONCEPTS:

@@ -17,10 +17,10 @@
 #include "../semantic/typecheck.h"
 #include "../parser/astnodes.h"
 #include "../codegen/codegen.h"
+#include "../semantic/inliner.h"
 #include "../parser/parser.h"
 #include "../lexer/lexer.h"
 #include "../lexer/token.h"
-#include "../utils.h"
 #include "options.h"
 #include "error.h"
 
@@ -48,10 +48,16 @@ int Compiler::compile(const CompilerOptions &compilerOptions) {
     for (const auto &rootNode : roots)
         TypeResolver::visit(rootNode);
 
+//    Inliner inliner;
+//    for (const auto &rootNode : roots)
+//        inliner.visit(rootNode);
+
     for (const auto &rootNode : roots) {
         TypeCheck::visit(rootNode);
         ScopeCheck::visit(rootNode);
     }
+
+//    exit(1);
 
     CodeGen codeGen;
     codeGen.visit(sourceRoot);
