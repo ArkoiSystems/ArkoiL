@@ -64,8 +64,8 @@ protected:
     ASTNode(const ASTNode &other);
 
 public:
-    virtual ASTNode *clone(std::shared_ptr<ASTNode> parent,
-                           std::shared_ptr<SymbolTable> symbolTable) const = 0;
+    virtual ASTNode *clone(const std::shared_ptr<ASTNode> parent,
+                           const std::shared_ptr<SymbolTable> symbolTable) const;
 
     template<typename Type = ASTNode>
     std::shared_ptr<Type> findNodeOfParents() {
@@ -131,8 +131,8 @@ protected:
     RootNode(const RootNode &other);
 
 public:
-    virtual RootNode *clone(std::shared_ptr<ASTNode> parent,
-                            std::shared_ptr<SymbolTable> symbolTable) const override;
+    RootNode *clone(const std::shared_ptr<ASTNode> parent,
+                    const std::shared_ptr<SymbolTable> symbolTable) const override;
 
     std::vector<std::shared_ptr<RootNode>> getImportedRoots();
 
@@ -179,8 +179,8 @@ protected:
     TypedNode(const TypedNode &other);
 
 public:
-    virtual TypedNode *clone(std::shared_ptr<ASTNode> parent,
-                             std::shared_ptr<SymbolTable> symbolTable) const override;
+    TypedNode *clone(const std::shared_ptr<ASTNode> parent,
+                     const std::shared_ptr<SymbolTable> symbolTable) const override;
 
 public:
     [[nodiscard]]
@@ -219,8 +219,8 @@ protected:
     ImportNode(const ImportNode &other);
 
 public:
-    virtual ImportNode *clone(std::shared_ptr<ASTNode> parent,
-                              std::shared_ptr<SymbolTable> symbolTable) const override;
+    ImportNode *clone(const std::shared_ptr<ASTNode> parent,
+                      const std::shared_ptr<SymbolTable> symbolTable) const override;
 
 public:
     [[nodiscard]]
@@ -249,8 +249,8 @@ protected:
     ParameterNode(const ParameterNode &other);
 
 public:
-    virtual ParameterNode *clone(std::shared_ptr<ASTNode> parent,
-                                 std::shared_ptr<SymbolTable> symbolTable) const override;
+    ParameterNode *clone(const std::shared_ptr<ASTNode> parent,
+                         const std::shared_ptr<SymbolTable> symbolTable) const override;
 
 public:
     [[nodiscard]]
@@ -264,6 +264,7 @@ class BlockNode : public TypedNode {
 
 private:
     std::vector<std::shared_ptr<ASTNode>> m_Nodes;
+    bool mb_Inlined;
 
 public:
     BlockNode();
@@ -274,8 +275,8 @@ protected:
     BlockNode(const BlockNode &other);
 
 public:
-    virtual BlockNode *clone(std::shared_ptr<ASTNode> parent,
-                             std::shared_ptr<SymbolTable> symbolTable) const override;
+    BlockNode *clone(const std::shared_ptr<ASTNode> parent,
+                     const std::shared_ptr<SymbolTable> symbolTable) const override;
 
     void addNode(const std::shared_ptr<ASTNode> &node);
 
@@ -286,6 +287,11 @@ public:
 public:
     [[nodiscard]]
     const std::vector<std::shared_ptr<ASTNode>> &getNodes() const;
+
+    [[nodiscard]]
+    bool isInlined() const;
+
+    void setInlined(bool inlined);
 
 };
 
@@ -300,8 +306,8 @@ protected:
     OperableNode(const OperableNode &other);
 
 public:
-    virtual OperableNode *clone(std::shared_ptr<ASTNode> parent,
-                                std::shared_ptr<SymbolTable> symbolTable) const override;
+    OperableNode *clone(const std::shared_ptr<ASTNode> parent,
+                        const std::shared_ptr<SymbolTable> symbolTable) const override;
 
 };
 
@@ -321,8 +327,8 @@ protected:
     VariableNode(const VariableNode &other);
 
 public:
-    virtual VariableNode *clone(std::shared_ptr<ASTNode> parent,
-                                std::shared_ptr<SymbolTable> symbolTable) const override;
+    VariableNode *clone(const std::shared_ptr<ASTNode> parent,
+                        const std::shared_ptr<SymbolTable> symbolTable) const override;
 
     bool isGlobal();
 
@@ -348,7 +354,6 @@ public:
     void setLocal(bool local);
 
 };
-
 
 class BinaryNode : public OperableNode {
 
@@ -385,8 +390,8 @@ protected:
     BinaryNode(const BinaryNode &other);
 
 public:
-    virtual BinaryNode *clone(std::shared_ptr<ASTNode> parent,
-                              std::shared_ptr<SymbolTable> symbolTable) const override;
+    BinaryNode *clone(const std::shared_ptr<ASTNode> parent,
+                      const std::shared_ptr<SymbolTable> symbolTable) const override;
 
 public:
     [[nodiscard]]
@@ -434,8 +439,8 @@ protected:
     UnaryNode(const UnaryNode &other);
 
 public:
-    virtual UnaryNode *clone(std::shared_ptr<ASTNode> parent,
-                             std::shared_ptr<SymbolTable> symbolTable) const override;
+    UnaryNode *clone(const std::shared_ptr<ASTNode> parent,
+                     const std::shared_ptr<SymbolTable> symbolTable) const override;
 
 public:
     [[nodiscard]]
@@ -470,8 +475,8 @@ protected:
     ParenthesizedNode(const ParenthesizedNode &other);
 
 public:
-    virtual ParenthesizedNode *clone(std::shared_ptr<ASTNode> parent,
-                                     std::shared_ptr<SymbolTable> symbolTable) const override;
+    ParenthesizedNode *clone(const std::shared_ptr<ASTNode> parent,
+                             const std::shared_ptr<SymbolTable> symbolTable) const override;
 
 public:
     [[nodiscard]]
@@ -495,8 +500,8 @@ protected:
     NumberNode(const NumberNode &other);
 
 public:
-    virtual NumberNode *clone(std::shared_ptr<ASTNode> parent,
-                              std::shared_ptr<SymbolTable> symbolTable) const override;
+    NumberNode *clone(const std::shared_ptr<ASTNode> parent,
+                      const std::shared_ptr<SymbolTable> symbolTable) const override;
 
 public:
     [[nodiscard]]
@@ -520,8 +525,8 @@ protected:
     StringNode(const StringNode &other);
 
 public:
-    virtual StringNode *clone(std::shared_ptr<ASTNode> parent,
-                              std::shared_ptr<SymbolTable> symbolTable) const override;
+    StringNode *clone(const std::shared_ptr<ASTNode> parent,
+                      const std::shared_ptr<SymbolTable> symbolTable) const override;
 
 public:
     [[nodiscard]]
@@ -547,8 +552,8 @@ protected:
     IdentifierNode(const IdentifierNode &other);
 
 public:
-    virtual IdentifierNode *clone(std::shared_ptr<ASTNode> parent,
-                                  std::shared_ptr<SymbolTable> symbolTable) const override;
+    IdentifierNode *clone(const std::shared_ptr<ASTNode> parent,
+                          const std::shared_ptr<SymbolTable> symbolTable) const override;
 
 public:
     [[nodiscard]]
@@ -593,8 +598,8 @@ protected:
     AssignmentNode(const AssignmentNode &other);
 
 public:
-    virtual AssignmentNode *clone(std::shared_ptr<ASTNode> parent,
-                                  std::shared_ptr<SymbolTable> symbolTable) const override;
+    AssignmentNode *clone(const std::shared_ptr<ASTNode> parent,
+                          const std::shared_ptr<SymbolTable> symbolTable) const override;
 
 public:
     [[nodiscard]]
@@ -628,8 +633,8 @@ protected:
     ReturnNode(const ReturnNode &other);
 
 public:
-    virtual ReturnNode *clone(std::shared_ptr<ASTNode> parent,
-                              std::shared_ptr<SymbolTable> symbolTable) const override;
+    ReturnNode *clone(const std::shared_ptr<ASTNode> parent,
+                      const std::shared_ptr<SymbolTable> symbolTable) const override;
 
 public:
     [[nodiscard]]
@@ -654,8 +659,8 @@ protected:
     StructNode(const StructNode &other);
 
 public:
-    virtual StructNode *clone(std::shared_ptr<ASTNode> parent,
-                              std::shared_ptr<SymbolTable> symbolTable) const override;
+    StructNode *clone(const std::shared_ptr<ASTNode> parent,
+                      const std::shared_ptr<SymbolTable> symbolTable) const override;
 
     void addVariable(const std::shared_ptr<VariableNode> &variable);
 
@@ -687,8 +692,8 @@ protected:
     TypeNode(const TypeNode &other);
 
 public:
-    virtual TypeNode *clone(std::shared_ptr<ASTNode> parent,
-                            std::shared_ptr<SymbolTable> symbolTable) const override;
+    TypeNode *clone(const std::shared_ptr<ASTNode> parent,
+                    const std::shared_ptr<SymbolTable> symbolTable) const override;
 
     [[nodiscard]]
     bool isNumeric() const;
@@ -751,8 +756,8 @@ protected:
     FunctionNode(const FunctionNode &other);
 
 public:
-    virtual FunctionNode *clone(std::shared_ptr<ASTNode> parent,
-                                std::shared_ptr<SymbolTable> symbolTable) const override;
+    FunctionNode *clone(const std::shared_ptr<ASTNode> parent,
+                        const std::shared_ptr<SymbolTable> symbolTable) const override;
 
     bool hasAnnotation(const std::string &annotation);
 
@@ -807,8 +812,8 @@ protected:
     StructArgumentNode(const StructArgumentNode &other);
 
 public:
-    virtual StructArgumentNode *clone(std::shared_ptr<ASTNode> parent,
-                                      std::shared_ptr<SymbolTable> symbolTable) const override;
+    StructArgumentNode *clone(const std::shared_ptr<ASTNode> parent,
+                              const std::shared_ptr<SymbolTable> symbolTable) const override;
 
 public:
     bool isDontCopy() const;
@@ -843,8 +848,8 @@ protected:
     StructCreateNode(const StructCreateNode &other);
 
 public:
-    virtual StructCreateNode *clone(std::shared_ptr<ASTNode> parent,
-                                    std::shared_ptr<SymbolTable> symbolTable) const override;
+    StructCreateNode *clone(const std::shared_ptr<ASTNode> parent,
+                            const std::shared_ptr<SymbolTable> symbolTable) const override;
 
     void addArgument(const std::shared_ptr<StructArgumentNode> &argumentNode);
 
@@ -884,8 +889,8 @@ protected:
     FunctionArgumentNode(const FunctionArgumentNode &other);
 
 public:
-    virtual FunctionArgumentNode *clone(std::shared_ptr<ASTNode> parent,
-                                        std::shared_ptr<SymbolTable> symbolTable) const override;
+    FunctionArgumentNode *clone(const std::shared_ptr<ASTNode> parent,
+                                const std::shared_ptr<SymbolTable> symbolTable) const override;
 
 public:
     [[nodiscard]]
@@ -919,8 +924,8 @@ protected:
     FunctionCallNode(const FunctionCallNode &other);
 
 public:
-    virtual FunctionCallNode *clone(std::shared_ptr<ASTNode> parent,
-                                    std::shared_ptr<SymbolTable> symbolTable) const override;
+    FunctionCallNode *clone(const std::shared_ptr<ASTNode> parent,
+                            const std::shared_ptr<SymbolTable> symbolTable) const override;
 
     bool getSortedArguments(const std::shared_ptr<FunctionNode> &functionNode,
                             std::vector<std::shared_ptr<FunctionArgumentNode>> &sortedArguments);

@@ -34,8 +34,8 @@ add_executable(ArkoiCompiler
         "${PROJECT_SOURCE_DIR}/src/parser/astnodes.h"
         "${PROJECT_SOURCE_DIR}/src/compiler/error.cpp"
         "${PROJECT_SOURCE_DIR}/src/compiler/error.h"
-        "${PROJECT_SOURCE_DIR}/src/parser/typeresolver.cpp"
-        "${PROJECT_SOURCE_DIR}/src/parser/typeresolver.h"
+        "src/semantic/typeresolver.cpp"
+        "src/semantic/typeresolver.h"
         "${PROJECT_SOURCE_DIR}/src/parser/symboltable.cpp"
         "${PROJECT_SOURCE_DIR}/src/parser/symboltable.h"
         "${PROJECT_SOURCE_DIR}/src/semantic/typecheck.cpp"
@@ -49,7 +49,7 @@ add_executable(ArkoiCompiler
         "${PROJECT_SOURCE_DIR}/src/options/OptionParser.h"
         "${PROJECT_SOURCE_DIR}/src/parser/allnodes.h"
         "${PROJECT_SOURCE_DIR}/src/semantic/inliner.cpp"
-        "${PROJECT_SOURCE_DIR}/src/semantic/inliner.h")
+        "${PROJECT_SOURCE_DIR}/src/semantic/inliner.h" src/utils/astprinter.cpp src/utils/astprinter.h)
 
 target_link_libraries(ArkoiCompiler
         LINK_PUBLIC

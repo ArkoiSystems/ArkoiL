@@ -6,7 +6,7 @@
 
 #include <memory>
 
-#include "allnodes.h"
+#include "../parser/allnodes.h"
 
 class TypeResolver {
 

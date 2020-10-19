@@ -47,3 +47,5 @@ class NumberNode;
 class TypeNode;
 
 class TypedNode;
+
+class OperableNode;

@@ -55,8 +55,7 @@ public:
 
     void visit(const std::shared_ptr<RootNode> &rootNode);
 
-    llvm::Value *visit(const std::shared_ptr<FunctionNode> &functionNode,
-                       const std::shared_ptr<FunctionCallNode> &functionCallNode = nullptr);
+    llvm::Value *visit(const std::shared_ptr<FunctionNode> &functionNode);
 
     llvm::Type *visit(const std::shared_ptr<TypeNode> &typeNode);
 
@@ -122,7 +121,12 @@ public:
 
     bool shouldGenerateGEP(const std::shared_ptr<StructNode> &structNode, int variableIndex);
 
+    std::shared_ptr<StructCreateNode> createStructCreate(const std::shared_ptr<StructNode> &targetNode,
+                                                         const std::shared_ptr<ASTNode> &parentNode);
+
     std::string dumpModule();
+
+    std::string dumpValue(llvm::Value *value);
 
 public:
     std::shared_ptr<llvm::Module> getModule() const;

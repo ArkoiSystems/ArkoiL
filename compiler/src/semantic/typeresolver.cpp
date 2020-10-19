@@ -5,10 +5,10 @@
 #include "typeresolver.h"
 
 #include "../parser/symboltable.h"
+#include "../parser/astnodes.h"
 #include "../compiler/error.h"
 #include "../lexer/lexer.h"
 #include "../lexer/token.h"
-#include "astnodes.h"
 #include "../utils/utils.h"
 
 void TypeResolver::visit(const std::shared_ptr<ASTNode> &node) {

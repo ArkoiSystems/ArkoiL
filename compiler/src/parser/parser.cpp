@@ -271,6 +271,8 @@ std::shared_ptr<BlockNode> Parser::parseBlock(const std::shared_ptr<ASTNode> &pa
     blockNode->setParent(parent);
     blockNode->setScope(scope);
 
+    blockNode->setInlined(currentToken() == "=");
+
     if (currentToken() == "{") {
         nextToken();
 
@@ -320,7 +322,14 @@ std::shared_ptr<BlockNode> Parser::parseBlock(const std::shared_ptr<ASTNode> &pa
         }
     } else if (currentToken() == "=") {
         nextToken();
-        blockNode->addNode(parseRelational(blockNode));
+
+        auto returnNode = std::make_shared<ReturnNode>();
+        returnNode->setStartToken(blockNode->getStartToken());
+        returnNode->setParent(blockNode);
+        returnNode->setScope(blockNode->getScope());
+        returnNode->setExpression(parseRelational(returnNode));
+        returnNode->setEndToken(currentToken());
+        blockNode->addNode(returnNode);
     } else {
         THROW_TOKEN_ERROR("Block expected '{{' or '=' but got '{}' instead.", currentToken()->getContent())
         parent->setFailed(true);

@@ -12,7 +12,7 @@
 
 #include <llvm/IR/Verifier.h>
 
-#include "../parser/typeresolver.h"
+#include "../semantic/typeresolver.h"
 #include "../semantic/scopecheck.h"
 #include "../semantic/typecheck.h"
 #include "../parser/astnodes.h"
@@ -48,16 +48,15 @@ int Compiler::compile(const CompilerOptions &compilerOptions) {
     for (const auto &rootNode : roots)
         TypeResolver::visit(rootNode);
 
-//    Inliner inliner;
-//    for (const auto &rootNode : roots)
-//        inliner.visit(rootNode);
+    for (const auto &rootNode : roots) {
+        Inliner inliner;
+        inliner.visit(rootNode);
+    }
 
     for (const auto &rootNode : roots) {
         TypeCheck::visit(rootNode);
         ScopeCheck::visit(rootNode);
     }
-
-//    exit(1);
 
     CodeGen codeGen;
     codeGen.visit(sourceRoot);

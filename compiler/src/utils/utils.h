@@ -8,7 +8,7 @@
 #include <memory>
 #include <vector>
 
-class ASTNode;
+#include "../parser/allnodes.h"
 
 #define DEFER_1(x, y) x##y
 #define DEFER_2(x, y) DEFER_1(x, y)

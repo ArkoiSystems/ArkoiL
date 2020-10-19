@@ -6,11 +6,10 @@
 
 #include "../parser/symboltable.h"
 #include "../compiler/error.h"
-#include "../lexer/lexer.h"
-#include "../lexer/token.h"
 #include "../parser/astnodes.h"
+#include "../lexer/token.h"
 #include "../utils/utils.h"
-#include "../parser/typeresolver.h"
+#include "typeresolver.h"
 
 // TODO: Currently just working for functions.
 Inliner::Inliner() {}
@@ -54,6 +53,8 @@ Inliner::ReturnVariable Inliner::visit(const std::shared_ptr<ASTNode> &node) {
         auto currentIdentifier = firstIdentifier->getNextIdentifier();
         while (currentIdentifier != nullptr) {
             returnVariable = Inliner::visit(currentIdentifier);
+            currentIdentifier->setTypeResolved(false);
+
             if (returnVariable != nullptr) {
                 auto oldIdentifier = lastIdentifier->getNextIdentifier();
                 lastIdentifier->setNextIdentifier(createIdentifier(oldIdentifier, oldIdentifier->getScope(),
@@ -121,7 +122,8 @@ Inliner::ReturnVariable Inliner::visit(const std::shared_ptr<FunctionNode> &func
 }
 
 Inliner::ReturnVariable Inliner::visit(const std::shared_ptr<BlockNode> &blockNode) {
-    for (const auto &node : blockNode->getNodes())
+    auto copiedNodes(blockNode->getNodes());
+    for (const auto &node : copiedNodes)
         Inliner::visit(node);
     return nullptr;
 }
@@ -231,6 +233,8 @@ Inliner::ReturnVariable Inliner::visit(const std::shared_ptr<AssignmentNode> &as
     auto currentIdentifier = lastIdentifier->getNextIdentifier();
     while (currentIdentifier != nullptr) {
         returnVariable = Inliner::visit(currentIdentifier);
+        currentIdentifier->setTypeResolved(false);
+
         if (returnVariable != nullptr) {
             auto oldIdentifier = lastIdentifier->getNextIdentifier();
             lastIdentifier->setNextIdentifier(createIdentifier(oldIdentifier, oldIdentifier->getScope(),
@@ -287,9 +291,9 @@ Inliner::ReturnVariable Inliner::generate(const std::shared_ptr<FunctionNode> &t
     variableNode->setConstant(false);
 
     variableNode->setName(std::make_shared<Token>());
-    variableNode->getName()->setContent("inlined." + identifierNode->getIdentifier()->getContent() + "." +
-                                        std::to_string(identifierNode->getIdentifier()->getLineNumber()) +
-                                        std::to_string(identifierNode->getIdentifier()->getStartChar()));
+    variableNode->getName()->setContent(std::to_string(identifierNode->getIdentifier()->getLineNumber()) +
+                                        std::to_string(identifierNode->getIdentifier()->getStartChar()) +
+                                        "#" + identifierNode->getIdentifier()->getContent());
     variableNode->getName()->setLineNumber(identifierNode->getIdentifier()->getLineNumber());
     variableNode->getName()->setStartChar(identifierNode->getIdentifier()->getStartChar());
     variableNode->getName()->setEndChar(identifierNode->getIdentifier()->getEndChar());

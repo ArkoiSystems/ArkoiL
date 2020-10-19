@@ -147,8 +147,8 @@ void TypeCheck::visit(const std::shared_ptr<StructCreateNode> &structCreateNode)
     for (const auto &argument : structCreateNode->getArguments()) {
         TypeCheck::visit(argument);
 
-        auto variable = targetStruct->getVariables().at(Utils::indexOf(structCreateNode->getArguments(),
-                                                                       argument).second);
+        auto variableIndex = Utils::indexOf(structCreateNode->getArguments(), argument).second;
+        auto variable = targetStruct->getVariables().at(variableIndex);
         if (*argument->getType() != *variable->getType()) {
             THROW_NODE_ERROR(argument, "The struct create argument uses a different type than the variable.")
             return;

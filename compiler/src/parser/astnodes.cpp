@@ -6,8 +6,8 @@
 #include "astnodes.h"
 
 #include "../lexer/token.h"
-#include "symboltable.h"
 #include "../utils/utils.h"
+#include "symboltable.h"
 
 /* ----------======== AST-NODE ========---------- */
 
@@ -20,12 +20,14 @@ ASTNode::ASTNode(const ASTNode &other)
         : m_Kind(other.m_Kind), mb_Failed(false),
           m_StartToken(nullptr), m_EndToken(nullptr),
           m_Parent(nullptr), m_Scope(nullptr) {
-    if (other.m_StartToken)
-        m_StartToken = std::make_shared<Token>(*other.m_StartToken);
-    if (other.m_EndToken)
-        m_EndToken = std::make_shared<Token>(*other.m_EndToken);
-    if (other.m_Scope)
-        m_Scope = std::make_shared<SymbolTable>(*other.m_Scope);
+    m_StartToken = std::make_shared<Token>(*other.m_StartToken);
+    m_EndToken = std::make_shared<Token>(*other.m_EndToken);
+    m_Scope = std::make_shared<SymbolTable>(*other.m_Scope);
+}
+
+ASTNode *ASTNode::clone(const std::shared_ptr<ASTNode> parent,
+                        const std::shared_ptr<SymbolTable> symbolTable) const {
+    return nullptr;
 }
 
 const std::shared_ptr<Token> &ASTNode::getStartToken() const {
@@ -170,8 +172,8 @@ TypedNode::TypedNode(const TypedNode &other)
           mb_TypeResolved(false), m_Type(nullptr),
           m_TargetNode(nullptr), mb_Accessed(false) {}
 
-TypedNode *TypedNode::clone(std::shared_ptr<ASTNode> parent,
-                            std::shared_ptr<SymbolTable> symbolTable) const {
+TypedNode *TypedNode::clone(const std::shared_ptr<ASTNode> parent,
+                            const std::shared_ptr<SymbolTable> symbolTable) const {
     auto node = new TypedNode(*this);
     node->setParent(parent);
     node->setScope(symbolTable);
@@ -224,12 +226,11 @@ ImportNode::ImportNode(const ImportNode &other)
     if (other.m_Target)
         m_Target = std::shared_ptr<RootNode>(other.m_Target->clone(std::shared_ptr<ImportNode>(this),
                                                                    this->getScope()));
-    if (other.m_Path)
-        m_Path = std::make_shared<Token>(*other.m_Path);
+    m_Path = std::make_shared<Token>(*other.m_Path);
 }
 
-ImportNode *ImportNode::clone(std::shared_ptr<ASTNode> parent,
-                              std::shared_ptr<SymbolTable> symbolTable) const {
+ImportNode *ImportNode::clone(const std::shared_ptr<ASTNode> parent,
+                              const std::shared_ptr<SymbolTable> symbolTable) const {
     auto node = new ImportNode(*this);
     node->setParent(parent);
     node->setScope(symbolTable);
@@ -270,8 +271,8 @@ RootNode::RootNode(const RootNode &other)
                                                                this->getScope())));
 }
 
-RootNode *RootNode::clone(std::shared_ptr<ASTNode> parent,
-                          std::shared_ptr<SymbolTable> symbolTable) const {
+RootNode *RootNode::clone(const std::shared_ptr<ASTNode> parent,
+                          const std::shared_ptr<SymbolTable> symbolTable) const {
     auto node = new RootNode(*this);
     node->setParent(parent);
     node->setScope(symbolTable);
@@ -356,12 +357,11 @@ ParameterNode::ParameterNode()
 ParameterNode::ParameterNode(const ParameterNode &other)
         : TypedNode(other),
           m_Name(nullptr) {
-    if (other.m_Name)
-        m_Name = std::make_shared<Token>(*other.m_Name);
+    m_Name = std::make_shared<Token>(*other.m_Name);
 }
 
-ParameterNode *ParameterNode::clone(std::shared_ptr<ASTNode> parent,
-                                    std::shared_ptr<SymbolTable> symbolTable) const {
+ParameterNode *ParameterNode::clone(const std::shared_ptr<ASTNode> parent,
+                                    const std::shared_ptr<SymbolTable> symbolTable) const {
     auto node = new ParameterNode(*this);
     node->setParent(parent);
     node->setScope(symbolTable);
@@ -392,8 +392,8 @@ BlockNode::BlockNode(const BlockNode &other)
                                                                this->getScope())));
 }
 
-BlockNode *BlockNode::clone(std::shared_ptr<ASTNode> parent,
-                            std::shared_ptr<SymbolTable> symbolTable) const {
+BlockNode *BlockNode::clone(const std::shared_ptr<ASTNode> parent,
+                            const std::shared_ptr<SymbolTable> symbolTable) const {
     auto node = new BlockNode(*this);
     node->setParent(parent);
     node->setScope(symbolTable);
@@ -417,6 +417,14 @@ void BlockNode::insertNode(const std::shared_ptr<ASTNode> &node, int index) {
     m_Nodes.insert(m_Nodes.begin() + index, node);
 }
 
+bool BlockNode::isInlined() const {
+    return mb_Inlined;
+}
+
+void BlockNode::setInlined(bool inlined) {
+    mb_Inlined = inlined;
+}
+
 
 /* ----------======== OPERABLE-NODE ========---------- */
 
@@ -427,8 +435,8 @@ OperableNode::OperableNode() {
 OperableNode::OperableNode(const OperableNode &other)
         : TypedNode(other) {}
 
-OperableNode *OperableNode::clone(std::shared_ptr<ASTNode> parent,
-                                  std::shared_ptr<SymbolTable> symbolTable) const {
+OperableNode *OperableNode::clone(const std::shared_ptr<ASTNode> parent,
+                                  const std::shared_ptr<SymbolTable> symbolTable) const {
     auto node = new OperableNode(*this);
     node->setParent(parent);
     node->setScope(symbolTable);
@@ -448,18 +456,17 @@ VariableNode::VariableNode(const VariableNode &other)
         : TypedNode(other),
           mb_Constant(other.mb_Constant), mb_Local(other.mb_Local),
           m_Expression(nullptr), m_Name(nullptr) {
+    m_Name = std::make_shared<Token>(*other.m_Name);
     if (other.getType() != nullptr)
         setType(std::shared_ptr<TypeNode>(other.getType()->clone(std::shared_ptr<VariableNode>(this),
                                                                  this->getScope())));
     if (other.m_Expression)
         m_Expression = std::shared_ptr<OperableNode>(other.m_Expression->clone(
                 std::shared_ptr<VariableNode>(this), this->getScope()));
-    if (other.m_Name)
-        m_Name = std::make_shared<Token>(*other.m_Name);
 }
 
-VariableNode *VariableNode::clone(std::shared_ptr<ASTNode> parent,
-                                  std::shared_ptr<SymbolTable> symbolTable) const {
+VariableNode *VariableNode::clone(const std::shared_ptr<ASTNode> parent,
+                                  const std::shared_ptr<SymbolTable> symbolTable) const {
     auto node = new VariableNode(*this);
     node->setParent(parent);
     node->setScope(symbolTable);
@@ -515,16 +522,14 @@ BinaryNode::BinaryNode(const BinaryNode &other)
         : OperableNode(other),
           m_OperatorKind(other.m_OperatorKind),
           m_Lhs(nullptr), m_Rhs(nullptr) {
-    if (other.m_Lhs)
-        m_Lhs = std::shared_ptr<OperableNode>(other.m_Lhs->clone(std::shared_ptr<BinaryNode>(this),
-                                                                 this->getScope()));
-    if (other.m_Rhs)
-        m_Rhs = std::shared_ptr<OperableNode>(other.m_Rhs->clone(std::shared_ptr<BinaryNode>(this),
-                                                                 this->getScope()));
+    m_Lhs = std::shared_ptr<OperableNode>(other.m_Lhs->clone(std::shared_ptr<BinaryNode>(this),
+                                                             this->getScope()));
+    m_Rhs = std::shared_ptr<OperableNode>(other.m_Rhs->clone(std::shared_ptr<BinaryNode>(this),
+                                                             this->getScope()));
 }
 
-BinaryNode *BinaryNode::clone(std::shared_ptr<ASTNode> parent,
-                              std::shared_ptr<SymbolTable> symbolTable) const {
+BinaryNode *BinaryNode::clone(const std::shared_ptr<ASTNode> parent,
+                              const std::shared_ptr<SymbolTable> symbolTable) const {
     auto node = new BinaryNode(*this);
     node->setParent(parent);
     node->setScope(symbolTable);
@@ -621,13 +626,12 @@ UnaryNode::UnaryNode()
 UnaryNode::UnaryNode(const UnaryNode &other)
         : OperableNode(other),
           m_OperatorKind(other.m_OperatorKind), m_Expression(nullptr) {
-    if (other.m_Expression)
-        m_Expression = std::shared_ptr<OperableNode>(other.m_Expression->clone(
-                std::shared_ptr<UnaryNode>(this), this->getScope()));
+    m_Expression = std::shared_ptr<OperableNode>(other.m_Expression->clone(std::shared_ptr<UnaryNode>(this),
+                                                                           this->getScope()));
 }
 
-UnaryNode *UnaryNode::clone(std::shared_ptr<ASTNode> parent,
-                            std::shared_ptr<SymbolTable> symbolTable) const {
+UnaryNode *UnaryNode::clone(const std::shared_ptr<ASTNode> parent,
+                            const std::shared_ptr<SymbolTable> symbolTable) const {
     auto node = new UnaryNode(*this);
     node->setParent(parent);
     node->setScope(symbolTable);
@@ -683,13 +687,12 @@ ParenthesizedNode::ParenthesizedNode()
 ParenthesizedNode::ParenthesizedNode(const ParenthesizedNode &other)
         : OperableNode(other),
           m_Expression(nullptr) {
-    if (other.m_Expression)
-        m_Expression = std::shared_ptr<OperableNode>(other.m_Expression->clone(
-                std::shared_ptr<ParenthesizedNode>(this), this->getScope()));
+    m_Expression = std::shared_ptr<OperableNode>(other.m_Expression->clone(
+            std::shared_ptr<ParenthesizedNode>(this), this->getScope()));
 }
 
-ParenthesizedNode *ParenthesizedNode::clone(std::shared_ptr<ASTNode> parent,
-                                            std::shared_ptr<SymbolTable> symbolTable) const {
+ParenthesizedNode *ParenthesizedNode::clone(const std::shared_ptr<ASTNode> parent,
+                                            const std::shared_ptr<SymbolTable> symbolTable) const {
     auto node = new ParenthesizedNode(*this);
     node->setParent(parent);
     node->setScope(symbolTable);
@@ -715,12 +718,11 @@ NumberNode::NumberNode()
 NumberNode::NumberNode(const NumberNode &other)
         : OperableNode(other),
           m_Number(nullptr) {
-    if (other.m_Number)
-        m_Number = std::make_shared<Token>(*other.m_Number);
+    m_Number = std::make_shared<Token>(*other.m_Number);
 }
 
-NumberNode *NumberNode::clone(std::shared_ptr<ASTNode> parent,
-                              std::shared_ptr<SymbolTable> symbolTable) const {
+NumberNode *NumberNode::clone(const std::shared_ptr<ASTNode> parent,
+                              const std::shared_ptr<SymbolTable> symbolTable) const {
     auto node = new NumberNode(*this);
     node->setParent(parent);
     node->setScope(symbolTable);
@@ -746,12 +748,11 @@ StringNode::StringNode()
 StringNode::StringNode(const StringNode &other)
         : OperableNode(other),
           m_String(nullptr) {
-    if (other.m_String)
-        m_String = std::make_shared<Token>(*other.m_String);
+    m_String = std::make_shared<Token>(*other.m_String);
 }
 
-StringNode *StringNode::clone(std::shared_ptr<ASTNode> parent,
-                              std::shared_ptr<SymbolTable> symbolTable) const {
+StringNode *StringNode::clone(const std::shared_ptr<ASTNode> parent,
+                              const std::shared_ptr<SymbolTable> symbolTable) const {
     auto node = new StringNode(*this);
     node->setParent(parent);
     node->setScope(symbolTable);
@@ -779,15 +780,14 @@ FunctionArgumentNode::FunctionArgumentNode(const FunctionArgumentNode &other)
         : TypedNode(other),
           m_Expression(nullptr), m_Name(nullptr),
           mb_TypeWhitelisted(false) {
-    if (other.m_Expression)
-        m_Expression = std::shared_ptr<OperableNode>(other.m_Expression->clone(
-                std::shared_ptr<FunctionArgumentNode>(this), this->getScope()));
     if (other.m_Name)
         m_Name = std::make_shared<Token>(*other.m_Name);
+    m_Expression = std::shared_ptr<OperableNode>(other.m_Expression->clone(
+            std::shared_ptr<FunctionArgumentNode>(this), this->getScope()));
 }
 
-FunctionArgumentNode *FunctionArgumentNode::clone(std::shared_ptr<ASTNode> parent,
-                                                  std::shared_ptr<SymbolTable> symbolTable) const {
+FunctionArgumentNode *FunctionArgumentNode::clone(const std::shared_ptr<ASTNode> parent,
+                                                  const std::shared_ptr<SymbolTable> symbolTable) const {
     auto node = new FunctionArgumentNode(*this);
     node->setParent(parent);
     node->setScope(symbolTable);
@@ -843,8 +843,8 @@ IdentifierNode::IdentifierNode(const IdentifierNode &other)
         m_Identifier = std::make_shared<Token>(*other.m_Identifier);
 }
 
-IdentifierNode *IdentifierNode::clone(std::shared_ptr<ASTNode> parent,
-                                      std::shared_ptr<SymbolTable> symbolTable) const {
+IdentifierNode *IdentifierNode::clone(const std::shared_ptr<ASTNode> parent,
+                                      const std::shared_ptr<SymbolTable> symbolTable) const {
     auto node = new IdentifierNode(*this);
     node->setParent(parent);
     node->setScope(symbolTable);
@@ -915,8 +915,8 @@ AssignmentNode::AssignmentNode(const AssignmentNode &other)
                 std::shared_ptr<AssignmentNode>(this), this->getScope()));
 }
 
-AssignmentNode *AssignmentNode::clone(std::shared_ptr<ASTNode> parent,
-                                      std::shared_ptr<SymbolTable> symbolTable) const {
+AssignmentNode *AssignmentNode::clone(const std::shared_ptr<ASTNode> parent,
+                                      const std::shared_ptr<SymbolTable> symbolTable) const {
     auto node = new AssignmentNode(*this);
     node->setParent(parent);
     node->setScope(symbolTable);
@@ -963,8 +963,8 @@ ReturnNode::ReturnNode(const ReturnNode &other)
                 std::shared_ptr<ReturnNode>(this), this->getScope()));
 }
 
-ReturnNode *ReturnNode::clone(std::shared_ptr<ASTNode> parent,
-                              std::shared_ptr<SymbolTable> symbolTable) const {
+ReturnNode *ReturnNode::clone(const std::shared_ptr<ASTNode> parent,
+                              const std::shared_ptr<SymbolTable> symbolTable) const {
     auto node = new ReturnNode(*this);
     node->setParent(parent);
     node->setScope(symbolTable);
@@ -998,8 +998,8 @@ StructNode::StructNode(const StructNode &other)
         m_Name = std::make_shared<Token>(*other.m_Name);
 }
 
-StructNode *StructNode::clone(std::shared_ptr<ASTNode> parent,
-                              std::shared_ptr<SymbolTable> symbolTable) const {
+StructNode *StructNode::clone(const std::shared_ptr<ASTNode> parent,
+                              const std::shared_ptr<SymbolTable> symbolTable) const {
     auto node = new StructNode(*this);
     node->setParent(parent);
     node->setScope(symbolTable);
@@ -1041,8 +1041,8 @@ TypeNode::TypeNode(const TypeNode &other)
         m_TypeToken = std::make_shared<Token>(*other.m_TypeToken);
 }
 
-TypeNode *TypeNode::clone(std::shared_ptr<ASTNode> parent,
-                          std::shared_ptr<SymbolTable> symbolTable) const {
+TypeNode *TypeNode::clone(const std::shared_ptr<ASTNode> parent,
+                          const std::shared_ptr<SymbolTable> symbolTable) const {
     auto node = new TypeNode(*this);
     node->setParent(parent);
     node->setScope(symbolTable);
@@ -1162,8 +1162,8 @@ FunctionNode::FunctionNode(const FunctionNode &other)
         m_Name = std::make_shared<Token>(*other.m_Name);
 }
 
-FunctionNode *FunctionNode::clone(std::shared_ptr<ASTNode> parent,
-                                  std::shared_ptr<SymbolTable> symbolTable) const {
+FunctionNode *FunctionNode::clone(const std::shared_ptr<ASTNode> parent,
+                                  const std::shared_ptr<SymbolTable> symbolTable) const {
     auto node = new FunctionNode(*this);
     node->setParent(parent);
     node->setScope(symbolTable);
@@ -1260,8 +1260,8 @@ StructArgumentNode::StructArgumentNode(const StructArgumentNode &other)
                 std::shared_ptr<StructArgumentNode>(this), this->getScope()));
 }
 
-StructArgumentNode *StructArgumentNode::clone(std::shared_ptr<ASTNode> parent,
-                                              std::shared_ptr<SymbolTable> symbolTable) const {
+StructArgumentNode *StructArgumentNode::clone(const std::shared_ptr<ASTNode> parent,
+                                              const std::shared_ptr<SymbolTable> symbolTable) const {
     auto node = new StructArgumentNode(*this);
     node->setParent(parent);
     node->setScope(symbolTable);
@@ -1318,8 +1318,8 @@ StructCreateNode::StructCreateNode(const StructCreateNode &other)
                 std::shared_ptr<StructCreateNode>(this), this->getScope()));
 }
 
-StructCreateNode *StructCreateNode::clone(std::shared_ptr<ASTNode> parent,
-                                          std::shared_ptr<SymbolTable> symbolTable) const {
+StructCreateNode *StructCreateNode::clone(const std::shared_ptr<ASTNode> parent,
+                                          const std::shared_ptr<SymbolTable> symbolTable) const {
     auto node = new StructCreateNode(*this);
     node->setParent(parent);
     node->setScope(symbolTable);
@@ -1375,8 +1375,8 @@ FunctionCallNode::FunctionCallNode(const FunctionCallNode &other)
                 std::shared_ptr<FunctionCallNode>(this), this->getScope())));
 }
 
-FunctionCallNode *FunctionCallNode::clone(std::shared_ptr<ASTNode> parent,
-                                          std::shared_ptr<SymbolTable> symbolTable) const {
+FunctionCallNode *FunctionCallNode::clone(const std::shared_ptr<ASTNode> parent,
+                                          const std::shared_ptr<SymbolTable> symbolTable) const {
     auto node = new FunctionCallNode(*this);
     node->setParent(parent);
     node->setScope(symbolTable);

@@ -8,14 +8,15 @@
 
 #include <iostream>
 
+#include "../semantic/typeresolver.h"
+#include "../semantic/typecheck.h"
+#include "../semantic/scopecheck.h"
+#include "../parser/symboltable.h"
+#include "../semantic/inliner.h"
 #include "../compiler/error.h"
 #include "../lexer/lexer.h"
 #include "../lexer/token.h"
 #include "../utils/utils.h"
-#include "../parser/typeresolver.h"
-#include "../semantic/typecheck.h"
-#include "../semantic/scopecheck.h"
-#include "../parser/symboltable.h"
 
 CodeGen::CodeGen()
         : m_CurrentBlock(nullptr), m_Builder({m_Context}),
@@ -91,8 +92,7 @@ void CodeGen::visit(const std::shared_ptr<RootNode> &rootNode) {
         CodeGen::visit(node);
 }
 
-llvm::Value *CodeGen::visit(const std::shared_ptr<FunctionNode> &functionNode,
-                            const std::shared_ptr<FunctionCallNode> &functionCallNode) {
+llvm::Value *CodeGen::visit(const std::shared_ptr<FunctionNode> &functionNode) {
     if (functionNode->hasAnnotation("inlined")) {
         std::cout << "This should not have happened. "
                      "Report this bug with a reconstruction of it." << std::endl;
@@ -543,38 +543,7 @@ llvm::Value *CodeGen::visit(const std::shared_ptr<StructArgumentNode> &structArg
     if (structArgumentNode->getExpression() == nullptr &&
             structArgumentNode->getType()->getTargetStruct() != nullptr) {
         auto structNode = structArgumentNode->getType()->getTargetStruct();
-
-        auto structCreate = std::make_shared<StructCreateNode>();
-        structCreate->setStartToken(structArgumentNode->getStartToken());
-        structCreate->setScope(std::make_shared<SymbolTable>(structArgumentNode->getScope()));
-        structCreate->setParent(structArgumentNode);
-        structCreate->setUnnamed(true);
-        structCreate->setEndToken(structArgumentNode->getEndToken());
-
-        for (auto index = 0; index < structNode->getVariables().size(); index++) {
-            auto variable = structNode->getVariables().at(index);
-
-            auto argument = std::make_shared<StructArgumentNode>();
-            argument->setStartToken(variable->getStartToken());
-            argument->setParent(structCreate);
-            argument->setScope(structCreate->getScope());
-            argument->setName(variable->getName());
-            argument->setDontCopy(true);
-
-            if (variable->getExpression() != nullptr)
-                argument->setExpression(std::shared_ptr<OperableNode>(variable->getExpression()->clone(
-                        argument, argument->getScope())));
-
-            argument->setEndToken(variable->getEndToken());
-            argument->getScope()->insert(argument->getName()->getContent(), argument);
-            argument->setType(variable->getType());
-
-            structCreate->insertArgument(index, argument);
-        }
-
-        TypeResolver::visit(structCreate);
-        TypeCheck::visit(structCreate);
-        ScopeCheck::visit(structCreate);
+        auto structCreateNode = createStructCreate(structNode, structArgumentNode);
 
         auto currentStructNode = std::static_pointer_cast<StructNode>(
                 structArgumentNode->findNodeOfParents<StructCreateNode>()->getTargetNode());
@@ -582,8 +551,8 @@ llvm::Value *CodeGen::visit(const std::shared_ptr<StructArgumentNode> &structArg
             return nullptr;
 
         auto variableGEP = m_Builder.CreateStructGEP(structVariable, argumentIndex);
-        for (auto index = 0; index < structCreate->getArguments().size(); index++) {
-            auto childArgumentNode = structCreate->getArguments()[index];
+        for (auto index = 0; index < structCreateNode->getArguments().size(); index++) {
+            auto childArgumentNode = structCreateNode->getArguments()[index];
             CodeGen::visit(childArgumentNode, variableGEP, index);
         }
 
@@ -647,33 +616,19 @@ llvm::Value *CodeGen::visit(const std::shared_ptr<VariableNode> &variableNode) {
         llvm::Value *valueRef = nullptr;
 
         bool createVariable = variableNode->isAccessed();
-        if (variableNode->getExpression() != nullptr) {
+        if (createVariable && variableNode->getExpression() != nullptr) {
             valueRef = CodeGen::visit(std::static_pointer_cast<TypedNode>(variableNode->getExpression()));
 
-            if (createVariable) {
-                auto instruction = reinterpret_cast<llvm::Instruction *>(valueRef);
-                createVariable = instruction->getOpcode() != llvm::Instruction::Alloca;
-            }
+            auto instruction = reinterpret_cast<llvm::Instruction *>(valueRef);
+            createVariable = instruction->getOpcode() != llvm::Instruction::Alloca;
         }
 
         if (createVariable) {
             auto expression = valueRef;
             if (expression == nullptr && variableNode->getType()->getTargetStruct() != nullptr) {
-                auto structCreate = std::make_shared<StructCreateNode>();
-                structCreate->setStartToken(variableNode->getStartToken());
-                structCreate->setScope(variableNode->getScope());
-                structCreate->setParent(variableNode);
-
-                structCreate->setUnnamed(true);
-
-                structCreate->setEndToken(variableNode->getEndToken());
-
-                TypeResolver::visit(structCreate);
-                TypeCheck::visit(structCreate);
-                ScopeCheck::visit(structCreate);
-
+                auto structCreate = createStructCreate(variableNode->getType()->getTargetStruct(),
+                                                       variableNode);
                 valueRef = CodeGen::visit(structCreate);
-                valueRef = m_Builder.CreateLoad(valueRef);
             } else {
                 valueRef = m_Builder.CreateAlloca(CodeGen::visit(variableNode->getType()));
             }
@@ -847,6 +802,19 @@ std::string CodeGen::dumpModule() {
     output << *m_Module;
     output.flush();
 
+    Utils::ltrim(dumpedCode);
+    Utils::rtrim(dumpedCode);
+
+    return dumpedCode;
+}
+
+std::string CodeGen::dumpValue(llvm::Value *value) {
+    std::string dumpedCode;
+    llvm::raw_string_ostream output(dumpedCode);
+    output << *value;
+    output.flush();
+
+    Utils::ltrim(dumpedCode);
     Utils::rtrim(dumpedCode);
 
     return dumpedCode;
@@ -854,4 +822,54 @@ std::string CodeGen::dumpModule() {
 
 std::shared_ptr<llvm::Module> CodeGen::getModule() const {
     return m_Module;
+}
+
+std::shared_ptr<StructCreateNode>
+CodeGen::createStructCreate(const std::shared_ptr<StructNode> &targetNode,
+                            const std::shared_ptr<ASTNode> &parentNode) {
+    auto identifierNode = std::make_shared<IdentifierNode>();
+    identifierNode->setStartToken(parentNode->getStartToken());
+    identifierNode->setEndToken(parentNode->getEndToken());
+    identifierNode->setScope(parentNode->getScope());
+    identifierNode->setParent(parentNode);
+    identifierNode->setIdentifier(std::make_shared<Token>(*targetNode->getName()));
+
+    auto structCreateNode = std::make_shared<StructCreateNode>();
+    structCreateNode->setStartToken(parentNode->getStartToken());
+    structCreateNode->setScope(std::make_shared<SymbolTable>(parentNode->getScope()));
+    structCreateNode->setIdentifier(identifierNode);
+    structCreateNode->setParent(parentNode);
+    structCreateNode->setUnnamed(true);
+    structCreateNode->setEndToken(parentNode->getEndToken());
+
+    for (auto index = 0; index < targetNode->getVariables().size(); index++) {
+        auto variable = targetNode->getVariables().at(index);
+        if (variable->getName()->getContent() == "_")
+            continue;
+
+        auto argument = std::make_shared<StructArgumentNode>();
+        argument->setStartToken(variable->getStartToken());
+        argument->setParent(structCreateNode);
+        argument->setScope(structCreateNode->getScope());
+        argument->setName(variable->getName());
+        argument->setDontCopy(true);
+
+        if (variable->getExpression() != nullptr)
+            argument->setExpression(std::shared_ptr<OperableNode>(variable->getExpression()->clone(
+                    argument, argument->getScope())));
+
+        argument->setEndToken(variable->getEndToken());
+        argument->getScope()->insert(argument->getName()->getContent(), argument);
+        argument->setType(variable->getType());
+
+        structCreateNode->insertArgument(index, argument);
+    }
+
+    TypeResolver::visit(structCreateNode);
+    Inliner inliner;
+    inliner.visit(structCreateNode);
+    TypeCheck::visit(structCreateNode);
+    ScopeCheck::visit(structCreateNode);
+
+    return structCreateNode;
 }

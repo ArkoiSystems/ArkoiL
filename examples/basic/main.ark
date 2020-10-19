@@ -1,7 +1,7 @@
 import "console"
 
 struct Weird {
-    var hello: i32
+    var hello: i32 = 2
 }
 
 struct Info {
@@ -12,14 +12,17 @@ struct Info {
 
 fun main(): i32 {
     const info = createInfo()
-    println("Hello World %i", info.test)
-    info.weird.hello
+    println("Hello World %i", info)
+    info.test
     return 0
 }
 
 fun createInfo(): Info = { 
     test: 10,
-    pointerTest: &test
+    pointerTest: &test,
+    weird: {
+        hello: 32
+    }
 }
 
 ## FUTURE CONCEPTS:
