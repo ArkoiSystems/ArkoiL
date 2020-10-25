@@ -8,60 +8,116 @@
 
 #include "../parser/allnodes.h"
 
-class SymbolTable;
-
 class Inliner {
 
-    typedef std::shared_ptr<VariableNode> ReturnVariable;
-    typedef std::shared_ptr<IdentifierNode> ReturnIdentifier;
-
 public:
-    Inliner();
+    Inliner() = delete;
 
     Inliner(const Inliner &other) = delete;
 
     Inliner &operator=(const Inliner &) = delete;
 
 public:
-    ReturnVariable visit(const std::shared_ptr<ASTNode> &node);
+    static SharedVariableNode visit(const SharedASTNode &node);
 
-    ReturnVariable visit(const std::shared_ptr<RootNode> &rootNode);
+    static SharedVariableNode visit(const SharedRootNode &rootNode);
 
-    ReturnVariable visit(const std::shared_ptr<FunctionNode> &functionNode);
+    static SharedVariableNode visit(const SharedFunctionNode &functionNode);
 
-    ReturnVariable visit(const std::shared_ptr<BlockNode> &blockNode);
+    static SharedVariableNode visit(const SharedBlockNode &blockNode);
 
-    ReturnVariable visit(const std::shared_ptr<VariableNode> &variableNode);
+    static SharedVariableNode visit(const SharedVariableNode &variableNode);
 
-    ReturnVariable visit(const std::shared_ptr<BinaryNode> &binaryNode);
+    static SharedVariableNode visit(const SharedBinaryNode &binaryNode);
 
-    ReturnVariable visit(const std::shared_ptr<UnaryNode> &unaryNode);
+    static SharedVariableNode visit(const SharedUnaryNode &unaryNode);
 
-    ReturnVariable visit(const std::shared_ptr<ParenthesizedNode> &parenthesizedNode);
+    static SharedVariableNode visit(const SharedParenthesizedNode &parenthesizedNode);
 
-    ReturnVariable visit(const std::shared_ptr<IdentifierNode> &identifierNode);
+    static SharedVariableNode visit(const SharedIdentifierNode &identifierNode);
 
-    ReturnVariable visit(const std::shared_ptr<FunctionArgumentNode> &functionArgumentNode);
+    static SharedVariableNode visit(const SharedFunctionArgumentNode &functionArgumentNode);
 
-    ReturnVariable visit(const std::shared_ptr<StructArgumentNode> &structArgumentNode);
+    static SharedVariableNode visit(const SharedStructArgumentNode &structArgumentNode);
 
-    ReturnVariable visit(const std::shared_ptr<FunctionCallNode> &functionCallNode);
+    static SharedVariableNode visit(const SharedFunctionCallNode &functionCallNode);
 
-    ReturnVariable visit(const std::shared_ptr<StructCreateNode> &structCreateNode);
+    static SharedVariableNode visit(const SharedStructCreateNode &structCreateNode);
 
-    ReturnVariable visit(const std::shared_ptr<AssignmentNode> &assignmentNode);
+    static SharedVariableNode visit(const SharedAssignmentNode &assignmentNode);
 
-    ReturnVariable visit(const std::shared_ptr<ReturnNode> &returnNode);
+    static SharedVariableNode visit(const SharedReturnNode &returnNode);
 
-    ReturnVariable visit(const std::shared_ptr<StructNode> &structNode);
+    static SharedVariableNode visit(const SharedStructNode &structNode);
 
-    ReturnVariable generate(const std::shared_ptr<FunctionNode> &targetFunction,
-                            const std::shared_ptr<IdentifierNode> &identifierNode,
-                            const std::shared_ptr<BlockNode> &insertBlock, int insertIndex);
+    static SharedASTNode
+    generate(const SharedASTNode &node, int insertIndex, const SharedASTNode &parent,
+             const SharedSymbolTable &scope);
 
-    ReturnIdentifier createIdentifier(const std::shared_ptr<ASTNode> &parent,
-                                      const std::shared_ptr<SymbolTable> &scope,
-                                      const ReturnVariable &returnVariable);
+    static SharedParameterNode
+    generate(const SharedParameterNode &parameterNode, int insertIndex, const SharedASTNode &parent,
+             const SharedSymbolTable &scope);
+
+    static SharedVariableNode
+    generate(const SharedVariableNode &variableNode, int insertIndex, const SharedASTNode &parent,
+             const SharedSymbolTable &scope);
+
+    static SharedBinaryNode
+    generate(const SharedBinaryNode &binaryNode, int insertIndex, const SharedASTNode &parent,
+             const SharedSymbolTable &scope);
+
+    static SharedUnaryNode
+    generate(const SharedUnaryNode &unaryNode, int insertIndex, const SharedASTNode &parent,
+             const SharedSymbolTable &scope);
+
+    static SharedParenthesizedNode
+    generate(const SharedParenthesizedNode &parenthesizedNode, int insertIndex,
+             const SharedASTNode &parent, const SharedSymbolTable &scope);
+
+    static SharedStructCreateNode
+    generate(const SharedStructCreateNode &structCreateNode, const SharedASTNode &parent,
+             const SharedSymbolTable &scope);
+
+    static SharedStructArgumentNode
+    generate(const SharedStructArgumentNode &structArgumentNode, const SharedASTNode &parent,
+             const SharedSymbolTable &scope);
+
+    static SharedFunctionArgumentNode
+    generate(const SharedFunctionArgumentNode &functionArgumentNode, int insertIndex,
+             const SharedASTNode &parent, const SharedSymbolTable &scope);
+
+    static SharedFunctionCallNode
+    generate(const SharedFunctionCallNode &functionCallNode, int insertIndex,
+             const SharedASTNode &parent, const SharedSymbolTable &scope);
+
+    static SharedAssignmentNode
+    generate(const SharedAssignmentNode &assignmentNode, int insertIndex,
+             const SharedASTNode &parent, const SharedSymbolTable &scope);
+
+    static SharedIdentifierNode
+    generate(const SharedIdentifierNode &identifierNode, int insertIndex,
+             const SharedASTNode &parent, const SharedSymbolTable &scope);
+
+    static SharedReturnNode
+    generate(const SharedReturnNode &returnNode, int insertIndex, const SharedASTNode &parent,
+             const SharedSymbolTable &scope);
+
+    static SharedStringNode
+    generate(const SharedStringNode &stringNode, const SharedASTNode &parent,
+             const SharedSymbolTable &scope);
+
+    static SharedNumberNode
+    generate(const SharedNumberNode &numberNode, const SharedASTNode &parent,
+             const SharedSymbolTable &scope);
+
+    static SharedVariableNode
+    inlineFunctionCall(const SharedFunctionNode &targetFunction,
+                       const SharedFunctionCallNode &functionCallNode,
+                       const SharedBlockNode &insertBlock, int insertIndex);
+
+    static SharedIdentifierNode
+    createIdentifier(const SharedASTNode &parent, const SharedSymbolTable &scope,
+                     const SharedVariableNode &returnVariable);
 
 };
 

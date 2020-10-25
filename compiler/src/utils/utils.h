@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <memory>
 #include <vector>
+#include <any>
 
 #include "../parser/allnodes.h"
 
@@ -22,7 +23,7 @@ private:
     Function function;
 
 public:
-    DeferStruct(Function function) : function(function) {}
+    explicit DeferStruct(Function function) : function(function) {}
 
     ~DeferStruct() { function(); }
 
@@ -35,17 +36,18 @@ DeferStruct<Function> defer_func(Function function) {
 
 namespace Utils {
 
-    static void split(const std::string &input, std::vector<std::string> &list, char delimiter = ' ') {
+    static void split(const std::string &input, std::vector<std::string> &list,
+                      char delimiter = ' ') {
         std::size_t current, previous = 0;
         current = input.find(delimiter);
 
         while (current != std::string::npos) {
-            list.push_back(input.substr(previous, current - previous));
+            list.emplace_back(input.substr(previous, current - previous));
             previous = current + 1;
             current = input.find(delimiter, previous);
         }
 
-        list.push_back(input.substr(previous, current - previous));
+        list.emplace_back(input.substr(previous, current - previous));
     }
 
     static void ltrim(std::string &input) {
@@ -80,8 +82,8 @@ namespace Utils {
         return result;
     }
 
-    static std::pair<bool, int> indexOf(const std::vector<std::shared_ptr<ASTNode>> &vector,
-                                        const std::shared_ptr<ASTNode> &element) {
+    static std::pair<bool, int> indexOf(const std::vector<SharedASTNode> &vector,
+                                        const SharedASTNode &element) {
         std::pair<bool, int> result;
 
         for (int index = 0; index < vector.size(); index++) {

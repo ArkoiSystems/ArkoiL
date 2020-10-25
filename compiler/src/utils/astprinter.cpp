@@ -9,7 +9,7 @@
 #include "../lexer/token.h"
 #include "../utils/utils.h"
 
-void ASTPrinter::visit(const std::shared_ptr<ASTNode> &node,
+void ASTPrinter::visit(const SharedASTNode &node,
                        std::ostream &output, int indents) {
     if (node->getKind() == ASTNode::ROOT) {
         ASTPrinter::visit(std::static_pointer_cast<RootNode>(node), output, indents);
@@ -55,7 +55,7 @@ void ASTPrinter::visit(const std::shared_ptr<ASTNode> &node,
     }
 }
 
-void ASTPrinter::visit(const std::shared_ptr<RootNode> &rootNode,
+void ASTPrinter::visit(const SharedRootNode &rootNode,
                        std::ostream &output, int indents) {
     for (auto index = 0; index < rootNode->getNodes().size(); index++) {
         auto node = rootNode->getNodes()[index];
@@ -66,13 +66,13 @@ void ASTPrinter::visit(const std::shared_ptr<RootNode> &rootNode,
     }
 }
 
-void ASTPrinter::visit(const std::shared_ptr<ImportNode> &importNode,
+void ASTPrinter::visit(const SharedImportNode &importNode,
                        std::ostream &output, int indents) {
     output << std::string(indents, '\t')
            << "import \"" << importNode->getPath()->getContent() << "\"" << std::endl;
 }
 
-void ASTPrinter::visit(const std::shared_ptr<FunctionNode> &functionNode,
+void ASTPrinter::visit(const SharedFunctionNode &functionNode,
                        std::ostream &output, int indents) {
     output << std::string(indents, '\t')
            << "fun " << functionNode->getName()->getContent() << "(";
@@ -103,18 +103,19 @@ void ASTPrinter::visit(const std::shared_ptr<FunctionNode> &functionNode,
     output << std::endl;
 }
 
-void ASTPrinter::visit(const std::shared_ptr<ParameterNode> &parameterNode,
+void ASTPrinter::visit(const SharedParameterNode &parameterNode,
                        std::ostream &output) {
     output << parameterNode->getName()->getContent() << ": ";
     visit(parameterNode->getType(), output);
 }
 
-void ASTPrinter::visit(const std::shared_ptr<TypeNode> &typeNode,
+void ASTPrinter::visit(const SharedTypeNode &typeNode,
                        std::ostream &output) {
-    output << typeNode->getTypeToken()->getContent() << std::string(typeNode->getPointerLevel(), '*');
+    output << typeNode->getTypeToken()->getContent()
+           << std::string(typeNode->getPointerLevel(), '*');
 }
 
-void ASTPrinter::visit(const std::shared_ptr<BlockNode> &blockNode,
+void ASTPrinter::visit(const SharedBlockNode &blockNode,
                        std::ostream &output, int indents) {
     for (auto const &node : blockNode->getNodes()) {
         visit(node, output, indents);
@@ -122,10 +123,11 @@ void ASTPrinter::visit(const std::shared_ptr<BlockNode> &blockNode,
     }
 }
 
-void ASTPrinter::visit(const std::shared_ptr<VariableNode> &variableNode,
+void ASTPrinter::visit(const SharedVariableNode &variableNode,
                        std::ostream &output, int indents) {
     output << std::string(indents, '\t')
-           << (variableNode->isConstant() ? "const " : "var ") << variableNode->getName()->getContent();
+           << (variableNode->isConstant() ? "const " : "var ")
+           << variableNode->getName()->getContent();
 
     if (variableNode->getType() != nullptr) {
         output << ": ";
@@ -138,7 +140,7 @@ void ASTPrinter::visit(const std::shared_ptr<VariableNode> &variableNode,
     }
 }
 
-void ASTPrinter::visit(const std::shared_ptr<BinaryNode> &binaryNode,
+void ASTPrinter::visit(const SharedBinaryNode &binaryNode,
                        std::ostream &output, int indents) {
     visit(binaryNode->getLHS(), output, indents);
 
@@ -188,7 +190,7 @@ void ASTPrinter::visit(const std::shared_ptr<BinaryNode> &binaryNode,
     visit(binaryNode->getRHS(), output, indents);
 }
 
-void ASTPrinter::visit(const std::shared_ptr<UnaryNode> &unaryNode,
+void ASTPrinter::visit(const SharedUnaryNode &unaryNode,
                        std::ostream &output, int indents) {
     switch (unaryNode->getOperatorKind()) {
         case UnaryNode::NEGATE:
@@ -203,24 +205,24 @@ void ASTPrinter::visit(const std::shared_ptr<UnaryNode> &unaryNode,
     visit(unaryNode->getExpression(), output, indents);
 }
 
-void ASTPrinter::visit(const std::shared_ptr<ParenthesizedNode> &parenthesizedNode,
+void ASTPrinter::visit(const SharedParenthesizedNode &parenthesizedNode,
                        std::ostream &output, int indents) {
     output << "(";
     visit(parenthesizedNode->getExpression(), output, indents);
     output << ")";
 }
 
-void ASTPrinter::visit(const std::shared_ptr<NumberNode> &numberNode,
+void ASTPrinter::visit(const SharedNumberNode &numberNode,
                        std::ostream &output) {
     output << numberNode->getNumber()->getContent();
 }
 
-void ASTPrinter::visit(const std::shared_ptr<StringNode> &stringNode,
+void ASTPrinter::visit(const SharedStringNode &stringNode,
                        std::ostream &output) {
     output << "\"" << stringNode->getString()->getContent() << "\"";
 }
 
-void ASTPrinter::visit(const std::shared_ptr<IdentifierNode> &identifierNode,
+void ASTPrinter::visit(const SharedIdentifierNode &identifierNode,
                        std::ostream &output, int indents) {
     auto firstIdentifier = identifierNode;
     while (firstIdentifier->getLastIdentifier() != nullptr)
@@ -229,7 +231,8 @@ void ASTPrinter::visit(const std::shared_ptr<IdentifierNode> &identifierNode,
     auto isParentBlock = firstIdentifier->getParent()->getKind() == ASTNode::BLOCK;
 
     output << (isParentBlock ? std::string(indents, '\t') : "")
-           << (firstIdentifier->isPointer() ? "&" : "") << (firstIdentifier->isDereference() ? "@" : "")
+           << (firstIdentifier->isPointer() ? "&" : "")
+           << (firstIdentifier->isDereference() ? "@" : "")
            << firstIdentifier->getIdentifier()->getContent();
     if (firstIdentifier->getKind() == ASTNode::FUNCTION_CALL)
         visit(std::reinterpret_pointer_cast<FunctionCallNode>(firstIdentifier), output);
@@ -237,7 +240,8 @@ void ASTPrinter::visit(const std::shared_ptr<IdentifierNode> &identifierNode,
     auto nextIdentifier = firstIdentifier->getNextIdentifier();
     while (nextIdentifier != nullptr) {
         output << "."
-               << (nextIdentifier->isPointer() ? "&" : "") << (nextIdentifier->isDereference() ? "@" : "")
+               << (nextIdentifier->isPointer() ? "&" : "")
+               << (nextIdentifier->isDereference() ? "@" : "")
                << nextIdentifier->getIdentifier()->getContent();
         if (nextIdentifier->getKind() == ASTNode::FUNCTION_CALL)
             visit(std::reinterpret_pointer_cast<FunctionCallNode>(nextIdentifier), output);
@@ -246,7 +250,7 @@ void ASTPrinter::visit(const std::shared_ptr<IdentifierNode> &identifierNode,
     }
 }
 
-void ASTPrinter::visit(const std::shared_ptr<FunctionArgumentNode> &functionArgumentNode,
+void ASTPrinter::visit(const SharedFunctionArgumentNode &functionArgumentNode,
                        std::ostream &output, int indents) {
     if (functionArgumentNode->getName() != nullptr)
         output << functionArgumentNode->getName()->getContent() << ": ";
@@ -254,7 +258,7 @@ void ASTPrinter::visit(const std::shared_ptr<FunctionArgumentNode> &functionArgu
     visit(functionArgumentNode->getExpression(), output, indents);
 }
 
-void ASTPrinter::visit(const std::shared_ptr<FunctionCallNode> &functionCallNode,
+void ASTPrinter::visit(const SharedFunctionCallNode &functionCallNode,
                        std::ostream &output) {
     output << "(";
 
@@ -269,7 +273,7 @@ void ASTPrinter::visit(const std::shared_ptr<FunctionCallNode> &functionCallNode
     output << ")";
 }
 
-void ASTPrinter::visit(const std::shared_ptr<StructArgumentNode> &structArgumentNode,
+void ASTPrinter::visit(const SharedStructArgumentNode &structArgumentNode,
                        std::ostream &output, int indents) {
     output << std::string(indents, '\t')
            << structArgumentNode->getName()->getContent() << ": ";
@@ -278,17 +282,19 @@ void ASTPrinter::visit(const std::shared_ptr<StructArgumentNode> &structArgument
         visit(structArgumentNode->getExpression(), output, indents);
 }
 
-void ASTPrinter::visit(const std::shared_ptr<StructCreateNode> &structCreateNode,
+void ASTPrinter::visit(const SharedStructCreateNode &structCreateNode,
                        std::ostream &output, int indents) {
     auto blockNode = structCreateNode->findNodeOfParents<BlockNode>();
     bool isParentBlock = structCreateNode->getParent()->getKind() == ASTNode::BLOCK;
     bool isInlinedNode = blockNode != nullptr && blockNode->isInlined()
-                         && !isParentBlock && (structCreateNode->getParent()->getKind() == ASTNode::RETURN);
+                         && !isParentBlock
+                         && (structCreateNode->getParent()->getKind() == ASTNode::RETURN);
 
     output << ((isParentBlock && !isInlinedNode) ? std::string(indents, '\t') : "")
-           << structCreateNode->getType()->getTargetStruct()->getName()->getContent() << " {" << std::endl;
+           << structCreateNode->getType()->getTargetStruct()->getName()->getContent()
+           << " {" << std::endl;
 
-    for (auto const argument : structCreateNode->getArguments()) {
+    for (auto const &argument : structCreateNode->getArguments()) {
         if (argument->getExpression() == nullptr)
             continue;
 
@@ -300,13 +306,14 @@ void ASTPrinter::visit(const std::shared_ptr<StructCreateNode> &structCreateNode
            << "}";
 }
 
-void ASTPrinter::visit(const std::shared_ptr<AssignmentNode> &assignmentNode,
+void ASTPrinter::visit(const SharedAssignmentNode &assignmentNode,
                        std::ostream &output, int indents) {
     auto firstIdentifier = assignmentNode->getStartIdentifier();
     auto isParentBlock = assignmentNode->getParent()->getKind() == ASTNode::BLOCK;
 
     output << (isParentBlock ? std::string(indents, '\t') : "")
-           << (firstIdentifier->isPointer() ? "&" : "") << (firstIdentifier->isDereference() ? "@" : "")
+           << (firstIdentifier->isPointer() ? "&" : "")
+           << (firstIdentifier->isDereference() ? "@" : "")
            << firstIdentifier->getIdentifier()->getContent();
     if (firstIdentifier->getKind() == ASTNode::FUNCTION_CALL)
         visit(std::reinterpret_pointer_cast<FunctionCallNode>(firstIdentifier), output);
@@ -314,7 +321,8 @@ void ASTPrinter::visit(const std::shared_ptr<AssignmentNode> &assignmentNode,
     auto nextIdentifier = firstIdentifier->getNextIdentifier();
     while (nextIdentifier != nullptr) {
         output << "."
-               << (nextIdentifier->isPointer() ? "&" : "") << (nextIdentifier->isDereference() ? "@" : "")
+               << (nextIdentifier->isPointer() ? "&" : "")
+               << (nextIdentifier->isDereference() ? "@" : "")
                << nextIdentifier->getIdentifier()->getContent();
         if (nextIdentifier->getKind() == ASTNode::FUNCTION_CALL)
             visit(std::reinterpret_pointer_cast<FunctionCallNode>(nextIdentifier), output);
@@ -326,7 +334,7 @@ void ASTPrinter::visit(const std::shared_ptr<AssignmentNode> &assignmentNode,
     visit(assignmentNode->getExpression(), output, indents);
 }
 
-void ASTPrinter::visit(const std::shared_ptr<ReturnNode> &returnNode,
+void ASTPrinter::visit(const SharedReturnNode &returnNode,
                        std::ostream &output, int indents) {
     bool isInlinedNode = returnNode->getParent()->getKind() == ASTNode::BLOCK;
     bool isParentBlock = isInlinedNode;
@@ -343,12 +351,12 @@ void ASTPrinter::visit(const std::shared_ptr<ReturnNode> &returnNode,
         visit(returnNode->getExpression(), output, indents);
 }
 
-void ASTPrinter::visit(const std::shared_ptr<StructNode> &structNode,
+void ASTPrinter::visit(const SharedStructNode &structNode,
                        std::ostream &output, int indents) {
     output << std::string(indents, '\t')
            << "struct " << structNode->getName()->getContent() << " {" << std::endl;
 
-    for (const auto variable : structNode->getVariables()) {
+    for (const auto &variable : structNode->getVariables()) {
         visit(variable, output, indents + 1);
         output << std::endl;
     }

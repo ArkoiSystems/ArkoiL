@@ -11,7 +11,7 @@
 #include "../lexer/token.h"
 #include "../utils/utils.h"
 
-void ScopeCheck::visit(const std::shared_ptr<ASTNode> &node) {
+void ScopeCheck::visit(const SharedASTNode &node) {
     if (node->getKind() == ASTNode::ROOT) {
         ScopeCheck::visit(std::static_pointer_cast<RootNode>(node));
     } else if (node->getKind() == ASTNode::IMPORT) {
@@ -51,12 +51,12 @@ void ScopeCheck::visit(const std::shared_ptr<ASTNode> &node) {
     }
 }
 
-void ScopeCheck::visit(const std::shared_ptr<RootNode> &rootNode) {
+void ScopeCheck::visit(const SharedRootNode &rootNode) {
     for (const auto &node : rootNode->getNodes())
         ScopeCheck::visit(node);
 }
 
-void ScopeCheck::visit(const std::shared_ptr<ImportNode> &importNode) {
+void ScopeCheck::visit(const SharedImportNode &importNode) {
     auto rootNode = importNode->findNodeOfParents<RootNode>();
     for (const auto &node : rootNode->getNodes()) {
         if (node->getKind() != ASTNode::IMPORT || node == importNode)
@@ -70,24 +70,26 @@ void ScopeCheck::visit(const std::shared_ptr<ImportNode> &importNode) {
     }
 }
 
-void ScopeCheck::visit(const std::shared_ptr<FunctionNode> &functionNode) {
+void ScopeCheck::visit(const SharedFunctionNode &functionNode) {
     if (functionNode->getBlock() != nullptr) {
         ScopeCheck::visit(functionNode->getBlock());
 
-        std::vector<std::shared_ptr<ASTNode>> returns;
+        std::vector<SharedASTNode> returns;
         for (const auto &node : functionNode->getBlock()->getNodes()) {
             if (node->getKind() != ASTNode::RETURN)
                 continue;
-            returns.push_back(node);
+
+            returns.emplace_back(node);
         }
 
         if (returns.empty() && functionNode->getType()->getBits() != 0) {
-            THROW_NODE_ERROR(functionNode, "Non-void functions need to have at least one return statement.")
+            THROW_NODE_ERROR(functionNode,
+                             "Non-void functions need to have at least one return statement.")
             return;
         }
     }
 
-    auto scopeCheck = [functionNode](const std::shared_ptr<ASTNode> &node) {
+    auto scopeCheck = [functionNode](const SharedASTNode &node) {
         if (node->getKind() != ASTNode::FUNCTION)
             return false;
 
@@ -96,7 +98,8 @@ void ScopeCheck::visit(const std::shared_ptr<FunctionNode> &functionNode) {
     };
 
     auto rootNode = functionNode->findNodeOfParents<RootNode>();
-    auto foundNodes = rootNode->searchWithImports(functionNode->getName()->getContent(), scopeCheck);
+    auto foundNodes = rootNode->searchWithImports(functionNode->getName()->getContent(),
+                                                  scopeCheck);
 
     if (foundNodes->size() > 1) {
         THROW_NODE_ERROR(functionNode, "There already exists a similar function.")
@@ -107,12 +110,13 @@ void ScopeCheck::visit(const std::shared_ptr<FunctionNode> &functionNode) {
         ScopeCheck::visit(parameter);
 }
 
-void ScopeCheck::visit(const std::shared_ptr<BlockNode> &blockNode) {
-    std::vector<std::shared_ptr<ASTNode>> returns;
+void ScopeCheck::visit(const SharedBlockNode &blockNode) {
+    std::vector<SharedASTNode> returns;
     for (const auto &node : blockNode->getNodes()) {
         if (node->getKind() != ASTNode::RETURN)
             continue;
-        returns.push_back(node);
+
+        returns.emplace_back(node);
     }
 
     if (!returns.empty()) {
@@ -128,33 +132,36 @@ void ScopeCheck::visit(const std::shared_ptr<BlockNode> &blockNode) {
         ScopeCheck::visit(node);
 }
 
-void ScopeCheck::visit(const std::shared_ptr<ParameterNode> &parameterNode) {
-    auto scopeCheck = [](const std::shared_ptr<ASTNode> &node) {
+void ScopeCheck::visit(const SharedParameterNode &parameterNode) {
+    auto scopeCheck = [](const SharedASTNode &node) {
         return node->getKind() == ASTNode::PARAMETER;
     };
 
-    auto foundNodes = parameterNode->getScope()->scope(parameterNode->getName()->getContent(), scopeCheck);
+    auto foundNodes = parameterNode->getScope()->scope(parameterNode->getName()->getContent(),
+                                                       scopeCheck);
     if (foundNodes->size() > 1) {
         THROW_NODE_ERROR(parameterNode, "There already exists a similar parameter.")
         return;
     }
 }
 
-void ScopeCheck::visit(const std::shared_ptr<VariableNode> &variableNode) {
+void ScopeCheck::visit(const SharedVariableNode &variableNode) {
     if (variableNode->getName() == "_") {
         if (variableNode->getExpression() != nullptr)
             ScopeCheck::visit(variableNode->getExpression());
         return;
     }
 
-    auto scopeCheck = [](const std::shared_ptr<ASTNode> &node) {
+    auto scopeCheck = [](const SharedASTNode &node) {
         return node->getKind() == ASTNode::VARIABLE;
     };
 
-    auto foundNodes = variableNode->getScope()->scope(variableNode->getName()->getContent(), scopeCheck);
+    auto foundNodes = variableNode->getScope()->scope(variableNode->getName()->getContent(),
+                                                      scopeCheck);
     auto blockNode = variableNode->findNodeOfParents<BlockNode>();
     if (foundNodes->empty() && blockNode != nullptr) {
-        foundNodes = variableNode->getScope()->all(variableNode->getName()->getContent(), scopeCheck);
+        foundNodes = variableNode->getScope()->all(variableNode->getName()->getContent(),
+                                                   scopeCheck);
         if (foundNodes->size() > 1) {
             THROW_NODE_ERROR(variableNode, "There already exists a similar variable.")
             return;
@@ -178,7 +185,7 @@ void ScopeCheck::visit(const std::shared_ptr<VariableNode> &variableNode) {
         ScopeCheck::visit(variableNode->getExpression());
 }
 
-void ScopeCheck::visit(const std::shared_ptr<IdentifierNode> &identifierNode) {
+void ScopeCheck::visit(const SharedIdentifierNode &identifierNode) {
     if (identifierNode->getTargetNode() == nullptr ||
         identifierNode->getTargetNode()->getKind() != ASTNode::VARIABLE)
         return;
@@ -186,7 +193,7 @@ void ScopeCheck::visit(const std::shared_ptr<IdentifierNode> &identifierNode) {
         return;
 
     auto targetVariable = std::static_pointer_cast<VariableNode>(identifierNode->getTargetNode());
-    std::shared_ptr<VariableNode> variableParent;
+    SharedVariableNode variableParent;
 
     if (auto argumentNode = identifierNode->findNodeOfParents<FunctionArgumentNode>()) {
         variableParent = std::static_pointer_cast<VariableNode>(argumentNode->getTargetNode());
@@ -220,39 +227,40 @@ void ScopeCheck::visit(const std::shared_ptr<IdentifierNode> &identifierNode) {
     }
 
     if (targetVariableIndex > variableParentIndex) {
-        THROW_NODE_ERROR(identifierNode, "Couldn't target the variable because it's not created yet.")
+        THROW_NODE_ERROR(identifierNode,
+                         "Couldn't target the variable because it's not created yet.")
         return;
     }
 }
 
-void ScopeCheck::visit(const std::shared_ptr<BinaryNode> &binaryNode) {
+void ScopeCheck::visit(const SharedBinaryNode &binaryNode) {
     ScopeCheck::visit(binaryNode->getLHS());
     ScopeCheck::visit(binaryNode->getRHS());
 }
 
-void ScopeCheck::visit(const std::shared_ptr<UnaryNode> &unaryNode) {
+void ScopeCheck::visit(const SharedUnaryNode &unaryNode) {
     ScopeCheck::visit(unaryNode->getExpression());
 }
 
-void ScopeCheck::visit(const std::shared_ptr<ParenthesizedNode> &parenthesizedNode) {
+void ScopeCheck::visit(const SharedParenthesizedNode &parenthesizedNode) {
     ScopeCheck::visit(parenthesizedNode->getExpression());
 }
 
-void ScopeCheck::visit(const std::shared_ptr<StructCreateNode> &structCreateNode) {
+void ScopeCheck::visit(const SharedStructCreateNode &structCreateNode) {
     for (const auto &argument : structCreateNode->getArguments())
         ScopeCheck::visit(argument);
 }
 
-void ScopeCheck::visit(const std::shared_ptr<StructArgumentNode> &structArgumentNode) {
+void ScopeCheck::visit(const SharedStructArgumentNode &structArgumentNode) {
     if (structArgumentNode->getName() == "_")
         return;
 
-    auto scopeCheck = [](const std::shared_ptr<ASTNode> &node) {
+    auto scopeCheck = [](const SharedASTNode &node) {
         return node->getKind() == ASTNode::STRUCT_ARGUMENT;
     };
 
-    auto foundNodes = structArgumentNode->getScope()->scope(structArgumentNode->getName()->getContent(),
-                                                            scopeCheck);
+    auto foundNodes = structArgumentNode->getScope()->scope(
+            structArgumentNode->getName()->getContent(), scopeCheck);
     if (foundNodes->size() > 1) {
         THROW_NODE_ERROR(structArgumentNode, "There already exists a similar argument.")
         return;
@@ -262,18 +270,18 @@ void ScopeCheck::visit(const std::shared_ptr<StructArgumentNode> &structArgument
         ScopeCheck::visit(structArgumentNode->getExpression());
 }
 
-void ScopeCheck::visit(const std::shared_ptr<FunctionArgumentNode> &functionArgumentNode) {
+void ScopeCheck::visit(const SharedFunctionArgumentNode &functionArgumentNode) {
     if (functionArgumentNode->getName() == nullptr) {
         ScopeCheck::visit(functionArgumentNode->getExpression());
         return;
     }
 
-    auto scopeCheck = [](const std::shared_ptr<ASTNode> &node) {
+    auto scopeCheck = [](const SharedASTNode &node) {
         return node->getKind() == ASTNode::FUNCTION_ARGUMENT;
     };
 
-    auto foundNodes = functionArgumentNode->getScope()->scope(functionArgumentNode->getName()->getContent(),
-                                                              scopeCheck);
+    auto foundNodes = functionArgumentNode->getScope()->scope(
+            functionArgumentNode->getName()->getContent(), scopeCheck);
     if (foundNodes->size() > 1) {
         THROW_NODE_ERROR(functionArgumentNode, "There already exists a similar argument.")
         return;
@@ -282,21 +290,21 @@ void ScopeCheck::visit(const std::shared_ptr<FunctionArgumentNode> &functionArgu
     ScopeCheck::visit(functionArgumentNode->getExpression());
 }
 
-void ScopeCheck::visit(const std::shared_ptr<FunctionCallNode> &functionCallNode) {
+void ScopeCheck::visit(const SharedFunctionCallNode &functionCallNode) {
     for (const auto &argument : functionCallNode->getArguments())
         ScopeCheck::visit(argument);
 }
 
-void ScopeCheck::visit(const std::shared_ptr<AssignmentNode> &assignmentNode) {
+void ScopeCheck::visit(const SharedAssignmentNode &assignmentNode) {
     ScopeCheck::visit(assignmentNode->getExpression());
 }
 
-void ScopeCheck::visit(const std::shared_ptr<ReturnNode> &returnNode) {
+void ScopeCheck::visit(const SharedReturnNode &returnNode) {
     if (returnNode->getExpression() != nullptr)
         ScopeCheck::visit(returnNode->getExpression());
 }
 
-void ScopeCheck::visit(const std::shared_ptr<StructNode> &structNode) {
+void ScopeCheck::visit(const SharedStructNode &structNode) {
     for (const auto &variable : structNode->getVariables())
         ScopeCheck::visit(variable);
 }

@@ -21,8 +21,11 @@ int main(int argc, char *argv[]) {
                      &compilerOptions.mb_VerboseLLVM_IR,
                      "Enables debugging in the console for the LLVM IR.");
     args.addArgument({"-vmv", "--verbose-module-verify"},
-                     &compilerOptions.mb_VerboseModule_Verify,
+                     &compilerOptions.mb_VerboseModuleVerify,
                      "Enables debugging in the console for the module verify.");
+    args.addArgument({"-var", "--verbose-arkoi-representation"},
+                     &compilerOptions.mb_VerboseArkoiRepresentation,
+                     "Enables debugging in the console for the arkoi representation.");
     args.addArgument({"-h", "--help"},
                      OptionParser::OptionValue(),
                      "Prints this list in the console.",

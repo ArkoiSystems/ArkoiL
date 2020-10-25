@@ -58,17 +58,6 @@ void Token::setType(Token::TokenType type) {
     m_Type = type;
 }
 
-std::ostream &operator<<(std::ostream &out, const std::shared_ptr<Token> &token) {
-    if (token == nullptr) {
-        out << "null";
-        return out;
-    }
-
-    out << "(" << token->getType() << " with \"" << token->getContent() << "\" on line "
-        << (token->getLineNumber() + 1) << ")";
-    return out;
-}
-
 bool operator==(const std::shared_ptr<Token> &token, const std::string &toCheck) {
     if(token == nullptr)
         return false;

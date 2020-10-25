@@ -23,16 +23,17 @@
 #include "../lexer/token.h"
 #include "options.h"
 #include "error.h"
+#include "../utils/astprinter.h"
 
 int Compiler::compile(const CompilerOptions &compilerOptions) {
     auto start = std::chrono::high_resolution_clock::now();
 
-    std::vector<std::shared_ptr<RootNode>> roots;
+    std::vector<SharedRootNode> roots;
 
-    std::shared_ptr<RootNode> sourceRoot;
+    SharedRootNode sourceRoot;
     if (auto parser = Compiler::loadFile(compilerOptions.m_SourceFile)) {
         sourceRoot = parser->parseRoot();
-        roots.push_back(sourceRoot);
+        roots.emplace_back(sourceRoot);
     } else return EXIT_FAILURE;
 
     std::set<std::string> loaded;
@@ -48,45 +49,58 @@ int Compiler::compile(const CompilerOptions &compilerOptions) {
     for (const auto &rootNode : roots)
         TypeResolver::visit(rootNode);
 
-    for (const auto &rootNode : roots) {
-        Inliner inliner;
-        inliner.visit(rootNode);
-    }
+    for (const auto &rootNode : roots)
+        Inliner::visit(rootNode);
 
     for (const auto &rootNode : roots) {
         TypeCheck::visit(rootNode);
         ScopeCheck::visit(rootNode);
     }
 
-    CodeGen codeGen;
+    auto moduleName = sourceRoot->getSourcePath();
+    moduleName = moduleName.substr(moduleName.rfind('/') + 1, moduleName.length());
+
+    if (compilerOptions.mb_VerboseArkoiRepresentation) {
+        std::cout << "[" << moduleName << "] Printing the representation:"
+                  << std::endl;
+
+        for (const auto &rootNode : roots) {
+            std::cout << " " << rootNode->getSourcePath() << std::endl;
+            ASTPrinter::visit(rootNode, std::cout, 1);
+        }
+    }
+
+    CodeGen codeGen(moduleName);
     codeGen.visit(sourceRoot);
-    auto module = codeGen.getModule();
 
     if (compilerOptions.mb_VerboseLLVM_IR) {
-        std::cout << "[" << module->getModuleIdentifier() << "] Printing the bitcode:" << std::endl;
+        std::cout << "[" << moduleName << "] Printing the bitcode:" << std::endl;
         std::cout << codeGen.dumpModule() << std::endl;
     }
 
-    if (compilerOptions.mb_VerboseModule_Verify)
-        std::cout << std::endl << "[" << module->getModuleIdentifier() << "] Verifying the module:"
+    if (compilerOptions.mb_VerboseModuleVerify)
+        std::cout << std::endl << "[" << moduleName << "] Verifying the module:"
                   << std::endl;
 
+    auto module = codeGen.getModule();
     std::string errors;
     llvm::raw_string_ostream output(errors);
+
     if (llvm::verifyModule(*module, &output, nullptr)) {
-        if (compilerOptions.mb_VerboseModule_Verify) {
+        if (compilerOptions.mb_VerboseModuleVerify) {
             std::cout << "There was a problem during the verification of the module: "
                       << std::endl << " " << errors << std::endl;
             exit(EXIT_FAILURE);
         } else {
             std::cout << std::endl << "There was a problem during the verification of the module."
-                      << std::endl << "If you want to have more information about it use the \"-vmv\" option."
+                      << std::endl
+                      << "If you want to have more information about it use the \"-vmv\" option."
                       << std::endl;
             exit(EXIT_FAILURE);
         }
     }
 
-    if (compilerOptions.mb_VerboseModule_Verify)
+    if (compilerOptions.mb_VerboseModuleVerify)
         std::cout << "Verified the module and found no errors." << std::endl;
 
     auto finish = std::chrono::high_resolution_clock::now();
@@ -97,14 +111,14 @@ int Compiler::compile(const CompilerOptions &compilerOptions) {
 }
 
 int Compiler::loadImports(const CompilerOptions &compilerOptions, std::set<std::string> &loaded,
-                          std::vector<std::shared_ptr<RootNode>> &roots) {
+                          std::vector<SharedRootNode> &roots) {
     for (const auto &rootNode : roots) {
         for (const auto &node : rootNode->getNodes()) {
             if (node->getKind() != ASTNode::IMPORT)
                 continue;
 
             auto importNode = std::dynamic_pointer_cast<ImportNode>(node);
-            std::shared_ptr<RootNode> importRoot;
+            SharedRootNode importRoot;
 
             for (const auto &searchPath : compilerOptions.m_SearchPaths) {
                 auto fullPath = searchPath + "/" + importNode->getPath()->getContent() + ".ark";

@@ -9,20 +9,20 @@
 #include <memory>
 #include <vector>
 
-class ASTNode;
+#include "allnodes.h"
 
 class SymbolTable {
 
-    typedef std::vector<std::shared_ptr<ASTNode>> Symbols;
+    typedef std::vector<SharedASTNode> Symbols;
     typedef std::unordered_map<std::string, Symbols> Table;
-    typedef std::function<bool(const std::shared_ptr<ASTNode> &)> Predicate;
+    typedef std::function<bool(const SharedASTNode &)> Predicate;
 
 private:
-    std::shared_ptr<SymbolTable> m_Parent;
+    SharedSymbolTable m_Parent;
     Table m_Table;
 
 public:
-    explicit SymbolTable(std::shared_ptr<SymbolTable> parent);
+    explicit SymbolTable(SharedSymbolTable parent);
 
     SymbolTable(const SymbolTable &other);
 
@@ -35,10 +35,10 @@ public:
     std::shared_ptr<SymbolTable::Symbols> scope(const std::string &id,
                                                 const SymbolTable::Predicate &predicate);
 
-    void insert(const std::string &id, const std::shared_ptr<ASTNode> &node);
+    void insert(const std::string &id, const SharedASTNode &node);
 
 public:
-    const std::shared_ptr<SymbolTable> &getParent() const;
+    const SharedSymbolTable &getParent() const;
 
     const Table &getTable() const;
 

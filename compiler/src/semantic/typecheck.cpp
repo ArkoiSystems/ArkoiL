@@ -10,7 +10,7 @@
 #include "../lexer/token.h"
 #include "../utils/utils.h"
 
-void TypeCheck::visit(const std::shared_ptr<ASTNode> &node) {
+void TypeCheck::visit(const SharedASTNode &node) {
     if (node->getKind() == ASTNode::ROOT) {
         TypeCheck::visit(std::static_pointer_cast<RootNode>(node));
     } else if (node->getKind() == ASTNode::STRUCT) {
@@ -39,33 +39,40 @@ void TypeCheck::visit(const std::shared_ptr<ASTNode> &node) {
         TypeCheck::visit(std::static_pointer_cast<UnaryNode>(node));
     } else if (node->getKind() == ASTNode::PARENTHESIZED) {
         TypeCheck::visit(std::static_pointer_cast<ParenthesizedNode>(node));
+    } else if (node->getKind() == ASTNode::PARAMETER) {
+        TypeCheck::visit(std::static_pointer_cast<ParameterNode>(node));
     } else if (node->getKind() != ASTNode::IDENTIFIER && node->getKind() != ASTNode::IMPORT &&
                node->getKind() != ASTNode::STRING && node->getKind() != ASTNode::NUMBER &&
-               node->getKind() != ASTNode::TYPE && node->getKind() != ASTNode::PARAMETER) {
+               node->getKind() != ASTNode::TYPE) {
         THROW_NODE_ERROR(node, "TypeCheck: Unsupported node: " + node->getKindAsString())
         exit(EXIT_FAILURE);
     }
 }
 
-void TypeCheck::visit(const std::shared_ptr<RootNode> &rootNode) {
+void TypeCheck::visit(const SharedRootNode &rootNode) {
     for (const auto &node : rootNode->getNodes())
         TypeCheck::visit(node);
 }
 
-void TypeCheck::visit(const std::shared_ptr<StructNode> &structNode) {
+void TypeCheck::visit(const SharedStructNode &structNode) {
     for (const auto &variable : structNode->getVariables())
         TypeCheck::visit(variable);
 }
 
-void TypeCheck::visit(const std::shared_ptr<VariableNode> &variableNode) {
+void TypeCheck::visit(const SharedVariableNode &variableNode) {
+    if (variableNode->getType()->isVoid()) {
+        THROW_NODE_ERROR(variableNode, "You can't declare a variable with void as a type.")
+        return;
+    }
+
     if (variableNode->getExpression() == nullptr && variableNode->isConstant()) {
         THROW_NODE_ERROR(variableNode, "Constant variables need an expression.")
         return;
     }
 
     if (variableNode->getExpression() == nullptr && variableNode->getType() == nullptr) {
-        THROW_NODE_ERROR(variableNode,
-                         "There must be specified a return type if no expression exists.")
+        THROW_NODE_ERROR(variableNode, "There must be specified a return type if no expression "
+                                       "exists.")
         return;
     }
 
@@ -80,31 +87,40 @@ void TypeCheck::visit(const std::shared_ptr<VariableNode> &variableNode) {
     }
 }
 
-void TypeCheck::visit(const std::shared_ptr<FunctionNode> &functionNode) {
+void TypeCheck::visit(const SharedFunctionNode &functionNode) {
+    for (auto const &parameter : functionNode->getParameters())
+        TypeCheck::visit(parameter);
+
     if (functionNode->getBlock() != nullptr)
         TypeCheck::visit(functionNode->getBlock());
 }
 
-void TypeCheck::visit(const std::shared_ptr<BlockNode> &blockNode) {
+void TypeCheck::visit(const SharedBlockNode &blockNode) {
     for (const auto &node : blockNode->getNodes())
         TypeCheck::visit(node);
 }
 
-void TypeCheck::visit(const std::shared_ptr<FunctionCallNode> &functionCallNode) {
+void TypeCheck::visit(const SharedFunctionCallNode &functionCallNode) {
+    if (functionCallNode->getParent()->getKind() != ASTNode::BLOCK
+        && functionCallNode->getType()->isVoid()) {
+        THROW_NODE_ERROR(functionCallNode, "You can't call a void function as an expression.")
+        return;
+    }
+
     for (auto const &argument : functionCallNode->getArguments())
         TypeCheck::visit(argument);
 }
 
-void TypeCheck::visit(const std::shared_ptr<FunctionArgumentNode> &functionArgumentNode) {
+void TypeCheck::visit(const SharedFunctionArgumentNode &functionArgumentNode) {
     TypeCheck::visit(functionArgumentNode->getExpression());
 }
 
-void TypeCheck::visit(const std::shared_ptr<StructArgumentNode> &structArgumentNode) {
+void TypeCheck::visit(const SharedStructArgumentNode &structArgumentNode) {
     if (structArgumentNode->getExpression() != nullptr)
         TypeCheck::visit(structArgumentNode->getExpression());
 }
 
-void TypeCheck::visit(const std::shared_ptr<ReturnNode> &returnNode) {
+void TypeCheck::visit(const SharedReturnNode &returnNode) {
     auto functionNode = returnNode->findNodeOfParents<FunctionNode>();
 
     if (returnNode->getExpression() == nullptr && functionNode->getType()->getBits() != 0) {
@@ -113,16 +129,18 @@ void TypeCheck::visit(const std::shared_ptr<ReturnNode> &returnNode) {
     }
 
     if (*returnNode->getExpression()->getType() != *functionNode->getType()) {
-        THROW_NODE_ERROR(returnNode, "The return statement uses a different type than the function.")
+        THROW_NODE_ERROR(returnNode, "The return statement uses a different type than the "
+                                     "function.")
         return;
     }
 
     TypeCheck::visit(returnNode->getExpression());
 }
 
-void TypeCheck::visit(const std::shared_ptr<AssignmentNode> &assignmentNode) {
+void TypeCheck::visit(const SharedAssignmentNode &assignmentNode) {
     if (*assignmentNode->getType() != *assignmentNode->getExpression()->getType()) {
-        THROW_NODE_ERROR(assignmentNode, "The assignment expression uses a different type than the variable.")
+        THROW_NODE_ERROR(assignmentNode, "The assignment expression uses a different type than the "
+                                         "variable.")
         return;
     }
 
@@ -137,7 +155,7 @@ void TypeCheck::visit(const std::shared_ptr<AssignmentNode> &assignmentNode) {
     TypeCheck::visit(assignmentNode->getExpression());
 }
 
-void TypeCheck::visit(const std::shared_ptr<StructCreateNode> &structCreateNode) {
+void TypeCheck::visit(const SharedStructCreateNode &structCreateNode) {
     if (structCreateNode->getType()->getTargetStruct() == nullptr) {
         THROW_NODE_ERROR(structCreateNode, "Struct creation has no target struct.")
         return;
@@ -150,7 +168,8 @@ void TypeCheck::visit(const std::shared_ptr<StructCreateNode> &structCreateNode)
         auto variableIndex = Utils::indexOf(structCreateNode->getArguments(), argument).second;
         auto variable = targetStruct->getVariables().at(variableIndex);
         if (*argument->getType() != *variable->getType()) {
-            THROW_NODE_ERROR(argument, "The struct create argument uses a different type than the variable.")
+            THROW_NODE_ERROR(argument, "The struct create argument uses a different type than the "
+                                       "variable.")
             return;
         }
 
@@ -161,7 +180,7 @@ void TypeCheck::visit(const std::shared_ptr<StructCreateNode> &structCreateNode)
     }
 }
 
-void TypeCheck::visit(const std::shared_ptr<BinaryNode> &binaryNode) {
+void TypeCheck::visit(const SharedBinaryNode &binaryNode) {
     TypeCheck::visit(binaryNode->getLHS());
     TypeCheck::visit(binaryNode->getRHS());
 
@@ -180,10 +199,12 @@ void TypeCheck::visit(const std::shared_ptr<BinaryNode> &binaryNode) {
         case BinaryNode::REMAINING:
             if (!binaryNode->getLHS()->getType()->isNumeric() ||
                 binaryNode->getLHS()->getType()->getPointerLevel() != 0)
-                THROW_NODE_ERROR(binaryNode->getLHS(), "Left side of the binary expression is not numeric.")
+                THROW_NODE_ERROR(binaryNode->getLHS(), "Left side of the binary expression is not "
+                                                       "numeric.")
             if (!binaryNode->getRHS()->getType()->isNumeric() ||
                 binaryNode->getRHS()->getType()->getPointerLevel() != 0)
-                THROW_NODE_ERROR(binaryNode->getRHS(), "Right side of the binary expression is not numeric.")
+                THROW_NODE_ERROR(binaryNode->getRHS(), "Right side of the binary expression is not "
+                                                       "numeric.")
             break;
 
         case BinaryNode::BIT_CAST:
@@ -195,7 +216,7 @@ void TypeCheck::visit(const std::shared_ptr<BinaryNode> &binaryNode) {
     }
 }
 
-void TypeCheck::visit(const std::shared_ptr<UnaryNode> &unaryNode) {
+void TypeCheck::visit(const SharedUnaryNode &unaryNode) {
     TypeCheck::visit(unaryNode->getExpression());
 
     switch (unaryNode->getOperatorKind()) {
@@ -203,7 +224,7 @@ void TypeCheck::visit(const std::shared_ptr<UnaryNode> &unaryNode) {
             if (!unaryNode->getExpression()->getType()->isNumeric() ||
                 unaryNode->getExpression()->getType()->getPointerLevel() != 0)
                 THROW_NODE_ERROR(unaryNode->getExpression(), "Unary expression is not numeric.")
-                break;
+            break;
 
         default:
             std::cout << "TypeCheck: Unary operator not supported." << std::endl;
@@ -211,6 +232,13 @@ void TypeCheck::visit(const std::shared_ptr<UnaryNode> &unaryNode) {
     }
 }
 
-void TypeCheck::visit(const std::shared_ptr<ParenthesizedNode> &parenthesizedNode) {
+void TypeCheck::visit(const SharedParenthesizedNode &parenthesizedNode) {
     TypeCheck::visit(parenthesizedNode->getExpression());
+}
+
+void TypeCheck::visit(const SharedParameterNode &parameterNode) {
+    if (parameterNode->getType()->isVoid()) {
+        THROW_NODE_ERROR(parameterNode, "You can't declare a parameter with void as a type.")
+        return;
+    }
 }

@@ -48,8 +48,8 @@ public:
 
 private:
     std::shared_ptr<Token> m_StartToken, m_EndToken;
-    std::shared_ptr<SymbolTable> m_Scope;
-    std::shared_ptr<ASTNode> m_Parent;
+    SharedSymbolTable m_Scope;
+    SharedASTNode m_Parent;
     bool mb_Failed;
     ASTKind m_Kind;
 
@@ -64,8 +64,9 @@ protected:
     ASTNode(const ASTNode &other);
 
 public:
-    virtual ASTNode *clone(const std::shared_ptr<ASTNode> parent,
-                           const std::shared_ptr<SymbolTable> symbolTable) const;
+    [[nodiscard]]
+    virtual ASTNode *clone(SharedASTNode parent,
+                           SharedSymbolTable symbolTable) const = 0;
 
     template<typename Type = ASTNode>
     std::shared_ptr<Type> findNodeOfParents() {
@@ -89,14 +90,14 @@ public:
     void setEndToken(const std::shared_ptr<Token> &endToken);
 
     [[nodiscard]]
-    const std::shared_ptr<SymbolTable> &getScope() const;
+    const SharedSymbolTable &getScope() const;
 
-    void setScope(const std::shared_ptr<SymbolTable> &scope);
+    void setScope(const SharedSymbolTable &scope);
 
     [[nodiscard]]
-    const std::shared_ptr<ASTNode> &getParent() const;
+    const SharedASTNode &getParent() const;
 
-    void setParent(const std::shared_ptr<ASTNode> &parent);
+    void setParent(const SharedASTNode &parent);
 
     [[nodiscard]]
     bool isFailed() const;
@@ -119,7 +120,7 @@ public:
 class RootNode : public ASTNode {
 
 private:
-    std::vector<std::shared_ptr<ASTNode>> m_Nodes;
+    std::vector<SharedASTNode> m_Nodes;
     std::string m_SourcePath, m_SourceCode;
 
 public:
@@ -131,24 +132,25 @@ protected:
     RootNode(const RootNode &other);
 
 public:
-    RootNode *clone(const std::shared_ptr<ASTNode> parent,
-                    const std::shared_ptr<SymbolTable> symbolTable) const override;
+    [[nodiscard]]
+    RootNode *clone(SharedASTNode parent,
+                    SharedSymbolTable symbolTable) const override;
 
-    std::vector<std::shared_ptr<RootNode>> getImportedRoots();
+    std::vector<SharedRootNode> getImportedRoots();
 
-    void getImportedRoots(std::vector<std::shared_ptr<RootNode>> &importedRoots);
+    void getImportedRoots(std::vector<SharedRootNode> &importedRoots);
 
-    std::shared_ptr<std::vector<std::shared_ptr<ASTNode>>>
+    std::shared_ptr<std::vector<SharedASTNode>>
     searchWithImports(const std::string &id,
-                      const std::function<bool(const std::shared_ptr<ASTNode> &)> &predicate);
+                      const std::function<bool(const SharedASTNode &)> &predicate);
 
-    void addNode(const std::shared_ptr<ASTNode> &node);
+    void addNode(const SharedASTNode &node);
 
-    void removeNode(const std::shared_ptr<ASTNode> &node);
+    void removeNode(const SharedASTNode &node);
 
 public:
     [[nodiscard]]
-    const std::vector<std::shared_ptr<ASTNode>> &getNodes() const;
+    const std::vector<SharedASTNode> &getNodes() const;
 
     [[nodiscard]]
     const std::string &getSourcePath() const;
@@ -165,8 +167,8 @@ public:
 class TypedNode : public ASTNode {
 
 private:
-    std::shared_ptr<ASTNode> m_TargetNode;
-    std::shared_ptr<TypeNode> m_Type;
+    SharedASTNode m_TargetNode;
+    SharedTypeNode m_Type;
     bool mb_TypeResolved;
     bool mb_Accessed;
 
@@ -179,25 +181,27 @@ protected:
     TypedNode(const TypedNode &other);
 
 public:
-    TypedNode *clone(const std::shared_ptr<ASTNode> parent,
-                     const std::shared_ptr<SymbolTable> symbolTable) const override;
+    [[nodiscard]]
+    TypedNode *clone(SharedASTNode parent,
+                     SharedSymbolTable symbolTable) const override;
 
 public:
     [[nodiscard]]
-    const std::shared_ptr<ASTNode> &getTargetNode() const;
+    const SharedASTNode &getTargetNode() const;
 
-    void setTargetNode(const std::shared_ptr<ASTNode> &targetNode);
+    void setTargetNode(const SharedASTNode &targetNode);
 
     [[nodiscard]]
-    const std::shared_ptr<TypeNode> &getType() const;
+    const SharedTypeNode &getType() const;
 
-    void setType(const std::shared_ptr<TypeNode> &type);
+    void setType(const SharedTypeNode &type);
 
     [[nodiscard]]
     bool isTypeResolved() const;
 
     void setTypeResolved(bool typeResolved);
 
+    [[nodiscard]]
     bool isAccessed() const;
 
     void setAccessed(bool accessed);
@@ -207,7 +211,7 @@ public:
 class ImportNode : public ASTNode {
 
 private:
-    std::shared_ptr<RootNode> m_Target;
+    SharedRootNode m_Target;
     std::shared_ptr<Token> m_Path;
 
 public:
@@ -219,14 +223,15 @@ protected:
     ImportNode(const ImportNode &other);
 
 public:
-    ImportNode *clone(const std::shared_ptr<ASTNode> parent,
-                      const std::shared_ptr<SymbolTable> symbolTable) const override;
+    [[nodiscard]]
+    ImportNode *clone(SharedASTNode parent,
+                      SharedSymbolTable symbolTable) const override;
 
 public:
     [[nodiscard]]
-    const std::shared_ptr<RootNode> &getTarget() const;
+    const SharedRootNode &getTarget() const;
 
-    void setTarget(const std::shared_ptr<RootNode> &target);
+    void setTarget(const SharedRootNode &target);
 
     [[nodiscard]]
     const std::shared_ptr<Token> &getPath() const;
@@ -249,8 +254,9 @@ protected:
     ParameterNode(const ParameterNode &other);
 
 public:
-    ParameterNode *clone(const std::shared_ptr<ASTNode> parent,
-                         const std::shared_ptr<SymbolTable> symbolTable) const override;
+    [[nodiscard]]
+    ParameterNode *clone(SharedASTNode parent,
+                         SharedSymbolTable symbolTable) const override;
 
 public:
     [[nodiscard]]
@@ -263,7 +269,7 @@ public:
 class BlockNode : public TypedNode {
 
 private:
-    std::vector<std::shared_ptr<ASTNode>> m_Nodes;
+    std::vector<SharedASTNode> m_Nodes;
     bool mb_Inlined;
 
 public:
@@ -275,18 +281,19 @@ protected:
     BlockNode(const BlockNode &other);
 
 public:
-    BlockNode *clone(const std::shared_ptr<ASTNode> parent,
-                     const std::shared_ptr<SymbolTable> symbolTable) const override;
+    [[nodiscard]]
+    BlockNode *clone(SharedASTNode parent,
+                     SharedSymbolTable symbolTable) const override;
 
-    void addNode(const std::shared_ptr<ASTNode> &node);
+    void addNode(const SharedASTNode &node);
 
-    void removeNode(const std::shared_ptr<ASTNode> &node);
+    void removeNode(const SharedASTNode &node);
 
-    void insertNode(const std::shared_ptr<ASTNode> &node, int index);
+    void insertNode(const SharedASTNode &node, int index);
 
 public:
     [[nodiscard]]
-    const std::vector<std::shared_ptr<ASTNode>> &getNodes() const;
+    const std::vector<SharedASTNode> &getNodes() const;
 
     [[nodiscard]]
     bool isInlined() const;
@@ -306,15 +313,16 @@ protected:
     OperableNode(const OperableNode &other);
 
 public:
-    OperableNode *clone(const std::shared_ptr<ASTNode> parent,
-                        const std::shared_ptr<SymbolTable> symbolTable) const override;
+    [[nodiscard]]
+    OperableNode *clone(SharedASTNode parent,
+                        SharedSymbolTable symbolTable) const override;
 
 };
 
 class VariableNode : public TypedNode {
 
 private:
-    std::shared_ptr<OperableNode> m_Expression;
+    SharedOperableNode m_Expression;
     std::shared_ptr<Token> m_Name;
     bool mb_Constant, mb_Local;
 
@@ -327,16 +335,17 @@ protected:
     VariableNode(const VariableNode &other);
 
 public:
-    VariableNode *clone(const std::shared_ptr<ASTNode> parent,
-                        const std::shared_ptr<SymbolTable> symbolTable) const override;
+    [[nodiscard]]
+    VariableNode *clone(SharedASTNode parent,
+                        SharedSymbolTable symbolTable) const override;
 
     bool isGlobal();
 
 public:
     [[nodiscard]]
-    const std::shared_ptr<OperableNode> &getExpression() const;
+    const SharedOperableNode &getExpression() const;
 
-    void setExpression(const std::shared_ptr<OperableNode> &expression);
+    void setExpression(const SharedOperableNode &expression);
 
     [[nodiscard]]
     const std::shared_ptr<Token> &getName() const;
@@ -378,7 +387,7 @@ public:
     };
 
 private:
-    std::shared_ptr<OperableNode> m_Lhs, m_Rhs;
+    SharedOperableNode m_Lhs, m_Rhs;
     BinaryKind m_OperatorKind;
 
 public:
@@ -390,19 +399,20 @@ protected:
     BinaryNode(const BinaryNode &other);
 
 public:
-    BinaryNode *clone(const std::shared_ptr<ASTNode> parent,
-                      const std::shared_ptr<SymbolTable> symbolTable) const override;
+    [[nodiscard]]
+    BinaryNode *clone(SharedASTNode parent,
+                      SharedSymbolTable symbolTable) const override;
 
 public:
     [[nodiscard]]
-    const std::shared_ptr<OperableNode> &getLHS() const;
+    const SharedOperableNode &getLHS() const;
 
-    void setLHS(const std::shared_ptr<OperableNode> &lhs);
+    void setLHS(const SharedOperableNode &lhs);
 
     [[nodiscard]]
-    const std::shared_ptr<OperableNode> &getRHS() const;
+    const SharedOperableNode &getRHS() const;
 
-    void setRHS(const std::shared_ptr<OperableNode> &rhs);
+    void setRHS(const SharedOperableNode &rhs);
 
     [[nodiscard]]
     std::string getOperatorKindAsString() const;
@@ -427,7 +437,7 @@ public:
     };
 
 private:
-    std::shared_ptr<OperableNode> m_Expression;
+    SharedOperableNode m_Expression;
     UnaryKind m_OperatorKind;
 
 public:
@@ -439,14 +449,15 @@ protected:
     UnaryNode(const UnaryNode &other);
 
 public:
-    UnaryNode *clone(const std::shared_ptr<ASTNode> parent,
-                     const std::shared_ptr<SymbolTable> symbolTable) const override;
+    [[nodiscard]]
+    UnaryNode *clone(SharedASTNode parent,
+                     SharedSymbolTable symbolTable) const override;
 
 public:
     [[nodiscard]]
-    const std::shared_ptr<OperableNode> &getExpression() const;
+    const SharedOperableNode &getExpression() const;
 
-    void setExpression(const std::shared_ptr<OperableNode> &expression);
+    void setExpression(const SharedOperableNode &expression);
 
     [[nodiscard]]
     std::string getOperatorKindAsString() const;
@@ -464,7 +475,7 @@ public:
 class ParenthesizedNode : public OperableNode {
 
 private:
-    std::shared_ptr<OperableNode> m_Expression;
+    SharedOperableNode m_Expression;
 
 public:
     ParenthesizedNode();
@@ -475,14 +486,15 @@ protected:
     ParenthesizedNode(const ParenthesizedNode &other);
 
 public:
-    ParenthesizedNode *clone(const std::shared_ptr<ASTNode> parent,
-                             const std::shared_ptr<SymbolTable> symbolTable) const override;
+    [[nodiscard]]
+    ParenthesizedNode *clone(SharedASTNode parent,
+                             SharedSymbolTable symbolTable) const override;
 
 public:
     [[nodiscard]]
-    const std::shared_ptr<OperableNode> &getExpression() const;
+    const SharedOperableNode &getExpression() const;
 
-    void setExpression(const std::shared_ptr<OperableNode> &expression);
+    void setExpression(const SharedOperableNode &expression);
 
 };
 
@@ -500,8 +512,9 @@ protected:
     NumberNode(const NumberNode &other);
 
 public:
-    NumberNode *clone(const std::shared_ptr<ASTNode> parent,
-                      const std::shared_ptr<SymbolTable> symbolTable) const override;
+    [[nodiscard]]
+    NumberNode *clone(SharedASTNode parent,
+                      SharedSymbolTable symbolTable) const override;
 
 public:
     [[nodiscard]]
@@ -525,8 +538,9 @@ protected:
     StringNode(const StringNode &other);
 
 public:
-    StringNode *clone(const std::shared_ptr<ASTNode> parent,
-                      const std::shared_ptr<SymbolTable> symbolTable) const override;
+    [[nodiscard]]
+    StringNode *clone(SharedASTNode parent,
+                      SharedSymbolTable symbolTable) const override;
 
 public:
     [[nodiscard]]
@@ -539,7 +553,7 @@ public:
 class IdentifierNode : public OperableNode {
 
 private:
-    std::shared_ptr<IdentifierNode> m_NextIdentifier, m_LastIdentifier;
+    SharedIdentifierNode m_NextIdentifier, m_LastIdentifier;
     std::shared_ptr<Token> m_Identifier;
     bool mb_Pointer, mb_Dereference;
 
@@ -552,19 +566,20 @@ protected:
     IdentifierNode(const IdentifierNode &other);
 
 public:
-    IdentifierNode *clone(const std::shared_ptr<ASTNode> parent,
-                          const std::shared_ptr<SymbolTable> symbolTable) const override;
+    [[nodiscard]]
+    IdentifierNode *clone(SharedASTNode parent,
+                          SharedSymbolTable symbolTable) const override;
 
 public:
     [[nodiscard]]
-    const std::shared_ptr<IdentifierNode> &getNextIdentifier() const;
+    const SharedIdentifierNode &getNextIdentifier() const;
 
-    void setNextIdentifier(const std::shared_ptr<IdentifierNode> &nextIdentifier);
+    void setNextIdentifier(const SharedIdentifierNode &nextIdentifier);
 
     [[nodiscard]]
-    const std::shared_ptr<IdentifierNode> &getLastIdentifier() const;
+    const SharedIdentifierNode &getLastIdentifier() const;
 
-    void setLastIdentifier(const std::shared_ptr<IdentifierNode> &lastIdentifier);
+    void setLastIdentifier(const SharedIdentifierNode &lastIdentifier);
 
     [[nodiscard]]
     const std::shared_ptr<Token> &getIdentifier() const;
@@ -586,8 +601,8 @@ public:
 class AssignmentNode : public OperableNode {
 
 private:
-    std::shared_ptr<IdentifierNode> m_StartIdentifier, m_EndIdentifier;
-    std::shared_ptr<OperableNode> m_Expression;
+    SharedIdentifierNode m_StartIdentifier, m_EndIdentifier;
+    SharedOperableNode m_Expression;
 
 public:
     AssignmentNode();
@@ -598,31 +613,32 @@ protected:
     AssignmentNode(const AssignmentNode &other);
 
 public:
-    AssignmentNode *clone(const std::shared_ptr<ASTNode> parent,
-                          const std::shared_ptr<SymbolTable> symbolTable) const override;
+    [[nodiscard]]
+    AssignmentNode *clone(SharedASTNode parent,
+                          SharedSymbolTable symbolTable) const override;
 
 public:
     [[nodiscard]]
-    const std::shared_ptr<IdentifierNode> &getStartIdentifier() const;
+    const SharedIdentifierNode &getStartIdentifier() const;
 
-    void setStartIdentifier(const std::shared_ptr<IdentifierNode> &startIdentifier);
-
-    [[nodiscard]]
-    const std::shared_ptr<IdentifierNode> &getEndIdentifier() const;
-
-    void setEndIdentifier(const std::shared_ptr<IdentifierNode> &endIdentifier);
+    void setStartIdentifier(const SharedIdentifierNode &startIdentifier);
 
     [[nodiscard]]
-    const std::shared_ptr<OperableNode> &getExpression() const;
+    const SharedIdentifierNode &getEndIdentifier() const;
 
-    void setExpression(const std::shared_ptr<OperableNode> &expression);
+    void setEndIdentifier(const SharedIdentifierNode &endIdentifier);
+
+    [[nodiscard]]
+    const SharedOperableNode &getExpression() const;
+
+    void setExpression(const SharedOperableNode &expression);
 
 };
 
 class ReturnNode : public TypedNode {
 
 private:
-    std::shared_ptr<OperableNode> m_Expression;
+    SharedOperableNode m_Expression;
 
 public:
     ReturnNode();
@@ -633,21 +649,22 @@ protected:
     ReturnNode(const ReturnNode &other);
 
 public:
-    ReturnNode *clone(const std::shared_ptr<ASTNode> parent,
-                      const std::shared_ptr<SymbolTable> symbolTable) const override;
+    [[nodiscard]]
+    ReturnNode *clone(SharedASTNode parent,
+                      SharedSymbolTable symbolTable) const override;
 
 public:
     [[nodiscard]]
-    const std::shared_ptr<OperableNode> &getExpression() const;
+    const SharedOperableNode &getExpression() const;
 
-    void setExpression(const std::shared_ptr<OperableNode> &expression);
+    void setExpression(const SharedOperableNode &expression);
 
 };
 
 class StructNode : public TypedNode {
 
 private:
-    std::vector<std::shared_ptr<VariableNode>> m_Variables;
+    std::vector<SharedVariableNode> m_Variables;
     std::shared_ptr<Token> m_Name;
 
 public:
@@ -659,14 +676,15 @@ protected:
     StructNode(const StructNode &other);
 
 public:
-    StructNode *clone(const std::shared_ptr<ASTNode> parent,
-                      const std::shared_ptr<SymbolTable> symbolTable) const override;
+    [[nodiscard]]
+    StructNode *clone(SharedASTNode parent,
+                      SharedSymbolTable symbolTable) const override;
 
-    void addVariable(const std::shared_ptr<VariableNode> &variable);
+    void addVariable(const SharedVariableNode &variable);
 
 public:
     [[nodiscard]]
-    const std::vector<std::shared_ptr<VariableNode>> &getVariables() const;
+    const std::vector<SharedVariableNode> &getVariables() const;
 
     [[nodiscard]]
     const std::shared_ptr<Token> &getName() const;
@@ -678,7 +696,7 @@ public:
 class TypeNode : public OperableNode {
 
 private:
-    std::shared_ptr<StructNode> m_TargetStruct;
+    SharedStructNode m_TargetStruct;
     unsigned int m_PointerLevel, m_Bits;
     std::shared_ptr<Token> m_TypeToken;
     bool mb_Signed, mb_Floating;
@@ -692,17 +710,20 @@ protected:
     TypeNode(const TypeNode &other);
 
 public:
-    TypeNode *clone(const std::shared_ptr<ASTNode> parent,
-                    const std::shared_ptr<SymbolTable> symbolTable) const override;
+    [[nodiscard]]
+    TypeNode *clone(SharedASTNode parent,
+                    SharedSymbolTable symbolTable) const override;
+
+    bool isVoid() const;
 
     [[nodiscard]]
     bool isNumeric() const;
 
 public:
     [[nodiscard]]
-    const std::shared_ptr<StructNode> &getTargetStruct() const;
+    const SharedStructNode &getTargetStruct() const;
 
-    void setTargetStruct(const std::shared_ptr<StructNode> &targetStruct);
+    void setTargetStruct(const SharedStructNode &targetStruct);
 
     [[nodiscard]]
     unsigned int getPointerLevel() const;
@@ -730,7 +751,7 @@ public:
     void setFloating(bool floating);
 
 public:
-    friend std::ostream &operator<<(std::ostream &out, const std::shared_ptr<TypeNode> &typeNode);
+    friend std::ostream &operator<<(std::ostream &out, const SharedTypeNode &typeNode);
 
     bool operator==(const TypeNode &other) const;
 
@@ -741,9 +762,9 @@ public:
 class FunctionNode : public TypedNode {
 
 private:
-    std::vector<std::shared_ptr<ParameterNode>> m_Parameters;
+    std::vector<SharedParameterNode> m_Parameters;
     std::set<std::string> m_Annotations;
-    std::shared_ptr<BlockNode> m_Block;
+    SharedBlockNode m_Block;
     std::shared_ptr<Token> m_Name;
     bool mb_Variadic, mb_Native;
 
@@ -756,23 +777,24 @@ protected:
     FunctionNode(const FunctionNode &other);
 
 public:
-    FunctionNode *clone(const std::shared_ptr<ASTNode> parent,
-                        const std::shared_ptr<SymbolTable> symbolTable) const override;
+    [[nodiscard]]
+    FunctionNode *clone(SharedASTNode parent,
+                        SharedSymbolTable symbolTable) const override;
 
     bool hasAnnotation(const std::string &annotation);
 
-    void addParameter(const std::shared_ptr<ParameterNode> &parameterNode);
+    void addParameter(const SharedParameterNode &parameterNode);
 
 public:
     [[nodiscard]]
-    const std::vector<std::shared_ptr<ParameterNode>> &getParameters() const;
+    const std::vector<SharedParameterNode> &getParameters() const;
 
     void setAnnotations(const std::set<std::string> &annotations);
 
     [[nodiscard]]
-    const std::shared_ptr<BlockNode> &getBlock() const;
+    const SharedBlockNode &getBlock() const;
 
-    void setBlock(const std::shared_ptr<BlockNode> &block);
+    void setBlock(const SharedBlockNode &block);
 
     [[nodiscard]]
     const std::shared_ptr<Token> &getName() const;
@@ -799,7 +821,7 @@ public:
 class StructArgumentNode : public TypedNode {
 
 private:
-    std::shared_ptr<OperableNode> m_Expression;
+    SharedOperableNode m_Expression;
     std::shared_ptr<Token> m_Name;
     bool mb_DontCopy;
 
@@ -812,18 +834,20 @@ protected:
     StructArgumentNode(const StructArgumentNode &other);
 
 public:
-    StructArgumentNode *clone(const std::shared_ptr<ASTNode> parent,
-                              const std::shared_ptr<SymbolTable> symbolTable) const override;
+    [[nodiscard]]
+    StructArgumentNode *clone(SharedASTNode parent,
+                              SharedSymbolTable symbolTable) const override;
 
 public:
+    [[nodiscard]]
     bool isDontCopy() const;
 
     void setDontCopy(bool mbDontCopy);
 
     [[nodiscard]]
-    const std::shared_ptr<OperableNode> &getExpression() const;
+    const SharedOperableNode &getExpression() const;
 
-    void setExpression(const std::shared_ptr<OperableNode> &expression);
+    void setExpression(const SharedOperableNode &expression);
 
     [[nodiscard]]
     const std::shared_ptr<Token> &getName() const;
@@ -835,8 +859,8 @@ public:
 class StructCreateNode : public OperableNode {
 
 private:
-    std::vector<std::shared_ptr<StructArgumentNode>> m_Arguments;
-    std::shared_ptr<IdentifierNode> m_Identifier;
+    std::vector<SharedStructArgumentNode> m_Arguments;
+    SharedIdentifierNode m_Identifier;
     bool mb_Unnamed;
 
 public:
@@ -848,23 +872,24 @@ protected:
     StructCreateNode(const StructCreateNode &other);
 
 public:
-    StructCreateNode *clone(const std::shared_ptr<ASTNode> parent,
-                            const std::shared_ptr<SymbolTable> symbolTable) const override;
+    [[nodiscard]]
+    StructCreateNode *clone(SharedASTNode parent,
+                            SharedSymbolTable symbolTable) const override;
 
-    void addArgument(const std::shared_ptr<StructArgumentNode> &argumentNode);
+    void addArgument(const SharedStructArgumentNode &argumentNode);
 
-    void removeArgument(const std::shared_ptr<StructArgumentNode> &argumentNode);
+    void removeArgument(const SharedStructArgumentNode &argumentNode);
 
-    void insertArgument(int index, const std::shared_ptr<StructArgumentNode> &argumentNode);
+    void insertArgument(int index, const SharedStructArgumentNode &argumentNode);
 
 public:
     [[nodiscard]]
-    const std::shared_ptr<IdentifierNode> &getIdentifier() const;
+    const SharedIdentifierNode &getIdentifier() const;
 
-    void setIdentifier(const std::shared_ptr<IdentifierNode> &mIdentifier);
+    void setIdentifier(const SharedIdentifierNode &mIdentifier);
 
     [[nodiscard]]
-    const std::vector<std::shared_ptr<StructArgumentNode>> &getArguments() const;
+    const std::vector<SharedStructArgumentNode> &getArguments() const;
 
     [[nodiscard]]
     bool isUnnamed() const;
@@ -876,7 +901,7 @@ public:
 class FunctionArgumentNode : public TypedNode {
 
 private:
-    std::shared_ptr<OperableNode> m_Expression;
+    SharedOperableNode m_Expression;
     std::shared_ptr<Token> m_Name;
     bool mb_TypeWhitelisted;
 
@@ -889,14 +914,15 @@ protected:
     FunctionArgumentNode(const FunctionArgumentNode &other);
 
 public:
-    FunctionArgumentNode *clone(const std::shared_ptr<ASTNode> parent,
-                                const std::shared_ptr<SymbolTable> symbolTable) const override;
+    [[nodiscard]]
+    FunctionArgumentNode *clone(SharedASTNode parent,
+                                SharedSymbolTable symbolTable) const override;
 
 public:
     [[nodiscard]]
-    const std::shared_ptr<OperableNode> &getExpression() const;
+    const SharedOperableNode &getExpression() const;
 
-    void setExpression(const std::shared_ptr<OperableNode> &expression);
+    void setExpression(const SharedOperableNode &expression);
 
     [[nodiscard]]
     const std::shared_ptr<Token> &getName() const;
@@ -913,7 +939,7 @@ public:
 class FunctionCallNode : public IdentifierNode {
 
 private:
-    std::vector<std::shared_ptr<FunctionArgumentNode>> m_Arguments;
+    std::vector<SharedFunctionArgumentNode> m_Arguments;
 
 public:
     FunctionCallNode();
@@ -924,16 +950,17 @@ protected:
     FunctionCallNode(const FunctionCallNode &other);
 
 public:
-    FunctionCallNode *clone(const std::shared_ptr<ASTNode> parent,
-                            const std::shared_ptr<SymbolTable> symbolTable) const override;
+    [[nodiscard]]
+    FunctionCallNode *clone(SharedASTNode parent,
+                            SharedSymbolTable symbolTable) const override;
 
-    bool getSortedArguments(const std::shared_ptr<FunctionNode> &functionNode,
-                            std::vector<std::shared_ptr<FunctionArgumentNode>> &sortedArguments);
+    bool getSortedArguments(const SharedFunctionNode &functionNode,
+                            std::vector<SharedFunctionArgumentNode> &sortedArguments);
 
-    void addArgument(const std::shared_ptr<FunctionArgumentNode> &argumentNode);
+    void addArgument(const SharedFunctionArgumentNode &argumentNode);
 
 public:
     [[nodiscard]]
-    const std::vector<std::shared_ptr<FunctionArgumentNode>> &getArguments() const;
+    const std::vector<SharedFunctionArgumentNode> &getArguments() const;
 
 };

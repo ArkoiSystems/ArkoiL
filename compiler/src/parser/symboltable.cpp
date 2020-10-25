@@ -9,20 +9,20 @@
 
 #include "astnodes.h"
 
-SymbolTable::SymbolTable(std::shared_ptr<SymbolTable> parent)
+SymbolTable::SymbolTable(SharedSymbolTable parent)
         : m_Parent(std::move(parent)), m_Table({}) {}
 
 SymbolTable::SymbolTable(const SymbolTable &other)
         : m_Parent(nullptr), m_Table(other.m_Table) {}
 
 
-void SymbolTable::insert(const std::string &id, const std::shared_ptr<ASTNode> &node) {
+void SymbolTable::insert(const std::string &id, const SharedASTNode &node) {
     auto iterator = m_Table.find(id);
     if (iterator != m_Table.end()) {
-        iterator->second.push_back(node);
+        iterator->second.emplace_back(node);
     } else {
         Symbols symbols{};
-        symbols.push_back(node);
+        symbols.emplace_back(node);
         m_Table.emplace(id, symbols);
     }
 }
@@ -52,7 +52,8 @@ std::shared_ptr<SymbolTable::Symbols> SymbolTable::scope(const std::string &id,
     for (const auto &node : nodes) {
         if (!predicate(node))
             continue;
-        newSymbols->push_back(node);
+
+        newSymbols->emplace_back(node);
     }
 
     if (newSymbols->empty())
@@ -61,7 +62,7 @@ std::shared_ptr<SymbolTable::Symbols> SymbolTable::scope(const std::string &id,
     return newSymbols;
 }
 
-const std::shared_ptr<SymbolTable> &SymbolTable::getParent() const {
+const SharedSymbolTable &SymbolTable::getParent() const {
     return m_Parent;
 }
 

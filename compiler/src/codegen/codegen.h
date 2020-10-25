@@ -28,7 +28,7 @@ class CodeGen {
             std::nullptr_t,
             BlockDetails> NodeTypes;
 
-    typedef std::unordered_map<std::shared_ptr<ASTNode>, NodeTypes> Nodes;
+    typedef std::unordered_map<SharedASTNode, NodeTypes> Nodes;
 
     typedef std::vector<Nodes> ScopedNodes;
 
@@ -43,59 +43,57 @@ private:
 
     std::shared_ptr<llvm::Module> m_Module;
 
+    std::string m_ModuleName;
+
 public:
-    CodeGen();
+    explicit CodeGen(std::string moduleName);
 
     CodeGen(const CodeGen &) = delete;
 
     CodeGen &operator=(const CodeGen &) = delete;
 
 public:
-    void visit(const std::shared_ptr<ASTNode> &node);
+    void *visit(const SharedASTNode &node);
 
-    void visit(const std::shared_ptr<RootNode> &rootNode);
+    void visit(const SharedRootNode &rootNode);
 
-    llvm::Value *visit(const std::shared_ptr<FunctionNode> &functionNode);
+    llvm::Value *visit(const SharedFunctionNode &functionNode);
 
-    llvm::Type *visit(const std::shared_ptr<TypeNode> &typeNode);
+    llvm::Type *visit(const SharedTypeNode &typeNode);
 
-    llvm::Type *visit(const std::shared_ptr<StructNode> &structNode);
+    llvm::Type *visit(const SharedStructNode &structNode);
 
-    llvm::Value *visit(const std::shared_ptr<ParameterNode> &parameterNode);
+    llvm::Value *visit(const SharedParameterNode &parameterNode);
 
-    llvm::BasicBlock *visit(const std::shared_ptr<BlockNode> &blockNode);
+    llvm::BasicBlock *visit(const SharedBlockNode &blockNode);
 
-    llvm::Value *visit(const std::shared_ptr<ReturnNode> &returnNode);
+    llvm::Value *visit(const SharedReturnNode &returnNode);
 
-    llvm::Value *visit(const std::shared_ptr<AssignmentNode> &assignmentNode);
+    llvm::Value *visit(const SharedAssignmentNode &assignmentNode);
 
-    llvm::Value *visit(const std::shared_ptr<IdentifierNode> &identifierNode);
+    llvm::Value *visit(const SharedIdentifierNode &identifierNode);
 
-    llvm::Value *visit(const std::shared_ptr<NumberNode> &numberNode);
+    llvm::Value *visit(const SharedNumberNode &numberNode);
 
-    llvm::Value *visit(const std::shared_ptr<StringNode> &stringNode);
+    llvm::Value *visit(const SharedStringNode &stringNode);
 
-    llvm::Value *visit(const std::shared_ptr<BinaryNode> &binaryNode);
+    llvm::Value *visit(const SharedBinaryNode &binaryNode);
 
-    llvm::Value *visit(const std::shared_ptr<UnaryNode> &unaryNode);
+    llvm::Value *visit(const SharedUnaryNode &unaryNode);
 
-    llvm::Value *visit(const std::shared_ptr<ParenthesizedNode> &parenthesizedNode);
+    llvm::Value *visit(const SharedParenthesizedNode &parenthesizedNode);
 
-    llvm::Value *visit(const std::shared_ptr<FunctionCallNode> &functionCallNode);
+    llvm::Value *visit(const SharedFunctionCallNode &functionCallNode);
 
-    llvm::Value *visit(const std::shared_ptr<FunctionArgumentNode> &functionArgumentNode);
+    llvm::Value *visit(const SharedFunctionArgumentNode &functionArgumentNode);
 
-    llvm::Value *visit(const std::shared_ptr<StructCreateNode> &structCreateNode);
+    llvm::Value *visit(const SharedStructCreateNode &structCreateNode);
 
-    llvm::Value *visit(const std::shared_ptr<StructArgumentNode> &structArgumentNode,
+    llvm::Value *visit(const SharedStructArgumentNode &structArgumentNode,
                        llvm::Value *structVariable,
                        int argumentIndex);
 
-    llvm::Value *visit(const std::shared_ptr<VariableNode> &variableNode);
-
-    llvm::Value *visit(const std::shared_ptr<TypedNode> &typedNode);
-
-    void setPositionAtEnd(llvm::BasicBlock *basicBlock);
+    llvm::Value *visit(const SharedVariableNode &variableNode);
 
     llvm::Value *makeAdd(bool isFloating, llvm::Value *rhs, llvm::Value *lhs);
 
@@ -119,16 +117,20 @@ public:
 
     llvm::Value *makeNE(bool isFloating, llvm::Value *rhs, llvm::Value *lhs);
 
-    bool shouldGenerateGEP(const std::shared_ptr<StructNode> &structNode, int variableIndex);
-
-    std::shared_ptr<StructCreateNode> createStructCreate(const std::shared_ptr<StructNode> &targetNode,
-                                                         const std::shared_ptr<ASTNode> &parentNode);
+    void setPositionAtEnd(llvm::BasicBlock *basicBlock);
 
     std::string dumpModule();
 
-    std::string dumpValue(llvm::Value *value);
+public:
+    static bool shouldGenerateGEP(const SharedStructNode &structNode, int variableIndex);
+
+    static SharedStructCreateNode createStructCreate(const SharedStructNode &targetNode,
+                                                     const SharedASTNode &parentNode);
+
+    static std::string dumpValue(llvm::Value *value);
 
 public:
+    [[nodiscard]]
     std::shared_ptr<llvm::Module> getModule() const;
 
 };

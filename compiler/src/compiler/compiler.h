@@ -8,9 +8,9 @@
 #include <vector>
 #include <set>
 
-class CompilerOptions;
+#include "../parser/allnodes.h"
 
-class RootNode;
+class CompilerOptions;
 
 class Parser;
 
@@ -28,7 +28,7 @@ public:
 
     static int loadImports(const CompilerOptions &root,
                            std::set<std::string> &loaded,
-                           std::vector<std::shared_ptr<RootNode>> &roots);
+                           std::vector<SharedRootNode> &roots);
 
     static std::shared_ptr<Parser> loadFile(const std::string &sourcePath);
 

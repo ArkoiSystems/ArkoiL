@@ -10,6 +10,7 @@ struct CompilerOptions {
     std::vector<std::string> m_SearchPaths;
     std::string m_SourceFile;
 
-    bool mb_VerboseModule_Verify;
+    bool mb_VerboseArkoiRepresentation;
+    bool mb_VerboseModuleVerify;
     bool mb_VerboseLLVM_IR;
 };

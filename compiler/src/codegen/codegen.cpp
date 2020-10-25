@@ -7,6 +7,7 @@
 #include "../parser/astnodes.h"
 
 #include <iostream>
+#include <utility>
 
 #include "../semantic/typeresolver.h"
 #include "../semantic/typecheck.h"
@@ -18,81 +19,83 @@
 #include "../lexer/token.h"
 #include "../utils/utils.h"
 
-CodeGen::CodeGen()
+CodeGen::CodeGen(std::string moduleName)
         : m_CurrentBlock(nullptr), m_Builder({m_Context}),
-          m_Module(nullptr) {}
+          m_Module(nullptr), m_ModuleName(std::move(moduleName)) {}
 
-void CodeGen::visit(const std::shared_ptr<ASTNode> &node) {
+void *CodeGen::visit(const SharedASTNode &node) {
     if (node->getKind() == ASTNode::ROOT) {
         CodeGen::visit(std::static_pointer_cast<RootNode>(node));
+        return nullptr;
     } else if (node->getKind() == ASTNode::FUNCTION) {
-        CodeGen::visit(std::static_pointer_cast<FunctionNode>(node));
+        return CodeGen::visit(std::static_pointer_cast<FunctionNode>(node));
     } else if (node->getKind() == ASTNode::RETURN) {
-        CodeGen::visit(std::static_pointer_cast<ReturnNode>(node));
+        return CodeGen::visit(std::static_pointer_cast<ReturnNode>(node));
     } else if (node->getKind() == ASTNode::STRUCT) {
-        CodeGen::visit(std::static_pointer_cast<StructNode>(node));
+        return CodeGen::visit(std::static_pointer_cast<StructNode>(node));
     } else if (node->getKind() == ASTNode::TYPE) {
-        CodeGen::visit(std::static_pointer_cast<TypeNode>(node));
+        return CodeGen::visit(std::static_pointer_cast<TypeNode>(node));
     } else if (node->getKind() == ASTNode::BLOCK) {
-        CodeGen::visit(std::static_pointer_cast<BlockNode>(node));
+        return CodeGen::visit(std::static_pointer_cast<BlockNode>(node));
     } else if (node->getKind() == ASTNode::NUMBER) {
-        CodeGen::visit(std::static_pointer_cast<NumberNode>(node));
+        return CodeGen::visit(std::static_pointer_cast<NumberNode>(node));
     } else if (node->getKind() == ASTNode::STRING) {
-        CodeGen::visit(std::static_pointer_cast<StringNode>(node));
+        return CodeGen::visit(std::static_pointer_cast<StringNode>(node));
     } else if (node->getKind() == ASTNode::UNARY) {
-        CodeGen::visit(std::static_pointer_cast<UnaryNode>(node));
+        return CodeGen::visit(std::static_pointer_cast<UnaryNode>(node));
     } else if (node->getKind() == ASTNode::PARAMETER) {
-        CodeGen::visit(std::static_pointer_cast<ParameterNode>(node));
+        return CodeGen::visit(std::static_pointer_cast<ParameterNode>(node));
     } else if (node->getKind() == ASTNode::FUNCTION_ARGUMENT) {
-        CodeGen::visit(std::static_pointer_cast<FunctionArgumentNode>(node));
+        return CodeGen::visit(std::static_pointer_cast<FunctionArgumentNode>(node));
     } else if (node->getKind() == ASTNode::STRUCT_ARGUMENT) {
         auto structArgumentNode = std::static_pointer_cast<StructArgumentNode>(node);
 
-        auto structCreateNode = std::static_pointer_cast<StructCreateNode>(structArgumentNode->getParent());
-        auto argumentIndex = Utils::indexOf(structCreateNode->getArguments(), structArgumentNode).second;
+        auto structCreateNode = std::static_pointer_cast<StructCreateNode>(
+                structArgumentNode->getParent());
+        auto argumentIndex = Utils::indexOf(structCreateNode->getArguments(),
+                                            structArgumentNode).second;
         auto structVariable = CodeGen::visit(structCreateNode);
 
-        CodeGen::visit(structArgumentNode, structVariable, argumentIndex);
+        return CodeGen::visit(structArgumentNode, structVariable, argumentIndex);
     } else if (node->getKind() == ASTNode::IDENTIFIER) {
         auto identifierNode = std::static_pointer_cast<IdentifierNode>(node);
 
-        std::shared_ptr<IdentifierNode> firstIdentifier = identifierNode;
+        SharedIdentifierNode firstIdentifier = identifierNode;
         while (firstIdentifier->getLastIdentifier() != nullptr)
             firstIdentifier = firstIdentifier->getLastIdentifier();
 
-        CodeGen::visit(firstIdentifier);
+        return CodeGen::visit(firstIdentifier);
     } else if (node->getKind() == ASTNode::ASSIGNMENT) {
-        CodeGen::visit(std::static_pointer_cast<AssignmentNode>(node));
+        return CodeGen::visit(std::static_pointer_cast<AssignmentNode>(node));
     } else if (node->getKind() == ASTNode::VARIABLE) {
-        CodeGen::visit(std::static_pointer_cast<VariableNode>(node));
+        return CodeGen::visit(std::static_pointer_cast<VariableNode>(node));
     } else if (node->getKind() == ASTNode::BINARY) {
-        CodeGen::visit(std::static_pointer_cast<BinaryNode>(node));
+        return CodeGen::visit(std::static_pointer_cast<BinaryNode>(node));
     } else if (node->getKind() == ASTNode::FUNCTION_CALL) {
-        CodeGen::visit(std::static_pointer_cast<FunctionCallNode>(node));
+        return CodeGen::visit(std::static_pointer_cast<FunctionCallNode>(node));
     } else if (node->getKind() == ASTNode::PARENTHESIZED) {
-        CodeGen::visit(std::static_pointer_cast<ParenthesizedNode>(node));
+        return CodeGen::visit(std::static_pointer_cast<ParenthesizedNode>(node));
     } else if (node->getKind() == ASTNode::STRUCT_CREATE) {
-        CodeGen::visit(std::static_pointer_cast<StructCreateNode>(node));
+        return CodeGen::visit(std::static_pointer_cast<StructCreateNode>(node));
     } else if (node->getKind() != ASTNode::IMPORT) {
         THROW_NODE_ERROR(node, "CodeGen: Unsupported node: " + node->getKindAsString())
         exit(EXIT_FAILURE);
     }
+
+    return nullptr;
 }
 
-void CodeGen::visit(const std::shared_ptr<RootNode> &rootNode) {
-    auto moduleName = rootNode->getSourcePath();
-    moduleName = moduleName.substr(moduleName.rfind('/') + 1, moduleName.length());
+void CodeGen::visit(const SharedRootNode &rootNode) {
+    m_Module = std::make_shared<llvm::Module>(m_ModuleName, m_Context);
 
-    m_Module = std::make_shared<llvm::Module>(moduleName, m_Context);
-
-    m_ScopedNodes.push_back(Nodes{});
+    m_ScopedNodes.emplace_back();
     defer(m_ScopedNodes.erase(m_ScopedNodes.begin() + m_ScopedNodes.size()));
 
     for (const auto &node : rootNode->getNodes())
         CodeGen::visit(node);
 }
 
-llvm::Value *CodeGen::visit(const std::shared_ptr<FunctionNode> &functionNode) {
+llvm::Value *CodeGen::visit(const SharedFunctionNode &functionNode) {
     if (functionNode->hasAnnotation("inlined")) {
         std::cout << "This should not have happened. "
                      "Report this bug with a reconstruction of it." << std::endl;
@@ -110,17 +113,19 @@ llvm::Value *CodeGen::visit(const std::shared_ptr<FunctionNode> &functionNode) {
         return std::get<llvm::Function *>(functionIterator->second);
     }
 
-    m_ScopedNodes.push_back(Nodes{});
+    m_ScopedNodes.emplace_back();
     defer(m_ScopedNodes.erase(m_ScopedNodes.begin() + m_ScopedNodes.size()));
 
     std::vector<llvm::Type *> functionParameters;
     for (auto const &parameter : functionNode->getParameters())
-        functionParameters.push_back(CodeGen::visit(parameter->getType()));
+        functionParameters.emplace_back(CodeGen::visit(parameter->getType()));
 
     auto functionType = llvm::FunctionType::get(CodeGen::visit(functionNode->getType()),
                                                 functionParameters, functionNode->isVariadic());
-    llvm::Function *functionRef = llvm::Function::Create(functionType, llvm::Function::ExternalLinkage,
-                                                         functionNode->getName()->getContent(), *m_Module);
+    llvm::Function *functionRef = llvm::Function::Create(functionType,
+                                                         llvm::Function::ExternalLinkage,
+                                                         functionNode->getName()->getContent(),
+                                                         *m_Module);
     m_ScopedNodes[0].emplace(functionNode, functionRef);
 
     if (functionNode->isNative())
@@ -130,7 +135,7 @@ llvm::Value *CodeGen::visit(const std::shared_ptr<FunctionNode> &functionNode) {
     return functionRef;
 }
 
-llvm::Type *CodeGen::visit(const std::shared_ptr<TypeNode> &typeNode) {
+llvm::Type *CodeGen::visit(const SharedTypeNode &typeNode) {
     llvm::Type *type;
     if (typeNode->isNumeric() && typeNode->isFloating()) {
         type = typeNode->getBits() == 32 ? llvm::Type::getFloatTy(m_Context)
@@ -151,7 +156,7 @@ llvm::Type *CodeGen::visit(const std::shared_ptr<TypeNode> &typeNode) {
     return type;
 }
 
-llvm::Type *CodeGen::visit(const std::shared_ptr<StructNode> &structNode) {
+llvm::Type *CodeGen::visit(const SharedStructNode &structNode) {
     auto structIterator = m_ScopedNodes[0].find(structNode);
     if (structIterator != m_ScopedNodes[0].end()) {
         if (!std::holds_alternative<llvm::StructType *>(structIterator->second)) {
@@ -168,7 +173,7 @@ llvm::Type *CodeGen::visit(const std::shared_ptr<StructNode> &structNode) {
 
     std::vector<llvm::Type *> types;
     for (auto const &variable : structNode->getVariables())
-        types.push_back(CodeGen::visit(variable->getType()));
+        types.emplace_back(CodeGen::visit(variable->getType()));
     structRef->setBody(types, false);
 
     return structRef;
@@ -176,7 +181,7 @@ llvm::Type *CodeGen::visit(const std::shared_ptr<StructNode> &structNode) {
 
 // TODO: Issue 4
 // TODO: Issue 6
-llvm::Value *CodeGen::visit(const std::shared_ptr<ParameterNode> &parameterNode) {
+llvm::Value *CodeGen::visit(const SharedParameterNode &parameterNode) {
     auto parameterIterator = m_ScopedNodes.back().find(parameterNode);
     if (parameterIterator != m_ScopedNodes.back().end()) {
         if (!std::holds_alternative<llvm::Value *>(parameterIterator->second)) {
@@ -213,7 +218,7 @@ llvm::Value *CodeGen::visit(const std::shared_ptr<ParameterNode> &parameterNode)
     return parameterVariable;
 }
 
-llvm::BasicBlock *CodeGen::visit(const std::shared_ptr<BlockNode> &blockNode) {
+llvm::BasicBlock *CodeGen::visit(const SharedBlockNode &blockNode) {
     auto blockIterator = m_ScopedNodes.back().find(blockNode);
     if (blockIterator != m_ScopedNodes.back().end()) {
         if (!std::holds_alternative<BlockDetails>(blockIterator->second)) {
@@ -246,9 +251,10 @@ llvm::BasicBlock *CodeGen::visit(const std::shared_ptr<BlockNode> &blockNode) {
     CodeGen::setPositionAtEnd(startBlock);
 
     if (functionNode == blockNode->getParent()) {
-        if (functionNode->getType()->getBits() != 0 || functionNode->getType()->getTargetStruct() != nullptr)
-            returnVariable = m_Builder.CreateAlloca(CodeGen::visit(functionNode->getType()), nullptr,
-                                                    "var_ret");
+        if (functionNode->getType()->getBits() != 0 ||
+            functionNode->getType()->getTargetStruct() != nullptr)
+            returnVariable = m_Builder.CreateAlloca(CodeGen::visit(functionNode->getType()),
+                                                    nullptr, "var_ret");
 
         returnBlock = llvm::BasicBlock::Create(m_Context, "return", functionRef);
 
@@ -286,7 +292,7 @@ llvm::BasicBlock *CodeGen::visit(const std::shared_ptr<BlockNode> &blockNode) {
     return startBlock;
 }
 
-llvm::Value *CodeGen::visit(const std::shared_ptr<ReturnNode> &returnNode) {
+llvm::Value *CodeGen::visit(const SharedReturnNode &returnNode) {
     auto functionNode = returnNode->findNodeOfParents<FunctionNode>();
 
     auto blockIterator = m_ScopedNodes.back().find(returnNode->findNodeOfParents<BlockNode>());
@@ -303,12 +309,13 @@ llvm::Value *CodeGen::visit(const std::shared_ptr<ReturnNode> &returnNode) {
     }
 
     auto blockDetails = std::get<BlockDetails>(blockIterator->second);
-    if (functionNode->getType()->getBits() == 0 && functionNode->getType()->getTargetStruct() == nullptr) {
+    if (functionNode->getType()->getBits() == 0 &&
+        functionNode->getType()->getTargetStruct() == nullptr) {
         m_Builder.CreateBr(std::get<2>(blockDetails));
 
         return llvm::UndefValue::get(llvm::Type::getVoidTy(m_Context));
     } else {
-        auto expression = CodeGen::visit(std::static_pointer_cast<TypedNode>(returnNode->getExpression()));
+        auto expression = static_cast<llvm::Value *>(CodeGen::visit(returnNode->getExpression()));
         auto returnVariable = std::get<1>(blockDetails);
 
         m_Builder.CreateStore(expression, returnVariable);
@@ -318,15 +325,15 @@ llvm::Value *CodeGen::visit(const std::shared_ptr<ReturnNode> &returnNode) {
     }
 }
 
-llvm::Value *CodeGen::visit(const std::shared_ptr<AssignmentNode> &assignmentNode) {
+llvm::Value *CodeGen::visit(const SharedAssignmentNode &assignmentNode) {
     auto variableRef = CodeGen::visit(assignmentNode->getStartIdentifier());
-    auto expression = CodeGen::visit(std::static_pointer_cast<TypedNode>(assignmentNode->getExpression()));
+    auto expression = static_cast<llvm::Value *>(CodeGen::visit(assignmentNode->getExpression()));
 
     m_Builder.CreateStore(expression, variableRef);
     return expression;
 }
 
-llvm::Value *CodeGen::visit(const std::shared_ptr<NumberNode> &numberNode) {
+llvm::Value *CodeGen::visit(const SharedNumberNode &numberNode) {
     if (!numberNode->getType()->isFloating()) {
         auto value = std::stoi(numberNode->getNumber()->getContent());
         return llvm::ConstantInt::get(CodeGen::visit(numberNode->getType()), value,
@@ -337,46 +344,50 @@ llvm::Value *CodeGen::visit(const std::shared_ptr<NumberNode> &numberNode) {
                                  numberNode->getNumber()->getContent());
 }
 
-llvm::Value *CodeGen::visit(const std::shared_ptr<StringNode> &stringNode) {
-    auto stringConstant = llvm::ConstantDataArray::getString(m_Context,
-                                                             stringNode->getString()->getContent());
+llvm::Value *CodeGen::visit(const SharedStringNode &stringNode) {
+    auto stringConstant = llvm::ConstantDataArray::getString(
+            m_Context, stringNode->getString()->getContent());
 
     auto stringVariable = new llvm::GlobalVariable(*m_Module, stringConstant->getType(), false,
-                                                   llvm::GlobalVariable::PrivateLinkage, stringConstant);
+                                                   llvm::GlobalVariable::PrivateLinkage,
+                                                   stringConstant);
 
     std::vector<llvm::Constant *> indices;
-    indices.push_back(llvm::ConstantInt::get(llvm::Type::getIntNTy(m_Context, 32), 0, true));
-    indices.push_back(llvm::ConstantInt::get(llvm::Type::getIntNTy(m_Context, 32), 0, true));
-    return llvm::ConstantExpr::getInBoundsGetElementPtr(stringConstant->getType(), stringVariable, indices);
+    indices.emplace_back(llvm::ConstantInt::get(llvm::Type::getIntNTy(m_Context, 32), 0, true));
+    indices.emplace_back(llvm::ConstantInt::get(llvm::Type::getIntNTy(m_Context, 32), 0, true));
+    return llvm::ConstantExpr::getInBoundsGetElementPtr(stringConstant->getType(), stringVariable,
+                                                        indices);
 }
 
-llvm::Value *CodeGen::visit(const std::shared_ptr<UnaryNode> &unaryNode) {
-    auto expression = CodeGen::visit(std::static_pointer_cast<TypedNode>(unaryNode->getExpression()));
+llvm::Value *CodeGen::visit(const SharedUnaryNode &unaryNode) {
+    auto expression = static_cast<llvm::Value *>(CodeGen::visit(unaryNode->getExpression()));
     if (unaryNode->getOperatorKind() == UnaryNode::NEGATE) {
         if (unaryNode->getType()->isFloating())
             return m_Builder.CreateFNeg(expression);
         return m_Builder.CreateNeg(expression);
     }
 
-    THROW_NODE_ERROR(unaryNode, "CodeGen: Unsupported unary node: " + unaryNode->getOperatorKindAsString())
+    THROW_NODE_ERROR(unaryNode, "CodeGen: Unsupported unary node: " +
+                                unaryNode->getOperatorKindAsString())
     exit(EXIT_FAILURE);
 }
 
-llvm::Value *CodeGen::visit(const std::shared_ptr<ParenthesizedNode> &parenthesizedNode) {
-    return CodeGen::visit(std::static_pointer_cast<TypedNode>(parenthesizedNode->getExpression()));
+llvm::Value *CodeGen::visit(const SharedParenthesizedNode &parenthesizedNode) {
+    return static_cast<llvm::Value *>(CodeGen::visit(parenthesizedNode->getExpression()));
 }
 
-llvm::Value *CodeGen::visit(const std::shared_ptr<IdentifierNode> &identifierNode) {
+llvm::Value *CodeGen::visit(const SharedIdentifierNode &identifierNode) {
     auto typedTarget = std::dynamic_pointer_cast<TypedNode>(identifierNode->getTargetNode());
     if (typedTarget == nullptr) {
-        THROW_NODE_ERROR(identifierNode->getTargetNode(), "Can't use a non-typed node as an identifier.")
+        THROW_NODE_ERROR(identifierNode->getTargetNode(), "Can't use a non-typed node as an "
+                                                          "identifier.")
         exit(EXIT_FAILURE);
     }
 
     if (identifierNode->getKind() == ASTNode::FUNCTION_CALL)
         typedTarget = std::static_pointer_cast<FunctionCallNode>(identifierNode);
 
-    auto targetValue = CodeGen::visit(typedTarget);
+    auto targetValue = static_cast<llvm::Value *>(CodeGen::visit(typedTarget));
     if (identifierNode->getKind() == ASTNode::FUNCTION_CALL
         && identifierNode->getNextIdentifier() != nullptr) {
         auto tempVariable = m_Builder.CreateAlloca(CodeGen::visit(identifierNode->getType()));
@@ -397,12 +408,13 @@ llvm::Value *CodeGen::visit(const std::shared_ptr<IdentifierNode> &identifierNod
     while (currentIdentifier->getNextIdentifier() != nullptr) {
         currentIdentifier = currentIdentifier->getNextIdentifier();
 
-        auto variableNode = std::dynamic_pointer_cast<VariableNode>(currentIdentifier->getTargetNode());
+        auto variableNode = std::dynamic_pointer_cast<VariableNode>(
+                currentIdentifier->getTargetNode());
         typedTarget = variableNode;
 
         if (variableNode == nullptr) {
-            THROW_NODE_ERROR(identifierNode->getTargetNode(), "Can't use a non-variable node as an sub "
-                                                              "identifier.")
+            THROW_NODE_ERROR(identifierNode->getTargetNode(), "Can't use a non-variable node as an "
+                                                              "sub identifier.")
             exit(EXIT_FAILURE);
         }
 
@@ -420,20 +432,21 @@ llvm::Value *CodeGen::visit(const std::shared_ptr<IdentifierNode> &identifierNod
         targetStruct = typedTarget->getType()->getTargetStruct();
     }
 
-    if (identifierNode->getParent()->getKind() != ASTNode::ASSIGNMENT && !currentIdentifier->isPointer())
+    if (identifierNode->getParent()->getKind() != ASTNode::ASSIGNMENT &&
+        !currentIdentifier->isPointer())
         return m_Builder.CreateLoad(targetValue);
 
     return targetValue;
 }
 
-llvm::Value *CodeGen::visit(const std::shared_ptr<BinaryNode> &binaryNode) {
+llvm::Value *CodeGen::visit(const SharedBinaryNode &binaryNode) {
     if (binaryNode->getOperatorKind() == BinaryNode::BIT_CAST) {
-        auto lhsValue = CodeGen::visit(std::static_pointer_cast<TypedNode>(binaryNode->getLHS()));
-        auto rhsValue = CodeGen::visit(std::static_pointer_cast<TypeNode>(binaryNode->getRHS()));
+        auto lhsValue = static_cast<llvm::Value *>(CodeGen::visit(binaryNode->getLHS()));
+        auto rhsValue = static_cast<llvm::Type *>(CodeGen::visit(binaryNode->getRHS()));
         return m_Builder.CreateBitCast(lhsValue, rhsValue);
     } else {
-        auto lhsValue = CodeGen::visit(std::static_pointer_cast<TypedNode>(binaryNode->getLHS()));
-        auto rhsValue = CodeGen::visit(std::static_pointer_cast<TypedNode>(binaryNode->getRHS()));
+        auto lhsValue = static_cast<llvm::Value *>(CodeGen::visit(binaryNode->getLHS()));
+        auto rhsValue = static_cast<llvm::Value *>(CodeGen::visit(binaryNode->getRHS()));
 
         auto isFloating = binaryNode->getLHS()->getType()->isFloating() ||
                           binaryNode->getRHS()->getType()->isFloating();
@@ -474,7 +487,7 @@ llvm::Value *CodeGen::visit(const std::shared_ptr<BinaryNode> &binaryNode) {
     }
 }
 
-llvm::Value *CodeGen::visit(const std::shared_ptr<FunctionCallNode> &functionCallNode) {
+llvm::Value *CodeGen::visit(const SharedFunctionCallNode &functionCallNode) {
     auto functionNode = std::static_pointer_cast<FunctionNode>(functionCallNode->getTargetNode());
     auto functionRef = CodeGen::visit(functionNode);
 
@@ -490,11 +503,11 @@ llvm::Value *CodeGen::visit(const std::shared_ptr<FunctionCallNode> &functionCal
     return m_Builder.CreateCall(functionRef, functionArguments);
 }
 
-llvm::Value *CodeGen::visit(const std::shared_ptr<FunctionArgumentNode> &functionArgumentNode) {
-    return CodeGen::visit(std::static_pointer_cast<TypedNode>(functionArgumentNode->getExpression()));
+llvm::Value *CodeGen::visit(const SharedFunctionArgumentNode &functionArgumentNode) {
+    return static_cast<llvm::Value *>(CodeGen::visit(functionArgumentNode->getExpression()));
 }
 
-llvm::Value *CodeGen::visit(const std::shared_ptr<StructCreateNode> &structCreateNode) {
+llvm::Value *CodeGen::visit(const SharedStructCreateNode &structCreateNode) {
     auto structCreateIterator = m_ScopedNodes.back().find(structCreateNode);
     if (structCreateIterator != m_ScopedNodes.back().end()) {
         if (!std::holds_alternative<llvm::Value *>(structCreateIterator->second)) {
@@ -523,7 +536,7 @@ llvm::Value *CodeGen::visit(const std::shared_ptr<StructCreateNode> &structCreat
 }
 
 // TODO: Issue 13
-llvm::Value *CodeGen::visit(const std::shared_ptr<StructArgumentNode> &structArgumentNode,
+llvm::Value *CodeGen::visit(const SharedStructArgumentNode &structArgumentNode,
                             llvm::Value *structVariable,
                             int argumentIndex) {
     auto structArgumentIterator = m_ScopedNodes.back().find(structArgumentNode);
@@ -541,7 +554,7 @@ llvm::Value *CodeGen::visit(const std::shared_ptr<StructArgumentNode> &structArg
     m_ScopedNodes.back().emplace(structArgumentNode, nullptr);
 
     if (structArgumentNode->getExpression() == nullptr &&
-            structArgumentNode->getType()->getTargetStruct() != nullptr) {
+        structArgumentNode->getType()->getTargetStruct() != nullptr) {
         auto structNode = structArgumentNode->getType()->getTargetStruct();
         auto structCreateNode = createStructCreate(structNode, structArgumentNode);
 
@@ -572,7 +585,7 @@ llvm::Value *CodeGen::visit(const std::shared_ptr<StructArgumentNode> &structArg
         }
     } else {
         auto variableGEP = m_Builder.CreateStructGEP(structVariable, argumentIndex);
-        auto expression = CodeGen::visit(std::static_pointer_cast<TypedNode>(
+        auto expression = static_cast<llvm::Value *>(CodeGen::visit(
                 structArgumentNode->getExpression()));
         m_Builder.CreateStore(expression, variableGEP);
     }
@@ -580,7 +593,7 @@ llvm::Value *CodeGen::visit(const std::shared_ptr<StructArgumentNode> &structArg
     return nullptr;
 }
 
-llvm::Value *CodeGen::visit(const std::shared_ptr<VariableNode> &variableNode) {
+llvm::Value *CodeGen::visit(const SharedVariableNode &variableNode) {
     if (variableNode->isGlobal()) {
         auto variableIterator = m_ScopedNodes[0].find(variableNode);
         if (variableIterator != m_ScopedNodes[0].end()) {
@@ -593,7 +606,8 @@ llvm::Value *CodeGen::visit(const std::shared_ptr<VariableNode> &variableNode) {
             return m_Builder.CreateLoad(std::get<llvm::Value *>(variableIterator->second));
         }
 
-        auto globalVariable = new llvm::GlobalVariable(*m_Module, CodeGen::visit(variableNode->getType()),
+        auto globalVariable = new llvm::GlobalVariable(*m_Module,
+                                                       CodeGen::visit(variableNode->getType()),
                                                        false, llvm::GlobalVariable::PrivateLinkage,
                                                        nullptr);
         m_ScopedNodes[0].emplace(variableNode, globalVariable);
@@ -617,7 +631,7 @@ llvm::Value *CodeGen::visit(const std::shared_ptr<VariableNode> &variableNode) {
 
         bool createVariable = variableNode->isAccessed();
         if (createVariable && variableNode->getExpression() != nullptr) {
-            valueRef = CodeGen::visit(std::static_pointer_cast<TypedNode>(variableNode->getExpression()));
+            valueRef = static_cast<llvm::Value *>(CodeGen::visit(variableNode->getExpression()));
 
             auto instruction = reinterpret_cast<llvm::Instruction *>(valueRef);
             createVariable = instruction->getOpcode() != llvm::Instruction::Alloca;
@@ -644,62 +658,6 @@ llvm::Value *CodeGen::visit(const std::shared_ptr<VariableNode> &variableNode) {
 
     THROW_NODE_ERROR(variableNode, "Couldn't create this variable because it isn't local/global.")
     exit(EXIT_FAILURE);
-}
-
-llvm::Value *CodeGen::visit(const std::shared_ptr<TypedNode> &typedNode) {
-    if (typedNode->getKind() == ASTNode::FUNCTION_ARGUMENT) {
-        return CodeGen::visit(std::static_pointer_cast<FunctionArgumentNode>(typedNode));
-    } else if (typedNode->getKind() == ASTNode::ASSIGNMENT) {
-        return CodeGen::visit(std::static_pointer_cast<AssignmentNode>(typedNode));
-    } else if (typedNode->getKind() == ASTNode::BINARY) {
-        return CodeGen::visit(std::static_pointer_cast<BinaryNode>(typedNode));
-    } else if (typedNode->getKind() == ASTNode::FUNCTION) {
-        return CodeGen::visit(std::static_pointer_cast<FunctionNode>(typedNode));
-    } else if (typedNode->getKind() == ASTNode::FUNCTION_CALL) {
-        return CodeGen::visit(std::static_pointer_cast<FunctionCallNode>(typedNode));
-    } else if (typedNode->getKind() == ASTNode::IDENTIFIER) {
-        auto identifierNode = std::static_pointer_cast<IdentifierNode>(typedNode);
-
-        std::shared_ptr<IdentifierNode> firstIdentifier = identifierNode;
-        while (firstIdentifier->getLastIdentifier() != nullptr)
-            firstIdentifier = firstIdentifier->getLastIdentifier();
-
-        return CodeGen::visit(firstIdentifier);
-    } else if (typedNode->getKind() == ASTNode::NUMBER) {
-        return CodeGen::visit(std::static_pointer_cast<NumberNode>(typedNode));
-    } else if (typedNode->getKind() == ASTNode::PARAMETER) {
-        return CodeGen::visit(std::static_pointer_cast<ParameterNode>(typedNode));
-    } else if (typedNode->getKind() == ASTNode::PARENTHESIZED) {
-        return CodeGen::visit(std::static_pointer_cast<ParenthesizedNode>(typedNode));
-    } else if (typedNode->getKind() == ASTNode::RETURN) {
-        return CodeGen::visit(std::static_pointer_cast<ReturnNode>(typedNode));
-    } else if (typedNode->getKind() == ASTNode::STRING) {
-        return CodeGen::visit(std::static_pointer_cast<StringNode>(typedNode));
-    } else if (typedNode->getKind() == ASTNode::STRUCT) {
-        return llvm::UndefValue::get(CodeGen::visit(std::static_pointer_cast<StructNode>(typedNode)));
-    } else if (typedNode->getKind() == ASTNode::STRUCT_CREATE) {
-        return CodeGen::visit(std::static_pointer_cast<StructCreateNode>(typedNode));
-    } else if (typedNode->getKind() == ASTNode::UNARY) {
-        return CodeGen::visit(std::static_pointer_cast<UnaryNode>(typedNode));
-    } else if (typedNode->getKind() == ASTNode::VARIABLE) {
-        return CodeGen::visit(std::static_pointer_cast<VariableNode>(typedNode));
-    } else if (typedNode->getKind() == ASTNode::STRUCT_ARGUMENT) {
-        auto structArgumentNode = std::static_pointer_cast<StructArgumentNode>(typedNode);
-
-        auto structCreateNode = std::static_pointer_cast<StructCreateNode>(structArgumentNode->getParent());
-        auto argumentIndex = Utils::indexOf(structCreateNode->getArguments(), structArgumentNode).second;
-        auto structVariable = CodeGen::visit(structCreateNode);
-
-        return CodeGen::visit(structArgumentNode, structVariable, argumentIndex);
-    }
-
-    THROW_NODE_ERROR(typedNode, "Unsupported typed node: " + typedNode->getKindAsString())
-    exit(EXIT_FAILURE);
-}
-
-void CodeGen::setPositionAtEnd(llvm::BasicBlock *basicBlock) {
-    m_Builder.SetInsertPoint(basicBlock);
-    m_CurrentBlock = basicBlock;
 }
 
 llvm::Value *CodeGen::makeAdd(bool isFloating, llvm::Value *rhs, llvm::Value *lhs) {
@@ -780,9 +738,27 @@ llvm::Value *CodeGen::makeNE(bool isFloating, llvm::Value *rhs, llvm::Value *lhs
     return m_Builder.CreateICmpNE(lhs, rhs);
 }
 
-bool CodeGen::shouldGenerateGEP(const std::shared_ptr<StructNode> &structNode, int variableIndex) {
+void CodeGen::setPositionAtEnd(llvm::BasicBlock *basicBlock) {
+    m_Builder.SetInsertPoint(basicBlock);
+    m_CurrentBlock = basicBlock;
+}
+
+std::string CodeGen::dumpModule() {
+    std::string dumpedCode;
+    llvm::raw_string_ostream output(dumpedCode);
+    output << *m_Module;
+    output.flush();
+
+    Utils::ltrim(dumpedCode);
+    Utils::rtrim(dumpedCode);
+
+    return dumpedCode;
+}
+
+bool CodeGen::shouldGenerateGEP(const SharedStructNode &structNode, int variableIndex) {
     auto variableNode = structNode->getVariables()[variableIndex];
-    if (variableNode->getExpression() == nullptr && variableNode->getType()->getTargetStruct() == nullptr)
+    if (variableNode->getExpression() == nullptr &&
+        variableNode->getType()->getTargetStruct() == nullptr)
         return false;
     if (variableNode->getExpression() != nullptr)
         return true;
@@ -796,16 +772,54 @@ bool CodeGen::shouldGenerateGEP(const std::shared_ptr<StructNode> &structNode, i
     return false;
 }
 
-std::string CodeGen::dumpModule() {
-    std::string dumpedCode;
-    llvm::raw_string_ostream output(dumpedCode);
-    output << *m_Module;
-    output.flush();
+SharedStructCreateNode
+CodeGen::createStructCreate(const SharedStructNode &targetNode,
+                            const SharedASTNode &parentNode) {
+    auto identifierNode = std::make_shared<IdentifierNode>();
+    identifierNode->setStartToken(parentNode->getStartToken());
+    identifierNode->setEndToken(parentNode->getEndToken());
+    identifierNode->setScope(parentNode->getScope());
+    identifierNode->setParent(parentNode);
+    identifierNode->setIdentifier(std::make_shared<Token>(*targetNode->getName()));
 
-    Utils::ltrim(dumpedCode);
-    Utils::rtrim(dumpedCode);
+    auto structCreateNode = std::make_shared<StructCreateNode>();
+    structCreateNode->setStartToken(parentNode->getStartToken());
+    structCreateNode->setScope(std::make_shared<SymbolTable>(parentNode->getScope()));
+    structCreateNode->setIdentifier(identifierNode);
+    structCreateNode->setParent(parentNode);
+    structCreateNode->setUnnamed(true);
+    structCreateNode->setEndToken(parentNode->getEndToken());
 
-    return dumpedCode;
+    for (auto index = 0ul; index < targetNode->getVariables().size(); index++) {
+        auto variable = targetNode->getVariables().at(index);
+        if (variable->getName()->getContent() == "_")
+            continue;
+
+        auto argument = std::make_shared<StructArgumentNode>();
+        argument->setStartToken(variable->getStartToken());
+        argument->setParent(structCreateNode);
+        argument->setScope(structCreateNode->getScope());
+        argument->setName(variable->getName());
+        argument->setDontCopy(true);
+
+        if (variable->getExpression() != nullptr)
+            argument->setExpression(SharedOperableNode(variable->getExpression()->clone(
+                    argument, argument->getScope())));
+
+        argument->setEndToken(variable->getEndToken());
+        argument->getScope()->insert(argument->getName()->getContent(), argument);
+        argument->setType(variable->getType());
+
+        structCreateNode->insertArgument(std::min(structCreateNode->getArguments().size(), index),
+                                         argument);
+    }
+
+    TypeResolver::visit(structCreateNode);
+    Inliner::visit(structCreateNode);
+    TypeCheck::visit(structCreateNode);
+    ScopeCheck::visit(structCreateNode);
+
+    return structCreateNode;
 }
 
 std::string CodeGen::dumpValue(llvm::Value *value) {
@@ -822,54 +836,4 @@ std::string CodeGen::dumpValue(llvm::Value *value) {
 
 std::shared_ptr<llvm::Module> CodeGen::getModule() const {
     return m_Module;
-}
-
-std::shared_ptr<StructCreateNode>
-CodeGen::createStructCreate(const std::shared_ptr<StructNode> &targetNode,
-                            const std::shared_ptr<ASTNode> &parentNode) {
-    auto identifierNode = std::make_shared<IdentifierNode>();
-    identifierNode->setStartToken(parentNode->getStartToken());
-    identifierNode->setEndToken(parentNode->getEndToken());
-    identifierNode->setScope(parentNode->getScope());
-    identifierNode->setParent(parentNode);
-    identifierNode->setIdentifier(std::make_shared<Token>(*targetNode->getName()));
-
-    auto structCreateNode = std::make_shared<StructCreateNode>();
-    structCreateNode->setStartToken(parentNode->getStartToken());
-    structCreateNode->setScope(std::make_shared<SymbolTable>(parentNode->getScope()));
-    structCreateNode->setIdentifier(identifierNode);
-    structCreateNode->setParent(parentNode);
-    structCreateNode->setUnnamed(true);
-    structCreateNode->setEndToken(parentNode->getEndToken());
-
-    for (auto index = 0; index < targetNode->getVariables().size(); index++) {
-        auto variable = targetNode->getVariables().at(index);
-        if (variable->getName()->getContent() == "_")
-            continue;
-
-        auto argument = std::make_shared<StructArgumentNode>();
-        argument->setStartToken(variable->getStartToken());
-        argument->setParent(structCreateNode);
-        argument->setScope(structCreateNode->getScope());
-        argument->setName(variable->getName());
-        argument->setDontCopy(true);
-
-        if (variable->getExpression() != nullptr)
-            argument->setExpression(std::shared_ptr<OperableNode>(variable->getExpression()->clone(
-                    argument, argument->getScope())));
-
-        argument->setEndToken(variable->getEndToken());
-        argument->getScope()->insert(argument->getName()->getContent(), argument);
-        argument->setType(variable->getType());
-
-        structCreateNode->insertArgument(index, argument);
-    }
-
-    TypeResolver::visit(structCreateNode);
-    Inliner inliner;
-    inliner.visit(structCreateNode);
-    TypeCheck::visit(structCreateNode);
-    ScopeCheck::visit(structCreateNode);
-
-    return structCreateNode;
 }

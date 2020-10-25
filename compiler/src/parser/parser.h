@@ -9,41 +9,11 @@
 #include <memory>
 #include <set>
 
-class Token;
-
-class ASTNode;
-
-class RootNode;
-
-class ImportNode;
-
-class FunctionNode;
-
-class ParameterNode;
-
-class TypeNode;
-
-class BlockNode;
-
-class VariableNode;
-
-class OperableNode;
-
-class IdentifierNode;
-
-class ReturnNode;
-
-class StructNode;
-
-class FunctionArgumentNode;
+#include "allnodes.h"
 
 class SymbolTable;
 
-class TypedNode;
-
-class FunctionCallNode;
-
-class StructCreateNode;
+class Token;
 
 class Parser {
 
@@ -61,47 +31,47 @@ public:
     Parser &operator=(const Parser &) = delete;
 
 public:
-    std::shared_ptr<RootNode> parseRoot();
+    SharedRootNode parseRoot();
 
 private:
-    std::shared_ptr<ImportNode> parseImport(const std::shared_ptr<ASTNode> &parent);
+    SharedImportNode parseImport(const SharedASTNode &parent);
 
-    std::shared_ptr<FunctionNode> parseFunction(const std::set<std::string> &annotations,
-                                                const std::shared_ptr<ASTNode> &parent);
+    SharedFunctionNode parseFunction(const std::set<std::string> &annotations,
+                                     const SharedASTNode &parent);
 
-    std::shared_ptr<ParameterNode> parseParameter(const std::shared_ptr<ASTNode> &parent);
+    SharedParameterNode parseParameter(const SharedASTNode &parent);
 
-    std::shared_ptr<TypeNode> parseType(const std::shared_ptr<ASTNode> &parent);
+    SharedTypeNode parseType(const SharedASTNode &parent);
 
-    std::shared_ptr<BlockNode> parseBlock(const std::shared_ptr<ASTNode> &parent,
-                                          const std::shared_ptr<SymbolTable>& scope);
+    SharedBlockNode parseBlock(const SharedASTNode &parent,
+                               const SharedSymbolTable &scope);
 
-    std::shared_ptr<VariableNode> parseVariable(const std::shared_ptr<ASTNode> &parent,
-                                                const std::shared_ptr<SymbolTable>& scope);
+    SharedVariableNode parseVariable(const SharedASTNode &parent,
+                                     const SharedSymbolTable &scope);
 
-    std::shared_ptr<OperableNode> parseRelational(const std::shared_ptr<ASTNode> &parent);
+    SharedOperableNode parseRelational(const SharedASTNode &parent);
 
-    std::shared_ptr<OperableNode> parseAdditive(const std::shared_ptr<ASTNode> &parent);
+    SharedOperableNode parseAdditive(const SharedASTNode &parent);
 
-    std::shared_ptr<OperableNode> parseMultiplicative(const std::shared_ptr<ASTNode> &parent);
+    SharedOperableNode parseMultiplicative(const SharedASTNode &parent);
 
-    std::shared_ptr<OperableNode> parseCast(const std::shared_ptr<ASTNode> &parent);
+    SharedOperableNode parseCast(const SharedASTNode &parent);
 
-    std::shared_ptr<OperableNode> parseOperable(const std::shared_ptr<ASTNode> &parent);
+    SharedOperableNode parseOperable(const SharedASTNode &parent);
 
-    std::shared_ptr<OperableNode> parseIdentifier(const std::shared_ptr<ASTNode> &parent);
+    SharedOperableNode parseIdentifier(const SharedASTNode &parent);
 
-    std::shared_ptr<ReturnNode> parseReturn(const std::shared_ptr<ASTNode> &parent);
+    SharedReturnNode parseReturn(const SharedASTNode &parent);
 
-    std::shared_ptr<StructNode> parseStruct(const std::shared_ptr<ASTNode> &parent);
+    SharedStructNode parseStruct(const SharedASTNode &parent);
 
-    std::set<std::string> parseAnnotations(const std::shared_ptr<ASTNode> &parent);
+    std::set<std::string> parseAnnotations(const SharedASTNode &parent);
 
-    void parseFunctionArguments(std::shared_ptr<FunctionCallNode> &functionCallNode,
-                                const std::shared_ptr<ASTNode> &parent);
+    void parseFunctionArguments(SharedFunctionCallNode &functionCallNode,
+                                const SharedASTNode &parent);
 
-    void parseStructArguments(std::shared_ptr<StructCreateNode> &structCreateNode,
-                              const std::shared_ptr<ASTNode> &parent);
+    void parseStructArguments(SharedStructCreateNode &structCreateNode,
+                              const SharedASTNode &parent);
 
     std::shared_ptr<Token> peekToken(int offset, bool advance = true, bool safety = true);
 

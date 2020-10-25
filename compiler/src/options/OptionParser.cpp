@@ -14,7 +14,7 @@ void OptionParser::addArgument(const std::vector<std::string> &flags,
                                const OptionParser::OptionValue &value,
                                const std::string &help,
                                const std::function<void(const std::string&)> &callBack) {
-    m_Arguments.emplace_back(Argument{callBack, flags, value, help});
+    m_Arguments.push_back(Argument{callBack, flags, value, help});
 }
 
 void OptionParser::printHelp(std::ostream &os) {

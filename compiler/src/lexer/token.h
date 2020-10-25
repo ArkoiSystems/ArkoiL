@@ -66,8 +66,6 @@ public:
     void setType(TokenType type);
 
 public:
-    friend std::ostream &operator<<(std::ostream &out, const std::shared_ptr<Token> &token);
-
     friend bool operator==(const std::shared_ptr<Token> &token, const std::string &toCheck);
 
     friend bool operator!=(const std::shared_ptr<Token> &token, const std::string &toCheck);
