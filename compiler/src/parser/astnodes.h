@@ -140,9 +140,8 @@ public:
 
     void getImportedRoots(std::vector<SharedRootNode> &importedRoots);
 
-    std::shared_ptr<std::vector<SharedASTNode>>
-    searchWithImports(const std::string &id,
-                      const std::function<bool(const SharedASTNode &)> &predicate);
+    void searchWithImports(Symbols &symbols, const std::string &id,
+                           const std::function<bool(const SharedASTNode &)> &predicate);
 
     void addNode(const SharedASTNode &node);
 
@@ -714,6 +713,7 @@ public:
     TypeNode *clone(SharedASTNode parent,
                     SharedSymbolTable symbolTable) const override;
 
+    [[nodiscard]]
     bool isVoid() const;
 
     [[nodiscard]]

@@ -303,21 +303,23 @@ Inliner::generate(const SharedASTNode &node, int insertIndex, const SharedASTNod
         return Inliner::generate(std::static_pointer_cast<ParenthesizedNode>(node), insertIndex,
                                  parent, scope);
     } else if (node->getKind() == ASTNode::STRUCT_CREATE) {
-        return Inliner::generate(std::static_pointer_cast<StructCreateNode>(node), parent, scope);
+        return Inliner::generate(std::static_pointer_cast<StructCreateNode>(node), insertIndex,
+                                 parent, scope);
     } else if (node->getKind() == ASTNode::STRUCT_ARGUMENT) {
-        return Inliner::generate(std::static_pointer_cast<StructArgumentNode>(node), parent, scope);
+        return Inliner::generate(std::static_pointer_cast<StructArgumentNode>(node), insertIndex,
+                                 parent, scope);
     } else if (node->getKind() == ASTNode::FUNCTION_ARGUMENT) {
         return Inliner::generate(std::static_pointer_cast<FunctionArgumentNode>(node), insertIndex,
-                                 parent, scope);
-    } else if (node->getKind() == ASTNode::FUNCTION_CALL) {
-        return Inliner::generate(std::static_pointer_cast<FunctionCallNode>(node), insertIndex,
                                  parent, scope);
     } else if (node->getKind() == ASTNode::ASSIGNMENT) {
         return Inliner::generate(std::static_pointer_cast<AssignmentNode>(node), insertIndex,
                                  parent, scope);
-    } else if (node->getKind() == ASTNode::IDENTIFIER) {
-        return Inliner::generate(std::static_pointer_cast<IdentifierNode>(node), insertIndex,
-                                 parent, scope);
+    } else if (auto identifierNode = std::dynamic_pointer_cast<IdentifierNode>(node)) {
+        auto firstIdentifier = identifierNode;
+        while (firstIdentifier->getLastIdentifier() != nullptr)
+            firstIdentifier = firstIdentifier->getLastIdentifier();
+
+        return Inliner::generate(firstIdentifier, insertIndex, parent, scope);
     } else if (node->getKind() == ASTNode::RETURN) {
         return Inliner::generate(std::static_pointer_cast<ReturnNode>(node), insertIndex, parent,
                                  scope);
@@ -325,6 +327,8 @@ Inliner::generate(const SharedASTNode &node, int insertIndex, const SharedASTNod
         return Inliner::generate(std::static_pointer_cast<StringNode>(node), parent, scope);
     } else if (node->getKind() == ASTNode::NUMBER) {
         return Inliner::generate(std::static_pointer_cast<NumberNode>(node), parent, scope);
+    } else if (node->getKind() == ASTNode::TYPE) {
+        return Inliner::generate(std::static_pointer_cast<TypeNode>(node), parent, scope);
     } else {
         THROW_NODE_ERROR(node, "Inliner: Unsupported node: " + node->getKindAsString())
         exit(EXIT_FAILURE);
@@ -427,27 +431,110 @@ Inliner::generate(const SharedParenthesizedNode &parenthesizedNode, int insertIn
 }
 
 SharedStructCreateNode
-Inliner::generate(const SharedStructCreateNode &structCreateNode, const SharedASTNode &parent,
-                  const SharedSymbolTable &scope) {
-    return nullptr;
+Inliner::generate(const SharedStructCreateNode &structCreateNode, int insertIndex,
+                  const SharedASTNode &parent, const SharedSymbolTable &scope) {
+    auto generatedNode = std::make_shared<StructCreateNode>();
+    generatedNode->setStartToken(parent->getStartToken());
+    generatedNode->setEndToken(parent->getEndToken());
+    generatedNode->setParent(parent);
+    generatedNode->setScope(std::make_shared<SymbolTable>(scope));
+
+    generatedNode->setUnnamed(structCreateNode->isUnnamed());
+
+    auto targetStruct = structCreateNode->getType()->getTargetStruct();
+    auto identifierNode = std::make_shared<IdentifierNode>();
+    identifierNode->setStartToken(generatedNode->getStartToken());
+    identifierNode->setEndToken(generatedNode->getEndToken());
+    identifierNode->setScope(parent->getScope());
+    identifierNode->setParent(parent);
+    identifierNode->setIdentifier(std::make_shared<Token>(*targetStruct->getName()));
+    generatedNode->setIdentifier(identifierNode);
+
+    for (auto index = 0ul; index < targetStruct->getVariables().size(); index++) {
+        auto variable = targetStruct->getVariables().at(index);
+        if (variable->getName()->getContent() == "_")
+            continue;
+
+        SharedStructArgumentNode foundArgument;
+        for (auto const &argument : structCreateNode->getArguments()) {
+            if (argument->getName()->getContent() == "_")
+                continue;
+            if (argument->getName()->getContent() != variable->getName()->getContent())
+                continue;
+
+            foundArgument = argument;
+            break;
+        }
+
+        if (foundArgument == nullptr)
+            continue;
+
+        auto argument = Inliner::generate(foundArgument, insertIndex, generatedNode,
+                                          generatedNode->getScope());
+        generatedNode->insertArgument(std::min(generatedNode->getArguments().size(), index),
+                                      argument);
+    }
+
+    return generatedNode;
 }
 
 SharedStructArgumentNode
-Inliner::generate(const SharedStructArgumentNode &structArgumentNode, const SharedASTNode &parent,
-                  const SharedSymbolTable &scope) {
-    return nullptr;
+Inliner::generate(const SharedStructArgumentNode &structArgumentNode, int insertIndex,
+                  const SharedASTNode &parent, const SharedSymbolTable &scope) {
+    auto generatedNode = std::make_shared<StructArgumentNode>();
+    generatedNode->setStartToken(parent->getStartToken());
+    generatedNode->setEndToken(parent->getEndToken());
+    generatedNode->setParent(parent);
+    generatedNode->setScope(scope);
+
+    generatedNode->setName(structArgumentNode->getName());
+    generatedNode->setDontCopy(true);
+    generatedNode->setExpression(std::dynamic_pointer_cast<OperableNode>(Inliner::generate(
+            structArgumentNode->getExpression(), insertIndex, parent, scope)));
+
+    generatedNode->getScope()->insert(generatedNode->getName()->getContent(), generatedNode);
+
+    return generatedNode;
 }
 
 SharedFunctionArgumentNode
 Inliner::generate(const SharedFunctionArgumentNode &functionArgumentNode, int insertIndex,
                   const SharedASTNode &parent, const SharedSymbolTable &scope) {
-    return nullptr;
+    auto generatedNode = std::make_shared<FunctionArgumentNode>();
+    generatedNode->setStartToken(parent->getStartToken());
+    generatedNode->setEndToken(parent->getEndToken());
+    generatedNode->setParent(parent);
+    generatedNode->setScope(scope);
+
+    if (functionArgumentNode->getName() != nullptr)
+        generatedNode->setName(std::make_shared<Token>(*functionArgumentNode->getName()));
+    generatedNode->setExpression(std::dynamic_pointer_cast<OperableNode>(Inliner::generate(
+            functionArgumentNode->getExpression(), insertIndex, parent, scope)));
+
+    return generatedNode;
 }
 
 SharedFunctionCallNode
 Inliner::generate(const SharedFunctionCallNode &functionCallNode, int insertIndex,
                   const SharedASTNode &parent, const SharedSymbolTable &scope) {
-    return nullptr;
+    auto generatedNode = std::make_shared<FunctionCallNode>();
+    generatedNode->setStartToken(parent->getStartToken());
+    generatedNode->setEndToken(parent->getEndToken());
+    generatedNode->setParent(parent);
+    generatedNode->setScope(scope);
+
+    generatedNode->setIdentifier(std::make_shared<Token>(*functionCallNode->getIdentifier()));
+    generatedNode->setDereference(functionCallNode->isDereference());
+    generatedNode->setPointer(functionCallNode->isPointer());
+
+    for (auto const &argument : functionCallNode->getArguments())
+        generatedNode->addArgument(Inliner::generate(argument, insertIndex, parent, scope));
+
+    if (functionCallNode->getNextIdentifier() != nullptr)
+        generatedNode->setNextIdentifier(Inliner::generate(functionCallNode->getNextIdentifier(),
+                                                           insertIndex, parent, scope));
+
+    return generatedNode;
 }
 
 SharedAssignmentNode
@@ -459,7 +546,27 @@ Inliner::generate(const SharedAssignmentNode &assignmentNode, int insertIndex,
 SharedIdentifierNode
 Inliner::generate(const SharedIdentifierNode &identifierNode, int insertIndex,
                   const SharedASTNode &parent, const SharedSymbolTable &scope) {
-    return nullptr;
+    if (identifierNode->getKind() == ASTNode::FUNCTION_CALL)
+        return Inliner::generate(std::static_pointer_cast<FunctionCallNode>(identifierNode),
+                                 insertIndex, parent, scope);
+
+    auto generatedNode = std::make_shared<IdentifierNode>();
+    generatedNode->setStartToken(parent->getStartToken());
+    generatedNode->setEndToken(parent->getEndToken());
+    generatedNode->setParent(parent);
+    generatedNode->setScope(scope);
+
+    std::string identifierName;
+    if (identifierNode->getTargetNode()->getKind() == ASTNode::VARIABLE) {
+        auto variableNode = std::static_pointer_cast<VariableNode>(identifierNode->getTargetNode());
+        identifierName = std::to_string(insertIndex) + "#"
+                         + identifierNode->getIdentifier()->getContent();
+    } else identifierName = identifierNode->getIdentifier()->getContent();
+
+    generatedNode->setIdentifier(std::make_shared<Token>(*identifierNode->getIdentifier()));
+    generatedNode->getIdentifier()->setContent(identifierName);
+
+    return generatedNode;
 }
 
 SharedReturnNode
@@ -480,6 +587,24 @@ Inliner::generate(const SharedNumberNode &numberNode, const SharedASTNode &paren
     return SharedNumberNode(numberNode->clone(parent, scope));
 }
 
+SharedTypeNode Inliner::generate(const SharedTypeNode &typeNode, const SharedASTNode &parent,
+                                 const SharedSymbolTable &scope) {
+    auto generatedNode = std::make_shared<TypeNode>();
+    generatedNode->setStartToken(parent->getStartToken());
+    generatedNode->setEndToken(parent->getEndToken());
+    generatedNode->setParent(parent);
+    generatedNode->setScope(scope);
+
+    if (typeNode->getTypeToken() != nullptr)
+        generatedNode->setTypeToken(std::make_shared<Token>(*typeNode->getTypeToken()));
+    generatedNode->setPointerLevel(typeNode->getPointerLevel());
+    generatedNode->setFloating(typeNode->isFloating());
+    generatedNode->setSigned(typeNode->isSigned());
+    generatedNode->setBits(typeNode->getBits());
+
+    return generatedNode;
+}
+
 SharedVariableNode
 Inliner::inlineFunctionCall(const SharedFunctionNode &targetFunction,
                             const SharedFunctionCallNode &functionCallNode,
@@ -494,8 +619,8 @@ Inliner::inlineFunctionCall(const SharedFunctionNode &targetFunction,
         variableNode->setScope(insertBlock->getScope());
         variableNode->setConstant(false);
 
-        auto uniqueName = std::to_string(insertIndex) + "#"
-                          + functionCallNode->getIdentifier()->getContent();
+        // CREATE A BETTER UNIQUE NAME
+        auto uniqueName = std::to_string(insertIndex) + "#return";
         variableNode->setName(std::make_shared<Token>());
         variableNode->getName()->setContent(uniqueName);
         variableNode->getName()->setLineNumber(functionCallNode->getIdentifier()->getLineNumber());
@@ -512,6 +637,10 @@ Inliner::inlineFunctionCall(const SharedFunctionNode &targetFunction,
     }
 
     auto copiedNodes(targetFunction->getBlock()->getNodes());
+    std::vector<SharedASTNode> generatedNodes;
+    if (variableNode != nullptr)
+        generatedNodes.push_back(variableNode);
+
     for (const auto &node : copiedNodes) {
         auto generatedNode = Inliner::generate(node, insertIndex, insertBlock,
                                                insertBlock->getScope());
@@ -520,11 +649,16 @@ Inliner::inlineFunctionCall(const SharedFunctionNode &targetFunction,
             continue;
         }
 
-        insertBlock->insertNode(generatedNode, insertIndex);
+        generatedNodes.push_back(generatedNode);
     }
 
-    if (variableNode != nullptr)
-        insertBlock->insertNode(variableNode, insertIndex);
+    std::reverse(generatedNodes.begin(), generatedNodes.end());
+    for (const auto &node : generatedNodes) {
+        insertBlock->insertNode(node, insertIndex);
+
+        TypeResolver::visit(node);
+        Inliner::visit(node);
+    }
 
     if (functionCallNode->getType()->isVoid()) {
         if (functionCallNode->getParent()->getKind() != ASTNode::BLOCK) {
@@ -534,7 +668,7 @@ Inliner::inlineFunctionCall(const SharedFunctionNode &targetFunction,
         }
 
         insertBlock->removeNode(functionCallNode);
-    }bt
+    }
 
     return variableNode;
 }

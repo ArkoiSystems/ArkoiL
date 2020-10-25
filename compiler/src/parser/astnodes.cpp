@@ -291,25 +291,19 @@ void RootNode::getImportedRoots(std::vector<SharedRootNode> &importedRoots) {
     }
 }
 
-std::shared_ptr<std::vector<SharedASTNode>>
-RootNode::searchWithImports(const std::string &id,
-                            const std::function<bool(const SharedASTNode &)> &predicate) {
-    auto foundNodes = std::make_shared<std::vector<SharedASTNode>>();
-
-    auto currentFounds = getScope()->scope(id, predicate);
-    if (currentFounds != nullptr && !currentFounds->empty())
-        foundNodes->insert(foundNodes->end(), currentFounds->begin(), currentFounds->end());
+void RootNode::searchWithImports(Symbols &symbols, const std::string &id,
+                                 const std::function<bool(const SharedASTNode &)> &predicate) {
+    getScope()->scope(symbols, id, predicate);
 
     auto importedRoots = getImportedRoots();
     for (const auto &importedRoot : importedRoots) {
-        auto importedFounds = importedRoot->getScope()->scope(id, predicate);
-        if (importedFounds == nullptr || importedFounds->empty())
+        Symbols importSymbols;
+        importedRoot->getScope()->scope(importSymbols, id, predicate);
+        if (importSymbols.empty())
             continue;
 
-        foundNodes->insert(foundNodes->end(), importedFounds->begin(), importedFounds->end());
+        symbols.insert(symbols.end(), importSymbols.begin(), importSymbols.end());
     }
-
-    return foundNodes;
 }
 
 const std::vector<SharedASTNode> &RootNode::getNodes() const {
@@ -1394,12 +1388,13 @@ bool FunctionCallNode::getSortedArguments(const SharedFunctionNode &functionNode
         if (argument->getName() == nullptr)
             continue;
 
-        auto foundParameters = functionNode->getScope()->scope(argument->getName()->getContent(),
-                                                               scopeCheck);
-        if (foundParameters == nullptr)
+        Symbols foundParameters;
+        functionNode->getScope()->scope(foundParameters, argument->getName()->getContent(),
+                                        scopeCheck);
+        if (foundParameters.empty())
             return false;
 
-        auto foundParameter = std::static_pointer_cast<ParameterNode>(foundParameters->at(0));
+        auto foundParameter = std::static_pointer_cast<ParameterNode>(foundParameters[0]);
         auto parameterIndex = Utils::indexOf(functionNode->getParameters(), foundParameter).second;
         auto argumentIndex = Utils::indexOf(sortedArguments, argument).second;
         sortedArguments.erase(sortedArguments.begin() + argumentIndex);

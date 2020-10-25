@@ -13,7 +13,7 @@
 
 class SymbolTable {
 
-    typedef std::vector<SharedASTNode> Symbols;
+private:
     typedef std::unordered_map<std::string, Symbols> Table;
     typedef std::function<bool(const SharedASTNode &)> Predicate;
 
@@ -29,11 +29,9 @@ public:
     SymbolTable &operator=(const SymbolTable &) = delete;
 
 public:
-    std::shared_ptr<SymbolTable::Symbols> all(const std::string &id,
-                                              const SymbolTable::Predicate &predicate);
+    void all(Symbols &symbols, const std::string &id, const SymbolTable::Predicate &predicate);
 
-    std::shared_ptr<SymbolTable::Symbols> scope(const std::string &id,
-                                                const SymbolTable::Predicate &predicate);
+    void scope(Symbols &symbols, const std::string &id, const SymbolTable::Predicate &predicate);
 
     void insert(const std::string &id, const SharedASTNode &node);
 

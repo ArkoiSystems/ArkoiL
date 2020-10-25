@@ -75,12 +75,12 @@ public:
              const SharedASTNode &parent, const SharedSymbolTable &scope);
 
     static SharedStructCreateNode
-    generate(const SharedStructCreateNode &structCreateNode, const SharedASTNode &parent,
-             const SharedSymbolTable &scope);
+    generate(const SharedStructCreateNode &structCreateNode, int insertIndex,
+             const SharedASTNode &parent, const SharedSymbolTable &scope);
 
     static SharedStructArgumentNode
-    generate(const SharedStructArgumentNode &structArgumentNode, const SharedASTNode &parent,
-             const SharedSymbolTable &scope);
+    generate(const SharedStructArgumentNode &structArgumentNode, int insertIndex,
+             const SharedASTNode &parent, const SharedSymbolTable &scope);
 
     static SharedFunctionArgumentNode
     generate(const SharedFunctionArgumentNode &functionArgumentNode, int insertIndex,
@@ -108,6 +108,10 @@ public:
 
     static SharedNumberNode
     generate(const SharedNumberNode &numberNode, const SharedASTNode &parent,
+             const SharedSymbolTable &scope);
+
+    static SharedTypeNode
+    generate(const SharedTypeNode &typeNode, const SharedASTNode &parent,
              const SharedSymbolTable &scope);
 
     static SharedVariableNode

@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include <vector>
+
 class ASTNode;
 
 typedef std::shared_ptr<ASTNode> SharedASTNode;
@@ -99,3 +101,5 @@ typedef std::shared_ptr<OperableNode> SharedOperableNode;
 class SymbolTable;
 
 typedef std::shared_ptr<SymbolTable> SharedSymbolTable;
+
+typedef std::vector<SharedASTNode> Symbols;

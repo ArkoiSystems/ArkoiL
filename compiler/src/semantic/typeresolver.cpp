@@ -189,13 +189,14 @@ void TypeResolver::visit(const SharedIdentifierNode &identifierNode) {
     if (identifierNode->isTypeResolved())
         return;
 
-    std::shared_ptr<std::vector<SharedASTNode>> nodes;
+    Symbols foundNodes;
     if (identifierNode->getParent()->getKind() == ASTNode::STRUCT_CREATE) {
         auto scopeCheck = [](const SharedASTNode &node) {
             return node->getKind() == ASTNode::STRUCT;
         };
-        nodes = identifierNode->findNodeOfParents<RootNode>()->searchWithImports(
-                identifierNode->getIdentifier()->getContent(), scopeCheck);
+
+        identifierNode->findNodeOfParents<RootNode>()->searchWithImports(
+                foundNodes, identifierNode->getIdentifier()->getContent(), scopeCheck);
     } else if (identifierNode->getKind() == ASTNode::FUNCTION_CALL) {
         auto scopeCheck = [identifierNode](const SharedASTNode &node) {
             if (node->getKind() != ASTNode::FUNCTION)
@@ -230,29 +231,32 @@ void TypeResolver::visit(const SharedIdentifierNode &identifierNode) {
 
             return true;
         };
-        nodes = identifierNode->findNodeOfParents<RootNode>()->searchWithImports(
-                identifierNode->getIdentifier()->getContent(), scopeCheck);
+
+        identifierNode->findNodeOfParents<RootNode>()->searchWithImports(
+                foundNodes, identifierNode->getIdentifier()->getContent(), scopeCheck);
     } else {
         auto scopeCheck = [](const SharedASTNode &node) {
             return node->getKind() == ASTNode::VARIABLE || node->getKind() == ASTNode::PARAMETER ||
                    node->getKind() == ASTNode::FUNCTION_ARGUMENT ||
                    node->getKind() == ASTNode::STRUCT_ARGUMENT;
         };
-        nodes = identifierNode->getScope()->all(identifierNode->getIdentifier()->getContent(), scopeCheck);
 
-        if (nodes == nullptr) {
-            nodes = identifierNode->findNodeOfParents<RootNode>()->searchWithImports(
-                    identifierNode->getIdentifier()->getContent(), scopeCheck);
+        identifierNode->getScope()->all(foundNodes, identifierNode->getIdentifier()->getContent(),
+                                        scopeCheck);
+
+        if (foundNodes.empty()) {
+            identifierNode->findNodeOfParents<RootNode>()->searchWithImports(
+                    foundNodes, identifierNode->getIdentifier()->getContent(), scopeCheck);
         }
     }
 
-    if (nodes == nullptr || nodes->empty()) {
+    if (foundNodes.empty()) {
         THROW_NODE_ERROR(identifierNode, "Couldn't find the identifier \"{}\".",
                          identifierNode->getIdentifier()->getContent())
         return;
     }
 
-    auto targetNode = nodes->at(0);
+    auto targetNode = foundNodes[0];
     TypeResolver::visit(targetNode);
 
     // TODO: See if this is necessary
@@ -339,8 +343,8 @@ void TypeResolver::visit(const SharedFunctionArgumentNode &functionArgumentNode)
 
                 auto argumentIndex = Utils::indexOf(sortedArguments, functionArgumentNode).second;
                 if (argumentIndex == -1) {
-                    THROW_NODE_ERROR(structCreate,
-                                     "Couldn't find the argument index for the function call.")
+                    THROW_NODE_ERROR(structCreate, "Couldn't find the argument index for the "
+                                                   "function call.")
                     exit(EXIT_FAILURE);
                 }
 
@@ -438,15 +442,14 @@ void TypeResolver::visit(const SharedStructCreateNode &structCreateNode) {
         auto typedNode = std::dynamic_pointer_cast<TypedNode>(structCreateNode->getParent());
 
         if (typedNode == nullptr) {
-            THROW_NODE_ERROR(structCreateNode,
-                             "Can't create an unnamed struct, because there is no type "
-                             "defined by a function/argument or variable.")
+            THROW_NODE_ERROR(structCreateNode, "Can't create an unnamed struct, because there is "
+                                               "no type defined by a function/argument or variable.")
             exit(EXIT_FAILURE);
         }
 
         if (typedNode->getType() == nullptr || typedNode->getType()->getTargetStruct() == nullptr) {
-            THROW_NODE_ERROR(typedNode, "Can't create an unnamed struct because the type is not resolved "
-                                        "yet.")
+            THROW_NODE_ERROR(typedNode, "Can't create an unnamed struct because the type is not "
+                                        "resolved yet.")
             exit(EXIT_FAILURE);
         }
 
@@ -462,12 +465,35 @@ void TypeResolver::visit(const SharedStructCreateNode &structCreateNode) {
     structCreateNode->setTargetNode(targetNode);
     structCreateNode->setType(typeNode);
 
+    for (const auto &argument : structCreateNode->getArguments()) {
+        if (argument->getName()->getContent() == "_")
+            continue;
+
+        SharedVariableNode foundVariable;
+        for (const auto &variable : targetNode->getVariables()) {
+            if (variable->getName()->getContent() == "_")
+                continue;
+            if (variable->getName()->getContent() != argument->getName()->getContent())
+                continue;
+
+            foundVariable = variable;
+            break;
+        }
+
+        if (foundVariable == nullptr) {
+            THROW_NODE_ERROR(argument, "Couldn't find a variable for the argument node.")
+            exit(EXIT_FAILURE);
+        }
+    }
+
     for (auto index = 0; index < targetNode->getVariables().size(); index++) {
         auto variable = targetNode->getVariables().at(index);
 
         SharedStructArgumentNode foundArgument;
         if (variable->getName()->getContent() != "_") {
             for (const auto &argument : structCreateNode->getArguments()) {
+                if (argument->getName()->getContent() == "_")
+                    continue;
                 if (variable->getName()->getContent() != argument->getName()->getContent())
                     continue;
 
@@ -589,15 +615,15 @@ void TypeResolver::visit(const SharedTypeNode &typeNode) {
         };
 
         auto rootNode = typeNode->findNodeOfParents<RootNode>();
-        auto foundNodes = rootNode->searchWithImports(typeNode->getTypeToken()->getContent(),
-                                                      scopeCheck);
+        Symbols foundNodes;
+        rootNode->searchWithImports(foundNodes, typeNode->getTypeToken()->getContent(), scopeCheck);
 
-        if (foundNodes->empty()) {
+        if (foundNodes.empty()) {
             THROW_NODE_ERROR(typeNode, "Couldn't find the struct for the searched identifier.")
             exit(EXIT_FAILURE);
         }
 
-        typeNode->setTargetStruct(std::static_pointer_cast<StructNode>(foundNodes->at(0)));
+        typeNode->setTargetStruct(std::static_pointer_cast<StructNode>(foundNodes[0]));
         TypeResolver::visit(typeNode->getTargetStruct());
     }
 }

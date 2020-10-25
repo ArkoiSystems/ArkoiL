@@ -27,39 +27,28 @@ void SymbolTable::insert(const std::string &id, const SharedASTNode &node) {
     }
 }
 
-std::shared_ptr<SymbolTable::Symbols> SymbolTable::all(const std::string &id,
-                                                       const SymbolTable::Predicate &predicate) {
-    auto scopeSymbols = scope(id, predicate);
-    if (scopeSymbols != nullptr)
-        return scopeSymbols;
+void SymbolTable::all(Symbols &symbols, const std::string &id,
+                      const SymbolTable::Predicate &predicate) {
+    scope(symbols, id, predicate);
+    if (!symbols.empty())
+        return;
 
     if (m_Parent != nullptr)
-        return m_Parent->all(id, predicate);
-    return nullptr;
+        return m_Parent->all(symbols, id, predicate);
 }
 
-std::shared_ptr<SymbolTable::Symbols> SymbolTable::scope(const std::string &id,
-                                                         const SymbolTable::Predicate &predicate) {
+void SymbolTable::scope(Symbols &symbols, const std::string &id,
+                        const SymbolTable::Predicate &predicate) {
     auto iterator = m_Table.find(id);
     if (iterator == m_Table.end())
-        return nullptr;
+        return;
 
-    auto nodes = iterator->second;
-    if (nodes.empty())
-        return nullptr;
-
-    auto newSymbols = std::make_shared<Symbols>();
-    for (const auto &node : nodes) {
+    for (const auto &node : iterator->second) {
         if (!predicate(node))
             continue;
 
-        newSymbols->emplace_back(node);
+        symbols.emplace_back(node);
     }
-
-    if (newSymbols->empty())
-        return nullptr;
-
-    return newSymbols;
 }
 
 const SharedSymbolTable &SymbolTable::getParent() const {

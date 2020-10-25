@@ -1,20 +1,30 @@
 struct va_list {
+    var test = 2
     var _: i32
     var _: i32
     var _: i8*
     var _: i8*
+    var test2 = 4
 }
 
 [inlined]
 fun va_start(): va_list {
-    var arg_list: va_list = { }
+    var arg_list: va_list = { test: 423 }
     llvm.va_start(&arg_list bitcast i8*)
+    test()
     return arg_list
 }
 
 [inlined]
 fun va_end(list: va_list*): void {
     llvm.va_end(&list bitcast i8*)
+}
+
+[inlined]
+fun test(): i32 {
+	var test = 1
+	return test + 1
+#	return 0
 }
 
 fun llvm.va_start(list: i8*): void

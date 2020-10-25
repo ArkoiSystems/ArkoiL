@@ -97,11 +97,11 @@ void ScopeCheck::visit(const SharedFunctionNode &functionNode) {
         return *foundFunction == *functionNode;
     };
 
+    Symbols foundNodes;
     auto rootNode = functionNode->findNodeOfParents<RootNode>();
-    auto foundNodes = rootNode->searchWithImports(functionNode->getName()->getContent(),
-                                                  scopeCheck);
+    rootNode->searchWithImports(foundNodes, functionNode->getName()->getContent(), scopeCheck);
 
-    if (foundNodes->size() > 1) {
+    if (foundNodes.size() > 1) {
         THROW_NODE_ERROR(functionNode, "There already exists a similar function.")
         return;
     }
@@ -137,9 +137,10 @@ void ScopeCheck::visit(const SharedParameterNode &parameterNode) {
         return node->getKind() == ASTNode::PARAMETER;
     };
 
-    auto foundNodes = parameterNode->getScope()->scope(parameterNode->getName()->getContent(),
-                                                       scopeCheck);
-    if (foundNodes->size() > 1) {
+    Symbols foundNodes;
+    parameterNode->getScope()->scope(foundNodes, parameterNode->getName()->getContent(),
+                                     scopeCheck);
+    if (foundNodes.size() > 1) {
         THROW_NODE_ERROR(parameterNode, "There already exists a similar parameter.")
         return;
     }
@@ -156,27 +157,32 @@ void ScopeCheck::visit(const SharedVariableNode &variableNode) {
         return node->getKind() == ASTNode::VARIABLE;
     };
 
-    auto foundNodes = variableNode->getScope()->scope(variableNode->getName()->getContent(),
-                                                      scopeCheck);
+    Symbols foundNodes;
+    variableNode->getScope()->scope(foundNodes, variableNode->getName()->getContent(), scopeCheck);
+
     auto blockNode = variableNode->findNodeOfParents<BlockNode>();
-    if (foundNodes->empty() && blockNode != nullptr) {
-        foundNodes = variableNode->getScope()->all(variableNode->getName()->getContent(),
-                                                   scopeCheck);
-        if (foundNodes->size() > 1) {
+    if (foundNodes.empty() && blockNode != nullptr) {
+        foundNodes.clear();
+        variableNode->getScope()->all(foundNodes, variableNode->getName()->getContent(),
+                                      scopeCheck);
+
+        if (foundNodes.size() > 1) {
             THROW_NODE_ERROR(variableNode, "There already exists a similar variable.")
             return;
         }
-    } else if (foundNodes->empty()) {
+    } else if (foundNodes.empty()) {
         auto rootNode = variableNode->findNodeOfParents<RootNode>();
-        foundNodes = rootNode->searchWithImports(variableNode->getName()->getContent(), scopeCheck);
 
-        if (foundNodes->size() > 1) {
+        foundNodes.clear();
+        rootNode->searchWithImports(foundNodes, variableNode->getName()->getContent(), scopeCheck);
+
+        if (foundNodes.size() > 1) {
             THROW_NODE_ERROR(variableNode, "There already exists a similar variable.")
             return;
         }
     }
 
-    if (foundNodes->size() > 1) {
+    if (foundNodes.size() > 1) {
         THROW_NODE_ERROR(variableNode, "There already exists a similar variable.")
         return;
     }
@@ -259,9 +265,13 @@ void ScopeCheck::visit(const SharedStructArgumentNode &structArgumentNode) {
         return node->getKind() == ASTNode::STRUCT_ARGUMENT;
     };
 
-    auto foundNodes = structArgumentNode->getScope()->scope(
-            structArgumentNode->getName()->getContent(), scopeCheck);
-    if (foundNodes->size() > 1) {
+    Symbols foundNodes;
+    structArgumentNode->getScope()->scope(foundNodes, structArgumentNode->getName()->getContent(),
+                                          scopeCheck);
+    if (foundNodes.size() > 1) {
+//        for(auto const &node : foundNodes)
+//            THROW_NODE_ERROR(node, "1")
+
         THROW_NODE_ERROR(structArgumentNode, "There already exists a similar argument.")
         return;
     }
@@ -280,9 +290,10 @@ void ScopeCheck::visit(const SharedFunctionArgumentNode &functionArgumentNode) {
         return node->getKind() == ASTNode::FUNCTION_ARGUMENT;
     };
 
-    auto foundNodes = functionArgumentNode->getScope()->scope(
-            functionArgumentNode->getName()->getContent(), scopeCheck);
-    if (foundNodes->size() > 1) {
+    Symbols foundNodes;
+    functionArgumentNode->getScope()->scope(
+            foundNodes, functionArgumentNode->getName()->getContent(), scopeCheck);
+    if (foundNodes.size() > 1) {
         THROW_NODE_ERROR(functionArgumentNode, "There already exists a similar argument.")
         return;
     }
