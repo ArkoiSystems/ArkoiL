@@ -66,8 +66,8 @@ namespace Utils {
         return !string[index] ? 5381 : (hash(string, index + 1) * 33) ^ string[index];
     }
 
-    template<typename Type>
-    static std::pair<bool, int> indexOf(const std::vector<Type> &vector, const Type &element) {
+    template<typename Container, typename Type>
+    static std::pair<bool, int> indexOf(const Container &vector, const Type &element) {
         std::pair<bool, int> result;
 
         auto iterator = std::find(vector.begin(), vector.end(), element);
@@ -80,6 +80,21 @@ namespace Utils {
         }
 
         return result;
+    }
+
+    static std::string random_string(unsigned long length) {
+        auto random_char = []() -> char {
+            static const char charset[] =
+                    "0123456789"
+                    "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                    "abcdefghijklmnopqrstuvwxyz";
+            static const unsigned long max_index = (sizeof(charset) - 1);
+            return charset[rand() % max_index];
+        };
+
+        std::string string(length, 0);
+        std::generate_n(string.begin(), length, random_char);
+        return string;
     }
 
     static std::pair<bool, int> indexOf(const std::vector<SharedASTNode> &vector,

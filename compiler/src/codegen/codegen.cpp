@@ -89,7 +89,7 @@ void CodeGen::visit(const SharedRootNode &rootNode) {
     m_Module = std::make_shared<llvm::Module>(m_ModuleName, m_Context);
 
     m_ScopedNodes.emplace_back();
-    defer(m_ScopedNodes.erase(m_ScopedNodes.begin() + m_ScopedNodes.size()));
+    defer(m_ScopedNodes.erase(m_ScopedNodes.end()));
 
     for (const auto &node : rootNode->getNodes())
         CodeGen::visit(node);
@@ -114,7 +114,7 @@ llvm::Value *CodeGen::visit(const SharedFunctionNode &functionNode) {
     }
 
     m_ScopedNodes.emplace_back();
-    defer(m_ScopedNodes.erase(m_ScopedNodes.begin() + m_ScopedNodes.size()));
+    defer(m_ScopedNodes.erase(m_ScopedNodes.end()));
 
     std::vector<llvm::Type *> functionParameters;
     for (auto const &parameter : functionNode->getParameters())
@@ -526,7 +526,7 @@ llvm::Value *CodeGen::visit(const SharedStructCreateNode &structCreateNode) {
     m_ScopedNodes.back().emplace(structCreateNode, structVariable);
 
     for (auto index = 0; index < structCreateNode->getArguments().size(); index++) {
-        auto structArgumentNode = structCreateNode->getArguments()[index];
+        auto structArgumentNode = structCreateNode->getArgument(index);
         CodeGen::visit(structArgumentNode, structVariable, index);
     }
 
@@ -565,7 +565,7 @@ llvm::Value *CodeGen::visit(const SharedStructArgumentNode &structArgumentNode,
 
         auto variableGEP = m_Builder.CreateStructGEP(structVariable, argumentIndex);
         for (auto index = 0; index < structCreateNode->getArguments().size(); index++) {
-            auto childArgumentNode = structCreateNode->getArguments()[index];
+            auto childArgumentNode = structCreateNode->getArgument(index);
             CodeGen::visit(childArgumentNode, variableGEP, index);
         }
 
@@ -580,7 +580,7 @@ llvm::Value *CodeGen::visit(const SharedStructArgumentNode &structArgumentNode,
         auto structCreateNode = std::static_pointer_cast<StructCreateNode>(
                 structArgumentNode->getExpression());
         for (auto index = 0; index < structCreateNode->getArguments().size(); index++) {
-            auto childArgumentNode = structCreateNode->getArguments()[index];
+            auto childArgumentNode = structCreateNode->getArgument(index);
             CodeGen::visit(childArgumentNode, variableGEP, index);
         }
     } else {

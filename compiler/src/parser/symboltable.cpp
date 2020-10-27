@@ -44,7 +44,7 @@ void SymbolTable::scope(Symbols &symbols, const std::string &id,
         return;
 
     for (const auto &node : iterator->second) {
-        if (!predicate(node))
+        if (predicate && !predicate(node))
             continue;
 
         symbols.emplace_back(node);

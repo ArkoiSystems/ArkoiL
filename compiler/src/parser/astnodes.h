@@ -11,6 +11,7 @@
 #include <set>
 
 #include <llvm/IR/BasicBlock.h>
+#include <list>
 
 #include "allnodes.h"
 
@@ -120,8 +121,8 @@ public:
 class RootNode : public ASTNode {
 
 private:
-    std::vector<SharedASTNode> m_Nodes;
     std::string m_SourcePath, m_SourceCode;
+    std::list<SharedASTNode> m_Nodes;
 
 public:
     RootNode();
@@ -147,9 +148,11 @@ public:
 
     void removeNode(const SharedASTNode &node);
 
+    SharedASTNode getNode(int index);
+
 public:
     [[nodiscard]]
-    const std::vector<SharedASTNode> &getNodes() const;
+    const std::list<SharedASTNode> &getNodes() const;
 
     [[nodiscard]]
     const std::string &getSourcePath() const;
@@ -268,7 +271,7 @@ public:
 class BlockNode : public TypedNode {
 
 private:
-    std::vector<SharedASTNode> m_Nodes;
+    std::list<SharedASTNode> m_Nodes;
     bool mb_Inlined;
 
 public:
@@ -292,7 +295,7 @@ public:
 
 public:
     [[nodiscard]]
-    const std::vector<SharedASTNode> &getNodes() const;
+    const std::list<SharedASTNode> &getNodes() const;
 
     [[nodiscard]]
     bool isInlined() const;
@@ -859,7 +862,7 @@ public:
 class StructCreateNode : public OperableNode {
 
 private:
-    std::vector<SharedStructArgumentNode> m_Arguments;
+    std::list<SharedStructArgumentNode> m_Arguments;
     SharedIdentifierNode m_Identifier;
     bool mb_Unnamed;
 
@@ -880,6 +883,8 @@ public:
 
     void removeArgument(const SharedStructArgumentNode &argumentNode);
 
+    SharedStructArgumentNode getArgument(int index);
+
     void insertArgument(int index, const SharedStructArgumentNode &argumentNode);
 
 public:
@@ -889,7 +894,7 @@ public:
     void setIdentifier(const SharedIdentifierNode &mIdentifier);
 
     [[nodiscard]]
-    const std::vector<SharedStructArgumentNode> &getArguments() const;
+    const std::list<SharedStructArgumentNode> &getArguments() const;
 
     [[nodiscard]]
     bool isUnnamed() const;

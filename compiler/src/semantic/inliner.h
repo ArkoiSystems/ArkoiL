@@ -51,67 +51,83 @@ public:
     static SharedVariableNode visit(const SharedStructNode &structNode);
 
     static SharedASTNode
-    generate(const SharedASTNode &node, int insertIndex, const SharedASTNode &parent,
+    generate(const SharedFunctionCallNode &functionCaller, const SharedVariableNode &returnVariable,
+             const SharedASTNode &node, const std::string &prefix, const SharedASTNode &parent,
              const SharedSymbolTable &scope);
 
-    static SharedParameterNode
-    generate(const SharedParameterNode &parameterNode, int insertIndex, const SharedASTNode &parent,
-             const SharedSymbolTable &scope);
+    static SharedIdentifierNode
+    generate(const SharedFunctionCallNode &functionCaller, const SharedVariableNode &returnVariable,
+             const SharedParameterNode &parameterNode, const std::string &prefix,
+             const SharedASTNode &parent, const SharedSymbolTable &scope);
 
     static SharedVariableNode
-    generate(const SharedVariableNode &variableNode, int insertIndex, const SharedASTNode &parent,
-             const SharedSymbolTable &scope);
+    generate(const SharedFunctionCallNode &functionCaller, const SharedVariableNode &returnVariable,
+             const SharedVariableNode &variableNode, const std::string &prefix,
+             const SharedASTNode &parent, const SharedSymbolTable &scope);
 
     static SharedBinaryNode
-    generate(const SharedBinaryNode &binaryNode, int insertIndex, const SharedASTNode &parent,
-             const SharedSymbolTable &scope);
+    generate(const SharedFunctionCallNode &functionCaller, const SharedVariableNode &returnVariable,
+             const SharedBinaryNode &binaryNode, const std::string &prefix,
+             const SharedASTNode &parent, const SharedSymbolTable &scope);
 
     static SharedUnaryNode
-    generate(const SharedUnaryNode &unaryNode, int insertIndex, const SharedASTNode &parent,
-             const SharedSymbolTable &scope);
+    generate(const SharedFunctionCallNode &functionCaller, const SharedVariableNode &returnVariable,
+             const SharedUnaryNode &unaryNode, const std::string &prefix,
+             const SharedASTNode &parent, const SharedSymbolTable &scope);
 
     static SharedParenthesizedNode
-    generate(const SharedParenthesizedNode &parenthesizedNode, int insertIndex,
+    generate(const SharedFunctionCallNode &functionCaller, const SharedVariableNode &returnVariable,
+             const SharedParenthesizedNode &parenthesizedNode, const std::string &prefix,
              const SharedASTNode &parent, const SharedSymbolTable &scope);
 
     static SharedStructCreateNode
-    generate(const SharedStructCreateNode &structCreateNode, int insertIndex,
+    generate(const SharedFunctionCallNode &functionCaller, const SharedVariableNode &returnVariable,
+             const SharedStructCreateNode &structCreateNode, const std::string &prefix,
              const SharedASTNode &parent, const SharedSymbolTable &scope);
 
     static SharedStructArgumentNode
-    generate(const SharedStructArgumentNode &structArgumentNode, int insertIndex,
+    generate(const SharedFunctionCallNode &functionCaller, const SharedVariableNode &returnVariable,
+             const SharedStructArgumentNode &structArgumentNode, const std::string &prefix,
              const SharedASTNode &parent, const SharedSymbolTable &scope);
 
     static SharedFunctionArgumentNode
-    generate(const SharedFunctionArgumentNode &functionArgumentNode, int insertIndex,
-             const SharedASTNode &parent, const SharedSymbolTable &scope);
-
-    static SharedFunctionCallNode
-    generate(const SharedFunctionCallNode &functionCallNode, int insertIndex,
-             const SharedASTNode &parent, const SharedSymbolTable &scope);
-
-    static SharedAssignmentNode
-    generate(const SharedAssignmentNode &assignmentNode, int insertIndex,
+    generate(const SharedFunctionCallNode &functionCaller, const SharedVariableNode &returnVariable,
+             const SharedFunctionArgumentNode &functionArgumentNode, const std::string &prefix,
              const SharedASTNode &parent, const SharedSymbolTable &scope);
 
     static SharedIdentifierNode
-    generate(const SharedIdentifierNode &identifierNode, int insertIndex,
+    generate(const SharedFunctionCallNode &functionCaller, const SharedVariableNode &returnVariable,
+             const SharedFunctionCallNode &functionCallNode, const std::string &prefix,
              const SharedASTNode &parent, const SharedSymbolTable &scope);
 
-    static SharedReturnNode
-    generate(const SharedReturnNode &returnNode, int insertIndex, const SharedASTNode &parent,
-             const SharedSymbolTable &scope);
+    static SharedAssignmentNode
+    generate(const SharedFunctionCallNode &functionCaller, const SharedVariableNode &returnVariable,
+             const SharedAssignmentNode &assignmentNode, const std::string &prefix,
+             const SharedASTNode &parent, const SharedSymbolTable &scope);
+
+    static SharedIdentifierNode
+    generate(const SharedFunctionCallNode &functionCaller, const SharedVariableNode &returnVariable,
+             const SharedIdentifierNode &identifierNode, const std::string &prefix,
+             const SharedASTNode &parent, const SharedSymbolTable &scope);
+
+    static SharedAssignmentNode
+    generate(const SharedFunctionCallNode &functionCaller, const SharedVariableNode &returnVariable,
+             const SharedReturnNode &returnNode, const std::string &prefix,
+             const SharedASTNode &parent, const SharedSymbolTable &scope);
 
     static SharedStringNode
-    generate(const SharedStringNode &stringNode, const SharedASTNode &parent,
+    generate(const SharedFunctionCallNode &functionCaller, const SharedVariableNode &returnVariable,
+             const SharedStringNode &stringNode, const SharedASTNode &parent,
              const SharedSymbolTable &scope);
 
     static SharedNumberNode
-    generate(const SharedNumberNode &numberNode, const SharedASTNode &parent,
+    generate(const SharedFunctionCallNode &functionCaller, const SharedVariableNode &returnVariable,
+             const SharedNumberNode &numberNode, const SharedASTNode &parent,
              const SharedSymbolTable &scope);
 
     static SharedTypeNode
-    generate(const SharedTypeNode &typeNode, const SharedASTNode &parent,
+    generate(const SharedFunctionCallNode &functionCaller, const SharedVariableNode &returnVariable,
+             const SharedTypeNode &typeNode, const SharedASTNode &parent,
              const SharedSymbolTable &scope);
 
     static SharedVariableNode

@@ -306,7 +306,7 @@ void RootNode::searchWithImports(Symbols &symbols, const std::string &id,
     }
 }
 
-const std::vector<SharedASTNode> &RootNode::getNodes() const {
+const std::list<SharedASTNode> &RootNode::getNodes() const {
     return m_Nodes;
 }
 
@@ -315,8 +315,12 @@ void RootNode::addNode(const SharedASTNode &node) {
 }
 
 void RootNode::removeNode(const SharedASTNode &node) {
-    auto index = Utils::indexOf(m_Nodes, node).second;
-    m_Nodes.erase(m_Nodes.begin() + index);
+    m_Nodes.remove(node);
+}
+
+SharedASTNode RootNode::getNode(int index) {
+    auto iterator = m_Nodes.begin();
+    return *std::next(iterator, index);
 }
 
 const std::string &RootNode::getSourcePath() const {
@@ -388,7 +392,7 @@ BlockNode *BlockNode::clone(const SharedASTNode parent,
     return node;
 }
 
-const std::vector<SharedASTNode> &BlockNode::getNodes() const {
+const std::list<SharedASTNode> &BlockNode::getNodes() const {
     return m_Nodes;
 }
 
@@ -397,12 +401,13 @@ void BlockNode::addNode(const SharedASTNode &node) {
 }
 
 void BlockNode::removeNode(const SharedASTNode &node) {
-    auto index = Utils::indexOf(m_Nodes, node).second;
-    m_Nodes.erase(m_Nodes.begin() + index);
+    m_Nodes.remove(node);
 }
 
 void BlockNode::insertNode(const SharedASTNode &node, int index) {
-    m_Nodes.insert(m_Nodes.begin() + index, node);
+    auto iterator = m_Nodes.begin();
+    std::advance(iterator, index);
+    m_Nodes.insert(iterator, node);
 }
 
 bool BlockNode::isInlined() const {
@@ -1326,12 +1331,18 @@ void StructCreateNode::addArgument(const SharedStructArgumentNode &argumentNode)
 }
 
 void StructCreateNode::removeArgument(const SharedStructArgumentNode &argumentNode) {
-    auto index = Utils::indexOf(m_Arguments, argumentNode).second;
-    m_Arguments.erase(m_Arguments.begin() + index);
+    m_Arguments.remove(argumentNode);
+}
+
+SharedStructArgumentNode StructCreateNode::getArgument(int index) {
+    auto iterator = m_Arguments.begin();
+    return *std::next(iterator, index);
 }
 
 void StructCreateNode::insertArgument(int index, const SharedStructArgumentNode &argumentNode) {
-    m_Arguments.insert(m_Arguments.begin() + index, argumentNode);
+    auto iterator = m_Arguments.begin();
+    std::advance(iterator, index);
+    m_Arguments.insert(iterator, argumentNode);
 }
 
 const SharedIdentifierNode &StructCreateNode::getIdentifier() const {
@@ -1342,7 +1353,7 @@ void StructCreateNode::setIdentifier(const SharedIdentifierNode &mIdentifier) {
     m_Identifier = mIdentifier;
 }
 
-const std::vector<SharedStructArgumentNode> &StructCreateNode::getArguments() const {
+const std::list<SharedStructArgumentNode> &StructCreateNode::getArguments() const {
     return m_Arguments;
 }
 

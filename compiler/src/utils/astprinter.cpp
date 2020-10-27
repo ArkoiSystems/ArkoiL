@@ -58,7 +58,7 @@ void ASTPrinter::visit(const SharedASTNode &node,
 void ASTPrinter::visit(const SharedRootNode &rootNode,
                        std::ostream &output, int indents) {
     for (auto index = 0; index < rootNode->getNodes().size(); index++) {
-        auto node = rootNode->getNodes()[index];
+        auto node = rootNode->getNode(index);
         ASTPrinter::visit(node, output, indents);
 
         if (index != rootNode->getNodes().size() - 1)
