@@ -432,8 +432,11 @@ llvm::Value *CodeGen::visit(const SharedIdentifierNode &identifierNode) {
         targetStruct = typedTarget->getType()->getTargetStruct();
     }
 
-    if (identifierNode->getParent()->getKind() != ASTNode::ASSIGNMENT &&
-        !currentIdentifier->isPointer())
+    auto assignmentNode = std::dynamic_pointer_cast<AssignmentNode>(identifierNode->getParent());
+    auto isAssignmentExpression = assignmentNode
+                                  && assignmentNode->getExpression() == identifierNode;
+
+    if((!assignmentNode || isAssignmentExpression) && !currentIdentifier->isPointer())
         return m_Builder.CreateLoad(targetValue);
 
     return targetValue;

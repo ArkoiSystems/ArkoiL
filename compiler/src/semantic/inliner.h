@@ -100,7 +100,7 @@ public:
              const SharedFunctionCallNode &functionCallNode, const std::string &prefix,
              const SharedASTNode &parent, const SharedSymbolTable &scope);
 
-    static SharedAssignmentNode
+    static SharedASTNode
     generate(const SharedFunctionCallNode &functionCaller, const SharedVariableNode &returnVariable,
              const SharedAssignmentNode &assignmentNode, const std::string &prefix,
              const SharedASTNode &parent, const SharedSymbolTable &scope);

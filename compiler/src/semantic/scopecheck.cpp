@@ -269,9 +269,6 @@ void ScopeCheck::visit(const SharedStructArgumentNode &structArgumentNode) {
     structArgumentNode->getScope()->scope(foundNodes, structArgumentNode->getName()->getContent(),
                                           scopeCheck);
     if (foundNodes.size() > 1) {
-//        for(auto const &node : foundNodes)
-//            THROW_NODE_ERROR(node, "1")
-
         THROW_NODE_ERROR(structArgumentNode, "There already exists a similar argument.")
         return;
     }

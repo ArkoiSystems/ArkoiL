@@ -144,12 +144,18 @@ void TypeCheck::visit(const SharedAssignmentNode &assignmentNode) {
         return;
     }
 
-    if (assignmentNode->getTargetNode()->getKind() == ASTNode::VARIABLE) {
-        auto variableNode = std::static_pointer_cast<VariableNode>(assignmentNode->getTargetNode());
-        if (variableNode->isConstant()) {
-            THROW_NODE_ERROR(assignmentNode, "Constant variables can't be reassigned.")
-            return;
+    auto checkIdentifier = assignmentNode->getStartIdentifier();
+    while (checkIdentifier->getNextIdentifier() != nullptr) {
+        if (checkIdentifier->getTargetNode()->getKind() == ASTNode::VARIABLE) {
+            auto variableNode = std::static_pointer_cast<VariableNode>(
+                    checkIdentifier->getTargetNode());
+            if (variableNode->isConstant()) {
+                THROW_NODE_ERROR(checkIdentifier, "Constant variables can't be reassigned.")
+                return;
+            }
         }
+
+        checkIdentifier = checkIdentifier->getNextIdentifier();
     }
 
     TypeCheck::visit(assignmentNode->getExpression());

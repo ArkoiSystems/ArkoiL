@@ -12,8 +12,9 @@ struct Info {
 
 fun main(): i32 {
     const info = createInfo()
-    println("Hello World %i", info)
-    info.test
+    # var test: Info
+    # test = info !! Couldn't work !!
+    println("Hello World %s you are the number %i", "Timo Behrend", 1)
     return 0
 }
 
