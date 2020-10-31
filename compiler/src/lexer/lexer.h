@@ -37,6 +37,8 @@ private:
 
     void parseString(const std::shared_ptr<Token> &token);
 
+    void parseMultiLineString(const std::shared_ptr<Token> &token);
+
     void parseRemaining(const std::shared_ptr<Token> &token);
 
 };

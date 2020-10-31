@@ -23,7 +23,7 @@ void TypeResolver::visit(const SharedASTNode &node) {
     } else if (node->getKind() == ASTNode::STRUCT_CREATE) {
         TypeResolver::visit(std::static_pointer_cast<StructCreateNode>(node));
     } else if (auto identifierNode = std::dynamic_pointer_cast<IdentifierNode>(node)) {
-        SharedIdentifierNode firstIdentifier = identifierNode;
+        auto firstIdentifier = identifierNode;
         while (firstIdentifier->getLastIdentifier() != nullptr)
             firstIdentifier = firstIdentifier->getLastIdentifier();
 

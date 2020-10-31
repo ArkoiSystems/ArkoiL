@@ -30,6 +30,8 @@ public:
 
     static void visit(const SharedBlockNode &blockNode);
 
+    static void visit(const SharedIdentifierNode &identifierNode);
+
     static void visit(const SharedFunctionCallNode &functionCallNode);
 
     static void visit(const SharedFunctionArgumentNode &functionArgumentNode);

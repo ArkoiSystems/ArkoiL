@@ -160,6 +160,14 @@ void Lexer::parseNumber(const std::shared_ptr<Token> &token) {
 }
 
 void Lexer::parseString(const std::shared_ptr<Token> &token) {
+    if (m_Position + 2 < m_SourceCode.size() - 1) {
+        if (m_SourceCode[m_Position + 1] == '"' && m_SourceCode[m_Position + 2] == '"') {
+            m_Position += 2;
+            parseMultiLineString(token);
+            return;
+        }
+    }
+
     token->setType(Token::STRING);
 
     m_Position++;
@@ -211,11 +219,92 @@ void Lexer::parseString(const std::shared_ptr<Token> &token) {
     }
 
     if (m_SourceCode[m_Position] != '"') {
-        THROW_LEXER_ERROR(token->getStartChar(), m_Position, "Strings must be terminated correctly.")
+        THROW_LEXER_ERROR(token->getStartChar(), m_Position,
+                          "Strings must be terminated correctly.")
 
         if (m_SourceCode[m_Position] == '\n')
             m_Position--;
     }
+}
+
+void Lexer::parseMultiLineString(const std::shared_ptr<Token> &token) {
+    token->setType(Token::STRING);
+
+    m_Position++;
+    auto whiteSpaces = 0;
+    while (m_Position < m_SourceCode.size() - 1) {
+        auto identifierChar = m_SourceCode[m_Position];
+        if (identifierChar == '"')
+            break;
+        else if (identifierChar == ' ') {
+            whiteSpaces++;
+            m_Position++;
+            continue;
+        } else if (identifierChar == '\n')
+            m_CurrentLine++;
+
+        auto toAdd = identifierChar;
+        auto removeWhitespaces = false;
+        if (identifierChar == '\\' && (m_Position + 1 < m_SourceCode.size() - 1)) {
+            auto nextChar = m_SourceCode[m_Position + 1];
+            switch (nextChar) {
+                case 'b':
+                    toAdd = '\b';
+                    m_Position++;
+                    break;
+                case 'n':
+                    toAdd = '\n';
+                    m_Position++;
+                    break;
+                case 'f':
+                    toAdd = '\f';
+                    m_Position++;
+                    break;
+                case 'r':
+                    toAdd = '\r';
+                    m_Position++;
+                    break;
+                case 't':
+                    toAdd = '\t';
+                    m_Position++;
+                    break;
+                case '"':
+                    toAdd = '"';
+                    m_Position++;
+                    break;
+                case '\'':
+                    toAdd = '\'';
+                    m_Position++;
+                    break;
+
+                case ' ':
+                    removeWhitespaces = true;
+                    m_Position++;
+                    break;
+            }
+        }
+
+        if (removeWhitespaces) {
+            whiteSpaces = 0;
+        } else {
+            token->addContent(std::string(whiteSpaces, ' '));
+            token->addContent(std::string(1, toAdd));
+            whiteSpaces = 0;
+        }
+
+        m_Position++;
+    }
+
+    if ((m_Position + 2 >= m_SourceCode.size() - 1)
+        || !(m_SourceCode[m_Position] == '"' && m_SourceCode[m_Position + 1] == '"'
+             && m_SourceCode[m_Position + 2] == '"')) {
+        THROW_LEXER_ERROR(token->getStartChar(), m_Position, "Multiline strings must be terminated "
+                                                             "correctly.")
+        return;
+    }
+
+    token->setLineNumber(m_CurrentLine);
+    m_Position += 2;
 }
 
 void Lexer::parseRemaining(const std::shared_ptr<Token> &token) {

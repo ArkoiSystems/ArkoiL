@@ -17,12 +17,16 @@ void TypeCheck::visit(const SharedASTNode &node) {
         TypeCheck::visit(std::static_pointer_cast<StructNode>(node));
     } else if (node->getKind() == ASTNode::VARIABLE) {
         TypeCheck::visit(std::static_pointer_cast<VariableNode>(node));
-    } else if (node->getKind() == ASTNode::FUNCTION) {
-        TypeCheck::visit(std::static_pointer_cast<FunctionNode>(node));
+    } else if (auto identifierNode = std::dynamic_pointer_cast<IdentifierNode>(node)) {
+        auto firstIdentifier = identifierNode;
+        while (firstIdentifier->getLastIdentifier() != nullptr)
+            firstIdentifier = firstIdentifier->getLastIdentifier();
+
+        return TypeCheck::visit(firstIdentifier);
     } else if (node->getKind() == ASTNode::BLOCK) {
         TypeCheck::visit(std::static_pointer_cast<BlockNode>(node));
-    } else if (node->getKind() == ASTNode::FUNCTION_CALL) {
-        TypeCheck::visit(std::static_pointer_cast<FunctionCallNode>(node));
+    } else if (node->getKind() == ASTNode::FUNCTION) {
+        TypeCheck::visit(std::static_pointer_cast<FunctionNode>(node));
     } else if (node->getKind() == ASTNode::FUNCTION_ARGUMENT) {
         TypeCheck::visit(std::static_pointer_cast<FunctionArgumentNode>(node));
     } else if (node->getKind() == ASTNode::STRUCT_ARGUMENT) {
@@ -41,7 +45,7 @@ void TypeCheck::visit(const SharedASTNode &node) {
         TypeCheck::visit(std::static_pointer_cast<ParenthesizedNode>(node));
     } else if (node->getKind() == ASTNode::PARAMETER) {
         TypeCheck::visit(std::static_pointer_cast<ParameterNode>(node));
-    } else if (node->getKind() != ASTNode::IDENTIFIER && node->getKind() != ASTNode::IMPORT &&
+    } else if (node->getKind() != ASTNode::IMPORT &&
                node->getKind() != ASTNode::STRING && node->getKind() != ASTNode::NUMBER &&
                node->getKind() != ASTNode::TYPE) {
         THROW_NODE_ERROR(node, "TypeCheck: Unsupported node: " + node->getKindAsString())
@@ -98,6 +102,20 @@ void TypeCheck::visit(const SharedFunctionNode &functionNode) {
 void TypeCheck::visit(const SharedBlockNode &blockNode) {
     for (const auto &node : blockNode->getNodes())
         TypeCheck::visit(node);
+}
+
+void TypeCheck::visit(const SharedIdentifierNode &identifierNode) {
+    if (identifierNode->getKind() == ASTNode::FUNCTION_CALL)
+        TypeCheck::visit(std::static_pointer_cast<FunctionCallNode>(identifierNode));
+
+    if (identifierNode->getType()->getPointerLevel() > 0 && !identifierNode->isDereference()
+        && identifierNode->getNextIdentifier() != nullptr) {
+        THROW_NODE_ERROR(identifierNode, "You can't access data from a not dereferenced variable.")
+        return;
+    }
+
+    if (identifierNode->getNextIdentifier() != nullptr)
+        TypeCheck::visit(identifierNode->getNextIdentifier());
 }
 
 void TypeCheck::visit(const SharedFunctionCallNode &functionCallNode) {

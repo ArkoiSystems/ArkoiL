@@ -11,15 +11,23 @@ struct Info {
 }
 
 fun main(): i32 {
-    const info = createInfo()
+    var info = createInfo()
     # var test: Info
-    # test = info !! Couldn't work !!
-    println("Hello World %s you are the number %i", "Timo", 1)
+    # test = info !! Shouldn't work !!
+    printInfo(&info)
     return 0
 }
 
+fun printInfo(info: Info*): void {
+    println("""info.test = %i
+             \ info.pointerTest = %i
+             \ info.@pointerTest = %i
+             \ info.weird.hello = %i""",
+            @info.test, @info.pointerTest, @info.@pointerTest, @info.weird.hello)
+}
+
 fun createInfo(): Info = { 
-    test: 10,
+    test: 1,
     pointerTest: &test,
     weird: {
         hello: 32

@@ -15,15 +15,15 @@
 #include "../semantic/typeresolver.h"
 #include "../semantic/scopecheck.h"
 #include "../semantic/typecheck.h"
+#include "../utils/astprinter.h"
+#include "../semantic/inliner.h"
 #include "../parser/astnodes.h"
 #include "../codegen/codegen.h"
-#include "../semantic/inliner.h"
 #include "../parser/parser.h"
 #include "../lexer/lexer.h"
 #include "../lexer/token.h"
 #include "options.h"
 #include "error.h"
-#include "../utils/astprinter.h"
 
 int Compiler::compile(const CompilerOptions &compilerOptions) {
     auto start = std::chrono::high_resolution_clock::now();
