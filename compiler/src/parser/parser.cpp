@@ -112,7 +112,8 @@ SharedFunctionNode Parser::parseFunction(const std::set<std::string> &annotation
     auto isIntrinsic = false;
     if (nextToken() == "llvm") {
         if (nextToken() != ".") {
-            THROW_TOKEN_ERROR("Function expected '.' but got '{}' instead.", currentToken()->getContent())
+            THROW_TOKEN_ERROR("Function expected '.' but got '{}' instead.",
+                              currentToken()->getContent())
             parent->setFailed(true);
             return functionNode;
         }
@@ -129,6 +130,18 @@ SharedFunctionNode Parser::parseFunction(const std::set<std::string> &annotation
         return functionNode;
     }
 
+    if ((peekToken(1) == ":" && peekToken(2) == ":") && !isIntrinsic) {
+        functionNode->setScopeResolution(parseType(functionNode));
+        nextToken(3);
+
+        if (currentToken() != Token::IDENTIFIER) {
+            THROW_TOKEN_ERROR("Function expected <identifier> but got '{}' instead.",
+                              currentToken()->getContent())
+            parent->setFailed(true);
+            return functionNode;
+        }
+    }
+
     functionNode->setName(currentToken());
     if (isIntrinsic)
         functionNode->getName()->setContent("llvm." + functionNode->getName()->getContent());
@@ -136,7 +149,8 @@ SharedFunctionNode Parser::parseFunction(const std::set<std::string> &annotation
     functionNode->getScope()->insert(functionNode->getName()->getContent(), functionNode);
 
     if (nextToken() != "(") {
-        THROW_TOKEN_ERROR("Function expected '(' but got '{}' instead.", currentToken()->getContent())
+        THROW_TOKEN_ERROR("Function expected '(' but got '{}' instead.",
+                          currentToken()->getContent())
         parent->setFailed(true);
         return functionNode;
     }

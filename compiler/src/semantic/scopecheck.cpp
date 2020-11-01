@@ -70,6 +70,7 @@ void ScopeCheck::visit(const SharedImportNode &importNode) {
     }
 }
 
+// TODO: Add mangeling for functions (to get scope resolution work properly etc.)
 void ScopeCheck::visit(const SharedFunctionNode &functionNode) {
     if (functionNode->getBlock() != nullptr) {
         ScopeCheck::visit(functionNode->getBlock());

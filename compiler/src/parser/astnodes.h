@@ -767,9 +767,10 @@ class FunctionNode : public TypedNode {
 private:
     std::vector<SharedParameterNode> m_Parameters;
     std::set<std::string> m_Annotations;
-    SharedBlockNode m_Block;
+    SharedTypeNode m_ScopeResolution;
     std::shared_ptr<Token> m_Name;
     bool mb_Variadic, mb_Native;
+    SharedBlockNode m_Block;
 
 public:
     FunctionNode();
@@ -793,6 +794,11 @@ public:
     const std::vector<SharedParameterNode> &getParameters() const;
 
     void setAnnotations(const std::set<std::string> &annotations);
+
+    [[nodiscard]]
+    const SharedTypeNode &getScopeResolution() const;
+
+    void setScopeResolution(const SharedTypeNode &scopeResolution);
 
     [[nodiscard]]
     const SharedBlockNode &getBlock() const;

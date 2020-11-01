@@ -121,7 +121,8 @@ void TypeCheck::visit(const SharedIdentifierNode &identifierNode) {
 void TypeCheck::visit(const SharedFunctionCallNode &functionCallNode) {
     if (functionCallNode->getParent()->getKind() != ASTNode::BLOCK
         && functionCallNode->getType()->isVoid()) {
-        THROW_NODE_ERROR(functionCallNode, "You can't call a void function as an expression.")
+        THROW_NODE_ERROR(functionCallNode, "You can't call a void function as an "
+                                           "expression.")
         return;
     }
 

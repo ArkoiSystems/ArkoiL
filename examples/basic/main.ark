@@ -10,10 +10,20 @@ struct Info {
     var weird: Weird
 }
 
+# [inlined]
+fun Info::setTest(test_: i32): void {
+	test = test_
+	setPointerTest(&test)
+}
+
+# [inlined]
+fun Info::setPointerTest(pointerTest_: i32*): void {
+	pointerTest = pointerTest_
+}
+
 fun main(): i32 {
     var info = createInfo()
-    # var test: Info
-    # test = info !! Shouldn't work !!
+    info.setTest(1337)
     printInfo(&info)
     return 0
 }

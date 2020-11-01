@@ -18,8 +18,6 @@ void TypeResolver::visit(const SharedASTNode &node) {
         TypeResolver::visit(std::static_pointer_cast<StructNode>(node));
     } else if (node->getKind() == ASTNode::FUNCTION) {
         TypeResolver::visit(std::static_pointer_cast<FunctionNode>(node));
-    } else if (node->getKind() == ASTNode::FUNCTION_CALL) {
-        TypeResolver::visit(std::static_pointer_cast<FunctionCallNode>(node));
     } else if (node->getKind() == ASTNode::STRUCT_CREATE) {
         TypeResolver::visit(std::static_pointer_cast<StructCreateNode>(node));
     } else if (auto identifierNode = std::dynamic_pointer_cast<IdentifierNode>(node)) {
@@ -71,6 +69,9 @@ void TypeResolver::visit(const SharedFunctionNode &functionNode) {
     if (functionNode->isTypeResolved())
         return;
     functionNode->setTypeResolved(true);
+
+    if (functionNode->getScopeResolution())
+        TypeResolver::visit(functionNode->getScopeResolution());
 
     TypeResolver::visit(functionNode->getType());
 
@@ -190,6 +191,7 @@ void TypeResolver::visit(const SharedIdentifierNode &identifierNode) {
         return;
 
     Symbols foundNodes;
+    auto functionNode = identifierNode->findNodeOfParents<FunctionNode>();
     if (identifierNode->getParent()->getKind() == ASTNode::STRUCT_CREATE) {
         auto scopeCheck = [](const SharedASTNode &node) {
             return node->getKind() == ASTNode::STRUCT;
@@ -198,12 +200,30 @@ void TypeResolver::visit(const SharedIdentifierNode &identifierNode) {
         identifierNode->findNodeOfParents<RootNode>()->searchWithImports(
                 foundNodes, identifierNode->getIdentifier()->getContent(), scopeCheck);
     } else if (identifierNode->getKind() == ASTNode::FUNCTION_CALL) {
-        auto scopeCheck = [identifierNode](const SharedASTNode &node) {
+        auto functionCall = std::static_pointer_cast<FunctionCallNode>(identifierNode);
+        auto scopeResolution = (functionNode && functionNode->getScopeResolution()) ?
+                               functionNode->getScopeResolution() : nullptr;
+
+        auto scopeCheck = [identifierNode, scopeResolution, functionCall](
+                const SharedASTNode &node) {
             if (node->getKind() != ASTNode::FUNCTION)
                 return false;
 
-            auto functionCall = std::static_pointer_cast<FunctionCallNode>(identifierNode);
             auto function = std::static_pointer_cast<FunctionNode>(node);
+            if (scopeResolution
+                && (!function->getScopeResolution() ||
+                    function->getScopeResolution()->getTypeToken()->getContent() !=
+                    scopeResolution->getTypeToken()->getContent()))
+                return false;
+            if (function->getScopeResolution() && !scopeResolution) {
+                if (functionCall->getLastIdentifier() == nullptr ||
+                    !functionCall->getLastIdentifier()->getType()->getTargetStruct())
+                    return false;
+
+                if (function->getScopeResolution()->getTypeToken()->getContent() !=
+                    functionCall->getLastIdentifier()->getType()->getTargetStruct()->getName()->getContent())
+                    return false;
+            }
 
             if (!function->isVariadic() &&
                 (function->getParameters().size() != functionCall->getArguments().size()))
@@ -232,8 +252,18 @@ void TypeResolver::visit(const SharedIdentifierNode &identifierNode) {
             return true;
         };
 
-        identifierNode->findNodeOfParents<RootNode>()->searchWithImports(
-                foundNodes, identifierNode->getIdentifier()->getContent(), scopeCheck);
+        if (scopeResolution) {
+            identifierNode->findNodeOfParents<RootNode>()->searchWithImports(
+                    foundNodes, identifierNode->getIdentifier()->getContent(), scopeCheck);
+            // TODO: Check if this works (settings a variable to something different when
+            //  accessed by a lambda function)
+            scopeResolution = nullptr;
+        }
+
+        if (foundNodes.empty()) {
+            identifierNode->findNodeOfParents<RootNode>()->searchWithImports(
+                    foundNodes, identifierNode->getIdentifier()->getContent(), scopeCheck);
+        }
     } else {
         auto scopeCheck = [](const SharedASTNode &node) {
             return node->getKind() == ASTNode::VARIABLE || node->getKind() == ASTNode::PARAMETER ||
@@ -243,6 +273,13 @@ void TypeResolver::visit(const SharedIdentifierNode &identifierNode) {
 
         identifierNode->getScope()->all(foundNodes, identifierNode->getIdentifier()->getContent(),
                                         scopeCheck);
+
+        if (functionNode && functionNode->getScopeResolution() && foundNodes.empty()) {
+            auto targetStruct = functionNode->getScopeResolution()->getTargetStruct();
+            targetStruct->getScope()->scope(foundNodes,
+                                            identifierNode->getIdentifier()->getContent(),
+                                            scopeCheck);
+        }
 
         if (foundNodes.empty()) {
             identifierNode->findNodeOfParents<RootNode>()->searchWithImports(

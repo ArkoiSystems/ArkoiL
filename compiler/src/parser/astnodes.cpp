@@ -1134,7 +1134,8 @@ bool TypeNode::operator!=(const TypeNode &other) const {
 FunctionNode::FunctionNode()
         : mb_Variadic(false), mb_Native(false),
           m_Parameters({}), m_Block(nullptr),
-          m_Name(nullptr), m_Annotations({}) {
+          m_Name(nullptr), m_Annotations({}),
+          m_ScopeResolution(nullptr) {
     setKind(ASTNode::FUNCTION);
 }
 
@@ -1143,9 +1144,13 @@ FunctionNode::FunctionNode(const FunctionNode &other)
           mb_Variadic(other.mb_Variadic), mb_Native(other.mb_Native),
           m_Parameters({}), m_Block(nullptr),
           m_Name(nullptr), m_Annotations({}) {
-    if (other.getType() != nullptr)
+    if (other.getType())
         setType(SharedTypeNode(other.getType()->clone(SharedFunctionNode(this),
-                                       this->getScope())));
+                                                      this->getScope())));
+
+    if (other.getScopeResolution())
+        m_ScopeResolution = SharedTypeNode(other.m_ScopeResolution->clone(SharedFunctionNode(this),
+                                                                          this->getScope()));
 
     for (const auto &parameter : other.m_Parameters)
         m_Parameters.emplace_back(parameter->clone(SharedFunctionNode(this),
@@ -1238,6 +1243,14 @@ bool FunctionNode::operator==(const FunctionNode &other) const {
 
 bool FunctionNode::operator!=(const FunctionNode &other) const {
     return !(other == *this);
+}
+
+const SharedTypeNode &FunctionNode::getScopeResolution() const {
+    return m_ScopeResolution;
+}
+
+void FunctionNode::setScopeResolution(const SharedTypeNode &scopeResolution) {
+    m_ScopeResolution = scopeResolution;
 }
 
 
