@@ -208,12 +208,13 @@ llvm::Value *CodeGen::visit(const SharedParameterNode &parameterNode) {
 
     auto functionNode = parameterNode->findNodeOfParents<FunctionNode>();
     auto functionRef = reinterpret_cast<llvm::Function *>(CodeGen::visit(functionNode));
+    auto hasStructReturn = functionNode->getType()->getTargetStruct() != nullptr;
 
     llvm::Value *parameter = nullptr;
     for (auto index = 0; index < functionNode->getParameters().size(); index++) {
         auto targetParameter = functionNode->getParameters().at(index);
         if (targetParameter->getName()->getContent() == parameterNode->getName()->getContent()) {
-            parameter = functionRef->getArg(index);
+            parameter = functionRef->getArg(hasStructReturn ? index + 1 : index);
             break;
         }
     }
@@ -262,6 +263,15 @@ llvm::BasicBlock *CodeGen::visit(const SharedBlockNode &blockNode) {
     }
 
     CodeGen::setPositionAtEnd(startBlock);
+
+    if(isEntryBlock) {
+        for(const auto &parameter : functionNode->getParameters()) {
+            if(!parameter->isAccessed())
+                continue;
+
+            CodeGen::visit(parameter);
+        }
+    }
 
     if (functionNode == blockNode->getParent()) {
         if (!functionNode->getType()->isVoid() &&

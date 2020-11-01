@@ -1,0 +1,103 @@
+import "memory"
+
+# Reference: https://crunchify.com/how-to-implement-a-linkedlist-class-from-scratch-in-java/
+#
+# Basic test to check if everything works fine.
+#
+# fun main(): int {
+# 	var linkedList = memory(LinkedList<const i32> { }, 1)
+# 	@linkedList.add(1)
+# 	@linkedList.add(1337)
+#   @linkedList.add(2, 2)
+#   @linkedList.remove(@linkedList.getCounter())
+# }
+
+struct LinkedList<T> {
+	[inlined, setter, getter]
+	var head: Node<T>*
+	
+	[inlined, setter, getter]
+	var counter: i32
+}
+
+struct Node<T> {
+	[inlined, setter, getter]
+	var next: Node<T>*
+
+	[inlined, setter, getter]
+	var data: T*
+}
+
+fun LinkedList<T>::add(_data: T): void {
+	if(!head)
+		head = memory(Node { }, 1)
+
+	var crunchifyTemp = memory(Node {
+		data: _data
+	}, 1)
+	var crunchifyCurrent = @head
+
+	if(&crunchifyCurrent) {
+		while(crunchifyCurrent.getNext())
+			crunchifyCurrent = crunchifyCurrent.@getNext()
+
+		crunchifyCurrent.setNext(crunchifyTemp)
+	}
+
+	counter++;
+}
+
+fun LinkedList<T>::add(_data: T, _listIndex: i32): T {
+	var crunchifyTemp = memory(Node {
+		data: _data
+	}, 1)
+	var crunchifyCurrent = @head
+
+	if(&crunchifyCurrent) {
+		for(var index = 0; index < _listIndex && crunchifyCurrent.getNext(); index++)
+			crunchifyCurrent = crunchifyCurrent.@getNext()
+	}
+
+	@crunchifyTemp.setNext(crunchifyCurrent.getNext())
+	crunchifyCurrent.setNext(crunchifyTemp)
+
+	counter++;
+}
+
+fun LinkedList<T>::get(_listIndex: i32): T*? {
+	if(_listIndex < 0)
+		return undef
+	if(!head)
+		return undef
+
+	var crunchifyCurrent = @head.@getNext()
+	for(int index = 0; index < _listIndex; index++) {
+		if(!crunchifyCurrent.getNext())
+			return undef
+
+		crunchifyCurrent = crunchifyCurrent.@getNext()
+	}
+
+	return crunchifyCurrent.getData()
+}
+
+fun LinkedList<T>::remove(_listIndex: i32): bool {
+	if(_listIndex < 1 || _listIndex > counter)
+		return false
+	if(!head)
+		return false
+
+	var crunchifyCurrent = @head
+	for(int index = 0; index < _listIndex; index++) {
+		if(!crunchifyCurrent.getNext())
+			return false
+
+		crunchifyCurrent = crunchifyCurrent.@getNext()
+	}
+
+	var crunchifyToDelete = @crunchifyCurrent.getNext();
+	crunchifyCurrent.setNext(crunchifyToDelete.getNext())
+	delete(&crunchifyToDelete)
+
+	counter--;
+}
