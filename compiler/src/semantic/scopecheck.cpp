@@ -234,8 +234,8 @@ void ScopeCheck::visit(const SharedIdentifierNode &identifierNode) {
     }
 
     if (targetVariableIndex > variableParentIndex) {
-        THROW_NODE_ERROR(identifierNode,
-                         "Couldn't target the variable because it's not created yet.")
+        THROW_NODE_ERROR(identifierNode, "Couldn't target the variable because it's not created "
+                                         "yet.")
         return;
     }
 }

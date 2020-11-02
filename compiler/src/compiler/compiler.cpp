@@ -16,7 +16,7 @@
 #include "../semantic/scopecheck.h"
 #include "../semantic/typecheck.h"
 #include "../utils/astprinter.h"
-#include "../semantic/inliner.h"
+#include "../codegen/inliner.h"
 #include "../parser/astnodes.h"
 #include "../codegen/codegen.h"
 #include "../parser/parser.h"

@@ -26,7 +26,7 @@ add_executable(ArkoiCompiler
         "${PROJECT_SOURCE_DIR}/src/compiler/options.h"
         "${PROJECT_SOURCE_DIR}/src/compiler/compiler.cpp"
         "${PROJECT_SOURCE_DIR}/src/compiler/compiler.h"
-        "src/utils/utils.h"
+        "${PROJECT_SOURCE_DIR}/src/utils/utils.h"
         "${PROJECT_SOURCE_DIR}/src/parser/parser.cpp"
         "${PROJECT_SOURCE_DIR}/src/parser/parser.h"
         "${PROJECT_SOURCE_DIR}/src/lexer/token.cpp"
@@ -34,8 +34,8 @@ add_executable(ArkoiCompiler
         "${PROJECT_SOURCE_DIR}/src/parser/astnodes.h"
         "${PROJECT_SOURCE_DIR}/src/compiler/error.cpp"
         "${PROJECT_SOURCE_DIR}/src/compiler/error.h"
-        "src/semantic/typeresolver.cpp"
-        "src/semantic/typeresolver.h"
+        "${PROJECT_SOURCE_DIR}/src/semantic/typeresolver.cpp"
+        "${PROJECT_SOURCE_DIR}/src/semantic/typeresolver.h"
         "${PROJECT_SOURCE_DIR}/src/parser/symboltable.cpp"
         "${PROJECT_SOURCE_DIR}/src/parser/symboltable.h"
         "${PROJECT_SOURCE_DIR}/src/semantic/typecheck.cpp"
@@ -45,11 +45,13 @@ add_executable(ArkoiCompiler
         "${PROJECT_SOURCE_DIR}/src/codegen/codegen.cpp"
         "${PROJECT_SOURCE_DIR}/src/codegen/codegen.h"
         "${PROJECT_SOURCE_DIR}/src/parser/astnodes.cpp"
-        "${PROJECT_SOURCE_DIR}/src/options/OptionParser.cpp"
-        "${PROJECT_SOURCE_DIR}/src/options/OptionParser.h"
+        "${PROJECT_SOURCE_DIR}/src/utils/optionparser.cpp"
+        "${PROJECT_SOURCE_DIR}/src/utils/optionparser.h"
         "${PROJECT_SOURCE_DIR}/src/parser/allnodes.h"
-        "${PROJECT_SOURCE_DIR}/src/semantic/inliner.cpp"
-        "${PROJECT_SOURCE_DIR}/src/semantic/inliner.h" src/utils/astprinter.cpp src/utils/astprinter.h)
+        "${PROJECT_SOURCE_DIR}/src/codegen/inliner.cpp"
+        "${PROJECT_SOURCE_DIR}/src/codegen/inliner.h"
+        "${PROJECT_SOURCE_DIR}/src/utils/astprinter.cpp"
+        "${PROJECT_SOURCE_DIR}/src/utils/astprinter.h")
 
 target_link_libraries(ArkoiCompiler
         LINK_PUBLIC

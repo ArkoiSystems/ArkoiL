@@ -1,27 +1,33 @@
 # Arkoi Language
-[![](https://jitpack.io/v/ArkoiSystems/ArkoiL.svg)](https://jitpack.io/#ArkoiSystems/ArkoiL)
 ![GitHub repo size](https://img.shields.io/github/repo-size/ArkoiSystems/ArkoiL)
-![GitHub](https://img.shields.io/github/license/ArkoiSystems/ArkoiL)
+![GitHub license](https://img.shields.io/github/license/ArkoiSystems/ArkoiL)
 ![GitHub commit activity](https://img.shields.io/github/commit-activity/w/ArkoiSystems/ArkoiL)
 
-This repository contains the ``compiler``, ``integrations`` of the language and ``examples``
-for the Arkoi Language. For more information about ArkoiL, including downloads and documentation
-for the latest release, check out [ArkoiL's website](https://lang.arkoisystems.com/).
+Arkoi is a compiled programming language that tries to combine properties of many
+languages. The focus is on creating a simple, yet powerful programming language that
+is also quite customizable.
 
 ### Compiler structure:
 ![compiler structure](assets/structure.png "General structure of the Compiler")
 
+## Ideas behind the language:
+* Strong type system
+* Flexible code through features
+* Understandable code
+* Combining VM-based features (e.g. Java, Python) with compiled code
+
 ## Contributing
 
-If you're interested in the development of ArkoiL, please make sure you read the documentation
-and youre familiar with the structure of the project. To give a bit information about the 
-structure, I did a short summary:
+If you are interested in developing ArkoiL, please make sure that you read the
+documentation and are familiar with the structure of the project. To give some
+information about the structure I have created a short summary:
 
-* ``compiler/`` - the compiler source code.
-* ``examples`` - examples which you can use to test the language.
-* ``natives`` - functions which are directly included to the language (the location will change in the future).
-
-## W.I.P..
+* ``compiler/``     - the compilers directory.
+    * ``cmake/``    - cmake files to search relevant libraries.
+    * ``src/``    - the sourcecode of the compiler.
+    * ``CMakeLists.txt`` - the cmake file to build the project etc.
+* ``tests/``         - examples which you can use to test the language.
+* ``stdlib/``        - functions and structs which are directly included to the language.
 
 ## License 
 

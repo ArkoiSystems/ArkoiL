@@ -9,7 +9,7 @@
 #include "../parser/astnodes.h"
 #include "../lexer/token.h"
 #include "../utils/utils.h"
-#include "typeresolver.h"
+#include "../semantic/typeresolver.h"
 
 SharedVariableNode Inliner::visit(const SharedASTNode &node) {
     if (node->getKind() == ASTNode::ROOT) {

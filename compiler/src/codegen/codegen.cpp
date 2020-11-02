@@ -13,7 +13,7 @@
 #include "../semantic/typecheck.h"
 #include "../semantic/scopecheck.h"
 #include "../parser/symboltable.h"
-#include "../semantic/inliner.h"
+#include "inliner.h"
 #include "../compiler/error.h"
 #include "../lexer/lexer.h"
 #include "../lexer/token.h"

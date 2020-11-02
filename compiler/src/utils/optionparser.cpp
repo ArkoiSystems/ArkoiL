@@ -2,7 +2,7 @@
 // Created by timo on 9/19/20.
 //
 
-#include "OptionParser.h"
+#include "optionparser.h"
 
 #include <sstream>
 #include <iomanip>

@@ -25,8 +25,6 @@ void TypeResolver::visit(const SharedASTNode &node) {
         while (firstIdentifier->getLastIdentifier() != nullptr)
             firstIdentifier = firstIdentifier->getLastIdentifier();
 
-        if (firstIdentifier->getKind() == ASTNode::FUNCTION_CALL)
-            return TypeResolver::visit(std::static_pointer_cast<FunctionCallNode>(node));
         return TypeResolver::visit(firstIdentifier);
     } else if (node->getKind() == ASTNode::NUMBER) {
         TypeResolver::visit(std::static_pointer_cast<NumberNode>(node));
@@ -200,11 +198,13 @@ void TypeResolver::visit(const SharedIdentifierNode &identifierNode) {
         identifierNode->findNodeOfParents<RootNode>()->searchWithImports(
                 foundNodes, identifierNode->getIdentifier()->getContent(), scopeCheck);
     } else if (identifierNode->getKind() == ASTNode::FUNCTION_CALL) {
-        auto functionCall = std::static_pointer_cast<FunctionCallNode>(identifierNode);
+        auto functionCallNode = std::static_pointer_cast<FunctionCallNode>(identifierNode);
+        for (const auto &argument : functionCallNode->getArguments())
+            TypeResolver::visit(argument);
+
         auto scopeResolution = (functionNode && functionNode->getScopeResolution()) ?
                                functionNode->getScopeResolution() : nullptr;
-
-        auto scopeCheck = [identifierNode, scopeResolution, functionCall](
+        auto scopeCheck = [identifierNode, scopeResolution, functionCallNode](
                 const SharedASTNode &node) {
             if (node->getKind() != ASTNode::FUNCTION)
                 return false;
@@ -216,24 +216,24 @@ void TypeResolver::visit(const SharedIdentifierNode &identifierNode) {
                     scopeResolution->getTypeToken()->getContent()))
                 return false;
             if (function->getScopeResolution() && !scopeResolution) {
-                if (functionCall->getLastIdentifier() == nullptr ||
-                    !functionCall->getLastIdentifier()->getType()->getTargetStruct())
+                if (functionCallNode->getLastIdentifier() == nullptr ||
+                    !functionCallNode->getLastIdentifier()->getType()->getTargetStruct())
                     return false;
 
                 if (function->getScopeResolution()->getTypeToken()->getContent() !=
-                    functionCall->getLastIdentifier()->getType()->getTargetStruct()->getName()->getContent())
+                    functionCallNode->getLastIdentifier()->getType()->getTargetStruct()->getName()->getContent())
                     return false;
             }
 
             if (!function->isVariadic() &&
-                (function->getParameters().size() != functionCall->getArguments().size()))
+                (function->getParameters().size() != functionCallNode->getArguments().size()))
                 return false;
 
-            auto sortedArguments(functionCall->getArguments());
-            if (!functionCall->getSortedArguments(function, sortedArguments))
+            auto sortedArguments(functionCallNode->getArguments());
+            if (!functionCallNode->getSortedArguments(function, sortedArguments))
                 return false;
 
-            for (auto index = 0; index < functionCall->getArguments().size(); index++) {
+            for (auto index = 0; index < functionCallNode->getArguments().size(); index++) {
                 if (index >= function->getParameters().size())
                     break;
 
@@ -339,6 +339,9 @@ void TypeResolver::visit(const SharedIdentifierNode &identifierNode) {
     else if (identifierNode->isDereference())
         identifierNode->getType()->setPointerLevel(identifierNode->getType()->getPointerLevel() - 1);
 
+    if(identifierNode->getKind() == ASTNode::FUNCTION_CALL)
+        TypeResolver::visit(std::static_pointer_cast<FunctionCallNode>(identifierNode));
+
     if (identifierNode->getNextIdentifier() != nullptr &&
         identifierNode->getType()->getTargetStruct() == nullptr) {
         THROW_NODE_ERROR(identifierNode, "The identifier has no struct, so there can't be a following "
@@ -442,10 +445,6 @@ void TypeResolver::visit(const SharedStructArgumentNode &structArgumentNode) {
 void TypeResolver::visit(const SharedFunctionCallNode &functionCallNode) {
     if (functionCallNode->isTypeResolved())
         return;
-
-    for (const auto &argument : functionCallNode->getArguments())
-        TypeResolver::visit(argument);
-    TypeResolver::visit(std::static_pointer_cast<IdentifierNode>(functionCallNode));
 
     auto functionNode = std::static_pointer_cast<FunctionNode>(functionCallNode->getTargetNode());
     if (functionNode == nullptr) {
