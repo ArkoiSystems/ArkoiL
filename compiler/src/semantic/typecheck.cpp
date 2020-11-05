@@ -19,7 +19,7 @@ void TypeCheck::visit(const SharedASTNode &node) {
         TypeCheck::visit(std::static_pointer_cast<VariableNode>(node));
     } else if (auto identifierNode = std::dynamic_pointer_cast<IdentifierNode>(node)) {
         auto firstIdentifier = identifierNode;
-        while (firstIdentifier->getLastIdentifier() != nullptr)
+        while (firstIdentifier->getLastIdentifier())
             firstIdentifier = firstIdentifier->getLastIdentifier();
 
         return TypeCheck::visit(firstIdentifier);
@@ -69,18 +69,18 @@ void TypeCheck::visit(const SharedVariableNode &variableNode) {
         return;
     }
 
-    if (variableNode->getExpression() == nullptr && variableNode->isConstant()) {
+    if (!variableNode->getExpression() && variableNode->isConstant()) {
         THROW_NODE_ERROR(variableNode, "Constant variables need an expression.")
         return;
     }
 
-    if (variableNode->getExpression() == nullptr && variableNode->getType() == nullptr) {
+    if (!variableNode->getExpression() && !variableNode->getType()) {
         THROW_NODE_ERROR(variableNode, "There must be specified a return type if no expression "
                                        "exists.")
         return;
     }
 
-    if (variableNode->getExpression() == nullptr)
+    if (!variableNode->getExpression())
         return;
 
     TypeCheck::visit(variableNode->getExpression());
@@ -95,7 +95,7 @@ void TypeCheck::visit(const SharedFunctionNode &functionNode) {
     for (auto const &parameter : functionNode->getParameters())
         TypeCheck::visit(parameter);
 
-    if (functionNode->getBlock() != nullptr)
+    if (functionNode->getBlock())
         TypeCheck::visit(functionNode->getBlock());
 }
 
@@ -108,24 +108,17 @@ void TypeCheck::visit(const SharedIdentifierNode &identifierNode) {
     if (identifierNode->getKind() == ASTNode::FUNCTION_CALL)
         TypeCheck::visit(std::static_pointer_cast<FunctionCallNode>(identifierNode));
 
-    if (identifierNode->getType()->getPointerLevel() > 0 && !identifierNode->isDereference()
-        && identifierNode->getNextIdentifier() != nullptr) {
+    if (identifierNode->getType()->getPointerLevel() > 0
+        && !identifierNode->isDereference() && identifierNode->getNextIdentifier()) {
         THROW_NODE_ERROR(identifierNode, "You can't access data from a not dereferenced variable.")
         return;
     }
 
-    if (identifierNode->getNextIdentifier() != nullptr)
+    if (identifierNode->getNextIdentifier())
         TypeCheck::visit(identifierNode->getNextIdentifier());
 }
 
 void TypeCheck::visit(const SharedFunctionCallNode &functionCallNode) {
-    if (functionCallNode->getParent()->getKind() != ASTNode::BLOCK
-        && functionCallNode->getType()->isVoid()) {
-        THROW_NODE_ERROR(functionCallNode, "You can't call a void function as an "
-                                           "expression.")
-        return;
-    }
-
     for (auto const &argument : functionCallNode->getArguments())
         TypeCheck::visit(argument);
 }
@@ -135,17 +128,19 @@ void TypeCheck::visit(const SharedFunctionArgumentNode &functionArgumentNode) {
 }
 
 void TypeCheck::visit(const SharedStructArgumentNode &structArgumentNode) {
-    if (structArgumentNode->getExpression() != nullptr)
+    if (structArgumentNode->getExpression())
         TypeCheck::visit(structArgumentNode->getExpression());
 }
 
 void TypeCheck::visit(const SharedReturnNode &returnNode) {
     auto functionNode = returnNode->findNodeOfParents<FunctionNode>();
-
-    if (returnNode->getExpression() == nullptr && functionNode->getType()->getBits() != 0) {
+    if (!returnNode->getExpression() && functionNode->getType()->getBits() != 0) {
         THROW_NODE_ERROR(returnNode, "You can't return void on a non-void function.")
         return;
     }
+
+    if (!returnNode->getExpression())
+        return;
 
     if (*returnNode->getExpression()->getType() != *functionNode->getType()) {
         THROW_NODE_ERROR(returnNode, "The return statement uses a different type than the "
@@ -164,7 +159,7 @@ void TypeCheck::visit(const SharedAssignmentNode &assignmentNode) {
     }
 
     auto checkIdentifier = assignmentNode->getStartIdentifier();
-    while (checkIdentifier->getNextIdentifier() != nullptr) {
+    while (checkIdentifier->getNextIdentifier()) {
         if (checkIdentifier->getTargetNode()->getKind() == ASTNode::VARIABLE) {
             auto variableNode = std::static_pointer_cast<VariableNode>(
                     checkIdentifier->getTargetNode());
@@ -181,7 +176,7 @@ void TypeCheck::visit(const SharedAssignmentNode &assignmentNode) {
 }
 
 void TypeCheck::visit(const SharedStructCreateNode &structCreateNode) {
-    if (structCreateNode->getType()->getTargetStruct() == nullptr) {
+    if (!structCreateNode->getType()->getTargetStruct()) {
         THROW_NODE_ERROR(structCreateNode, "Struct creation has no target struct.")
         return;
     }

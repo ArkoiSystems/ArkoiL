@@ -21,7 +21,7 @@ std::vector<std::shared_ptr<Token>> Lexer::getTokens() {
     std::vector<std::shared_ptr<Token>> tokens;
     while (true) {
         auto token = nextToken();
-        if (token == nullptr)
+        if (!token)
             break;
         tokens.push_back(token);
     }

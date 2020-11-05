@@ -34,44 +34,46 @@ public:
     SharedRootNode parseRoot();
 
 private:
-    SharedImportNode parseImport(const SharedASTNode &parent);
+    SharedImportNode parseImport(const SharedASTNode &parent, bool resetFirstFail = false);
 
     SharedFunctionNode parseFunction(const std::set<std::string> &annotations,
-                                     const SharedASTNode &parent);
+                                     const SharedASTNode &parent, bool resetFirstFail = false);
 
-    SharedParameterNode parseParameter(const SharedASTNode &parent);
+    SharedParameterNode parseParameter(const SharedASTNode &parent, bool resetFirstFail = false);
 
-    SharedTypeNode parseType(const SharedASTNode &parent);
+    SharedTypeNode parseType(const SharedASTNode &parent, bool resetFirstFail = false);
 
-    SharedBlockNode parseBlock(const SharedASTNode &parent,
-                               const SharedSymbolTable &scope);
+    SharedBlockNode parseBlock(const SharedASTNode &parent, const SharedSymbolTable &scope,
+                               bool resetFirstFail = false);
 
-    SharedVariableNode parseVariable(const SharedASTNode &parent,
-                                     const SharedSymbolTable &scope);
+    SharedVariableNode parseVariable(const SharedASTNode &parent, const SharedSymbolTable &scope,
+                                     bool resetFirstFail = false);
 
-    SharedOperableNode parseRelational(const SharedASTNode &parent);
+    SharedOperableNode parseRelational(const SharedASTNode &parent, bool resetFirstFail = false);
 
-    SharedOperableNode parseAdditive(const SharedASTNode &parent);
+    SharedOperableNode parseAdditive(const SharedASTNode &parent, bool resetFirstFail = false);
 
-    SharedOperableNode parseMultiplicative(const SharedASTNode &parent);
+    SharedOperableNode parseMultiplicative(const SharedASTNode &parent,
+                                           bool resetFirstFail = false);
 
-    SharedOperableNode parseCast(const SharedASTNode &parent);
+    SharedOperableNode parseCast(const SharedASTNode &parent, bool resetFirstFail = false);
 
-    SharedOperableNode parseOperable(const SharedASTNode &parent);
+    SharedOperableNode parseOperable(const SharedASTNode &parent, bool resetFirstFail = false);
 
-    SharedOperableNode parseIdentifier(const SharedASTNode &parent);
+    SharedOperableNode parseIdentifier(const SharedASTNode &parent, bool resetFirstFail = false);
 
-    SharedReturnNode parseReturn(const SharedASTNode &parent);
+    SharedReturnNode parseReturn(const SharedASTNode &parent, bool resetFirstFail = false);
 
-    SharedStructNode parseStruct(const SharedASTNode &parent);
+    SharedStructNode parseStruct(const SharedASTNode &parent, bool resetFirstFail = false);
 
-    std::set<std::string> parseAnnotations(const SharedASTNode &parent);
+    std::set<std::string> parseAnnotations(const SharedASTNode &parent,
+                                           bool resetFirstFail = false);
 
-    void parseFunctionArguments(SharedFunctionCallNode &functionCallNode,
-                                const SharedASTNode &parent);
+    void parseFunctionArguments(const SharedFunctionCallNode &functionCallNode,
+                                const SharedASTNode &parent, bool resetFirstFail = false);
 
-    void parseStructArguments(SharedStructCreateNode &structCreateNode,
-                              const SharedASTNode &parent);
+    void parseStructArguments(const SharedStructCreateNode &structCreateNode,
+                              const SharedASTNode &parent, bool resetFirstFail = false);
 
     std::shared_ptr<Token> peekToken(int offset, bool advance = true, bool safety = true);
 

@@ -12,14 +12,14 @@
 /* ----------======== AST-NODE ========---------- */
 
 ASTNode::ASTNode()
-        : m_Kind(ASTNode::NONE), mb_Failed(false),
-          m_StartToken(nullptr), m_EndToken(nullptr),
-          m_Parent(nullptr), m_Scope(nullptr) {}
+        : m_Kind(ASTNode::NONE), m_StartToken(nullptr),
+          m_EndToken(nullptr), m_Parent(nullptr),
+          m_Scope(nullptr) {}
 
 ASTNode::ASTNode(const ASTNode &other)
-        : m_Kind(other.m_Kind), mb_Failed(false),
-          m_StartToken(nullptr), m_EndToken(nullptr),
-          m_Parent(nullptr), m_Scope(nullptr) {
+        : m_Kind(other.m_Kind), m_StartToken(nullptr),
+          m_EndToken(nullptr), m_Parent(nullptr),
+          m_Scope(nullptr) {
     m_StartToken = std::make_shared<Token>(*other.m_StartToken);
     m_EndToken = std::make_shared<Token>(*other.m_EndToken);
     m_Scope = std::make_shared<SymbolTable>(*other.m_Scope);
@@ -55,14 +55,6 @@ const SharedASTNode &ASTNode::getParent() const {
 
 void ASTNode::setParent(const SharedASTNode &parent) {
     m_Parent = parent;
-}
-
-bool ASTNode::isFailed() const {
-    return mb_Failed;
-}
-
-void ASTNode::setFailed(bool failed) {
-    mb_Failed = failed;
 }
 
 std::string ASTNode::getKindAsString() const {
@@ -450,10 +442,9 @@ VariableNode::VariableNode(const VariableNode &other)
           mb_Constant(other.mb_Constant), mb_Local(other.mb_Local),
           m_Expression(nullptr), m_Name(nullptr) {
     m_Name = std::make_shared<Token>(*other.m_Name);
-    if (other.getType() != nullptr)
-        setType(SharedTypeNode(
-                other.getType()->clone(SharedVariableNode(this),
-                                       this->getScope())));
+    if (other.getType())
+        setType(SharedTypeNode(other.getType()->clone(SharedVariableNode(this),
+                                                      this->getScope())));
     if (other.m_Expression)
         m_Expression = SharedOperableNode(other.m_Expression->clone(
                 SharedVariableNode(this), this->getScope()));
@@ -1045,13 +1036,13 @@ TypeNode *TypeNode::clone(const SharedASTNode parent,
 }
 
 bool TypeNode::isVoid() const {
-    return m_Bits == 0 && m_PointerLevel == 0 && !isNumeric() && m_TargetStruct == nullptr;
+    return m_Bits == 0 && m_PointerLevel == 0 && !isNumeric() && !m_TargetStruct;
 }
 
 bool TypeNode::isNumeric() const {
     if ((mb_Signed || mb_Floating) && m_Bits > 0)
         return true;
-    return m_Bits > 0 && m_TargetStruct == nullptr;
+    return m_Bits > 0 && !m_TargetStruct;
 }
 
 const SharedStructNode &TypeNode::getTargetStruct() const {
@@ -1103,7 +1094,7 @@ void TypeNode::setFloating(bool floating) {
 }
 
 std::ostream &operator<<(std::ostream &out, const SharedTypeNode &typeNode) {
-    if (typeNode == nullptr) {
+    if (!typeNode) {
         out << "null";
         return out;
     }
@@ -1409,7 +1400,7 @@ bool FunctionCallNode::getSortedArguments(const SharedFunctionNode &functionNode
     };
 
     for (const auto &argument : m_Arguments) {
-        if (argument->getName() == nullptr)
+        if (!argument->getName())
             continue;
 
         Symbols foundParameters;

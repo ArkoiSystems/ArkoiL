@@ -33,7 +33,7 @@ void SymbolTable::all(Symbols &symbols, const std::string &id,
     if (!symbols.empty())
         return;
 
-    if (m_Parent != nullptr)
+    if (m_Parent)
         return m_Parent->all(symbols, id, predicate);
 }
 

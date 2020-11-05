@@ -22,7 +22,7 @@ void TypeResolver::visit(const SharedASTNode &node) {
         TypeResolver::visit(std::static_pointer_cast<StructCreateNode>(node));
     } else if (auto identifierNode = std::dynamic_pointer_cast<IdentifierNode>(node)) {
         auto firstIdentifier = identifierNode;
-        while (firstIdentifier->getLastIdentifier() != nullptr)
+        while (firstIdentifier->getLastIdentifier())
             firstIdentifier = firstIdentifier->getLastIdentifier();
 
         return TypeResolver::visit(firstIdentifier);
@@ -94,13 +94,13 @@ void TypeResolver::visit(const SharedVariableNode &variableNode) {
 
     variableNode->setLocal(variableNode->findNodeOfParents<BlockNode>() != nullptr);
 
-    if (variableNode->getType() != nullptr)
+    if (variableNode->getType())
         TypeResolver::visit(variableNode->getType());
 
-    if (variableNode->getExpression() != nullptr) {
+    if (variableNode->getExpression()) {
         TypeResolver::visit(variableNode->getExpression());
 
-        if (variableNode->getType() == nullptr)
+        if (!variableNode->getType())
             variableNode->setType(variableNode->getExpression()->getType());
     }
 
@@ -216,8 +216,8 @@ void TypeResolver::visit(const SharedIdentifierNode &identifierNode) {
                     scopeResolution->getTypeToken()->getContent()))
                 return false;
             if (function->getScopeResolution() && !scopeResolution) {
-                if (functionCallNode->getLastIdentifier() == nullptr ||
-                    !functionCallNode->getLastIdentifier()->getType()->getTargetStruct())
+                if (!functionCallNode->getLastIdentifier()
+                    || !functionCallNode->getLastIdentifier()->getType()->getTargetStruct())
                     return false;
 
                 if (function->getScopeResolution()->getTypeToken()->getContent() !=
@@ -298,8 +298,8 @@ void TypeResolver::visit(const SharedIdentifierNode &identifierNode) {
 
     // TODO: See if this is necessary
     auto typedNode = std::static_pointer_cast<TypedNode>(targetNode);
-    if ((typedNode != nullptr && typedNode->getKind() == ASTNode::FUNCTION_ARGUMENT) &&
-        (typedNode->getParent() != nullptr && typedNode->getParent()->getKind() == ASTNode::STRUCT_CREATE)) {
+    if ((typedNode && typedNode->getKind() == ASTNode::FUNCTION_ARGUMENT) &&
+        (typedNode->getParent() && typedNode->getParent()->getKind() == ASTNode::STRUCT_CREATE)) {
         auto structCreate = std::static_pointer_cast<StructCreateNode>(typedNode->getParent());
         targetNode = nullptr;
 
@@ -310,13 +310,13 @@ void TypeResolver::visit(const SharedIdentifierNode &identifierNode) {
         }
     }
 
-    if (targetNode == nullptr) {
+    if (!targetNode) {
         THROW_NODE_ERROR(identifierNode, "Couldn't find the target node for the identifier \"{}\".",
                          identifierNode->getIdentifier()->getContent())
         return;
     }
 
-    if (typedNode->getType() == nullptr) {
+    if (!typedNode->getType()) {
         THROW_NODE_ERROR(typedNode, "The found identifier has no type.")
         return;
     }
@@ -335,21 +335,23 @@ void TypeResolver::visit(const SharedIdentifierNode &identifierNode) {
     }
 
     if (identifierNode->isPointer())
-        identifierNode->getType()->setPointerLevel(identifierNode->getType()->getPointerLevel() + 1);
+        identifierNode->getType()->setPointerLevel(
+                identifierNode->getType()->getPointerLevel() + 1);
     else if (identifierNode->isDereference())
-        identifierNode->getType()->setPointerLevel(identifierNode->getType()->getPointerLevel() - 1);
+        identifierNode->getType()->setPointerLevel(
+                identifierNode->getType()->getPointerLevel() - 1);
 
-    if(identifierNode->getKind() == ASTNode::FUNCTION_CALL)
+    if (identifierNode->getKind() == ASTNode::FUNCTION_CALL)
         TypeResolver::visit(std::static_pointer_cast<FunctionCallNode>(identifierNode));
 
-    if (identifierNode->getNextIdentifier() != nullptr &&
-        identifierNode->getType()->getTargetStruct() == nullptr) {
-        THROW_NODE_ERROR(identifierNode, "The identifier has no struct, so there can't be a following "
-                                         "identifier.")
+    if (identifierNode->getNextIdentifier()
+        && !identifierNode->getType()->getTargetStruct()) {
+        THROW_NODE_ERROR(identifierNode, "The identifier has no struct, so there can't be a"
+                                         " following identifier.")
         return;
     }
 
-    if (identifierNode->getNextIdentifier() != nullptr) {
+    if (identifierNode->getNextIdentifier()) {
         identifierNode->getNextIdentifier()->setScope(
                 identifierNode->getType()->getTargetStruct()->getScope());
         TypeResolver::visit(identifierNode->getNextIdentifier());
@@ -374,7 +376,7 @@ void TypeResolver::visit(const SharedFunctionArgumentNode &functionArgumentNode)
         auto structCreate = std::static_pointer_cast<StructCreateNode>(
                 functionArgumentNode->getExpression());
         if (structCreate->isUnnamed()) {
-            if (parentCall->getTargetNode() != nullptr) {
+            if (parentCall->getTargetNode()) {
                 auto parentFunction = std::static_pointer_cast<FunctionNode>(
                         parentCall->getTargetNode());
 
@@ -397,7 +399,7 @@ void TypeResolver::visit(const SharedFunctionArgumentNode &functionArgumentNode)
         return;
 
     TypeResolver::visit(functionArgumentNode->getExpression());
-    if (functionArgumentNode->getType() == nullptr)
+    if (!functionArgumentNode->getType())
         functionArgumentNode->setType(functionArgumentNode->getExpression()->getType());
 
     functionArgumentNode->setTypeResolved(true);
@@ -410,9 +412,8 @@ void TypeResolver::visit(const SharedStructArgumentNode &structArgumentNode) {
     auto parentCreate = std::static_pointer_cast<StructCreateNode>(structArgumentNode->getParent());
     auto parentStruct = std::static_pointer_cast<StructNode>(parentCreate->getTargetNode());
 
-    if (structArgumentNode->getType() == nullptr &&
-        structArgumentNode->getExpression() != nullptr &&
-        structArgumentNode->getExpression()->getKind() == ASTNode::STRUCT_CREATE) {
+    if (!structArgumentNode->getType() && structArgumentNode->getExpression()
+        && structArgumentNode->getExpression()->getKind() == ASTNode::STRUCT_CREATE) {
         auto childCreate = std::static_pointer_cast<StructCreateNode>(
                 structArgumentNode->getExpression());
         if (childCreate->isUnnamed()) {
@@ -426,16 +427,16 @@ void TypeResolver::visit(const SharedStructArgumentNode &structArgumentNode) {
                 break;
             }
 
-            if (structArgumentNode->getType() == nullptr) {
+            if (!structArgumentNode->getType()) {
                 THROW_NODE_ERROR(childCreate, "Couldn't find the variable type for the argument.")
                 exit(EXIT_FAILURE);
             }
         }
     }
 
-    if (structArgumentNode->getExpression() != nullptr) {
+    if (structArgumentNode->getExpression()) {
         TypeResolver::visit(structArgumentNode->getExpression());
-        if (structArgumentNode->getType() == nullptr)
+        if (!structArgumentNode->getType())
             structArgumentNode->setType(structArgumentNode->getExpression()->getType());
     }
 
@@ -447,7 +448,7 @@ void TypeResolver::visit(const SharedFunctionCallNode &functionCallNode) {
         return;
 
     auto functionNode = std::static_pointer_cast<FunctionNode>(functionCallNode->getTargetNode());
-    if (functionNode == nullptr) {
+    if (!functionNode) {
         THROW_NODE_ERROR(functionCallNode, "Couldn't find the function for this call.")
         exit(EXIT_FAILURE);
     }
@@ -477,13 +478,13 @@ void TypeResolver::visit(const SharedStructCreateNode &structCreateNode) {
     if (structCreateNode->isUnnamed()) {
         auto typedNode = std::dynamic_pointer_cast<TypedNode>(structCreateNode->getParent());
 
-        if (typedNode == nullptr) {
+        if (!typedNode) {
             THROW_NODE_ERROR(structCreateNode, "Can't create an unnamed struct, because there is "
                                                "no type defined by a function/argument or variable.")
             exit(EXIT_FAILURE);
         }
 
-        if (typedNode->getType() == nullptr || typedNode->getType()->getTargetStruct() == nullptr) {
+        if (!typedNode->getType() || !typedNode->getType()->getTargetStruct()) {
             THROW_NODE_ERROR(typedNode, "Can't create an unnamed struct because the type is not "
                                         "resolved yet.")
             exit(EXIT_FAILURE);
@@ -516,7 +517,7 @@ void TypeResolver::visit(const SharedStructCreateNode &structCreateNode) {
             break;
         }
 
-        if (foundVariable == nullptr) {
+        if (!foundVariable) {
             THROW_NODE_ERROR(argument, "Couldn't find a variable for the argument node.")
             exit(EXIT_FAILURE);
         }
@@ -553,7 +554,7 @@ void TypeResolver::visit(const SharedStructCreateNode &structCreateNode) {
         argument->setName(variable->getName());
         argument->setDontCopy(true);
 
-        if (variable->getExpression() != nullptr)
+        if (variable->getExpression())
             argument->setExpression(SharedOperableNode(variable->getExpression()->clone(
                     argument, argument->getScope())));
 
@@ -589,14 +590,14 @@ void TypeResolver::visit(const SharedReturnNode &returnNode) {
         return;
 
     auto function = returnNode->findNodeOfParents<FunctionNode>();
-    if (function == nullptr) {
+    if (!function) {
         THROW_NODE_ERROR(returnNode, "Return node is not inside of a function.")
         exit(EXIT_FAILURE);
     }
 
     returnNode->setType(function->getType());
 
-    if (returnNode->getExpression() != nullptr)
+    if (returnNode->getExpression())
         TypeResolver::visit(returnNode->getExpression());
 
     returnNode->setTypeResolved(true);

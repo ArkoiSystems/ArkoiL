@@ -51,7 +51,6 @@ private:
     std::shared_ptr<Token> m_StartToken, m_EndToken;
     SharedSymbolTable m_Scope;
     SharedASTNode m_Parent;
-    bool mb_Failed;
     ASTKind m_Kind;
 
 public:
@@ -71,7 +70,7 @@ public:
 
     template<typename Type = ASTNode>
     std::shared_ptr<Type> findNodeOfParents() {
-        if (m_Parent == nullptr)
+        if (!m_Parent)
             return nullptr;
 
         if (auto result = std::dynamic_pointer_cast<Type>(getParent()))
@@ -99,11 +98,6 @@ public:
     const SharedASTNode &getParent() const;
 
     void setParent(const SharedASTNode &parent);
-
-    [[nodiscard]]
-    bool isFailed() const;
-
-    void setFailed(bool failed);
 
     [[nodiscard]]
     std::string getKindAsString() const;

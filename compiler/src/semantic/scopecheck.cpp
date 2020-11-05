@@ -72,7 +72,7 @@ void ScopeCheck::visit(const SharedImportNode &importNode) {
 
 // TODO: Add mangeling for functions (to get scope resolution work properly etc.)
 void ScopeCheck::visit(const SharedFunctionNode &functionNode) {
-    if (functionNode->getBlock() != nullptr) {
+    if (functionNode->getBlock()) {
         ScopeCheck::visit(functionNode->getBlock());
 
         std::vector<SharedASTNode> returns;
@@ -149,7 +149,7 @@ void ScopeCheck::visit(const SharedParameterNode &parameterNode) {
 
 void ScopeCheck::visit(const SharedVariableNode &variableNode) {
     if (variableNode->getName() == "_") {
-        if (variableNode->getExpression() != nullptr)
+        if (variableNode->getExpression())
             ScopeCheck::visit(variableNode->getExpression());
         return;
     }
@@ -162,7 +162,7 @@ void ScopeCheck::visit(const SharedVariableNode &variableNode) {
     variableNode->getScope()->scope(foundNodes, variableNode->getName()->getContent(), scopeCheck);
 
     auto blockNode = variableNode->findNodeOfParents<BlockNode>();
-    if (foundNodes.empty() && blockNode != nullptr) {
+    if (foundNodes.empty() && blockNode) {
         foundNodes.clear();
         variableNode->getScope()->all(foundNodes, variableNode->getName()->getContent(),
                                       scopeCheck);
@@ -188,15 +188,15 @@ void ScopeCheck::visit(const SharedVariableNode &variableNode) {
         return;
     }
 
-    if (variableNode->getExpression() != nullptr)
+    if (variableNode->getExpression())
         ScopeCheck::visit(variableNode->getExpression());
 }
 
 void ScopeCheck::visit(const SharedIdentifierNode &identifierNode) {
-    if (identifierNode->getTargetNode() == nullptr ||
-        identifierNode->getTargetNode()->getKind() != ASTNode::VARIABLE)
+    if (!identifierNode->getTargetNode()
+        || identifierNode->getTargetNode()->getKind() != ASTNode::VARIABLE)
         return;
-    if (identifierNode->getLastIdentifier() != nullptr)
+    if (identifierNode->getLastIdentifier())
         return;
 
     auto targetVariable = std::static_pointer_cast<VariableNode>(identifierNode->getTargetNode());
@@ -207,7 +207,7 @@ void ScopeCheck::visit(const SharedIdentifierNode &identifierNode) {
     } else if (auto variableNode = identifierNode->findNodeOfParents<VariableNode>())
         variableParent = variableNode;
 
-    if (variableParent == nullptr)
+    if (!variableParent)
         return;
     if (targetVariable->isGlobal())
         return;
@@ -274,12 +274,12 @@ void ScopeCheck::visit(const SharedStructArgumentNode &structArgumentNode) {
         return;
     }
 
-    if (structArgumentNode->getExpression() != nullptr)
+    if (structArgumentNode->getExpression())
         ScopeCheck::visit(structArgumentNode->getExpression());
 }
 
 void ScopeCheck::visit(const SharedFunctionArgumentNode &functionArgumentNode) {
-    if (functionArgumentNode->getName() == nullptr) {
+    if (!functionArgumentNode->getName()) {
         ScopeCheck::visit(functionArgumentNode->getExpression());
         return;
     }
@@ -309,7 +309,7 @@ void ScopeCheck::visit(const SharedAssignmentNode &assignmentNode) {
 }
 
 void ScopeCheck::visit(const SharedReturnNode &returnNode) {
-    if (returnNode->getExpression() != nullptr)
+    if (returnNode->getExpression())
         ScopeCheck::visit(returnNode->getExpression());
 }
 

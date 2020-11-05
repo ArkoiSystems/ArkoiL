@@ -89,7 +89,7 @@ void ASTPrinter::visit(const SharedFunctionNode &functionNode,
 
     visit(functionNode->getType(), output);
 
-    if (functionNode->getBlock() != nullptr) {
+    if (functionNode->getBlock()) {
         output << (functionNode->getBlock()->isInlined() ? " = " : " {");
         if (!functionNode->getBlock()->isInlined())
             output << std::endl;
@@ -129,12 +129,12 @@ void ASTPrinter::visit(const SharedVariableNode &variableNode,
            << (variableNode->isConstant() ? "const " : "var ")
            << variableNode->getName()->getContent();
 
-    if (variableNode->getType() != nullptr) {
+    if (variableNode->getType()) {
         output << ": ";
         visit(variableNode->getType(), output);
     }
 
-    if (variableNode->getExpression() != nullptr) {
+    if (variableNode->getExpression()) {
         output << " = ";
         visit(variableNode->getExpression(), output, indents);
     }
@@ -225,7 +225,7 @@ void ASTPrinter::visit(const SharedStringNode &stringNode,
 void ASTPrinter::visit(const SharedIdentifierNode &identifierNode,
                        std::ostream &output, int indents) {
     auto firstIdentifier = identifierNode;
-    while (firstIdentifier->getLastIdentifier() != nullptr)
+    while (firstIdentifier->getLastIdentifier())
         firstIdentifier = firstIdentifier->getLastIdentifier();
 
     auto isParentBlock = firstIdentifier->getParent()->getKind() == ASTNode::BLOCK;
@@ -238,7 +238,7 @@ void ASTPrinter::visit(const SharedIdentifierNode &identifierNode,
         visit(std::reinterpret_pointer_cast<FunctionCallNode>(firstIdentifier), output);
 
     auto nextIdentifier = firstIdentifier->getNextIdentifier();
-    while (nextIdentifier != nullptr) {
+    while (nextIdentifier) {
         output << "."
                << (nextIdentifier->isPointer() ? "&" : "")
                << (nextIdentifier->isDereference() ? "@" : "")
@@ -252,7 +252,7 @@ void ASTPrinter::visit(const SharedIdentifierNode &identifierNode,
 
 void ASTPrinter::visit(const SharedFunctionArgumentNode &functionArgumentNode,
                        std::ostream &output, int indents) {
-    if (functionArgumentNode->getName() != nullptr)
+    if (functionArgumentNode->getName())
         output << functionArgumentNode->getName()->getContent() << ": ";
 
     visit(functionArgumentNode->getExpression(), output, indents);
@@ -278,7 +278,7 @@ void ASTPrinter::visit(const SharedStructArgumentNode &structArgumentNode,
     output << std::string(indents, '\t')
            << structArgumentNode->getName()->getContent() << ": ";
 
-    if (structArgumentNode->getExpression() != nullptr)
+    if (structArgumentNode->getExpression())
         visit(structArgumentNode->getExpression(), output, indents);
 }
 
@@ -286,8 +286,7 @@ void ASTPrinter::visit(const SharedStructCreateNode &structCreateNode,
                        std::ostream &output, int indents) {
     auto blockNode = structCreateNode->findNodeOfParents<BlockNode>();
     bool isParentBlock = structCreateNode->getParent()->getKind() == ASTNode::BLOCK;
-    bool isInlinedNode = blockNode != nullptr && blockNode->isInlined()
-                         && !isParentBlock
+    bool isInlinedNode = blockNode && blockNode->isInlined() && !isParentBlock
                          && (structCreateNode->getParent()->getKind() == ASTNode::RETURN);
 
     output << ((isParentBlock && !isInlinedNode) ? std::string(indents, '\t') : "")
@@ -295,7 +294,7 @@ void ASTPrinter::visit(const SharedStructCreateNode &structCreateNode,
            << " {" << std::endl;
 
     for (auto const &argument : structCreateNode->getArguments()) {
-        if (argument->getExpression() == nullptr)
+        if (!argument->getExpression())
             continue;
 
         visit(argument, output, (!isInlinedNode ? indents + 1 : indents));
@@ -319,7 +318,7 @@ void ASTPrinter::visit(const SharedAssignmentNode &assignmentNode,
         visit(std::reinterpret_pointer_cast<FunctionCallNode>(firstIdentifier), output);
 
     auto nextIdentifier = firstIdentifier->getNextIdentifier();
-    while (nextIdentifier != nullptr) {
+    while (nextIdentifier) {
         output << "."
                << (nextIdentifier->isPointer() ? "&" : "")
                << (nextIdentifier->isDereference() ? "@" : "")
@@ -347,7 +346,7 @@ void ASTPrinter::visit(const SharedReturnNode &returnNode,
         output << std::string(indents, '\t')
                << "return ";
 
-    if (returnNode->getExpression() != nullptr)
+    if (returnNode->getExpression())
         visit(returnNode->getExpression(), output, indents);
 }
 

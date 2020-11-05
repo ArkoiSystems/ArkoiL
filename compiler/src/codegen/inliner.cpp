@@ -28,11 +28,11 @@ SharedVariableNode Inliner::visit(const SharedASTNode &node) {
         return Inliner::visit(std::static_pointer_cast<ParenthesizedNode>(node));
     } else if (auto identifierNode = std::dynamic_pointer_cast<IdentifierNode>(node)) {
         auto firstIdentifier = identifierNode;
-        while (firstIdentifier->getLastIdentifier() != nullptr)
+        while (firstIdentifier->getLastIdentifier())
             firstIdentifier = firstIdentifier->getLastIdentifier();
 
         auto returnVariable = Inliner::visit(firstIdentifier);
-        if (returnVariable != nullptr) {
+        if (returnVariable) {
             auto generatedIdentifier = createIdentifier(firstIdentifier->getParent(),
                                                         firstIdentifier->getScope(),
                                                         returnVariable);
@@ -46,11 +46,11 @@ SharedVariableNode Inliner::visit(const SharedASTNode &node) {
 
         auto lastIdentifier = firstIdentifier;
         auto currentIdentifier = firstIdentifier->getNextIdentifier();
-        while (currentIdentifier != nullptr) {
+        while (currentIdentifier) {
             returnVariable = Inliner::visit(currentIdentifier);
             currentIdentifier->setTypeResolved(false);
 
-            if (returnVariable != nullptr) {
+            if (returnVariable) {
                 auto oldIdentifier = lastIdentifier->getNextIdentifier();
                 lastIdentifier->setNextIdentifier(
                         createIdentifier(oldIdentifier, oldIdentifier->getScope(),
@@ -125,11 +125,11 @@ SharedVariableNode Inliner::visit(const SharedBlockNode &blockNode) {
 }
 
 SharedVariableNode Inliner::visit(const SharedVariableNode &variableNode) {
-    if (variableNode->getExpression() == nullptr)
+    if (!variableNode->getExpression())
         return nullptr;
 
     auto returnVariable = Inliner::visit(variableNode->getExpression());
-    if (returnVariable == nullptr)
+    if (!returnVariable)
         return nullptr;
 
     variableNode->setExpression(createIdentifier(variableNode, variableNode->getScope(),
@@ -139,18 +139,18 @@ SharedVariableNode Inliner::visit(const SharedVariableNode &variableNode) {
 
 SharedVariableNode Inliner::visit(const SharedBinaryNode &binaryNode) {
     auto returnVariable = Inliner::visit(binaryNode->getLHS());
-    if (returnVariable != nullptr)
+    if (returnVariable)
         binaryNode->setLHS(createIdentifier(binaryNode, binaryNode->getScope(), returnVariable));
 
     returnVariable = Inliner::visit(binaryNode->getRHS());
-    if (returnVariable != nullptr)
+    if (returnVariable)
         binaryNode->setRHS(createIdentifier(binaryNode, binaryNode->getScope(), returnVariable));
     return nullptr;
 }
 
 SharedVariableNode Inliner::visit(const SharedUnaryNode &unaryNode) {
     auto returnVariable = Inliner::visit(unaryNode->getExpression());
-    if (returnVariable == nullptr)
+    if (!returnVariable)
         return nullptr;
 
     unaryNode->setExpression(createIdentifier(unaryNode, unaryNode->getScope(), returnVariable));
@@ -160,7 +160,7 @@ SharedVariableNode Inliner::visit(const SharedUnaryNode &unaryNode) {
 SharedVariableNode
 Inliner::visit(const SharedParenthesizedNode &parenthesizedNode) {
     auto returnVariable = Inliner::visit(parenthesizedNode->getExpression());
-    if (returnVariable == nullptr)
+    if (!returnVariable)
         return nullptr;
 
     parenthesizedNode->setExpression(createIdentifier(
@@ -182,7 +182,7 @@ Inliner::visit(const SharedFunctionArgumentNode &functionArgumentNode) {
 
 SharedVariableNode
 Inliner::visit(const SharedStructArgumentNode &structArgumentNode) {
-    if (structArgumentNode->getExpression() != nullptr)
+    if (structArgumentNode->getExpression())
         Inliner::visit(structArgumentNode->getExpression());
     return nullptr;
 }
@@ -196,7 +196,7 @@ SharedVariableNode Inliner::visit(const SharedFunctionCallNode &functionCallNode
         return nullptr;
 
     auto callFunction = functionCallNode->findNodeOfParents<FunctionNode>();
-    if (callFunction == nullptr) {
+    if (!callFunction) {
         THROW_NODE_ERROR(functionCallNode,
                          "The calling of an inlined function is currently just valid "
                          "inside a function block.")
@@ -204,7 +204,7 @@ SharedVariableNode Inliner::visit(const SharedFunctionCallNode &functionCallNode
     }
 
     SharedASTNode nodeBeforeBlock = functionCallNode;
-    while (nodeBeforeBlock->getParent() != nullptr
+    while (nodeBeforeBlock->getParent()
            && nodeBeforeBlock->getParent()->getKind() != ASTNode::BLOCK) {
         nodeBeforeBlock = functionCallNode->getParent();
     }
@@ -222,7 +222,7 @@ SharedVariableNode Inliner::visit(const SharedStructCreateNode &structCreateNode
 
 SharedVariableNode Inliner::visit(const SharedAssignmentNode &assignmentNode) {
     auto returnVariable = Inliner::visit(assignmentNode->getStartIdentifier());
-    if (returnVariable != nullptr) {
+    if (returnVariable) {
         auto oldIdentifier = assignmentNode->getStartIdentifier();
         assignmentNode->setStartIdentifier(createIdentifier(
                 oldIdentifier, oldIdentifier->getScope(), returnVariable));
@@ -233,11 +233,11 @@ SharedVariableNode Inliner::visit(const SharedAssignmentNode &assignmentNode) {
 
     auto lastIdentifier = assignmentNode->getStartIdentifier();
     auto currentIdentifier = lastIdentifier->getNextIdentifier();
-    while (currentIdentifier != nullptr) {
+    while (currentIdentifier) {
         returnVariable = Inliner::visit(currentIdentifier);
         currentIdentifier->setTypeResolved(false);
 
-        if (returnVariable != nullptr) {
+        if (returnVariable) {
             auto oldIdentifier = lastIdentifier->getNextIdentifier();
             lastIdentifier->setNextIdentifier(
                     createIdentifier(oldIdentifier, oldIdentifier->getScope(),
@@ -257,7 +257,7 @@ SharedVariableNode Inliner::visit(const SharedAssignmentNode &assignmentNode) {
     TypeResolver::visit(assignmentNode->getStartIdentifier());
 
     returnVariable = Inliner::visit(assignmentNode->getExpression());
-    if (returnVariable == nullptr)
+    if (!returnVariable)
         return nullptr;
 
     assignmentNode->setExpression(createIdentifier(assignmentNode, assignmentNode->getScope(),
@@ -266,11 +266,11 @@ SharedVariableNode Inliner::visit(const SharedAssignmentNode &assignmentNode) {
 }
 
 SharedVariableNode Inliner::visit(const SharedReturnNode &returnNode) {
-    if (returnNode->getExpression() == nullptr)
+    if (!returnNode->getExpression())
         return nullptr;
 
     auto returnVariable = Inliner::visit(returnNode->getExpression());
-    if (returnVariable == nullptr)
+    if (!returnVariable)
         return nullptr;
 
     returnNode->setExpression(createIdentifier(returnNode, returnNode->getScope(), returnVariable));
@@ -324,7 +324,7 @@ Inliner::generate(const SharedFunctionCallNode &functionCaller,
                                  scope);
     } else if (auto identifierNode = std::dynamic_pointer_cast<IdentifierNode>(node)) {
         auto firstIdentifier = identifierNode;
-        while (firstIdentifier->getLastIdentifier() != nullptr)
+        while (firstIdentifier->getLastIdentifier())
             firstIdentifier = firstIdentifier->getLastIdentifier();
 
         return Inliner::generate(functionCaller, returnVariable, firstIdentifier, prefix, parent,
@@ -510,7 +510,7 @@ Inliner::generate(const SharedFunctionCallNode &functionCaller,
             break;
         }
 
-        if (foundArgument == nullptr)
+        if (!foundArgument)
             continue;
 
         auto argument = Inliner::generate(functionCaller, returnVariable, foundArgument, prefix,
@@ -555,7 +555,7 @@ Inliner::generate(const SharedFunctionCallNode &functionCaller,
     generatedNode->setParent(parent);
     generatedNode->setScope(scope);
 
-    if (functionArgumentNode->getName() != nullptr)
+    if (functionArgumentNode->getName())
         generatedNode->setName(std::make_shared<Token>(*functionArgumentNode->getName()));
     generatedNode->setExpression(std::dynamic_pointer_cast<OperableNode>(Inliner::generate(
             functionCaller, returnVariable, functionArgumentNode->getExpression(), prefix,
@@ -584,7 +584,7 @@ Inliner::generate(const SharedFunctionCallNode &functionCaller,
                                                      prefix, generatedNode,
                                                      generatedNode->getScope()));
 
-    if (functionCallNode->getNextIdentifier() != nullptr) {
+    if (functionCallNode->getNextIdentifier()) {
         generatedNode->setNextIdentifier(Inliner::generate(
                 functionCaller, returnVariable, functionCallNode->getNextIdentifier(), prefix,
                 generatedNode, generatedNode->getScope()));
@@ -592,7 +592,7 @@ Inliner::generate(const SharedFunctionCallNode &functionCaller,
     }
 
     SharedIdentifierNode lastNode = generatedNode;
-    while (lastNode->getNextIdentifier() != nullptr)
+    while (lastNode->getNextIdentifier())
         lastNode = lastNode->getNextIdentifier();
     return lastNode;
 }
@@ -614,7 +614,7 @@ Inliner::generate(const SharedFunctionCallNode &functionCaller,
                                             generatedNode, generatedNode->getScope());
     generatedNode->setEndIdentifier(identifierNode);
     auto firstNode = identifierNode;
-    while (firstNode->getLastIdentifier() != nullptr)
+    while (firstNode->getLastIdentifier())
         firstNode = firstNode->getLastIdentifier();
     generatedNode->setStartIdentifier(firstNode);
 
@@ -650,7 +650,7 @@ Inliner::generate(const SharedFunctionCallNode &functionCaller,
 
     std::string identifierName;
     auto variableNode = std::dynamic_pointer_cast<VariableNode>(identifierNode->getTargetNode());
-    if (variableNode != nullptr && identifierNode->getLastIdentifier() == nullptr) {
+    if (variableNode && !identifierNode->getLastIdentifier()) {
         Symbols symbols;
         if (variableNode->isLocal()) {
             functionCaller->getScope()->all(symbols, identifierNode->getIdentifier()->getContent(),
@@ -669,7 +669,7 @@ Inliner::generate(const SharedFunctionCallNode &functionCaller,
     generatedNode->setIdentifier(std::make_shared<Token>(*identifierNode->getIdentifier()));
     generatedNode->getIdentifier()->setContent(identifierName);
 
-    if (identifierNode->getNextIdentifier() != nullptr) {
+    if (identifierNode->getNextIdentifier()) {
         generatedNode->setNextIdentifier(Inliner::generate(
                 functionCaller, returnVariable, identifierNode->getNextIdentifier(), prefix,
                 generatedNode, generatedNode->getScope()));
@@ -677,7 +677,7 @@ Inliner::generate(const SharedFunctionCallNode &functionCaller,
     }
 
     auto lastNode = generatedNode;
-    while (lastNode->getNextIdentifier() != nullptr)
+    while (lastNode->getNextIdentifier())
         lastNode = lastNode->getNextIdentifier();
     return lastNode;
 }
@@ -687,7 +687,7 @@ Inliner::generate(const SharedFunctionCallNode &functionCaller,
                   const SharedVariableNode &returnVariable, const SharedReturnNode &returnNode,
                   const std::string &prefix, const SharedASTNode &parent,
                   const SharedSymbolTable &scope) {
-    if (returnVariable == nullptr)
+    if (!returnVariable)
         return nullptr;
 
     auto generatedNode = std::make_shared<AssignmentNode>();
@@ -732,7 +732,7 @@ Inliner::generate(const SharedFunctionCallNode &functionCaller,
     generatedNode->setParent(parent);
     generatedNode->setScope(scope);
 
-    if (typeNode->getTypeToken() != nullptr)
+    if (typeNode->getTypeToken())
         generatedNode->setTypeToken(std::make_shared<Token>(*typeNode->getTypeToken()));
     generatedNode->setPointerLevel(typeNode->getPointerLevel());
     generatedNode->setFloating(typeNode->isFloating());
@@ -807,7 +807,7 @@ Inliner::inlineFunctionCall(const SharedFunctionNode &targetFunction,
     for (const auto &node : copiedNodes) {
         auto generatedNode = Inliner::generate(functionCallNode, returnVariable, node, prefix,
                                                insertBlock, insertBlock->getScope());
-        if (generatedNode == nullptr) {
+        if (!generatedNode) {
             THROW_NODE_ERROR(node, "Inliner: Couldn't inline this node.")
             continue;
         }

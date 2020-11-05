@@ -59,25 +59,25 @@ void Token::setType(Token::TokenType type) {
 }
 
 bool operator==(const std::shared_ptr<Token> &token, const std::string &toCheck) {
-    if(token == nullptr)
+    if (!token)
         return false;
     return token->getContent() == toCheck;
 }
 
 bool operator!=(const std::shared_ptr<Token> &token, const std::string &toCheck) {
-    if(token == nullptr)
+    if (!token)
         return false;
     return !(token == toCheck);
 }
 
 bool operator==(const std::shared_ptr<Token> &token, Token::TokenType toCheck) {
-    if(token == nullptr)
+    if (!token)
         return false;
     return token->getType() == toCheck;
 }
 
 bool operator!=(const std::shared_ptr<Token> &token, Token::TokenType toCheck) {
-    if(token == nullptr)
+    if (!token)
         return false;
     return !(token == toCheck);
 }
