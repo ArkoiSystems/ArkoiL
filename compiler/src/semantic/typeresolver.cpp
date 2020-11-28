@@ -2,14 +2,14 @@
 // Created by timo on 8/3/20.
 //
 
-#include "typeresolver.h"
+#include "../../include/semantic/typeresolver.h"
 
-#include "../parser/symboltable.h"
-#include "../parser/astnodes.h"
-#include "../compiler/error.h"
-#include "../lexer/lexer.h"
-#include "../lexer/token.h"
-#include "../utils/utils.h"
+#include "../../include/parser/symboltable.h"
+#include "../../include/parser/astnodes.h"
+#include "../../include/compiler/error.h"
+#include "../../include/lexer/lexer.h"
+#include "../../include/lexer/token.h"
+#include "../../include/utils/utils.h"
 
 void TypeResolver::visit(const SharedASTNode &node) {
     if (node->getKind() == ASTNode::TYPE) {

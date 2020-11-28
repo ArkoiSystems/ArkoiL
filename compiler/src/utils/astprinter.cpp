@@ -2,12 +2,12 @@
 // Created by timo on 10/17/20.
 //
 
-#include "astprinter.h"
+#include "../../include/utils/astprinter.h"
 
-#include "../parser/astnodes.h"
-#include "../compiler/error.h"
-#include "../lexer/token.h"
-#include "../utils/utils.h"
+#include "../../include/parser/astnodes.h"
+#include "../../include/compiler/error.h"
+#include "../../include/lexer/token.h"
+#include "../../include/utils/utils.h"
 
 void ASTPrinter::visit(const SharedASTNode &node,
                        std::ostream &output, int indents) {

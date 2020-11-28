@@ -2,7 +2,7 @@
 // Created by timo on 7/30/20.
 //
 
-#include "token.h"
+#include "../../include/lexer/token.h"
 
 Token::Token()
         : m_Type(Token::INVALID), m_LineNumber(0),

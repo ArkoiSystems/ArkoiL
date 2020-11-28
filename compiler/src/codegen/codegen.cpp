@@ -1,23 +1,23 @@
-#include "codegen.h"
+#include "../../include/codegen/codegen.h"
 
 //
 // Created by timo on 8/13/20.
 //
 
-#include "../parser/astnodes.h"
+#include "../../include/parser/astnodes.h"
 
 #include <iostream>
 #include <utility>
 
-#include "../semantic/typeresolver.h"
-#include "../semantic/typecheck.h"
-#include "../semantic/scopecheck.h"
-#include "../parser/symboltable.h"
-#include "inliner.h"
-#include "../compiler/error.h"
-#include "../lexer/lexer.h"
-#include "../lexer/token.h"
-#include "../utils/utils.h"
+#include "../../include/semantic/typeresolver.h"
+#include "../../include/semantic/typecheck.h"
+#include "../../include/semantic/scopecheck.h"
+#include "../../include/parser/symboltable.h"
+#include "../../include/semantic/inliner.h"
+#include "../../include/compiler/error.h"
+#include "../../include/lexer/lexer.h"
+#include "../../include/lexer/token.h"
+#include "../../include/utils/utils.h"
 
 CodeGen::CodeGen(std::string moduleName)
         : m_CurrentBlock(nullptr), m_Builder({m_Context}),

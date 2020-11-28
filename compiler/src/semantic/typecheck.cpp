@@ -2,13 +2,13 @@
 // Created by timo on 8/10/20.
 //
 
-#include "typecheck.h"
+#include "../../include/semantic/typecheck.h"
 
-#include "../parser/symboltable.h"
-#include "../parser/astnodes.h"
-#include "../compiler/error.h"
-#include "../lexer/token.h"
-#include "../utils/utils.h"
+#include "../../include/parser/symboltable.h"
+#include "../../include/parser/astnodes.h"
+#include "../../include/compiler/error.h"
+#include "../../include/lexer/token.h"
+#include "../../include/utils/utils.h"
 
 void TypeCheck::visit(const SharedASTNode &node) {
     if (node->getKind() == ASTNode::ROOT) {

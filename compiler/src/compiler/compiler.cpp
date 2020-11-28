@@ -2,28 +2,26 @@
 // Created by timo on 7/29/20.
 //
 
-#include "compiler.h"
+#include "../../include/compiler/compiler.h"
 
-#include <sys/stat.h>
-#include <unistd.h>
-
+#include <filesystem>
 #include <fstream>
 #include <chrono>
 
 #include <llvm/IR/Verifier.h>
 
-#include "../semantic/typeresolver.h"
-#include "../semantic/scopecheck.h"
-#include "../semantic/typecheck.h"
-#include "../utils/astprinter.h"
-#include "../codegen/inliner.h"
-#include "../parser/astnodes.h"
-#include "../codegen/codegen.h"
-#include "../parser/parser.h"
-#include "../lexer/lexer.h"
-#include "../lexer/token.h"
-#include "options.h"
-#include "error.h"
+#include "../../include/semantic/typeresolver.h"
+#include "../../include/semantic/scopecheck.h"
+#include "../../include/semantic/typecheck.h"
+#include "../../include/utils/astprinter.h"
+#include "../../include/compiler/options.h"
+#include "../../include/semantic/inliner.h"
+#include "../../include/parser/astnodes.h"
+#include "../../include/codegen/codegen.h"
+#include "../../include/compiler/error.h"
+#include "../../include/parser/parser.h"
+#include "../../include/lexer/lexer.h"
+#include "../../include/lexer/token.h"
 
 int Compiler::compile(const CompilerOptions &compilerOptions) {
     auto start = std::chrono::high_resolution_clock::now();
@@ -61,8 +59,7 @@ int Compiler::compile(const CompilerOptions &compilerOptions) {
     moduleName = moduleName.substr(moduleName.rfind('/') + 1, moduleName.length());
 
     if (compilerOptions.mb_VerboseArkoiRepresentation) {
-        std::cout << "[" << moduleName << "] Printing the representation:"
-                  << std::endl;
+        std::cout << "[" << moduleName << "] Printing the representation:" << std::endl;
 
         for (const auto &rootNode : roots) {
             std::cout << " " << rootNode->getSourcePath() << std::endl;
@@ -79,8 +76,7 @@ int Compiler::compile(const CompilerOptions &compilerOptions) {
     }
 
     if (compilerOptions.mb_VerboseModuleVerify)
-        std::cout << std::endl << "[" << moduleName << "] Verifying the module:"
-                  << std::endl;
+        std::cout << std::endl << "[" << moduleName << "] Verifying the module:" << std::endl;
 
     auto module = codeGen.getModule();
     std::string errors;
@@ -92,9 +88,9 @@ int Compiler::compile(const CompilerOptions &compilerOptions) {
                       << std::endl << " " << errors << std::endl;
             exit(EXIT_FAILURE);
         } else {
-            std::cout << std::endl << "There was a problem during the verification of the module."
-                      << std::endl
-                      << "If you want to have more information about it use the \"-vmv\" option."
+            std::cout << std::endl
+                      << "There was a problem during the verification of the module."
+                         "If you want to have more information about it use the \"-vmv\" option."
                       << std::endl;
             exit(EXIT_FAILURE);
         }
@@ -121,15 +117,11 @@ int Compiler::loadImports(const CompilerOptions &compilerOptions, std::set<std::
             SharedRootNode importRoot;
 
             for (const auto &searchPath : compilerOptions.m_SearchPaths) {
-                auto fullPath = searchPath + "/" + importNode->getPath()->getContent() + ".ark";
+                auto fullPath = std::filesystem::absolute(
+                        searchPath + "/" + importNode->getPath()->getContent() + ".ark");
 
-                struct stat path_stat{};
-                stat(fullPath.c_str(), &path_stat);
-                if (!S_ISREG(path_stat.st_mode) || access(fullPath.c_str(), F_OK) == -1)
+                if (!std::filesystem::exists(fullPath) || std::filesystem::is_directory(fullPath))
                     continue;
-
-                std::string realPath = realpath(fullPath.c_str(), nullptr);
-                fullPath = realPath;
 
                 if (loaded.find(fullPath) != loaded.end()) {
                     for (const auto &loadedRoot : roots) {
@@ -163,9 +155,7 @@ int Compiler::loadImports(const CompilerOptions &compilerOptions, std::set<std::
 }
 
 std::shared_ptr<Parser> Compiler::loadFile(const std::string &sourcePath) {
-    struct stat path_stat{};
-    stat(sourcePath.c_str(), &path_stat);
-    if (!S_ISREG(path_stat.st_mode)) {
+    if (!std::filesystem::exists(sourcePath) || !std::filesystem::is_regular_file(sourcePath)) {
         std::cout << "The given source path is not a file: " << sourcePath << std::endl;
         return nullptr;
     }

@@ -2,12 +2,12 @@
 // Created by timo on 8/7/20.
 //
 
-#include "symboltable.h"
+#include "../../include/parser/symboltable.h"
 
 #include <iostream>
 #include <utility>
 
-#include "astnodes.h"
+#include "../../include/parser/astnodes.h"
 
 SymbolTable::SymbolTable(SharedSymbolTable parent)
         : m_Parent(std::move(parent)), m_Table({}) {}

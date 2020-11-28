@@ -2,16 +2,16 @@
 // Created by timo on 7/30/20.
 //
 
-#include "parser.h"
+#include "../../include/parser/parser.h"
 
 #include <utility>
 
-#include "../parser/symboltable.h"
-#include "../compiler/error.h"
-#include "../lexer/lexer.h"
-#include "../lexer/token.h"
-#include "../utils/utils.h"
-#include "astnodes.h"
+#include "../../include/parser/symboltable.h"
+#include "../../include/compiler/error.h"
+#include "../../include/lexer/lexer.h"
+#include "../../include/lexer/token.h"
+#include "../../include/utils/utils.h"
+#include "../../include/parser/astnodes.h"
 
 Parser::Parser(std::string sourcePath, std::string sourceCode,
                std::vector<std::shared_ptr<Token>> tokens)

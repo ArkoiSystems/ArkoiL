@@ -2,12 +2,12 @@
 // Created by timo on 7/31/20.
 //
 
-#include "error.h"
+#include "../../include/compiler/error.h"
 
 #include <iostream>
 #include <utility>
 
-#include "../utils/utils.h"
+#include "../../include/utils/utils.h"
 
 Error::Error(std::string sourcePath, std::string sourceCode, unsigned int startLine,
              unsigned int endLine, unsigned int startChar, unsigned int endChar,

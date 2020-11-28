@@ -1,8 +1,8 @@
 #include <iostream>
 
-#include "utils/optionparser.h"
-#include "compiler/compiler.h"
-#include "compiler/options.h"
+#include "../include/utils/optionparser.h"
+#include "../include/compiler/compiler.h"
+#include "../include/compiler/options.h"
 
 int main(int argc, char *argv[]) {
     CompilerOptions compilerOptions{};

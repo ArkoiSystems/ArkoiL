@@ -2,14 +2,14 @@
 // Created by timo on 8/10/20.
 //
 
-#include "scopecheck.h"
+#include "../../include/semantic/scopecheck.h"
 
-#include "../parser/symboltable.h"
-#include "../parser/astnodes.h"
-#include "../compiler/error.h"
-#include "../lexer/lexer.h"
-#include "../lexer/token.h"
-#include "../utils/utils.h"
+#include "../../include/parser/symboltable.h"
+#include "../../include/parser/astnodes.h"
+#include "../../include/compiler/error.h"
+#include "../../include/lexer/lexer.h"
+#include "../../include/lexer/token.h"
+#include "../../include/utils/utils.h"
 
 void ScopeCheck::visit(const SharedASTNode &node) {
     if (node->getKind() == ASTNode::ROOT) {

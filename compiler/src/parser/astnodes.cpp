@@ -3,11 +3,11 @@
 //
 
 #include <sstream>
-#include "astnodes.h"
+#include "../../include/parser/astnodes.h"
 
-#include "../lexer/token.h"
-#include "../utils/utils.h"
-#include "symboltable.h"
+#include "../../include/lexer/token.h"
+#include "../../include/utils/utils.h"
+#include "../../include/parser/symboltable.h"
 
 /* ----------======== AST-NODE ========---------- */
 

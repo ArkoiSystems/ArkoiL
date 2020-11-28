@@ -2,14 +2,14 @@
 // Created by timo on 10/15/20.
 //
 
-#include "inliner.h"
+#include "../../include/semantic/inliner.h"
 
-#include "../parser/symboltable.h"
-#include "../compiler/error.h"
-#include "../parser/astnodes.h"
-#include "../lexer/token.h"
-#include "../utils/utils.h"
-#include "../semantic/typeresolver.h"
+#include "../../include/parser/symboltable.h"
+#include "../../include/compiler/error.h"
+#include "../../include/parser/astnodes.h"
+#include "../../include/lexer/token.h"
+#include "../../include/utils/utils.h"
+#include "../../include/semantic/typeresolver.h"
 
 SharedVariableNode Inliner::visit(const SharedASTNode &node) {
     if (node->getKind() == ASTNode::ROOT) {

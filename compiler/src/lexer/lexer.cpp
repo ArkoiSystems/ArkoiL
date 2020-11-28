@@ -2,16 +2,16 @@
 // Created by timo on 7/29/20.
 //
 
-#include "lexer.h"
+#include "../../include/lexer/lexer.h"
 
 #include <iostream>
 #include <utility>
 
 #include <fmt/core.h>
 
-#include "../compiler/error.h"
-#include "../utils/utils.h"
-#include "token.h"
+#include "../../include/compiler/error.h"
+#include "../../include/utils/utils.h"
+#include "../../include/lexer/token.h"
 
 Lexer::Lexer(std::string sourcePath, std::string sourceCode)
         : m_SourceCode(std::move(sourceCode)), m_SourcePath(std::move(sourcePath)),
