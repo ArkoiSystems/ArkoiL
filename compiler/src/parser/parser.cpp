@@ -8,7 +8,7 @@
 
 #include "../../include/parser/symboltable.h"
 #include "../../include/compiler/error.h"
-#include "../../include/lexer/lexer.h"
+#include "../../include/lexer/levenstein.h"
 #include "../../include/lexer/token.h"
 #include "../../include/utils/utils.h"
 #include "../../include/parser/astnodes.h"
@@ -399,23 +399,23 @@ SharedOperableNode Parser::parseRelational(const SharedASTNode &parent, bool res
     auto lhs = parseAdditive(parent, resetFirstFail);
     while (true) {
         BinaryNode::BinaryKind operatorKind;
-        switch (Utils::hash(peekToken(1)->getContent().c_str())) {
-            case Utils::hash(">"):
+        switch (utils::hash(peekToken(1)->getContent().c_str())) {
+            case utils::hash(">"):
                 operatorKind = BinaryNode::GREATER_THAN;
                 break;
-            case Utils::hash("<"):
+            case utils::hash("<"):
                 operatorKind = BinaryNode::LESS_THAN;
                 break;
-            case Utils::hash(">="):
+            case utils::hash(">="):
                 operatorKind = BinaryNode::GREATER_EQUAL_THAN;
                 break;
-            case Utils::hash("<="):
+            case utils::hash("<="):
                 operatorKind = BinaryNode::LESS_EQUAL_THAN;
                 break;
-            case Utils::hash("=="):
+            case utils::hash("=="):
                 operatorKind = BinaryNode::EQUAL;
                 break;
-            case Utils::hash("!="):
+            case utils::hash("!="):
                 operatorKind = BinaryNode::NOT_EQUAL;
                 break;
             default:
@@ -440,11 +440,11 @@ SharedOperableNode Parser::parseAdditive(const SharedASTNode &parent, bool reset
     auto lhs = parseMultiplicative(parent, resetFirstFail);
     while (true) {
         BinaryNode::BinaryKind operatorKind;
-        switch (Utils::hash(peekToken(1)->getContent().c_str())) {
-            case Utils::hash("+"):
+        switch (utils::hash(peekToken(1)->getContent().c_str())) {
+            case utils::hash("+"):
                 operatorKind = BinaryNode::ADDITION;
                 break;
-            case Utils::hash("-"):
+            case utils::hash("-"):
                 operatorKind = BinaryNode::SUBTRACTION;
                 break;
             default:
@@ -469,14 +469,14 @@ SharedOperableNode Parser::parseMultiplicative(const SharedASTNode &parent, bool
     auto lhs = parseCast(parent, resetFirstFail);
     while (true) {
         BinaryNode::BinaryKind operatorKind;
-        switch (Utils::hash(peekToken(1)->getContent().c_str())) {
-            case Utils::hash("*"):
+        switch (utils::hash(peekToken(1)->getContent().c_str())) {
+            case utils::hash("*"):
                 operatorKind = BinaryNode::MULTIPLICATION;
                 break;
-            case Utils::hash("/"):
+            case utils::hash("/"):
                 operatorKind = BinaryNode::DIVISION;
                 break;
-            case Utils::hash("%"):
+            case utils::hash("%"):
                 operatorKind = BinaryNode::REMAINING;
                 break;
             default:
@@ -501,8 +501,8 @@ SharedOperableNode Parser::parseCast(const SharedASTNode &parent, bool resetFirs
     auto lhs = parseOperable(parent, resetFirstFail);
     while (true) {
         BinaryNode::BinaryKind operatorKind;
-        switch (Utils::hash(peekToken(1)->getContent().c_str())) {
-            case Utils::hash("bitcast"):
+        switch (utils::hash(peekToken(1)->getContent().c_str())) {
+            case utils::hash("bitcast"):
                 operatorKind = BinaryNode::BIT_CAST;
                 break;
             default:

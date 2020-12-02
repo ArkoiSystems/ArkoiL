@@ -4,25 +4,40 @@
 
 #include "../../include/compiler/error.h"
 
-#include <iostream>
 #include <utility>
+#include <sstream>
 
 #include "../../include/utils/utils.h"
+#include "../../include/utils/ansi.h"
 
-Error::Error(std::string sourcePath, std::string sourceCode, unsigned int startLine,
-             unsigned int endLine, unsigned int startChar, unsigned int endChar,
-             std::string causeMessage)
+Error::Error(ErrorType errorType, std::string sourcePath, std::string sourceCode,
+             unsigned int startLine, unsigned int endLine, unsigned int startChar,
+             unsigned int endChar, std::string causeMessage)
         : m_CauseMessage(std::move(causeMessage)), m_SourcePath(std::move(sourcePath)),
           m_SourceCode(std::move(sourceCode)), m_StartLine(startLine),
           m_EndLine(endLine), m_StartChar(startChar),
-          m_EndChar(endChar) {}
+          m_EndChar(endChar), m_ErrorType(errorType) {}
 
 std::ostream &operator<<(std::ostream &out, const Error &error) {
-    out << error.m_SourcePath << ":" << (error.m_StartLine + 1) << " "
-        << error.m_CauseMessage << std::endl;
+    std::stringstream errorName;
+    switch(error.m_ErrorType) {
+        case Error::WARN:
+            errorName << ansi::magenta << "warn";
+            break;
+        case Error::ERROR:
+            errorName << ansi::red << "error";
+            break;
+        case Error::NOTE:
+            errorName << ansi::white << "note";
+            break;
+    }
+
+    auto fileName = error.m_SourcePath.substr(error.m_SourcePath.find_last_of("/\\") + 1);
+    out << fileName << ":" << (error.m_StartLine + 1) << ":" << error.m_StartChar << ": "
+        << errorName.str() << ansi::reset << ": " <<  error.m_CauseMessage << std::endl;
 
     std::vector<std::string> lines;
-    Utils::split(error.m_SourceCode, lines, '\n');
+    utils::split(error.m_SourceCode, lines, '\n');
 
     unsigned int startLineChar = 0;
     unsigned int endLineChar = 0;
@@ -48,39 +63,45 @@ std::ostream &operator<<(std::ostream &out, const Error &error) {
         auto whitespaces = biggestNumber.size() - currentNumber.size();
 
         auto line = lines[lineIndex - 1];
-        Utils::rtrim(line);
+        utils::rtrim(line);
 
-        out << "> " << std::string(whitespaces, ' ') << lineIndex << " | " << line << std::endl;
+        out << ansi::reset
+            << ansi::cyan << "> " << ansi::bright_cyan << std::string(whitespaces, ' ') << lineIndex
+            << ansi::reset << " | " << line << std::endl;
         if (error.m_StartLine == lineIndex - 1 && error.m_EndLine == lineIndex - 1) {
             out << "  " << std::string(biggestNumber.size(), ' ') << " | "
                 << std::string(startLineDifference, ' ')
+                << ansi::green
                 << std::string(1, '^')
                 << std::string((endLineDifference - startLineDifference) - 1, '~')
-                << std::endl;
+                << ansi::reset << std::endl;
         } else if (error.m_StartLine == lineIndex - 1 && error.m_EndLine != lineIndex - 1) {
             out << "  " << std::string(biggestNumber.size(), ' ') << " | "
                 << std::string(startLineDifference, ' ')
+                << ansi::green
                 << std::string(1, '^')
                 << std::string((line.size() - startLineDifference) - 1, '~')
-                << std::endl;
+                << ansi::reset << std::endl;
         } else if (error.m_StartLine != lineIndex - 1 && error.m_EndLine == lineIndex - 1) {
             auto lastSize = line.size();
-            Utils::ltrim(line);
+            utils::ltrim(line);
             auto difference = lastSize - line.size();
             out << "  " << std::string(biggestNumber.size(), ' ') << " | "
                 << std::string(difference, ' ')
+                << ansi::green
                 << std::string(1, '^')
                 << std::string((endLineDifference - difference) - 1, '~')
-                << std::endl;
+                << ansi::reset << std::endl;
         } else if (error.m_StartLine < lineIndex - 1 && error.m_EndLine > lineIndex - 1) {
             auto lastSize = line.size();
-            Utils::ltrim(line);
+            utils::ltrim(line);
             auto difference = lastSize - line.size();
             out << "  " << std::string(biggestNumber.size(), ' ') << " | "
                 << std::string(difference, ' ')
+                << ansi::green
                 << std::string(1, '^')
                 << std::string(line.size() - 1, '~')
-                << std::endl;
+                << ansi::reset << std::endl;
         }
     }
 

@@ -20,7 +20,7 @@
 #include "../../include/codegen/codegen.h"
 #include "../../include/compiler/error.h"
 #include "../../include/parser/parser.h"
-#include "../../include/lexer/lexer.h"
+#include "../../include/lexer/levenstein.h"
 #include "../../include/lexer/token.h"
 
 int Compiler::compile(const CompilerOptions &compilerOptions) {

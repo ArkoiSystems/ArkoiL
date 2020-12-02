@@ -7,7 +7,7 @@
 #include "../../include/parser/symboltable.h"
 #include "../../include/parser/astnodes.h"
 #include "../../include/compiler/error.h"
-#include "../../include/lexer/lexer.h"
+#include "../../include/lexer/levenstein.h"
 #include "../../include/lexer/token.h"
 #include "../../include/utils/utils.h"
 
@@ -383,7 +383,7 @@ void TypeResolver::visit(const SharedFunctionArgumentNode &functionArgumentNode)
                 auto sortedArguments(parentCall->getArguments());
                 parentCall->getSortedArguments(parentFunction, sortedArguments);
 
-                auto argumentIndex = Utils::indexOf(sortedArguments, functionArgumentNode).second;
+                auto argumentIndex = utils::indexOf(sortedArguments, functionArgumentNode).second;
                 if (argumentIndex == -1) {
                     THROW_NODE_ERROR(structCreate, "Couldn't find the argument index for the "
                                                    "function call.")

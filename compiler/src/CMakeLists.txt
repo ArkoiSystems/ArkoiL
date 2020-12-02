@@ -12,7 +12,7 @@ set(SOURCE_FILES
         parser/astnodes.cpp
         ../include/parser/astnodes.h
         lexer/lexer.cpp
-        ../include/lexer/lexer.h
+        ../include/lexer/levenstein.h
         compiler/compiler.cpp
         ../include/compiler/compiler.h
         parser/parser.cpp
@@ -66,7 +66,7 @@ install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/
 
 add_executable(arkoic_exe
         main.cpp
-        ${SOURCE_FILES})
+        ${SOURCE_FILES} ../include/utils/ansi.h)
 
 set_target_properties(arkoic_exe
         PROPERTIES

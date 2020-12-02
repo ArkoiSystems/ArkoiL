@@ -12,6 +12,16 @@ class Token;
 
 class Lexer {
 
+#define THROW_LEXER_ERROR(startChar, endChar, ...) \
+        std::cout << Error(Error::NOTE,            \
+                           m_SourcePath,  \
+                           m_SourceCode,  \
+                           m_CurrentLine, \
+                           m_CurrentLine, \
+                           startChar,  \
+                           endChar,  \
+                           fmt::format(__VA_ARGS__));
+
 private:
     unsigned int m_Position, m_CurrentLine;
     std::string m_SourceCode, m_SourcePath;

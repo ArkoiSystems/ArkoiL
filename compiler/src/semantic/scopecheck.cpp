@@ -7,7 +7,7 @@
 #include "../../include/parser/symboltable.h"
 #include "../../include/parser/astnodes.h"
 #include "../../include/compiler/error.h"
-#include "../../include/lexer/lexer.h"
+#include "../../include/lexer/levenstein.h"
 #include "../../include/lexer/token.h"
 #include "../../include/utils/utils.h"
 
@@ -122,7 +122,7 @@ void ScopeCheck::visit(const SharedBlockNode &blockNode) {
 
     if (!returns.empty()) {
         auto targetReturn = returns.at(0);
-        auto returnIndex = Utils::indexOf(blockNode->getNodes(), targetReturn);
+        auto returnIndex = utils::indexOf(blockNode->getNodes(), targetReturn);
         if (returnIndex.second != blockNode->getNodes().size() - 1) {
             THROW_NODE_ERROR(targetReturn, "Everything after a return statement is unreachable.")
             return;
@@ -215,14 +215,14 @@ void ScopeCheck::visit(const SharedIdentifierNode &identifierNode) {
     int variableParentIndex;
     int targetVariableIndex;
     if (auto structNode = variableParent->findNodeOfParents<StructNode>()) {
-        variableParentIndex = Utils::indexOf(structNode->getVariables(), variableParent).second;
-        targetVariableIndex = Utils::indexOf(structNode->getVariables(), targetVariable).second;
+        variableParentIndex = utils::indexOf(structNode->getVariables(), variableParent).second;
+        targetVariableIndex = utils::indexOf(structNode->getVariables(), targetVariable).second;
     } else if (auto blockNode = variableParent->findNodeOfParents<BlockNode>()) {
-        variableParentIndex = Utils::indexOf(blockNode->getNodes(), variableParent).second;
-        targetVariableIndex = Utils::indexOf(blockNode->getNodes(), targetVariable).second;
+        variableParentIndex = utils::indexOf(blockNode->getNodes(), variableParent).second;
+        targetVariableIndex = utils::indexOf(blockNode->getNodes(), targetVariable).second;
     } else if (auto rootNode = variableParent->findNodeOfParents<RootNode>()) {
-        variableParentIndex = Utils::indexOf(rootNode->getNodes(), variableParent).second;
-        targetVariableIndex = Utils::indexOf(rootNode->getNodes(), targetVariable).second;
+        variableParentIndex = utils::indexOf(rootNode->getNodes(), variableParent).second;
+        targetVariableIndex = utils::indexOf(rootNode->getNodes(), targetVariable).second;
     } else {
         THROW_NODE_ERROR(identifierNode, "Case not implemented for the \"loaded variable\" check.")
         exit(EXIT_FAILURE);

@@ -1410,8 +1410,8 @@ bool FunctionCallNode::getSortedArguments(const SharedFunctionNode &functionNode
             return false;
 
         auto foundParameter = std::static_pointer_cast<ParameterNode>(foundParameters[0]);
-        auto parameterIndex = Utils::indexOf(functionNode->getParameters(), foundParameter).second;
-        auto argumentIndex = Utils::indexOf(sortedArguments, argument).second;
+        auto parameterIndex = utils::indexOf(functionNode->getParameters(), foundParameter).second;
+        auto argumentIndex = utils::indexOf(sortedArguments, argument).second;
         sortedArguments.erase(sortedArguments.begin() + argumentIndex);
         sortedArguments.insert(sortedArguments.begin() + parameterIndex, argument);
     }

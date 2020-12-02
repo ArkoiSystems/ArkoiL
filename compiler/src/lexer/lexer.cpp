@@ -2,7 +2,7 @@
 // Created by timo on 7/29/20.
 //
 
-#include "../../include/lexer/lexer.h"
+#include "../../include/lexer/levenstein.h"
 
 #include <iostream>
 #include <utility>
@@ -84,24 +84,24 @@ void Lexer::parseIdentifier(const std::shared_ptr<Token> &token) {
         m_Position++;
     }
 
-    switch (Utils::hash(token->getContent().c_str())) {
-        case Utils::hash("this"):
-        case Utils::hash("var"):
-        case Utils::hash("return"):
-        case Utils::hash("struct"):
-        case Utils::hash("fun"):
-        case Utils::hash("as"):
-        case Utils::hash("import"):
-        case Utils::hash("if"):
-        case Utils::hash("const"):
-        case Utils::hash("else"):
-        case Utils::hash("bitcast"):
+    switch (utils::hash(token->getContent().c_str())) {
+        case utils::hash("this"):
+        case utils::hash("var"):
+        case utils::hash("return"):
+        case utils::hash("struct"):
+        case utils::hash("fun"):
+        case utils::hash("as"):
+        case utils::hash("import"):
+        case utils::hash("if"):
+        case utils::hash("const"):
+        case utils::hash("else"):
+        case utils::hash("bitcast"):
             token->setType(Token::KEYWORD);
             break;
-        case Utils::hash("bool"):
-        case Utils::hash("float"):
-        case Utils::hash("double"):
-        case Utils::hash("void"):
+        case utils::hash("bool"):
+        case utils::hash("float"):
+        case utils::hash("double"):
+        case utils::hash("void"):
             token->setType(Token::TYPE);
             break;
         default:

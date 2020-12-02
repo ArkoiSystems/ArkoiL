@@ -15,7 +15,7 @@
 #include "../../include/parser/symboltable.h"
 #include "../../include/semantic/inliner.h"
 #include "../../include/compiler/error.h"
-#include "../../include/lexer/lexer.h"
+#include "../../include/lexer/levenstein.h"
 #include "../../include/lexer/token.h"
 #include "../../include/utils/utils.h"
 
@@ -52,7 +52,7 @@ void *CodeGen::visit(const SharedASTNode &node) {
 
         auto structCreateNode = std::static_pointer_cast<StructCreateNode>(
                 structArgumentNode->getParent());
-        auto argumentIndex = Utils::indexOf(structCreateNode->getArguments(),
+        auto argumentIndex = utils::indexOf(structCreateNode->getArguments(),
                                             structArgumentNode).second;
         auto structVariable = CodeGen::visit(structCreateNode);
 
@@ -442,7 +442,7 @@ llvm::Value *CodeGen::visit(const SharedIdentifierNode &identifierNode) {
             exit(EXIT_FAILURE);
         }
 
-        auto variableIndex = Utils::indexOf(targetStruct->getVariables(), variableNode).second;
+        auto variableIndex = utils::indexOf(targetStruct->getVariables(), variableNode).second;
         targetValue = m_Builder.CreateStructGEP(targetValue, variableIndex);
 
         if (currentIdentifier->isDereference()) {
@@ -796,8 +796,8 @@ std::string CodeGen::dumpModule() {
     output << *m_Module;
     output.flush();
 
-    Utils::ltrim(dumpedCode);
-    Utils::rtrim(dumpedCode);
+    utils::ltrim(dumpedCode);
+    utils::rtrim(dumpedCode);
 
     return dumpedCode;
 }
@@ -874,8 +874,8 @@ std::string CodeGen::dumpValue(llvm::Value *value) {
     output << *value;
     output.flush();
 
-    Utils::ltrim(dumpedCode);
-    Utils::rtrim(dumpedCode);
+    utils::ltrim(dumpedCode);
+    utils::rtrim(dumpedCode);
 
     return dumpedCode;
 }

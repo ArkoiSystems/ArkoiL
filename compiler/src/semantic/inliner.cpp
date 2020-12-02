@@ -209,7 +209,7 @@ SharedVariableNode Inliner::visit(const SharedFunctionCallNode &functionCallNode
         nodeBeforeBlock = functionCallNode->getParent();
     }
 
-    auto nodeIndex = Utils::indexOf(callFunction->getBlock()->getNodes(), nodeBeforeBlock).second;
+    auto nodeIndex = utils::indexOf(callFunction->getBlock()->getNodes(), nodeBeforeBlock).second;
     return Inliner::inlineFunctionCall(functionNode, functionCallNode, callFunction->getBlock(),
                                        nodeIndex);
 }
@@ -747,7 +747,7 @@ Inliner::inlineFunctionCall(const SharedFunctionNode &targetFunction,
                             const SharedFunctionCallNode &functionCallNode,
                             const SharedBlockNode &insertBlock,
                             int insertIndex) {
-    auto prefix = std::to_string(Utils::hash(Utils::random_string(6).c_str()));
+    auto prefix = std::to_string(utils::hash(utils::random_string(6).c_str()));
     std::vector<SharedASTNode> generatedNodes;
 
     SharedVariableNode returnVariable = nullptr;
