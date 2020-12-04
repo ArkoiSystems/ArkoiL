@@ -5,5 +5,5 @@ add_subdirectory(lib/googletest)
 include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR})
 
 add_executable(arkoic_test
-        tests/levenstein.cpp)
+        tests/levenshtein.cpp tests/levenshtein.cpp)
 target_link_libraries(arkoic_test gtest gtest_main)

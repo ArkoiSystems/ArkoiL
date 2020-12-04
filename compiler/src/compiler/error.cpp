@@ -36,8 +36,7 @@ std::ostream &operator<<(std::ostream &out, const Error &error) {
     out << fileName << ":" << (error.m_StartLine + 1) << ":" << error.m_StartChar << ": "
         << errorName.str() << ansi::reset << ": " <<  error.m_CauseMessage << std::endl;
 
-    std::vector<std::string> lines;
-    utils::split(error.m_SourceCode, lines, '\n');
+    auto lines = utils::split(error.m_SourceCode, "\n");
 
     unsigned int startLineChar = 0;
     unsigned int endLineChar = 0;

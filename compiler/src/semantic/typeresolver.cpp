@@ -7,7 +7,7 @@
 #include "../../include/parser/symboltable.h"
 #include "../../include/parser/astnodes.h"
 #include "../../include/compiler/error.h"
-#include "../../include/lexer/levenstein.h"
+#include "../../include/lexer/lexer.h"
 #include "../../include/lexer/token.h"
 #include "../../include/utils/utils.h"
 
@@ -327,6 +327,9 @@ void TypeResolver::visit(const SharedIdentifierNode &identifierNode) {
     identifierNode->setType(SharedTypeNode(typedNode->getType()->clone(
             identifierNode, identifierNode->getScope())));
     TypeResolver::visit(identifierNode->getType());
+
+    if (identifierNode->getKind() == ASTNode::FUNCTION_CALL)
+        TypeResolver::visit(std::static_pointer_cast<FunctionCallNode>(identifierNode));
     identifierNode->setTypeResolved(true);
 
     if (identifierNode->isDereference() && identifierNode->getType()->getPointerLevel() <= 0) {
@@ -340,9 +343,6 @@ void TypeResolver::visit(const SharedIdentifierNode &identifierNode) {
     else if (identifierNode->isDereference())
         identifierNode->getType()->setPointerLevel(
                 identifierNode->getType()->getPointerLevel() - 1);
-
-    if (identifierNode->getKind() == ASTNode::FUNCTION_CALL)
-        TypeResolver::visit(std::static_pointer_cast<FunctionCallNode>(identifierNode));
 
     if (identifierNode->getNextIdentifier()
         && !identifierNode->getType()->getTargetStruct()) {

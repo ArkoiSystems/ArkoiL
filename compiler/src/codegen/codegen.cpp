@@ -15,7 +15,7 @@
 #include "../../include/parser/symboltable.h"
 #include "../../include/semantic/inliner.h"
 #include "../../include/compiler/error.h"
-#include "../../include/lexer/levenstein.h"
+#include "../../include/lexer/lexer.h"
 #include "../../include/lexer/token.h"
 #include "../../include/utils/utils.h"
 

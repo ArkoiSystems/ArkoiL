@@ -2,7 +2,7 @@
 // Created by timo on 7/29/20.
 //
 
-#include "../../include/lexer/levenstein.h"
+#include "../../include/lexer/lexer.h"
 
 #include <iostream>
 #include <utility>

@@ -48,8 +48,6 @@ int main(int argc, char *argv[]) {
 
     compilerOptions.m_SearchPaths.push_back(
             compilerOptions.m_SourceFile.substr(0, compilerOptions.m_SourceFile.rfind('/')));
-    compilerOptions.m_SearchPaths.emplace_back("../../stdlib");
-    compilerOptions.m_SearchPaths.emplace_back("");
 
     return Compiler::compile(compilerOptions);
 }

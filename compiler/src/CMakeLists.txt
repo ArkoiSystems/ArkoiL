@@ -12,7 +12,7 @@ set(SOURCE_FILES
         parser/astnodes.cpp
         ../include/parser/astnodes.h
         lexer/lexer.cpp
-        ../include/lexer/levenstein.h
+        ../include/lexer/lexer.h
         compiler/compiler.cpp
         ../include/compiler/compiler.h
         parser/parser.cpp

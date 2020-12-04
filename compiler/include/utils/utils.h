@@ -8,78 +8,66 @@
 #include <memory>
 #include <vector>
 #include <any>
+#include <regex>
 
 #include "../parser/allnodes.h"
 
 #define DEFER_1(x, y) x##y
 #define DEFER_2(x, y) DEFER_1(x, y)
 #define DEFER_3(x)    DEFER_2(x, __COUNTER__)
-#define defer(code)   auto DEFER_3(_defer_) = defer_func([&](){code;})
-
-template<typename Function>
-class DeferStruct {
-
-private:
-    Function function;
-
-public:
-    explicit DeferStruct(Function function) : function(function) {}
-
-    ~DeferStruct() { function(); }
-
-};
-
-template<typename Function>
-DeferStruct<Function> defer_func(Function function) {
-    return DeferStruct<Function>(function);
-}
+#define defer(code)   auto DEFER_3(_defer_) = utils::defer_func([&](){code;})
 
 namespace utils {
 
-    static void split(const std::string &input, std::vector<std::string> &list,
-                      char delimiter = ' ') {
-        std::size_t current, previous = 0;
-        current = input.find(delimiter);
+    template<typename Function>
+    class Defer {
 
-        while (current != std::string::npos) {
-            list.emplace_back(input.substr(previous, current - previous));
-            previous = current + 1;
-            current = input.find(delimiter, previous);
-        }
+    private:
+        Function function;
 
-        list.emplace_back(input.substr(previous, current - previous));
+    public:
+        explicit Defer(Function function) : function(function) {}
+
+        ~Defer() { function(); }
+
+    };
+
+    template<typename Function>
+    static Defer<Function> defer_func(Function function) {
+        return Defer<Function>(function);
     }
 
-    static void ltrim(std::string &input) {
-        input.erase(input.begin(), std::find_if(input.begin(), input.end(), [](int current) {
-            return !std::isspace(current);
-        }));
+    static std::vector<std::string> split(const std::string &input,
+                                          const std::string &delimiter = "\\w+") {
+        std::regex regex(delimiter);
+        std::sregex_token_iterator first{input.begin(), input.end(), regex, -1}, last;
+        return {first, last};
     }
 
-    static void rtrim(std::string &input) {
-        input.erase(std::find_if(input.rbegin(), input.rend(), [](int current) {
-            return !std::isspace(current);
-        }).base(), input.end());
+    static std::string &ltrim(std::string &input, const std::string &chars = "\t\n\v\f\r") {
+        input.erase(0, input.find_first_not_of(chars));
+        return input;
     }
 
-    static constexpr unsigned int hash(const char *string, int index = 0) {
-        return !string[index] ? 5381 : (hash(string, index + 1) * 33) ^ string[index];
+    static std::string &rtrim(std::string &input, const std::string &chars = "\t\n\v\f\r") {
+        input.erase(input.find_last_not_of(chars) + 1);
+        return input;
+    }
+
+    static std::string &trim(std::string &input, const std::string &chars = "\t\n\v\f\r") {
+        return ltrim(rtrim(input, chars), chars);
+    }
+
+    static constexpr unsigned int hash(const char *input) {
+        return *input ? (unsigned int) *input + 33 * hash(input + 1) : 5381;
     }
 
     template<typename Container, typename Type>
-    static std::pair<bool, int> indexOf(const Container &vector, const Type &element) {
-        std::pair<bool, int> result;
-
-        auto iterator = std::find(vector.begin(), vector.end(), element);
-        if (iterator != vector.end()) {
-            result.second = distance(vector.begin(), iterator);
-            result.first = true;
-        } else {
-            result.first = false;
-            result.second = -1;
-        }
-
-        return result;
+    static std::pair<bool, int> indexOf(const Container &container, const Type &element) {
+        auto position = std::distance(container.begin(), std::find(container.begin(),
+                                                                   container.end(), element));
+        auto foundElement = position <= container.size();
+        return {foundElement, position};
     }
 
     static std::string random_string(unsigned long length) {
@@ -97,35 +85,15 @@ namespace utils {
         return string;
     }
 
-    static std::pair<bool, int> indexOf(const std::vector<SharedASTNode> &vector,
-                                        const SharedASTNode &element) {
-        std::pair<bool, int> result;
-
-        for (int index = 0; index < vector.size(); index++) {
-            auto node = vector.at(index);
-            if (node != element)
-                continue;
-
-            result.first = true;
-            result.second = index;
-            return result;
-        }
-
-        result.first = false;
-        result.second = -1;
-
-        return result;
-    }
-
     // https://en.wikibooks.org/wiki/Algorithm_Implementation/Strings/Levenshtein_distance#C++
     template<typename T>
-    typename T::size_type levensteinDistance(const T &source,
-                                             const T &target,
-                                             typename T::size_type insert_cost = 1,
-                                             typename T::size_type delete_cost = 1,
-                                             typename T::size_type replace_cost = 1) {
+    static typename T::size_type levenshteinDistance(const T &source,
+                                                     const T &target,
+                                                     typename T::size_type insert_cost = 1,
+                                                     typename T::size_type delete_cost = 1,
+                                                     typename T::size_type replace_cost = 1) {
         if (source.size() > target.size())
-            return levensteinDistance(target, source, delete_cost, insert_cost, replace_cost);
+            return levenshteinDistance(target, source, delete_cost, insert_cost, replace_cost);
 
         using TSizeType = typename T::size_type;
         const TSizeType min_size = source.size(), max_size = target.size();
@@ -145,9 +113,9 @@ namespace utils {
                 if (source[i - 1] == target[j - 1]) {
                     lev_dist[i] = previous_diagonal;
                 } else {
-                    lev_dist[i] = std::min(
-                            std::min(lev_dist[i - 1] + delete_cost, lev_dist[i] + insert_cost),
-                            previous_diagonal + replace_cost);
+                    lev_dist[i] = std::min(std::min(lev_dist[i - 1] + delete_cost,
+                                                    lev_dist[i] + insert_cost),
+                                           previous_diagonal + replace_cost);
                 }
                 previous_diagonal = previous_diagonal_save;
             }
