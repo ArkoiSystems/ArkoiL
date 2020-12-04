@@ -4,6 +4,8 @@
 
 #include "../../include/semantic/typeresolver.h"
 
+#include <fmt/core.h>
+
 #include "../../include/parser/symboltable.h"
 #include "../../include/parser/astnodes.h"
 #include "../../include/compiler/error.h"
@@ -53,7 +55,7 @@ void TypeResolver::visit(const SharedASTNode &node) {
     } else if (node->getKind() == ASTNode::PARENTHESIZED) {
         TypeResolver::visit(std::static_pointer_cast<ParenthesizedNode>(node));
     } else if (node->getKind() != ASTNode::IMPORT) {
-        THROW_NODE_ERROR(node, "TypeResolver: Unsupported node: " + node->getKindAsString())
+        throwNode(Error::ERROR, node, "TypeResolver: Unsupported node: " + node->getKindAsString());
         exit(EXIT_FAILURE);
     }
 }
@@ -288,8 +290,8 @@ void TypeResolver::visit(const SharedIdentifierNode &identifierNode) {
     }
 
     if (foundNodes.empty()) {
-        THROW_NODE_ERROR(identifierNode, "Couldn't find the identifier \"{}\".",
-                         identifierNode->getIdentifier()->getContent())
+        throwNode(Error::ERROR, identifierNode, "Couldn't find the identifier \"{}\".",
+                  identifierNode->getIdentifier()->getContent());
         return;
     }
 
@@ -311,13 +313,14 @@ void TypeResolver::visit(const SharedIdentifierNode &identifierNode) {
     }
 
     if (!targetNode) {
-        THROW_NODE_ERROR(identifierNode, "Couldn't find the target node for the identifier \"{}\".",
-                         identifierNode->getIdentifier()->getContent())
+        throwNode(Error::ERROR, identifierNode, "Couldn't find the target node for the "
+                                                "identifier \"{}\".",
+                  identifierNode->getIdentifier()->getContent());
         return;
     }
 
     if (!typedNode->getType()) {
-        THROW_NODE_ERROR(typedNode, "The found identifier has no type.")
+        throwNode(Error::ERROR, typedNode, "The found identifier has no type.");
         return;
     }
 
@@ -333,7 +336,7 @@ void TypeResolver::visit(const SharedIdentifierNode &identifierNode) {
     identifierNode->setTypeResolved(true);
 
     if (identifierNode->isDereference() && identifierNode->getType()->getPointerLevel() <= 0) {
-        THROW_NODE_ERROR(identifierNode, "Can't dereference a non-pointer type.")
+        throwNode(Error::ERROR, identifierNode, "Can't dereference a non-pointer type.");
         return;
     }
 
@@ -346,8 +349,8 @@ void TypeResolver::visit(const SharedIdentifierNode &identifierNode) {
 
     if (identifierNode->getNextIdentifier()
         && !identifierNode->getType()->getTargetStruct()) {
-        THROW_NODE_ERROR(identifierNode, "The identifier has no struct, so there can't be a"
-                                         " following identifier.")
+        throwNode(Error::ERROR, identifierNode, "The identifier has no struct, so there can't be a"
+                                                " following identifier.");
         return;
     }
 
@@ -385,8 +388,8 @@ void TypeResolver::visit(const SharedFunctionArgumentNode &functionArgumentNode)
 
                 auto argumentIndex = utils::indexOf(sortedArguments, functionArgumentNode).second;
                 if (argumentIndex == -1) {
-                    THROW_NODE_ERROR(structCreate, "Couldn't find the argument index for the "
-                                                   "function call.")
+                    throwNode(Error::ERROR, structCreate, "Couldn't find the argument index for "
+                                                          "the function call.");
                     exit(EXIT_FAILURE);
                 }
 
@@ -428,7 +431,8 @@ void TypeResolver::visit(const SharedStructArgumentNode &structArgumentNode) {
             }
 
             if (!structArgumentNode->getType()) {
-                THROW_NODE_ERROR(childCreate, "Couldn't find the variable type for the argument.")
+                throwNode(Error::ERROR, childCreate, "Couldn't find the variable type for "
+                                                     "the argument.");
                 exit(EXIT_FAILURE);
             }
         }
@@ -449,7 +453,7 @@ void TypeResolver::visit(const SharedFunctionCallNode &functionCallNode) {
 
     auto functionNode = std::static_pointer_cast<FunctionNode>(functionCallNode->getTargetNode());
     if (!functionNode) {
-        THROW_NODE_ERROR(functionCallNode, "Couldn't find the function for this call.")
+        throwNode(Error::ERROR, functionCallNode, "Couldn't find the function for this call.");
         exit(EXIT_FAILURE);
     }
 
@@ -479,14 +483,15 @@ void TypeResolver::visit(const SharedStructCreateNode &structCreateNode) {
         auto typedNode = std::dynamic_pointer_cast<TypedNode>(structCreateNode->getParent());
 
         if (!typedNode) {
-            THROW_NODE_ERROR(structCreateNode, "Can't create an unnamed struct, because there is "
-                                               "no type defined by a function/argument or variable.")
+            throwNode(Error::ERROR, structCreateNode, "Can't create an unnamed struct, because "
+                                                      "there is no type defined by a "
+                                                      "function/argument or variable.");
             exit(EXIT_FAILURE);
         }
 
         if (!typedNode->getType() || !typedNode->getType()->getTargetStruct()) {
-            THROW_NODE_ERROR(typedNode, "Can't create an unnamed struct because the type is not "
-                                        "resolved yet.")
+            throwNode(Error::ERROR, typedNode, "Can't create an unnamed struct because the type"
+                                               " is not resolved yet.");
             exit(EXIT_FAILURE);
         }
 
@@ -518,7 +523,7 @@ void TypeResolver::visit(const SharedStructCreateNode &structCreateNode) {
         }
 
         if (!foundVariable) {
-            THROW_NODE_ERROR(argument, "Couldn't find a variable for the argument node.")
+            throwNode(Error::ERROR, argument, "Couldn't find a variable for the argument node.");
             exit(EXIT_FAILURE);
         }
     }
@@ -591,7 +596,7 @@ void TypeResolver::visit(const SharedReturnNode &returnNode) {
 
     auto function = returnNode->findNodeOfParents<FunctionNode>();
     if (!function) {
-        THROW_NODE_ERROR(returnNode, "Return node is not inside of a function.")
+        throwNode(Error::ERROR, returnNode, "Return node is not inside of a function.");
         exit(EXIT_FAILURE);
     }
 
@@ -656,11 +661,24 @@ void TypeResolver::visit(const SharedTypeNode &typeNode) {
         rootNode->searchWithImports(foundNodes, typeNode->getTypeToken()->getContent(), scopeCheck);
 
         if (foundNodes.empty()) {
-            THROW_NODE_ERROR(typeNode, "Couldn't find the struct for the searched identifier.")
+            throwNode(Error::ERROR, typeNode, "Couldn't find the struct for the searched "
+                                              "identifier.");
             exit(EXIT_FAILURE);
         }
 
         typeNode->setTargetStruct(std::static_pointer_cast<StructNode>(foundNodes[0]));
         TypeResolver::visit(typeNode->getTargetStruct());
     }
+}
+
+template<class... Args>
+void TypeResolver::throwNode(unsigned int errorType, const SharedASTNode &node, Args... args) {
+    std::cout << Error((Error::ErrorType) errorType,
+                       node->findNodeOfParents<RootNode>()->getSourcePath(),
+                       node->findNodeOfParents<RootNode>()->getSourceCode(),
+                       node->getStartToken()->getLineNumber(),
+                       node->getEndToken()->getLineNumber(),
+                       node->getStartToken()->getStartChar(),
+                       node->getEndToken()->getEndChar(),
+                       fmt::format(args...));
 }

@@ -139,6 +139,10 @@ public:
     createIdentifier(const SharedASTNode &parent, const SharedSymbolTable &scope,
                      const SharedVariableNode &returnVariable);
 
+private:
+    template<class... Args>
+    static void throwNode(unsigned int errorType, const SharedASTNode &node, Args...args);
+
 };
 
 

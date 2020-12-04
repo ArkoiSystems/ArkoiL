@@ -17,16 +17,6 @@ class Token;
 
 class Parser {
 
-#define THROW_TOKEN_ERROR(...) \
-        std::cout << Error(Error::NOTE, \
-                           m_SourcePath,  \
-                           m_SourceCode,  \
-                           currentToken()->getLineNumber(),  \
-                           currentToken()->getLineNumber(),  \
-                           currentToken()->getStartChar(),  \
-                           currentToken()->getEndChar(),  \
-                           fmt::format(__VA_ARGS__));
-
 private:
     std::vector<std::shared_ptr<Token>> m_Tokens;
     std::string m_SourceCode, m_SourcePath;
@@ -92,5 +82,11 @@ private:
     std::shared_ptr<Token> undoToken(int times = 1, bool advance = true, bool safety = true);
 
     std::shared_ptr<Token> currentToken(bool safety = true);
+
+    template<class... Args>
+    void throwParser(unsigned int errorType, Args...args);
+
+    template<class... Args>
+    void throwNode(unsigned int errorType, const SharedASTNode& node, Args...args);
 
 };

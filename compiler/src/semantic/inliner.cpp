@@ -4,6 +4,8 @@
 
 #include "../../include/semantic/inliner.h"
 
+#include <fmt/core.h>
+
 #include "../../include/parser/symboltable.h"
 #include "../../include/compiler/error.h"
 #include "../../include/parser/astnodes.h"
@@ -85,7 +87,7 @@ SharedVariableNode Inliner::visit(const SharedASTNode &node) {
     } else if (node->getKind() != ASTNode::IMPORT && node->getKind() != ASTNode::PARAMETER
                && node->getKind() != ASTNode::TYPE && node->getKind() != ASTNode::NUMBER
                && node->getKind() != ASTNode::STRING && node->getKind() != ASTNode::OPERABLE) {
-        THROW_NODE_ERROR(node, "Inliner: Unsupported node: " + node->getKindAsString())
+        throwNode(Error::ERROR, node, "Inliner: Unsupported node: " + node->getKindAsString());
         exit(EXIT_FAILURE);
     }
 
@@ -197,9 +199,8 @@ SharedVariableNode Inliner::visit(const SharedFunctionCallNode &functionCallNode
 
     auto callFunction = functionCallNode->findNodeOfParents<FunctionNode>();
     if (!callFunction) {
-        THROW_NODE_ERROR(functionCallNode,
-                         "The calling of an inlined function is currently just valid "
-                         "inside a function block.")
+        throwNode(Error::WARN, functionCallNode, "The calling of an inlined function is "
+                                                 "currently just valid inside a function block.");
         abort();
     }
 
@@ -342,7 +343,7 @@ Inliner::generate(const SharedFunctionCallNode &functionCaller,
         return Inliner::generate(functionCaller, returnVariable,
                                  std::static_pointer_cast<TypeNode>(node), parent, scope);
     } else {
-        THROW_NODE_ERROR(node, "Inliner: Unsupported node: " + node->getKindAsString())
+        throwNode(Error::ERROR, node, "Inliner: Unsupported node: " + node->getKindAsString());
         exit(EXIT_FAILURE);
     }
 }
@@ -808,7 +809,7 @@ Inliner::inlineFunctionCall(const SharedFunctionNode &targetFunction,
         auto generatedNode = Inliner::generate(functionCallNode, returnVariable, node, prefix,
                                                insertBlock, insertBlock->getScope());
         if (!generatedNode) {
-            THROW_NODE_ERROR(node, "Inliner: Couldn't inline this node.")
+            throwNode(Error::ERROR, node, "Inliner: Couldn't inline this node.");
             continue;
         }
 
@@ -846,4 +847,16 @@ Inliner::createIdentifier(const SharedASTNode &parent, const SharedSymbolTable &
     identifierNode->setParent(parent);
     identifierNode->setIdentifier(std::make_shared<Token>(*returnVariable->getName()));
     return identifierNode;
+}
+
+template<class... Args>
+void Inliner::throwNode(unsigned int errorType, const SharedASTNode &node, Args... args) {
+    std::cout << Error((Error::ErrorType) errorType,
+                       node->findNodeOfParents<RootNode>()->getSourcePath(),
+                       node->findNodeOfParents<RootNode>()->getSourceCode(),
+                       node->getStartToken()->getLineNumber(),
+                       node->getEndToken()->getLineNumber(),
+                       node->getStartToken()->getStartChar(),
+                       node->getEndToken()->getEndChar(),
+                       fmt::format(args...));
 }

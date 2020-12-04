@@ -5,7 +5,6 @@
 #include "../../include/compiler/error.h"
 
 #include <utility>
-#include <sstream>
 
 #include "../../include/utils/utils.h"
 #include "../../include/utils/ansi.h"
@@ -33,7 +32,7 @@ std::ostream &operator<<(std::ostream &out, const Error &error) {
     }
 
     auto fileName = error.m_SourcePath.substr(error.m_SourcePath.find_last_of("/\\") + 1);
-    out << fileName << ":" << (error.m_StartLine + 1) << ":" << error.m_StartChar << ": "
+    out << fileName << ":" << (error.m_StartLine + 1) << ": "
         << errorName.str() << ansi::reset << ": " <<  error.m_CauseMessage << std::endl;
 
     auto lines = utils::split(error.m_SourceCode, "\n");
@@ -65,17 +64,17 @@ std::ostream &operator<<(std::ostream &out, const Error &error) {
         utils::rtrim(line);
 
         out << ansi::reset
-            << ansi::cyan << "> " << ansi::bright_cyan << std::string(whitespaces, ' ') << lineIndex
+            << ansi::cyan << " " << ansi::bright_cyan << std::string(whitespaces, ' ') << lineIndex
             << ansi::reset << " | " << line << std::endl;
         if (error.m_StartLine == lineIndex - 1 && error.m_EndLine == lineIndex - 1) {
-            out << "  " << std::string(biggestNumber.size(), ' ') << " | "
+            out << " " << std::string(biggestNumber.size(), ' ') << " | "
                 << std::string(startLineDifference, ' ')
                 << ansi::green
                 << std::string(1, '^')
                 << std::string((endLineDifference - startLineDifference) - 1, '~')
                 << ansi::reset << std::endl;
         } else if (error.m_StartLine == lineIndex - 1 && error.m_EndLine != lineIndex - 1) {
-            out << "  " << std::string(biggestNumber.size(), ' ') << " | "
+            out << " " << std::string(biggestNumber.size(), ' ') << " | "
                 << std::string(startLineDifference, ' ')
                 << ansi::green
                 << std::string(1, '^')
@@ -85,7 +84,7 @@ std::ostream &operator<<(std::ostream &out, const Error &error) {
             auto lastSize = line.size();
             utils::ltrim(line);
             auto difference = lastSize - line.size();
-            out << "  " << std::string(biggestNumber.size(), ' ') << " | "
+            out << " " << std::string(biggestNumber.size(), ' ') << " | "
                 << std::string(difference, ' ')
                 << ansi::green
                 << std::string(1, '^')
@@ -95,7 +94,7 @@ std::ostream &operator<<(std::ostream &out, const Error &error) {
             auto lastSize = line.size();
             utils::ltrim(line);
             auto difference = lastSize - line.size();
-            out << "  " << std::string(biggestNumber.size(), ' ') << " | "
+            out << " " << std::string(biggestNumber.size(), ' ') << " | "
                 << std::string(difference, ' ')
                 << ansi::green
                 << std::string(1, '^')

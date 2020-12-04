@@ -54,4 +54,8 @@ public:
 
     static void visit(const SharedStructNode &structNode);
 
+private:
+    template<class... Args>
+    static void throwNode(unsigned int errorType, const SharedASTNode &node, Args... args);
+
 };

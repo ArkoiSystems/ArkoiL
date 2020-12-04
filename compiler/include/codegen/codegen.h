@@ -129,6 +129,10 @@ public:
 
     static std::string dumpValue(llvm::Value *value);
 
+private:
+    template<class... Args>
+    static void throwNode(unsigned int errorType, const SharedASTNode &node, Args...args);
+
 public:
     [[nodiscard]]
     std::shared_ptr<llvm::Module> getModule() const;

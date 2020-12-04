@@ -1,19 +1,20 @@
-#include "../../include/codegen/codegen.h"
-
 //
 // Created by timo on 8/13/20.
 //
 
-#include "../../include/parser/astnodes.h"
+#include "../../include/codegen/codegen.h"
 
 #include <iostream>
 #include <utility>
 
+#include <fmt/core.h>
+
 #include "../../include/semantic/typeresolver.h"
-#include "../../include/semantic/typecheck.h"
 #include "../../include/semantic/scopecheck.h"
 #include "../../include/parser/symboltable.h"
+#include "../../include/semantic/typecheck.h"
 #include "../../include/semantic/inliner.h"
+#include "../../include/parser/astnodes.h"
 #include "../../include/compiler/error.h"
 #include "../../include/lexer/lexer.h"
 #include "../../include/lexer/token.h"
@@ -78,7 +79,7 @@ void *CodeGen::visit(const SharedASTNode &node) {
     } else if (node->getKind() == ASTNode::STRUCT_CREATE) {
         return CodeGen::visit(std::static_pointer_cast<StructCreateNode>(node));
     } else if (node->getKind() != ASTNode::IMPORT) {
-        THROW_NODE_ERROR(node, "CodeGen: Unsupported node: " + node->getKindAsString())
+        throwNode(Error::ERROR, node, "CodeGen: Unsupported node: " + node->getKindAsString());
         exit(EXIT_FAILURE);
     }
 
@@ -160,7 +161,8 @@ llvm::Type *CodeGen::visit(const SharedTypeNode &typeNode) {
     } else if (typeNode->getBits() == 0) {
         type = llvm::Type::getVoidTy(m_Context);
     } else {
-        THROW_NODE_ERROR(typeNode, "CodeGen: Unsupported type node: " + typeNode->getKindAsString())
+        throwNode(Error::ERROR, typeNode, "CodeGen: Unsupported type node: " +
+                                          typeNode->getKindAsString());
         exit(EXIT_FAILURE);
     }
 
@@ -220,7 +222,7 @@ llvm::Value *CodeGen::visit(const SharedParameterNode &parameterNode) {
     }
 
     if (!parameter) {
-        THROW_NODE_ERROR(parameterNode, "No target value found for this parameter.")
+        throwNode(Error::ERROR, parameterNode, "No target value found for this parameter.");
         exit(EXIT_FAILURE);
     }
 
@@ -320,8 +322,8 @@ llvm::Value *CodeGen::visit(const SharedReturnNode &returnNode) {
 
     auto blockIterator = m_ScopedNodes.back().find(returnNode->findNodeOfParents<BlockNode>());
     if (blockIterator == m_ScopedNodes.back().end()) {
-        THROW_NODE_ERROR(functionNode->getBlock(), "Couldn't find the block details for the return "
-                                                   "statement.")
+        throwNode(Error::ERROR, functionNode->getBlock(), "Couldn't find the block details for "
+                                                          "the return statement.");
         exit(EXIT_FAILURE);
     }
 
@@ -391,8 +393,8 @@ llvm::Value *CodeGen::visit(const SharedUnaryNode &unaryNode) {
         return m_Builder.CreateNeg(expression);
     }
 
-    THROW_NODE_ERROR(unaryNode, "CodeGen: Unsupported unary node: " +
-                                unaryNode->getOperatorKindAsString())
+    throwNode(Error::ERROR, unaryNode, "CodeGen: Unsupported unary node: " +
+                                       unaryNode->getOperatorKindAsString());
     exit(EXIT_FAILURE);
 }
 
@@ -403,8 +405,8 @@ llvm::Value *CodeGen::visit(const SharedParenthesizedNode &parenthesizedNode) {
 llvm::Value *CodeGen::visit(const SharedIdentifierNode &identifierNode) {
     auto typedTarget = std::dynamic_pointer_cast<TypedNode>(identifierNode->getTargetNode());
     if (!typedTarget) {
-        THROW_NODE_ERROR(identifierNode->getTargetNode(), "Can't use a non-typed node as "
-                                                          "an identifier.")
+        throwNode(Error::ERROR, identifierNode->getTargetNode(), "Can't use a non-typed node as "
+                                                                 "an identifier.");
         exit(EXIT_FAILURE);
     }
 
@@ -437,8 +439,8 @@ llvm::Value *CodeGen::visit(const SharedIdentifierNode &identifierNode) {
         typedTarget = variableNode;
 
         if (!variableNode) {
-            THROW_NODE_ERROR(identifierNode->getTargetNode(), "Can't use a non-variable "
-                                                              "node as an sub identifier.")
+            throwNode(Error::ERROR, identifierNode->getTargetNode(), "Can't use a non-variable "
+                                                                     "node as an sub identifier.");
             exit(EXIT_FAILURE);
         }
 
@@ -507,8 +509,8 @@ llvm::Value *CodeGen::visit(const SharedBinaryNode &binaryNode) {
                 return CodeGen::makeNE(isFloating, lhsValue, rhsValue);
 
             default:
-                THROW_NODE_ERROR(binaryNode, "Unsupported binary node: " +
-                                             binaryNode->getOperatorKindAsString())
+                throwNode(Error::ERROR, binaryNode, "Unsupported binary node: " +
+                                                    binaryNode->getOperatorKindAsString());
                 exit(EXIT_FAILURE);
         }
     }
@@ -658,7 +660,8 @@ llvm::Value *CodeGen::visit(const SharedVariableNode &variableNode) {
         m_ScopedNodes[0].emplace(variableNode, globalVariable);
 
         // TODO: Issue 1
-        THROW_NODE_ERROR(variableNode, "Expressions for global variables are not implemented yet.")
+        throwNode(Error::NOTE, variableNode, "Expressions for global variables are not "
+                                             "implemented yet.");
         return m_Builder.CreateLoad(globalVariable);
     } else if (variableNode->isLocal()) {
         auto variableIterator = m_ScopedNodes.back().find(variableNode);
@@ -703,7 +706,8 @@ llvm::Value *CodeGen::visit(const SharedVariableNode &variableNode) {
         return valueRef;
     }
 
-    THROW_NODE_ERROR(variableNode, "Couldn't create this variable because it isn't local/global.")
+    throwNode(Error::ERROR, variableNode, "Couldn't create this variable because it isn't "
+                                          "local/global.");
     exit(EXIT_FAILURE);
 }
 
@@ -878,6 +882,18 @@ std::string CodeGen::dumpValue(llvm::Value *value) {
     utils::rtrim(dumpedCode);
 
     return dumpedCode;
+}
+
+template<class... Args>
+void CodeGen::throwNode(unsigned int errorType, const SharedASTNode &node, Args... args) {
+    std::cout << Error((Error::ErrorType) errorType,
+                       node->findNodeOfParents<RootNode>()->getSourcePath(),
+                       node->findNodeOfParents<RootNode>()->getSourceCode(),
+                       node->getStartToken()->getLineNumber(),
+                       node->getEndToken()->getLineNumber(),
+                       node->getStartToken()->getStartChar(),
+                       node->getEndToken()->getEndChar(),
+                       fmt::format(args...));
 }
 
 std::shared_ptr<llvm::Module> CodeGen::getModule() const {

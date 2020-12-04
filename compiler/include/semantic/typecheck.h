@@ -52,4 +52,8 @@ public:
 
     static void visit(const SharedParameterNode &parameterNode);
 
+private:
+    template<class... Args>
+    static void throwNode(unsigned int errorType, const SharedASTNode& node, Args...args);
+
 };

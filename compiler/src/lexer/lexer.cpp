@@ -219,9 +219,8 @@ void Lexer::parseString(const std::shared_ptr<Token> &token) {
     }
 
     if (m_SourceCode[m_Position] != '"') {
-        THROW_LEXER_ERROR(token->getStartChar(), m_Position,
-                          "Strings must be terminated correctly.")
-
+        throwError(Error::ERROR, token->getStartChar(), m_Position,
+                   "Strings must be terminated correctly.");
         if (m_SourceCode[m_Position] == '\n')
             m_Position--;
     }
@@ -298,8 +297,8 @@ void Lexer::parseMultiLineString(const std::shared_ptr<Token> &token) {
     if ((m_Position + 2 >= m_SourceCode.size() - 1)
         || !(m_SourceCode[m_Position] == '"' && m_SourceCode[m_Position + 1] == '"'
              && m_SourceCode[m_Position + 2] == '"')) {
-        THROW_LEXER_ERROR(token->getStartChar(), m_Position, "Multiline strings must be terminated "
-                                                             "correctly.")
+        throwError(Error::ERROR, token->getStartChar(), m_Position,
+                   "Multiline strings must be terminated correctly.");
         return;
     }
 
@@ -371,4 +370,11 @@ void Lexer::parseRemaining(const std::shared_ptr<Token> &token) {
             token->setType(Token::INVALID);
             break;
     }
+}
+
+template<class... Args>
+void Lexer::throwError(unsigned int errorType, unsigned int startChar, unsigned int endChar,
+                       Args... args) {
+    std::cout << Error((Error::ErrorType) errorType, m_SourcePath, m_SourceCode,
+                       m_CurrentLine, m_CurrentLine, startChar, endChar, fmt::format(args...));
 }

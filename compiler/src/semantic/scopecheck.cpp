@@ -4,6 +4,8 @@
 
 #include "../../include/semantic/scopecheck.h"
 
+#include <fmt/core.h>
+
 #include "../../include/parser/symboltable.h"
 #include "../../include/parser/astnodes.h"
 #include "../../include/compiler/error.h"
@@ -46,8 +48,7 @@ void ScopeCheck::visit(const SharedASTNode &node) {
         ScopeCheck::visit(std::static_pointer_cast<StructNode>(node));
     } else if (node->getKind() != ASTNode::TYPE && node->getKind() != ASTNode::NUMBER &&
                node->getKind() != ASTNode::STRING) {
-        THROW_NODE_ERROR(node, "ScopeCheck: Unsupported node: " + node->getKindAsString())
-        exit(EXIT_FAILURE);
+        throwNode(Error::ERROR, node, "ScopeCheck: Unsupported node: " + node->getKindAsString());
     }
 }
 
@@ -64,7 +65,8 @@ void ScopeCheck::visit(const SharedImportNode &importNode) {
 
         auto rootImport = std::static_pointer_cast<ImportNode>(node);
         if (rootImport->getPath()->getContent() == importNode->getPath()->getContent()) {
-            THROW_NODE_ERROR(importNode, "There is already another import with the same path.")
+            throwNode(Error::ERROR, importNode, "There is already another import with the "
+                                                "same path.");
             return;
         }
     }
@@ -84,8 +86,8 @@ void ScopeCheck::visit(const SharedFunctionNode &functionNode) {
         }
 
         if (returns.empty() && functionNode->getType()->getBits() != 0) {
-            THROW_NODE_ERROR(functionNode,
-                             "Non-void functions need to have at least one return statement.")
+            throwNode(Error::ERROR, functionNode, "Non-void functions need to have at least one "
+                                                  "return statement.");
             return;
         }
     }
@@ -103,7 +105,7 @@ void ScopeCheck::visit(const SharedFunctionNode &functionNode) {
     rootNode->searchWithImports(foundNodes, functionNode->getName()->getContent(), scopeCheck);
 
     if (foundNodes.size() > 1) {
-        THROW_NODE_ERROR(functionNode, "There already exists a similar function.")
+        throwNode(Error::ERROR, functionNode, "There already exists a similar function.");
         return;
     }
 
@@ -124,7 +126,8 @@ void ScopeCheck::visit(const SharedBlockNode &blockNode) {
         auto targetReturn = returns.at(0);
         auto returnIndex = utils::indexOf(blockNode->getNodes(), targetReturn);
         if (returnIndex.second != blockNode->getNodes().size() - 1) {
-            THROW_NODE_ERROR(targetReturn, "Everything after a return statement is unreachable.")
+            throwNode(Error::ERROR, targetReturn, "Everything after a return statement is "
+                                                  "unreachable.");
             return;
         }
     }
@@ -142,7 +145,7 @@ void ScopeCheck::visit(const SharedParameterNode &parameterNode) {
     parameterNode->getScope()->scope(foundNodes, parameterNode->getName()->getContent(),
                                      scopeCheck);
     if (foundNodes.size() > 1) {
-        THROW_NODE_ERROR(parameterNode, "There already exists a similar parameter.")
+        throwNode(Error::ERROR, parameterNode, "There already exists a similar parameter.");
         return;
     }
 }
@@ -168,7 +171,7 @@ void ScopeCheck::visit(const SharedVariableNode &variableNode) {
                                       scopeCheck);
 
         if (foundNodes.size() > 1) {
-            THROW_NODE_ERROR(variableNode, "There already exists a similar variable.")
+            throwNode(Error::ERROR, variableNode, "There already exists a similar variable.");
             return;
         }
     } else if (foundNodes.empty()) {
@@ -178,13 +181,13 @@ void ScopeCheck::visit(const SharedVariableNode &variableNode) {
         rootNode->searchWithImports(foundNodes, variableNode->getName()->getContent(), scopeCheck);
 
         if (foundNodes.size() > 1) {
-            THROW_NODE_ERROR(variableNode, "There already exists a similar variable.")
+            throwNode(Error::ERROR, variableNode, "There already exists a similar variable.");
             return;
         }
     }
 
     if (foundNodes.size() > 1) {
-        THROW_NODE_ERROR(variableNode, "There already exists a similar variable.")
+        throwNode(Error::ERROR, variableNode, "There already exists a similar variable.");
         return;
     }
 
@@ -224,18 +227,19 @@ void ScopeCheck::visit(const SharedIdentifierNode &identifierNode) {
         variableParentIndex = utils::indexOf(rootNode->getNodes(), variableParent).second;
         targetVariableIndex = utils::indexOf(rootNode->getNodes(), targetVariable).second;
     } else {
-        THROW_NODE_ERROR(identifierNode, "Case not implemented for the \"loaded variable\" check.")
+        throwNode(Error::ERROR, identifierNode, "Case not implemented for the "
+                                                "\"loaded variable\" check.");
         exit(EXIT_FAILURE);
     }
 
     if (variableParentIndex == -1 || targetVariableIndex == -1) {
-        THROW_NODE_ERROR(identifierNode, "Couldn't find the indices for the identifier.")
+        throwNode(Error::ERROR, identifierNode, "Couldn't find the indices for the identifier.");
         return;
     }
 
     if (targetVariableIndex > variableParentIndex) {
-        THROW_NODE_ERROR(identifierNode, "Couldn't target the variable because it's not created "
-                                         "yet.")
+        throwNode(Error::ERROR, identifierNode, "Couldn't target the variable because it's not "
+                                                "created yet.");
         return;
     }
 }
@@ -270,7 +274,7 @@ void ScopeCheck::visit(const SharedStructArgumentNode &structArgumentNode) {
     structArgumentNode->getScope()->scope(foundNodes, structArgumentNode->getName()->getContent(),
                                           scopeCheck);
     if (foundNodes.size() > 1) {
-        THROW_NODE_ERROR(structArgumentNode, "There already exists a similar argument.")
+        throwNode(Error::ERROR, structArgumentNode, "There already exists a similar argument.");
         return;
     }
 
@@ -292,7 +296,7 @@ void ScopeCheck::visit(const SharedFunctionArgumentNode &functionArgumentNode) {
     functionArgumentNode->getScope()->scope(
             foundNodes, functionArgumentNode->getName()->getContent(), scopeCheck);
     if (foundNodes.size() > 1) {
-        THROW_NODE_ERROR(functionArgumentNode, "There already exists a similar argument.")
+        throwNode(Error::ERROR, functionArgumentNode, "There already exists a similar argument.");
         return;
     }
 
@@ -316,4 +320,16 @@ void ScopeCheck::visit(const SharedReturnNode &returnNode) {
 void ScopeCheck::visit(const SharedStructNode &structNode) {
     for (const auto &variable : structNode->getVariables())
         ScopeCheck::visit(variable);
+}
+
+template<class... Args>
+void ScopeCheck::throwNode(unsigned int errorType, const SharedASTNode &node, Args... args) {
+    std::cout << Error((Error::ErrorType) errorType,
+                       node->findNodeOfParents<RootNode>()->getSourcePath(),
+                       node->findNodeOfParents<RootNode>()->getSourceCode(),
+                       node->getStartToken()->getLineNumber(),
+                       node->getEndToken()->getLineNumber(),
+                       node->getStartToken()->getStartChar(),
+                       node->getEndToken()->getEndChar(),
+                       fmt::format(args...));
 }

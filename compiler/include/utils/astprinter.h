@@ -82,6 +82,10 @@ public:
     static void visit(const SharedStructNode &structNode,
                       std::ostream &output, int indents = 0);
 
+private:
+    template<class... Args>
+    static void throwNode(unsigned int errorType, const SharedASTNode &node, Args...args);
+
 };
 
 

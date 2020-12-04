@@ -6,25 +6,13 @@
 
 #include <string>
 
-#include <fmt/core.h>
-
-#define THROW_NODE_ERROR(node, ...) \
-        std::cout << Error(Error::NOTE,         \
-                           node->findNodeOfParents<RootNode>()->getSourcePath(),  \
-                           node->findNodeOfParents<RootNode>()->getSourceCode(),  \
-                           node->getStartToken()->getLineNumber(),  \
-                           node->getEndToken()->getLineNumber(),  \
-                           node->getStartToken()->getStartChar(),  \
-                           node->getEndToken()->getEndChar(),  \
-                           fmt::format(__VA_ARGS__));
-
 class Error {
 
 public:
-    enum ErrorType {
-        WARN,
-        ERROR,
-        NOTE
+    enum ErrorType : unsigned int {
+        WARN = 0u,
+        ERROR = 1u,
+        NOTE = 2u
     };
 
 private:
@@ -40,7 +28,7 @@ public:
     Error(const Error &) = delete;
 
     Error &operator=(const Error &) = delete;
-
+    
 public:
     friend std::ostream &operator<<(std::ostream &out, const Error &error);
 

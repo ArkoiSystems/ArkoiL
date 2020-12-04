@@ -9,6 +9,7 @@
 #include <chrono>
 
 #include <llvm/IR/Verifier.h>
+#include <fmt/core.h>
 
 #include "../../include/semantic/typeresolver.h"
 #include "../../include/semantic/scopecheck.h"
@@ -143,7 +144,7 @@ int Compiler::loadImports(const CompilerOptions &compilerOptions, std::set<std::
             }
 
             if (!importRoot) {
-                THROW_NODE_ERROR(importNode, "Couldn't find the file with this path.")
+                throwNode(Error::ERROR, importNode, "Couldn't find the file with this path.");
                 return EXIT_FAILURE;
             }
 
@@ -175,4 +176,16 @@ std::shared_ptr<Parser> Compiler::loadFile(const std::string &sourcePath) {
     auto tokens = lexer.getTokens();
 
     return std::make_shared<Parser>(sourcePath, contents, tokens);
+}
+
+template<class... Args>
+void Compiler::throwNode(unsigned int errorType, const SharedASTNode &node, Args... args) {
+    std::cout << Error((Error::ErrorType) errorType,
+                       node->findNodeOfParents<RootNode>()->getSourcePath(),
+                       node->findNodeOfParents<RootNode>()->getSourceCode(),
+                       node->getStartToken()->getLineNumber(),
+                       node->getEndToken()->getLineNumber(),
+                       node->getStartToken()->getStartChar(),
+                       node->getEndToken()->getEndChar(),
+                       fmt::format(args...));
 }

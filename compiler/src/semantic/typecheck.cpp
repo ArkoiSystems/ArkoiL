@@ -4,6 +4,8 @@
 
 #include "../../include/semantic/typecheck.h"
 
+#include <fmt/core.h>
+
 #include "../../include/parser/symboltable.h"
 #include "../../include/parser/astnodes.h"
 #include "../../include/compiler/error.h"
@@ -48,7 +50,7 @@ void TypeCheck::visit(const SharedASTNode &node) {
     } else if (node->getKind() != ASTNode::IMPORT &&
                node->getKind() != ASTNode::STRING && node->getKind() != ASTNode::NUMBER &&
                node->getKind() != ASTNode::TYPE) {
-        THROW_NODE_ERROR(node, "TypeCheck: Unsupported node: " + node->getKindAsString())
+        throwNode(Error::ERROR, node, "TypeCheck: Unsupported node: " + node->getKindAsString());
         exit(EXIT_FAILURE);
     }
 }
@@ -65,18 +67,18 @@ void TypeCheck::visit(const SharedStructNode &structNode) {
 
 void TypeCheck::visit(const SharedVariableNode &variableNode) {
     if (variableNode->getType()->isVoid()) {
-        THROW_NODE_ERROR(variableNode, "You can't declare a variable with void as a type.")
+        throwNode(Error::ERROR, variableNode, "You can't declare a variable with void as a type.");
         return;
     }
 
     if (!variableNode->getExpression() && variableNode->isConstant()) {
-        THROW_NODE_ERROR(variableNode, "Constant variables need an expression.")
+        throwNode(Error::ERROR, variableNode, "Constant variables need an expression.");
         return;
     }
 
     if (!variableNode->getExpression() && !variableNode->getType()) {
-        THROW_NODE_ERROR(variableNode, "There must be specified a return type if no expression "
-                                       "exists.")
+        throwNode(Error::ERROR, variableNode, "There must be specified a return type if no "
+                                              "expression exists.");
         return;
     }
 
@@ -86,7 +88,8 @@ void TypeCheck::visit(const SharedVariableNode &variableNode) {
     TypeCheck::visit(variableNode->getExpression());
 
     if (*variableNode->getExpression()->getType() != *variableNode->getType()) {
-        THROW_NODE_ERROR(variableNode, "The expression type doesn't match that of the variable.")
+        throwNode(Error::ERROR, variableNode, "The expression type doesn't match that of the "
+                                              "variable.");
         return;
     }
 }
@@ -110,7 +113,8 @@ void TypeCheck::visit(const SharedIdentifierNode &identifierNode) {
 
     if (identifierNode->getType()->getPointerLevel() > 0
         && !identifierNode->isDereference() && identifierNode->getNextIdentifier()) {
-        THROW_NODE_ERROR(identifierNode, "You can't access data from a not dereferenced variable.")
+        throwNode(Error::ERROR, identifierNode, "You can't access data from a not dereferenced "
+                                                "variable.");
         return;
     }
 
@@ -135,7 +139,7 @@ void TypeCheck::visit(const SharedStructArgumentNode &structArgumentNode) {
 void TypeCheck::visit(const SharedReturnNode &returnNode) {
     auto functionNode = returnNode->findNodeOfParents<FunctionNode>();
     if (!returnNode->getExpression() && functionNode->getType()->getBits() != 0) {
-        THROW_NODE_ERROR(returnNode, "You can't return void on a non-void function.")
+        throwNode(Error::ERROR, returnNode, "You can't return void on a non-void function.");
         return;
     }
 
@@ -143,8 +147,8 @@ void TypeCheck::visit(const SharedReturnNode &returnNode) {
         return;
 
     if (*returnNode->getExpression()->getType() != *functionNode->getType()) {
-        THROW_NODE_ERROR(returnNode, "The return statement uses a different type than the "
-                                     "function.")
+        throwNode(Error::ERROR, returnNode, "The return statement uses a different type than the "
+                                            "function.");
         return;
     }
 
@@ -153,8 +157,8 @@ void TypeCheck::visit(const SharedReturnNode &returnNode) {
 
 void TypeCheck::visit(const SharedAssignmentNode &assignmentNode) {
     if (*assignmentNode->getType() != *assignmentNode->getExpression()->getType()) {
-        THROW_NODE_ERROR(assignmentNode, "The assignment expression uses a different type than the "
-                                         "variable.")
+        throwNode(Error::ERROR, assignmentNode, "The assignment expression uses a different type"
+                                                " than the variable.");
         return;
     }
 
@@ -164,7 +168,7 @@ void TypeCheck::visit(const SharedAssignmentNode &assignmentNode) {
             auto variableNode = std::static_pointer_cast<VariableNode>(
                     checkIdentifier->getTargetNode());
             if (variableNode->isConstant()) {
-                THROW_NODE_ERROR(checkIdentifier, "Constant variables can't be reassigned.")
+                throwNode(Error::ERROR, checkIdentifier, "Constant variables can't be reassigned.");
                 return;
             }
         }
@@ -177,7 +181,7 @@ void TypeCheck::visit(const SharedAssignmentNode &assignmentNode) {
 
 void TypeCheck::visit(const SharedStructCreateNode &structCreateNode) {
     if (!structCreateNode->getType()->getTargetStruct()) {
-        THROW_NODE_ERROR(structCreateNode, "Struct creation has no target struct.")
+        throwNode(Error::ERROR, structCreateNode, "Struct creation has no target struct.");
         return;
     }
 
@@ -188,13 +192,13 @@ void TypeCheck::visit(const SharedStructCreateNode &structCreateNode) {
         auto variableIndex = utils::indexOf(structCreateNode->getArguments(), argument).second;
         auto variable = targetStruct->getVariables().at(variableIndex);
         if (*argument->getType() != *variable->getType()) {
-            THROW_NODE_ERROR(argument, "The struct create argument uses a different type than the "
-                                       "variable.")
+            throwNode(Error::ERROR, argument, "The struct create argument uses a different type "
+                                              "than the variable.");
             return;
         }
 
         if (variable->isConstant()) {
-            THROW_NODE_ERROR(argument, "Constant variables can't be reassigned.")
+            throwNode(Error::ERROR, argument, "Constant variables can't be reassigned.");
             return;
         }
     }
@@ -219,12 +223,12 @@ void TypeCheck::visit(const SharedBinaryNode &binaryNode) {
         case BinaryNode::REMAINING:
             if (!binaryNode->getLHS()->getType()->isNumeric() ||
                 binaryNode->getLHS()->getType()->getPointerLevel() != 0)
-                THROW_NODE_ERROR(binaryNode->getLHS(), "Left side of the binary expression is not "
-                                                       "numeric.")
+                throwNode(Error::ERROR, binaryNode->getLHS(), "Left side of the binary expression "
+                                                              "is not numeric.");
             if (!binaryNode->getRHS()->getType()->isNumeric() ||
                 binaryNode->getRHS()->getType()->getPointerLevel() != 0)
-                THROW_NODE_ERROR(binaryNode->getRHS(), "Right side of the binary expression is not "
-                                                       "numeric.")
+                throwNode(Error::ERROR, binaryNode->getRHS(), "Right side of the binary expression "
+                                                              "is not numeric.");
             break;
 
         case BinaryNode::BIT_CAST:
@@ -243,7 +247,8 @@ void TypeCheck::visit(const SharedUnaryNode &unaryNode) {
         case UnaryNode::NEGATE:
             if (!unaryNode->getExpression()->getType()->isNumeric() ||
                 unaryNode->getExpression()->getType()->getPointerLevel() != 0)
-                THROW_NODE_ERROR(unaryNode->getExpression(), "Unary expression is not numeric.")
+                throwNode(Error::ERROR, unaryNode->getExpression(), "Unary expression is not "
+                                                                    "numeric.");
             break;
 
         default:
@@ -258,7 +263,20 @@ void TypeCheck::visit(const SharedParenthesizedNode &parenthesizedNode) {
 
 void TypeCheck::visit(const SharedParameterNode &parameterNode) {
     if (parameterNode->getType()->isVoid()) {
-        THROW_NODE_ERROR(parameterNode, "You can't declare a parameter with void as a type.")
+        throwNode(Error::ERROR, parameterNode, "You can't declare a parameter with void "
+                                               "as a type.");
         return;
     }
+}
+
+template<class... Args>
+void TypeCheck::throwNode(unsigned int errorType, const SharedASTNode &node, Args... args) {
+    std::cout << Error((Error::ErrorType) errorType,
+                       node->findNodeOfParents<RootNode>()->getSourcePath(),
+                       node->findNodeOfParents<RootNode>()->getSourceCode(),
+                       node->getStartToken()->getLineNumber(),
+                       node->getEndToken()->getLineNumber(),
+                       node->getStartToken()->getStartChar(),
+                       node->getEndToken()->getEndChar(),
+                       fmt::format(args...));
 }

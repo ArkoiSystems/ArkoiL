@@ -4,6 +4,8 @@
 
 #include "../../include/utils/astprinter.h"
 
+#include <fmt/core.h>
+
 #include "../../include/parser/astnodes.h"
 #include "../../include/compiler/error.h"
 #include "../../include/lexer/token.h"
@@ -50,7 +52,7 @@ void ASTPrinter::visit(const SharedASTNode &node,
     } else if (node->getKind() == ASTNode::STRUCT) {
         ASTPrinter::visit(std::static_pointer_cast<StructNode>(node), output, indents);
     } else {
-        THROW_NODE_ERROR(node, "ASTPrinter: Unsupported node: " + node->getKindAsString())
+        throwNode(Error::ERROR, node, "ASTPrinter: Unsupported node: " + node->getKindAsString());
         exit(EXIT_FAILURE);
     }
 }
@@ -362,4 +364,16 @@ void ASTPrinter::visit(const SharedStructNode &structNode,
 
     output << std::string(indents, '\t')
            << "}" << std::endl;
+}
+
+template<class... Args>
+void ASTPrinter::throwNode(unsigned int errorType, const SharedASTNode &node, Args... args) {
+    std::cout << Error((Error::ErrorType) errorType,
+                       node->findNodeOfParents<RootNode>()->getSourcePath(),
+                       node->findNodeOfParents<RootNode>()->getSourceCode(),
+                       node->getStartToken()->getLineNumber(),
+                       node->getEndToken()->getLineNumber(),
+                       node->getStartToken()->getStartChar(),
+                       node->getEndToken()->getEndChar(),
+                       fmt::format(args...));
 }
