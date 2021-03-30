@@ -24,13 +24,13 @@
 #include "../../include/lexer/lexer.h"
 #include "../../include/lexer/token.h"
 
-int Compiler::compile(const CompilerOptions &compilerOptions) {
+int Compiler::compile(const std::shared_ptr<CompilerOptions> &compilerOptions) {
     auto start = std::chrono::high_resolution_clock::now();
 
     std::vector<SharedRootNode> roots;
 
     SharedRootNode sourceRoot;
-    if (auto parser = Compiler::loadFile(compilerOptions.m_SourceFile)) {
+    if (auto parser = Compiler::loadFile(compilerOptions->m_SourceFile)) {
         sourceRoot = parser->parseRoot();
         roots.emplace_back(sourceRoot);
     } else return EXIT_FAILURE;
@@ -59,7 +59,7 @@ int Compiler::compile(const CompilerOptions &compilerOptions) {
     auto moduleName = sourceRoot->getSourcePath();
     moduleName = moduleName.substr(moduleName.rfind('/') + 1, moduleName.length());
 
-    if (compilerOptions.mb_VerboseArkoiRepresentation) {
+    if (compilerOptions->mb_VerboseArkoiRepresentation) {
         std::cout << "[" << moduleName << "] Printing the representation:" << std::endl;
 
         for (const auto &rootNode : roots) {
@@ -71,12 +71,12 @@ int Compiler::compile(const CompilerOptions &compilerOptions) {
     CodeGen codeGen(moduleName);
     codeGen.visit(sourceRoot);
 
-    if (compilerOptions.mb_VerboseLLVM_IR) {
+    if (compilerOptions->mb_VerboseLLVM_IR) {
         std::cout << "[" << moduleName << "] Printing the bitcode:" << std::endl;
         std::cout << codeGen.dumpModule() << std::endl;
     }
 
-    if (compilerOptions.mb_VerboseModuleVerify)
+    if (compilerOptions->mb_VerboseModuleVerify)
         std::cout << std::endl << "[" << moduleName << "] Verifying the module:" << std::endl;
 
     auto module = codeGen.getModule();
@@ -84,7 +84,7 @@ int Compiler::compile(const CompilerOptions &compilerOptions) {
     llvm::raw_string_ostream output(errors);
 
     if (llvm::verifyModule(*module, &output, nullptr)) {
-        if (compilerOptions.mb_VerboseModuleVerify) {
+        if (compilerOptions->mb_VerboseModuleVerify) {
             std::cout << "There was a problem during the verification of the module: "
                       << std::endl << " " << errors << std::endl;
             exit(EXIT_FAILURE);
@@ -97,7 +97,7 @@ int Compiler::compile(const CompilerOptions &compilerOptions) {
         }
     }
 
-    if (compilerOptions.mb_VerboseModuleVerify)
+    if (compilerOptions->mb_VerboseModuleVerify)
         std::cout << "Verified the module and found no errors." << std::endl;
 
     auto finish = std::chrono::high_resolution_clock::now();
@@ -107,7 +107,8 @@ int Compiler::compile(const CompilerOptions &compilerOptions) {
     return EXIT_SUCCESS;
 }
 
-int Compiler::loadImports(const CompilerOptions &compilerOptions, std::set<std::string> &loaded,
+int Compiler::loadImports(const std::shared_ptr<CompilerOptions> &compilerOptions,
+                          std::set<std::string> &loaded,
                           std::vector<SharedRootNode> &roots) {
     for (const auto &rootNode : roots) {
         for (const auto &node : rootNode->getNodes()) {
@@ -117,7 +118,7 @@ int Compiler::loadImports(const CompilerOptions &compilerOptions, std::set<std::
             auto importNode = std::dynamic_pointer_cast<ImportNode>(node);
             SharedRootNode importRoot;
 
-            for (const auto &searchPath : compilerOptions.m_SearchPaths) {
+            for (const auto &searchPath : compilerOptions->m_SearchPaths) {
                 auto fullPath = std::filesystem::absolute(
                         searchPath + "/" + importNode->getPath()->getContent() + ".ark");
 

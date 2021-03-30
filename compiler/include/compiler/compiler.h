@@ -24,9 +24,9 @@ public:
     Compiler &operator=(const Compiler &) = delete;
 
 public:
-    static int compile(const CompilerOptions &compilerOptions);
+    static int compile(const std::shared_ptr<CompilerOptions> &compilerOptions);
 
-    static int loadImports(const CompilerOptions &root,
+    static int loadImports(const std::shared_ptr<CompilerOptions> &root,
                            std::set<std::string> &loaded,
                            std::vector<SharedRootNode> &roots);
 

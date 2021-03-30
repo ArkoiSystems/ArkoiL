@@ -1,0 +1,20 @@
+ 1) TYPE System is pretty unusable like separate nodes for Strings, Numbers etc.
+ 2) Every node needs to have a start token, end token, parent, scope etc.
+ 3) Deep copying e.g. for inlining a function is not working probably.
+ 4) Stages need to be separated they should not interact with each other in a circular
+    way.
+ 5) To much use of shared_ptr.
+ 6) No strict order in semantically analysis (scope are getting set in the parser).
+ 7) No own IR so it's not that compatible with own VMs, Interpreters etc. (besides the
+    llvm functionalities).
+ 8) Error are not as flexible as intended.
+ 9) Trying to focus on C & C++ compatibility
+
+ 1. WIP
+ 2. & 8. Nodes can have metadata e.g. source location. It is not required to have metadata
+         and is just used to print errors or something for the user.
+ 3. WIP
+ 5. WIP
+ 4. & 6. Inliner > Scope Resolver > Type Resolver > Scope Check > Type Check
+         > General Check
+ 7. Creating own IR to get things working much easier than before.

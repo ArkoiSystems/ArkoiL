@@ -1,53 +1,57 @@
 #include <iostream>
 
-#include "../include/utils/optionparser.h"
+#include <filesystem>
+
+#include <cxxopts.hpp>
+
 #include "../include/compiler/compiler.h"
 #include "../include/compiler/options.h"
 
-int main(int argc, char *argv[]) {
-    CompilerOptions compilerOptions{};
-    OptionParser args("The official Arkoi Language Compiler.");
+std::shared_ptr<CompilerOptions> parse(int argc, char *argv[]) {
+    auto compilerOptions = std::make_shared<CompilerOptions>();
 
-    args.addArgument({"-e", "--entry"},
-                     &compilerOptions.m_SourceFile,
-                     "Entry file for the compiler.");
-    args.addArgument({"-I", "--include"},
-                     OptionParser::OptionValue(),
-                     "Adds the directory to the search paths.",
-                     [&compilerOptions](const std::string &value) {
-                         compilerOptions.m_SearchPaths.push_back(value);
-                     });
-    args.addArgument({"-vlir", "--verbose-llvm-ir"},
-                     &compilerOptions.mb_VerboseLLVM_IR,
-                     "Enables debugging in the console for the LLVM IR.");
-    args.addArgument({"-vmv", "--verbose-module-verify"},
-                     &compilerOptions.mb_VerboseModuleVerify,
-                     "Enables debugging in the console for the module verify.");
-    args.addArgument({"-var", "--verbose-arkoi-representation"},
-                     &compilerOptions.mb_VerboseArkoiRepresentation,
-                     "Enables debugging in the console for the arkoi representation.");
-    args.addArgument({"-h", "--help"},
-                     OptionParser::OptionValue(),
-                     "Prints this list in the console.",
-                     [&args](const std::string &value) {
-                         args.printHelp();
-                     });
+    auto baseName = std::filesystem::path(argv[0]).filename();
+    cxxopts::Options options(baseName, "The offical Arkoi Language compiler");
+    options.show_positional_help();
+
+    options.add_options("general")
+            ("e,entry", "Entry file for the compiler.", cxxopts::value<std::string>())
+            ("I,include","Adds the directory to the search paths.",cxxopts::value<std::vector<std::string>>())
+            ("h,help", "Prints this list in the console.");
+    options.add_options("verbose")
+            ("vlir", "Enables debugging in the console for the LLVM IR.")
+            ("vmv", "Enables debugging in the console for the module verify.")
+            ("var", "Enables debugging in the console for the arkoi representation.");
 
     try {
-        args.parse(argc, argv);
-    } catch (const std::runtime_error &error) {
-        std::cout << error.what() << std::endl;
-        return EXIT_FAILURE;
+        auto result = options.parse(argc, argv);
+        if (result.count("help"))
+            throw std::runtime_error("Print help");
+
+        if(!result.count("e")) {
+            std::cout << "You need to declare an entry file for the compiler. "
+                         "Use --help to see a list of options." << std::endl;
+            exit(EXIT_FAILURE);
+        }
+
+        compilerOptions->m_SourceFile = result["e"].as<std::string>();
+        compilerOptions->mb_VerboseLLVM_IR = result["vlir"].as<bool>();
+        compilerOptions->mb_VerboseModuleVerify = result["vmv"].as<bool>();
+        compilerOptions->mb_VerboseArkoiRepresentation = result["var"].as<bool>();
+
+        if(result.count("I"))
+            compilerOptions->m_SearchPaths = result["I"].as<std::vector<std::string>>();
+
+        compilerOptions->m_SearchPaths.push_back(compilerOptions->m_SourceFile.substr(0, compilerOptions->m_SourceFile.rfind('/')));
+    } catch (...) {
+        std::cout << options.help() << std::endl;
+        exit(EXIT_FAILURE);
     }
 
-    if (compilerOptions.m_SourceFile.empty()) {
-        std::cout << "You need to declare an entry file for the compiler. "
-                     "Use --help to see a list of options." << std::endl;
-        return EXIT_FAILURE;
-    }
+    return compilerOptions;
+}
 
-    compilerOptions.m_SearchPaths.push_back(
-            compilerOptions.m_SourceFile.substr(0, compilerOptions.m_SourceFile.rfind('/')));
-
+int main(int argc, char *argv[]) {
+    auto compilerOptions = parse(argc, argv);
     return Compiler::compile(compilerOptions);
 }

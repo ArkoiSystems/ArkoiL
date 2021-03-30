@@ -2,6 +2,9 @@ set(CMAKE_MODULE_PATH ../cmake ${CMAKE_MODULE_PATH})
 
 find_package(fmt 7.0.3 REQUIRED)
 
+add_subdirectory(lib/cxxopts-2.2.1)
+include_directories(lib/cxxopts-2.2.1/include)
+
 find_package(LLVM REQUIRED)
 include_directories(${LLVM_INCLUDE_DIRS})
 
@@ -31,8 +34,6 @@ set(SOURCE_FILES
         ../include/semantic/scopecheck.h
         codegen/codegen.cpp
         ../include/codegen/codegen.h
-        utils/optionparser.cpp
-        ../include/utils/optionparser.h
         semantic/inliner.cpp
         ../include/semantic/inliner.h
         utils/astprinter.cpp
@@ -74,6 +75,7 @@ set_target_properties(arkoic_exe
         OUTPUT_NAME "arkoic")
 target_link_libraries(arkoic_exe LINK_PUBLIC
         fmt::fmt
+        cxxopts
         ${LLVM_LIBRARIES}
         ${LLD_LIBRARIES})
 
